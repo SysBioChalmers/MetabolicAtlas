@@ -1,0 +1,53 @@
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg" height="71" width="405" version="1.1" id="hmaLogo">
+  <desc></desc>
+  <defs>
+    <style type="text/css">
+      <![CDATA[
+          @font-face {
+            font-family: 'Yanone Kaffeesatz';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Yanone Kaffeesatz Bold'), local('YanoneKaffeesatz-Bold'), url(http://themes.googleusercontent.com/static/fonts/yanonekaffeesatz/v4/We_iSDqttE3etzfdfhuPRWwXwFHHZlCwprwJOQ-Se7k.woff) format('woff');
+          }
+      ]]>
+    </style>
+  </defs>
+  <g transform="scale(0.9)">
+    <path fill="black" stroke="black" d="M20,20L70,10" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M70,10L92,20" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M50,40L80,33" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M113,32L130,50" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M130,50L150,12" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M150,12L190,25" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M190,25L230,16" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M230,16L270,23" stroke-width="3"></path>
+    <path fill="black" stroke="black" d="M270,23L295,19" stroke-width="3"></path>
+    <circle cx="20" cy="20" r="12" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="70" cy="10" r="9" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="50" cy="40" r="11" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="130" cy="50" r="5" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="150" cy="12" r="10" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="190" cy="25" r="8" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="230" cy="16" r="6" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="270" cy="23" r="4" fill="black" stroke="black" stroke-width="3"></circle>
+    <circle cx="295" cy="19" r="2" fill="black" stroke="black" stroke-width="3"></circle>
+    <text style="font-family: 'Yanone Kaffeesatz'; font-weight: normal; font-style: normal; font-weight: 700; font-size: 40px; stroke: none; fill: black" x="145" y="41">
+      <tspan dy="15.5">Human Metabolic Atlas</tspan>
+    </text>
+  </g>
+
+  <g transform="translate(60 0) scale(0.26 0.26)">
+    <path
+      style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:0.86138928000000003px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+      d="M 221.05988,14.151411 C 198.71736,-8.1911064 135.37601,18.944613 79.559762,74.760859 23.74351,130.57711 -3.414318,193.94057 18.928199,216.28309 41.270719,238.62561 104.65058,211.48417 160.46683,155.66792 216.28307,99.851679 243.4024,36.493931 221.05988,14.151411 z M 166.24547,47.989309 C 180.3656,62.109443 162.80029,102.59752 127.0069,138.39091 91.213498,174.18431 50.725428,191.74962 36.605294,177.62949 22.48516,163.50935 40.066862,123.03767 75.860261,87.244269 111.65365,51.450881 152.12534,33.869175 166.24547,47.989309 z"
+      id="path2985" />
+    <path
+      style="fill:#000000;stroke:#000000;stroke-width:0.60637236px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+      d="m 24.66032,100.09119 49.1759,60.1821 C 94.08513,64.812034 94.08513,62.736794 94.08513,62.736794 z"
+      id="path3759" />
+  </g>
+</svg>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link href="../static/css/style.css" rel="stylesheet" />
+<link href="../css/style.css" rel="stylesheet" />
 <meta charset=utf-8 />
 <title>View 3</title>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
@@ -11,8 +11,12 @@
 <script src="../static/js/view3ctrl.js"></script>
 </head>
 <body ng-app="app">
-  <div id="logo">Human Metabolic Atlas - View3</div>
-  <div id="cy"></div>
+  <div id="logo">
+    <svg viewBox="0 0 1200 100" class="icon">
+       <use xlink:href="../static/images/logo.svg#hmaLogo"></use>
+    </svg>
+  </div>
+  <div width="1000" id="cy"></div>
   <table id="view3-table" ng-controller="v3ElemsCtrl">
     <tbody>
       <tr>

@@ -4,28 +4,22 @@ body {
 
 #logo {
     position: static;
-    width: 600px;
+    width: 1400px;
     height: 100px;
     border: 3px solid #73AD21;
 }
 
 #footer {
     position: static;
-    width: 600px;
+    width: 1400px;
     height: 100px;
     border: 3px solid #73AD21;
 }
 
 #cy {
-    //height: 100%;
-    //width: 100%;
-    //position: absolute;
-    //left: 0;
-    //top: 0;
-
     position: static;
-    width: 600px;
-    height: 600px;
+    width: 1400px;
+    height: 800px;
     border: 3px solid #73AD21;
 }
 

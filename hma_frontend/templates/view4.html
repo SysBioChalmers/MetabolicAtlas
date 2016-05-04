@@ -11,7 +11,11 @@
 <script src="../static/js/view4ctrl.js"></script>
 </head>
 <body ng-app="app">
-  <div id="logo">Human Metabolic Atlas - View4</div>
+  <div id="logo">
+    <svg viewBox="0 0 1200 100" class="icon">
+       <use xlink:href="../static/images/logo.svg#hmaLogo"></use>
+    </svg>
+  </div>
   <div id="cy"></div>
   <table id="view4-table" ng-controller="v4ElemsCtrl">
     <tbody>

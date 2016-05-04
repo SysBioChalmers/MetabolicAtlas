@@ -1,0 +1,2 @@
+# ignore all the data files used to generate the database
+hma_backend/import/*
