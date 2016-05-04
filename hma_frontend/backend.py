@@ -13,7 +13,8 @@ def index():
     instead for development
     """
     #return app.send_static_file('index.html')
-    return make_response(open('templates/index.html').read())
+    #return make_response(open('templates/index.html').read())
+    return make_response(open('templates/searchResults.html').read())
 
 @app.route('/protoview')
 def protoview():
@@ -26,6 +27,10 @@ def view4():
 @app.route('/view3')
 def view3():
     return make_response(open('templates/view3.html').read())
+
+@app.route('/searchResults')
+def searchResults():
+    return make_response(open('templates/searchResults.html').read())
 
 @app.route('/<path:path>')
 def static_proxy(path):

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<link href="../static/css/style.css" rel="stylesheet" />
+<meta charset=utf-8 />
+<title>HMA main page during development</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+<script src="../static/js/searchResultsModel.js"></script>
+<script src="../static/js/searchResultsCtrl.js"></script>
+</head>
+<body ng-controller="searchResultsCtrl">
+  <div id="logo">
+    <svg viewBox="0 0 1200 100" class="icon">
+       <use xlink:href="../static/images/logo.svg#hmaLogo"></use>
+    </svg>
+  </div>
+  <input ng-model="searchForThis">
+  <button ng-click="searching(searchForThis)">Search</button>
+  <!--<pre>searchForThis = "{{searchForThis}}"</pre> For debugging its nice to print to screen :) -->
+  <!-- Add the list of hard-coded view options -->
+  <ul>
+    <li><a href="protoview">Protoview</a></li>
+    <li><a href="view4">View 4</a></li>
+    <li><a href="view3">View 3</a></li>
+  </ul>
+  <!-- if you instead search for a reactionComponent, show a table here-->
+  <table id="searchResults">
+    <tbody>
+      <tr>
+        <th>Short Name</th>
+        <th>Type</th>
+        <th>Long Name</th>
+        <th>Description</th>
+        <th>Formula</th>
+        <th>Compartment</th>
+      </tr>
+<!--      <tr ng-repeat="elem in elms | filter:searchForThis"> This will do "inline" filtering of the table!-->
+      <tr ng-repeat="elem in elms">
+        <td><a href="view4">{{elem.short}}</a></td>
+        <td>{{elem.type}}</td>
+        <td>{{elem.long}}</td>
+        <td>{{elem.description}}</td>
+        <td>{{elem.formula}}</td>
+        <td>{{elem.compartment}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div id="footer">Human Metabolic Atlas - Search Results</div>
+</body>
+</html>
