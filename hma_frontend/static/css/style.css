@@ -26,7 +26,7 @@ body {
 #view4-table {
   position: static;
   border: 3px solid #73AD21;
-  background: rgba(255, 200, 200, 0.5);
+  background: rgba( 0, 0, 0, 0 );
 }
 
 #protein-table {

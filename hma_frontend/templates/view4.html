@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="app">
 <head>
 <link href="../static/css/style.css" rel="stylesheet" />
 <meta charset=utf-8 />
@@ -14,14 +14,14 @@
 <script src="../static/js/view4model.js"></script>
 <script src="../static/js/view4ctrl.js"></script>
 </head>
-<body ng-app="app">
+<body ng-controller="v4ElemsCtrl">
   <div id="logo">
     <svg viewBox="0 0 1200 100" class="icon">
        <use xlink:href="../static/images/logo.svg#hmaLogo"></use>
     </svg>
   </div>
   <div id="cy"></div>
-  <table id="view4-table" ng-controller="v4ElemsCtrl">
+  <table id="view4-table">
     <tbody>
       <tr>
         <th>Select</th>
@@ -30,6 +30,7 @@
         <th>Long Name</th>
         <th>Description</th>
         <th>Formula</th>
+        <th>Compartment</th>
       </tr>
       <tr ng-repeat="elem in elms">
         <td><input type="checkbox" ng-model="elem.id" ng-change="onSelected(elem)"></td>
@@ -38,6 +39,7 @@
         <td>{{elem.long}}</td>
         <td>{{elem.description}}</td>
         <td>{{elem.formula}}</td>
+        <td>{{elem.compartment}}</td>
       </tr>
     </tbody>
   </table>

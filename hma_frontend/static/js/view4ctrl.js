@@ -3,11 +3,13 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
     // (usually better to have the srv as intermediary)
     $scope.elms = [];
     $scope.rels = [];
+    $scope.enzymeName="ENSG00000164303"; //ENSG00000164303 and ENSG00000180011
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
-    $http.get('http://130.238.29.191/api/v1/enzymes/ENSG00000180011/connected_metabolites?include_expressions=true')
+    var url = 'http://130.238.29.191/api/v1/enzymes/'+$scope.enzymeName+'/connected_metabolites?include_expressions=true';
+    $http.get(url)
     .success(function(data, status, headers, config) {
         $scope.backend = data;
-        console.log("Got the JSON");
+        console.log("Got the JSON from URL: "+url);
         //http://book.mixu.net/node/ch5.html
         //https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Set
         //http://stackoverflow.com/questions/7958292/mimicking-sets-in-javascript
@@ -19,7 +21,7 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
             id: e.id,
             parentid: 'null',
             type: 'E',
-            short: e.id,
+            short: e.short_name,
             long: e.long_name,
             description: 'description',
             formula: 'formula'
@@ -55,7 +57,8 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
                     short: m.short_name,
                     long: m.long_name,
                     description: 'description',
-                    formula: m.formula
+                    formula: m.formula,
+                    compartment: m.compartment
                 };
                 if (metabolite.id in occ){
                     occ[metabolite.id]+=1;

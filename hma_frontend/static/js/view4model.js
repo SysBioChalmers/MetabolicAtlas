@@ -51,7 +51,7 @@ app.factory('view4Graph', [ '$q', function( $q ){
         .selector('node')
         .css({
             'content': 'data(name)',
-            'font-size': "42px",
+            'font-size': "30px", // main enzyme name
             //'height': 80,
             //'width': 'mapData(weight, 1, 200, 1, 200)',
             //'color': 'white',
@@ -60,26 +60,26 @@ app.factory('view4Graph', [ '$q', function( $q ){
         })
         .selector('$node > node') //child node selector
         .css({
-            'font-size': "20px",
+            'font-size': "10px",
             'padding-top': '20px', //not super useful as it only affects node to parent node distance
             'padding-left': '20px',
             'padding-bottom': '20px',
             'padding-right': '20px',
             'text-valign': 'top',
             'text-halign': 'center',
-            'background-color': '#000055',
+            'background-color': '#a4a4b0',
             'background-opacity':0.3
         })
         .selector('node > node') //parent node selector
         .css({
-            'font-size': "20px",
+            'font-size': "10px",
             'padding-top': '1px',
             'padding-left': '1px',
             'padding-bottom': '1px',
             'padding-right': '1px',
             'text-valign': 'top',
             'text-halign': 'center',
-            'background-color': '#00ff00'
+            'background-color': '#0c650c'
         })
         .selector('edge')
         .css({
