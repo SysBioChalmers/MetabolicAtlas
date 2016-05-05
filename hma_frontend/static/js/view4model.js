@@ -54,22 +54,32 @@ app.factory('view4Graph', [ '$q', function( $q ){
             'font-size': "42px",
             //'height': 80,
             //'width': 'mapData(weight, 1, 200, 1, 200)',
-            'text-valign': 'center',
-            'text-halign': 'center'
             //'color': 'white',
             //'text-outline-width': 2,
             //'text-outline-color': '#888'
         })
-        .selector('$node > node')
+        .selector('$node > node') //child node selector
         .css({
-            'font-size': "82px",
+            'font-size': "20px",
+            'padding-top': '20px', //not super useful as it only affects node to parent node distance
+            'padding-left': '20px',
+            'padding-bottom': '20px',
+            'padding-right': '20px',
+            'text-valign': 'top',
+            'text-halign': 'center',
+            'background-color': '#000055',
+            'background-opacity':0.3
+        })
+        .selector('node > node') //parent node selector
+        .css({
+            'font-size': "20px",
             'padding-top': '1px',
             'padding-left': '1px',
             'padding-bottom': '1px',
             'padding-right': '1px',
             'text-valign': 'top',
             'text-halign': 'center',
-            'background-color': '#bbb'
+            'background-color': '#00ff00'
         })
         .selector('edge')
         .css({
@@ -88,7 +98,12 @@ app.factory('view4Graph', [ '$q', function( $q ){
         }),
 
         layout: {
-          name: 'random'
+            name: 'cose-bilkent',
+
+            //represents the amount of the vertical space to put between the zero degree members during the tiling operation(can also be a function)
+            tilingPaddingVertical: 50,
+            //represents the amount of the horizontal space to put between the zero degree members during the tiling operation(can also be a function)
+            tilingPaddingHorizontal: 50
         },
 
         elements: elmsjson,
@@ -96,8 +111,8 @@ app.factory('view4Graph', [ '$q', function( $q ){
         ready: function(){
           deferred.resolve( this );
 
-          cy.on('cxtdrag', 'node', function(e){
-            /*
+          /*cy.on('cxtdrag', 'node', function(e){
+
             var node = this;
             var dy = Math.abs( e.cyPosition.x - node.position().x );
             var weight = Math.round( dy*2 );
@@ -105,11 +120,24 @@ app.factory('view4Graph', [ '$q', function( $q ){
             node.data('weight', weight);
 
             fire('onWeightChange', [ node.id(), node.data('weight') ]);
-            */
-          });
+
+          });*/
         }
       });
-
+      cy.qtip({
+        content: 'Remove<br>Re-center view<br>Only 1st level interactions<br>Expand to 1st level interactions',
+        position: {
+          my: 'top center',
+          at: 'bottom center'
+        },
+        style: {
+          classes: 'qtip-bootstrap',
+          tip: {
+            width: 16,
+            height: 8
+          }
+        }
+      });
     }); // on dom ready
 
     return deferred.promise;

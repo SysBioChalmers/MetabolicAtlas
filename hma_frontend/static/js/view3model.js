@@ -40,25 +40,30 @@ app.factory('view3Graph', [ '$q', function( $q ){
         .selector('node')
         .css({
             'content': 'data(name)',
-            'font-size': "42px",
+            'font-size': "20px",
             //'height': 80,
             //'width': 'mapData(weight, 1, 200, 1, 200)',
-            'text-valign': 'center',
+            'text-valign': 'top',
             'text-halign': 'center'
             //'color': 'white',
             //'text-outline-width': 2,
             //'text-outline-color': '#888'
         })
-        .selector('$node > node')
+        .selector('node[type="metabolite"]')
         .css({
-            'font-size': "82px",
-            'padding-top': '1px',
-            'padding-left': '1px',
-            'padding-bottom': '1px',
-            'padding-right': '1px',
-            'text-valign': 'top',
-            'text-halign': 'center',
-            'background-color': '#bbb'
+            'shape': 'elipse',
+            'background-color': '#00ff00',
+            'width': 15,
+            'height':15,
+            'color': '#000000'
+        })
+        .selector('node[type="enzyme"]')
+        .css({
+            'shape': 'rectangle',
+            'background-color': '#ff0000',
+            'width': 20,
+            'height':20,
+            'color': '#000000'
         })
         .selector('edge')
         .css({
@@ -86,7 +91,20 @@ app.factory('view3Graph', [ '$q', function( $q ){
           deferred.resolve( this );
         }
       });
-
+      cy.qtip({
+        content: 'Remove<br>Re-center view<br>Only 1st level interactions<br>Expand to 1st level interactions',
+        position: {
+          my: 'top center',
+          at: 'bottom center'
+        },
+        style: {
+          classes: 'qtip-bootstrap',
+          tip: {
+            width: 16,
+            height: 8
+          }
+        }
+      });
     }); // on dom ready
 
     return deferred.promise;
