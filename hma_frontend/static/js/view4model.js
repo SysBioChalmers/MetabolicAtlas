@@ -15,6 +15,7 @@ app.factory('view4Graph', [ '$q', function( $q ){
             id: elms[i].id,
             parent: elms[i].parentid,
             name: elms[i].short,
+            type: elms[i].type
           }
         });
       } else {
@@ -70,18 +71,23 @@ app.factory('view4Graph', [ '$q', function( $q ){
             'background-color': '#a4a4b0',
             'background-opacity':0.3
         })
-        .selector('node > node') //parent node selector
+        .selector('node > node') //parent node selector, eg the metabolites inside the reactions
         .css({
-            'font-size': "10px",
+            'font-size': "8px",
             'padding-top': '1px',
             'padding-left': '1px',
             'padding-bottom': '1px',
             'padding-right': '1px',
             'text-valign': 'top',
             'text-halign': 'center',
-            'background-color': '#0c650c'
+            'background-color': '#0c650c',
+            'shape': 'heptagon',
+            'width': 20,
+            'height': 20
         })
-        .selector('edge')
+        .selector('node[type="product"]') // select the products and make them rectangular instead
+        .css({'shape':'octagon'})
+        .selector('edge') // please note that right now the only edge is from main enzyme to the reactions!
         .css({
             'width': 3,
             'line-color': '#ccc',

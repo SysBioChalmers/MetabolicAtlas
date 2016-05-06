@@ -29,6 +29,7 @@
         <th>Long Name</th>
         <th>Description</th>
         <th>Formula</th>
+        <th>Compartment</th>
       </tr>
       <tr ng-repeat="elem in elms">
         <td><input type="checkbox" ng-model="elem.id" ng-change="onSelected(elem)"></td>
@@ -37,6 +38,7 @@
         <td>{{elem.long}}</td>
         <td>{{elem.description}}</td>
         <td>{{elem.formula}}</td>
+        <td>{{elem.compartment}}</td>
       </tr>
     </tbody>
   </table>

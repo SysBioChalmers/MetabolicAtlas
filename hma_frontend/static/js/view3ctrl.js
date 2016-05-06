@@ -28,7 +28,8 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
                     short: m.short_name,
                     long: m.long_name,
                     description: 'description',
-                    formula: m.formula
+                    formula: m.formula,
+                    compartment: m.compartment
                 };
                 mods[modifier.id] = modifier;
             };
@@ -42,7 +43,8 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
                     short: m.short_name,
                     long: m.long_name,
                     description: 'description',
-                    formula: m.formula
+                    formula: m.formula,
+                    compartment: m.compartment
                 };
                 mets[metabolite.id] = metabolite;
             };

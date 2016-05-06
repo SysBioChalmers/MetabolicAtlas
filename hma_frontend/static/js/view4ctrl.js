@@ -24,7 +24,8 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
             short: e.short_name,
             long: e.long_name,
             description: 'description',
-            formula: 'formula'
+            formula: 'formula',
+            compartment: e.compartment
         };
         elms.push(enzyme);
         for( var i = 0; i < e.reactions.length; i++ ){
@@ -46,10 +47,31 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
                 target: reaction.id
             };
             rels.push(relation);
-            var prs = r.products.concat(r.reactants);
-            for ( var im = 0; im < prs.length; im++ ){
-                //reactionpool = [];
-                var m = prs[im];
+            //var prs = r.products.concat(r.reactants);
+            //for ( var im = 0; im < prs.length; im++ ){
+            //    //reactionpool = [];
+            //    var m = prs[im];
+            //    var metabolite = {
+            //        id: m.component_id,
+            //        parentid: r.reaction_id,
+            //        type: 'M',
+            //        short: m.short_name,
+            //        long: m.long_name,
+            //        description: 'description',
+            //        formula: m.formula,
+            //        compartment: m.compartment
+            //    };
+            //    if (metabolite.id in occ){
+            //        occ[metabolite.id]+=1;
+            //        metabolite.id += '_'+occ[metabolite.id];
+            //    }else{
+            //        occ[metabolite.id]=1;
+            //    }
+            //    elms.push(metabolite);
+            //};
+            // go through the products
+            for ( var im = 0; im < r.products.length; im++ ){
+                var m = r.products[im];
                 var metabolite = {
                     id: m.component_id,
                     parentid: r.reaction_id,
@@ -58,7 +80,30 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
                     long: m.long_name,
                     description: 'description',
                     formula: m.formula,
-                    compartment: m.compartment
+                    compartment: m.compartment,
+                    type: 'product'
+                };
+                if (metabolite.id in occ){
+                    occ[metabolite.id]+=1;
+                    metabolite.id += '_'+occ[metabolite.id];
+                }else{
+                    occ[metabolite.id]=1;
+                }
+                elms.push(metabolite);
+            };
+            // go through the reactants
+            for ( var im = 0; im < r.reactants.length; im++ ){
+                var m = r.reactants[im];
+                var metabolite = {
+                    id: m.component_id,
+                    parentid: r.reaction_id,
+                    type: 'M',
+                    short: m.short_name,
+                    long: m.long_name,
+                    description: 'description',
+                    formula: m.formula,
+                    compartment: m.compartment,
+                    type: 'reactant'
                 };
                 if (metabolite.id in occ){
                     occ[metabolite.id]+=1;
