@@ -37,7 +37,7 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
                 short: r.reaction_id,
                 long: r.reaction_id,
                 description: r.reaction_id,
-                formula: r.reaction_id
+                formula: 'formula'
             };
             elms.push(reaction);
             // add the enzyme - reaction as a link for the view4 graph

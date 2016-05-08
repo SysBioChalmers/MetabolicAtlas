@@ -23,10 +23,14 @@ body {
     border: 3px solid #73AD21;
 }
 
-#view4-table {
+#ReactionComponentTable {
   position: static;
   border: 3px solid #73AD21;
   background: rgba( 0, 0, 0, 0 );
+}
+
+#ReactionComponentTable tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
 #protein-table {

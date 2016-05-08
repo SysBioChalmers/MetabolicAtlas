@@ -20,7 +20,7 @@
     </svg>
   </div>
   <div width="1000" id="cy"></div>
-  <table id="view3-table" ng-controller="v3ElemsCtrl">
+  <table id="ReactionComponentTable" ng-controller="v3ElemsCtrl">
     <tbody>
       <tr>
         <th>Select</th>
@@ -33,12 +33,12 @@
       </tr>
       <tr ng-repeat="elem in elms">
         <td><input type="checkbox" ng-model="elem.id" ng-change="onSelected(elem)"></td>
-        <td>{{elem.type}}</td>
-        <td>{{elem.short}}</td>
-        <td>{{elem.long}}</td>
-        <td>{{elem.description}}</td>
-        <td>{{elem.formula}}</td>
-        <td>{{elem.compartment}}</td>
+        <td>{{ elem.type }}</td>
+        <td ng-bind-html="elem.short | chemicalName"></td>
+        <td ng-bind-html="elem.long | chemicalName"></td>
+        <td>{{ elem.description }}</td>
+        <td ng-bind-html="elem.formula | chemicalFormula"></td>
+        <td>{{ elem.compartment }}</td>
       </tr>
     </tbody>
   </table>
