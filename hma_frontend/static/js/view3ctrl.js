@@ -4,20 +4,44 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
     $scope.elms = [];
     $scope.rels = [];
     $scope.reactionComponentID="E_3125"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
-    $scope.reactionComponentID="M_m02040s"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
-    $scope.reactionComponentID="E_2571"; // gene symbol ENPP6 - only directly connected metabolites!
-    $scope.reactionComponentID="E_3749"; // gene symbol NOS2P1 - no uniprot!!!
-    $scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
+    //$scope.reactionComponentID="M_m02040s"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
+    //$scope.reactionComponentID="E_2571"; // gene symbol ENPP6 - only directly connected metabolites!
+    //$scope.reactionComponentID="E_3749"; // gene symbol NOS2P1 - no uniprot!!!
+    //$scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
+
+    //first get enzyme data
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
-    $http.get('http://130.238.29.191/api/v1/reaction_components/'+$scope.reactionComponentID+'/interaction_partners')
+    url = 'http://130.238.29.191/api/v1/reaction_components/'+$scope.reactionComponentID;
+    //http://130.238.29.191/api/v1/reaction_components/E_2571
+    $http.get(url)
+    .success(function(dataOuter, statusOuter, headersOuter, configOuter) {
+      $scope.backend = dataOuter;
+      console.log("Got the JSON from url "+url);
+      var e = $scope.backend;
+      var elms = {};
+      var rels = {};
+      var enzyme = {
+          id: e.component_id,
+          type: 'E',
+          short: e.short_name,
+          long: e.long_name,
+          description: 'description',
+          formula: e.formula,
+          compartment: e.compartment
+      };
+      elms[$scope.reactionComponentID] = enzyme;
+
+    //then get the actual interaction partners....
+    $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
+    url = url+'/interaction_partners';
+    $http.get(url)
     .success(function(data, status, headers, config) {
         $scope.backend = data;
-        console.log("Got the JSON");
+        console.log("Got the JSON from url "+url);
         //http://book.mixu.net/node/ch5.html
         //https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Set
         //http://stackoverflow.com/questions/7958292/mimicking-sets-in-javascript
-        var elms = {};
-        var rels = {};
+
         var b = $scope.backend;
         for( var i = 0; i < b.reactions.length; i++ ){
             var r = b.reactions[i];
@@ -31,7 +55,8 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
                     long: m.long_name,
                     description: 'description',
                     formula: m.formula,
-                    compartment: m.compartment
+                    compartment: m.compartment,
+                    reaction: r.reaction_id
                 };
                 mods[modifier.id] = modifier;
             };
@@ -46,12 +71,13 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
                     long: m.long_name,
                     description: 'description',
                     formula: m.formula,
-                    compartment: m.compartment
+                    compartment: m.compartment,
+                    reaction: r.reaction_id
                 };
                 mets[metabolite.id] = metabolite;
             };
-            console.log('mods json:'+JSON.stringify(mods));
-            console.log('mets json:'+JSON.stringify(mets));
+            //console.log('mods json:'+JSON.stringify(mods));
+            //console.log('mets json:'+JSON.stringify(mets));
             //Now update the elements and relationships
             for (var eid in mods){
                 if (!(eid in elms)){
@@ -63,7 +89,9 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
                     elms[eid] = mets[eid];
                 }
             };
-            console.log('elms json:'+JSON.stringify(elms));
+            //console.log('elms json:'+JSON.stringify(elms));
+
+            // loop through all modifiers and all metabolites, and connect the ones in the same reactions....
             for (eid_mo in mods){
                 for (eid_me in mets){
                     var relation = {
@@ -72,10 +100,29 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
                         target: eid_me
                     };
                     if (!( relation.id in rels)) {
+                      if( eid_mo.reaction == eid_me.reaction){
                         rels[relation.id] = relation;
+                      }
                     };
                 };
             };
+            // add a relation to everything from the main reactionComponentID as well...
+            for (eid_mo in mods){
+              var relation = {
+                  id: eid_mo + '_' + $scope.reactionComponentID,
+                  target: eid_mo,
+                  source: $scope.reactionComponentID
+              };
+              rels[relation.id] = relation;
+            }
+            for (eid_me in mets){
+              var relation = {
+                  id: eid_me + '_' + $scope.reactionComponentID,
+                  target: eid_me,
+                  source: $scope.reactionComponentID
+              };
+              rels[relation.id] = relation;
+            }
         };
 
         $scope.elms = elms;
@@ -99,6 +146,7 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
         console.log(status);
         console.log("Error occured");
     });
+  });
 
   /*
   // test versions of the elements and relationships

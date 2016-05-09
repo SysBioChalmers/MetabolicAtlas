@@ -29,7 +29,7 @@ app.factory('view3Graph', [ '$q', function( $q ){
       });
     }
 
-    console.log('view3 cy json:'+JSON.stringify(elmsjson));
+    //console.log('view3 cy json:'+JSON.stringify(elmsjson));
 
     $(function(){ // on dom ready
 
@@ -140,7 +140,10 @@ app.factory('view3Graph', [ '$q', function( $q ){
 
 app.filter('chemicalFormula', function($sce){
   return function(val){
-    return $sce.trustAsHtml(val.replace(/([0-9])/g,"<sub>\$1</sub>"));
+    if(val){ // formula is empty for all the enzymes!
+      return $sce.trustAsHtml(val.replace(/([0-9])/g,"<sub>\$1</sub>"));
+    }
+    return "";
   }
 })
 
