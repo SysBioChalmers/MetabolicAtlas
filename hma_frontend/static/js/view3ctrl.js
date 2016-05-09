@@ -7,7 +7,7 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
     //$scope.reactionComponentID="M_m02040s"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
     //$scope.reactionComponentID="E_2571"; // gene symbol ENPP6 - only directly connected metabolites!
     //$scope.reactionComponentID="E_3749"; // gene symbol NOS2P1 - no uniprot!!!
-    //$scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
+    $scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
 
     //first get enzyme data
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
@@ -22,7 +22,7 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
       var rels = {};
       var enzyme = {
           id: e.component_id,
-          type: 'E',
+          type: 'enzyme',
           short: e.short_name,
           long: e.long_name,
           description: 'description',

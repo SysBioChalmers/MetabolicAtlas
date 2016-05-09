@@ -191,6 +191,6 @@ app.filter('chemicalName', function($sce){
 
 app.filter('chemicalNameLink', function($sce){
   return function(val){
-    return $sce.trustAsHtml("<a href='https://pubchem.ncbi.nlm.nih.gov/compound/"+val+"'>"+val.replace(/(\+)/g,"<sup>\$1</sup>")+"</a>");
+    return $sce.trustAsHtml("<a target='new' href='https://pubchem.ncbi.nlm.nih.gov/compound/"+val+"'>"+val.replace(/(\+)/g,"<sup>\$1</sup>")+"</a>");
   }
 })
