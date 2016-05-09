@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>HMA - View 3: Nearest neighbors</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <!-- Custom styles for this template -->
+    <link href="../css/sticky-footer-navbar.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet" />
+
+    <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.js"></script>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-qtip/2.2.5/cytoscape-qtip.js"></script>
+    <script src="../static/js/view3model.js"></script>
+    <script src="../static/js/view3ctrl.js"></script>
+
+  </head>
+
+  <body ng-app="app">
+    <header role="banner">
+      <svg id = "logo" viewBox="0 0 1200 100" class="icon">
+        <use xlink:href="../static/images/logo.svg#hmaLogo"></use>
+      </svg>
+      <!-- Fixed navbar -->
+      <nav id = "navbar.primary" class="navbar navbar-default navbar-view3">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="pull-left">
+            </a>
+          </div>
+          <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="#">HMA</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Contents <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">View 3</a></li>
+                  <li><a href="#">View 4</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li class="dropdown-header">Nav header</li>
+                  <li><a href="#">External link (HPA..)</a></li>
+                  <li><a href="#">Other separated links (SYS BIO, NBIS etc..)</a></li>
+                </ul>
+              </li>
+              <li id="searchBox">
+                <input ng-model="searchForThis">
+                <button ng-click="searching(searchForThis)">Search</button>
+              </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </header>
+    <div class="row">
+
+      <div class="col-sm-8 blog-main">
+      <!-- Begin page content -->
+      <div class="panel panel-default">
+        <div class="panel-heading">Network Display:</div>
+        <div width="100%" id="cy"></div>
+      </div>
+      <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Reaction Components:</div>
+
+        <!-- Reaction Components table -->
+        <table id="ReactionComponentTable" class="table table-hover table-condensed table-bordered table-striped" ng-controller="v3ElemsCtrl">
+          <thead>
+              <tr>
+                <th>Select</th>
+                <th>Type</th>
+                <th>Short Name</th>
+                <th>Long Name</th>
+                <th>Description</th>
+                <th>Formula</th>
+              </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="elem in elms">
+              <td><input type="checkbox" ng-model="elem.id" ng-change="onSelected(elem)"></td>
+              <td>{{ elem.type }}</td>
+              <td ng-bind-html="elem.short | chemicalName"></td>
+              <td ng-bind-html="elem.long | chemicalName"></td>
+              <td>{{ elem.description }}</td>
+              <td ng-bind-html="elem.formula | chemicalFormula"></td>
+              <td>{{ elem.compartment }}</td>
+            </tr>
+          </tbody>
+        </table>
+    </div><!-- /table pannel -->
+    </div><!-- /.blog-main -->
+
+    <div class="col-sm-4 blog-sidebar">
+      <div class="well">
+        <h3>View 3: Nearest neighbors</h3>
+        <p>
+          We treat all chemical equations (eg reactions) form HMR2.0 as binary "interactions".
+          This gives us the option of "zooming in" around a given ReactionComponent (species in SBML)
+          (for example an enzyme from HPA).<br><br>
+          This could be used to "determine" how important a given ReactionComponent is,
+          and how a set of ReactionComponents interact and how their expression
+          levels change between tissues.
+        </p>
+      </div>
+      <div class="well">
+        <h3>Gene Symbol: SULT1A3</h3>
+        <p><i>
+          <!--
+          Choline-specific glycerophosphodiester phosphodiesterase. The preferred substrate may be lysosphingomyelin (By similarity).
+            Hydrolyzes lysophosphatidylcholine (LPC) to form monoacylglycerol and phosphorylcholine but not lysophosphatidic acid,
+            showing it has a lysophospholipase C activity. Has a preference for LPC with short (12:0 and 14:0) or polyunsaturated
+            (18:2 and 20:4) fatty acids. Also hydrolyzes glycerophosphorylcholine and sphingosylphosphorylcholine efficiently.
+            Hydrolyzes the classical substrate for phospholipase C, p-nitrophenyl phosphorylcholine in vitro, while it does not
+            hydrolyze the classical nucleotide phosphodiesterase substrate, p-nitrophenyl thymidine 5'-monophosphate. Does not
+            hydrolyze diacyl phospholipids such as phosphatidylethanolamine, phosphatidylinositol, phosphatidylserine,
+            phosphatidylglycerol and phosphatidic acid. -->
+          Sulfotransferase that utilizes 3'-phospho-5'-adenylyl sulfate (PAPS) as sulfonate donor to catalyze the sulfate
+          conjugation of phenolic monoamines (neurotransmitters such as dopamine, norepinephrine and serotonin) and phenolic and catechol drugs. </br>
+          <b>Catalytic activity:</b></br>3'-phosphoadenylyl sulfate + a phenol = adenosine 3',5'-bisphosphate + an aryl sulfate.
+        </i></p>
+      </div>
+
+      <div class="sidebar-module">
+        <h4>Extra Links:</h4>
+        <ol class="list-unstyled">
+          <li><a href="#">Link 1</a></li>
+          <li><a href="#">Link 2 ..</a></li>
+        </ol>
+      </div>
+      <div class="sidebar-module">
+        <h4>Elsewhere</h4>
+        <ol class="list-unstyled">
+          <li><a href="http://www.sysbio.se/">SysBio @Chalmers</a></li>
+          <li><a href="http://www.proteinatlas.org/">HPA</a></li>
+          <li><a href="#">Something</a></li>
+        </ol>
+      </div>
+    </div>
+    </div><!-- /.blog-sidebar -->
+
+  </div><!-- /.row -->
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">Human Metabolic Atlas</p>
+    </div>
+  </footer>
+
+  </body>
+</html>

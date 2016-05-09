@@ -26,7 +26,7 @@ def view4():
 
 @app.route('/view3')
 def view3():
-    return make_response(open('templates/view3.html').read())
+    return make_response(open('templates/view3bs.html').read())
 
 @app.route('/searchResults')
 def searchResults():

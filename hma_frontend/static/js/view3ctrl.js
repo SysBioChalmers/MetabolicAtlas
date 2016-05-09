@@ -3,11 +3,13 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
     // (usually better to have the srv as intermediary)
     $scope.elms = [];
     $scope.rels = [];
-    // http://130.238.29.191/api/v1/reaction_components/E_3125/interaction_partners
-    // http://130.238.29.191/api/v1/reaction_components/M_m02040s/interaction_partners
-    // http://130.238.29.191/api/v1/reaction_components/E_2571/interaction_partners
+    $scope.reactionComponentID="E_3125"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
+    $scope.reactionComponentID="M_m02040s"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
+    $scope.reactionComponentID="E_2571"; // gene symbol ENPP6 - only directly connected metabolites!
+    $scope.reactionComponentID="E_3749"; // gene symbol NOS2P1 - no uniprot!!!
+    $scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
-    $http.get('http://130.238.29.191/api/v1/reaction_components/E_3125/interaction_partners')
+    $http.get('http://130.238.29.191/api/v1/reaction_components/'+$scope.reactionComponentID+'/interaction_partners')
     .success(function(data, status, headers, config) {
         $scope.backend = data;
         console.log("Got the JSON");

@@ -35,7 +35,7 @@
       <tr ng-repeat="elem in elms">
         <td><input type="checkbox" ng-model="elem.id" ng-change="onSelected(elem)"></td>
         <td>{{ elem.type }}</td>
-        <td ng-bind-html="elem.short | chemicalName"></td>
+        <td ng-bind-html="elem.short | chemicalNameLink"></td>
         <td ng-bind-html="elem.long | chemicalName"></td>
         <td>{{ elem.description }}</td>
         <td ng-bind-html="elem.formula | chemicalFormula"></td>
