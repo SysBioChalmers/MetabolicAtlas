@@ -815,6 +815,10 @@ def connected_metabolites(enzyme_id):
               type: string
               description: Enzyme long name
               default: ENSG00000000419
+            compartment:
+              type: string
+              description: Compartment
+              default: Cytosol
             reactions:
               type: array
               items:
@@ -865,6 +869,8 @@ def connected_metabolites(enzyme_id):
         json['id'] = enzyme.id
         json['short_name'] = enzyme.short_name
         json['long_name'] = enzyme.long_name
+        if enzyme.compartment:
+            json['compartment'] = Compartment.query.get(enzyme.compartment).name
         json['id'] = enzyme.id
         json['reactions'] = [make_public_reaction_metabolites(reaction) for
                              reaction in reactions]
