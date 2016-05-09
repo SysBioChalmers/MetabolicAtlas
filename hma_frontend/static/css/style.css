@@ -2,17 +2,10 @@ body {
   font: 14px helvetica neue, helvetica, arial, sans-serif;
 }
 
-#logo {
+#logo, #footer {
     position: static;
     width: 1400px;
-    height: 100px;
-    border: 3px solid #73AD21;
-}
-
-#footer {
-    position: static;
-    width: 1400px;
-    height: 100px;
+    height: 80px;
     border: 3px solid #73AD21;
 }
 
@@ -25,8 +18,8 @@ body {
 
 #ReactionComponentTable {
   position: static;
+  width: 1405px;
   border: 3px solid #73AD21;
-  background: rgba( 0, 0, 0, 0 );
 }
 
 #ReactionComponentTable tr:nth-child(even) {

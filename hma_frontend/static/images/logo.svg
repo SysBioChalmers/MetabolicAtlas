@@ -4,6 +4,7 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg" height="71" width="405" version="1.1" id="hmaLogo">
   <desc></desc>
+  
   <defs>
     <style type="text/css">
       <![CDATA[
@@ -16,6 +17,7 @@
       ]]>
     </style>
   </defs>
+
   <g transform="scale(0.9)">
     <path fill="black" stroke="black" d="M20,20L70,10" stroke-width="3"></path>
     <path fill="black" stroke="black" d="M70,10L92,20" stroke-width="3"></path>
