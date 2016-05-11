@@ -1,15 +1,26 @@
 app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scope, $http, view4Graph ){
-    var cy; // mitght want a ref to cy
+
+  $scope.search = {rc: "ENSG00000180011", tissue: "adipose_tissue", expression: "antibody_profiling"};
+
+  $scope.rcexamples = "ENSG00000180011, ?";//display as search tips
+
+  $scope.API = "http://130.238.29.191/api/v1/enzymes/ENSG00000180011/connected_metabolites?include_expressions=true";
+
+  $scope.dosearch = function(fsearch) {
+    $scope.search = angular.copy(fsearch);
+    //$scope.API = "http://130.238.29.191/api/v1/reaction_components/E_2571/interaction_partners";
+    $scope.API = "http://130.238.29.191/api/v1/enzymes/"+$scope.search.rc+"/connected_metabolites?include_expressions=true";
+
+    var cy; // might want a ref to cy
     // (usually better to have the srv as intermediary)
     $scope.elms = [];
     $scope.rels = [];
     $scope.enzymeName="ENSG00000164303"; //ENSG00000164303 and ENSG00000180011
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
-    var url = 'http://130.238.29.191/api/v1/enzymes/'+$scope.enzymeName+'/connected_metabolites?include_expressions=true';
-    $http.get(url)
+    $http.get($scope.API)
     .success(function(data, status, headers, config) {
         $scope.backend = data;
-        console.log("Got the JSON from URL: "+url);
+        console.log("Got the JSON from URL: "+$scope.API);
         //http://book.mixu.net/node/ch5.html
         //https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Set
         //http://stackoverflow.com/questions/7958292/mimicking-sets-in-javascript
@@ -47,28 +58,7 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
                 target: reaction.id
             };
             rels.push(relation);
-            //var prs = r.products.concat(r.reactants);
-            //for ( var im = 0; im < prs.length; im++ ){
-            //    //reactionpool = [];
-            //    var m = prs[im];
-            //    var metabolite = {
-            //        id: m.component_id,
-            //        parentid: r.reaction_id,
-            //        type: 'M',
-            //        short: m.short_name,
-            //        long: m.long_name,
-            //        description: 'description',
-            //        formula: m.formula,
-            //        compartment: m.compartment
-            //    };
-            //    if (metabolite.id in occ){
-            //        occ[metabolite.id]+=1;
-            //        metabolite.id += '_'+occ[metabolite.id];
-            //    }else{
-            //        occ[metabolite.id]=1;
-            //    }
-            //    elms.push(metabolite);
-            //};
+
             // go through the products
             for ( var im = 0; im < r.products.length; im++ ){
                 var m = r.products[im];
@@ -126,9 +116,16 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
         // might want some ui to prevent use of this controller until cy is loaded
         view4Graph( $scope.elms, $scope.rels ).then(function( elmsCy ){
           cy = elmsCy;
-
           // hide ui until cy loaded
           $scope.cyLoaded = true;
+          cy.on('select', 'node', function(e){
+            $scope.clickedNode = this.id();
+            console.log('selected ' + this.id());
+            //var elem = $scope.elms[this.id()]; //TODO: will currently fail because the same metabolite is in multiple places
+            $scope.infoSymbol = this.id();
+            $scope.infoDescription = "";
+            $scope.$apply();
+          });
         });
 
     }).error(function(error, status, headers, config) {
@@ -136,28 +133,6 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
         console.log("Error occured");
     });
 
-  /*
-  // test versions of the elements and relationships
-  $scope.elms = [
-    { id: 'e1', parentid: 'null', type:'E', short:'E1', long:'long E1', description:'super long E1', formula: 'E1f' },
-    { id: 'r1', parentid: 'null', type:'R', short:'R1', long:'long R1', description:'super long R1', formula: 'R1f' },
-    { id: 'r2', parentid: 'null', type:'R', short:'R2', long:'long R2', description:'super long R2', formula: 'R2f' },
-    { id: 'm1', parentid: 'r1', type:'M', short:'M1', long:'long M1', description:'super long M1', formula: 'M1f' },
-    { id: 'm2', parentid: 'r1', type:'M', short:'M2', long:'long M2', description:'super long M2', formula: 'M2f' },
-    { id: 'm3', parentid: 'r2', type:'M', short:'M3', long:'long M3', description:'super long M3', formula: 'M3f' },
-    { id: 'm4', parentid: 'r2', type:'M', short:'M1', long:'long M1', description:'super long M1', formula: 'M1f' }
-  ];
-
-  $scope.rels = [
-    { id: 'e1_r1', source: 'e1', target: 'r1' },
-    { id: 'e1_r2', source: 'e1', target: 'r2' }
-  ];
-  */
-
-
-
-  $scope.onSelected = function(elem){
-     //Nothing happens rite now
-  };
-
+  }; //dosearch
+  $scope.dosearch($scope.search);
 } ]);

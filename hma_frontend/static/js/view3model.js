@@ -82,7 +82,20 @@ app.factory('view3Graph', [ '$q', function( $q ){
         }),
 
         layout: {
-          name: 'random'
+          name: 'random',
+
+          // Ideal edge (non nested) length
+          //idealEdgeLength: function( edge ){ return 50; },
+          //represents the amount of the vertical space to put between the zero degree members during the tiling operation(can also be a function)
+          //tilingPaddingVertical: 50,
+          //represents the amount of the horizontal space to put between the zero degree members during the tiling operation(can also be a function)
+          //tilingPaddingHorizontal: 50
+        //name: 'cola',
+        //edgeLength: 50, // sets edge length directly in simulation
+        //nodeSpacing: function( node ){ return 50; }, // extra spacing around nodes
+        //flow: { axis: 'x', minSeparation: 200 }, // use DAG/tree flow layout if specified,
+        //alignment: function( node ){ return { x: 0, y: 1 }, // relative alignment constraints on nodes, e.g. function( node ){ return { x: 0, y: 1 } }
+
         },
 
         elements: elmsjson,
@@ -91,7 +104,7 @@ app.factory('view3Graph', [ '$q', function( $q ){
           deferred.resolve( this );
         }
       });
-      cy.qtip({
+      cy.$('node').qtip({
         content: 'Remove<br>Re-center view<br>Only 1st level interactions<br>Expand to 1st level interactions',
         position: {
           my: 'top center',
@@ -137,6 +150,9 @@ app.factory('view3Graph', [ '$q', function( $q ){
 
 } ]);
 
+//http://weblogs.asp.net/dwahlin/using-an-angularjs-factory-to-interact-with-a-restful-service
+//app.factory('parseJSON', function () {});
+
 
 app.filter('chemicalFormula', function($sce){
   return function(val){
@@ -150,5 +166,11 @@ app.filter('chemicalFormula', function($sce){
 app.filter('chemicalName', function($sce){
   return function(val){
     return $sce.trustAsHtml(val.replace(/(\+)/g,"<sup>\$1</sup>"));
+  }
+})
+
+app.filter('getProteinFunction', function($sce){
+  return function(val){
+    return $sce.trustAsHtml(val);
   }
 })

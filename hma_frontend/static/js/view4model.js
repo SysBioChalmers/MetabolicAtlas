@@ -68,7 +68,7 @@ app.factory('view4Graph', [ '$q', function( $q ){
             'padding-right': '20px',
             'text-valign': 'top',
             'text-halign': 'center',
-            'background-color': '#a4a4b0',
+            'background-color': '#000055',
             'background-opacity':0.3
         })
         .selector('node > node') //parent node selector, eg the metabolites inside the reactions
@@ -130,7 +130,7 @@ app.factory('view4Graph', [ '$q', function( $q ){
           });*/
         }
       });
-      cy.qtip({
+      cy.$('node').qtip({
         content: 'Remove<br>Re-center view<br>Only 1st level interactions<br>Expand to 1st level interactions',
         position: {
           my: 'top center',

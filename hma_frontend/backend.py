@@ -22,7 +22,7 @@ def protoview():
 
 @app.route('/view4')
 def view4():
-    return make_response(open('templates/view4.html').read())
+    return make_response(open('templates/view4bs.html').read())
 
 @app.route('/view3')
 def view3():

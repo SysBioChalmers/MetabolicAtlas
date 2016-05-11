@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="app">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>HMA - View 3: Nearest neighbors</title>
+    <title>HMA - View 4: Connected metabolites </title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -30,13 +30,14 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.js"></script>
     <link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-qtip/2.2.5/cytoscape-qtip.js"></script>
-    <script src="../static/js/view3model.js"></script>
-    <script src="../static/js/view3ctrl.js"></script>
+    <script src="../static/lib/cytoscape-cose-bilkent.js"></script>
+    <script src="../static/js/view4model.js"></script>
+    <script src="../static/js/view4ctrl.js"></script>
 
   </head>
 
-  <body ng-app="app" ng-controller="v3ElemsCtrl">
-    <header role="banner">
+  <body ng-app="app" ng-controller="v4ElemsCtrl">
+    <!--<header role="banner">-->
       <svg id = "logo" viewBox="0 0 1200 100" class="icon">
         <use xlink:href="../static/images/logo.svg#hmaLogo"></use>
       </svg>
@@ -107,7 +108,7 @@
             <tr ng-repeat="elem in elms">
               <td><input type="checkbox" ng-model="elem.id" ng-change="onSelected(elem)"></td>
               <td>{{ elem.type }}</td>
-              <td ng-bind-html="elem.short | chemicalName"></td>
+              <td ng-bind-html="elem.short | chemicalNameLink"></td>
               <td ng-bind-html="elem.long | chemicalName"></td>
               <td>{{ elem.description }}</td>
               <td ng-bind-html="elem.formula | chemicalFormula"></td>
@@ -120,37 +121,33 @@
 
     <div class="col-sm-4 blog-sidebar">
       <div class="well">
-        <h3>View 3: Nearest neighbors</h3>
+        <h3>View 4: Connected metabolites</h3>
         <p>
-          We treat all chemical equations (eg reactions) form HMR2.0 as binary "interactions".
-          This gives us the option of "zooming in" around a given ReactionComponent (species in SBML)
-          (for example an enzyme from HPA).<br><br>
-          This could be used to "determine" how important a given ReactionComponent is,
-          and how a set of ReactionComponents interact and how their expression
-          levels change between tissues.
+          Take an enzyme, in the form of an Ensembl Gene Identifier
+          (for example ENSG00000164303 or <u>ENSG00000180011</u>)
+          then it will find all reactions that this enzyme modifies,
+          and for each of these reactions pull out the reactants (shape=heptagon)
+          and the products (shape=octagon), eg the metabolites).
         </p>
       </div>
-
       <div class="well">
-        <h3>Main Gene Symbol: {{ enzymeName }}</h3>
-        <p><i ng-bind-html="enzymeFunction | getProteinFunction"></i></p>
-      </div>
-
-      <div class="well">
-        <h3>Selected Gene Symbol: {{infoSymbol}}</h3>
+        <h3>Selected: {{infoSymbol}}</h3>
         <p>
           <ul>
-            <li>Compartment: {{infoCompartment}}</li>
             <li>Description: {{infoDescription}}
               <i>
-                Sulfotransferase that utilizes 3'-phospho-5'-adenylyl sulfate (PAPS) as sulfonate donor to catalyze the sulfate
-                conjugation of phenolic monoamines (neurotransmitters such as dopamine, norepinephrine and serotonin) and phenolic and catechol drugs. </br>
-                <b>Catalytic activity:</b></br>3'-phosphoadenylyl sulfate + a phenol = adenosine 3',5'-bisphosphate + an aryl sulfate.
+                (this is a mockup - but include the description of the metabolite here)
               </i>
             </li>
           </ul>
         </p>
       </div>
+      <li>Extra Links<br>
+        <ol class="list-unstyled">
+          <li><a href="#">HPA links</a></li>
+          <li><a href="#">Links to KEGG, Humancyc, TCGA etc ..</a></li>
+        </ol>
+      </li>
 
       <div class="sidebar-module">
         <h3>Search HPA for ...</h3>
@@ -188,26 +185,14 @@
         <div id = "searchRes" class = "well">
           Search tips (during development): {{rcexamples}}
           <pre> {{search | json}}</pre>
-          Expression levels (during development): {{infoLevels}}
-
         </div>
       </div>
-
-
       <div class="sidebar-module">
-        <h4>Extra Links:</h4>
-        <ol class="list-unstyled">
-          <li><a href="#">Link 1</a></li>
-          <li><a href="#">Link 2 ..</a></li>
-        </ol>
-      </div>
-
-      <div class="sidebar-module">
-        <h4>Elsewhere</h4>
+        <h3>Elsewhere</h3>
         <ol class="list-unstyled">
           <li><a href="http://www.sysbio.se/">SysBio @Chalmers</a></li>
           <li><a href="http://www.proteinatlas.org/">HPA</a></li>
-          <li><a href="#">Something</a></li>
+          <li><a href="#">Something else (NBIS, SciLifeLab, etc)</a></li>
         </ol>
       </div>
     </div>
@@ -217,7 +202,7 @@
 
   <footer class="footer">
     <div class="container">
-      <p class="text-muted">Human Metabolic Atlas</p>
+      <h3>Human Metabolic Atlas - view 4<h3>
     </div>
   </footer>
 

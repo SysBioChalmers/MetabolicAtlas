@@ -1,22 +1,34 @@
-app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scope, $http, view3Graph ){
-    var cy; // mitght want a ref to cy
+app.controller('v3ElemsCtrl', [ '$scope', '$http', '$q', 'view3Graph', function( $scope, $http, $q, view3Graph ){
+  $scope.search = {rc: "E_3748", tissue: "adipose_tissue", expression: "antibody_profiling"};
+  $scope.rcexamples = "E_2571, E_3125";//display as search tips
+
+  var mainURL="http://130.238.29.191/api/v1/";
+
+  $scope.dosearch = function(fsearch) {
+    $scope.search = angular.copy(fsearch);
+    var cy; // might want a ref to cy
     // (usually better to have the srv as intermediary)
+    // the $scope variables are 'visible' by the .html page
     $scope.elms = [];
     $scope.rels = [];
-    $scope.reactionComponentID="E_3125"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
+    //$scope.reactionComponentID="E_3125"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
     //$scope.reactionComponentID="M_m02040s"; // gene symbol ZADH2 and uniprot Q8N4Q0 (ZADH2_HUMAN)
     //$scope.reactionComponentID="E_2571"; // gene symbol ENPP6 - only directly connected metabolites!
     //$scope.reactionComponentID="E_3749"; // gene symbol NOS2P1 - no uniprot!!!
-    $scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
+    //$scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
+    // http://130.238.29.191/api/v1/reaction_components/E_3125/interaction_partners
+    // http://130.238.29.191/api/v1/reaction_components/M_m02040s/interaction_partners
+    // http://130.238.29.191/api/v1/reaction_components/E_2571/interaction_partners
+    $scope.reactionComponentID = $scope.search.rc; //connecting Sergius and Lenas naming :)
 
     //first get enzyme data
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
-    url = 'http://130.238.29.191/api/v1/reaction_components/'+$scope.reactionComponentID;
+    urlMainEnzyme = mainURL+'reaction_components/'+$scope.reactionComponentID;
     //http://130.238.29.191/api/v1/reaction_components/E_2571
-    $http.get(url)
+    $http.get(urlMainEnzyme)
     .success(function(dataOuter, statusOuter, headersOuter, configOuter) {
       $scope.backend = dataOuter;
-      console.log("Got the JSON from url "+url);
+      console.log("Got the JSON from url "+urlMainEnzyme);
       var e = $scope.backend;
       var elms = {};
       var rels = {};
@@ -30,14 +42,22 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
           compartment: e.compartment
       };
       elms[$scope.reactionComponentID] = enzyme;
+      $scope.enzymeName = enzyme.short;
+      $scope.enzymeFunction = "No known function in UniProt";
+      if($scope.enzymeName=="ENPP6"){
+        $scope.enzymeFunction = "Choline-specific glycerophosphodiester phosphodiesterase. The preferred substrate may be lysosphingomyelin (By similarity). Hydrolyzes lysophosphatidylcholine (LPC) to form monoacylglycerol and phosphorylcholine but not lysophosphatidic acid, showing it has a lysophospholipase C activity. Has a preference for LPC with short (12:0 and 14:0) or polyunsaturated (18:2 and 20:4) fatty acids. Also hydrolyzes glycerophosphorylcholine and sphingosylphosphorylcholine efficiently. Hydrolyzes the classical substrate for phospholipase C, p-nitrophenyl phosphorylcholine in vitro, while it does not hydrolyze the classical nucleotide phosphodiesterase substrate, p-nitrophenyl thymidine 5'-monophosphate. Does not hydrolyze diacyl phospholipids such as phosphatidylethanolamine, phosphatidylinositol, phosphatidylserine, phosphatidylglycerol and phosphatidic acid.";
+        //$scope.enzymeFunction = "Choline-specific glycerophosphodiester phosphodiesterase. ";
+      }else if($scope.enzymeName=="SULT1A3"){
+        $scope.enzymeFunction="Sulfotransferase that utilizes 3'-phospho-5'-adenylyl sulfate (PAPS) as sulfonate donor to catalyze the sulfate conjugation of phenolic monoamines (neurotransmitters such as dopamine, norepinephrine and serotonin) and phenolic and catechol drugs. </br><b>Catalytic activity:</b></br>3'-phosphoadenylyl sulfate + a phenol = adenosine 3',5'-bisphosphate + an aryl sulfate.";
+      }
 
     //then get the actual interaction partners....
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
-    url = url+'/interaction_partners';
-    $http.get(url)
+    $scope.API = urlMainEnzyme+'/interaction_partners';
+    $http.get($scope.API)
     .success(function(data, status, headers, config) {
         $scope.backend = data;
-        console.log("Got the JSON from url "+url);
+        console.log("Got the JSON from url "+$scope.API);
         //http://book.mixu.net/node/ch5.html
         //https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Set
         //http://stackoverflow.com/questions/7958292/mimicking-sets-in-javascript
@@ -133,6 +153,89 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
           var node = $scope.elms[i];
           elmsById[ node.id ] = node;
         }
+        $scope.elmsById = elmsById;
+
+        var promises = [];
+        var ids = [];
+        for (eid in $scope.elms){
+          var elem = $scope.elms[eid];
+          var t = new String(elem.type);
+          if ( t == "enzyme"){
+            var exprAPI = mainURL+"reaction_components/"+eid+"/expressions?tissue=adipose&expression_type=rnaseq";
+            var promise = $http({method: 'GET', url: exprAPI, cache: 'true'});
+            promises.push(promise);
+            ids.push(eid);
+          }
+        }
+        console.log(promises.length);
+        var xmax = 0;
+        var levels = {};
+
+        $q.all(promises).then(function(data2){
+          //console.log(JSON.stringify(data2[0].data.expressions[0].level));
+          for (i = 0; i < promises.length; i++){
+            var eid = ids[i];
+            levels[eid] = data2[i].data.expressions[0].level;
+          }
+          //console.log(JSON.stringify(levels));
+          $scope.infoLevels = JSON.stringify(levels);
+
+          // for (i = 0; i < promises.length; i++){
+          //   var eid = ids[i];
+          //   var ex = data2[i].data.expressions;
+          //   //console.log(JSON.stringify(data2[i].data);
+          //   var elem = $scope.elms[eid];
+          //   var t = new String(elem.type);
+          //   if ( t == "enzyme"){
+          //     $scope.elms[eid].level = parseInt(ex[1].level);
+          //     levels.push(parseInt(ex[1].level));
+          //     if ($scope.elms[eid].level > xmax) {xmax = $scope.elms[eid].level;};
+          //   }
+          // }
+        	//console.log(data2[0], data2[1]);
+        });
+        //console.log(levels);
+
+        // //not working, i must combine promises with $q deferral
+        // //https://www.jonathanfielding.com/combining-promises-angular/
+        // console.log($scope.elms);
+        // var xmax = 0;
+        // for (eid in $scope.elms){
+        //   var elem = $scope.elms[eid];
+        //   console.log(elem.type + ' ' + elem.type === "enzyme");
+        //   var t = new String(elem.type);
+        //   if ( t == "enzyme"){
+        //     //http://130.238.29.191/api/v1/reaction_components/E_3125/expressions?tissue=adipose&expression_type=rnaseq
+        //     $scope.exprAPI = "http://130.238.29.191/api/v1/reaction_components/"+eid+"/expressions?tissue=adipose&expression_type=rnaseq";
+        //     $http.get($scope.exprAPI)
+        //     .success(function(data2, status2, headers2, config2) {
+        //       console.log(eid + ' ' + JSON.stringify(data2));
+        //       if (!(jQuery.isEmptyObject(data2))){
+        //         console.log($scope.exprAPI + ' passed');
+        //         elem.level = data2.expressions[1].level;
+        //         $scope.elms[eid] = elem;
+        //         if (elem.level > xmax) {xmax = elem.level;};
+        //       }else{
+        //         $scope.elms[eid].level = 0;
+        //       }
+        //
+        //     }).error(function(error2, status2, headers2, config2) {
+        //       console.log(status);
+        //       console.log("Error occured fetching for" + eid);
+        //     });
+        //   }else{
+        //     $scope.elms[eid].level = 0;
+        //   }
+        // }
+        // //just trying to get the color scaling factor instead of the expression level
+        // for (eid in $scope.elms){
+        //   if ($scope.elms[eid].type == "enzyme"){
+        //     $scope.elms[eid].level = (xmax - $scope.elms[eid].level)/xmax;
+        //     console.log(eid + ' ' + $scope.elms[eid].level);
+        //   }
+        // }
+
+
 
         // might want some ui to prevent use of this controller until cy is loaded
         view3Graph( $scope.elms, $scope.rels ).then(function( elmsCy ){
@@ -140,36 +243,28 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', 'view3Graph', function( $scop
 
           // hide ui until cy loaded
           $scope.cyLoaded = true;
+
+          cy.on('select', 'node', function(e){
+            $scope.clickedNode = this.id();
+            console.log($scope.elms);
+            var elem = $scope.elms[this.id()];
+            $scope.infoSymbol = elem.short;
+            $scope.infoCompartment = elem.compartment;
+            $scope.infoDescription = "";
+            $scope.$apply();
+          });
+
         });
 
     }).error(function(error, status, headers, config) {
         console.log(status);
         console.log("Error occured");
+        console.log(error);
     });
   });
 
-  /*
-  // test versions of the elements and relationships
-  $scope.elms = [
-    { id: 'e1', parentid: 'null', type:'E', short:'E1', long:'long E1', description:'super long E1', formula: 'E1f' },
-    { id: 'r1', parentid: 'null', type:'R', short:'R1', long:'long R1', description:'super long R1', formula: 'R1f' },
-    { id: 'r2', parentid: 'null', type:'R', short:'R2', long:'long R2', description:'super long R2', formula: 'R2f' },
-    { id: 'm1', parentid: 'r1', type:'M', short:'M1', long:'long M1', description:'super long M1', formula: 'M1f' },
-    { id: 'm2', parentid: 'r1', type:'M', short:'M2', long:'long M2', description:'super long M2', formula: 'M2f' },
-    { id: 'm3', parentid: 'r2', type:'M', short:'M3', long:'long M3', description:'super long M3', formula: 'M3f' },
-    { id: 'm4', parentid: 'r2', type:'M', short:'M1', long:'long M1', description:'super long M1', formula: 'M1f' }
-  ];
 
-  $scope.rels = [
-    { id: 'e1_r1', source: 'e1', target: 'r1' },
-    { id: 'e1_r2', source: 'e1', target: 'r2' }
-  ];
-  */
-
-
-
-  $scope.onSelected = function(elem){
-     //Nothing happens rite now
-  };
+}; //dosearch
+$scope.dosearch($scope.search);
 
 } ]);

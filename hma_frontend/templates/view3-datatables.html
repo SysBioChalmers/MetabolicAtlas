@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="../css/style.css" rel="stylesheet" />
+<meta charset=utf-8 />
+<title>View 3</title>
+<!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script> -->
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.js"></script>
+<link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-qtip/2.2.5/cytoscape-qtip.js"></script>
+<script src="http://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+<script src="../static/lib/cytoscape-cola.js"></script>
+<script src="../static/lib/cytoscape-cose-bilkent.js"></script>
+<script src="../static/js/view3model.js"></script>
+<script src="../static/js/view3ctrl.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('#view3-table').DataTable();
+	} );
+</script>
+</head>
+<body ng-app="app">
+  <div id="logo">
+    <svg viewBox="0 0 1200 100" class="icon">
+       <use xlink:href="../static/images/logo.svg#hmaLogo"></use>
+    </svg>
+  </div>
+  <div width="1000" id="cy"></div>
+  <table id="view3-table" class="display" ng-controller="v3ElemsCtrl">
+    <thead>
+        <tr>
+          <th>Select</th>
+          <th>Type</th>
+          <th>Short Name</th>
+          <th>Long Name</th>
+          <th>Description</th>
+          <th>Formula</th>
+        </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="elem in elms">
+        <td><input type="checkbox" ng-model="elem.id" ng-change="onSelected(elem)"></td>
+        <td>{{elem.type}}</td>
+        <td>{{elem.short}}</td>
+        <td>{{elem.long}}</td>
+        <td>{{elem.description}}</td>
+        <td>{{elem.formula}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div id="footer">Human Metabolic Atlas - View3</div>
+  <!-- <script type="text/javascript">
+  	// For demo to fit into DataTables site builder...
+  	$('#view3-table')
+  		.removeClass( 'tbldisplay' )
+  		.addClass('table table-striped table-bordered');
+  </script> -->
+</body>
+</html>
