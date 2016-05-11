@@ -9,6 +9,3 @@ itsdangerous==0.24
 gunicorn==19.3.0
 psycopg2==2.6
 flask-swagger==0.2.12
-python-libsbml==5.12.1
-cobra==0.4.1
-

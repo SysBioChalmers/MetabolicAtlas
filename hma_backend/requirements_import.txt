@@ -1,0 +1,2 @@
+python-libsbml==5.12.1
+cobra==0.4.1
