@@ -57,6 +57,20 @@ environment.
 Tests are executed by running `make test`.
 
 
+# Database migrations
+
+Make your changes to `hma_backend/models.py` and then run the
+following:
+
+```bash
+$ python manage.py db migrate
+# edit the generated migration to make sure everything's correct
+# once that's done, run the following to upgrade the database:
+$ python manage.py db upgrade
+```
+
+For more information about migrations, see [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/).
+
 # API
 
 A definition of the API is available at `/api/v1/spec`, use
