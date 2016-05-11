@@ -176,7 +176,7 @@ class APITestCase(unittest.TestCase):
     def test_get_reaction_modifiers(self):
         response = self.client.get('/api/v1/reactions/reaction1/modifiers')
         data = dict(self.get_json(response))
-        assert len(data['modifiers']) == 1
+        assert len(data['modifiers']) == 2
 
     def test_get_reaction_no_modifiers(self):
         response = self.client.get('/api/v1/reactions/reaction2/modifiers')
@@ -205,8 +205,8 @@ class APITestCase(unittest.TestCase):
         response = self.client.get('/api/v1/reaction_components')
         data = dict(self.get_json(response))
         assert data['limit'] == 20
-        assert data['offset'] == 5
-        assert len(data['reaction_components']) == 5
+        assert data['offset'] == 6
+        assert len(data['reaction_components']) == 6
 
     def test_get_reaction_components_search(self):
         query = '/api/v1/reaction_components?name={0}'
@@ -234,6 +234,13 @@ class APITestCase(unittest.TestCase):
         assert response.status_code == 404
         assert data['error'] == "Not found"
 
+    def test_list_currency_metabolites(self):
+        response = self.client.get(
+            '/api/v1/reaction_components/modifier1/currency_metabolites'
+        )
+        data = dict(self.get_json(response))
+        assert data['reaction_ids'] == ['reaction2']
+
     def test_get_reaction_component_expressions(self):
         response = self.client.get(
             '/api/v1/reaction_components/modifier1/expressions')
@@ -249,7 +256,14 @@ class APITestCase(unittest.TestCase):
         reaction = data['reactions'][0]
         expected_reaction = {
             'reaction_id': 'reaction1',
-            'modifiers': [],
+            'modifiers': [
+                {'long_name': 'Modifier 2',
+                 'short_name': 'modifier2',
+                 'component_id': 'modifier2',
+                 'type': 'enzyme',
+                 'formula': 'BaZ',
+                 'organism': 'Human'}
+            ],
             'products': [
                 {'long_name': 'Product 1',
                  'short_name': 'Product 1',
@@ -279,6 +293,42 @@ class APITestCase(unittest.TestCase):
         assert data['id'] == 'modifier1'
         assert data['short_name'] == 'modifier1'
         assert data['long_name'] == 'Modifier 1'
+        assert data['compartment'] == 'Mitochondria'
+        assert len(data['reactions']) == 1
+        expected_reaction = {
+            'reaction_id': 'reaction1',
+            'modifiers': [],
+            'products': [
+                {'long_name': 'Product 1',
+                 'short_name': 'Product 1',
+                 'component_id': 'product1',
+                 'type': 'metabolite',
+                 'formula': 'BAr',
+                 'organism': 'Human'}
+            ],
+            'reactants': [
+                {'long_name': 'Reactant 1',
+                 'compartment': 'Mitochondria',
+                 'short_name': 'reactant1',
+                 'component_id': 'reactant1',
+                 'type': 'metabolite',
+                 'formula': 'FO2',
+                 'organism': 'Human'}
+            ],
+            'enzyme_role': 'modifier'
+        }
+        assert data['reactions'] == [expected_reaction]
+
+    def test_get_connected_metabolites_no_compartment(self):
+        response = self.client.get(
+            '/api/v1/enzymes/Modifier 2/connected_metabolites'
+        )
+        data = dict(self.get_json(response))
+        assert data['id'] == 'modifier2'
+        assert data['short_name'] == 'modifier2'
+        assert data['long_name'] == 'Modifier 2'
+        with self.assertRaises(KeyError):
+            data['compartment'] == None
         assert len(data['reactions']) == 1
         expected_reaction = {
             'reaction_id': 'reaction1',
@@ -516,8 +566,17 @@ class APITestCase(unittest.TestCase):
         modifier1.short_name = "modifier1"
         modifier1.long_name = "Modifier 1"
         modifier1.component_type = "enzyme"
+        modifier1.compartment = compartment1.id
         modifier1.organism = "Human"
         modifier1.formula = "BaZ"
+
+        modifier2 = ReactionComponent(id="modifier2")
+        modifier2.short_name = "modifier2"
+        modifier2.long_name = "Modifier 2"
+        modifier2.component_type = "enzyme"
+        # no compartment here
+        modifier2.organism = "Human"
+        modifier2.formula = "BaZ"
 
         dupe_enzyme1 = ReactionComponent(id="dupe_enzyme1")
         dupe_enzyme1.short_name = "dupe_enzyme1"
@@ -559,6 +618,7 @@ class APITestCase(unittest.TestCase):
         reaction1.reactants.append(reactant1)
         reaction1.products.append(product1)
         reaction1.modifiers.append(modifier1)
+        reaction1.modifiers.append(modifier2)
 
         db.session.add(reaction1)
 
@@ -571,6 +631,9 @@ class APITestCase(unittest.TestCase):
         reaction2.objective_coefficient = 1.0
 
         db.session.add(reaction2)
+
+        modifier1.currency_metabolites.append(reaction2)
+        db.session.add(modifier1)
 
         db.session.commit()
 

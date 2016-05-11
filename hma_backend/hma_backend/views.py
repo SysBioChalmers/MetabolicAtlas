@@ -671,6 +671,43 @@ def make_public_component(component):
     return json
 
 
+@app.route(
+    "/api/v1/reaction_components/<string:component_id>/currency_metabolites"
+)
+def list_currency_metabolites(component_id):
+    """
+    Find currency metabolites for reaction component by ID
+    ---
+    tags:
+      - ReactionComponent
+      - Reaction
+    parameters:
+      - in: path
+        name: component_id
+        type: string
+        required: true
+        description: Reaction component ID
+    responses:
+      200:
+        description: Returns the reaction IDs in which the given metabolite
+                     is considered a 'currency metabolite', meaning a metabolite
+                     that has multiple uses in different reactions/pathways,
+                     such as ATP and NAD.
+        schema:
+          type: objcet
+          properties:
+            reaction_ids:
+              type: array
+              items:
+                type: string
+      404:
+        description: ReactionComponent not found
+    """
+    component = ReactionComponent.query.get_or_404(component_id)
+    reaction_ids = [reaction.id for reaction in component.currency_metabolites]
+    return jsonify({'reaction_ids': reaction_ids})
+
+
 @app.route("/api/v1/reaction_components/<string:component_id>/expressions")
 def list_component_expressions(component_id):
     """
