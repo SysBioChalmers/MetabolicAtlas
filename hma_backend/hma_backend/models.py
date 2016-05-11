@@ -70,6 +70,15 @@ reaction_modifiers = db.Table("reaction_modifiers",
                                   primary_key=True))
 
 
+currency_metabolites = db.Table("currency_metabolites",
+                                db.Column('component_id',
+                                          ForeignKey('reaction_component.id'),
+                                          primary_key=True),
+                                db.Column('reaction_id',
+                                          ForeignKey('reaction.id'),
+                                          primary_key=True))
+
+
 class Reaction(db.Model):
     __tablename__ = "reaction"
 
@@ -83,6 +92,8 @@ class Reaction(db.Model):
     reactants = relationship("ReactionComponent", secondary=reaction_reactants)
     products = relationship("ReactionComponent", secondary=reaction_products)
     modifiers = relationship("ReactionComponent", secondary=reaction_modifiers)
+    currency_metabolites = relationship("ReactionComponent",
+                                        secondary=currency_metabolites)
     models = relationship("MetabolicModel", secondary=model_reactions,
                           back_populates="reactions")
 
@@ -119,6 +130,10 @@ class ReactionComponent(db.Model):
     reactions_as_modifier = relationship("Reaction",
                                          secondary=reaction_modifiers,
                                          back_populates="modifiers")
+
+    currency_metabolites = relationship("Reaction",
+                                        secondary=currency_metabolites,
+                                        back_populates="currency_metabolites")
 
     compartment = db.Column(db.Integer, ForeignKey("compartment.id"),
                             nullable=True)
