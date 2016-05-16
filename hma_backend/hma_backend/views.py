@@ -792,6 +792,11 @@ def list_interaction_partners(component_id):
               description: Reaction products
               items:
                 $ref: "#/definitions/ReactionComponent"
+            currency_metabolites:
+              type: array
+              description: Currency metabolite IDs
+              items:
+                type: string
     responses:
       200:
         description: Returns a list of interaction partners
@@ -822,6 +827,8 @@ def list_interaction_partners(component_id):
         partners['reactants'] = [make_public_component(modifier) for
                                  modifier in reaction.reactants if
                                  modifier.id != component_id]
+        partners['currency_metabolites'] = [cm.id for cm in
+                                            reaction.currency_metabolites]
         interaction_partners['reactions'].append(partners)
 
     return jsonify(interaction_partners)

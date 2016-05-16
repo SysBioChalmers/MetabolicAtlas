@@ -281,6 +281,9 @@ class APITestCase(unittest.TestCase):
                  'formula': 'FO2',
                  'organism': 'Human'}
             ],
+            'currency_metabolites': [
+                'modifier2'
+            ]
         }
 
         assert reaction == expected_reaction
@@ -634,6 +637,9 @@ class APITestCase(unittest.TestCase):
 
         modifier1.currency_metabolites.append(reaction2)
         db.session.add(modifier1)
+
+        modifier2.currency_metabolites.append(reaction1)
+        db.session.add(modifier2)
 
         db.session.commit()
 
