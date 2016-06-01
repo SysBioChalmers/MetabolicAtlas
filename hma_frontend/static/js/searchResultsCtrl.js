@@ -9,7 +9,7 @@ app.controller('searchResultsCtrl', [ '$scope', '$http', 'searchResults', functi
     $scope.LoadData = function(){
 
       $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
-      $http.get('http://130.238.29.191/api/v1/reaction_components?name='+$scope.name)
+      $http.get('http://130.238.29.194/api/v1/reaction_components?name='+$scope.name)
       .success(function(data, status, headers, config) {
           $scope.backend = data;
           console.log("Got the JSON for "+$scope.name);

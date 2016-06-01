@@ -2,7 +2,7 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', '$q', 'view3Graph', function(
   $scope.search = {rc: "E_3748", tissue: "adipose_tissue", expression: "antibody_profiling"};
   $scope.rcexamples = "E_2571, E_3125";//display as search tips
 
-  var mainURL="http://130.238.29.191/api/v1/";
+  var mainURL="http://130.238.29.194/api/v1/";
 
   $scope.dosearch = function(fsearch) {
     $scope.search = angular.copy(fsearch);
@@ -16,15 +16,15 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', '$q', 'view3Graph', function(
     //$scope.reactionComponentID="E_2571"; // gene symbol ENPP6 - only directly connected metabolites!
     //$scope.reactionComponentID="E_3749"; // gene symbol NOS2P1 - no uniprot!!!
     //$scope.reactionComponentID="E_3748"; // ENSG00000261052: gene symbol SULT1A3 and uniprot P0DMM9 (ST1A3_HUMAN)
-    // http://130.238.29.191/api/v1/reaction_components/E_3125/interaction_partners
-    // http://130.238.29.191/api/v1/reaction_components/M_m02040s/interaction_partners
-    // http://130.238.29.191/api/v1/reaction_components/E_2571/interaction_partners
+    // http://130.238.29.194/api/v1/reaction_components/E_3125/interaction_partners
+    // http://130.238.29.194/api/v1/reaction_components/M_m02040s/interaction_partners
+    // http://130.238.29.194/api/v1/reaction_components/E_2571/interaction_partners
     $scope.reactionComponentID = $scope.search.rc; //connecting Sergius and Lenas naming :)
 
     //first get enzyme data
     $http.defaults.headers.common['Authorization'] = 'Basic ' + window.btoa('hma' + ':' + 'K5U5Hxl8KG');
     urlMainEnzyme = mainURL+'reaction_components/'+$scope.reactionComponentID;
-    //http://130.238.29.191/api/v1/reaction_components/E_2571
+    //http://130.238.29.194/api/v1/reaction_components/E_2571
     $http.get(urlMainEnzyme)
     .success(function(dataOuter, statusOuter, headersOuter, configOuter) {
       $scope.backend = dataOuter;
@@ -205,8 +205,8 @@ app.controller('v3ElemsCtrl', [ '$scope', '$http', '$q', 'view3Graph', function(
         //   console.log(elem.type + ' ' + elem.type === "enzyme");
         //   var t = new String(elem.type);
         //   if ( t == "enzyme"){
-        //     //http://130.238.29.191/api/v1/reaction_components/E_3125/expressions?tissue=adipose&expression_type=rnaseq
-        //     $scope.exprAPI = "http://130.238.29.191/api/v1/reaction_components/"+eid+"/expressions?tissue=adipose&expression_type=rnaseq";
+        //     //http://130.238.29.194/api/v1/reaction_components/E_3125/expressions?tissue=adipose&expression_type=rnaseq
+        //     $scope.exprAPI = "http://130.238.29.194/api/v1/reaction_components/"+eid+"/expressions?tissue=adipose&expression_type=rnaseq";
         //     $http.get($scope.exprAPI)
         //     .success(function(data2, status2, headers2, config2) {
         //       console.log(eid + ' ' + JSON.stringify(data2));
