@@ -30,6 +30,9 @@ $ wget http://v14.proteinatlas.org/download/normal_tissue.csv.zip
 $ wget http://v14.proteinatlas.org/download/transcript_rna_tissue.tsv.zip
 ```
 
+(In addition to this, you might also want to a file specifying
+currency metabolites. More on that below.)
+
 Unzip the files and place them in the `hma_backend/import/`
 folder. You will also need a file that maps ENSGIDs to HGNC symbols
 (which will be used as short_name for the ReactionComponents). Place
@@ -47,7 +50,14 @@ $ psql -h `docker-machine ip dev` -p 5432 -U postgres --password -d hma -c "crea
 $ docker-compose run --rm backend /usr/local/bin/python create_db.py
 ```
 
-After that, we'll populate the database. This is done in three steps.
+After that, we'll populate the database. First, we need to install
+some additional Python libraries:
+
+```bash
+$ docker-compose run --rm backend /usr/local/bin/pip install -r requirements_import.txt
+```
+
+The actual import is done in four steps:
 
 
 ### First step - Import GEM file
@@ -94,6 +104,45 @@ $ docker-compose run --rm backend /usr/local/bin/python \
 $ docker-compose run --rm backend /usr/local/bin/python \
 	add_short_names.py import/ensembl78_hgnc_symbol.hsapiens.tab
 ```
+
+
+### Fourth step - Import currency metabolites
+
+A "currency metabolite" is a metabolite that has multiple uses in
+different reactions/pathways, such as ATP and NAD. To import currency
+metabolites, we require a file with the following structure:
+
+```
+MetaboliteID1,ReactionID1,...,ReactionIDn
+...
+```
+
+E.g.:
+
+```
+m00003c,HMR_0685,HMR_0686,HMR_0687,HMR_0688,HMR_0689,HMR_0690,HMR_0691,HMR_0692
+m00004c,HMR_0545,HMR_0546,HMR_0547,HMR_0548,HMR_0549,HMR_0550,HMR_0551,HMR_0552,HMR_0553
+m00006c,HMR_0545,HMR_0546,HMR_0547,HMR_0548,HMR_0549,HMR_0550,HMR_0551,HMR_0552,HMR_0553
+m00007c,HMR_0545,HMR_0546,HMR_0547,HMR_0548,HMR_0549,HMR_0550,HMR_0551,HMR_0552,HMR_0553
+```
+
+Note that the lines do not have to have the same number of columns, we
+don't care about the number of reaction IDs, we'll import all of them
+for each line.
+
+(Note that the IDs are of the form used by CobraPy, meaning the IDs
+are not prefixed with "M_" or "R_" like they are in the GEM file.)
+
+To import the currency metabolites, run the following:
+
+```bash
+$ docker-compose run --rm backend /usr/local/python add_currency_metabolites.py \
+    import/currency_metabolites.txt
+```
+
+(Provided that you placed the file specifying the currency metabolites
+in the hma_backend/import folder before you built the container
+images.)
 
 
 ## Usage
