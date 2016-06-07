@@ -4,12 +4,13 @@ app.controller('v4ElemsCtrl', [ '$scope', '$http', 'view4Graph', function( $scop
 
   $scope.rcexamples = "ENSG00000180011, ?";//display as search tips
 
-  $scope.API = "http://130.238.29.194/api/v1/enzymes/ENSG00000180011/connected_metabolites?include_expressions=true";
+  var mainURL="http://130.238.29.194/api/v1/";
+  $scope.API = mainURL+"enzymes/ENSG00000180011/connected_metabolites?include_expressions=true";
 
   $scope.dosearch = function(fsearch) {
     $scope.search = angular.copy(fsearch);
-    //$scope.API = "http://130.238.29.194/api/v1/reaction_components/E_2571/interaction_partners";
-    $scope.API = "http://130.238.29.194/api/v1/enzymes/"+$scope.search.rc+"/connected_metabolites?include_expressions=true";
+    //$scope.API = mainURL+"reaction_components/E_2571/interaction_partners";
+    $scope.API = mainURL+"enzymes/"+$scope.search.rc+"/connected_metabolites?include_expressions=true";
 
     var cy; // might want a ref to cy
     // (usually better to have the srv as intermediary)
