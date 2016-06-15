@@ -1,0 +1,21 @@
+{
+  "name": "hma-frontend",
+  "description": "Frontend for HMA 2.0",
+  "version": "0.0.0",
+  "homepage": "http://metabolicatlas.org",
+  "license": "TBD",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.5.0",
+    "angular-loader": "~1.5.0",
+    "angular-mocks": "~1.5.0",
+    "angular-resource": "~1.5.0",
+    "angular-route": "~1.5.0",
+    "bootstrap": "^3.3.6",
+    "cytoscape": "^2.7.1",
+    "cytoscape-cola": "^1.4.1",
+    "cytoscape-cose-bilkent": "^1.3.3",
+    "cytoscape-qtip": "^2.4.0",
+    "jquery": "^2.2.4"
+  }
+}
