@@ -125,6 +125,7 @@ def get_reaction(sbml_model, index):
 
     reaction.sbo_id = sbml_reaction.sbo_term_id
     reaction.equation = get_equation(sbml_reaction)
+    reaction.ec = get_EC_number(sbml_reaction)
 
     kinetic_law_parameters = get_kinetic_law_parameters(sbml_reaction)
     reaction.lower_bound = kinetic_law_parameters.get("LOWER_BOUND")
@@ -155,6 +156,19 @@ def get_kinetic_law_parameters(sbml_reaction):
         parameter = kinetic_law.getParameter(i)
         params[parameter.name] = parameter.value
     return params
+
+def get_EC_number(sbml_reaction):
+    """Get the EC number(s), if applicable, for the reaction"""
+    annotation = sbml_reaction.annotation_string
+    if annotation is None:
+        return None
+    match = re.search(".*ec-code:EC:.*", annotation)
+    if match:
+        ec = re.sub(r'^.*ec-code:EC','EC', re.sub(r'\n','',annotation))
+        ec = re.sub(r"\".*","", ec)
+        return ec
+    else:
+        return None
 
 
 def get_reaction_components(sbml_model, sbml_species):

@@ -14,8 +14,8 @@ import sys
 from hma_backend.models import ReactionComponent
 
 
-NUM_CPUS = cpu_count()
-
+#NUM_CPUS = cpu_count()
+NUM_CPUS=1
 
 logger = logging.getLogger(__name__)
 sh = logging.StreamHandler(stream=sys.stderr)

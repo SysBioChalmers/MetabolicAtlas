@@ -86,6 +86,7 @@ class Reaction(db.Model):
     name = db.Column(db.String(255))
     sbo_id = db.Column(db.String(255))
     equation = db.Column(db.Text(), nullable=False)
+    ec = db.Column(db.String(255))
     lower_bound = db.Column(db.Numeric)
     upper_bound = db.Column(db.Numeric)
     objective_coefficient = db.Column(db.Numeric)
@@ -180,5 +181,3 @@ class ExpressionData(db.Model):
     expression_type = db.Column(db.String(255), index=True)
     reliability = db.Column(db.String(255))
     source = db.Column(db.String(255))
-
-
