@@ -53,14 +53,12 @@ reaction_reactants = db.Table("reaction_reactants",
                                   ForeignKey('reaction_component.id'),
                                   primary_key=True))
 
-
 reaction_products = db.Table("reaction_products",
                        db.Column('reaction_id', ForeignKey('reaction.id'),
                                  primary_key=True),
                        db.Column('product_id',
                                  ForeignKey('reaction_component.id'),
                                  primary_key=True))
-
 
 reaction_modifiers = db.Table("reaction_modifiers",
                         db.Column('reaction_id', ForeignKey('reaction.id'),
@@ -69,7 +67,6 @@ reaction_modifiers = db.Table("reaction_modifiers",
                                   ForeignKey('reaction_component.id'),
                                   primary_key=True))
 
-
 currency_metabolites = db.Table("currency_metabolites",
                                 db.Column('component_id',
                                           ForeignKey('reaction_component.id'),
@@ -77,6 +74,11 @@ currency_metabolites = db.Table("currency_metabolites",
                                 db.Column('reaction_id',
                                           ForeignKey('reaction.id'),
                                           primary_key=True))
+
+#reaction_component_annotations = db.Table("reaction_component_annotations",
+#    db.Column('component_id', ForeignKey('reaction_component.id'),primary_key=True),
+#    db.Column('annotation_type', db.String(50)),
+#    db.Column('annotation', db.String(255)))
 
 
 class Reaction(db.Model):
@@ -100,7 +102,6 @@ class Reaction(db.Model):
 
     def __repr__(self):
         return "<Reaction: {0}>".format(self.id)
-
 
 class ReactionComponent(db.Model):
     __tablename__ = "reaction_component"
@@ -136,11 +137,23 @@ class ReactionComponent(db.Model):
                                         secondary=currency_metabolites,
                                         back_populates="currency_metabolites")
 
+    #reaction_component_annotations = relationship("ReactionComponentAnnotation",
+    #    secondary = reaction_component_annotations,
+    #    back_populates="reaction_component_annotations")
+
     compartment = db.Column(db.Integer, ForeignKey("compartment.id"),
                             nullable=True)
 
     def __repr__(self):
         return "<ReactionComponent: {0}>".format(self.id)
+
+
+class ReactionComponentAnnotation(db.Model):
+    __tablename__ = "reaction_component_annotations"
+    id = db.Column(db.Integer, primary_key=True)
+    component_id = db.Column(db.String(50), ForeignKey(ReactionComponent.id))
+    annotation_type = db.Column(db.String(50))
+    annotation = db.Column(db.String(255))
 
 
 class Compartment(db.Model):
@@ -172,12 +185,13 @@ class ExpressionData(db.Model):
     # FIXME: ForeignKey must be unique, so we can't use long_name here :(
     id = db.Column(db.String(50), ForeignKey(ReactionComponent.id),
                    primary_key=True)
-    gene_id = db.Column(db.String(255), primary_key=True)
+    gene_id = db.Column(db.String(35), primary_key=True)
     gene_name = db.Column(db.String(255))
-    transcript_id = db.Column(db.String(255), primary_key=True)
-    tissue = db.Column(db.String(255), primary_key=True)
+    transcript_id = db.Column(db.String(35), primary_key=True)
+    tissue = db.Column(db.String(100), primary_key=True)
+    bto = db.Column(db.String(20), primary_key=True)
     cell_type = db.Column(db.String(255), primary_key=True)
-    level = db.Column(db.String(255))
-    expression_type = db.Column(db.String(255), index=True)
-    reliability = db.Column(db.String(255))
-    source = db.Column(db.String(255))
+    level = db.Column(db.String(30))
+    expression_type = db.Column(db.String(35), index=True)
+    reliability = db.Column(db.String(35))
+    source = db.Column(db.String(45))

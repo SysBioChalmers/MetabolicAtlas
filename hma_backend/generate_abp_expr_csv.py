@@ -8,6 +8,7 @@ from multiprocessing import Process, Queue, cpu_count
 import csv
 import logging
 import sys
+import re
 
 from hma_backend.models import ReactionComponent
 
@@ -24,12 +25,12 @@ sh.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 
 
-def get_antibody_expressions(gene_ids, antibody_file):
+def get_antibody_expressions(gene_ids, antibody_file, btoMap):
     """Read antibody expressions from supplied file."""
     logger.info("Reading abp file...")
     q = Queue()
     queue_proc = Process(target=queue_abp_expressions,
-                         args=(q, antibody_file, gene_ids, NUM_CPUS))
+                         args=(q, antibody_file, gene_ids, NUM_CPUS, btoMap))
     queue_proc.start()
     workers = []
     for i in range(NUM_CPUS):
@@ -39,7 +40,7 @@ def get_antibody_expressions(gene_ids, antibody_file):
     logger.info("Reading abp file...done!")
 
 
-def queue_abp_expressions(q, antibody_file, gene_ids, num_workers):
+def queue_abp_expressions(q, antibody_file, gene_ids, num_workers, btoMap):
     """Read expressions from file and publish to a queue."""
     logger.info("Publish expressions")
     for expression in read_antibody_expressions(antibody_file):
@@ -50,6 +51,15 @@ def queue_abp_expressions(q, antibody_file, gene_ids, num_workers):
             expression['transcript_id'] = "N/A"
             # FIXME don't hardcode this
             expression['source'] = "HMA V14"
+            tissue = expression['Tissue']
+            tissue = re.sub(" \d$", "", tissue) # if it ends with a number like stomach 1
+            if(re.match("soft ", tissue)):
+                tissue = expression['Cell type']
+            if(tissue not in btoMap):
+                sys.exit("Missing bto id for tissue "+tissue+" in file"+sys.argv[3])
+            expression['Tissue'] = tissue
+            #FIXME: right now bto is on tissue, but it should probably be on cell type for all...
+            expression['bto'] = btoMap[tissue]
             q.put(expression)
     logger.info("Publisher done, notifying workers...")
     for i in range(num_workers):
@@ -64,6 +74,14 @@ def read_antibody_expressions(antibody_file):
         for expression in reader:
             yield expression
 
+def readBTO(filename):
+    with open(filename, "r") as f:
+        reader = csv.reader(f, delimiter='\t')
+        bto = {}
+        for row in reader:
+            bto[row[0]] = row[1]
+    return bto
+
 
 def save_abp_expression(worker_id, q):
     """Read expressions from queue and save to CSV file.
@@ -73,7 +91,7 @@ def save_abp_expression(worker_id, q):
     logger.info("Worker {0} started!".format(worker_id))
     with open("abp_expr_{0}.csv".format(worker_id), "w") as f:
         fields = ['id', 'Gene', 'Gene name', 'transcript_id', 'Tissue',
-                  'Cell type', 'Level', 'Expression type', 'Reliability',
+                  'Cell type', 'bto', 'Level', 'Expression type', 'Reliability',
                   'source']
         writer = csv.DictWriter(f, delimiter=',', quotechar='"',
                                 fieldnames=fields)
@@ -85,21 +103,23 @@ def save_abp_expression(worker_id, q):
             writer.writerow(expression)
 
 
-def main(gem_file, antibody_file):
-    # get expression data
+def main(gem_file, antibody_file, btoMapFile):
+    logger.info("get components...")
     components = ReactionComponent.query.all()
     gene_ids = {component.long_name: component.id for component in components}
+    logger.info("read bto identifiers...")
+    btoMap = readBTO(btoMapFile)
 
     logger.info("read abp expression data...")
-    get_antibody_expressions(gene_ids, antibody_file)
+    get_antibody_expressions(gene_ids, antibody_file, btoMap)
     logger.info("read rnaseq expression data...done!")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print(
             ("Usage: python generate_abp_expr_csv.py <gem_file> "
-             "<antibody_file>")
+             "<antibody_file> <mapBetweenTissueNameAndBTOID>")
         )
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

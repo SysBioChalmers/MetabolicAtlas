@@ -187,6 +187,12 @@ def get_reaction_components(sbml_model, sbml_species):
             if species.compartment:
                 compartment = sbml_model.getCompartment(species.compartment)
                 component.compartment = compartments[compartment.name]
+            # set the component type as based on long name at the moment...
+            if component.long_name.startswith("ENSG0"):
+                component.component_type = "enzyme"
+            else:
+                component.component_type = "metabolite"
+                # FIXME is this really true or do we have something else in the db?
             components.append(component)
         else:
             components.append(component)
@@ -211,6 +217,7 @@ def main(gem_file):
     db.session.commit()
 
     # get compartments
+    logger.info("Importing compartments")
     for i in range(sbml_model.getNumCompartments()):
         sbml_compartment = sbml_model.getCompartment(i)
         compartment = Compartment(name=sbml_compartment.name)

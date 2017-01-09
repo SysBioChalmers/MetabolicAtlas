@@ -838,6 +838,9 @@ def list_interaction_partners(component_id):
 
     return jsonify(interaction_partners)
 
+@app.route("/api/v1/enzymes")
+def somethinghere():
+    return jsonify("You wanna look at enzymes?")
 
 @app.route("/api/v1/enzymes/<string:enzyme_id>/connected_metabolites")
 def connected_metabolites(enzyme_id):

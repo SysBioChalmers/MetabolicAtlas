@@ -26,12 +26,12 @@ sh.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 
 
-def get_rnaseq_expressions(gene_ids, rnaseq_expr_file):
+def get_rnaseq_expressions(gene_ids, rnaseq_expr_file, btoMap):
     """Read rnaseq expressions from supplied file."""
     logger.info("Reading rnaseq file...")
     q = Queue()
     queue_proc = Process(target=queue_rnaseq_expressions,
-                         args=(q, rnaseq_expr_file, NUM_CPUS))
+                         args=(q, rnaseq_expr_file, NUM_CPUS, btoMap))
     queue_proc.start()
     workers = []
     for i in range(NUM_CPUS):
@@ -41,10 +41,10 @@ def get_rnaseq_expressions(gene_ids, rnaseq_expr_file):
     logger.info("Reading rnaseq file...done!")
 
 
-def queue_rnaseq_expressions(q, rnaseq_expr_file, num_workers):
+def queue_rnaseq_expressions(q, rnaseq_expr_file, num_workers, btoMap):
     """Read expressions from file and publish to a queue."""
     logger.info("Publish expressions")
-    for expressions in read_rnaseq_expressions(rnaseq_expr_file):
+    for expressions in read_rnaseq_expressions(rnaseq_expr_file, btoMap):
         q.put(expressions)
     logger.info("Publisher done, notifying workers...")
     for i in range(num_workers):
@@ -52,7 +52,9 @@ def queue_rnaseq_expressions(q, rnaseq_expr_file, num_workers):
     logger.info("Workers notified")
 
 
-def read_rnaseq_expressions(filename):
+# we are currently including all expression levels from 'all' individuals
+# and then taking the median...
+def read_rnaseq_expressions(filename, btoMap):
     """Read expressions from file."""
     tissues = get_tissues(read_headers(filename))
     with open(filename, "r") as f:
@@ -65,7 +67,11 @@ def read_rnaseq_expressions(filename):
                 expression = {}
                 expression['gene_id'] = gene_id
                 expression['transcript_id'] = row['enstid']
+                tissue = re.sub(" \d$", "", tissue) # if it ends with a number like stomach 1
+                if(tissue not in btoMap):
+                    sys.exit("Missing bto id for tissue "+tissue+" in file"+sys.argv[3])
                 expression['tissue'] = tissue
+                expression['bto'] = btoMap[tissue]
                 # FIXME what cell_type should we use here?
                 expression['cell_type'] = "N/A"
                 expression['level'] = median(levels)
@@ -108,6 +114,14 @@ def get_levels(tissue, row):
                 levels.append(float(row[key]))
     return levels
 
+def readBTO(filename):
+    with open(filename, "r") as f:
+        reader = csv.reader(f, delimiter='\t')
+        bto = {}
+        for row in reader:
+            bto[row[0]] = row[1]
+    return bto
+
 
 def save_rnaseq_expressions(worker_id, q, gene_ids):
     """Read expressions from queue and save to CSV file.
@@ -117,7 +131,7 @@ def save_rnaseq_expressions(worker_id, q, gene_ids):
     logger.info("Worker {0} started!".format(worker_id))
     with open("rnaseq_expr_{0}.csv".format(worker_id), "w") as f:
         fields = ['id', 'gene_id', 'gene_name', 'transcript_id',
-                  'tissue', 'cell_type', 'level', 'expression_type',
+                  'tissue', 'bto', 'cell_type', 'level', 'expression_type',
                   'reliability', 'source']
         writer = csv.DictWriter(f, delimiter=',', quotechar='"',
                                 fieldnames=fields)
@@ -133,20 +147,23 @@ def save_rnaseq_expressions(worker_id, q, gene_ids):
                     writer.writerow(expression)
 
 
-def main(gem_file, rnaseq_expr_file):
+def main(gem_file, rnaseq_expr_file, btoMapFile):
+    logger.info("get components...")
     components = ReactionComponent.query.all()
     gene_ids = {component.long_name: component.id for component in components}
+    logger.info("read bto identifiers...")
+    btoMap = readBTO(btoMapFile)
 
     logger.info("read rnaseq expression data...")
-    get_rnaseq_expressions(gene_ids, rnaseq_expr_file)
+    get_rnaseq_expressions(gene_ids, rnaseq_expr_file, btoMap)
     logger.info("read rnaseq expression data...done!")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print(
             ("Usage: python generate_rnaseq_expr_csv.py <gem_file> "
-             "<rnaseq_file>")
+             "<rnaseq_file> <mapBetweenTissueNameAndBTOID>")
         )
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
