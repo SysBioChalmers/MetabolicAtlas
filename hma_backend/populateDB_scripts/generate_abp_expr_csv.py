@@ -55,11 +55,17 @@ def queue_abp_expressions(q, antibody_file, gene_ids, num_workers, btoMap):
             tissue = re.sub(" \d$", "", tissue) # if it ends with a number like stomach 1
             if(re.match("soft ", tissue)):
                 tissue = expression['Cell type']
-            if(tissue not in btoMap):
-                sys.exit("Missing bto id for tissue "+tissue+" in file"+sys.argv[3])
-            expression['Tissue'] = tissue
-            #FIXME: right now bto is on tissue, but it should probably be on cell type for all...
-            expression['bto'] = btoMap[tissue]
+            cell_type = expression['Cell type']
+            if(cell_type in btoMap):
+                expression['bto'] = btoMap[cell_type]
+            else:
+                nameToBTOMap = tissue + " - " + cell_type
+                if(cell_type == "glandular cells"):
+                    nameToBTOMap = tissue
+                if(nameToBTOMap not in btoMap):
+                    sys.exit("Missing bto id for combo "+nameToBTOMap+" in file"+sys.argv[3])
+                expression['bto'] = btoMap[tissue]
+            expression['Tissue'] = tissue + " - " + cell_type
             q.put(expression)
     logger.info("Publisher done, notifying workers...")
     for i in range(num_workers):

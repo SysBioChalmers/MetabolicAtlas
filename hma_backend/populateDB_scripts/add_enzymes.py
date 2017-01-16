@@ -10,15 +10,16 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 verbose = False
 
 
-def main(proteinsFileName, keggFileName, ecFileName, functionFileName):
+def main(proteinsFileName, keggFileName, ecFileName, functionFileName, catActFileName):
     keggInfo = readKEGG(keggFileName)
     ecInfo = readEC(ecFileName)
     functions = readFunction(functionFileName)
+    catalyticActivities = readFunction(catActFileName)
     with open(proteinsFileName, 'r') as f:
         next(f) # skip the headerline!
         for line in f:
             # set the extra annotations to 'null'
-            short_name = None; ec = None; kegg = None; function = None;
+            short_name = None; ec = None; kegg = None; function = None; catAct = None;
             #print("Line is "+line)
             columns = line.strip().split("\t")
             uniprotAcc = columns[1]
@@ -31,12 +32,15 @@ def main(proteinsFileName, keggFileName, ecFileName, functionFileName):
                 kegg = keggInfo[uniprotAcc]
             if uniprotAcc in functions:
                 function = functions[uniprotAcc]
+            if uniprotAcc in catalyticActivities:
+                catAct = catalyticActivities[uniprotAcc]
             enzyme = Enzyme(
                 protein_name = long_name,
                 short_name = short_name,
                 ec = ec,
                 kegg = kegg,
-                function = function
+                function = function,
+                catalytic_activity = catAct
             )
             try:
                 ups = ReactionComponentAnnotation.query.filter(
@@ -79,6 +83,7 @@ def readEC(filename):
                 ecs[uniprotAcc] = EC
     return ecs
 
+# used for both function and catalytic activity...
 def readFunction(filename):
     with open(filename, "r") as f:
         reader = csv.reader(f, delimiter='\t')
@@ -91,7 +96,7 @@ def readFunction(filename):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print(("Usage: python add_metabolites.py <proteinnames> <keggfilename> <ecfilename> <functionfilename>"))
+    if len(sys.argv) != 6:
+        print(("Usage: python add_metabolites.py <proteinnames> <keggfilename> <ecfilename> <functionfilename> <catalytic activity file name>"))
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

@@ -16,6 +16,19 @@ model_reactions = db.Table('model_reactions',
                            db.Column('reaction_id', ForeignKey('reaction.id'),
                                      primary_key=True))
 
+# connect the reaction components to the right type...
+reactioncomponent_metabolite = db.Table('reactioncomponent_metabolites',
+                      db.Column('component_id', ForeignKey('reaction_component.id'),
+                             primary_key=True),
+                      db.Column('metabolite_id', ForeignKey('metabolites.id'),
+                             primary_key=True))
+
+reactioncomponent_enzyme = db.Table('reactioncomponent_enzymes',
+                      db.Column('component_id', ForeignKey('reaction_component.id'),
+                             primary_key=True),
+                      db.Column('enzyme_id', ForeignKey('enzymes.id'),
+                             primary_key=True))
+
 class MetabolicModel(db.Model):
     __tablename__ = "metabolic_model"
 
@@ -75,10 +88,6 @@ currency_metabolites = db.Table("currency_metabolites",
                                           ForeignKey('reaction.id'),
                                           primary_key=True))
 
-#reaction_component_annotations = db.Table("reaction_component_annotations",
-#    db.Column('component_id', ForeignKey('reaction_component.id'),primary_key=True),
-#    db.Column('annotation_type', db.String(50)),
-#    db.Column('annotation', db.String(255)))
 
 
 class Reaction(db.Model):
@@ -137,10 +146,6 @@ class ReactionComponent(db.Model):
                                         secondary=currency_metabolites,
                                         back_populates="currency_metabolites")
 
-    #reaction_component_annotations = relationship("ReactionComponentAnnotation",
-    #    secondary = reaction_component_annotations,
-    #    back_populates="reaction_component_annotations")
-
     compartment = db.Column(db.Integer, ForeignKey("compartment.id"),
                             nullable=True)
 
@@ -153,7 +158,7 @@ class ReactionComponentAnnotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     component_id = db.Column(db.String(50), ForeignKey(ReactionComponent.id))
     annotation_type = db.Column(db.String(50))
-    annotation = db.Column(db.String(255))
+    annotation = db.Column(db.String(700)) # some of the functions are quite long, for example for uniprot P05091 (-> E_989)
 
 
 class Compartment(db.Model):
@@ -195,3 +200,33 @@ class ExpressionData(db.Model):
     expression_type = db.Column(db.String(35), index=True)
     reliability = db.Column(db.String(35))
     source = db.Column(db.String(45))
+
+
+class Metabolite(db.Model):
+    __tablename__  = "metabolites"
+    id = db.Column(db.Integer, primary_key=True)
+    hmdb = db.Column(db.String(10))
+    formula = db.Column(db.String(50))
+    charge = db.Column(db.Numeric)
+    mass = db.Column(db.Numeric)
+    #category = db.Column(db.String(15))
+    kegg = db.Column(db.String(50))
+    chebi = db.Column(db.String(50))
+    inchi = db.Column(db.String(255))
+    bigg = db.Column(db.String(55))
+    # which reaction component(s) are this metabolite 'connected' to?
+    components = relationship("ReactionComponent",
+        secondary=reactioncomponent_metabolite)
+
+class Enzyme(db.Model):
+    __tablename__ = "enzymes"
+    id = db.Column(db.Integer, primary_key=True)
+    protein_name = db.Column(db.String(150))
+    short_name = db.Column(db.String(75))
+    ec = db.Column(db.String(100))
+    kegg = db.Column(db.String(125))
+    function = db.Column(db.String(6000))
+    catalytic_activity = db.Column(db.String(700))
+    # which reaction component(s) are this enzyme 'connected' to?
+    components = relationship("ReactionComponent",
+        secondary=reactioncomponent_enzyme)

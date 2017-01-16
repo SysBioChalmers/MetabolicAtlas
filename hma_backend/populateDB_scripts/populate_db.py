@@ -1,11 +1,9 @@
 """Import SBML model."""
 
-import logging
-import re
-import sys
+import logging, re, sys, os
 import xml.etree.ElementTree as etree
-
 import libsbml
+sys.path.append(os.path.join(sys.path[0],"../"))
 
 from hma_backend import db
 from hma_backend.models import MetabolicModel, Author, Compartment

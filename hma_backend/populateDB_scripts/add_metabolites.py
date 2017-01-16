@@ -7,12 +7,12 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
 verbose = False
 
-def main(idType, idCol, annType, annFile, annCol):
+def main(fileName):
     notFoundCount = 0
     with open(annFile, 'r') as f:
         for line in f:
-            #print("Line is "+line)
-            tokens = line.strip().split("\t")
+            print("Line is "+line)
+            columns = line.strip().split("\t")
             # the ensembl download annotation files will contain an ENSG id without the actual annotation column...
             if len(tokens) > annCol:
                 annotation = tokens[annCol]
@@ -68,9 +68,7 @@ def _addAnnotation(db, cId, t, ann):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        print(("Usage: python addReactionComponentAnnotation.py "
-               "<id_type> <id_col> <annotation_type> <annotation_file> <ann_col>\n"
-               "for example ensg 0 swissprotAcc ... 1"))
+    if len(sys.argv) != 2:
+        print(("Usage: python add_metabolites.py <filename>"))
         sys.exit(1)
-    main(sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], int(sys.argv[5]))
+    main(sys.argv[1])
