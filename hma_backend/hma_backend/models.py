@@ -221,6 +221,7 @@ class Metabolite(db.Model):
 class Enzyme(db.Model):
     __tablename__ = "enzymes"
     id = db.Column(db.Integer, primary_key=True)
+    uniprot_acc = db.Column(db.String(35), unique=True)
     protein_name = db.Column(db.String(150))
     short_name = db.Column(db.String(75))
     ec = db.Column(db.String(100))

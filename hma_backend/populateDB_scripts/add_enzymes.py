@@ -7,7 +7,7 @@ from hma_backend.models import *
 from sqlalchemy import or_, and_
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
-verbose = False
+verbose = True
 
 
 def main(proteinsFileName, keggFileName, ecFileName, functionFileName, catActFileName):
@@ -35,6 +35,7 @@ def main(proteinsFileName, keggFileName, ecFileName, functionFileName, catActFil
             if uniprotAcc in catalyticActivities:
                 catAct = catalyticActivities[uniprotAcc]
             enzyme = Enzyme(
+                uniprot_acc = uniprotAcc,
                 protein_name = long_name,
                 short_name = short_name,
                 ec = ec,
@@ -46,11 +47,15 @@ def main(proteinsFileName, keggFileName, ecFileName, functionFileName, catActFil
                 ups = ReactionComponentAnnotation.query.filter(
                     and_(ReactionComponentAnnotation.annotation_type == 'uniprot',
                         ReactionComponentAnnotation.annotation == uniprotAcc)).all()
-                for up in ups:
-                    component = ReactionComponent.query.filter(
-                        ReactionComponent.id == up.component_id).one()
-                    enzyme.components.append(component)
-                db.session.add(enzyme) # only add the enzymes that are found in HMR!
+                if len(ups)>0:
+                    for up in ups:
+                        component = ReactionComponent.query.filter(
+                            ReactionComponent.id == up.component_id).one()
+                        enzyme.components.append(component)
+                    db.session.add(enzyme) # only add the enzymes that are found in HMR!
+                else:
+                    if verbose:
+                        print("No ReactionComponent found for uniprot "+uniprotAcc)
             except NoResultFound:
                 # do nothing here as most of the proteins in uniprot are not part of the HMR
                 if verbose:
