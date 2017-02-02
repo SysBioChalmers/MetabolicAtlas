@@ -289,6 +289,10 @@ def list_reaction(reaction_id):
               type: string
               description: Equation
               default: "reactant_1 + ... + reactant_n => product_1 + ... + product_m"
+            ec:
+              type: string
+              description: zero to many EC numbers separataed by ;
+              default: "EC:2.7.1.1;EC:2.7.1.2;EC:2.7.1.147"
             lower_bound:
               type: number
               format: float
@@ -343,6 +347,7 @@ def make_public_reaction(reaction):
     json['name'] = reaction.name
     json['sbo_id'] = reaction.sbo_id
     json['equation'] = reaction.equation
+    json['ec'] = reaction.ec
     json['lower_bound'] = float(reaction.lower_bound)
     json['upper_bound'] = float(reaction.upper_bound)
     json['objective_coefficient'] = float(reaction.objective_coefficient)
@@ -833,6 +838,9 @@ def list_interaction_partners(component_id):
 
     return jsonify(interaction_partners)
 
+@app.route("/api/v1/enzymes")
+def somethinghere():
+    return jsonify("You wanna look at enzymes?")
 
 @app.route("/api/v1/enzymes/<string:enzyme_id>/connected_metabolites")
 def connected_metabolites(enzyme_id):

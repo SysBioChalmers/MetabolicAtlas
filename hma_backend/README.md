@@ -25,6 +25,7 @@ $ pyvenv /path/to/hma_backend_venv
 $ source /path/to/hma_backend_venv/bin/activate
 $ pip install -r requirements.txt
 ```
+in order to get it working on a mac you need to do 'brew install postgresql'
 
 ## Testing
 
@@ -32,6 +33,7 @@ To run the tests, `coverage` must be installed:
 
 ```bash
 $ pip install -r requirements_testing.txt
+$ pip install -r requirements_import.txt # and as stated above, just one time!
 ```
 
 

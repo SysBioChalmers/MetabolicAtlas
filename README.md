@@ -63,7 +63,7 @@ The actual import is done in four steps:
 ### First step - Import GEM file
 
 ```bash
-$ docker-compose run --rm backend /usr/local/bin/python populate_db.py import/HMRdatabase2_00.xml import/normal_tissue.csv
+$ docker-compose run --rm backend /usr/local/bin/python populate_db.py import/HMRdatabase2_00.xml
 ```
 
 
@@ -86,9 +86,9 @@ Next, we load the CSV files into the database:
 
 ```bash
 $ psql -h `docker-machine ip dev` -p 5432 -U postgres --password hma \
-    -c "\copy expression_data from abp_expr.csv' delimiter ',' csv;"
+    -c "\copy expression_data from abp.expr.csv delimiter ',';"
 $ psql -h `docker-machine ip dev` -p 5432 -U postgres --password hma \
-    -c "\copy expression_data from 'rnaseq_expr.csv' delimiter ',' csv;"
+    -c "\copy expression_data from rnaseq_expr.csv delimiter ',';"
 ```
 
 

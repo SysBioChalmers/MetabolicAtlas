@@ -1,11 +1,9 @@
 """Import SBML model."""
 
-import logging
-import re
-import sys
+import logging, re, sys, os
 import xml.etree.ElementTree as etree
-
 import libsbml
+sys.path.append(os.path.join(sys.path[0],"../"))
 
 from hma_backend import db
 from hma_backend.models import MetabolicModel, Author, Compartment
@@ -125,6 +123,7 @@ def get_reaction(sbml_model, index):
 
     reaction.sbo_id = sbml_reaction.sbo_term_id
     reaction.equation = get_equation(sbml_reaction)
+    reaction.ec = get_EC_number(sbml_reaction)
 
     kinetic_law_parameters = get_kinetic_law_parameters(sbml_reaction)
     reaction.lower_bound = kinetic_law_parameters.get("LOWER_BOUND")
@@ -156,6 +155,19 @@ def get_kinetic_law_parameters(sbml_reaction):
         params[parameter.name] = parameter.value
     return params
 
+def get_EC_number(sbml_reaction):
+    """Get the EC number(s), if applicable, for the reaction"""
+    annotation = sbml_reaction.annotation_string
+    if annotation is None:
+        return None
+    match = re.search(".*ec-code:EC:.*", annotation)
+    if match:
+        ec = re.sub(r'^.*ec-code:EC','EC', re.sub(r'\n','',annotation))
+        ec = re.sub(r"\".*","", ec)
+        return ec
+    else:
+        return None
+
 
 def get_reaction_components(sbml_model, sbml_species):
     """Convert SBML species to reaction components."""
@@ -173,6 +185,12 @@ def get_reaction_components(sbml_model, sbml_species):
             if species.compartment:
                 compartment = sbml_model.getCompartment(species.compartment)
                 component.compartment = compartments[compartment.name]
+            # set the component type as based on long name at the moment...
+            if component.long_name.startswith("ENSG0"):
+                component.component_type = "enzyme"
+            else:
+                component.component_type = "metabolite"
+                # FIXME is this really true or do we have something else in the db?
             components.append(component)
         else:
             components.append(component)
@@ -197,6 +215,7 @@ def main(gem_file):
     db.session.commit()
 
     # get compartments
+    logger.info("Importing compartments")
     for i in range(sbml_model.getNumCompartments()):
         sbml_compartment = sbml_model.getCompartment(i)
         compartment = Compartment(name=sbml_compartment.name)
