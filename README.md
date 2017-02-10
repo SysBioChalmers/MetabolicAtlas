@@ -30,6 +30,8 @@ Then you will get access to the following commands:
 * To run the project: `$ start-stack`
 * To display real-time logs: `$ logs`
 * To stop the project: `stop-stack`
+* To run a database migration: `db-migrate`
+* To create a django superuser: `create-su`
 
 
 ## Collaboration

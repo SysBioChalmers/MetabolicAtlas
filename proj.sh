@@ -19,6 +19,14 @@ function logs {
     docker-compose -p vue-django-stack logs -f $@
 }
 
+function db-migrate {
+    docker exec vuedjangostack_backend_1 python manage.py migrate
+}
+
+function create-su {
+    docker exec -it vuedjangostack_backend_1 python manage.py createsuperuser
+}
+
 echo -e "
 
 Available commands:
@@ -28,5 +36,7 @@ Available commands:
 \tstop-stack
 \trestar-stack
 \tlogs
+\tdb-migrate
+\tcreate-su
 
 "
