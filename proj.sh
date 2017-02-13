@@ -19,6 +19,10 @@ function logs {
     docker-compose -p vue-django-stack logs -f $@
 }
 
+function db-make-migrations {
+    docker exec vuedjangostack_backend_1 python manage.py makemigrations api
+}
+
 function db-migrate {
     docker exec vuedjangostack_backend_1 python manage.py migrate
 }
@@ -36,6 +40,7 @@ Available commands:
 \tstop-stack
 \trestar-stack
 \tlogs
+\tdb-make-migrations
 \tdb-migrate
 \tcreate-su
 

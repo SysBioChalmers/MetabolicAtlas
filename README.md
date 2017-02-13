@@ -18,6 +18,8 @@ To install docker, download it from [here](https://www.docker.com/products/docke
 
 ## Get started
 
+TODO: add description about importing database
+
 To get a list of helper commands:
 
 ```bash
@@ -30,6 +32,7 @@ Then you will get access to the following commands:
 * To run the project: `$ start-stack`
 * To display real-time logs: `$ logs`
 * To stop the project: `stop-stack`
+* To create new migrationfiles: `db-make-migrations`
 * To run a database migration: `db-migrate`
 * To create a django superuser: `create-su`
 
