@@ -75,9 +75,8 @@ class Compartment(models.Model):
     class Meta:
         db_table = "compartment"
 
-# TODO: needs new unique id column in db
 class ExpressionData(models.Model):
-    id = models.ForeignKey('ReactionComponent', on_delete=models.CASCADE, primary_key=True)
+    reaction_component = models.ForeignKey('ReactionComponent', on_delete=models.CASCADE)
     gene_id = models.CharField(max_length=35)
     gene_name = models.CharField(max_length=255)
     transcript_id = models.CharField(max_length=35)
