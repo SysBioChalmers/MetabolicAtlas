@@ -52,7 +52,7 @@ class ReactionComponent(models.Model):
     component_type = models.CharField(max_length=50, db_index=True)
     organism = models.CharField(max_length=255)
     formula = models.CharField(max_length=255)
-    compartment = models.ForeignKey('Compartment', blank=True)
+    compartment = models.ForeignKey('Compartment', db_column='compartment', blank=True)
 
     reactions_as_reactant = models.ManyToManyField(Reaction, related_name='reaction_reatant', through='ReactionReactant')
     reactions_as_product = models.ManyToManyField(Reaction, related_name='reaction_product', through='ReactionProduct')
@@ -76,7 +76,7 @@ class Compartment(models.Model):
         db_table = "compartment"
 
 class ExpressionData(models.Model):
-    reaction_component = models.ForeignKey('ReactionComponent', on_delete=models.CASCADE)
+    reaction_component = models.ForeignKey('ReactionComponent', db_column='reaction_component', on_delete=models.CASCADE)
     gene_id = models.CharField(max_length=35)
     gene_name = models.CharField(max_length=255)
     transcript_id = models.CharField(max_length=35)
