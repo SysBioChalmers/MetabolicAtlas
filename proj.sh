@@ -38,7 +38,7 @@ Available commands:
 \tbuild-stack
 \tstart-stack
 \tstop-stack
-\trestar-stack
+\trestart-stack
 \tlogs
 \tdb-make-migrations
 \tdb-migrate
