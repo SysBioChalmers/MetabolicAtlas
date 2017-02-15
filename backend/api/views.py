@@ -61,4 +61,14 @@ def get_reaction(request, id):
     serializer = ReactionSerializer(reaction)
     return JSONResponse(serializer.data)
 
+@api_view()
+def reaction_reactant_list(request, id):
+    try:
+        reaction = Reaction.objects.get(id=id)
+    except Reaction.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = ReactionComponentSerializer(reaction.reactants, many=True)
+    return JSONResponse(serializer.data)
+
 

@@ -24,3 +24,11 @@ class ReactionSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
             'reactants', 'products', 'modifiers')
 
+class ReactionComponentSerializer(serializers.ModelSerializer):
+
+    compartment = serializers.StringRelatedField()
+    
+    class Meta:
+        model = ReactionComponent
+        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment')
+
