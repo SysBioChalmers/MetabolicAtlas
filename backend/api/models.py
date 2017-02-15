@@ -19,7 +19,7 @@ class Author(models.Model):
     family_name = models.CharField(max_length=255, blank=False)
     email = models.CharField(max_length=255, blank=False)
     organization = models.CharField(max_length=255, blank=False)
-    models = models.ManyToManyField(MetabolicModel, through='ModelAuthor')
+    models = models.ManyToManyField(MetabolicModel, related_name='authors', through='ModelAuthor')
 
     def __str__(self):
         return "<Author: {0} {1}>".format(self.given_name, self.family_name)
@@ -37,7 +37,7 @@ class Reaction(models.Model):
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField()
 
-    models = models.ManyToManyField(MetabolicModel, through='ModelReaction')
+    models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
 
     def __str__(self):
         return "<Reaction: {0}>".format(self.id)
@@ -54,10 +54,10 @@ class ReactionComponent(models.Model):
     formula = models.CharField(max_length=255)
     compartment = models.ForeignKey('Compartment', db_column='compartment', blank=True)
 
-    reactions_as_reactant = models.ManyToManyField(Reaction, related_name='reaction_reatant', through='ReactionReactant')
-    reactions_as_product = models.ManyToManyField(Reaction, related_name='reaction_product', through='ReactionProduct')
-    reactions_as_modifier = models.ManyToManyField(Reaction, related_name='reaction_modifier', through='ReactionModifier')
-    currency_metabolites = models.ManyToManyField(Reaction, related_name='reaction_metabolite', through='CurrencyMetabolite')
+    reactions_as_reactant = models.ManyToManyField(Reaction, related_name='reactants', through='ReactionReactant')
+    reactions_as_product = models.ManyToManyField(Reaction, related_name='products', through='ReactionProduct')
+    reactions_as_modifier = models.ManyToManyField(Reaction, related_name='modifiers', through='ReactionModifier')
+    currency_metabolites = models.ManyToManyField(Reaction, related_name='currency_metabolites', through='CurrencyMetabolite')
 
     def __str__(self):
         return "<ReactionComponent: {0}>".format(self.id)

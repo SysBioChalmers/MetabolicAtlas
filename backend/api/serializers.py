@@ -1,15 +1,26 @@
 from rest_framework import serializers
-from api.models import MetabolicModel, Author
+from api.models import *
 
 class MetabolicModelSerializer(serializers.ModelSerializer):
 
+    authors = serializers.StringRelatedField(many=True)
+
     class Meta:
         model = MetabolicModel
-        fields = ('id', 'short_name', 'name')
+        fields = ('id', 'short_name', 'name', 'authors')
 
 class AuthorSerializer(serializers.ModelSerializer):
+    
+    models = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Author
-        fields = ('id', 'given_name', 'family_name', 'email', 'organization')
+        fields = ('id', 'given_name', 'family_name', 'email', 'organization', 'models')
+
+class ReactionSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Reaction
+        fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
+            'reactants', 'products', 'modifiers')
 
