@@ -15,4 +15,8 @@ urlpatterns = [
     url(r'^reactions/(?P<id>[^/]+)/modifiers/?$', views.reaction_modifier_list),
     url(r'^reactions/(?P<reaction_id>[^/]+)/modifiers/(?P<modifier_id>[^/]+)/?$', views.get_reaction_modifier),
     url(r'^reaction_components/?$', views.component_list),
+    url(r'^reaction_components/(?P<id>[^/]+)/?$', views.get_component),
+    url(r'^reaction_components/(?P<id>[^/]+)/currency_metabolites/?$', views.currency_metabolite_list),
+    url(r'^reaction_components/(?P<id>[^/]+)/expressions/?$', views.component_expression_list),
+    url(r'^reaction_components/(?P<id>[^/]+)/interaction_partners/?$', views.interaction_partner_list),
 ]

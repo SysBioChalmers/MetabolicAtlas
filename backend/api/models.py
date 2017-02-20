@@ -81,7 +81,6 @@ class ExpressionData(models.Model):
     gene_name = models.CharField(max_length=255)
     transcript_id = models.CharField(max_length=35)
     tissue = models.CharField(max_length=100)
-    bto = models.CharField(max_length=20)
     cell_type = models.CharField(max_length=255)
     level = models.CharField(max_length=30)
     expression_type = models.CharField(max_length=35)
@@ -90,7 +89,7 @@ class ExpressionData(models.Model):
 
     class Meta:
         db_table = "expression_data"
-        unique_together = (('id', 'gene_id', 'transcript_id', 'tissue', 'bto', 'cell_type', 'expression_type'),)
+        unique_together = (('id', 'gene_id', 'transcript_id', 'tissue', 'cell_type', 'expression_type'),)
 
 class Metabolite(models.Model):
     hmdb = models.CharField(max_length=10)
@@ -168,7 +167,7 @@ class ReactionModifier(models.Model):
 
 class CurrencyMetabolite(models.Model):
     component = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
-    reactant = models.ForeignKey(Reaction, on_delete=models.CASCADE)
+    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "currency_metabolites"

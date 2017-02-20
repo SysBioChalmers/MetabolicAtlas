@@ -3,6 +3,7 @@ from django.db.models import Q
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
+from itertools import chain
 from api.models import MetabolicModel, Author
 from api.serializers import *
 
@@ -141,5 +142,49 @@ def component_list(request):
         components = ReactionComponent.objects.all()[offset:(offset+limit)]
 
     serializer = ReactionComponentSerializer(components, many=True)
+    return JSONResponse(serializer.data)
+
+@api_view()
+def get_component(request, id):
+    try:
+        component = ReactionComponent.objects.get(id=id)
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = ReactionComponentSerializer(component)
+    return JSONResponse(serializer.data)
+
+@api_view()
+def currency_metabolite_list(request, id):
+    try:
+        component = ReactionComponent.objects.get(id=id)
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = CurrencyMetaboliteSerializer(component.currency_metabolites, many=True)
+    return JSONResponse(serializer.data)
+
+@api_view()
+def component_expression_list(request, id):
+    tissue = request.query_params.get('tissue', '')
+    expression_type = request.query_params.get('expression_type', '')
+    expressions = ExpressionData.objects.filter(
+            Q(reaction_component=id) &
+            Q(tissue__icontains=tissue) & 
+            Q(expression_type__icontains=expression_type)
+        )
+
+    serializer = ExpressionDataSerializer(expressions, many=True)
+    return JSONResponse(serializer.data)
+
+@api_view()
+def interaction_partner_list(request, id):
+    try:
+        component = ReactionComponent.objects.get(id=id)
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
+
+    reactions = list(chain(component.reactions_as_reactant.all(), component.reactions_as_product.all(), component.reactions_as_modifier.all()))
+    serializer = InteractionPartnerSerializer(reactions, many=True)
     return JSONResponse(serializer.data)
 
