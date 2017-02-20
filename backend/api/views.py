@@ -224,3 +224,17 @@ def connected_metabolites(request, id):
     serializer = ConnectedMetabolitesSerializer(connected_metabolites)
     return JSONResponse(serializer.data)
 
+@api_view()
+def expressions_list(request, enzyme_id):
+    tissue = request.query_params.get('tissue', '')
+    expression_type = request.query_params.get('expression_type', '')
+
+    expressions = ExpressionData.objects.filter(
+            Q(gene_id__icontains=enzyme_id) &
+            Q(tissue__icontains=tissue) & 
+            Q(expression_type__icontains=expression_type)
+        )
+
+    serializer = ExpressionDataSerializer(expressions, many=True)
+    return JSONResponse(serializer.data)
+
