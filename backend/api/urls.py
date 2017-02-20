@@ -19,4 +19,6 @@ urlpatterns = [
     url(r'^reaction_components/(?P<id>[^/]+)/currency_metabolites/?$', views.currency_metabolite_list),
     url(r'^reaction_components/(?P<id>[^/]+)/expressions/?$', views.component_expression_list),
     url(r'^reaction_components/(?P<id>[^/]+)/interaction_partners/?$', views.interaction_partner_list),
+    url(r'^enzymes/?$', views.enzyme_list),
+    url(r'^enzymes/(?P<id>[^/]+)/connected_metabolites/?$', views.connected_metabolites),
 ]

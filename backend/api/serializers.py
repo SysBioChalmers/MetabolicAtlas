@@ -58,3 +58,21 @@ class InteractionPartnerSerializer(serializers.ModelSerializer):
         model = ReactionComponent
         fields = ('id', 'modifiers', 'products', 'reactants', 'currency_metabolites')
 
+class MetaboliteReactionSerializer(serializers.Serializer):
+
+    reaction_id = serializers.CharField()
+    enzyme_role = serializers.CharField()
+    reactants = ReactionComponentSerializer(many=True, read_only=True)
+    products = ReactionComponentSerializer(many=True, read_only=True)
+    modifiers = ReactionComponentSerializer(many=True, read_only=True)
+
+
+class ConnectedMetabolitesSerializer(serializers.Serializer):
+
+    id = serializers.CharField()
+    short_name = serializers.CharField()
+    long_name = serializers.CharField()
+    compartment = serializers.CharField()
+    reactions = MetaboliteReactionSerializer(many=True)
+    expressions = ExpressionDataSerializer(many=True)
+

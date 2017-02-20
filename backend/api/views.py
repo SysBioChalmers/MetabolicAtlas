@@ -188,3 +188,39 @@ def interaction_partner_list(request, id):
     serializer = InteractionPartnerSerializer(reactions, many=True)
     return JSONResponse(serializer.data)
 
+@api_view()
+def enzyme_list(request):
+    limit = int(request.query_params.get('limit', 20))
+    offset = int(request.query_params.get('offset', 0))
+
+    enzymes = ReactionComponent.objects.filter(component_type='enzyme')[offset:(offset+limit)]
+
+    serializer = ReactionComponentSerializer(enzymes, many=True)
+    return JSONResponse(serializer.data)
+
+@api_view()
+def connected_metabolites(request, id):
+    tissue = request.query_params.get('tissue', '')
+    expression_type = request.query_params.get('expression_type', '')
+    include_expressions = request.query_params.get('include_expression', '') == 'true' 
+    
+    enzyme = ReactionComponent.objects.get(
+            Q(component_type='enzyme') &
+            Q(long_name=id)
+        )
+
+    as_reactant = [MetaboliteReaction(r, 'reactant') for r in enzyme.reactions_as_reactant.all()]
+    as_product = [MetaboliteReaction(r, 'product') for r in enzyme.reactions_as_product.all()]
+    as_modifier = [MetaboliteReaction(r, 'modifier') for r in enzyme.reactions_as_modifier.all()]
+    reactions = as_reactant + as_product + as_modifier
+
+    expressions = ExpressionData.objects.filter(
+            Q(gene_id=enzyme.id) &
+            Q(tissue__icontains=tissue) & 
+            Q(expression_type__icontains=expression_type)
+        )
+
+    connected_metabolites = ConnectedMetabolites(enzyme, enzyme.compartment, reactions, expressions)
+    serializer = ConnectedMetabolitesSerializer(connected_metabolites)
+    return JSONResponse(serializer.data)
+

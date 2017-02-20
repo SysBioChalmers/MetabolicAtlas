@@ -118,6 +118,23 @@ class Enzyme(models.Model):
     class Meta:
         db_table = "enzymes"
 
+class MetaboliteReaction(object):
+    def __init__(self, reaction, role):
+        self.reaction_id = reaction.id
+        self.enzyme_role = role
+        self.reactants = reaction.reactants.filter(component_type='metabolite')
+        self.products = reaction.products.filter(component_type='metabolite')
+        self.modifiers = reaction.modifiers.filter(component_type='metabolite')
+
+class ConnectedMetabolites(object):
+    def __init__(self, enzyme, compartment, reactions, expressions):
+        self.id = enzyme.id
+        self.short_name = enzyme.short_name
+        self.long_name = enzyme.long_name
+        self.compartment = compartment
+        self.reactions = reactions
+        self.expressions = expressions
+
 #
 # Relationships
 #
