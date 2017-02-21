@@ -20,6 +20,31 @@ To install docker, download it from [here](https://www.docker.com/products/docke
 
 TODO: add description about importing database
 
+Add a `postgres.env` file based on the `postgres.env.sample` file:
+
+```bash
+$ cp postgres.env.sample postgres.env
+```
+
+Modify the `postgres.env` 
+
+Edit `backend/metabolicatlas/settings.py`, replace the `DATABASES = …` section with:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432,
+    }
+}
+```
+
+
+
 To get a list of helper commands:
 
 ```bash
