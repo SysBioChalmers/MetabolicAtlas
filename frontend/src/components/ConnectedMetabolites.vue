@@ -4,13 +4,16 @@
     <p>{{ $route.params.enzyme_id }}</p>
     <button v-on:click="load">Load something</button>
     <div v-if="loaded">
-      {{response}}
+      <p>{{elms}}</p>
+      <p>{{rels}}</p>
+      <p>{{occ}}</p>
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import { default as transform } from '../helpers/connected-metabolites-mapper';
 
 export default {
   name: 'connected-metabolites',
@@ -18,7 +21,9 @@ export default {
     return {
       loaded: false,
       errorMessage: '',
-      response: '',
+      elms: [],
+      rels: [],
+      occ: {},
     };
   },
   methods: {
@@ -27,7 +32,8 @@ export default {
         .then((response) => {
           this.loaded = true;
           this.errorMessage = '';
-          this.response = response;
+
+          [this.elms, this.rels, this.occ] = transform(response.data);
         })
         .catch((error) => {
           this.loaded = true;
