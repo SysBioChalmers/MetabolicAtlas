@@ -2,46 +2,50 @@
   <div class="connected-metabolites">
     <h1>Connected metabolites</h1>
     <p>{{ $route.params.enzyme_id }}</p>
-    <button v-on:click="load">Load something</button>
-    <div v-if="loaded">
-      <p>{{elms}}</p>
-      <p>{{rels}}</p>
-      <p>{{occ}}</p>
-    </div>
+    <div id="cy" ref="cy"></div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import { default as transform } from '../helpers/connected-metabolites-mapper';
+import cytoscape from 'cytoscape';
+import { default as regCose } from 'cytoscape-cose-bilkent';
+import { default as transform } from '../data-mappers/connected-metabolites';
+import { default as graph } from '../graph-stylers/connected-metabolites';
 
 export default {
   name: 'connected-metabolites',
   data() {
     return {
-      loaded: false,
       errorMessage: '',
-      elms: [],
-      rels: [],
-      occ: {},
     };
   },
   methods: {
     load() {
       axios.get(`enzymes/${this.$route.params.enzyme_id}/connected_metabolites`)
         .then((response) => {
-          this.loaded = true;
           this.errorMessage = '';
 
-          [this.elms, this.rels, this.occ] = transform(response.data);
+          const [elms, rels] = transform(response.data);
+          const [elements, stylesheet] = graph(elms, rels);
+          cytoscape({
+            container: this.$refs.cy,
+            elements,
+            style: stylesheet,
+            layout: {
+              name: 'cose-bilkent',
+              tilingPaddingVertical: 50,
+              tilingPaddingHorizontal: 50,
+            },
+          });
         })
         .catch((error) => {
-          this.loaded = true;
           this.errorMessage = error.message;
         });
     },
   },
   beforeMount() {
+    regCose(cytoscape);
     this.load();
   },
 };
@@ -53,6 +57,17 @@ export default {
 
 h1, h2 {
   font-weight: normal;
+}
+
+#cy {
+  border: 1px dotted black;
+  position: static;
+  margin: auto;
+  height: 600px;
+
+  canvas {
+    width: 100% !important;
+  }
 }
 
 </style>
