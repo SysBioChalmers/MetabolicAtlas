@@ -1,7 +1,6 @@
 <template>
   <div class="connected-metabolites">
     <h1>Connected metabolites</h1>
-    <p>{{ $route.params.enzyme_id }}</p>
     <div id="cy" ref="cy"></div>
   </div>
 </template>
@@ -63,11 +62,7 @@ h1, h2 {
   border: 1px dotted black;
   position: static;
   margin: auto;
-  height: 600px;
-
-  canvas {
-    width: 100% !important;
-  }
+  height: 820px;
 }
 
 </style>
