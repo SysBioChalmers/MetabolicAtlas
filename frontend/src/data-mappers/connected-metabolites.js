@@ -37,7 +37,7 @@ export default function (e) {
     for (const p of r.products) {
       const metabolite = {
         id: p.id,
-        parentid: p.reaction_id,
+        parentid: r.reaction_id,
         short: p.short_name,
         long: p.long_name,
         description: 'description',
@@ -57,7 +57,7 @@ export default function (e) {
     for (const re of r.reactants) {
       const metabolite = {
         id: re.id,
-        parentid: re.reaction_id,
+        parentid: r.reaction_id,
         short: re.short_name,
         long: re.long_name,
         description: 'description',
