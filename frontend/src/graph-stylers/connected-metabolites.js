@@ -40,7 +40,7 @@ export default function (elms, rels) {
     .selector('node')
     .css({
       content: 'data(name)',
-      'font-size': '30px',
+      'font-size': '22px',
     })
     .selector('$node > node')
     .css({
@@ -56,7 +56,7 @@ export default function (elms, rels) {
     })
     .selector('node > node') // parent node selector, eg the metabolites inside the reactions
     .css({
-      'font-size': '8px',
+      'font-size': '9px',
       'padding-top': '1px',
       'padding-left': '1px',
       'padding-bottom': '1px',

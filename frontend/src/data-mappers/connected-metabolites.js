@@ -5,8 +5,8 @@ export default function (e) {
 
   const enzyme = {
     id: e.id,
-    parentid: 'null',
-    type: 'E',
+    parentid: null,
+    type: 'enzyme',
     short: e.short_name || e.long_name,
     long: e.long_name,
     formula: 'formula',
@@ -18,8 +18,8 @@ export default function (e) {
   for (const r of e.reactions) {
     const reaction = {
       id: r.reaction_id,
-      parentid: 'null',
-      type: 'R',
+      parentid: null,
+      type: 'reaction',
       short: r.reaction_id,
       long: r.reaction_id,
       description: r.reaction_id,
