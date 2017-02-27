@@ -1,8 +1,18 @@
 <template>
   <div class="connected-metabolites">
-    <h1>Connected metabolites</h1>
-    <div id="cy" ref="cy"></div>
-    <br>
+    <h1 class="title is-1">Connected metabolites</h1>
+    <div class="container columns">
+      <figure id="cy" ref="cy" class="column is-9"></figure>
+      <div class="column content">
+        <blockquote>
+          Take an enzyme, in the form of an Ensembl Gene Identifier
+          (for example ENSG00000164303 or <u>ENSG00000180011</u>)
+          then it will find all reactions that this enzyme modifies,
+          and for each of these reactions pull out the reactants (shape=heptagon)
+          and the products (shape=octagon), eg the metabolites)
+        </blockquote>
+      </div>
+    </div>
     <table class="table is-bordered is-striped is-narrow">
       <thead>
         <tr>
@@ -104,7 +114,6 @@ h1, h2 {
 }
 
 #cy {
-  border: 1px solid #ddd;
   position: static;
   margin: auto;
   height: 820px;

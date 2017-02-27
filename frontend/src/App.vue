@@ -1,10 +1,6 @@
 <template>
-  <div id="app">
-    <section class="section">
-      <div class="container">
-        <router-view></router-view>
-      </div>
-    </section>
+  <div id="app" class="container">
+    <router-view></router-view>
   </div>
 </template>
 
@@ -21,6 +17,7 @@ export default {
 
 sup {
   vertical-align: bottom;
+  font-size: 0.7em;
 }
 
 </style>
