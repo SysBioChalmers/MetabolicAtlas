@@ -58,7 +58,7 @@ export default function (e) {
       const metabolite = {
         id: re.id,
         parentid: r.reaction_id,
-        short: re.short_name || e.long_name,
+        short: re.short_name || re.long_name,
         long: re.long_name,
         description: 'description',
         formula: re.formula,
