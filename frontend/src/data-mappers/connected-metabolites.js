@@ -7,7 +7,7 @@ export default function (e) {
     id: e.id,
     parentid: 'null',
     type: 'E',
-    short: e.short_name,
+    short: e.short_name || e.long_name,
     long: e.long_name,
     formula: 'formula',
     description: 'description',
@@ -38,7 +38,7 @@ export default function (e) {
       const metabolite = {
         id: p.id,
         parentid: r.reaction_id,
-        short: p.short_name,
+        short: p.short_name || p.long_name,
         long: p.long_name,
         description: 'description',
         formula: p.formula,
@@ -58,7 +58,7 @@ export default function (e) {
       const metabolite = {
         id: re.id,
         parentid: r.reaction_id,
-        short: re.short_name,
+        short: re.short_name || e.long_name,
         long: re.long_name,
         description: 'description',
         formula: re.formula,

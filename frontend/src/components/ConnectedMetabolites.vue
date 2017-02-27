@@ -2,6 +2,27 @@
   <div class="connected-metabolites">
     <h1>Connected metabolites</h1>
     <div id="cy" ref="cy"></div>
+    <br>
+    <table class="table is-bordered is-striped is-narrow">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Short name</th>
+          <th>Long name</th>
+          <th>Formula</th>
+          <th>Compartment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="elm in elms">
+          <td>{{ elm.type }}</td>
+          <td v-html="chemicalNameLink(elm.short)"></td>
+          <td v-html="chemicalName(elm.long)"></td>
+          <td v-html="chemicalFormula(elm.formula)"></td>
+          <td>{{ elm.compartment }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -17,6 +38,7 @@ export default {
   data() {
     return {
       errorMessage: '',
+      elms: [],
     };
   },
   methods: {
@@ -26,6 +48,7 @@ export default {
           this.errorMessage = '';
 
           const [elms, rels] = transform(response.data);
+          this.elms = elms;
           const [elements, stylesheet] = graph(elms, rels);
           cytoscape({
             container: this.$refs.cy,
@@ -41,6 +64,28 @@ export default {
         .catch((error) => {
           this.errorMessage = error.message;
         });
+    },
+    chemicalFormula(value) {
+      if (value === null) {
+        return '';
+      }
+      return value.replace(/([0-9])/g, '<sup>$1</sup>');
+    },
+    chemicalName(value) {
+      if (value === null) {
+        return '';
+      }
+      return value.replace(/(\+)/g, '<sup>$1</sup>');
+    },
+    chemicalNameLink(value) {
+      if (value === null) {
+        return '';
+      }
+
+      return `<a
+                target='new'
+                href='https://pubchem.ncbi.nlm.nih.gov/compound/${value}'
+              >${this.chemicalName(value)}</a>`;
     },
   },
   beforeMount() {
@@ -59,7 +104,7 @@ h1, h2 {
 }
 
 #cy {
-  border: 1px dotted black;
+  border: 1px solid #ddd;
   position: static;
   margin: auto;
   height: 820px;

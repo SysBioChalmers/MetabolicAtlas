@@ -10,7 +10,7 @@ export default function (elms, rels) {
         data: {
           id: elm.id,
           parent: elm.parentid,
-          name: elm.short || elm.long,
+          name: elm.short,
           type: elm.type,
         },
       });
@@ -19,7 +19,7 @@ export default function (elms, rels) {
         group: 'nodes',
         data: {
           id: elm.id,
-          name: elm.short || elm.long,
+          name: elm.short,
         },
       });
     }
