@@ -6,7 +6,7 @@ export default function (e, reactionComponentId, reactions) {
   const enzyme = {
     id: e.id,
     type: 'enzyme',
-    short: e.short_name,
+    short: e.short_name || e.long_name,
     long: e.long_name,
     formula: e.formula,
     compartment: e.compartment,
@@ -20,7 +20,7 @@ export default function (e, reactionComponentId, reactions) {
       const modifier = {
         id: m.id,
         type: m.component_type,
-        short: m.short_name,
+        short: m.short_name || m.long_name,
         long: m.long_name,
         formula: m.formula,
         compartment: m.compartment,
@@ -35,7 +35,7 @@ export default function (e, reactionComponentId, reactions) {
       const metabolite = {
         id: m.id,
         type: m.component_type,
-        short: m.short_name,
+        short: m.short_name || m.long_name,
         long: m.long_name,
         formula: m.formula,
         compartment: m.compartment,

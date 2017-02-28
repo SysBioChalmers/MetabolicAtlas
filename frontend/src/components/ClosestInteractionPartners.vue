@@ -71,16 +71,13 @@ export default {
               this.errorMessage = '';
 
               const [elms, rels] = transform(e, reactionComponentId, response2.data);
-              console.log(elms, rels);
               const [elements, stylesheet] = graph(elms, rels);
               cytoscape({
                 container: this.$refs.cy,
                 elements,
                 style: stylesheet,
                 layout: {
-                  name: 'cose-bilkent',
-                  tilingPaddingVertical: 50,
-                  tilingPaddingHorizontal: 50,
+                  name: 'random',
                 },
               });
             })

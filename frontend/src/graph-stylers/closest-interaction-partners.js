@@ -3,29 +3,22 @@ import cytoscape from 'cytoscape';
 export default function (elms, rels) {
   const elmsjson = [];
 
-  for (const elm of elms) {
-    if (elm.parentid !== 'null') {
-      elmsjson.push({
-        group: 'nodes',
-        data: {
-          id: elm.id,
-          parent: elm.parentid,
-          name: elm.short,
-          type: elm.type,
-        },
-      });
-    } else {
-      elmsjson.push({
-        group: 'nodes',
-        data: {
-          id: elm.id,
-          name: elm.short,
-        },
-      });
-    }
+  for (const id of Object.keys(elms)) {
+    const elm = elms[id];
+
+    elmsjson.push({
+      group: 'nodes',
+      data: {
+        id: elm.id,
+        name: elm.short,
+        type: elm.type,
+      },
+    });
   }
 
-  for (const rel of rels) {
+  for (const id of Object.keys(rels)) {
+    const rel = rels[id];
+
     elmsjson.push({
       group: 'edges',
       data: {
@@ -40,37 +33,27 @@ export default function (elms, rels) {
     .selector('node')
     .css({
       content: 'data(name)',
-      'font-size': '22px',
-    })
-    .selector('$node > node')
-    .css({
-      'font-size': '10px',
-      'padding-top': '20px', // not super useful as it only affects node to parent node distance
-      'padding-left': '20px',
-      'padding-bottom': '20px',
-      'padding-right': '20px',
+      'font-size': '20px',
       'text-valign': 'top',
       'text-halign': 'center',
-      'background-color': '#000055',
-      'background-opacity': 0.3,
     })
-    .selector('node > node') // parent node selector, eg the metabolites inside the reactions
+    .selector('node[type="metabolite"]')
     .css({
-      'font-size': '9px',
-      'padding-top': '1px',
-      'padding-left': '1px',
-      'padding-bottom': '1px',
-      'padding-right': '1px',
-      'text-valign': 'top',
-      'text-halign': 'center',
-      'background-color': '#0c650c',
-      shape: 'heptagon',
+      shape: 'elipse',
+      'background-color': '#00ff00',
+      width: 15,
+      height: 15,
+      color: '#000000',
+    })
+    .selector('node[type="enzyme"]')
+    .css({
+      shape: 'rectangle',
+      'background-color': '#ff0000',
       width: 20,
       height: 20,
+      color: '#000000',
     })
-    .selector('node[type="product"]') // select the products and make them rectangular instead
-    .css({ shape: 'octagon' })
-    .selector('edge') // please note that right now the only edge is from main enzyme to the reactions!
+    .selector('edge')
     .css({
       width: 3,
       'line-color': '#ccc',
