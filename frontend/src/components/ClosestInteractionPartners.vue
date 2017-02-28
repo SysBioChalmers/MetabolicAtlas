@@ -18,7 +18,6 @@
       <thead>
         <tr>
           <th>Type</th>
-          <th>Reaction ID</th>
           <th>Short name</th>
           <th>Long name</th>
           <th>Formula</th>
@@ -28,9 +27,6 @@
       <tbody>
         <tr v-for="elm in elms">
           <td>{{ elm.type }}</td>
-          <td v-if="elm.type === 'reaction'">{{ elm.id }}</td>
-          <td v-else-if="elm.type === 'enzyme'"> - </td>
-          <td v-else>{{ elm.parentid }}</td>
           <td v-html="chemicalNameLink(elm.short)"></td>
           <td v-html="chemicalName(elm.long)"></td>
           <td v-html="chemicalFormula(elm.formula)"></td>
@@ -71,6 +67,7 @@ export default {
               this.errorMessage = '';
 
               const [elms, rels] = transform(e, reactionComponentId, response2.data);
+              this.elms = Object.keys(elms).map(k => elms[k]);
               const [elements, stylesheet] = graph(elms, rels);
               cytoscape({
                 container: this.$refs.cy,
