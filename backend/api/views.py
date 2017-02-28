@@ -189,6 +189,25 @@ def interaction_partner_list(request, id):
     return JSONResponse(serializer.data)
 
 @api_view()
+def get_component_with_interaction_partners(request, id):
+    try:
+        component = ReactionComponent.objects.get(id=id)
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
+
+    component_serializer = ReactionComponentSerializer(component)
+
+    reactions = list(chain(component.reactions_as_reactant.all(), component.reactions_as_product.all(), component.reactions_as_modifier.all()))
+    reactions_serializer = InteractionPartnerSerializer(reactions, many=True)
+
+    result = {
+             'enzyme': component_serializer.data,
+             'reactions': reactions_serializer.data
+             }
+
+    return JSONResponse(result)
+
+@api_view()
 def enzyme_list(request):
     limit = int(request.query_params.get('limit', 20))
     offset = int(request.query_params.get('offset', 0))

@@ -57,31 +57,24 @@ export default {
     load() {
       const reactionComponentId = this.$route.params.reaction_component_id;
 
-      axios.get(`reaction_components/${reactionComponentId}`)
+      axios.get(`reaction_components/${reactionComponentId}/with_interaction_partners`)
         .then((response) => {
           this.errorMessage = '';
 
-          const e = response.data;
+          const enzyme = response.data.enzyme;
+          const reactions = response.data.reactions;
 
-          axios.get(`reaction_components/${reactionComponentId}/interaction_partners`)
-            .then((response2) => {
-              this.errorMessage = '';
-
-              const [elms, rels] = transform(e, reactionComponentId, response2.data);
-              this.elms = Object.keys(elms).map(k => elms[k]);
-              const [elements, stylesheet] = graph(elms, rels);
-              cytoscape({
-                container: this.$refs.cy,
-                elements,
-                style: stylesheet,
-                layout: {
-                  name: 'random',
-                },
-              });
-            })
-            .catch((error2) => {
-              this.errorMessage = error2.message;
-            });
+          const [elms, rels] = transform(enzyme, reactionComponentId, reactions);
+          this.elms = Object.keys(elms).map(k => elms[k]);
+          const [elements, stylesheet] = graph(elms, rels);
+          cytoscape({
+            container: this.$refs.cy,
+            elements,
+            style: stylesheet,
+            layout: {
+              name: 'random',
+            },
+          });
         })
         .catch((error) => {
           this.errorMessage = error.message;
