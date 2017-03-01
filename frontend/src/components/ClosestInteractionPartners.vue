@@ -48,6 +48,8 @@
 <script>
 import axios from 'axios';
 import cytoscape from 'cytoscape';
+import jquery from 'jquery';
+import graphml from 'cytoscape-graphml';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
@@ -67,6 +69,7 @@ export default {
   },
   beforeMount() {
     regCose(cytoscape);
+    graphml(cytoscape, jquery);
     this.setup();
   },
   methods: {
@@ -145,6 +148,14 @@ export default {
       /* eslint-enable no-param-reassign */
     },
     exportGraph: function exportGraph() {
+      const a = document.createElement('a');
+      a.href = window.URL.createObjectURL(new Blob([this.cy.graphml()], { type: 'text/xml' }));
+      a.download = `${this.reactionComponentId}_interaction_partners.graphml`;
+      a.target = '_blank';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     },
     chemicalFormula,
     chemicalName,
