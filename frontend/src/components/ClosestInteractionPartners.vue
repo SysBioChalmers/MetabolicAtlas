@@ -18,6 +18,8 @@
           and how a set of ReactionComponents interact and how their expression
           levels change between tissues.
         </blockquote>
+        <a class="button" v-on:click="exportGraph">Export graph</a>
+        <img >
       </div>
     </div>
     <table class="table is-bordered is-striped is-narrow">
@@ -94,17 +96,17 @@ export default {
 
           const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
           this.elms = Object.keys(elms).map(k => elms[k]);
-          this.constructGraph(this, elms, rels);
+          this.constructGraph(elms, rels);
         })
         .catch((error) => {
           this.errorMessage = error.message;
         });
     },
-    constructGraph: (scope, elms, rels) => {
+    constructGraph: function constructGraph(elms, rels) {
       /* eslint-disable no-param-reassign */
       const [elements, stylesheet] = graph(elms, rels);
-      scope.cy = cytoscape({
-        container: scope.$refs.cy,
+      this.cy = cytoscape({
+        container: this.$refs.cy,
         elements,
         style: stylesheet,
         layout: {
@@ -112,8 +114,8 @@ export default {
         },
       });
 
-      const contextMenu = scope.$refs.contextMenu;
-      const cyOff = scope.cy.container().getBoundingClientRect();
+      const contextMenu = this.$refs.contextMenu;
+      const cyOff = this.cy.container().getBoundingClientRect();
       contextMenu.style.display = 'none';
 
       const updatePosition = (node) => {
@@ -121,25 +123,28 @@ export default {
         contextMenu.style.top = `${cyOff.top + 20 + node.renderedPosition().y}px`;
       };
 
-      scope.cy.on('tap', () => {
+      this.cy.on('tap', () => {
         contextMenu.style.display = 'none';
       });
-      scope.cy.on('tap', 'node', (evt) => {
+
+      this.cy.on('tap', 'node', (evt) => {
         const node = evt.cyTarget;
         if (node.data().type === 'enzyme') {
-          scope.selectedReactionComponentId = node.data().id;
+          this.selectedReactionComponentId = node.data().id;
           contextMenu.style.display = 'block';
           updatePosition(node);
         }
       });
 
-      scope.cy.on('drag', 'node', (evt) => {
+      this.cy.on('drag', 'node', (evt) => {
         const node = evt.cyTarget;
-        if (node.data().type === 'enzyme' && scope.selectedReactionComponentId === node.data().id) {
+        if (node.data().type === 'enzyme' && this.selectedReactionComponentId === node.data().id) {
           updatePosition(node);
         }
       });
       /* eslint-enable no-param-reassign */
+    },
+    exportGraph: function exportGraph() {
     },
     chemicalFormula,
     chemicalName,

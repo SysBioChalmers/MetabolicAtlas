@@ -5,6 +5,9 @@ module.exports = {
     sourceType: 'module'
   },
   extends: 'airbnb-base',
+  env: {
+    browser: true,
+  },
   // required to lint *.vue files
   plugins: [
     'html'
