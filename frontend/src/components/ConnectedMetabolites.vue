@@ -46,6 +46,7 @@ import cytoscape from 'cytoscape';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
+import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
 
 export default {
   name: 'connected-metabolites',
@@ -79,28 +80,9 @@ export default {
           this.errorMessage = error.message;
         });
     },
-    chemicalFormula(value) {
-      if (value === null) {
-        return '';
-      }
-      return value.replace(/([0-9])/g, '<sup>$1</sup>');
-    },
-    chemicalName(value) {
-      if (value === null) {
-        return '';
-      }
-      return value.replace(/(\+)/g, '<sup>$1</sup>');
-    },
-    chemicalNameLink(value) {
-      if (value === null) {
-        return '';
-      }
-
-      return `<a
-                target='new'
-                href='https://pubchem.ncbi.nlm.nih.gov/compound/${value}'
-              >${this.chemicalName(value)}</a>`;
-    },
+    chemicalFormula,
+    chemicalName,
+    chemicalNameLink,
   },
   beforeMount() {
     regCose(cytoscape);

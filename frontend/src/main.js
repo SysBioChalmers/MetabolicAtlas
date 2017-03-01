@@ -5,6 +5,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import App from './App';
 import Hello from './components/Hello';
+import ClosestInteractionPartners from './components/ClosestInteractionPartners';
 import ConnectedMetabolites from './components/ConnectedMetabolites';
 
 Vue.use(VueRouter);
@@ -13,7 +14,8 @@ axios.defaults.baseURL = 'http://localhost:8000/api';
 
 const routes = [
   { path: '/', component: Hello },
-  { path: '/connected-metabolites/:enzyme_id', component: ConnectedMetabolites },
+  { path: '/closest-interaction-partners/:reaction_component_id', name: 'closest-interaction-partners', component: ClosestInteractionPartners },
+  { path: '/connected-metabolites/:enzyme_id', name: 'connected-metabolites', component: ConnectedMetabolites },
 ];
 
 const router = new VueRouter({
