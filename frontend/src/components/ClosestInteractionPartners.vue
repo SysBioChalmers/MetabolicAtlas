@@ -1,8 +1,14 @@
 <template>
   <div class="closest-interaction-partners">
-    <h1 class="title is-1">Closest interaction partners</h1>
+    <title>{{title}}</title>
+    <h1 class="title is-1">{{title}}</h1>
+    <div id="contextMenu" ref="contextMenu">
+      <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+    </div>
+
     <div class="container columns">
-      <figure id="cy" ref="cy" class="column is-9"></figure>
+      <div id="cy" ref="cy" class="column is-9">
+      </div>
       <div class="column content">
         <blockquote>
           We treat all chemical equations (eg reactions) form HMR2.0 as binary "interactions".
@@ -50,46 +56,93 @@ export default {
   data() {
     return {
       errorMessage: '',
+      title: '',
       elms: [],
+      reactionComponentId: '',
+      selectedReactionComponentId: '',
+      cy: null,
     };
   },
+  beforeMount() {
+    regCose(cytoscape);
+    this.setup();
+  },
   methods: {
+    setup() {
+      this.reactionComponentId = this.$route.params.reaction_component_id;
+      this.title = `Closest interaction partners | ${this.reactionComponentId}`;
+      this.load();
+    },
+    navigate() {
+      this.$router.push(
+        {
+          name: 'closest-interaction-partners',
+          params: { reaction_component_id: this.selectedReactionComponentId },
+        },
+        () => {
+          this.setup();
+        }
+      );
+    },
     load() {
-      const reactionComponentId = this.$route.params.reaction_component_id;
-
-      axios.get(`reaction_components/${reactionComponentId}/with_interaction_partners`)
+      axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
         .then((response) => {
           this.errorMessage = '';
 
           const enzyme = response.data.enzyme;
           const reactions = response.data.reactions;
 
-          const [elms, rels] = transform(enzyme, reactionComponentId, reactions);
+          const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
           this.elms = Object.keys(elms).map(k => elms[k]);
-          const [elements, stylesheet] = graph(elms, rels);
-          cytoscape({
-            container: this.$refs.cy,
-            elements,
-            style: stylesheet,
-            layout: {
-              name: 'random',
-            },
-          });
+          this.constructGraph(this, elms, rels);
         })
         .catch((error) => {
           this.errorMessage = error.message;
         });
     },
+    constructGraph: (scope, elms, rels) => {
+      /* eslint-disable no-param-reassign */
+      const [elements, stylesheet] = graph(elms, rels);
+      scope.cy = cytoscape({
+        container: scope.$refs.cy,
+        elements,
+        style: stylesheet,
+        layout: {
+          name: 'random',
+        },
+      });
+
+      const contextMenu = scope.$refs.contextMenu;
+      const cyOff = scope.cy.container().getBoundingClientRect();
+      contextMenu.style.display = 'none';
+
+      const updatePosition = (node) => {
+        contextMenu.style.left = `${node.renderedPosition().x - 10}px`;
+        contextMenu.style.top = `${cyOff.top + 20 + node.renderedPosition().y}px`;
+      };
+
+      scope.cy.on('tap', 'node', (evt) => {
+        const node = evt.cyTarget;
+        if (node.data().type === 'enzyme') {
+          scope.selectedReactionComponentId = node.data().id;
+          contextMenu.style.display = 'block';
+          updatePosition(node);
+        }
+      });
+
+      scope.cy.on('drag', 'node', (evt) => {
+        const node = evt.cyTarget;
+        if (node.data().type === 'enzyme' && scope.selectedReactionComponentId === node.data().id) {
+          updatePosition(node);
+        }
+      });
+      /* eslint-enable no-param-reassign */
+    },
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
   },
-  beforeMount() {
-    regCose(cytoscape);
-    this.load();
-  },
 };
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -103,6 +156,11 @@ h1, h2 {
   position: static;
   margin: auto;
   height: 820px;
+}
+
+#contextMenu {
+  position: absolute;
+  z-index: 999;
 }
 
 </style>
