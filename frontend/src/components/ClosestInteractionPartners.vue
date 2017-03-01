@@ -121,6 +121,9 @@ export default {
         contextMenu.style.top = `${cyOff.top + 20 + node.renderedPosition().y}px`;
       };
 
+      scope.cy.on('tap', () => {
+        contextMenu.style.display = 'none';
+      });
       scope.cy.on('tap', 'node', (evt) => {
         const node = evt.cyTarget;
         if (node.data().type === 'enzyme') {
