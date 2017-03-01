@@ -18,7 +18,7 @@
           and how a set of ReactionComponents interact and how their expression
           levels change between tissues.
         </blockquote>
-        <a class="button" v-on:click="exportGraph">Export graph</a>
+        <a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a>
         <img >
       </div>
     </div>
@@ -149,7 +149,24 @@ export default {
     },
     exportGraph: function exportGraph() {
       const a = document.createElement('a');
-      a.href = window.URL.createObjectURL(new Blob([this.cy.graphml()], { type: 'text/xml' }));
+      this.cy.graphml({
+        node: {
+          css: true,
+          data: true,
+          position: true,
+          discludeds: [],
+        },
+        edges: {
+          css: true,
+          data: true,
+          discludeds: [],
+        },
+        layoutby: 'random',
+      });
+
+      const output = this.cy.graphml();
+
+      a.href = window.URL.createObjectURL(new Blob([output], { type: 'text/xml' }));
       a.download = `${this.reactionComponentId}_interaction_partners.graphml`;
       a.target = '_blank';
       a.style.display = 'none';
