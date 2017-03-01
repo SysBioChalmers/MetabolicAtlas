@@ -18,8 +18,6 @@ To install docker, download it from [here](https://www.docker.com/products/docke
 
 ## Get started
 
-TODO: add description about importing database
-
 Add a `postgres.env` file based on the `postgres.env.sample` file:
 
 ```bash
@@ -28,24 +26,49 @@ $ cp postgres.env.sample postgres.env
 
 Modify the `postgres.env` 
 
-Edit `backend/metabolicatlas/settings.py`, replace the `DATABASES = …` section with:
+#### To get a list of helper commands
 
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db',
-        'PORT': 5432,
-    }
-}
+```bash
+$ source proj.sh
 ```
 
+#### Build and run the project
 
+```bash
+$ build-stack
+```
 
-To get a list of helper commands:
+```bash
+$ start-stack
+```
+
+#### Import the database
+
+```bash
+$ docker exec -i $(docker ps -qf "name=vuedjangostack_db_1") psql -U postgres hma < PATH_TO_DB_FILE
+```
+
+#### The database needs a small modification
+
+```bash
+docker exec -it $(docker ps -qf "name=vuedjangostack_db_1") psql -U DB_USERNAME DB_NAME
+```
+
+```sql
+ALTER TABLE expression_data RENAME COLUMN id TO reaction_component;
+ALTER TABLE expression_data DROP CONSTRAINT expression_data_pkey;
+ALTER TABLE expression_data ADD COLUMN id SERIAL PRIMARY KEY;
+```
+
+Use `Cmd + D` to exit the psql shell. At this point everything should be up and running.
+
+The frontend should be available at: `http://localhost:8080/`, for example: `http://localhost:8080/closest-interaction-partners/E_3379`.
+
+ The backend should be available at: `http://localhost:8000/api/`, for example: `http://localhost:8000/api/reaction_components/E_3379/with_interaction_partners`.
+
+If you encounter any problems try running `restart-stack`.
+
+#### All helper commands
 
 ```bash
 $ source proj.sh
