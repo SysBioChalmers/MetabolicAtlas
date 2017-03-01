@@ -50,6 +50,7 @@ import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml';
+import C2S from 'canvas2svg';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
@@ -116,6 +117,11 @@ export default {
           name: 'random',
         },
       });
+
+      const c = document.getElementsByTagName('canvas')[0];
+      const hi = new C2S(c);
+      this.cy.renderer().renderTo(hi);
+      console.log(hi.getSvg());
 
       const contextMenu = this.$refs.contextMenu;
       const cyOff = this.cy.container().getBoundingClientRect();
