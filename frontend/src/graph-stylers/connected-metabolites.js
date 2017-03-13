@@ -36,6 +36,11 @@ export default function (elms, rels) {
     });
   }
 
+  const reactionColor = '#C5F4DD';
+  const metaboliteColor = '#259F64';
+  const textColor = '#363636';
+  const lineColor = '#DBDBDB';
+
   const stylesheet = cytoscape.stylesheet()
     .selector('node')
     .css({
@@ -51,7 +56,7 @@ export default function (elms, rels) {
       'padding-right': '20px',
       'text-valign': 'top',
       'text-halign': 'center',
-      'background-color': '#000055',
+      'background-color': reactionColor,
       'background-opacity': 0.3,
     })
     .selector('node > node') // parent node selector, eg the metabolites inside the reactions
@@ -63,7 +68,7 @@ export default function (elms, rels) {
       'padding-right': '1px',
       'text-valign': 'top',
       'text-halign': 'center',
-      'background-color': '#0c650c',
+      'background-color': metaboliteColor,
       shape: 'heptagon',
       width: 20,
       height: 20,
@@ -73,17 +78,17 @@ export default function (elms, rels) {
     .selector('edge') // please note that right now the only edge is from main enzyme to the reactions!
     .css({
       width: 3,
-      'line-color': '#ccc',
-      'target-arrow-color': '#ccc',
+      'line-color': lineColor,
+      'target-arrow-color': lineColor,
       'target-arrow-shape': 'triangle',
     })
     .selector(':selected')
     .css({
-      'background-color': 'black',
-      'line-color': 'black',
-      'target-arrow-color': 'black',
-      'source-arrow-color': 'black',
-      'text-outline-color': 'black',
+      'background-color': textColor,
+      'line-color': textColor,
+      'target-arrow-color': textColor,
+      'source-arrow-color': textColor,
+      'text-outline-color': textColor,
     });
 
   return [elmsjson, stylesheet];
