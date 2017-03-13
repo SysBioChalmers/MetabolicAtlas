@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <nav class="nav">
+    <nav id="main-nav" class="nav">
       <div class="container">
         <div class="container">
           <a id="logo" class="nav-item">
@@ -54,12 +54,18 @@ sup {
   font-size: 0.7em;
 }
 
-#logo {
-  height: 49px;
-  padding-left: 0;
+#main-nav {
+  height: 75px;
 
-  img {
-    height: 100%;
+  #logo {
+    height: 75px;
+    padding-left: 0;
+  
+    img {
+      max-height: 50px;
+      height: 50px;
+      vertical-align: bottom;
+    }
   }
 }
 
