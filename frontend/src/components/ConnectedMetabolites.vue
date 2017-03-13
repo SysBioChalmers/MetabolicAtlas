@@ -1,6 +1,6 @@
 <template>
   <div class="connected-metabolites">
-    <h1 class="title is-1">Connected metabolites</h1>
+    <h3 class="title is-3">Connected metabolites</h3>
     <div class="container columns">
       <figure id="cy" ref="cy" class="column is-9"></figure>
       <div class="column content">
@@ -58,7 +58,8 @@ export default {
   },
   methods: {
     load() {
-      axios.get(`enzymes/${this.$route.params.enzyme_id}/connected_metabolites`)
+      const enzymeId = this.$route.params.enzyme_id || this.$route.query.enzyme_id;
+      axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
           this.errorMessage = '';
 
