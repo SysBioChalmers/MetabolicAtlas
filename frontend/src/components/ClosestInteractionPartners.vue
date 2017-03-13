@@ -18,6 +18,9 @@
           and how a set of ReactionComponents interact and how their expression
           levels change between tissues.
         </blockquote>
+        <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
+        <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
+        <img >
       </div>
     </div>
     <table class="table is-bordered is-striped is-narrow">
@@ -46,6 +49,9 @@
 <script>
 import axios from 'axios';
 import cytoscape from 'cytoscape';
+import jquery from 'jquery';
+import graphml from 'cytoscape-graphml';
+// import C2S from 'canvas2svg';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
@@ -65,6 +71,7 @@ export default {
   },
   beforeMount() {
     regCose(cytoscape);
+    graphml(cytoscape, jquery);
     this.setup();
   },
   methods: {
@@ -94,17 +101,17 @@ export default {
 
           const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
           this.elms = Object.keys(elms).map(k => elms[k]);
-          this.constructGraph(this, elms, rels);
+          this.constructGraph(elms, rels);
         })
         .catch((error) => {
           this.errorMessage = error.message;
         });
     },
-    constructGraph: (scope, elms, rels) => {
+    constructGraph: function constructGraph(elms, rels) {
       /* eslint-disable no-param-reassign */
       const [elements, stylesheet] = graph(elms, rels);
-      scope.cy = cytoscape({
-        container: scope.$refs.cy,
+      this.cy = cytoscape({
+        container: this.$refs.cy,
         elements,
         style: stylesheet,
         layout: {
@@ -112,8 +119,19 @@ export default {
         },
       });
 
-      const contextMenu = scope.$refs.contextMenu;
-      const cyOff = scope.cy.container().getBoundingClientRect();
+      // const c = document.getElementsByTagName('canvas')[0];
+      // const svgCxt = new C2S(c);
+      // const scope = this;
+      // const draw = function draw(ctx) {
+      //   const r = scope.cy.renderer();
+      //   r.drawElements(ctx, scope.cy.elements());
+      // };
+
+      // draw(svgCxt);
+      // console.log(svgCxt.getSvg());
+
+      const contextMenu = this.$refs.contextMenu;
+      const cyOff = this.cy.container().getBoundingClientRect();
       contextMenu.style.display = 'none';
 
       const updatePosition = (node) => {
@@ -121,26 +139,68 @@ export default {
         contextMenu.style.top = `${cyOff.top + 20 + node.renderedPosition().y}px`;
       };
 
-      scope.cy.on('tap', () => {
+      this.cy.on('tap', () => {
         contextMenu.style.display = 'none';
       });
-      scope.cy.on('tap', 'node', (evt) => {
+
+      this.cy.on('tap', 'node', (evt) => {
         const node = evt.cyTarget;
         if (node.data().type === 'enzyme') {
-          scope.selectedReactionComponentId = node.data().id;
+          this.selectedReactionComponentId = node.data().id;
           contextMenu.style.display = 'block';
           updatePosition(node);
         }
       });
 
-      scope.cy.on('drag', 'node', (evt) => {
+      this.cy.on('drag', 'node', (evt) => {
         const node = evt.cyTarget;
-        if (node.data().type === 'enzyme' && scope.selectedReactionComponentId === node.data().id) {
+        if (node.data().type === 'enzyme' && this.selectedReactionComponentId === node.data().id) {
           updatePosition(node);
         }
       });
       /* eslint-enable no-param-reassign */
     },
+    // TODO: refactor
+    exportGraph: function exportGraph() {
+      const a = document.createElement('a');
+      this.cy.graphml({
+        node: {
+          css: true,
+          data: true,
+          position: true,
+          discludeds: [],
+        },
+        edges: {
+          css: true,
+          data: true,
+          discludeds: [],
+        },
+        layoutby: 'random',
+      });
+
+      const output = this.cy.graphml();
+
+      a.href = window.URL.createObjectURL(new Blob([output], { type: 'text/xml' }));
+      a.download = `${this.reactionComponentId}_interaction_partners.graphml`;
+      a.target = '_blank';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    },
+    exportPNG: function exportGraph() {
+      const a = document.createElement('a');
+      const output = this.cy.png();
+
+      a.href = output;
+      a.download = `${this.reactionComponentId}_interaction_partners.png`;
+      a.target = '_blank';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    },
+
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
