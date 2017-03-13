@@ -1,7 +1,7 @@
 <template>
   <div class="closest-interaction-partners">
     <title>{{title}}</title>
-    <h1 class="title is-1">{{title}}</h1>
+    <h3 class="title is-3">{{title}}</h3>
     <div id="contextMenu" ref="contextMenu">
       <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
     </div>
@@ -76,7 +76,8 @@ export default {
   },
   methods: {
     setup() {
-      this.reactionComponentId = this.$route.params.reaction_component_id;
+      this.reactionComponentId = this.$route.params.reaction_component_id
+                                 || this.$route.query.reaction_component_id;
       this.title = `Closest interaction partners | ${this.reactionComponentId}`;
       this.load();
     },
