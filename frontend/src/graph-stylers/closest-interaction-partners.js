@@ -29,6 +29,11 @@ export default function (elms, rels) {
     });
   }
 
+  const metaboliteColor = '#259F64';
+  const enzymeColor = '#C92F63';
+  const textColor = '#363636';
+  const lineColor = '#DBDBDB';
+
   const stylesheet = cytoscape.stylesheet()
     .selector('node')
     .css({
@@ -40,33 +45,33 @@ export default function (elms, rels) {
     .selector('node[type="metabolite"]')
     .css({
       shape: 'elipse',
-      'background-color': '#00ff00',
+      'background-color': metaboliteColor,
       width: 15,
       height: 15,
-      color: '#000000',
+      color: textColor,
     })
     .selector('node[type="enzyme"]')
     .css({
       shape: 'rectangle',
-      'background-color': '#ff0000',
+      'background-color': enzymeColor,
       width: 20,
       height: 20,
-      color: '#000000',
+      color: textColor,
     })
     .selector('edge')
     .css({
       width: 3,
-      'line-color': '#ccc',
-      'target-arrow-color': '#ccc',
+      'line-color': lineColor,
+      'target-arrow-color': lineColor,
       'target-arrow-shape': 'triangle',
     })
     .selector(':selected')
     .css({
-      'background-color': 'black',
-      'line-color': 'black',
-      'target-arrow-color': 'black',
-      'source-arrow-color': 'black',
-      'text-outline-color': 'black',
+      'background-color': textColor,
+      'line-color': textColor,
+      'target-arrow-color': textColor,
+      'source-arrow-color': textColor,
+      'text-outline-color': textColor,
     });
 
   return [elmsjson, stylesheet];
