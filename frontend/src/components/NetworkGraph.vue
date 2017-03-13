@@ -1,5 +1,20 @@
 <template>
   <div class="network-graph">
+    <div class="columns">
+      <div class="column is-3">
+        <div class="tabs is-pulled-left is-toggle">
+          <li class="is-active"><a><span>Human</span></a></li>
+          <li><a><span>Yeast</span></a></li>
+        </div>
+      </div>
+      <div class="column is-6">
+        <p class="control">
+          <input id="search" class="input"
+            type="text" placeholder="Search by metabolite, gene, or reaction, eg. P[m] -> P[s]">
+        </p>
+      </div>
+    </div>
+    <br>
     <div class="tabs is-boxed">
      <ul>
        <li
@@ -58,4 +73,7 @@ export default {
 </script>
 
 <style lang="scss">
+  #search {
+    height: 38px;
+  }
 </style>

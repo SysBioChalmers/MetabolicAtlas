@@ -47,6 +47,8 @@ export default {
 
 <style lang='scss'>
 
+$primary: #64CC9A;
+
 @import '~bulma';
 
 sup {
