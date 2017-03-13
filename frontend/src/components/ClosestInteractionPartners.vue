@@ -18,7 +18,8 @@
           and how a set of ReactionComponents interact and how their expression
           levels change between tissues.
         </blockquote>
-        <a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a>
+        <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
+        <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
         <img >
       </div>
     </div>
@@ -159,6 +160,7 @@ export default {
       });
       /* eslint-enable no-param-reassign */
     },
+    // TODO: refactor
     exportGraph: function exportGraph() {
       const a = document.createElement('a');
       this.cy.graphml({
@@ -186,6 +188,19 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
+    exportPNG: function exportGraph() {
+      const a = document.createElement('a');
+      const output = this.cy.png();
+
+      a.href = output;
+      a.download = `${this.reactionComponentId}_interaction_partners.png`;
+      a.target = '_blank';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    },
+
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
