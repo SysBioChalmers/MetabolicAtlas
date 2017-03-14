@@ -5,6 +5,6 @@ RUN mkdir /project
 WORKDIR /project
 
 ADD requirements.txt /project/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --upgrade --no-deps -r requirements.txt
 
 ADD . /project

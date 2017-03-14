@@ -66,6 +66,8 @@ The frontend should be available at: `http://localhost:8080/`, for example: `htt
 
  The backend should be available at: `http://localhost:8000/api/`, for example: `http://localhost:8000/api/reaction_components/E_3379/with_interaction_partners`.
 
+There is also a swagger UI for browsing the API at: `http://localhost:8000/`.
+
 If you encounter any problems try running `restart-stack`.
 
 #### All helper commands
