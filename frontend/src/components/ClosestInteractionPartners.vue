@@ -132,12 +132,11 @@ export default {
       // console.log(svgCxt.getSvg());
 
       const contextMenu = this.$refs.contextMenu;
-      const cyOff = this.cy.container().getBoundingClientRect();
       contextMenu.style.display = 'none';
 
       const updatePosition = (node) => {
         contextMenu.style.left = `${node.renderedPosition().x - 10}px`;
-        contextMenu.style.top = `${cyOff.top + 20 + node.renderedPosition().y}px`;
+        contextMenu.style.top = `${node.renderedPosition().y + 61}px`;
       };
 
       this.cy.on('tap', () => {
