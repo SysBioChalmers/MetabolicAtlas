@@ -3,6 +3,9 @@ version: '2'
 services:
   nginx:
     build: ./nginx
+    depends_on:
+      - backend
+      - frontend
     links:
       - frontend:frontend
       - backend:backend
