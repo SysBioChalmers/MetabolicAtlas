@@ -23,7 +23,7 @@ from api import views
 schema_view = get_swagger_view(title='Metabolic Atlas API')
 
 urlpatterns = [
-    url('^$', schema_view),
+    url('^swagger', schema_view),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('api.urls')),
 ]

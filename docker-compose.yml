@@ -1,6 +1,21 @@
 version: '2'
 
 services:
+  nginx:
+    build: ./nginx
+    depends_on:
+      - backend
+      - frontend
+    links:
+      - frontend:frontend
+      - backend:backend
+    volumes:
+      - ./backend/static:/static
+    ports:
+      - "80:80"
+    networks:
+      - net-tier
+
   frontend:
     depends_on:
       - backend
@@ -25,9 +40,10 @@ services:
       - db
     env_file: postgres.env
     build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/project
+      - ./backend/static:/static
     ports:
       - "8000:8000"
     networks:
