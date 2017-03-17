@@ -83,7 +83,7 @@ sup {
     max-width: 175px;
 
     .metabolite:hover {
-      @include animation('rotating 2s linear infinite;');
+      @include animation('rotating 1.7s linear infinite;');
     }
   }
 }
