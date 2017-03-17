@@ -4,7 +4,7 @@
       <div class="container">
         <div class="container">
           <a id="logo" class="nav-item">
-            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
+            <svg-logo></svg-logo>
           </a>
         </div>
         <div class="nav-right nav-menu">
@@ -40,16 +40,12 @@
 
 <script>
 
-import SvgIcon from './components/SvgIcon';
-import Logo from './assets/logo.svg';
+import SvgLogo from './components/SvgLogo';
 
 export default {
   name: 'app',
   components: {
-    SvgIcon,
-  },
-  data() {
-    return { Logo };
+    SvgLogo,
   },
 };
 </script>
@@ -59,17 +55,36 @@ export default {
 $primary: #64CC9A;
 
 @import '~bulma';
+@import './styles/mixins';
+
+@include keyframes(rotating) {
+  0% {
+    transform: rotate(0deg);
+    transform-origin: center center;
+  }
+  100% {
+    transform: rotate(360deg);
+    transform-origin: center center;
+  }
+}
 
 sup {
   vertical-align: bottom;
   font-size: 0.7em;
 }
 
+
 #main-nav {
   height: 75px;
 
   #logo {
     padding-left: 0;
+    max-height: 75px;
+    max-width: 175px;
+
+    .metabolite:hover {
+      @include animation('rotating 2s linear infinite;');
+    }
   }
 }
 
