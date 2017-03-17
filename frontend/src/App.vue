@@ -4,7 +4,7 @@
       <div class="container">
         <div class="container">
           <a id="logo" class="nav-item">
-            <svg-logo></svg-logo>
+            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
         </div>
         <div class="nav-right nav-menu">
@@ -40,12 +40,16 @@
 
 <script>
 
-import SvgLogo from './components/SvgLogo';
+import SvgIcon from './components/SvgIcon';
+import Logo from './assets/logo.svg';
 
 export default {
   name: 'app',
   components: {
-    SvgLogo,
+    SvgIcon,
+  },
+  data() {
+    return { Logo };
   },
 };
 </script>
@@ -79,12 +83,6 @@ sup {
 
   #logo {
     padding-left: 0;
-    max-height: 75px;
-    max-width: 175px;
-
-    .metabolite:hover {
-      @include animation('rotating 1.7s linear infinite;');
-    }
   }
 }
 
