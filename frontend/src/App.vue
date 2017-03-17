@@ -4,7 +4,7 @@
       <div class="container">
         <div class="container">
           <a id="logo" class="nav-item">
-            <img src="./assets/logo.svg" />
+            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
         </div>
         <div class="nav-right nav-menu">
@@ -40,8 +40,17 @@
 
 <script>
 
+import SvgIcon from './components/SvgIcon';
+import Logo from './assets/logo.svg';
+
 export default {
   name: 'app',
+  components: {
+    SvgIcon,
+  },
+  data() {
+    return { Logo };
+  },
 };
 </script>
 
@@ -60,14 +69,7 @@ sup {
   height: 75px;
 
   #logo {
-    height: 75px;
     padding-left: 0;
-  
-    img {
-      max-height: 50px;
-      height: 50px;
-      vertical-align: bottom;
-    }
   }
 }
 
