@@ -61,8 +61,7 @@
     "webpack-hot-middleware": "^2.12.2",
     "webpack-merge": "^0.14.1",
     "node-sass": "^4.5.0",
-    "sass-loader": "^4.1.1",
-    "svg-sprite-loader": "^0.3.0"
+    "sass-loader": "^4.1.1"
   },
   "engines": {
     "node": ">= 4.0.0",

@@ -69,7 +69,7 @@ module.exports = {
         loader: 'json'
       },
       {
-        test: /\.(png|jpe?g|gif)(\?.*)?$/,
+        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url',
         query: {
           limit: 10000,
@@ -83,13 +83,6 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
-      },
-      {
-      test: /\.svg$/,
-        loader: 'svg-sprite?' + JSON.stringify({
-          name: '[name]_[hash]',
-          prefixize: true
-        })
       }
     ]
   },
