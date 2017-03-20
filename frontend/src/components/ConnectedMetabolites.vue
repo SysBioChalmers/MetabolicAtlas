@@ -16,7 +16,7 @@
     <div class="container">
       <div class="field">
         <p class="control">
-          <input v-model="tableSearchTerm" class="input is-medium" type="text" placeholder="Search in table">
+          <input v-model="tableSearchTerm" class="input" type="text" placeholder="Search in table">
         </p>
       </div>
       <table class="table is-bordered is-striped is-narrow">
@@ -29,7 +29,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="elm in matchingElms">
+          <tr
+            v-for="elm in matchingElms"
+            :class="[{ 'highlight': isSelected(elm) }, '']"
+          >
             <td>{{ elm.type }}</td>
             <td>{{ elm.reactionid }}</td>
             <td v-html="chemicalNameLink(elm.short)"></td>
@@ -39,7 +42,10 @@
           </tr>
         </tbody>
         <tbody class="unMatchingTable">
-          <tr v-for="elm in unMatchingElms">
+          <tr
+            v-for="elm in unMatchingElms"
+            :class="[{ 'highlight': isSelected(elm) }, '']"
+          >
             <td>{{ elm.type }}</td>
             <td v-if="elm.type === 'reaction'">{{ elm.id }}</td>
             <td v-else-if="elm.type === 'enzyme'"> - </td>
@@ -78,6 +84,7 @@ export default {
       errorMessage: '',
       elms: [],
       matchingElms: [],
+      selectedElm: null,
       sortedElms: [],
       sortAsc: true,
       tableColumns: [
@@ -93,6 +100,12 @@ export default {
     };
   },
   methods: {
+    isSelected(elm) {
+      if (this.selectedElm) {
+        return this.selectedElm.long === elm.long && this.selectedElm.reactionid === elm.reactionid;
+      }
+      return false;
+    },
     load() {
       const enzymeId = this.$route.params.enzyme_id || this.$route.query.enzyme_id;
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
@@ -105,7 +118,7 @@ export default {
           this.sortedElms = elms;
           this.unMatchingElms = [];
           const [elements, stylesheet] = graph(elms, rels);
-          cytoscape({
+          const cy = cytoscape({
             container: this.$refs.cy,
             elements,
             style: stylesheet,
@@ -114,6 +127,23 @@ export default {
               tilingPaddingVertical: 50,
               tilingPaddingHorizontal: 50,
             },
+          });
+
+          cy.on('tap', () => {
+            this.selectedElm = null;
+          });
+
+          cy.on('tap', 'node', (evt) => {
+            const ele = evt.cyTarget;
+
+            for (const elm of elms) {
+              if (elm.short === ele.data().name
+                  && elm.reactionid === ele.data().reactionid
+              ) {
+                this.selectedElm = elm;
+                break;
+              }
+            }
           });
         })
         .catch((error) => {
@@ -206,6 +236,10 @@ h1, h2 {
 th {
   cursor: pointer;
   user-select: none;
+}
+
+tr.highlight {
+  background-color: #C5F4DD !important;
 }
 
 .unMatchingTable {

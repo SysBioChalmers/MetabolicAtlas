@@ -10,6 +10,7 @@ export default function (elms, rels) {
         data: {
           id: elm.id,
           parent: elm.parentid,
+          reactionid: elm.reactionid,
           name: elm.short,
           type: elm.type,
         },
@@ -19,6 +20,7 @@ export default function (elms, rels) {
         group: 'nodes',
         data: {
           id: elm.id,
+          reactionid: elm.reactionid,
           name: elm.short,
         },
       });
