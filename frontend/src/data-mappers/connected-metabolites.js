@@ -5,6 +5,7 @@ export default function (e) {
 
   const enzyme = {
     id: e.id,
+    reactionid: '-',
     parentid: null,
     type: 'enzyme',
     short: e.short_name || e.long_name,
@@ -18,6 +19,7 @@ export default function (e) {
   for (const r of e.reactions) {
     const reaction = {
       id: r.reaction_id,
+      reactionid: r.reaction_id,
       parentid: null,
       type: 'reaction',
       short: r.reaction_id,
@@ -37,6 +39,7 @@ export default function (e) {
     for (const p of r.products) {
       const metabolite = {
         id: p.id,
+        reactionid: r.reaction_id,
         parentid: r.reaction_id,
         short: p.short_name || p.long_name,
         long: p.long_name,
@@ -57,6 +60,7 @@ export default function (e) {
     for (const re of r.reactants) {
       const metabolite = {
         id: re.id,
+        reactionid: r.reaction_id,
         parentid: r.reaction_id,
         short: re.short_name || re.long_name,
         long: re.long_name,
