@@ -13,30 +13,49 @@
         </blockquote>
       </div>
     </div>
-    <table class="table is-bordered is-striped is-narrow">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Reaction ID</th>
-          <th>Short name</th>
-          <th>Long name</th>
-          <th>Formula</th>
-          <th>Compartment</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="elm in elms">
-          <td>{{ elm.type }}</td>
-          <td v-if="elm.type === 'reaction'">{{ elm.id }}</td>
-          <td v-else-if="elm.type === 'enzyme'"> - </td>
-          <td v-else>{{ elm.parentid }}</td>
-          <td v-html="chemicalNameLink(elm.short)"></td>
-          <td v-html="chemicalName(elm.long)"></td>
-          <td v-html="chemicalFormula(elm.formula)"></td>
-          <td>{{ elm.compartment }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="container">
+      <div class="field">
+        <p class="control">
+          <input v-model="tableSearchTerm" class="input is-medium" type="text" placeholder="Search in table">
+        </p>
+      </div>
+      <table class="table is-bordered is-striped is-narrow">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Reaction ID</th>
+            <th>Short name</th>
+            <th>Long name</th>
+            <th>Formula</th>
+            <th>Compartment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="elm in matchingElms">
+            <td>{{ elm.type }}</td>
+            <td v-if="elm.type === 'reaction'">{{ elm.id }}</td>
+            <td v-else-if="elm.type === 'enzyme'"> - </td>
+            <td v-else>{{ elm.parentid }}</td>
+            <td v-html="chemicalNameLink(elm.short)"></td>
+            <td v-html="chemicalName(elm.long)"></td>
+            <td v-html="chemicalFormula(elm.formula)"></td>
+            <td>{{ elm.compartment }}</td>
+          </tr>
+        </tbody>
+        <tbody class="unMatchingTable">
+          <tr v-for="elm in unMatchingElms">
+            <td>{{ elm.type }}</td>
+            <td v-if="elm.type === 'reaction'">{{ elm.id }}</td>
+            <td v-else-if="elm.type === 'enzyme'"> - </td>
+            <td v-else>{{ elm.parentid }}</td>
+            <td v-html="chemicalNameLink(elm.short)"></td>
+            <td v-html="chemicalName(elm.long)"></td>
+            <td v-html="chemicalFormula(elm.formula)"></td>
+            <td>{{ elm.compartment }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -54,6 +73,9 @@ export default {
     return {
       errorMessage: '',
       elms: [],
+      matchingElms: [],
+      unMatchingElms: [],
+      tableSearchTerm: '',
     };
   },
   methods: {
@@ -65,6 +87,8 @@ export default {
 
           const [elms, rels] = transform(response.data);
           this.elms = elms;
+          this.matchingElms = elms;
+          this.unMatchingElms = [];
           const [elements, stylesheet] = graph(elms, rels);
           cytoscape({
             container: this.$refs.cy,
@@ -85,6 +109,33 @@ export default {
     chemicalName,
     chemicalNameLink,
   },
+  watch: {
+    tableSearchTerm: function tableSearchTerm(term) {
+      if (term === '') {
+        this.matchingElms = this.elms;
+        this.unMatchingElms = [];
+      } else {
+        this.matchingElms = [];
+        this.unMatchingElms = [];
+        const t = term.toLowerCase();
+
+        for (const elm of this.elms) {
+          const matches = elm.type.toLowerCase().includes(t)
+                          || (elm.id && elm.id.toLowerCase().includes(t))
+                          || (elm.parentid && elm.parentid.toLowerCase().includes(t))
+                          || elm.short.toLowerCase().includes(t)
+                          || elm.long.toLowerCase().includes(t)
+                          || elm.formula.toLowerCase().includes(t)
+                          || (elm.compartment && elm.compartment.toLowerCase().includes(t));
+          if (matches) {
+            this.matchingElms.push(elm);
+          } else {
+            this.unMatchingElms.push(elm);
+          }
+        }
+      }
+    },
+  },
   beforeMount() {
     regCose(cytoscape);
     this.load();
@@ -104,6 +155,10 @@ h1, h2 {
   position: static;
   margin: auto;
   height: 820px;
+}
+
+.unMatchingTable {
+  opacity: 0.3;
 }
 
 </style>

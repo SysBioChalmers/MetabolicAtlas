@@ -135,8 +135,8 @@ export default {
       contextMenu.style.display = 'none';
 
       const updatePosition = (node) => {
-        contextMenu.style.left = `${node.renderedPosition().x - 10}px`;
-        contextMenu.style.top = `${node.renderedPosition().y + 61}px`;
+        contextMenu.style.left = `${node.renderedPosition().x - 8}px`;
+        contextMenu.style.top = `${node.renderedPosition().y + 210}px`;
       };
 
       this.cy.on('tap', () => {
