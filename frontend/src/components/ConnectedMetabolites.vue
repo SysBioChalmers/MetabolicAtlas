@@ -14,19 +14,10 @@
       </div>
     </div>
     <div class="container">
-      <div class="columns">
-        <div class="column field">
-          <p class="control">
-            <input v-model="tableSearchTerm" class="input" type="text" placeholder="Search in table">
-          </p>
-        </div>
-        <div class="column is-1">
-          <a
-            class="button is-pulled-right"
-            @click="resetTable()"
-          >Reset</a>
-        </div>
-      </div>
+      <table-search
+        :reset="resetTable"
+        @search="searchTable($event)"
+      ></table-search>
       <table class="table is-bordered is-striped is-narrow">
         <thead>
           <tr>
@@ -74,6 +65,7 @@
 <script>
 import axios from 'axios';
 import cytoscape from 'cytoscape';
+import TableSearch from 'components/TableSearch';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
@@ -89,6 +81,9 @@ const COL_COMPARTMENT = 'Compartment';
 
 export default {
   name: 'connected-metabolites',
+  components: {
+    TableSearch,
+  },
   data() {
     return {
       cy: null,
@@ -168,6 +163,10 @@ export default {
       this.selectedElmId = '';
       this.updateTable();
     },
+    searchTable(term) {
+      this.tableSearchTerm = term;
+      this.updateTable();
+    },
     sortBy(col) {
       let key = '';
       switch (col) {
@@ -225,11 +224,6 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
-  },
-  watch: {
-    tableSearchTerm() {
-      this.updateTable();
-    },
   },
   beforeMount() {
     regCose(cytoscape);
