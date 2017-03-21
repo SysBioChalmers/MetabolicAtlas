@@ -14,10 +14,18 @@
       </div>
     </div>
     <div class="container">
-      <div class="field">
-        <p class="control">
-          <input v-model="tableSearchTerm" class="input" type="text" placeholder="Search in table">
-        </p>
+      <div class="columns">
+        <div class="column field">
+          <p class="control">
+            <input v-model="tableSearchTerm" class="input" type="text" placeholder="Search in table">
+          </p>
+        </div>
+        <div class="column is-1">
+          <a
+            class="button is-pulled-right"
+            @click="resetTable()"
+          >Reset</a>
+        </div>
       </div>
       <table class="table is-bordered is-striped is-narrow">
         <thead>
@@ -154,6 +162,12 @@ export default {
           this.errorMessage = error.message;
         });
     },
+    resetTable() {
+      this.sortedElms = this.elms;
+      this.tableSearchTerm = '';
+      this.selectedElmId = '';
+      this.updateTable();
+    },
     sortBy(col) {
       let key = '';
       switch (col) {
@@ -178,7 +192,8 @@ export default {
         default:
           key = 'type';
       }
-      this.sortedElms = this.elms.sort(compare(key, this.sortAsc ? 'asc' : 'desc'));
+      const elms = Array.prototype.slice.call(this.elms); // Do not mutate original elms;
+      this.sortedElms = elms.sort(compare(key, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
       this.updateTable();
     },
