@@ -1,8 +1,8 @@
 export default (key, order = 'asc') =>
   (a, b) => {
-    if (!Object.prototype.hasOwnProperty.call(a, key)) {
+    if (!Object.prototype.hasOwnProperty.call(a, key) || a[key] === null) {
       return 1;
-    } else if (!Object.prototype.hasOwnProperty.call(b, key)) {
+    } else if (!Object.prototype.hasOwnProperty.call(b, key) || b[key] === null) {
       return -1;
     }
 

@@ -23,26 +23,12 @@
         <img >
       </div>
     </div>
-    <table class="table is-bordered is-striped is-narrow">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Short name</th>
-          <th>Long name</th>
-          <th>Formula</th>
-          <th>Compartment</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="elm in elms">
-          <td>{{ elm.type }}</td>
-          <td v-html="chemicalNameLink(elm.short)"></td>
-          <td v-html="chemicalName(elm.long)"></td>
-          <td v-html="chemicalFormula(elm.formula)"></td>
-          <td>{{ elm.compartment }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <cytoscape-table
+      :structure="tableStructure"
+      :elms="elms"
+      :selected-elm-id="selectedElmId"
+      @highlight="highlightNode($event)"
+    ></cytoscape-table>
   </div>
 </template>
 
@@ -52,6 +38,7 @@ import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml';
 // import C2S from 'canvas2svg';
+import CytoscapeTable from 'components/CytoscapeTable';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
@@ -59,14 +46,24 @@ import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chem
 
 export default {
   name: 'closest-interaction-partners',
+  components: {
+    CytoscapeTable,
+  },
   data() {
     return {
       errorMessage: '',
       title: '',
       elms: [],
       reactionComponentId: '',
-      selectedReactionComponentId: '',
+      selectedElmId: '',
       cy: null,
+      tableStructure: [
+        { field: 'type', colName: 'Type', modifier: null },
+        { field: 'short', colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'long', colName: 'Long name', modifier: chemicalName },
+        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+        { field: 'compartment', colName: 'Compartment', modifier: null },
+      ],
     };
   },
   beforeMount() {
@@ -79,16 +76,21 @@ export default {
       this.reactionComponentId = this.$route.params.reaction_component_id
                                  || this.$route.query.reaction_component_id;
       this.title = `Closest interaction partners | ${this.reactionComponentId}`;
+      this.selectedElmId = '';
       this.load();
     },
     navigate() {
       this.$router.push(
         {
           name: 'closest-interaction-partners',
-          params: { reaction_component_id: this.selectedReactionComponentId },
+          params: { reaction_component_id: this.selectedElmId },
         },
-        () => {
+        () => { // On complete.
           this.setup();
+        },
+        () => { // On abort.
+          this.$refs.contextMenu.style.display = 'none';
+          this.selectedElmId = '';
         }
       );
     },
@@ -107,6 +109,12 @@ export default {
         .catch((error) => {
           this.errorMessage = error.message;
         });
+    },
+    highlightNode(elmId) {
+      this.cy.nodes().deselect();
+      const node = this.cy.getElementById(elmId);
+      node.json({ selected: true });
+      node.trigger('tap');
     },
     constructGraph: function constructGraph(elms, rels) {
       /* eslint-disable no-param-reassign */
@@ -136,25 +144,26 @@ export default {
 
       const updatePosition = (node) => {
         contextMenu.style.left = `${node.renderedPosition().x - 8}px`;
-        contextMenu.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenu.style.top = `${node.renderedPosition().y + 61}px`;
       };
 
       this.cy.on('tap', () => {
         contextMenu.style.display = 'none';
+        this.selectedElmId = '';
       });
 
       this.cy.on('tap', 'node', (evt) => {
         const node = evt.cyTarget;
-        if (node.data().type === 'enzyme') {
-          this.selectedReactionComponentId = node.data().id;
-          contextMenu.style.display = 'block';
-          updatePosition(node);
-        }
+        const elmId = node.data().id;
+
+        this.selectedElmId = elmId;
+        contextMenu.style.display = 'block';
+        updatePosition(node);
       });
 
       this.cy.on('drag', 'node', (evt) => {
         const node = evt.cyTarget;
-        if (node.data().type === 'enzyme' && this.selectedReactionComponentId === node.data().id) {
+        if (this.selectedElmId === node.data().id) {
           updatePosition(node);
         }
       });

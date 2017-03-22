@@ -14,59 +14,12 @@
       </div>
     </div>
     <div class="container">
-      <div class="columns">
-        <div class="column field">
-          <p class="control">
-            <input v-model="tableSearchTerm" class="input" type="text" placeholder="Search in table">
-          </p>
-        </div>
-        <div class="column is-1">
-          <a
-            class="button is-pulled-right"
-            @click="resetTable()"
-          >Reset</a>
-        </div>
-      </div>
-      <table class="table is-bordered is-striped is-narrow">
-        <thead>
-          <tr>
-            <th
-              v-for="col in tableColumns"
-              @click="sortBy(col)"
-            >{{ col }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="elm in matchingElms"
-            :class="[{ 'highlight': isSelected(elm.id) }, '']"
-            @click="highlightNode(elm.id)"
-          >
-            <td>{{ elm.type }}</td>
-            <td>{{ elm.reactionid }}</td>
-            <td v-html="chemicalNameLink(elm.short)"></td>
-            <td v-html="chemicalName(elm.long)"></td>
-            <td v-html="chemicalFormula(elm.formula)"></td>
-            <td>{{ elm.compartment }}</td>
-          </tr>
-        </tbody>
-        <tbody class="unMatchingTable">
-          <tr
-            v-for="elm in unMatchingElms"
-            :class="[{ 'highlight': isSelected(elm) }, '']"
-            @click="highlightNode(elm.id)"
-          >
-            <td>{{ elm.type }}</td>
-            <td v-if="elm.type === 'reaction'">{{ elm.id }}</td>
-            <td v-else-if="elm.type === 'enzyme'"> - </td>
-            <td v-else>{{ elm.parentid }}</td>
-            <td v-html="chemicalNameLink(elm.short)"></td>
-            <td v-html="chemicalName(elm.long)"></td>
-            <td v-html="chemicalFormula(elm.formula)"></td>
-            <td>{{ elm.compartment }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <cytoscape-table
+        :structure="tableStructure"
+        :elms="elms"
+        :selected-elm-id="selectedElmId"
+        @highlight="highlightNode($event)"
+      ></cytoscape-table>
     </div>
   </div>
 </template>
@@ -74,46 +27,35 @@
 <script>
 import axios from 'axios';
 import cytoscape from 'cytoscape';
+import CytoscapeTable from 'components/CytoscapeTable';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
-import { default as compare } from '../helpers/compare';
-
-const COL_TYPE = 'Type';
-const COL_REACTION_ID = 'Reaction ID';
-const COL_SHORT_NAME = 'Short name';
-const COL_LONG_NAME = 'Long name';
-const COL_FORMULA = 'Formula';
-const COL_COMPARTMENT = 'Compartment';
 
 export default {
   name: 'connected-metabolites',
+  components: {
+    CytoscapeTable,
+  },
   data() {
     return {
       cy: null,
       errorMessage: '',
       elms: [],
-      matchingElms: [],
       selectedElmId: '',
-      sortedElms: [],
-      sortAsc: true,
-      tableColumns: [
-        COL_TYPE,
-        COL_REACTION_ID,
-        COL_SHORT_NAME,
-        COL_LONG_NAME,
-        COL_FORMULA,
-        COL_COMPARTMENT,
+      tableStructure: [
+        { field: 'type', colName: 'Type', modifier: null },
+        { field: 'reactionid', colName: 'Reaction ID', modifier: null },
+        { field: 'short', colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'long', colName: 'Long name', modifier: chemicalName },
+        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+        { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
       tableSearchTerm: '',
-      unMatchingElms: [],
     };
   },
   methods: {
-    isSelected(elmId) {
-      return this.selectedElmId === elmId;
-    },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
       const node = this.cy.getElementById(elmId);
@@ -128,9 +70,6 @@ export default {
 
           const [elms, rels] = transform(response.data);
           this.elms = elms;
-          this.matchingElms = elms;
-          this.sortedElms = elms;
-          this.unMatchingElms = [];
           const [elements, stylesheet] = graph(elms, rels);
           this.cy = cytoscape({
             container: this.$refs.cy,
@@ -149,87 +88,16 @@ export default {
 
           this.cy.on('tap', 'node', (evt) => {
             const ele = evt.cyTarget;
-
-            for (const elm of elms) {
-              if (elm.id === ele.data().id) {
-                this.selectedElmId = elm.id;
-                break;
-              }
-            }
+            this.selectedElmId = ele.data().id;
           });
         })
         .catch((error) => {
           this.errorMessage = error.message;
         });
     },
-    resetTable() {
-      this.sortedElms = this.elms;
-      this.tableSearchTerm = '';
-      this.selectedElmId = '';
-      this.updateTable();
-    },
-    sortBy(col) {
-      let key = '';
-      switch (col) {
-        case COL_TYPE:
-          key = 'type';
-          break;
-        case COL_REACTION_ID:
-          key = 'reactionid';
-          break;
-        case COL_SHORT_NAME:
-          key = 'short';
-          break;
-        case COL_LONG_NAME:
-          key = 'long';
-          break;
-        case COL_FORMULA:
-          key = 'formula';
-          break;
-        case COL_COMPARTMENT:
-          key = 'compartment';
-          break;
-        default:
-          key = 'type';
-      }
-      const elms = Array.prototype.slice.call(this.elms); // Do not mutate original elms;
-      this.sortedElms = elms.sort(compare(key, this.sortAsc ? 'asc' : 'desc'));
-      this.sortAsc = !this.sortAsc;
-      this.updateTable();
-    },
-    updateTable() {
-      if (this.tableSearchTerm === '') {
-        this.matchingElms = this.sortedElms;
-        this.unMatchingElms = [];
-      } else {
-        this.matchingElms = [];
-        this.unMatchingElms = [];
-        const t = this.tableSearchTerm.toLowerCase();
-
-        for (const elm of this.sortedElms) {
-          const matches = elm.type.toLowerCase().includes(t)
-                          || (elm.id && elm.id.toLowerCase().includes(t))
-                          || (elm.parentid && elm.parentid.toLowerCase().includes(t))
-                          || elm.short.toLowerCase().includes(t)
-                          || elm.long.toLowerCase().includes(t)
-                          || elm.formula.toLowerCase().includes(t)
-                          || (elm.compartment && elm.compartment.toLowerCase().includes(t));
-          if (matches) {
-            this.matchingElms.push(elm);
-          } else {
-            this.unMatchingElms.push(elm);
-          }
-        }
-      }
-    },
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
-  },
-  watch: {
-    tableSearchTerm() {
-      this.updateTable();
-    },
   },
   beforeMount() {
     regCose(cytoscape);
@@ -239,8 +107,7 @@ export default {
 
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss">
 
 h1, h2 {
   font-weight: normal;
@@ -250,19 +117,6 @@ h1, h2 {
   position: static;
   margin: auto;
   height: 820px;
-}
-
-th {
-  cursor: pointer;
-  user-select: none;
-}
-
-tr.highlight {
-  background-color: #C5F4DD !important;
-}
-
-.unMatchingTable {
-  opacity: 0.3;
 }
 
 </style>
