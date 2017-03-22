@@ -23,26 +23,12 @@
         <img >
       </div>
     </div>
-    <table class="table is-bordered is-striped is-narrow">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Short name</th>
-          <th>Long name</th>
-          <th>Formula</th>
-          <th>Compartment</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="elm in elms">
-          <td>{{ elm.type }}</td>
-          <td v-html="chemicalNameLink(elm.short)"></td>
-          <td v-html="chemicalName(elm.long)"></td>
-          <td v-html="chemicalFormula(elm.formula)"></td>
-          <td>{{ elm.compartment }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <cytoscape-table
+      :structure="tableStructure"
+      :elms="elms"
+      :selected-elm-id="selectedElmId"
+      @highlight="highlightNode($event)"
+    ></cytoscape-table>
   </div>
 </template>
 
@@ -52,6 +38,7 @@ import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml';
 // import C2S from 'canvas2svg';
+import CytoscapeTable from 'components/CytoscapeTable';
 import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
@@ -59,6 +46,9 @@ import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chem
 
 export default {
   name: 'closest-interaction-partners',
+  components: {
+    CytoscapeTable,
+  },
   data() {
     return {
       errorMessage: '',
@@ -66,7 +56,15 @@ export default {
       elms: [],
       reactionComponentId: '',
       selectedReactionComponentId: '',
+      selectedElmId: '',
       cy: null,
+      tableStructure: [
+        { field: 'type', colName: 'Type', modifier: null },
+        { field: 'short', colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'long', colName: 'Long name', modifier: chemicalName },
+        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+        { field: 'compartment', colName: 'Compartment', modifier: null },
+      ],
     };
   },
   beforeMount() {
@@ -108,6 +106,12 @@ export default {
           this.errorMessage = error.message;
         });
     },
+    highlightNode(elmId) {
+      this.cy.nodes().deselect();
+      const node = this.cy.getElementById(elmId);
+      node.json({ selected: true });
+      node.trigger('tap');
+    },
     constructGraph: function constructGraph(elms, rels) {
       /* eslint-disable no-param-reassign */
       const [elements, stylesheet] = graph(elms, rels);
@@ -145,8 +149,11 @@ export default {
 
       this.cy.on('tap', 'node', (evt) => {
         const node = evt.cyTarget;
+        const elmId = node.data().id;
+
+        this.selectedElmId = elmId;
         if (node.data().type === 'enzyme') {
-          this.selectedReactionComponentId = node.data().id;
+          this.selectedReactionComponentId = elmId;
           contextMenu.style.display = 'block';
           updatePosition(node);
         }

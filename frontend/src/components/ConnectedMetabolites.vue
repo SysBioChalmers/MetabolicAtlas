@@ -88,13 +88,7 @@ export default {
 
           this.cy.on('tap', 'node', (evt) => {
             const ele = evt.cyTarget;
-
-            for (const elm of elms) {
-              if (elm.id === ele.data().id) {
-                this.selectedElmId = elm.id;
-                break;
-              }
-            }
+            this.selectedElmId = ele.data().id;
           });
         })
         .catch((error) => {
