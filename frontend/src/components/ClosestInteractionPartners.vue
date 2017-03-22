@@ -80,15 +80,17 @@ export default {
       this.load();
     },
     navigate() {
-      this.$refs.contextMenu.style.display = 'none';
-      this.selectedElmId = '';
       this.$router.push(
         {
           name: 'closest-interaction-partners',
           params: { reaction_component_id: this.selectedElmId },
         },
-        () => {
+        () => { // On complete.
           this.setup();
+        },
+        () => { // On abort.
+          this.$refs.contextMenu.style.display = 'none';
+          this.selectedElmId = '';
         }
       );
     },
