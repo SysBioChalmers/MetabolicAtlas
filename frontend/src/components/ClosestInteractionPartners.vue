@@ -55,7 +55,6 @@ export default {
       title: '',
       elms: [],
       reactionComponentId: '',
-      selectedReactionComponentId: '',
       selectedElmId: '',
       cy: null,
       tableStructure: [
@@ -77,13 +76,16 @@ export default {
       this.reactionComponentId = this.$route.params.reaction_component_id
                                  || this.$route.query.reaction_component_id;
       this.title = `Closest interaction partners | ${this.reactionComponentId}`;
+      this.selectedElmId = '';
       this.load();
     },
     navigate() {
+      this.$refs.contextMenu.style.display = 'none';
+      this.selectedElmId = '';
       this.$router.push(
         {
           name: 'closest-interaction-partners',
-          params: { reaction_component_id: this.selectedReactionComponentId },
+          params: { reaction_component_id: this.selectedElmId },
         },
         () => {
           this.setup();
@@ -140,11 +142,12 @@ export default {
 
       const updatePosition = (node) => {
         contextMenu.style.left = `${node.renderedPosition().x - 8}px`;
-        contextMenu.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenu.style.top = `${node.renderedPosition().y + 61}px`;
       };
 
       this.cy.on('tap', () => {
         contextMenu.style.display = 'none';
+        this.selectedElmId = '';
       });
 
       this.cy.on('tap', 'node', (evt) => {
@@ -152,16 +155,13 @@ export default {
         const elmId = node.data().id;
 
         this.selectedElmId = elmId;
-        if (node.data().type === 'enzyme') {
-          this.selectedReactionComponentId = elmId;
-          contextMenu.style.display = 'block';
-          updatePosition(node);
-        }
+        contextMenu.style.display = 'block';
+        updatePosition(node);
       });
 
       this.cy.on('drag', 'node', (evt) => {
         const node = evt.cyTarget;
-        if (node.data().type === 'enzyme' && this.selectedReactionComponentId === node.data().id) {
+        if (this.selectedElmId === node.data().id) {
           updatePosition(node);
         }
       });
