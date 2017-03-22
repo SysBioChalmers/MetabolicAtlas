@@ -75,16 +75,12 @@ export default {
     setup() {
       this.reactionComponentId = this.$route.params.reaction_component_id
                                  || this.$route.query.reaction_component_id;
-      this.title = `Closest interaction partners | ${this.reactionComponentId}`;
       this.selectedElmId = '';
       this.load();
     },
     navigate() {
       this.$router.push(
-        {
-          name: 'closest-interaction-partners',
-          params: { reaction_component_id: this.selectedElmId },
-        },
+        { query: { ...this.$route.query, reaction_component_id: this.selectedElmId } },
         () => { // On complete.
           this.setup();
         },
@@ -101,6 +97,9 @@ export default {
 
           const enzyme = response.data.enzyme;
           const reactions = response.data.reactions;
+
+          const enzymeName = enzyme.short_name || enzyme.long_name;
+          this.title = `Closest interaction partners | ${enzymeName}`;
 
           const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
           this.elms = Object.keys(elms).map(k => elms[k]);
@@ -144,7 +143,7 @@ export default {
 
       const updatePosition = (node) => {
         contextMenu.style.left = `${node.renderedPosition().x - 8}px`;
-        contextMenu.style.top = `${node.renderedPosition().y + 61}px`;
+        contextMenu.style.top = `${node.renderedPosition().y + 210}px`;
       };
 
       this.cy.on('tap', () => {
