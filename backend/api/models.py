@@ -98,16 +98,16 @@ class ExpressionData(models.Model):
         unique_together = (('id', 'gene_id', 'transcript_id', 'tissue', 'cell_type', 'expression_type'),)
 
 class Metabolite(models.Model):
-    hmdb = models.CharField(max_length=10)
-    formula = models.CharField(max_length=50)
-    charge = models.FloatField()
-    mass = models.FloatField()
-    mass_avg = models.FloatField()
-    kegg = models.CharField(max_length=50)
-    chebi = models.CharField(max_length=50)
-    inchi = models.CharField(max_length=255)
-    bigg = models.CharField(max_length=55)
-    # relationship: components
+    component_id = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    hmdb = models.CharField(max_length=10, null=True)
+    formula = models.CharField(max_length=50, null=True)
+    charge = models.FloatField(null=True)
+    mass = models.FloatField(null=True)
+    mass_avg = models.FloatField(null=True)
+    kegg = models.CharField(max_length=50, null=True)
+    chebi = models.CharField(max_length=50, null=True)
+    inchi = models.CharField(max_length=255, null=True)
+    bigg = models.CharField(max_length=75, null=True)
 
     class Meta:
         db_table = "metabolites"
