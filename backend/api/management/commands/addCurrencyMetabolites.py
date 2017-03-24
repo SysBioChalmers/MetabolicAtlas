@@ -1,11 +1,12 @@
 import sys, os
 
 from django.db import models
-from api.models import ReactionComponent, Reaction
+from api.models import ReactionComponent, Reaction, CurrencyMetabolite
 
 from django.core.management.base import BaseCommand
 
-def readFile(cm_file):
+def readTextFileAndAdd(cm_file):
+    cm_to_add = []
     with open(cm_file, 'r') as f:
         for line in f:
             tokens = line.strip().split(",")
@@ -18,10 +19,9 @@ def readFile(cm_file):
                 reaction = Reaction.objects.filter(id=reaction_id)
                 if(len(reaction)!=1):
                     sys.exit("No reaction found for id "+reaction_id)
-                component[0].currency_metabolites.add(reaction[0])
-                #component.currency_metabolites.append(reaction)
-            #db.session.add(component)
-        #db.session.commit()
+                cm = CurrencyMetabolite(component=component[0], reaction=reaction[0])
+                cm_to_add.append(cm)
+    CurrencyMetabolite.objects.bulk_create(cm_to_add)
 
 
 
@@ -30,7 +30,7 @@ class Command(BaseCommand):
     help = 'our help string comes here'
 
     def _create_tags(self):
-        readFile("/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/currencyMets.csv")
+        readTextFileAndAdd("/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/currencyMets.csv")
 
     def handle(self, *args, **options):
         self._create_tags()

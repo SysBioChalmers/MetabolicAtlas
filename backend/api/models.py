@@ -187,3 +187,4 @@ class CurrencyMetabolite(models.Model):
 
     class Meta:
         db_table = "currency_metabolites"
+        unique_together = (('component', 'reaction'),)
