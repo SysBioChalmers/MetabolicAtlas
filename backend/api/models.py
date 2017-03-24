@@ -32,12 +32,15 @@ class Reaction(models.Model):
     name = models.CharField(max_length=255)
     sbo_id = models.CharField(max_length=255)
     equation = models.TextField(blank=False)
-    ec = models.CharField(max_length=255)
+    ec = models.CharField(max_length=255, null=True)
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField()
 
     models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
+
+    #currency_metabolites = models.ManyToManyField(Reaction,
+    #    related_name='reaction_component', through='CurrencyMetabolite')
 
     def __str__(self):
         return "<Reaction: {0}>".format(self.id)
@@ -51,7 +54,7 @@ class ReactionComponent(models.Model):
     long_name = models.CharField(max_length=255)
     component_type = models.CharField(max_length=50, db_index=True)
     organism = models.CharField(max_length=255)
-    formula = models.CharField(max_length=255)
+    formula = models.CharField(max_length=255, null=True) # only metabolites have this!
     compartment = models.ForeignKey('Compartment', db_column='compartment', blank=True)
 
     reactions_as_reactant = models.ManyToManyField(Reaction, related_name='reactants', through='ReactionReactant')
@@ -70,7 +73,7 @@ class ReactionComponentAnnotation(models.Model):
     pass
 
 class Compartment(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
@@ -99,8 +102,9 @@ class Metabolite(models.Model):
     formula = models.CharField(max_length=50)
     charge = models.FloatField()
     mass = models.FloatField()
+    mass_avg = models.FloatField()
     kegg = models.CharField(max_length=50)
-    checbi = models.CharField(max_length=50)
+    chebi = models.CharField(max_length=50)
     inchi = models.CharField(max_length=255)
     bigg = models.CharField(max_length=55)
     # relationship: components
@@ -156,14 +160,6 @@ class ModelReaction(models.Model):
     class Meta:
         db_table = "model_reactions"
 
-# currently not in db
-class ReactionComponentMetabolite(models.Model):
-    pass
-
-# currently not in db
-class ReactionComponentEnzyme(models.Model):
-    pass
-
 class ReactionReactant(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
     reactant = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
@@ -191,5 +187,3 @@ class CurrencyMetabolite(models.Model):
 
     class Meta:
         db_table = "currency_metabolites"
-
-
