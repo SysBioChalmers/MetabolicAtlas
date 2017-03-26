@@ -68,9 +68,16 @@ class ReactionComponent(models.Model):
     class Meta:
         db_table = "reaction_component"
 
-# TODO: add this table in db
 class ReactionComponentAnnotation(models.Model):
-    pass
+    reaction_component_id = models.ForeignKey('ReactionComponent', db_column='component_id', on_delete=models.CASCADE)
+    annotation_type = models.CharField(max_length=50)
+    annotation = models.CharField(max_length=5000) # some of the uniprot fields are quite long!
+
+    def __str__(self):
+        return self.annotation_type+":"+self.annotation
+
+    class Meta:
+        db_table = "reaction_component_annotations"
 
 class Compartment(models.Model):
     name = models.CharField(max_length=50, unique=True)
