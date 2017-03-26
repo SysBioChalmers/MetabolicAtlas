@@ -120,14 +120,14 @@ class Metabolite(models.Model):
         db_table = "metabolites"
 
 class Enzyme(models.Model):
+    reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
     uniprot_acc = models.CharField(max_length=35, unique=True)
     protein_name = models.CharField(max_length=150)
     short_name = models.CharField(max_length=75)
-    ec = models.CharField(max_length=100)
-    kegg = models.CharField(max_length=125)
-    function = models.CharField(max_length=6000)
-    catalytic_activity = models.CharField(max_length=700)
-    # relationship: components
+    ec = models.CharField(max_length=100, null=True)
+    kegg = models.CharField(max_length=125, null=True)
+    function = models.CharField(max_length=6000, null=True)
+    catalytic_activity = models.CharField(max_length=700, null=True)
 
     class Meta:
         db_table = "enzymes"

@@ -28,22 +28,19 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
                         _addAnnotation(component[0], annType, annotation)
                 elif(idType == "uniprot"):
                     upId = tokens[idCol]
-                    #print("Looking at uniprot id "+upId+" for line "+line)
-                    up = ReactionComponentAnnotation.objects.filter(
-                        and_(ReactionComponentAnnotation.annotation_type=='uniprot',
-                            ReactionComponentAnnotation.annotation == upId))
-                    if(len(up)<1):
+                    rca = ReactionComponentAnnotation.objects.filter(
+                        annotation_type='uniprot').filter(annotation=upId)
+                    if(len(rca)<1):
                         if verbose:
                             print("No ann found for "+upId)
-                    elif(len(up)==1):
-                        _addAnnotation(up[0], annType, annotation)
+                    elif(len(rca)==1):
+                        _addAnnotation(rca[0].reaction_component_id, annType, annotation)
                         prevUp = upId
                     else:
                         ups = ReactionComponentAnnotation.objects.filter(
-                            and_(ReactionComponentAnnotation.annotation_type=='uniprot',
-                                ReactionComponentAnnotation.annotation == upId))
+                            annotation_type='uniprot').filter(annotation=upId)
                         for up in ups:
-                            _addAnnotation(up, annType, annotation)
+                            _addAnnotation(up.reaction_component_id, annType, annotation)
                         prevUp = None
                 elif(idType == "metName"):
                     name = tokens[idCol]
@@ -61,7 +58,6 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
 
 def _addAnnotation(c, t, ann):
     # make the annotation
-    print("Trying to add "+c.id+", "+t+", "+ann)
     ann = ReactionComponentAnnotation(
         reaction_component_id = c, annotation_type = t, annotation = ann)
     annotationsToAdd.append(ann)
@@ -74,7 +70,9 @@ class Command(BaseCommand):
     folder="/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/"
 
     def _create_tags(self):
-        readFileAndAdd("ensg", 0, "uniprot", self.folder+"ensembl82_uniprot_swissprot.tab", 1)
+        #readFileAndAdd("ensg", 0, "uniprot", self.folder+"ensembl82_uniprot_swissprot.tab", 1)
+        readFileAndAdd("uniprot", 1, "up_keywords", self.folder+"uniprot.human.keywords.tab", 2) # about an hour!
+
 
     def handle(self, *args, **options):
         self._create_tags()
