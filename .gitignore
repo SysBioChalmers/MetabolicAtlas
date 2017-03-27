@@ -38,3 +38,7 @@ Temporary Items
 #
 
 *.env
+
+
+# migration files
+backend/api/migrations/*py

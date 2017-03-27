@@ -11,9 +11,8 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
     notFoundCount = 0
     with open(annFile, 'r') as f:
         for line in f:
-            #print("Line is "+line)
             tokens = line.strip().split("\t")
-            # the ensembl download annotation files will contain an ENSG id without the actual annotation column...
+            # the ensembl download annotation files will contain an ENSG id without the actual annotation column... (eg when its missing!)
             if len(tokens) > annCol:
                 annotation = tokens[annCol]
                 if(idType == "ensg"):
@@ -35,16 +34,12 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
                             print("No ann found for "+upId)
                     elif(len(rca)==1):
                         _addAnnotation(rca[0].reaction_component_id, annType, annotation)
-                        prevUp = upId
                     else:
-                        ups = ReactionComponentAnnotation.objects.filter(
-                            annotation_type='uniprot').filter(annotation=upId)
-                        for up in ups:
+                        for up in rca:
                             _addAnnotation(up.reaction_component_id, annType, annotation)
-                        prevUp = None
                 elif(idType == "metName"):
                     name = tokens[idCol]
-                    met = ReactionComponent.objects.filter(long_name == name)
+                    met = ReactionComponent.objects.filter(long_name=name)
                     if(len(met)<1):
                         print("No reaction comopnent found for metabolite name '"+name+"' ")
                         notFoundCount = notFoundCount + 1
@@ -70,9 +65,8 @@ class Command(BaseCommand):
     folder="/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/"
 
     def _create_tags(self):
-        #readFileAndAdd("ensg", 0, "uniprot", self.folder+"ensembl82_uniprot_swissprot.tab", 1)
+        readFileAndAdd("ensg", 0, "uniprot", self.folder+"ensembl82_uniprot_swissprot.tab", 1)
         readFileAndAdd("uniprot", 1, "up_keywords", self.folder+"uniprot.human.keywords.tab", 2) # about an hour!
-
 
     def handle(self, *args, **options):
         self._create_tags()

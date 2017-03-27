@@ -1,6 +1,17 @@
 from django.db import models
 
 #
+# Extra "annotation" models, such as BTO mappings
+#
+class TissueOntology(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=95, unique=True)
+    definition = models.CharField(max_length=7000, null=True)
+
+    class Meta:
+        db_table = "tissue_ontology"
+
+#
 # Models
 #
 
@@ -39,9 +50,6 @@ class Reaction(models.Model):
 
     models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
 
-    #currency_metabolites = models.ManyToManyField(Reaction,
-    #    related_name='reaction_component', through='CurrencyMetabolite')
-
     def __str__(self):
         return "<Reaction: {0}>".format(self.id)
 
@@ -50,11 +58,11 @@ class Reaction(models.Model):
 
 class ReactionComponent(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
-    short_name = models.CharField(max_length=255)
+    short_name = models.CharField(max_length=255, null=True)     # when adding proteins from the SBML model they have no name...
     long_name = models.CharField(max_length=255)
     component_type = models.CharField(max_length=50, db_index=True)
     organism = models.CharField(max_length=255)
-    formula = models.CharField(max_length=255, null=True) # only metabolites have this!
+    formula = models.CharField(max_length=255, null=True)        # only metabolites have this!
     compartment = models.ForeignKey('Compartment', db_column='compartment', blank=True)
 
     reactions_as_reactant = models.ManyToManyField(Reaction, related_name='reactants', through='ReactionReactant')
@@ -78,6 +86,7 @@ class ReactionComponentAnnotation(models.Model):
 
     class Meta:
         db_table = "reaction_component_annotations"
+        unique_together = (('id', 'annotation_type', 'annotation'),)
 
 class Compartment(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -92,9 +101,10 @@ class ExpressionData(models.Model):
     reaction_component = models.ForeignKey('ReactionComponent', db_column='reaction_component', on_delete=models.CASCADE)
     gene_id = models.CharField(max_length=35)
     gene_name = models.CharField(max_length=255)
-    transcript_id = models.CharField(max_length=35)
+    transcript_id = models.CharField(max_length=35, null=True)
     tissue = models.CharField(max_length=100)
-    cell_type = models.CharField(max_length=255)
+    bto = models.ForeignKey('TissueOntology', on_delete=models.DO_NOTHING) # FIXME on_delete should be no addReactionComponentAnnotation
+    cell_type = models.CharField(max_length=255, null=True)
     level = models.CharField(max_length=30)
     expression_type = models.CharField(max_length=35)
     reliability = models.CharField(max_length=35)
@@ -102,7 +112,7 @@ class ExpressionData(models.Model):
 
     class Meta:
         db_table = "expression_data"
-        unique_together = (('id', 'gene_id', 'transcript_id', 'tissue', 'cell_type', 'expression_type'),)
+        unique_together = (('id', 'transcript_id', 'tissue', 'cell_type', 'expression_type', 'source'),)
 
 class Metabolite(models.Model):
     component_id = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
@@ -131,6 +141,11 @@ class Enzyme(models.Model):
 
     class Meta:
         db_table = "enzymes"
+
+
+#
+# ?
+#
 
 class MetaboliteReaction(object):
     def __init__(self, reaction, role):
