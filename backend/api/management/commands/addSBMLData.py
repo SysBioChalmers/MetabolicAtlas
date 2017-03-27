@@ -67,6 +67,14 @@ def get_formula(notes):
     else:
         return None
 
+def get_short_name_from_notes(notes):
+    """Get short name from SBML notes for the proteins."""
+    match = re.search(".*<p>SHORT NAME: ([A-Z0-9]+)</p>.*", notes)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
 class Equation(object):
     def __init__(self, reaction):
         self.reactants = self._get_parts(reaction,
@@ -202,17 +210,16 @@ def get_reaction_components(sbml_model, sbml_species):
         components_in_db = ReactionComponent.objects.filter(id=species.id)
         if len(components_in_db)<1:
             component = ReactionComponent(id=species.id, long_name=species.name)
-            # FIXME get organism from model
-            component.organism = "Human"
+            component.organism = "Human"        # FIXME get organism from model
             component.formula = get_formula(species.notes_string)
+            component.short_name = get_short_name_from_notes(species.notes_string)
             if species.compartment:
                 sbml_compartment = sbml_model.getCompartment(species.compartment)
                 compartment = Compartment.objects.filter(name=sbml_compartment.name)
                 component.compartment = compartment[0]
-            # set the component type as based on long name at the moment...
+            # FIXME atm the component type is based on long name...
             if component.long_name.startswith("ENSG0"):
                 component.component_type = "enzyme"
-                component.formula = ""
             else:
                 component.component_type = "metabolite"
             components_found.append(component)

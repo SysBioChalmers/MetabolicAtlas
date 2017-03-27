@@ -54,14 +54,6 @@ $ docker exec -i $(docker ps -qf "name=vuedjangostack_db_1") psql -U postgres hm
 docker exec -it $(docker ps -qf "name=vuedjangostack_db_1") psql -U DB_USERNAME DB_NAME
 ```
 
-```sql
-ALTER TABLE expression_data RENAME COLUMN id TO reaction_component;
-ALTER TABLE expression_data DROP CONSTRAINT expression_data_pkey;
-ALTER TABLE expression_data ADD COLUMN id SERIAL PRIMARY KEY;
-```
-
-Use `Cmd + D` to exit the psql shell. At this point everything should be up and running.
-
 The frontend should be available at: `http://localhost:8080/`, for example: `http://localhost:8080/closest-interaction-partners/E_3379`.
 
  The backend should be available at: `http://localhost:8000/api/`, for example: `http://localhost:8000/api/reaction_components/E_3379/with_interaction_partners`.
@@ -71,28 +63,35 @@ If you encounter any problems try running `restart-stack`.
 ### To create the database
 
 ```bash
-source postgres.env                               # to load the environment variables
+$ source postgres.env                               # to load the environment variables
 
 python manage.py makemigrations
 python manage.py migrate
 python manage.py addSBMLData                      # takes a few minutes!
 python manage.py addCurrencyMetabolites
 python manage.py addMetabolites
-python manage.py addReactionComponentAnnotation   # takes a few minutes!
+python manage.py addReactionComponentAnnotation   # takes a few minutes! please note that for some BIZARRE reason it fails the first time and complains about duplicated keys, then I comment away line 68 and run it again without problems...
 python manage.py addEnzymes
 python manage.py addTissueOntology
 python manage.py expressionDataFromHPA            # takes 15 minutes!
-
-# log into the database and run the following 3 commands to load the expression data...
-psql -h localhost -p 5432 -U postgres -d hma
-\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_antibody_from_HPA_0.csv' csv delimiter ',' quote '"';
-\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_rnaseq_from_HPA_0.csv' delimiter ',';
-update reaction_component set short_name=exp.gene_name FROM (SELECT gene_id, gene_name FROM expression_data WHERE gene_name <>'') AS exp WHERE exp.gene_id = long_name AND short_name='';
-
-# make a database dump of the content of the database
-pg_dump -h localhost -p 5432 -U postgres -d hma > hma.db
 ```
 (as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)
+
+Log into the database and run the following 3 commands to load the expression data...
+```bash
+psql -h localhost -p 5432 -U postgres -d hma
+```
+```sql
+\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_antibody_from_HPA_0.csv' csv delimiter ',' quote '"';
+\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_rnaseq_from_HPA_0.csv' delimiter ',';
+update reaction_component set short_name=exp.gene_name FROM (SELECT gene_id, gene_name FROM expression_data) AS exp WHERE exp.gene_id = long_name AND short_name is null;  # see if we can add any more protein symbols using the HPA data...
+```
+
+Make a database dump of the content of the database
+```bash
+pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v2.db
+```
+
 (takes about 15 minutes + 15 to prepare the expression data)
 
 
@@ -127,7 +126,7 @@ $ git checkout develop
 $ git checkout -b feature/<FEATURE_NAME>
 ```
 
-After you are done with the feature, make a [pull request](https://github.com/SysBioChalmers/hma-prototype/compare) from the `feature/<FEATURE_NAME>` branch to the `develop` branch. After the pull request has been reviewd and merged, the `feature/<FEATURE_NAME>` branch can be deleted.
+After you are done with the feature, make a [pull request](https://github.com/SysBioChalmers/hma-prototype/compare) from the `feature/<FEATURE_NAME>` branch to the `develop` branch. After the pull request has been reviewed and merged, the `feature/<FEATURE_NAME>` branch can be deleted.
 
 When it is time to deploy a new version, create a [pull request](https://github.com/SysBioChalmers/hma-prototype/compare) from `develop` to `master`. After reviewing and merging the pull request, create a `tag` to mark the current version and push it to github. The `tag` name should be `v` followed with the version number, for example `v1.1`.
 

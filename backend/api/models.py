@@ -58,7 +58,7 @@ class Reaction(models.Model):
 
 class ReactionComponent(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
-    short_name = models.CharField(max_length=255, null=True)     # when adding proteins from the SBML model they have no name...
+    short_name = models.CharField(max_length=255, null=True)     # when adding metabolites from the SBML model they dont have short names...
     long_name = models.CharField(max_length=255)
     component_type = models.CharField(max_length=50, db_index=True)
     organism = models.CharField(max_length=255)
