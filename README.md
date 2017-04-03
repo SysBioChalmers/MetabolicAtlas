@@ -48,12 +48,6 @@ $ start-stack
 $ docker exec -i $(docker ps -qf "name=vuedjangostack_db_1") psql -U postgres hma < PATH_TO_DB_FILE
 ```
 
-#### The database needs a small modification
-
-```bash
-docker exec -it $(docker ps -qf "name=vuedjangostack_db_1") psql -U DB_USERNAME DB_NAME
-```
-
 The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&reaction_component_id=E_3396&enzyme_id=ENSG00000180011`.
 
  The backend should be available at: `http://localhost/api/`, for example: `http://localhost/api/reaction_components/E_3379/with_interaction_partners`.
