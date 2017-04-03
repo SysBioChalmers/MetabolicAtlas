@@ -19,17 +19,23 @@ logger.setLevel(logging.INFO)
 
 
 class Command(BaseCommand):
-    args = '<foo bar ...>'
     help = 'our help string comes here'
 
-    def _create_tags(self):
-        readGEM("/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/HMRdatabase2_00.xml")
+    def add_arguments(self, parser):
+        parser.add_argument('gemFile', type=str, help="path to GEM file")
+        parser.add_argument('ensembl_version_for_the_proteins', type=int, help="the ensembl version for the proteins")
 
     def handle(self, *args, **options):
-        self._create_tags()
+        version = options['ensembl_version_for_the_proteins']
+        gemFile = str(options['gemFile'])
+        print("Ensembl version to use: "+str(version))
+        print("GEM file to import is: "+gemFile)
+        readGEM(gemFile, version)
 
 
-# the below code copied from the old Flask model
+#########################################################
+# the actual code to read and import the GEM SBML model #
+#########################################################
 
 class SbmlAuthor(object):
     def __init__(self, sbml_model):
@@ -162,19 +168,19 @@ def get_reaction(sbml_model, index):
 
     products_list = get_reaction_components(sbml_model,
                                        sbml_reaction.getListOfProducts())
-    rr_to_add = []
+    rp_to_add = []
     for currentProduct_reactioncomponent in products_list:
-        rr = ReactionReactant(reaction=reaction_to_add, reactant=currentProduct_reactioncomponent)
-        rr_to_add.append(rr)
-    ReactionReactant.objects.bulk_create(rr_to_add)
+        rp = ReactionProduct(reaction=reaction_to_add, product=currentProduct_reactioncomponent)
+        rp_to_add.append(rp)
+    ReactionProduct.objects.bulk_create(rp_to_add)
 
     modifiers_list = get_reaction_components(sbml_model,
                                         sbml_reaction.getListOfModifiers())
-    rr_to_add = []
+    rm_to_add = []
     for currentModifier_reactioncomponent in modifiers_list:
-        rr = ReactionReactant(reaction=reaction_to_add, reactant=currentModifier_reactioncomponent)
-        rr_to_add.append(rr)
-    ReactionReactant.objects.bulk_create(rr_to_add)
+        rm = ReactionModifier(reaction=reaction_to_add, modifier=currentModifier_reactioncomponent)
+        rm_to_add.append(rm)
+    ReactionModifier.objects.bulk_create(rm_to_add)
 
     return reaction_to_add
 
@@ -228,8 +234,22 @@ def get_reaction_components(sbml_model, sbml_species):
             components_found.append(components_in_db[0])
     return components_found
 
+def _getEnsemblArchivePath(v):
+	if(v==82):
+		return 'http://sep2015.archive.ensembl.org/'
+	elif(v==81):
+		return 'http://jul2015.archive.ensembl.org/'
+	elif(v==78):
+		return 'http://dec2014.archive.ensembl.org/'
+	elif(v==67):
+		return 'http://may2012.archive.ensembl.org/'
+	elif(v==54):
+		return 'http://may2009.archive.ensembl.org/'
+	else:
+		sys.exit("\n*******************************\nError:\n\tNot a known version map\n*******************************\n");
 
-def readGEM(gem_file):
+
+def readGEM(gem_file, ensembl_version):
     doc = libsbml.readSBML(gem_file)
     errors = doc.getNumErrors()
     if errors != 0:
@@ -241,7 +261,8 @@ def readGEM(gem_file):
     # get author and model
     logger.info("Importing model")
     model = MetabolicModel(short_name=sbml_model.id,
-                           name=sbml_model.name)
+        name=sbml_model.name, ensembl_version=ensembl_version,
+        ensembl_archive_path = _getEnsemblArchivePath(ensembl_version))
     model.save()
     author = get_author(sbml_model)
     author.save()

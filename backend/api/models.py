@@ -18,6 +18,8 @@ class TissueOntology(models.Model):
 class MetabolicModel(models.Model):
     short_name = models.CharField(max_length=255, blank=False)
     name = models.CharField(max_length=255, blank=False)
+    ensembl_version = models.CharField(max_length=50, null=True) # keep track of this... for HMR2 make an educated guess!
+    ensembl_archive_path = models.CharField(max_length=50, null=True)
 
     def __str__(self):
         return "<MetabolicModel: {0}>".format(self.short_name)
@@ -125,6 +127,8 @@ class Metabolite(models.Model):
     chebi = models.CharField(max_length=50, null=True)
     inchi = models.CharField(max_length=255, null=True)
     bigg = models.CharField(max_length=75, null=True)
+    hmdb_link = models.CharField(max_length=255, null=True)
+    pubchem_link = models.CharField(max_length=255, null=True)
 
     class Meta:
         db_table = "metabolites"
@@ -138,10 +142,23 @@ class Enzyme(models.Model):
     kegg = models.CharField(max_length=125, null=True)
     function = models.CharField(max_length=6000, null=True)
     catalytic_activity = models.CharField(max_length=700, null=True)
+    uniprot_link = models.CharField(max_length=255, null=True) # if the UniProt link is not valid, then something is wrong!
+    ensembl_link = models.CharField(max_length=255, null=True) # should link to the RIGHT Ensembl version, otherwise leave as null...
 
     class Meta:
         db_table = "enzymes"
 
+
+# "Meta-information" tables
+class NumberOfInteractionPartners(models.Model):
+    reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
+    first_order = models.FloatField()
+    second_order = models.FloatField(null=True)
+    third_order = models.FloatField(null=True)
+    catalysed_reactions = models.FloatField(default=0.0)
+
+    class Meta:
+        db_table = "number_of_interaction_partners"
 
 #
 # ?

@@ -23,6 +23,11 @@ def metaboliteDefinitions(fileName, hmdbMasses):
                         print("No reaction component found with id "+reaction_component_id)
                         sys.exit()
                     hmdb = row[17]
+                    hmdb_link = None
+                    if(len(hmdb)>0):
+                        hmdb_link = "http://www.hmdb.ca/metabolites/"+hmdb
+                    pubchem_link = None
+                    pubchem_link = "https://pubchem.ncbi.nlm.nih.gov/compound/"+reaction_component[0].long_name
                     mass = None; formula = None; avg_mass = None;
                     if(hmdb in hmdbMasses):
                         current = hmdbMasses[hmdb]
@@ -35,11 +40,13 @@ def metaboliteDefinitions(fileName, hmdbMasses):
                     bigg = row[12]
                     m = Metabolite(component_id=reaction_component[0], hmdb=hmdb,
                         formula=formula, mass=mass, mass_avg=avg_mass, kegg=kegg,
-                        chebi=chebi, inchi=inchi, bigg=bigg)
+                        chebi=chebi, inchi=inchi, bigg=bigg,
+                        hmdb_link=hmdb_link, pubchem_link=pubchem_link)
                     mets.append(m)
                 else:
                     print("No reaction_component_id found on line starting with "+row[0]+" and "+row[1])
     Metabolite.objects.bulk_create(mets)
+
 
 #HMDB_ID;Name;Formula;Monoisotopic Molecular Weight (exact_mass);Average Molecular Weight
 def readMassCalcFile(filename):

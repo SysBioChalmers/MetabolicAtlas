@@ -67,7 +67,8 @@ $ source postgres.env                               # to load the environment va
 
 python manage.py makemigrations
 python manage.py migrate
-python manage.py addSBMLData                      # takes a few minutes!
+python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables
+python manage.py addSBMLData addSBMLData ../database_generation/data/HMRdatabase2_00.xml 67                     # takes a few minutes!
 python manage.py addCurrencyMetabolites
 python manage.py addMetabolites
 python manage.py addReactionComponentAnnotation   # takes a few minutes! please note that for some BIZARRE reason it fails the first time and complains about duplicated keys, then I comment away line 68 and run it again without problems...
