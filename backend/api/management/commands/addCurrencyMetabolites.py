@@ -29,8 +29,5 @@ class Command(BaseCommand):
     args = '<foo bar ...>'
     help = 'our help string comes here'
 
-    def _create_tags(self):
-        readTextFileAndAdd("/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/currencyMets.csv")
-
     def handle(self, *args, **options):
-        self._create_tags()
+        readTextFileAndAdd("/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/currencyMets.csv")

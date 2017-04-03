@@ -226,7 +226,7 @@ class Command(BaseCommand):
     antibody_file=folder+"normal_tissue.csv"
     antibody_file_to_make=folder+"load_antibody_from_HPA"
 
-    def _create_tags(self):
+    def handle(self, *args, **options):
         logger.info("Get ReactionComponents from database...")
         components = ReactionComponent.objects.all()
         gene_ids = {component.long_name: component.id for component in components}
@@ -238,6 +238,3 @@ class Command(BaseCommand):
         logger.info("Antibody levels...")
         get_antibody_expressions(gene_ids, self.antibody_file, btoMap, self.antibody_file_to_make)
         logger.info("DONE!")
-
-    def handle(self, *args, **options):
-        self._create_tags()

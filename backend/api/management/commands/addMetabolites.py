@@ -68,9 +68,6 @@ class Command(BaseCommand):
     massFile=folder+"massCalc.txt"
     annFile=folder+"metaboliteListFromExcel.txt"
 
-    def _create_tags(self):
+    def handle(self, *args, **options):
         masses = readMassCalcFile(self.massFile)
         metaboliteDefinitions(self.annFile, masses)
-
-    def handle(self, *args, **options):
-        self._create_tags()

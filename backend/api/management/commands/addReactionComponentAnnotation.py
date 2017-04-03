@@ -64,9 +64,6 @@ class Command(BaseCommand):
     help = 'our help string comes here'
     folder="/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/"
 
-    def _create_tags(self):
+    def handle(self, *args, **options):
         readFileAndAdd("ensg", 0, "uniprot", self.folder+"ensembl82_uniprot_swissprot.tab", 1)
         readFileAndAdd("uniprot", 1, "up_keywords", self.folder+"uniprot.human.keywords.tab", 2) # about an hour!
-
-    def handle(self, *args, **options):
-        self._create_tags()
