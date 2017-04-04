@@ -1,17 +1,9 @@
+import { default as getLink } from '../helpers/component-link';
+
 export default function (e) {
   const elms = [];
   const rels = [];
   const occ = {};
-
-  function getLink(c) {
-    if (c.metabolite) {
-      return c.metabolite.hmdb_link || c.metabolite.pubchem_link;
-    } else if (c.enzyme) {
-      return c.enzyme.uniprot_link || c.enzyme.ensembl_link;
-    }
-
-    return null;
-  }
 
   const enzyme = {
     id: e.id,

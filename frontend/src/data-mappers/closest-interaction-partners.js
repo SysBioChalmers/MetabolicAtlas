@@ -1,17 +1,8 @@
+import { default as getLink } from '../helpers/component-link';
+
 export default function (e, reactionComponentId, reactions) {
-  // TODO: refactor this s**t
   const elms = {};
   const rels = {};
-
-  function getLink(c) {
-    if (c.metabolite) {
-      return c.metabolite.hmdb_link || c.metabolite.pubchem_link;
-    } else if (c.enzyme) {
-      return c.enzyme.uniprot_link || c.enzyme.ensembl_link;
-    }
-
-    return null;
-  }
 
   const enzyme = {
     id: e.id,
