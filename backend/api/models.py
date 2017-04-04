@@ -117,7 +117,11 @@ class ExpressionData(models.Model):
         unique_together = (('id', 'transcript_id', 'tissue', 'cell_type', 'expression_type', 'source'),)
 
 class Metabolite(models.Model):
-    component_id = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    reaction_component = models.OneToOneField(
+            'ReactionComponent',
+            related_name='metabolite',
+            db_column='reaction_component',
+            on_delete=models.CASCADE)
     hmdb = models.CharField(max_length=10, null=True)
     formula = models.CharField(max_length=50, null=True)
     charge = models.FloatField(null=True)
@@ -134,7 +138,7 @@ class Metabolite(models.Model):
         db_table = "metabolites"
 
 class Enzyme(models.Model):
-    reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
+    reaction_component = models.OneToOneField('ReactionComponent', related_name='enzyme', db_column='reaction_component')
     uniprot_acc = models.CharField(max_length=35, unique=True)
     protein_name = models.CharField(max_length=150)
     short_name = models.CharField(max_length=75)

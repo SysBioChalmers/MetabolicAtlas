@@ -9,7 +9,40 @@
     <div class="container columns">
       <div id="cy" ref="cy" class="column is-9">
       </div>
-      <div class="column content">
+      <div id="sidebar" class="column content">
+        <div v-if="selectedElm && selectedElm.details" class="card">
+          <div v-if="selectedElm.type === 'enzyme'" class="card-content">
+            <p class="label">Name</p>
+            <p>{{ selectedElm.name || selectedElm.short }}</p>
+            <br>
+            <div v-if="selectedElm.details.function">
+              <p class="label">Function</p>
+              <p>{{ selectedElm.details.function }}</p>
+              <br v-if="selectedElm.details.catalytic_activity">
+            </div>
+            <div v-if="selectedElm.details.catalytic_activity">
+              <p class="label">Catalytic Activity</p>
+              {{ selectedElm.details.catalytic_activity }}
+            </div>
+          </div>
+          <div v-if="selectedElm.type === 'metabolite'" class="card-content">
+            <p class="label">Name</p>
+            <p>{{ selectedElm.name || selectedElm.short }}</p>
+            <br>
+            <div v-if="selectedElm.details.mass">
+              <p class="label">Mass</p>
+              <p>{{ selectedElm.details.mass }}</p>
+              <br v-if="selectedElm.details.kegg">
+            </div>
+            <div v-if="selectedElm.details.kegg">
+              <p class="label">Kegg</p>
+              {{ selectedElm.details.kegg }}
+            </div>
+          </div>
+        </div>
+        <br>
+        <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
+        <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
         <blockquote>
           We treat all chemical equations (eg reactions) form HMR2.0 as binary "interactions".
           This gives us the option of "zooming in" around a given ReactionComponent (species in SBML)
@@ -18,8 +51,6 @@
           and how a set of ReactionComponents interact and how their expression
           levels change between tissues.
         </blockquote>
-        <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
-        <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
         <img >
       </div>
     </div>
@@ -56,10 +87,11 @@ export default {
       elms: [],
       reactionComponentId: '',
       selectedElmId: '',
+      selectedElm: null,
       cy: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
-        { field: 'short', colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'short', link: true, colName: 'Short name', modifier: chemicalNameLink },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
         { field: 'compartment', colName: 'Compartment', modifier: null },
@@ -76,6 +108,7 @@ export default {
       this.reactionComponentId = this.$route.params.reaction_component_id
                                  || this.$route.query.reaction_component_id;
       this.selectedElmId = '';
+      this.selectedElm = null;
       this.load();
     },
     navigate() {
@@ -87,6 +120,7 @@ export default {
         () => { // On abort.
           this.$refs.contextMenu.style.display = 'none';
           this.selectedElmId = '';
+          this.selectedElm = null;
         }
       );
     },
@@ -102,6 +136,7 @@ export default {
           this.title = `Closest interaction partners | ${enzymeName}`;
 
           const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
+          this.selectedElm = elms[enzyme.id];
           this.elms = Object.keys(elms).map(k => elms[k]);
           this.constructGraph(elms, rels);
         })
@@ -149,6 +184,7 @@ export default {
       this.cy.on('tap', () => {
         contextMenu.style.display = 'none';
         this.selectedElmId = '';
+        this.selectedElm = null;
       });
 
       this.cy.on('tap', 'node', (evt) => {
@@ -156,6 +192,7 @@ export default {
         const elmId = node.data().id;
 
         this.selectedElmId = elmId;
+        this.selectedElm = node.data();
         contextMenu.style.display = 'block';
         updatePosition(node);
       });
@@ -227,6 +264,11 @@ h1, h2 {
   position: static;
   margin: auto;
   height: 820px;
+}
+
+#sidebar {
+  max-height: 820px;
+  overflow-y: scroll;
 }
 
 #contextMenu {

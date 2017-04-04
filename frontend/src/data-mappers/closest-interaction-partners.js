@@ -1,5 +1,6 @@
+import { default as getLink } from '../helpers/component-link';
+
 export default function (e, reactionComponentId, reactions) {
-  // TODO: refactor this s**t
   const elms = {};
   const rels = {};
 
@@ -10,6 +11,8 @@ export default function (e, reactionComponentId, reactions) {
     long: e.long_name,
     formula: e.formula,
     compartment: e.compartment,
+    link: getLink(e),
+    details: e.metabolite || e.enzyme,
   };
 
   elms[reactionComponentId] = enzyme;
@@ -25,6 +28,8 @@ export default function (e, reactionComponentId, reactions) {
         formula: m.formula,
         compartment: m.compartment,
         reaction: r.id,
+        link: getLink(m),
+        details: m.metabolite || m.enzyme,
       };
 
       mods[modifier.id] = modifier;
@@ -40,6 +45,8 @@ export default function (e, reactionComponentId, reactions) {
         formula: m.formula,
         compartment: m.compartment,
         reaction: r.id,
+        link: getLink(m),
+        details: m.metabolite || m.enzyme,
       };
 
       mets[metabolite.id] = metabolite;
