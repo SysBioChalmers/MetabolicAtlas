@@ -29,16 +29,18 @@ def readNameFileAndAdd(fileName, ecs, functions, activities, keggs):
                 if(uniprot_acc in keggs):
                     KeGG = keggs[uniprot_acc]
                 if(ensembl_archive_path is None):
-                    ensembl_archive_path = _getEnsemblArchivePathFromModel(rca[0].reaction_component_id)
+                    ensembl_archive_path = _getEnsemblArchivePathFromModel(rca[0].component)
                 up_link = "http://www.uniprot.org/uniprot/"+uniprot_acc
-                component = rca[0].reaction_component_id
+                component = rca[0].component
                 e_link = ensembl_archive_path+"Homo_sapiens/Gene/Summary?g="+component.long_name
-                p = Enzyme(reaction_component_id=rca[0].reaction_component_id,
+                p = Enzyme(reaction_component_id=rca[0].component,
                     uniprot_acc=uniprot_acc,
                     protein_name=row[2], short_name=row[3], ec=EC, kegg=KeGG,
                     function = function, catalytic_activity=act,
                     uniprot_link = up_link, ensembl_link = e_link)
                 proteinsToAdd.append(p)
+            elif(len(rca)>1):
+                print("More than one ReactionComponent found for uniprot "+uniprot_acc)
     Enzyme.objects.bulk_create(proteinsToAdd)
 
 
