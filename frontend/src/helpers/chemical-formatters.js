@@ -12,13 +12,17 @@ export function chemicalName(value) {
   return value.replace(/(\+)/g, '<sup>$1</sup>');
 }
 
-export function chemicalNameLink(value) {
+export function chemicalNameLink(value, link) {
   if (value === null) {
     return '';
   }
 
+  if (link === null) {
+    return chemicalName(value);
+  }
+
   return `<a
             target='new'
-            href='https://pubchem.ncbi.nlm.nih.gov/compound/${value}'
+            href='${link}'
           >${chemicalName(value)}</a>`;
 }

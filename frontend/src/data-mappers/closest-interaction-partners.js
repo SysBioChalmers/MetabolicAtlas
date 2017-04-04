@@ -3,6 +3,16 @@ export default function (e, reactionComponentId, reactions) {
   const elms = {};
   const rels = {};
 
+  function getLink(c) {
+    if (c.metabolite) {
+      return c.metabolite.hmdb_link || c.metabolite.pubchem_link;
+    } else if (c.enzyme) {
+      return c.enzyme.uniprot_link || c.enzyme.ensembl_link;
+    }
+
+    return null;
+  }
+
   const enzyme = {
     id: e.id,
     type: 'enzyme',
@@ -10,6 +20,8 @@ export default function (e, reactionComponentId, reactions) {
     long: e.long_name,
     formula: e.formula,
     compartment: e.compartment,
+    link: getLink(e),
+    details: e.metabolite || e.enzyme,
   };
 
   elms[reactionComponentId] = enzyme;
@@ -25,6 +37,8 @@ export default function (e, reactionComponentId, reactions) {
         formula: m.formula,
         compartment: m.compartment,
         reaction: r.id,
+        link: getLink(m),
+        details: m.metabolite || m.enzyme,
       };
 
       mods[modifier.id] = modifier;
@@ -40,6 +54,8 @@ export default function (e, reactionComponentId, reactions) {
         formula: m.formula,
         compartment: m.compartment,
         reaction: r.id,
+        link: getLink(m),
+        details: m.metabolite || m.enzyme,
       };
 
       mets[metabolite.id] = metabolite;

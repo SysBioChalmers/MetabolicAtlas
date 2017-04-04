@@ -12,6 +12,7 @@ export default function (elms, rels) {
         id: elm.id,
         name: elm.short,
         type: elm.type,
+        details: elm.details,
       },
     });
   }
