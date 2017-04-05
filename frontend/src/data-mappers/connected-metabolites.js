@@ -1,3 +1,5 @@
+import { default as getLink } from '../helpers/component-link';
+
 export default function (e) {
   const elms = [];
   const rels = [];
@@ -13,6 +15,8 @@ export default function (e) {
     formula: 'formula',
     description: 'description',
     compartment: e.compartment,
+    link: getLink(e),
+    details: e.metabolite || e.enzyme,
   };
   elms.push(enzyme);
 
@@ -26,6 +30,8 @@ export default function (e) {
       long: r.reaction_id,
       description: r.reaction_id,
       formula: 'formula',
+      link: getLink(r),
+      details: r.metabolite || r.enzyme,
     };
     elms.push(reaction);
 
@@ -47,6 +53,8 @@ export default function (e) {
         formula: p.formula,
         compartment: p.compartment,
         type: 'product',
+        link: getLink(p),
+        details: p.metabolite || p.enzyme,
       };
       if (metabolite.id in occ) {
         occ[metabolite.id] += 1;
@@ -68,6 +76,8 @@ export default function (e) {
         formula: re.formula,
         compartment: re.compartment,
         type: 'reactant',
+        link: getLink(re),
+        details: re.metabolite || re.enzyme,
       };
       if (metabolite.id in occ) {
         occ[metabolite.id] += 1;

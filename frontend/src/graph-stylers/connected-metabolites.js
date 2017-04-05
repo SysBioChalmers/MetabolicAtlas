@@ -13,6 +13,7 @@ export default function (elms, rels) {
           reactionid: elm.reactionid,
           name: elm.short,
           type: elm.type,
+          details: elm.details,
         },
       });
     } else {

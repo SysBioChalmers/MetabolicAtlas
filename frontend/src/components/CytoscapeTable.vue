@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     applyModifier(s, elm) {
-      return s.modifier(elm[s.field]);
+      return s.modifier(elm[s.field], elm.link);
     },
     isSelected(elmId) {
       return this.selectedElmId === elmId;

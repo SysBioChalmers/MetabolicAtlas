@@ -47,7 +47,7 @@ export default {
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
         { field: 'reactionid', colName: 'Reaction ID', modifier: null },
-        { field: 'short', colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'short', link: true, colName: 'Short name', modifier: chemicalNameLink },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
         { field: 'compartment', colName: 'Compartment', modifier: null },
