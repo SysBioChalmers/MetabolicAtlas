@@ -134,4 +134,13 @@ tr.highlight {
   opacity: 0.3;
 }
 
+sup {
+  vertical-align: bottom;
+  font-size: 0.7em;
+
+  &.top {
+    vertical-align: top;
+  }
+}
+
 </style>

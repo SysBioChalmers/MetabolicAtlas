@@ -9,7 +9,8 @@ export function chemicalName(value) {
   if (value === null) {
     return '';
   }
-  return value.replace(/(\+)/g, '<sup>$1</sup>');
+  // TODO: Add logic to format formulas
+  return value.replace(/(\+)/g, '<sup class="top">$1</sup>');
 }
 
 export function chemicalNameLink(value, link) {
