@@ -72,12 +72,6 @@ $primary: #64CC9A;
   }
 }
 
-sup {
-  vertical-align: bottom;
-  font-size: 0.7em;
-}
-
-
 #main-nav {
   height: 75px;
 
