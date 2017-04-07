@@ -133,13 +133,16 @@ class Metabolite(models.Model):
     bigg = models.CharField(max_length=75, null=True)
     hmdb_link = models.CharField(max_length=255, null=True)
     pubchem_link = models.CharField(max_length=255, null=True)
+    hmdb_name = models.CharField(max_length=255, null=True)
+    hmdb_description = models.CharField(max_length=5000, null=True)
+    hmdb_function = models.CharField(max_length=255, null=True)
 
     class Meta:
         db_table = "metabolites"
 
 class Enzyme(models.Model):
     reaction_component = models.OneToOneField('ReactionComponent', related_name='enzyme', db_column='reaction_component')
-    uniprot_acc = models.CharField(max_length=35, unique=True)
+    uniprot_acc = models.CharField(max_length=35)
     protein_name = models.CharField(max_length=150)
     short_name = models.CharField(max_length=75)
     ec = models.CharField(max_length=100, null=True)
