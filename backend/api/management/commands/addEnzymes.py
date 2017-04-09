@@ -34,7 +34,7 @@ def readNameFileAndAdd(fileName, ecs, functions, activities, keggs):
                     up_link = "http://www.uniprot.org/uniprot/"+uniprot_acc
                     component = rca.component
                     e_link = ensembl_archive_path+"Homo_sapiens/Gene/Summary?g="+component.long_name
-                    p = Enzyme(reaction_component_id=rca.component,
+                    p = Enzyme(reaction_component=rca.component,
                         uniprot_acc=uniprot_acc,
                         protein_name=row[2], short_name=row[3], ec=EC, kegg=KeGG,
                         function = function, catalytic_activity=act,

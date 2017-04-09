@@ -68,10 +68,11 @@ python manage.py addSBMLData addSBMLData ../database_generation/data/HMRdatabase
 python manage.py addCurrencyMetabolites
 python manage.py addMetabolites
 python manage.py addReactionComponentAnnotation ../database_generation/data/ensembl82_uniprot_swissprot.tab ensg 0 uniprot  1    # 'map' from Ensembl to UniProt
-python manage.py addReactionComponentAnnotation ../database_generation/data/uniprot.human.keywords.tab uniprot 1 up_keywords  2  # add the UniProt keywords
+python manage.py addReactionComponentAnnotation ../database_generation/data/uniprot.human.keywords.tab uniprot 1 up_keywords  2  # add the UniProt keywords (takes a while)
 python manage.py addEnzymes
 python manage.py addTissueOntology
-python manage.py expressionDataFromHPA            # takes 15 minutes!
+python manage.py addNumberOfInteractionPartners
+python manage.py expressionDataFromHPA
 ```
 (as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)
 

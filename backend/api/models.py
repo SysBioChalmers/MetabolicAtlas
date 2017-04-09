@@ -141,7 +141,8 @@ class Metabolite(models.Model):
         db_table = "metabolites"
 
 class Enzyme(models.Model):
-    reaction_component = models.OneToOneField('ReactionComponent', related_name='enzyme', db_column='reaction_component')
+    reaction_component = models.OneToOneField('ReactionComponent',
+        related_name='enzyme', db_column='reaction_component')
     uniprot_acc = models.CharField(max_length=35)
     protein_name = models.CharField(max_length=150)
     short_name = models.CharField(max_length=75)

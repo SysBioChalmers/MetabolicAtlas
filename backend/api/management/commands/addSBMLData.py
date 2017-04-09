@@ -228,6 +228,8 @@ def get_reaction_components(sbml_model, sbml_species):
                 component.component_type = "enzyme"
             else:
                 component.component_type = "metabolite"
+            if component.id.startswith("M_") and component.short_name is None:
+                component.short_name = component.long_name
             components_found.append(component)
             component.save() # FIXME would be nicer with a bulk create!
         else:
