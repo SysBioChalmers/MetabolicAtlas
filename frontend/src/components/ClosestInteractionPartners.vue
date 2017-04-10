@@ -1,7 +1,7 @@
 <template>
   <div class="closest-interaction-partners">
     <title>{{title}}</title>
-    <h3 class="title is-3">{{title}}</h3>
+    <h3 class="title is-3" v-html="title"></h3>
     <div id="contextMenu" ref="contextMenu">
       <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
     </div>
@@ -12,9 +12,6 @@
       <div id="sidebar" class="column content">
         <div v-if="selectedElm && selectedElm.details" class="card">
           <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-            <p class="label">Name</p>
-            <p>{{ selectedElm.name || selectedElm.short }}</p>
-            <br>
             <div v-if="selectedElm.details.function">
               <p class="label">Function</p>
               <p>{{ selectedElm.details.function }}</p>
@@ -26,9 +23,6 @@
             </div>
           </div>
           <div v-if="selectedElm.type === 'metabolite'" class="card-content">
-            <p class="label">Name</p>
-            <p>{{ selectedElm.name || selectedElm.short }}</p>
-            <br>
             <div v-if="selectedElm.details.mass">
               <p class="label">Mass</p>
               <p>{{ selectedElm.details.mass }}</p>
@@ -133,7 +127,14 @@ export default {
           const reactions = response.data.reactions;
 
           const enzymeName = enzyme.short_name || enzyme.long_name;
-          this.title = `Closest interaction partners | ${enzymeName}`;
+          if (enzyme.enzyme) {
+            const uniprotLink = enzyme.enzyme ? enzyme.enzyme.uniprot_link : null;
+            const uniprotId = uniprotLink.split('/').pop();
+            this.title = `Closest interaction partners | ${enzymeName}
+              (<a href="${uniprotLink}" target="_blank">${uniprotId}</a>)`;
+          } else {
+            this.title = `Closest interaction partners | ${enzymeName}`;
+          }
 
           const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
           this.selectedElm = elms[enzyme.id];
