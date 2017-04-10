@@ -1,9 +1,15 @@
 <template>
   <div class="closest-interaction-partners">
     <title>{{title}}</title>
-    <h3 class="title is-3">{{title}}</h3>
+    <h3 class="title is-3" v-html="title"></h3>
     <div id="contextMenu" ref="contextMenu">
       <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+      <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
+        <a :href="selectedElm.hpaLink" target="_blank">View in HPA</a>
+      </span>
+      <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark">
+        <a :href="selectedElm.details.uniprot_link" target="_blank">View in Uniprot</a>
+      </span>
     </div>
 
     <div class="container columns">
@@ -12,9 +18,6 @@
       <div id="sidebar" class="column content">
         <div v-if="selectedElm && selectedElm.details" class="card">
           <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-            <p class="label">Name</p>
-            <p>{{ selectedElm.name || selectedElm.short }}</p>
-            <br>
             <div v-if="selectedElm.details.function">
               <p class="label">Function</p>
               <p>{{ selectedElm.details.function }}</p>
@@ -26,9 +29,11 @@
             </div>
           </div>
           <div v-if="selectedElm.type === 'metabolite'" class="card-content">
-            <p class="label">Name</p>
-            <p>{{ selectedElm.name || selectedElm.short }}</p>
-            <br>
+            <div v-if="selectedElm.details.hmdb_description">
+              <p class="label">Description</p>
+              <p>{{ selectedElm.details.hmdb_description }}</p>
+              <br v-if="selectedElm.details.mass">
+            </div>
             <div v-if="selectedElm.details.mass">
               <p class="label">Mass</p>
               <p>{{ selectedElm.details.mass }}</p>
@@ -36,7 +41,7 @@
             </div>
             <div v-if="selectedElm.details.kegg">
               <p class="label">Kegg</p>
-              {{ selectedElm.details.kegg }}
+              <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
             </div>
           </div>
         </div>
@@ -98,6 +103,18 @@ export default {
       ],
     };
   },
+  computed: {
+    keggLink() {
+      if (this.selectedElm
+        && this.selectedElm.type === 'metabolite'
+        && this.selectedElm.details
+        && this.selectedElm.details.kegg
+      ) {
+        return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
+      }
+      return '';
+    },
+  },
   beforeMount() {
     regCose(cytoscape);
     graphml(cytoscape, jquery);
@@ -133,7 +150,14 @@ export default {
           const reactions = response.data.reactions;
 
           const enzymeName = enzyme.short_name || enzyme.long_name;
-          this.title = `Closest interaction partners | ${enzymeName}`;
+          if (enzyme.enzyme) {
+            const uniprotLink = enzyme.enzyme ? enzyme.enzyme.uniprot_link : null;
+            const uniprotId = uniprotLink.split('/').pop();
+            this.title = `Closest interaction partners | ${enzymeName}
+              (<a href="${uniprotLink}" target="_blank">${uniprotId}</a>)`;
+          } else {
+            this.title = `Closest interaction partners | ${enzymeName}`;
+          }
 
           const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
           this.selectedElm = elms[enzyme.id];
@@ -253,8 +277,7 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang='scss'>
 
 h1, h2 {
   font-weight: normal;
@@ -274,6 +297,17 @@ h1, h2 {
 #contextMenu {
   position: absolute;
   z-index: 999;
+
+  span {
+    display: block;
+    padding: 5px 10px;
+    text-align: left;
+    border-radius: 0;
+    
+    a {
+      color: white;
+    }
+  }
 }
 
 </style>
