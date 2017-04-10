@@ -10,6 +10,9 @@
       <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark">
         <a :href="selectedElm.details.uniprot_link" target="_blank">View in Uniprot</a>
       </span>
+      <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark">
+        <a :href="selectedElm.details.hmdb_link" target="_blank">View in HMDB</a>
+      </span>
     </div>
 
     <div class="container columns">
@@ -48,15 +51,7 @@
         <br>
         <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
         <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
-        <blockquote>
-          We treat all chemical equations (eg reactions) form HMR2.0 as binary "interactions".
-          This gives us the option of "zooming in" around a given ReactionComponent (species in SBML)
-          (for example an enzyme from HPA).<br><br>
-          This could be used to "determine" how important a given ReactionComponent is,
-          and how a set of ReactionComponents interact and how their expression
-          levels change between tissues.
-        </blockquote>
-        <img >
+        <a href="/about#closestpartners" target="_blank">More information</a>
       </div>
     </div>
     <cytoscape-table
