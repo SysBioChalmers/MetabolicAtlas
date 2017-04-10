@@ -32,7 +32,7 @@
             <div v-if="selectedElm.details.hmdb_description">
               <p class="label">Description</p>
               <p>{{ selectedElm.details.hmdb_description }}</p>
-              <br v-if="selectedElm.details.hmdb_description">
+              <br v-if="selectedElm.details.mass">
             </div>
             <div v-if="selectedElm.details.mass">
               <p class="label">Mass</p>
@@ -41,7 +41,7 @@
             </div>
             <div v-if="selectedElm.details.kegg">
               <p class="label">Kegg</p>
-              {{ selectedElm.details.kegg }}
+              <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
             </div>
           </div>
         </div>
@@ -102,6 +102,18 @@ export default {
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
     };
+  },
+  computed: {
+    keggLink() {
+      if (this.selectedElm
+        && this.selectedElm.type === 'metabolite'
+        && this.selectedElm.details
+        && this.selectedElm.details.kegg
+      ) {
+        return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
+      }
+      return '';
+    },
   },
   beforeMount() {
     regCose(cytoscape);
