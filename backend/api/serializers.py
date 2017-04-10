@@ -45,7 +45,7 @@ class CurrencyMetaboliteSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CurrencyMetabolite
-        fields = ('reaction_id')
+        fields = ('reaction_id', 'compartment')
 
 class ExpressionDataSerializer(serializers.ModelSerializer):
     class Meta:
