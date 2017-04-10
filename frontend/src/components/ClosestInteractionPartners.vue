@@ -29,6 +29,11 @@
             </div>
           </div>
           <div v-if="selectedElm.type === 'metabolite'" class="card-content">
+            <div v-if="selectedElm.details.hmdb_description">
+              <p class="label">Description</p>
+              <p>{{ selectedElm.details.hmdb_description }}</p>
+              <br v-if="selectedElm.details.hmdb_description">
+            </div>
             <div v-if="selectedElm.details.mass">
               <p class="label">Mass</p>
               <p>{{ selectedElm.details.mass }}</p>
