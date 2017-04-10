@@ -10,6 +10,9 @@
       <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark">
         <a :href="selectedElm.details.uniprot_link" target="_blank">View in Uniprot</a>
       </span>
+      <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark">
+        <a :href="selectedElm.details.hmdb_link" target="_blank">View in HMDB</a>
+      </span>
     </div>
 
     <div class="container columns">
