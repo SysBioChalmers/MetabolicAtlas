@@ -4,6 +4,9 @@
     <h3 class="title is-3" v-html="title"></h3>
     <div id="contextMenu" ref="contextMenu">
       <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+      <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
+        <a :href="selectedElm.hpaLink" target="_blank">View in HPA</a>
+      </span>
     </div>
 
     <div class="container columns">
@@ -254,8 +257,7 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang='scss'>
 
 h1, h2 {
   font-weight: normal;
@@ -275,6 +277,17 @@ h1, h2 {
 #contextMenu {
   position: absolute;
   z-index: 999;
+
+  span {
+    display: block;
+    padding: 5px 10px;
+    text-align: left;
+    border-radius: 0;
+    
+    a {
+      color: white;
+    }
+  }
 }
 
 </style>
