@@ -11,6 +11,7 @@
           and for each of these reactions pull out the reactants (shape=heptagon)
           and the products (shape=octagon), eg the metabolites)
         </blockquote>
+        <a href="/about#connectedmetabolites" target="_blank">More information</a>
       </div>
     </div>
     <div class="container">
