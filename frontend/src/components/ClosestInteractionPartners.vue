@@ -70,7 +70,6 @@ import jquery from 'jquery';
 import graphml from 'cytoscape-graphml';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
-import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
@@ -111,7 +110,6 @@ export default {
     },
   },
   beforeMount() {
-    regCose(cytoscape);
     graphml(cytoscape, jquery);
     this.setup();
   },
