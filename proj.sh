@@ -31,6 +31,16 @@ function create-su {
     docker exec -it vuedjangostack_backend_1 python manage.py createsuperuser
 }
 
+function build-production {
+    docker exec vuedjangostack_frontend_1 npm run build
+    rm -rf nginx/static
+    mkdir nginx/static
+    cp -r frontend/dist/ nginx/
+    mv nginx/index.html nginx/static/
+    cp -r backend/static/ nginx/static/
+    rm -rf frontend/dist
+}
+
 echo -e "
 
 Available commands:
@@ -43,5 +53,6 @@ Available commands:
 \tdb-make-migrations
 \tdb-migrate
 \tcreate-su
+\tbuild-production
 
 "
