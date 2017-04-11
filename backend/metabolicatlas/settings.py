@@ -93,7 +93,7 @@ DATABASES = {
 # CORS
 # https://github.com/ottoyiu/django-cors-headers
 CORS_ORIGIN_WHITELIST = (
-    'localhost:8080',
+    'localhost',
     'icsb.chalmers.se',
 )
 
