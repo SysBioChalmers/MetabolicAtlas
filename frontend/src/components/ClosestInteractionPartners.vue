@@ -67,7 +67,7 @@
 import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
-import graphml from 'cytoscape-graphml';
+import graphml from 'cytoscape-graphml/src/index';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
