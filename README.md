@@ -1,158 +1,113 @@
-# HMA Backend Prototype
+# Metabolic Atlas
 
-## About
+## Introduction
 
-This is a prototype for deploying the backend part of the Human
-Metabolic Atlas using Docker. PostgreSQL for storage, nginx as proxy,
-and gunicorn to serve the Flask app.
+Welcome to the codebase for the Metabolic Atlas project.
 
-Structure and inspiration taken from [0].
+The front-end uses [Vue.js](https://vuejs.org), with help of [webpack](https://webpack.js.org) and [yarn](https://yarnpkg.com/en/).
 
-[0] https://realpython.com/blog/python/dockerizing-flask-with-compose-and-machine-from-localhost-to-the-cloud/
+The back-end uses [Django REST framework](http://www.django-rest-framework.org) with [PostgreSQL](https://www.postgresql.org) as the database.
 
+To learn more about the project, please visit the [wiki](https://github.com/SysBioChalmers/hma-prototype/wiki).
 
 ## Prerequisites
+Docker, along with docker-compose, is used to manage the dependencies of this project.
 
-* [VirtualBox](https://www.virtualbox.org/)
-* [Docker](https://docs.docker.com/engine/) (v1.9.0)
-* [Docker Compose](https://docs.docker.com/compose/) (v1.5.0)
-* [Docker Machine](https://docs.docker.com/machine/) (v0.5.0)
-* libpq-dev (needed for psycopg2)
+To install docker, download it from [here](https://www.docker.com/products/docker) (docker-compose should be installed along with the process).
 
 
-## Setting up
+## Get started
 
-First, we'll need to download the additional data sources:
+Add a `postgres.env` file based on the `postgres.env.sample` file:
 
 ```bash
-$ wget http://www.metabolicatlas.org/assets/hmr/HMRcollection2_00.xml-f0de1f951d16f78abf131cece19f8af7.zip
-$ wget http://v14.proteinatlas.org/download/normal_tissue.csv.zip
-$ wget http://v14.proteinatlas.org/download/transcript_rna_tissue.tsv.zip
+$ cp postgres.env.sample postgres.env
 ```
 
-(In addition to this, you might also want to a file specifying
-currency metabolites. More on that below.)
+Modify the `postgres.env`
 
-Unzip the files and place them in the `hma_backend/import/`
-folder. You will also need a file that maps ENSGIDs to HGNC symbols
-(which will be used as short_name for the ReactionComponents). Place
-it in the same folder.
-
-Next step is to spin up the containers. In the root directory, execute
-the following:
+### To get a list of helper commands
 
 ```bash
-$ docker-machine create -d virtualbox dev
-$ eval "$(docker-machine env dev)"
-$ docker-compose build
-$ docker-compose up -d
-$ psql -h `docker-machine ip dev` -p 5432 -U postgres --password -d hma -c "create extension pg_trgm;"
-$ docker-compose run --rm backend /usr/local/bin/python create_db.py
+$ source proj.sh
 ```
 
-After that, we'll populate the database. First, we need to install
-some additional Python libraries:
+### Build and run the project
 
 ```bash
-$ docker-compose run --rm backend /usr/local/bin/pip install -r requirements_import.txt
+$ build-stack
 ```
-
-The actual import is done in four steps:
-
-
-### First step - Import GEM file
 
 ```bash
-$ docker-compose run --rm backend /usr/local/bin/python populate_db.py import/HMRdatabase2_00.xml
+$ start-stack
 ```
 
-
-### Second step - Import HPA expression data
+### Import the database
 
 ```bash
-$ source dev_env.sh # this let's us connect to the db directly
-$ cd hma_backend
-# this takes some time
-$ python generate_abp_expr_csv.py import/HMRdatabase2_00.xml \
-    import/normal_tissue.csv
-$ cat abp_expr_*.csv > abp.expr.csv && rm abp_expr_*.csv
-# this takes even longer time
-$ python generate_rnaseq_expr_csv.py import/HMRdatabase2_00.xml \
-    import/transcript_rna_tissue.tsv
-$ cat rnaseq_expr_*.csv > rnaseq_expr.csv && rm rnaseq_expr_*.csv
+$ docker exec -i $(docker ps -qf "name=vuedjangostack_db_1") psql -U postgres hma < PATH_TO_DB_FILE
 ```
 
-Next, we load the CSV files into the database:
+The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&reaction_component_id=E_3396&enzyme_id=ENSG00000180011`.
+
+ The backend should be available at: `http://localhost/api/`, for example: `http://localhost/api/reaction_components/E_3379/with_interaction_partners`.
+
+There is also a swagger UI for browsing the API at: `http://localhost/swagger`.
+
+If you encounter any problems try running `restart-stack`.
+
+### To create the database
 
 ```bash
-$ psql -h `docker-machine ip dev` -p 5432 -U postgres --password hma \
-    -c "\copy expression_data from abp.expr.csv delimiter ',';"
-$ psql -h `docker-machine ip dev` -p 5432 -U postgres --password hma \
-    -c "\copy expression_data from rnaseq_expr.csv delimiter ',';"
+$ source postgres.env                               # to load the environment variables
+
+python manage.py makemigrations
+python manage.py migrate
+python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables
+python manage.py addSBMLData addSBMLData ../database_generation/data/HMRdatabase2_00.xml 67                     # takes a few minutes!
+python manage.py addCurrencyMetabolites
+python manage.py addMetabolites
+python manage.py addReactionComponentAnnotation   # takes a few minutes! please note that for some BIZARRE reason it fails the first time and complains about duplicated keys, then I comment away line 68 and run it again without problems...
+python manage.py addEnzymes
+python manage.py addTissueOntology
+python manage.py expressionDataFromHPA            # takes 15 minutes!
+```
+(as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)
+
+Log into the database and run the following 3 commands to load the expression data...
+```bash
+psql -h localhost -p 5432 -U postgres -d hma
+```
+```sql
+\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_antibody_from_HPA_0.csv' csv delimiter ',' quote '"';
+\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_rnaseq_from_HPA_0.csv' delimiter ',';
+update reaction_component set short_name=exp.gene_name FROM (SELECT gene_id, gene_name FROM expression_data) AS exp WHERE exp.gene_id = long_name AND short_name is null;  # see if we can add any more protein symbols using the HPA data...
 ```
 
+Make a database dump of the content of the database
+```bash
+pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v2.db
+```
 
-### Third step - Update reaction components with new data
+(takes about 15 minutes + 15 to prepare the expression data)
 
-The expression data that we loaded contains information that we want
-to include in the reaction components in the database (`short_name`
-and `component_type`). We run this to make the updates:
+
+### All helper commands
 
 ```bash
-$ docker-compose run --rm backend /usr/local/bin/python \
-    update_component_info.py import/HMRdatabase2_00.xml
-$ docker-compose run --rm backend /usr/local/bin/python \
-	add_short_names.py import/ensembl78_hgnc_symbol.hsapiens.tab
+$ source proj.sh
 ```
 
+Then you will get access to the following commands:
 
-### Fourth step - Import currency metabolites
-
-A "currency metabolite" is a metabolite that has multiple uses in
-different reactions/pathways, such as ATP and NAD. To import currency
-metabolites, we require a file with the following structure:
-
-```
-MetaboliteID1,ReactionID1,...,ReactionIDn
-...
-```
-
-E.g.:
-
-```
-m00003c,HMR_0685,HMR_0686,HMR_0687,HMR_0688,HMR_0689,HMR_0690,HMR_0691,HMR_0692
-m00004c,HMR_0545,HMR_0546,HMR_0547,HMR_0548,HMR_0549,HMR_0550,HMR_0551,HMR_0552,HMR_0553
-m00006c,HMR_0545,HMR_0546,HMR_0547,HMR_0548,HMR_0549,HMR_0550,HMR_0551,HMR_0552,HMR_0553
-m00007c,HMR_0545,HMR_0546,HMR_0547,HMR_0548,HMR_0549,HMR_0550,HMR_0551,HMR_0552,HMR_0553
-```
-
-Note that the lines do not have to have the same number of columns, we
-don't care about the number of reaction IDs, we'll import all of them
-for each line.
-
-(Note that the IDs are of the form used by CobraPy, meaning the IDs
-are not prefixed with "M_" or "R_" like they are in the GEM file.)
-
-To import the currency metabolites, run the following:
-
-```bash
-$ docker-compose run --rm backend /usr/local/python add_currency_metabolites.py \
-    import/currency_metabolites.txt
-```
-
-(Provided that you placed the file specifying the currency metabolites
-in the hma_backend/import folder before you built the container
-images.)
+* To bootstrap the project: `$ build-stack`
+* To run the project: `$ start-stack`
+* To display real-time logs: `$ logs`
+* To stop the project: `stop-stack`
+* To create new migrationfiles: `db-make-migrations`
+* To run a database migration: `db-migrate`
+* To create a django superuser: `create-su`
 
 
-## Usage
-
-Once everything is up, the backend application is available on port 80
-on the virtual machine (use `docker-machine ip` to get the IP
-address).
-
-E.g.:
-
-```bash
-$ curl -v `docker-machine ip dev`
-```
+## Collaboration
+For details on using github, please visit the [sysbio wiki](http://wiki.sysbio.chalmers.se/mediawiki/index.php/Development_guidelines#Github).

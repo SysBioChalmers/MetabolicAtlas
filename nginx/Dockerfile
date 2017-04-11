@@ -1,4 +1,4 @@
-FROM tutum/nginx
-RUN rm /etc/nginx/sites-enabled/default
-ADD sites-enabled/ /etc/nginx/sites-enabled
-ADD .htpasswd /etc/nginx/.htpasswd
+FROM nginx:latest
+
+COPY proxy.conf /etc/nginx/proxy.conf
+COPY nginx.conf /etc/nginx/nginx.conf

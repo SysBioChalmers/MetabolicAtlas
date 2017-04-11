@@ -1,41 +1,35 @@
-version: '2'
+version: '3'
 
 services:
+  db:
+    restart: always
+    image: postgres
+    env_file: postgres.env
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - net-tier
+
   nginx:
-    build: ./nginx
+    restart: always
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile-prod
     depends_on:
       - backend
-      - frontend
     links:
-      - frontend:frontend
       - backend:backend
     volumes:
-      - ./backend/static:/static
+      - ./nginx/static:/static
+      - ./nginx/static:/usr/share/nginx/html:ro
+      - ./backend/media:/media
     ports:
       - "80:80"
     networks:
       - net-tier
 
-  frontend:
-    depends_on:
-      - backend
-    build: ./frontend
-    command: npm run dev
-    volumes:
-      - ./frontend/src:/project/src
-    ports:
-      - "8080:8080"
-    networks:
-      - net-tier
-  db:
-    image: postgres
-    env_file: postgres.env
-    ports:
-      - "5432:5432"
-    networks:
-      - net-tier
-
   backend:
+    restart: always
     depends_on:
       - db
     env_file: postgres.env
@@ -44,6 +38,7 @@ services:
     volumes:
       - ./backend:/project
       - ./backend/static:/static
+      - ./backend/media:/media
     ports:
       - "8000:8000"
     networks:
