@@ -51,10 +51,6 @@ module.exports = {
         exclude: /node_modules/
       }
     ],
-    noParse: [
-      /node_modules\/aframe\/dist\/aframe.js/, // for aframe from NPM
-      /node_modules\/cannon\/build\/cannon.js/, // for aframe-extras from NPM
-    ],
     loaders: [
       {
         test: /\.vue$/,
