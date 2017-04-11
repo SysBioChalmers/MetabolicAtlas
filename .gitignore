@@ -42,3 +42,5 @@ Temporary Items
 
 # migration files
 backend/api/migrations/*py
+
+postgres_data/
