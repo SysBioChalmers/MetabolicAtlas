@@ -5,7 +5,7 @@ import Vue from 'vue';
 import App from './App';
 import router from './router';
 
-axios.defaults.baseURL = 'http://localhost:8000/api';
+axios.defaults.baseURL = '/api';
 
 /* eslint-disable no-new */
 new Vue({
