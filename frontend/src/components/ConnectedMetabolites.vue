@@ -28,8 +28,8 @@
 <script>
 import axios from 'axios';
 import cytoscape from 'cytoscape';
+import regCose from 'cytoscape-cose-bilkent';
 import CytoscapeTable from 'components/CytoscapeTable';
-import { default as regCose } from 'cytoscape-cose-bilkent/src/index';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
