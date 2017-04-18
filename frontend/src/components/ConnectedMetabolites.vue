@@ -96,7 +96,6 @@ export default {
         .then((response) => {
           this.errorMessage = '';
 
-          console.log(response.data);
           const [elms, rels] = transform(response.data);
           this.selectedElm = elms[enzymeId];
           this.elms = elms;
