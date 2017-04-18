@@ -45,7 +45,7 @@ $ start-stack
 ### Import the database
 
 ```bash
-$ docker exec -i $(docker ps -qf "name=vuedjangostack_db_1") psql -U postgres hma < PATH_TO_DB_FILE
+$ docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hma < PATH_TO_DB_FILE
 ```
 
 The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&reaction_component_id=E_3396&enzyme_id=ENSG00000180011`.

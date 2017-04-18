@@ -131,6 +131,7 @@ class Metabolite(models.Model):
     chebi = models.CharField(max_length=50, null=True)
     inchi = models.CharField(max_length=255, null=True)
     bigg = models.CharField(max_length=75, null=True)
+    hmdb_description = models.CharField(max_length=5000, null=True)
     hmdb_link = models.CharField(max_length=255, null=True)
     pubchem_link = models.CharField(max_length=255, null=True)
 

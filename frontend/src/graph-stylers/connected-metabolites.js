@@ -77,7 +77,7 @@ export default function (elms, rels) {
       height: 20,
     })
     .selector('node[type="product"]') // select the products and make them rectangular instead
-    .css({ shape: 'octagon' })
+    .css({ shape: 'triangle' })
     .selector('edge') // please note that right now the only edge is from main enzyme to the reactions!
     .css({
       width: 3,

@@ -11,6 +11,7 @@ export default function (elms, rels) {
       data: {
         id: elm.id,
         name: elm.short,
+        hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: movie into config
         type: elm.type,
         details: elm.details,
       },

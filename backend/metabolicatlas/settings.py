@@ -25,7 +25,10 @@ SECRET_KEY = '*iu%ha&)j07dsx#vq8f*6=o-l3y&4_+9p-itoa5b(5z!5hq5rq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'icsb.chalmers.se',
+]
 
 
 # Application definition
@@ -93,7 +96,8 @@ DATABASES = {
 # CORS
 # https://github.com/ottoyiu/django-cors-headers
 CORS_ORIGIN_WHITELIST = (
-    'localhost:8080'
+    'localhost',
+    'icsb.chalmers.se',
 )
 
 
