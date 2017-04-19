@@ -86,7 +86,7 @@ update reaction_component set short_name=exp.gene_name FROM (SELECT gene_id, gen
 
 Make a database dump of the content of the database
 ```bash
-pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v2.db
+pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v3.db
 ```
 
 (takes about 15 minutes + 15 to prepare the expression data)

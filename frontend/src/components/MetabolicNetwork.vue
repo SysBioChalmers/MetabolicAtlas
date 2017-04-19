@@ -1,8 +1,6 @@
 <template>
-  <div class="metabolic-network">
-    <div class="container">
-      <img src="../assets/FILENAME.png">
-    </div>
+  <div id="networkWrapper" class="metabolic-network">
+    <img src="../assets/whole_metabolic_network.png">
   </div>
 </template>
 
@@ -14,4 +12,9 @@ export default {
 </script>
 
 <style lang="scss">
+    #networkWrapper {
+      img {
+        width: 100%;
+      }
+    }
 </style>
