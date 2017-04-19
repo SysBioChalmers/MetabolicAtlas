@@ -3,6 +3,26 @@
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
       <div id="diagram"></div>
+      <table class="table is-bordered is-striped is-narrow">
+        <thead>
+          <tr>
+            <th>Reaction Id</th>
+            <th>Equation</th>
+            <th>Reactants</th>
+            <th>Products</th>
+            <th>Modifiers</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="r in reactions">
+            <td>{{ r.id }}</td>
+            <td>{{ r.equation }}</td>
+            <td>{{ r.reactants.length }}</td>
+            <td>{{ r.products.length }}</td>
+            <td>{{ r.modifiers.length }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -13,7 +33,6 @@ import axios from 'axios';
 import SVG from 'svg.js';
 import 'svg.connectable.js';
 import 'svg.draggy.js';
-// import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
 
 export default {
   name: 'reactome',
@@ -62,7 +81,6 @@ export default {
           this.errorMessage = '';
 
           this.reactions = response.data;
-          console.log(this.reactions);
           if (this.reactions.length > 0) {
             const r = this.reactions[0];
             this.loadReactome(r.id);
@@ -76,7 +94,6 @@ export default {
           this.errorMessage = '';
 
           this.reactome = response.data;
-          console.log(this.reactome);
         });
     },
   },
