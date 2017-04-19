@@ -9,6 +9,7 @@
 
 <script>
 
+import axios from 'axios';
 import SVG from 'svg.js';
 import 'svg.connectable.js';
 import 'svg.draggy.js';
@@ -19,37 +20,65 @@ export default {
   data() {
     return {
       errorMessage: '',
+      reactions: [],
+      reactome: null,
     };
   },
   mounted() {
-    const diagram = new SVG('diagram').size('100%', 500);
+    this.loadReactions();
+    this.drawDiagram();
+  },
+  methods: {
+    drawDiagram() {
+      const diagram = new SVG('diagram').size('100%', 500);
 
-    const links = diagram.group();
-    const markers = diagram.group();
-    const nodes = diagram.group();
+      const links = diagram.group();
+      const markers = diagram.group();
+      const nodes = diagram.group();
 
-    const g1 = nodes.group().translate(100, 200).draggy();
-    g1.ellipse(100, 50).fill('#C2185B');
+      const g1 = nodes.group().translate(100, 200).draggy();
+      g1.ellipse(100, 50).fill('#C2185B');
 
-    const g2 = nodes.group().translate(300, 200).draggy();
-    g2.ellipse(100, 50).fill('#E91E63');
+      const g2 = nodes.group().translate(300, 200).draggy();
+      g2.ellipse(100, 50).fill('#E91E63');
 
-    const g3 = nodes.group().translate(500, 200).draggy();
-    g3.ellipse(100, 50).fill('#FF5252');
-    g3.plain('result');
+      const g3 = nodes.group().translate(500, 200).draggy();
+      g3.ellipse(100, 50).fill('#FF5252');
+      g3.plain('result');
 
-    g1.connectable({
-      container: links,
-      markers,
-    }, g2).setLineColor('#5D4037');
+      g1.connectable({
+        container: links,
+        markers,
+      }, g2).setLineColor('#5D4037');
 
-    g2.connectable({
-      padEllipse: true,
-    }, g3).setLineColor('rgba(0, 0, 0, 0)');
+      g2.connectable({
+        padEllipse: true,
+      }, g3).setLineColor('#5D4037');
+    },
+    loadReactions() {
+      const id = this.$route.params.metabolite_rcid || this.$route.query.metabolite_rcid;
+      axios.get(`metabolite_reactions/${id}`)
+        .then((response) => {
+          this.errorMessage = '';
 
-    g2.connectable({
-      padEllipse: true,
-    }, g3).setLineColor('#5D4037');
+          this.reactions = response.data;
+          console.log(this.reactions);
+          if (this.reactions.length > 0) {
+            const r = this.reactions[0];
+            this.loadReactome(r.id);
+          }
+        });
+    },
+    loadReactome(reactionId) {
+      const rcid = this.$route.params.metabolite_rcid || this.$route.query.metabolite_rcid;
+      axios.get(`metabolite_reactions/${rcid}/reactome/${reactionId}`)
+        .then((response) => {
+          this.errorMessage = '';
+
+          this.reactome = response.data;
+          console.log(this.reactome);
+        });
+    },
   },
 };
 
