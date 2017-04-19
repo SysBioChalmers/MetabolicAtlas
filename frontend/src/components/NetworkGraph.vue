@@ -26,6 +26,7 @@
        </li>
      </ul>
    </div>
+   <metabolic-network v-if="selectedTab===1"></metabolic-network>
    <closest-interaction-partners v-if="selectedTab===3"></closest-interaction-partners>
    <connected-metabolites v-if="selectedTab===4"></connected-metabolites>
   </div>
@@ -33,6 +34,7 @@
 
 <script>
 
+import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
 import router from '../router';
@@ -40,6 +42,7 @@ import router from '../router';
 export default {
   name: 'network-graph',
   components: {
+    MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
   },
