@@ -12,9 +12,9 @@ export default {
 </script>
 
 <style lang="scss">
-    #networkWrapper {
-      img {
-        width: 100%;
-      }
-    }
+#networkWrapper {
+  img {
+    width: 100%;
+  }
+}
 </style>

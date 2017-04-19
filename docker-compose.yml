@@ -45,6 +45,7 @@ services:
     command: npm run dev
     volumes:
       - ./frontend/src:/project/src
+      - ./frontend/build:/project/build
       - ./frontend/dist:/project/dist
       - ./frontend/test:/project/test
     ports:
