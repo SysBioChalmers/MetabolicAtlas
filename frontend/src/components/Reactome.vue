@@ -49,6 +49,11 @@ export default {
   },
   methods: {
     drawDiagram() {
+      /*
+        TODO: the following is a start into laying out a reactome diagram
+        A small tool needs to be developed in order to generate the diagram.
+      */
+
       const diagram = new SVG('diagram').size('100%', 500);
 
       const links = diagram.group();
@@ -61,9 +66,9 @@ export default {
       const g2 = nodes.group().translate(300, 200).draggy();
       g2.ellipse(100, 50).fill('#E91E63');
 
-      const g3 = nodes.group().translate(500, 200).draggy();
+      const g3 = nodes.group().translate(600, 200).draggy();
       g3.ellipse(100, 50).fill('#FF5252');
-      g3.plain('result');
+      g3.plain('R.HMR.5816').attr({ x: -150, y: 10 });
 
       g1.connectable({
         container: links,
@@ -87,6 +92,7 @@ export default {
           }
         });
     },
+    // TODO: call loadReactome when selecting a row from the table of reactions
     loadReactome(reactionId) {
       const rcid = this.$route.params.metabolite_rcid || this.$route.query.metabolite_rcid;
       axios.get(`metabolite_reactions/${rcid}/reactome/${reactionId}`)
