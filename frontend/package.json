@@ -17,6 +17,9 @@
     "cytoscape-cose-bilkent": "1.6.1",
     "cytoscape-graphml": "1.0.5",
     "jquery": "^3.0",
+    "svg.js": "2.5.1",
+    "svg.draggy.js": "^1.1.1",
+    "svg.connectable.js": "^2.0.0",
     "vue": "^2.1.0",
     "vue-router": "^2.2.1"
   },

@@ -48,7 +48,7 @@ $ start-stack
 $ docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hma < PATH_TO_DB_FILE
 ```
 
-The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&reaction_component_id=E_3396&enzyme_id=ENSG00000180011`.
+The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&reaction_component_id=E_3396&enzyme_id=ENSG00000180011&metabolite_rcid=M_m00001c`.
 
  The backend should be available at: `http://localhost/api/`, for example: `http://localhost/api/reaction_components/E_3379/with_interaction_partners`.
 

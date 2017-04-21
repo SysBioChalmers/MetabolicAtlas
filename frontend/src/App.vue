@@ -67,6 +67,7 @@ export default {
               tab: 3,
               reaction_component_id: 'E_3748',
               enzyme_id: 'ENSG00000180011',
+              metabolite_rcid: 'M_m00001c',
             },
           },
         );

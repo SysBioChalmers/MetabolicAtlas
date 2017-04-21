@@ -23,4 +23,6 @@ urlpatterns = [
     url(r'^enzymes/?$', views.enzyme_list),
     url(r'^enzymes/(?P<id>[^/]+)/connected_metabolites/?$', views.connected_metabolites),
     url(r'^expressions/(?P<enzyme_id>[^/]+)/?$', views.expressions_list),
+    url(r'^metabolite_reactions/(?P<reaction_component_id>[^/]+)/?$', views.get_metabolite_reactions),
+    url(r'^metabolite_reactions/(?P<reaction_component_id>[^/]+)/reactome/(?P<reaction_id>[^/]+)/?$', views.get_metabolite_reactome),
 ]

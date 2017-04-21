@@ -40,6 +40,23 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
 
+# This is a helper class to determine if a component is a currency metabolite
+class CurrencyMetaboliteReactionComponent(object):
+    def __init__(self, reaction_component, reaction_id):
+        self.reaction_component = reaction_component
+        self.reaction_id = reaction_id
+        self.is_currency_metabolite = self.__is_currency_metabolite__()
+
+    def __is_currency_metabolite__(self):
+        for r in self.reaction_component.currency_metabolites.all():
+            if r.id == self.reaction_id:
+                return True
+        return False
+
+class CurrencyMetaboliteReactionComponentSerializer(serializers.Serializer):
+    reaction_component = ReactionComponentSerializer(read_only=True)
+    is_currency_metabolite = serializers.BooleanField()
+
 class CurrencyMetaboliteSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
     

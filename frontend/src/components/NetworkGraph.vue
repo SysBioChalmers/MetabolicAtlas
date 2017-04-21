@@ -29,6 +29,7 @@
    <metabolic-network v-if="selectedTab===1"></metabolic-network>
    <closest-interaction-partners v-if="selectedTab===3"></closest-interaction-partners>
    <connected-metabolites v-if="selectedTab===4"></connected-metabolites>
+   <reactome v-if="selectedTab===6"></reactome>
   </div>
 </template>
 
@@ -37,6 +38,7 @@
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
+import Reactome from 'components/Reactome';
 import router from '../router';
 
 export default {
@@ -45,6 +47,7 @@ export default {
     MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
+    Reactome,
   },
   data() {
     return {
