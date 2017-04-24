@@ -65,7 +65,7 @@ class SbmlAuthor(object):
         return rdf[0][0][0][0][2][0].text
 
 
-def get_formula(notes):
+def get_formula_from_notes(notes):
     """Get formula from SBML notes."""
     match = re.search(".*<p>FORMULA: ([A-Z0-9]+)</p>.*", notes)
     if match:
@@ -76,6 +76,14 @@ def get_formula(notes):
 def get_short_name_from_notes(notes):
     """Get short name from SBML notes for the proteins."""
     match = re.search(".*<p>SHORT NAME: ([A-Z0-9]+)</p>.*", notes)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
+def get_subsystem_from_notes(notes):
+    """Get sub-system name from SBML notes for the reactions."""
+    match = re.search(".*<p>SUBSYSTEM: ([A-Za-z].+)</p>.*", notes)
     if match:
         return match.group(1)
     else:
@@ -150,6 +158,7 @@ def get_reaction(sbml_model, index):
     reaction_to_add.sbo_id = sbml_reaction.sbo_term_id
     reaction_to_add.equation = get_equation(sbml_reaction)
     reaction_to_add.ec = get_EC_number(sbml_reaction)
+    reaction_to_add.subsystem = get_subsystem_from_notes(sbml_reaction.notes_string)
 
     kinetic_law_parameters = get_kinetic_law_parameters(sbml_reaction)
     reaction_to_add.lower_bound = kinetic_law_parameters.get("LOWER_BOUND")
@@ -217,7 +226,7 @@ def get_reaction_components(sbml_model, sbml_species):
         if len(components_in_db)<1:
             component = ReactionComponent(id=species.id, long_name=species.name)
             component.organism = "Human"        # FIXME get organism from model
-            component.formula = get_formula(species.notes_string)
+            component.formula = get_formula_from_notes(species.notes_string)
             component.short_name = get_short_name_from_notes(species.notes_string)
             if species.compartment:
                 sbml_compartment = sbml_model.getCompartment(species.compartment)

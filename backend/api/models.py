@@ -49,6 +49,7 @@ class Reaction(models.Model):
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField()
+    subsystem = models.CharField(max_length=70)
 
     models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
 
