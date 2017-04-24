@@ -7,5 +7,7 @@ RUN yarn global add webpack
 ADD . /project
 WORKDIR /project
 
+EXPOSE 8080
+
 RUN rm -rf node_modules
 RUN yarn

@@ -7,10 +7,10 @@
           <li><a><span>Yeast</span></a></li>
         </div>
       </div>
-      <div class="column is-6">
+      <div class="column is-7">
         <p class="control">
           <input id="search" class="input"
-            type="text" placeholder="Search by metabolite, gene, or reaction, eg. P[m] -> P[s]">
+            type="text" placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP[c] => cAMP[c] + PPi[c])">
         </p>
       </div>
     </div>
@@ -26,22 +26,28 @@
        </li>
      </ul>
    </div>
+   <metabolic-network v-if="selectedTab===1"></metabolic-network>
    <closest-interaction-partners v-if="selectedTab===3"></closest-interaction-partners>
    <connected-metabolites v-if="selectedTab===4"></connected-metabolites>
+   <reactome v-if="selectedTab===6"></reactome>
   </div>
 </template>
 
 <script>
 
+import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
+import Reactome from 'components/Reactome';
 import router from '../router';
 
 export default {
   name: 'network-graph',
   components: {
+    MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
+    Reactome,
   },
   data() {
     return {

@@ -3,14 +3,30 @@
     <h3 class="title is-3">Connected metabolites</h3>
     <div class="container columns">
       <figure id="cy" ref="cy" class="column is-9"></figure>
-      <div class="column content">
-        <blockquote>
-          Take an enzyme, in the form of an Ensembl Gene Identifier
-          (for example ENSG00000164303 or <u>ENSG00000180011</u>)
-          then it will find all reactions that this enzyme modifies,
-          and for each of these reactions pull out the reactants (shape=heptagon)
-          and the products (shape=octagon), eg the metabolites)
-        </blockquote>
+      <div id="sidebar" class="column content">
+        <div v-if="selectedElm && selectedElm.details" class="card">
+          <div class="card-content">
+            <div v-if="selectedElm.details.hmdb_description">
+              <p class="label">Description</p>
+              <p>{{ selectedElm.details.hmdb_description }}</p>
+              <br v-if="selectedElm.details.mass">
+            </div>
+            <div v-if="selectedElm.details.mass">
+              <p class="label">Mass</p>
+              <p>{{ selectedElm.details.mass }}</p>
+              <br v-if="selectedElm.details.kegg">
+            </div>
+            <div v-if="selectedElm.details.kegg">
+              <p class="label">Kegg</p>
+              <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+            </div>
+          </div>
+        </div>
+        <div v-else>
+          Click on a reaction component for more details.
+        </div>
+        <br>
+        <a href="/about#connectedmetabolites" target="_blank">More information</a>
       </div>
     </div>
     <div class="container">
@@ -27,8 +43,8 @@
 <script>
 import axios from 'axios';
 import cytoscape from 'cytoscape';
+import regCose from 'cytoscape-cose-bilkent';
 import CytoscapeTable from 'components/CytoscapeTable';
-import { default as regCose } from 'cytoscape-cose-bilkent';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
@@ -44,6 +60,7 @@ export default {
       errorMessage: '',
       elms: [],
       selectedElmId: '',
+      selectedElm: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
         { field: 'reactionid', colName: 'Reaction ID', modifier: null },
@@ -54,6 +71,17 @@ export default {
       ],
       tableSearchTerm: '',
     };
+  },
+  computed: {
+    keggLink() {
+      if (this.selectedElm
+        && this.selectedElm.details
+        && this.selectedElm.details.kegg
+      ) {
+        return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
+      }
+      return '';
+    },
   },
   methods: {
     highlightNode(elmId) {
@@ -69,6 +97,7 @@ export default {
           this.errorMessage = '';
 
           const [elms, rels] = transform(response.data);
+          this.selectedElm = elms[enzymeId];
           this.elms = elms;
           const [elements, stylesheet] = graph(elms, rels);
           this.cy = cytoscape({
@@ -84,11 +113,13 @@ export default {
 
           this.cy.on('tap', () => {
             this.selectedElmId = '';
+            this.selectedElm = null;
           });
 
           this.cy.on('tap', 'node', (evt) => {
             const ele = evt.cyTarget;
             this.selectedElmId = ele.data().id;
+            this.selectedElm = ele.data();
           });
         })
         .catch((error) => {
@@ -117,6 +148,11 @@ h1, h2 {
   position: static;
   margin: auto;
   height: 820px;
+}
+
+#sidebar {
+  max-height: 820px;
+  overflow-y: scroll;
 }
 
 </style>

@@ -1,37 +1,27 @@
-version: '2'
+version: '3'
 
 services:
+  db:
+    image: postgres
+    env_file: postgres.env
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - net-tier
+
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     depends_on:
       - backend
       - frontend
-    links:
-      - frontend:frontend
-      - backend:backend
     volumes:
       - ./backend/static:/static
     ports:
       - "80:80"
-    networks:
-      - net-tier
-
-  frontend:
-    depends_on:
-      - backend
-    build: ./frontend
-    command: npm run dev
-    volumes:
-      - ./frontend/src:/project/src
-    ports:
-      - "8080:8080"
-    networks:
-      - net-tier
-  db:
-    image: postgres
-    env_file: postgres.env
-    ports:
-      - "5432:5432"
     networks:
       - net-tier
 
@@ -43,9 +33,23 @@ services:
     command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/project
-      - ./backend/static:/static
     ports:
       - "8000:8000"
+    networks:
+      - net-tier
+
+  frontend:
+    depends_on:
+      - backend
+    build: ./frontend
+    command: npm run dev
+    volumes:
+      - ./frontend/src:/project/src
+      - ./frontend/build:/project/build
+      - ./frontend/dist:/project/dist
+      - ./frontend/test:/project/test
+    ports:
+      - "8080:8080"
     networks:
       - net-tier
 

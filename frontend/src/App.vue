@@ -8,11 +8,12 @@
           </a>
         </div>
         <div class="nav-right nav-menu">
-          <a class="nav-item is-active">network graph</a>
-          <a class="nav-item">models</a>
-          <a class="nav-item">resources</a>
-          <a class="nav-item">about</a>
-          <a class="nav-item">contact</a>
+          <a
+             v-for="menuItem in menuItems"
+             class="nav-item"
+             :class="[{ 'is-active': isActive(menuItem) }, '']"
+             @click="goToPage(menuItem)"
+          >{{menuItem}}</a>
         </div>
       </div>
     </nav>
@@ -42,6 +43,7 @@
 
 import SvgIcon from './components/SvgIcon';
 import Logo from './assets/logo.svg';
+import router from './router';
 
 export default {
   name: 'app',
@@ -49,7 +51,35 @@ export default {
     SvgIcon,
   },
   data() {
-    return { Logo };
+    return {
+      Logo,
+      menuItems: ['network graph', 'models', 'resources', 'about', 'contact'],
+    };
+  },
+  methods: {
+    goToPage(name) {
+      // TODO: make this not hard-coded
+      if (name === 'network graph') {
+        router.push(
+          {
+            path: '/',
+            query: {
+              tab: 3,
+              reaction_component_id: 'E_3748',
+              enzyme_id: 'ENSG00000180011',
+              metabolite_rcid: 'M_m00001c',
+            },
+          },
+        );
+      } else {
+        router.push(name);
+      }
+
+      location.reload();
+    },
+    isActive(name) {
+      return name.toLowerCase() === this.$route.name.toLowerCase();
+    },
   },
 };
 </script>

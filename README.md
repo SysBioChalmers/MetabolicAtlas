@@ -45,10 +45,10 @@ $ start-stack
 ### Import the database
 
 ```bash
-$ docker exec -i $(docker ps -qf "name=vuedjangostack_db_1") psql -U postgres hma < PATH_TO_DB_FILE
+$ docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hma < PATH_TO_DB_FILE
 ```
 
-The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&reaction_component_id=E_3396&enzyme_id=ENSG00000180011`.
+The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&reaction_component_id=E_3396&enzyme_id=ENSG00000180011&metabolite_rcid=M_m00001c`.
 
  The backend should be available at: `http://localhost/api/`, for example: `http://localhost/api/reaction_components/E_3379/with_interaction_partners`.
 
@@ -88,7 +88,7 @@ update reaction_component set short_name=exp.gene_name FROM (SELECT gene_id, gen
 
 Make a database dump of the content of the database
 ```bash
-pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v2.db
+pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v3.db
 ```
 
 (takes about 15 minutes + 15 to prepare the expression data)
