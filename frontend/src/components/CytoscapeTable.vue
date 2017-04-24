@@ -48,10 +48,9 @@
 
 <script>
 
-import { default as XLSX } from 'xlsx';
-import { default as FileSaver } from 'file-saver';
 import TableSearch from 'components/TableSearch';
 import { default as compare } from '../helpers/compare';
+import { default as downloadFile } from '../helpers/excel-export';
 
 export default {
   name: 'cytoscape-table',
@@ -128,45 +127,11 @@ export default {
       }
     },
     exportToExcel() {
-      const workbook = XLSX.utils.table_to_book(this.$refs.table, {
-        sheet: 'haha',
-      });
-
-      const workbookOut = XLSX.write(workbook, {
-        bookType: 'xlsx',
-        bookSST: true,
-        type: 'binary',
-      });
-
-      const filename = 'haha.xlsx';
-
       try {
-        const blob = new Blob([this.s2ab(workbookOut)], {
-          type: 'application/octet-stream',
-        });
-
-        FileSaver.saveAs(blob, filename);
+        downloadFile(this.$refs.table, 'metabolic_atlas_export.xlsx');
       } catch (e) {
         this.errorMessage = e;
       }
-    },
-    s2ab(s) {
-      /* eslint no-plusplus: ["error", { "allowForLoopAfterthoughts": true }] */
-      /* eslint no-bitwise: ["error", { "allow": ["&"] }] */
-      if (typeof ArrayBuffer !== 'undefined') {
-        const buf = new ArrayBuffer(s.length);
-        const view = new Uint8Array(buf);
-        for (let i = 0; i !== s.length; ++i) {
-          view[i] = s.charCodeAt(i) & 0xFF;
-        }
-        return buf;
-      }
-
-      const buf = new Array(s.length);
-      for (let i = 0; i !== s.length; ++i) {
-        buf[i] = s.charCodeAt(i) & 0xFF;
-      }
-      return buf;
     },
   },
 };
