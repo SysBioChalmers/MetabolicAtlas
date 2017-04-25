@@ -51,7 +51,7 @@
         <br>
         <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
         <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
-        <a href="/about#closestpartners" target="_blank">More information</a>
+        <a href="/about#closestpartners" target="_blank">$t('moreInformation')</a>
       </div>
     </div>
     <cytoscape-table
@@ -284,7 +284,7 @@ h1, h2 {
 
 #sidebar {
   max-height: 820px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #contextMenu {
@@ -296,7 +296,7 @@ h1, h2 {
     padding: 5px 10px;
     text-align: left;
     border-radius: 0;
-    
+
     a {
       color: white;
     }

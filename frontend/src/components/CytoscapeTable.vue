@@ -10,7 +10,7 @@
         <a
           @click="exportToExcel"
           class="button is-primary"
-        >Export</a>
+        >{{ $t('export') }}</a>
       </div>
     </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">

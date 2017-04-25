@@ -22,9 +22,7 @@
             </div>
           </div>
         </div>
-        <div v-else>
-          Click on a reaction component for more details.
-        </div>
+        <div v-else>{{ $t('connectedMetabolites.instructions') }}</div>
         <br>
         <a href="/about#connectedmetabolites" target="_blank">More information</a>
       </div>
@@ -152,7 +150,7 @@ h1, h2 {
 
 #sidebar {
   max-height: 820px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 </style>

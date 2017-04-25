@@ -22,6 +22,7 @@
     "svg.draggy.js": "^1.1.1",
     "svg.connectable.js": "^2.0.0",
     "vue": "^2.1.0",
+    "vue-i18n": "^6.1.1",
     "vue-router": "^2.2.1",
     "xlsx": "^0.9.12"
   },
