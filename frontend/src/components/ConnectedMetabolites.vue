@@ -152,7 +152,7 @@ h1, h2 {
 
 #sidebar {
   max-height: 820px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 </style>

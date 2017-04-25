@@ -284,7 +284,7 @@ h1, h2 {
 
 #sidebar {
   max-height: 820px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #contextMenu {
@@ -296,7 +296,7 @@ h1, h2 {
     padding: 5px 10px;
     text-align: left;
     border-radius: 0;
-    
+
     a {
       color: white;
     }
