@@ -25,10 +25,7 @@
     <footer class="footer">
       <div class="container">
         <div class="content has-text-centered">
-          <p>
-            Chalmers University of Technology | Department of Biology and Biological Engineering |
-            <a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a>
-          <p>
+          <p v-html="$t('footerText')"><p>
           <p>
             <a><img src="./assets/chalmers.png" /></a>
             <a><img src="./assets/wallenberg.gif" /></a>
