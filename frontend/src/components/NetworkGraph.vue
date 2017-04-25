@@ -3,14 +3,14 @@
     <div class="columns">
       <div class="column is-3">
         <div class="tabs is-pulled-left is-toggle">
-          <li class="is-active"><a><span>Human</span></a></li>
-          <li><a><span>Yeast</span></a></li>
+          <li class="is-active"><a><span>{{ $t('human') }}</span></a></li>
+          <li><a><span>{{ $t('yeast') }}</span></a></li>
         </div>
       </div>
       <div class="column is-7">
         <p class="control">
           <input id="search" class="input"
-            type="text" placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP[c] => cAMP[c] + PPi[c])">
+            type="text" :placeholder="$t('searchPlaceholder')">
         </p>
       </div>
     </div>
@@ -54,12 +54,12 @@ export default {
       selectedTab: 1,
       errorMessage: '',
       tabs: [
-        'The whole metabolic network',
-        'Zoom in on region',
-        'Closest interaction partners',
-        'Catalysed reactions',
-        'Pathways',
-        'Metabolites',
+        this.$t('tab1title'),
+        this.$t('tab2title'),
+        this.$t('tab3title'),
+        this.$t('tab4title'),
+        this.$t('tab5title'),
+        this.$t('tab6title'),
       ],
     };
   },
