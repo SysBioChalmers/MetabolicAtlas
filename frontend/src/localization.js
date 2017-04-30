@@ -7,6 +7,7 @@ export default {
       instructions: 'Click on a reaction component for more details.',
     },
     tableSearchPlaceholder: 'Search in table',
+    tooManyReactions: 'There are too many reactions to be displayed in a graph (> 10). Here is a list of all the reactions.',
     human: 'Human',
     yeast: 'Yeast',
     reset: 'Reset',
