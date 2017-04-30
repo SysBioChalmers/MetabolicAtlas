@@ -24,7 +24,9 @@
         </div>
         <div v-else>{{ $t('connectedMetabolites.instructions') }}</div>
         <br>
-        <a href="/about#connectedmetabolites" target="_blank">More information</a>
+        <a href="/about#connectedmetabolites" target="_blank">
+          {{ $t('moreInformation') }}
+         </a>
       </div>
     </div>
     <div class="container">
@@ -89,7 +91,9 @@ export default {
       node.trigger('tap');
     },
     load() {
-      const enzymeId = this.$route.params.enzyme_id || this.$route.query.enzyme_id;
+      const enzymeId = this.$route.query.reaction_component_id
+                        || this.$route.query.reaction_component_long_name;
+
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
           this.errorMessage = '';

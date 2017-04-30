@@ -51,7 +51,9 @@
         <br>
         <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
         <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
-        <a href="/about#closestpartners" target="_blank">$t('moreInformation')</a>
+        <a href="/about#closestpartners" target="_blank">
+          {{ $t('moreInformation') }}
+        </a>
       </div>
     </div>
     <cytoscape-table
@@ -115,8 +117,8 @@ export default {
   },
   methods: {
     setup() {
-      this.reactionComponentId = this.$route.params.reaction_component_id
-                                 || this.$route.query.reaction_component_id;
+      this.reactionComponentId = this.$route.query.reaction_component_id
+                                  || this.$route.query.reaction_component_long_name;
       this.selectedElmId = '';
       this.selectedElm = null;
       this.load();

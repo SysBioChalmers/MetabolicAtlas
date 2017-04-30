@@ -191,7 +191,7 @@ def interaction_partner_list(request, id):
 @api_view()
 def get_component_with_interaction_partners(request, id):
     try:
-        component = ReactionComponent.objects.get(id=id)
+        component = ReactionComponent.objects.get(Q(id=id) | Q(long_name=id))
     except ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -225,7 +225,7 @@ def connected_metabolites(request, id):
     
     enzyme = ReactionComponent.objects.get(
             Q(component_type='enzyme') &
-            Q(long_name=id)
+            (Q(id=id) | Q(long_name=id))
         )
 
     as_reactant = [MetaboliteReaction(r, 'reactant') for r in enzyme.reactions_as_reactant.all()]
