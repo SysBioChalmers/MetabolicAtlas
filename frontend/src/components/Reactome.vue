@@ -3,26 +3,7 @@
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
       <div id="diagram"></div>
-      <table class="table is-bordered is-striped is-narrow">
-        <thead>
-          <tr>
-            <th>Reaction Id</th>
-            <th>Equation</th>
-            <th>Reactants</th>
-            <th>Products</th>
-            <th>Modifiers</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="r in reactions">
-            <td>{{ r.id }}</td>
-            <td>{{ r.equation }}</td>
-            <td>{{ r.reactants.length }}</td>
-            <td>{{ r.products.length }}</td>
-            <td>{{ r.modifiers.length }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <reaction-table :reactions="reactions"></reaction-table>
     </div>
   </div>
 </template>
@@ -33,9 +14,13 @@ import axios from 'axios';
 import SVG from 'svg.js';
 import 'svg.connectable.js';
 import 'svg.draggy.js';
+import ReactionTable from 'components/ReactionTable';
 
 export default {
   name: 'reactome',
+  components: {
+    ReactionTable,
+  },
   data() {
     return {
       errorMessage: '',

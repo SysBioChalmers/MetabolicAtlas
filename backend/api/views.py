@@ -228,6 +228,21 @@ def connected_metabolites(request, id):
             (Q(id=id) | Q(long_name=id))
         )
 
+    reactions_count = enzyme.reactions_as_reactant.count() \
+                        + enzyme.reactions_as_product.count() \
+                        + enzyme.reactions_as_modifier.count()
+
+    if reactions_count > 10:
+        reactions = Reaction.objects.filter(
+                Q(reactionreactant__reactant_id=enzyme.id) |
+                Q(reactionproduct__product_id=enzyme.id) |
+                Q(reactionmodifier__modifier_id=enzyme.id)
+                ).distinct()
+        serializer = ReactionSerializer(reactions, many=True)
+        result = serializer.data
+
+        return JSONResponse(result)
+
     as_reactant = [MetaboliteReaction(r, 'reactant') for r in enzyme.reactions_as_reactant.all()]
     as_product = [MetaboliteReaction(r, 'product') for r in enzyme.reactions_as_product.all()]
     as_modifier = [MetaboliteReaction(r, 'modifier') for r in enzyme.reactions_as_modifier.all()]
