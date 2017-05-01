@@ -38,7 +38,7 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ReactionComponent
-        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
+        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
 
 # This is a helper class to determine if a component is a currency metabolite
 class CurrencyMetaboliteReactionComponent(object):
