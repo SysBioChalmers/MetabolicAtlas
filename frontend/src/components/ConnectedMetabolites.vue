@@ -40,7 +40,7 @@
         <div class="container">
           <cytoscape-table
             :structure="tableStructure"
-            :elms="elms"
+            :elms="elmsInTable"
             :selected-elm-id="selectedElmId"
             @highlight="highlightNode($event)"
           ></cytoscape-table>
@@ -97,6 +97,9 @@ export default {
         return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
       }
       return '';
+    },
+    elmsInTable() {
+      return this.elms.filter(elm => elm.type !== 'reaction');
     },
   },
   methods: {
