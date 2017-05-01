@@ -55,6 +55,7 @@ export default function (e) {
         type: 'product',
         link: getLink(p),
         details: p.metabolite || p.enzyme,
+        isCurrencyMetabolite: p.currency_metabolites.length > 0,
       };
       if (metabolite.id in occ) {
         occ[metabolite.id] += 1;
@@ -78,6 +79,7 @@ export default function (e) {
         type: 'reactant',
         link: getLink(re),
         details: re.metabolite || re.enzyme,
+        isCurrencyMetabolite: re.currency_metabolites.length > 0,
       };
       if (metabolite.id in occ) {
         occ[metabolite.id] += 1;
