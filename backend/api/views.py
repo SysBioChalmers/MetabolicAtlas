@@ -223,10 +223,13 @@ def connected_metabolites(request, id):
     expression_type = request.query_params.get('expression_type', '')
     include_expressions = request.query_params.get('include_expression', '') == 'true' 
     
-    enzyme = ReactionComponent.objects.get(
-            Q(component_type='enzyme') &
-            (Q(id=id) | Q(long_name=id))
-        )
+    try:
+        enzyme = ReactionComponent.objects.get(
+                Q(component_type='enzyme') &
+                (Q(id=id) | Q(long_name=id))
+            )
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
 
     reactions_count = enzyme.reactions_as_reactant.count() \
                         + enzyme.reactions_as_product.count() \

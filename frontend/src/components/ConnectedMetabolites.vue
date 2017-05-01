@@ -3,47 +3,49 @@
     <h3 class="title is-3">Connected metabolites</h3>
     <loader v-show="loading"></loader>
     <div v-show="!loading">
-      <div v-show="reactions.length > 0">
-        <p>{{ $t('tooManyReactions') }}</p>
-        <br>
-        <reaction-table :reactions="reactions"></reaction-table>
-      </div>
-      <div v-show="reactions.length === 0">
-        <div class="container columns">
-          <figure id="cy" ref="cy" class="column is-9"></figure>
-          <div id="sidebar" class="column content">
-            <div v-if="selectedElm && selectedElm.details" class="card">
-              <div class="card-content">
-                <div v-if="selectedElm.details.hmdb_description">
-                  <p class="label">Description</p>
-                  <p>{{ selectedElm.details.hmdb_description }}</p>
-                  <br v-if="selectedElm.details.mass">
-                </div>
-                <div v-if="selectedElm.details.mass">
-                  <p class="label">Mass</p>
-                  <p>{{ selectedElm.details.mass }}</p>
-                  <br v-if="selectedElm.details.kegg">
-                </div>
-                <div v-if="selectedElm.details.kegg">
-                  <p class="label">Kegg</p>
-                  <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+      <div v-show="errorMessage" class="notification is-danger">{{ errorMessage }}</div>
+      <div v-show="!errorMessage">
+        <div v-show="reactions.length > 0">
+          <div class="notification is-warning">{{ $t('tooManyReactions') }}</div>
+          <reaction-table :reactions="reactions"></reaction-table>
+        </div>
+        <div v-show="reactions.length === 0">
+          <div class="container columns">
+            <figure id="cy" ref="cy" class="column is-9"></figure>
+            <div id="sidebar" class="column content">
+              <div v-if="selectedElm && selectedElm.details" class="card">
+                <div class="card-content">
+                  <div v-if="selectedElm.details.hmdb_description">
+                    <p class="label">Description</p>
+                    <p>{{ selectedElm.details.hmdb_description }}</p>
+                    <br v-if="selectedElm.details.mass">
+                  </div>
+                  <div v-if="selectedElm.details.mass">
+                    <p class="label">Mass</p>
+                    <p>{{ selectedElm.details.mass }}</p>
+                    <br v-if="selectedElm.details.kegg">
+                  </div>
+                  <div v-if="selectedElm.details.kegg">
+                    <p class="label">Kegg</p>
+                    <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+                  </div>
                 </div>
               </div>
+              <div v-else>{{ $t('connectedMetabolites.instructions') }}</div>
+              <br>
+              <a href="/about#connectedmetabolites" target="_blank">
+                {{ $t('moreInformation') }}
+               </a>
             </div>
-            <div v-else>{{ $t('connectedMetabolites.instructions') }}</div>
-            <br>
-            <a href="/about#connectedmetabolites" target="_blank">
-              {{ $t('moreInformation') }}
-             </a>
           </div>
-        </div>
-        <div class="container">
-          <cytoscape-table
-            :structure="tableStructure"
-            :elms="elmsInTable"
-            :selected-elm-id="selectedElmId"
-            @highlight="highlightNode($event)"
-          ></cytoscape-table>
+          <div class="container">
+            <cytoscape-table
+              :structure="tableStructure"
+              :elms="elmsInTable"
+              :selected-elm-id="selectedElmId"
+              @highlight="highlightNode($event)"
+            ></cytoscape-table>
+          </div>
         </div>
       </div>
     </div>
@@ -72,7 +74,7 @@ export default {
     return {
       loading: true,
       cy: null,
-      errorMessage: '',
+      errorMessage: null,
       elms: [],
       selectedElmId: '',
       selectedElm: null,
@@ -91,6 +93,7 @@ export default {
       ],
       tableSearchTerm: '',
       reactions: [],
+      loadTime: 0,
     };
   },
   computed: {
@@ -115,13 +118,17 @@ export default {
       node.trigger('tap');
     },
     load() {
+      const startTime = Date.now();
       const enzymeId = this.$route.query.reaction_component_id
                         || this.$route.query.reaction_component_long_name;
 
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
+          const endTime = Date.now();
+          this.loadTime = (endTime - startTime) / 1000; // TODO: show load time in seconds
+
           this.loading = false;
-          this.errorMessage = '';
+          this.errorMessage = null;
 
           // If the response has only reacionts, it doesn't have an id in root object.
           if (response.data.id !== undefined) {
@@ -158,8 +165,14 @@ export default {
         })
         .catch((error) => {
           this.loading = false;
-          this.errorMessage = error.message;
           this.reactions = [];
+          switch (error.response.status) {
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
+              break;
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
         });
     },
     chemicalFormula,
