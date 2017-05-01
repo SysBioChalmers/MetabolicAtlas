@@ -18,5 +18,7 @@ export default {
     tab4title: 'Catalysed reactions',
     tab5title: 'Pathways',
     tab6title: 'Metabolites',
+    notFoundError: 'No matching record found, please check the parameters and try again.',
+    unknownError: 'Something went wrong, please try again or contact the system admin.',
   },
 };

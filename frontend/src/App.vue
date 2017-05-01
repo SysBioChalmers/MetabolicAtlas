@@ -83,6 +83,8 @@ export default {
 <style lang='scss'>
 
 $primary: #64CC9A;
+$warning: #FFC67D;
+$danger: #FF865C;
 
 @import '~bulma';
 @import './styles/mixins';
