@@ -82,6 +82,11 @@ export default {
         { field: 'short', link: true, colName: 'Short name', modifier: chemicalNameLink },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+        {
+          field: 'isCurrencyMetabolite',
+          colName: 'Is currency metabolite',
+          modifier: b => (b ? 'yes' : 'no'),
+        },
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
       tableSearchTerm: '',
