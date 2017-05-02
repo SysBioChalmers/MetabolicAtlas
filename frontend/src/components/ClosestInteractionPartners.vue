@@ -1,67 +1,75 @@
 <template>
   <div class="closest-interaction-partners">
-    <title>{{title}}</title>
-    <h3 class="title is-3" v-html="title"></h3>
-    <div id="contextMenu" ref="contextMenu">
-      <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
-      <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
-        <a :href="selectedElm.hpaLink" target="_blank">View in HPA</a>
-      </span>
-      <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark">
-        <a :href="selectedElm.details.uniprot_link" target="_blank">View in Uniprot</a>
-      </span>
-      <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark">
-        <a :href="selectedElm.details.hmdb_link" target="_blank">View in HMDB</a>
-      </span>
-    </div>
-
-    <div class="container columns">
-      <div id="cy" ref="cy" class="column is-9">
+    <loader v-show="loading"></loader>
+    <div v-show="!loading">
+      <title>{{title}}</title>
+      <div v-show="errorMessage" class="notification is-danger">
+        {{ errorMessage }}
       </div>
-      <div id="sidebar" class="column content">
-        <div v-if="selectedElm && selectedElm.details" class="card">
-          <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-            <div v-if="selectedElm.details.function">
-              <p class="label">Function</p>
-              <p>{{ selectedElm.details.function }}</p>
-              <br v-if="selectedElm.details.catalytic_activity">
-            </div>
-            <div v-if="selectedElm.details.catalytic_activity">
-              <p class="label">Catalytic Activity</p>
-              {{ selectedElm.details.catalytic_activity }}
-            </div>
+      <div v-show="!errorMessage">
+        <h3 class="title is-3" v-html="title"></h3>
+        <div id="contextMenu" ref="contextMenu">
+          <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+          <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
+            <a :href="selectedElm.hpaLink" target="_blank">View in HPA</a>
+          </span>
+          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark">
+            <a :href="selectedElm.details.uniprot_link" target="_blank">View in Uniprot</a>
+          </span>
+          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark">
+            <a :href="selectedElm.details.hmdb_link" target="_blank">View in HMDB</a>
+          </span>
+        </div>
+
+        <div class="container columns">
+          <div id="cy" ref="cy" class="column is-9">
           </div>
-          <div v-if="selectedElm.type === 'metabolite'" class="card-content">
-            <div v-if="selectedElm.details.hmdb_description">
-              <p class="label">Description</p>
-              <p>{{ selectedElm.details.hmdb_description }}</p>
-              <br v-if="selectedElm.details.mass">
+          <div id="sidebar" class="column content">
+            <div v-if="selectedElm && selectedElm.details" class="card">
+              <div v-if="selectedElm.type === 'enzyme'" class="card-content">
+                <div v-if="selectedElm.details.function">
+                  <p class="label">Function</p>
+                  <p>{{ selectedElm.details.function }}</p>
+                  <br v-if="selectedElm.details.catalytic_activity">
+                </div>
+                <div v-if="selectedElm.details.catalytic_activity">
+                  <p class="label">Catalytic Activity</p>
+                  {{ selectedElm.details.catalytic_activity }}
+                </div>
+              </div>
+              <div v-if="selectedElm.type === 'metabolite'" class="card-content">
+                <div v-if="selectedElm.details.hmdb_description">
+                  <p class="label">Description</p>
+                  <p>{{ selectedElm.details.hmdb_description }}</p>
+                  <br v-if="selectedElm.details.mass">
+                </div>
+                <div v-if="selectedElm.details.mass">
+                  <p class="label">Mass</p>
+                  <p>{{ selectedElm.details.mass }}</p>
+                  <br v-if="selectedElm.details.kegg">
+                </div>
+                <div v-if="selectedElm.details.kegg">
+                  <p class="label">Kegg</p>
+                  <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+                </div>
+              </div>
             </div>
-            <div v-if="selectedElm.details.mass">
-              <p class="label">Mass</p>
-              <p>{{ selectedElm.details.mass }}</p>
-              <br v-if="selectedElm.details.kegg">
-            </div>
-            <div v-if="selectedElm.details.kegg">
-              <p class="label">Kegg</p>
-              <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
-            </div>
+            <br>
+            <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
+            <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
+            <a href="/about#closestpartners" target="_blank">
+              {{ $t('moreInformation') }}
+            </a>
           </div>
         </div>
-        <br>
-        <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
-        <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
-        <a href="/about#closestpartners" target="_blank">
-          {{ $t('moreInformation') }}
-        </a>
+        <cytoscape-table
+          :structure="tableStructure"
+          :elms="elms"
+          :selected-elm-id="selectedElmId"
+          @highlight="highlightNode($event)"
+        ></cytoscape-table>
       </div>
     </div>
-    <cytoscape-table
-      :structure="tableStructure"
-      :elms="elms"
-      :selected-elm-id="selectedElmId"
-      @highlight="highlightNode($event)"
-    ></cytoscape-table>
   </div>
 </template>
 
@@ -72,6 +80,7 @@ import jquery from 'jquery';
 import graphml from 'cytoscape-graphml/src/index';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
+import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
@@ -80,10 +89,12 @@ export default {
   name: 'closest-interaction-partners',
   components: {
     CytoscapeTable,
+    Loader,
   },
   data() {
     return {
-      errorMessage: '',
+      loading: true,
+      errorMessage: null,
       title: '',
       elms: [],
       reactionComponentId: '',
@@ -139,7 +150,8 @@ export default {
     load() {
       axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
         .then((response) => {
-          this.errorMessage = '';
+          this.loading = false;
+          this.errorMessage = null;
 
           const enzyme = response.data.enzyme;
           const reactions = response.data.reactions;
@@ -157,10 +169,21 @@ export default {
           const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
           this.selectedElm = elms[enzyme.id];
           this.elms = Object.keys(elms).map(k => elms[k]);
-          this.constructGraph(elms, rels);
+
+          // The set time out wrapper enforces this happens last.
+          setTimeout(() => {
+            this.constructGraph(elms, rels);
+          }, 0);
         })
         .catch((error) => {
-          this.errorMessage = error.message;
+          this.loading = false;
+          switch (error.response.status) {
+            case 406:
+              this.errorMessage = this.$t('tooManyInteractionPartners');
+              break;
+            default:
+              this.errorMessage = this.$t('unkonwnError');
+          }
         });
     },
     highlightNode(elmId) {

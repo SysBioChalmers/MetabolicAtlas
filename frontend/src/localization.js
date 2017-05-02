@@ -8,6 +8,7 @@ export default {
     },
     tableSearchPlaceholder: 'Search in table',
     tooManyReactions: 'There are too many reactions to be displayed in a graph (> 10). Here is a list of all the reactions.',
+    tooManyInteractionPartners: 'There are too many many interaction partners to be displayed in a graph.',
     human: 'Human',
     yeast: 'Yeast',
     reset: 'Reset',

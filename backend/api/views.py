@@ -197,7 +197,18 @@ def get_component_with_interaction_partners(request, id):
 
     component_serializer = ReactionComponentSerializer(component)
 
-    reactions = list(chain(component.reactions_as_reactant.all(), component.reactions_as_product.all(), component.reactions_as_modifier.all()))
+    reactions_count = component.reactions_as_reactant.count() + \
+            component.reactions_as_product.count() + \
+            component.reactions_as_modifier.count()
+
+    if reactions_count > 10:
+        return HttpResponse(status=406)
+
+    reactions = list(chain(
+        component.reactions_as_reactant.all(),
+        component.reactions_as_product.all(),
+        component.reactions_as_modifier.all()
+    ))
     reactions_serializer = InteractionPartnerSerializer(reactions, many=True)
 
     result = {
