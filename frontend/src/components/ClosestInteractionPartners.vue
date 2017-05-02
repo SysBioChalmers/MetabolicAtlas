@@ -182,7 +182,7 @@ export default {
               this.errorMessage = this.$t('tooManyInteractionPartners');
               break;
             default:
-              this.errorMessage = this.$t('unkonwnError');
+              this.errorMessage = this.$t('unknownError');
           }
         });
     },
