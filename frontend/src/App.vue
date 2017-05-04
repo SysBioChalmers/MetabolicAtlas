@@ -50,13 +50,19 @@ export default {
   data() {
     return {
       Logo,
-      menuItems: ['network graph', 'models', 'resources', 'about', 'contact'],
+      menuItems: [
+        this.$t('navBut1Title'),
+        this.$t('navBut2Title'),
+        this.$t('navBut3Title'),
+        this.$t('navBut4Title'),
+        this.$t('navBut5Title'),
+      ],
     };
   },
   methods: {
     goToPage(name) {
       // TODO: make this not hard-coded
-      if (name === 'network graph') {
+      if (name === this.menuItems[0]) {
         router.push(
           {
             path: '/',
