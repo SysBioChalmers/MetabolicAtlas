@@ -200,7 +200,7 @@ export default {
         elements,
         style: stylesheet,
         layout: {
-          name: 'random',
+          name: 'concentric',
         },
       });
 

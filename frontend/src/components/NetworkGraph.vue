@@ -29,7 +29,7 @@
    <metabolic-network v-if="selectedTab===1"></metabolic-network>
    <closest-interaction-partners v-if="selectedTab===3"></closest-interaction-partners>
    <connected-metabolites v-if="selectedTab===4"></connected-metabolites>
-   <reactome v-if="selectedTab===6"></reactome>
+   <reactome v-if="selectedTab===5"></reactome>
   </div>
 </template>
 
