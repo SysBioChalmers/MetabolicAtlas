@@ -155,6 +155,7 @@ export default {
                 tilingPaddingHorizontal: 50,
               },
             });
+            this.cy.userZoomingEnabled(false);
 
             this.cy.on('tap', () => {
               this.selectedElmId = '';

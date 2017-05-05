@@ -10,6 +10,7 @@
         <h3 class="title is-3" v-html="title"></h3>
         <div id="contextMenu" ref="contextMenu">
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+          <span class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
             <a :href="selectedElm.hpaLink" target="_blank">View in HPA</a>
           </span>
@@ -98,7 +99,8 @@ export default {
       loading: true,
       errorMessage: null,
       title: '',
-      elms: [],
+      rawRels: {},
+      rawElms: {},
       reactionComponentId: '',
       selectedElmId: '',
       selectedElm: null,
@@ -126,6 +128,9 @@ export default {
     },
     filename() {
       return `ma_interaction_partners_${this.componentName}`;
+    },
+    elms() {
+      return Object.keys(this.rawElms).map(k => this.rawElms[k]);
     },
   },
   beforeMount() {
@@ -173,13 +178,41 @@ export default {
             this.title = `Closest interaction partners | ${enzymeName}`;
           }
 
-          const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
-          this.selectedElm = elms[enzyme.id];
-          this.elms = Object.keys(elms).map(k => elms[k]);
+          [this.rawElms, this.rawRels] = transform(enzyme, this.reactionComponentId, reactions);
+          this.selectedElm = this.rawElms[enzyme.id];
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
-            this.constructGraph(elms, rels);
+            this.constructGraph(this.rawElms, this.rawRels);
+          }, 0);
+        })
+        .catch((error) => {
+          this.loading = false;
+          switch (error.response.status) {
+            case 406:
+              this.errorMessage = this.$t('tooManyInteractionPartners');
+              break;
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
+        });
+    },
+    loadExpansion() {
+      axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
+        .then((response) => {
+          this.loading = false;
+          this.errorMessage = null;
+
+          const enzyme = response.data.enzyme;
+          const reactions = response.data.reactions;
+          const [newElms, newRels] = transform(enzyme, this.selectedElmId, reactions);
+
+          Object.assign(this.rawElms, newElms);
+          Object.assign(this.rawRels, newRels);
+
+          // The set time out wrapper enforces this happens last.
+          setTimeout(() => {
+            this.constructGraph(this.rawElms, this.rawRels);
           }, 0);
         })
         .catch((error) => {
@@ -210,6 +243,7 @@ export default {
           name: 'concentric',
         },
       });
+      this.cy.userZoomingEnabled(false);
 
       // const c = document.getElementsByTagName('canvas')[0];
       // const svgCxt = new C2S(c);
