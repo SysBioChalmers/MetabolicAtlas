@@ -57,7 +57,7 @@ export default {
   components: {
     TableSearch,
   },
-  props: ['structure', 'elms', 'selectedElmId'],
+  props: ['structure', 'elms', 'selectedElmId', 'filename', 'sheetname'],
   data() {
     return {
       sortedElms: [],
@@ -128,7 +128,7 @@ export default {
     },
     exportToExcel() {
       try {
-        downloadFile(this.$refs.table, 'metabolic_atlas_export.xlsx');
+        downloadFile(this.$refs.table, `${this.filename}.xlsx`, this.sheetname);
       } catch (e) {
         this.errorMessage = e;
       }

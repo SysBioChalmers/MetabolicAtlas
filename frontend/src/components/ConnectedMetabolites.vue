@@ -43,6 +43,8 @@
               :structure="tableStructure"
               :elms="elmsInTable"
               :selected-elm-id="selectedElmId"
+              :filename="filename"
+              :sheetname="enzymeName"
               @highlight="highlightNode($event)"
             ></cytoscape-table>
           </div>
@@ -78,6 +80,7 @@ export default {
       elms: [],
       selectedElmId: '',
       selectedElm: null,
+      enzymeName: '',
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
         { field: 'reactionid', colName: 'Reaction ID', modifier: null },
@@ -106,8 +109,11 @@ export default {
       }
       return '';
     },
+    filename() {
+      return `ma_catalyzed_reaction_${this.enzymeName}`;
+    },
     elmsInTable() {
-      return this.elms.filter(elm => elm.type !== 'reaction');
+      return this.elms.filter(elm => elm.type !== 'reaction' && elm.type !== 'enzyme');
     },
   },
   methods: {
@@ -135,6 +141,7 @@ export default {
             this.reactions = [];
 
             const [elms, rels] = transform(response.data);
+            this.enzymeName = response.data.short_name || response.data.long_name;
             this.selectedElm = elms[enzymeId];
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);
