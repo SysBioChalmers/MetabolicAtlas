@@ -20,9 +20,9 @@ const s2ab = (s) => {
   return buf;
 };
 
-export default (table, filename) => {
+export default (table, filename, sheetname) => {
   const workbook = XLSX.utils.table_to_book(table, {
-    sheet: 'haha',
+    sheet: sheetname || 'sheet1',
   });
 
   const workbookOut = XLSX.write(workbook, {

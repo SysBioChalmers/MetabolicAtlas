@@ -66,6 +66,8 @@
           :structure="tableStructure"
           :elms="elms"
           :selected-elm-id="selectedElmId"
+          :filename="filename"
+          :sheetname="componentName"
           @highlight="highlightNode($event)"
         ></cytoscape-table>
       </div>
@@ -100,6 +102,7 @@ export default {
       reactionComponentId: '',
       selectedElmId: '',
       selectedElm: null,
+      componentName: '',
       cy: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -120,6 +123,9 @@ export default {
         return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
       }
       return '';
+    },
+    filename() {
+      return `ma_interaction_partners_${this.componentName}`;
     },
   },
   beforeMount() {
@@ -157,6 +163,7 @@ export default {
           const reactions = response.data.reactions;
 
           const enzymeName = enzyme.short_name || enzyme.long_name;
+          this.componentName = enzymeName;
           if (enzyme.enzyme) {
             const uniprotLink = enzyme.enzyme ? enzyme.enzyme.uniprot_link : null;
             const uniprotId = uniprotLink.split('/').pop();
