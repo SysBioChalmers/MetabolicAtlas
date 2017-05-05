@@ -2,13 +2,23 @@
   <div class="closest-interaction-partners">
     <loader v-show="loading"></loader>
     <div v-show="!loading">
-      <title>{{title}}</title>
       <div v-show="errorMessage" class="notification is-danger">
         {{ errorMessage }}
       </div>
       <div v-show="!errorMessage">
-        <h3 class="title is-3" v-html="title"></h3>
-        <div id="contextMenu" ref="contextMenu">
+        <div class="container columns">
+          <div class="column is-9">
+            <h3 class="title is-3" v-html="title"></h3>
+          </div>
+          <div class="column" v-on:mouseleave="showMenuExport = false">
+            <a class="button is-primary" v-on:click="showMenuExport = !showMenuExport">Export graph</a>
+            <div v-show="showMenuExport" id="contextMenuExport" ref="contextMenuExport">
+              <span class="button is-dark" v-on:click="exportGraphml">Graphml</span>
+              <span class="button is-dark" v-on:click="exportPNG">PNG</span>
+            </div>
+          </div>
+        </div>
+        <div id="contextMenuGraph" ref="contextMenuGraph">
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
@@ -21,7 +31,6 @@
             <a :href="selectedElm.details.hmdb_link" target="_blank">View in HMDB</a>
           </span>
         </div>
-
         <div class="container columns">
           <div id="cy" ref="cy" class="column is-9">
           </div>
@@ -56,8 +65,6 @@
               </div>
             </div>
             <br>
-            <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
-            <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
             <a href="/about#closestpartners" target="_blank">
               {{ $t('moreInformation') }}
             </a>
@@ -113,6 +120,7 @@ export default {
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
+      showMenuExport: false,
     };
   },
   computed: {
@@ -152,7 +160,7 @@ export default {
           this.setup();
         },
         () => { // On abort.
-          this.$refs.contextMenu.style.display = 'none';
+          this.$refs.contextMenuGraph.style.display = 'none';
           this.selectedElmId = '';
           this.selectedElm = null;
         }
@@ -256,16 +264,16 @@ export default {
       // draw(svgCxt);
       // console.log(svgCxt.getSvg());
 
-      const contextMenu = this.$refs.contextMenu;
-      contextMenu.style.display = 'none';
+      const contextMenuGraph = this.$refs.contextMenuGraph;
+      contextMenuGraph.style.display = 'none';
 
       const updatePosition = (node) => {
-        contextMenu.style.left = `${node.renderedPosition().x - 8}px`;
-        contextMenu.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenuGraph.style.left = `${node.renderedPosition().x - 8}px`;
+        contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
       };
 
       this.cy.on('tap', () => {
-        contextMenu.style.display = 'none';
+        contextMenuGraph.style.display = 'none';
         this.selectedElmId = '';
         this.selectedElm = null;
       });
@@ -276,7 +284,7 @@ export default {
 
         this.selectedElmId = elmId;
         this.selectedElm = node.data();
-        contextMenu.style.display = 'block';
+        contextMenuGraph.style.display = 'block';
         updatePosition(node);
       });
 
@@ -289,7 +297,7 @@ export default {
       /* eslint-enable no-param-reassign */
     },
     // TODO: refactor
-    exportGraph: function exportGraph() {
+    exportGraphml: function exportGraphml() {
       const a = document.createElement('a');
       this.cy.graphml({
         node: {
@@ -303,7 +311,7 @@ export default {
           data: true,
           discludeds: [],
         },
-        layoutby: 'random',
+        layoutby: 'concentric',
       });
 
       const output = this.cy.graphml();
@@ -316,7 +324,7 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    exportPNG: function exportGraph() {
+    exportPNG: function exportPNG() {
       const a = document.createElement('a');
       const output = this.cy.png();
 
@@ -353,7 +361,7 @@ h1, h2 {
   overflow-y: auto;
 }
 
-#contextMenu {
+#contextMenuGraph, #contextMenuExport {
   position: absolute;
   z-index: 999;
 
