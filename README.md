@@ -67,10 +67,12 @@ python manage.py graph_models -a -o ER.png        # will generate a PNG overview
 python manage.py addSBMLData addSBMLData ../database_generation/data/HMRdatabase2_00.xml 67                     # takes a few minutes!
 python manage.py addCurrencyMetabolites
 python manage.py addMetabolites
-python manage.py addReactionComponentAnnotation   # takes a few minutes! please note that for some BIZARRE reason it fails the first time and complains about duplicated keys, then I comment away line 68 and run it again without problems...
+python manage.py addReactionComponentAnnotation ../database_generation/data/ensembl82_uniprot_swissprot.tab ensg 0 uniprot  1    # 'map' from Ensembl to UniProt
+python manage.py addReactionComponentAnnotation ../database_generation/data/uniprot.human.keywords.tab uniprot 1 up_keywords  2  # add the UniProt keywords (takes a while)
 python manage.py addEnzymes
 python manage.py addTissueOntology
-python manage.py expressionDataFromHPA            # takes 15 minutes!
+python manage.py addNumberOfInteractionPartners
+python manage.py expressionDataFromHPA
 ```
 (as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)
 

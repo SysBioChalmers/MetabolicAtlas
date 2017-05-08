@@ -80,16 +80,16 @@ class ReactionComponent(models.Model):
         db_table = "reaction_component"
 
 class ReactionComponentAnnotation(models.Model):
-    reaction_component_id = models.ForeignKey('ReactionComponent', db_column='component_id', on_delete=models.CASCADE)
+    component = models.ForeignKey('ReactionComponent', db_column='component_id', on_delete=models.CASCADE)
     annotation_type = models.CharField(max_length=50)
     annotation = models.CharField(max_length=5000) # some of the uniprot fields are quite long!
 
     def __str__(self):
-        return self.annotation_type+":"+self.annotation
+        return self.component.id+"="+self.annotation_type+":"+self.annotation
 
     class Meta:
         db_table = "reaction_component_annotations"
-        unique_together = (('id', 'annotation_type', 'annotation'),)
+        unique_together = (('component', 'annotation_type', 'annotation'),)
 
 class Compartment(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -135,13 +135,17 @@ class Metabolite(models.Model):
     hmdb_description = models.CharField(max_length=5000, null=True)
     hmdb_link = models.CharField(max_length=255, null=True)
     pubchem_link = models.CharField(max_length=255, null=True)
+    hmdb_name = models.CharField(max_length=255, null=True)
+    hmdb_description = models.CharField(max_length=5000, null=True)
+    hmdb_function = models.CharField(max_length=255, null=True)
 
     class Meta:
         db_table = "metabolites"
 
 class Enzyme(models.Model):
-    reaction_component = models.OneToOneField('ReactionComponent', related_name='enzyme', db_column='reaction_component')
-    uniprot_acc = models.CharField(max_length=35, unique=True)
+    reaction_component = models.OneToOneField('ReactionComponent',
+        related_name='enzyme', db_column='reaction_component')
+    uniprot_acc = models.CharField(max_length=35)
     protein_name = models.CharField(max_length=150)
     short_name = models.CharField(max_length=75)
     ec = models.CharField(max_length=100, null=True)
