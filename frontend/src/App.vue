@@ -92,6 +92,12 @@ $primary: #64CC9A;
 $warning: #FFC67D;
 $danger: #FF865C;
 
+$body-size: 14px !default
+
+$desktop: 1192px !default;
+$widescreen: 1384px !default;
+$fullhd: 1576px !default;
+
 @import '~bulma';
 @import './styles/mixins';
 

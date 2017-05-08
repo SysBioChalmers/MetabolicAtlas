@@ -11,7 +11,7 @@
         </div>
         <div v-show="reactions.length === 0">
           <div class="container columns">
-            <figure id="cy" ref="cy" class="column is-9"></figure>
+            <figure id="cy" ref="cy" class="column is-8"></figure>
             <div id="sidebar" class="column content">
               <div v-if="selectedElm && selectedElm.details" class="card">
                 <div class="card-content">
