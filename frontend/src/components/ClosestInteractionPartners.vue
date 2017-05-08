@@ -248,6 +248,7 @@ export default {
         elements,
         style: stylesheet,
         layout: {
+         // check 'cola' layout extension
           name: 'concentric',
         },
       });

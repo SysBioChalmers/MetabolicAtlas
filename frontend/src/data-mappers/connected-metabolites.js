@@ -26,7 +26,7 @@ export default function (e) {
       reactionid: r.reaction_id,
       parentid: null,
       type: 'reaction',
-      short: r.reaction_id,
+      short: `${r.reaction_id}\n(${r.reaction_subsystem})`,
       long: r.reaction_id,
       description: r.reaction_id,
       formula: 'formula',

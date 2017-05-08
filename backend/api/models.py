@@ -49,6 +49,7 @@ class Reaction(models.Model):
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField()
+    subsystem = models.CharField(max_length=70)
 
     models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
 
@@ -173,6 +174,7 @@ class MetaboliteReaction(object):
     def __init__(self, reaction, role):
         self.reaction_id = reaction.id
         self.enzyme_role = role
+        self.reaction_subsystem = reaction.subsystem
         self.reactants = reaction.reactants.filter(component_type='metabolite')
         self.products = reaction.products.filter(component_type='metabolite')
         self.modifiers = reaction.modifiers.filter(component_type='metabolite')
