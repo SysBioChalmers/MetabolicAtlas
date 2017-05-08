@@ -19,7 +19,7 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers')
+            'reactants', 'products', 'modifiers', 'subsystem')
 
 class MetaboliteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,6 +82,7 @@ class InteractionPartnerSerializer(serializers.ModelSerializer):
 class MetaboliteReactionSerializer(serializers.Serializer):
     reaction_id = serializers.CharField()
     enzyme_role = serializers.CharField()
+    reaction_subsystem = serializers.CharField()
     reactants = ReactionComponentSerializer(many=True, read_only=True)
     products = ReactionComponentSerializer(many=True, read_only=True)
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
