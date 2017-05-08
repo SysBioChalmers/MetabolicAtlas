@@ -7,7 +7,7 @@
       </div>
       <div v-show="!errorMessage">
         <div class="container columns">
-          <div class="column is-9">
+          <div class="column is-8">
             <h3 class="title is-3" v-html="title"></h3>
           </div>
           <div class="column" v-on:mouseleave="showMenuExport = false">
@@ -32,7 +32,7 @@
           </span>
         </div>
         <div class="container columns">
-          <div id="cy" ref="cy" class="column is-9">
+          <div id="cy" ref="cy" class="column is-8">
           </div>
           <div id="sidebar" class="column content">
             <div v-if="selectedElm && selectedElm.details" class="card">
