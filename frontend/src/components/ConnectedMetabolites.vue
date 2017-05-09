@@ -249,7 +249,7 @@ h1, h2 {
   overflow-y: auto;
 }
 
-#contextMenuGraph, #contextMenuExport {
+#contextMenuGraph {
   position: absolute;
   z-index: 999;
 
