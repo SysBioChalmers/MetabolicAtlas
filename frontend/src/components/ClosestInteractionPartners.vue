@@ -21,6 +21,7 @@
         <div id="contextMenuGraph" ref="contextMenuGraph">
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
+          <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
           <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
            v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
           </span>
@@ -88,6 +89,7 @@ import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml/src/index';
+import viewUtilities from 'cytoscape-view-utilities';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
@@ -141,9 +143,13 @@ export default {
     elms() {
       return Object.keys(this.rawElms).map(k => this.rawElms[k]);
     },
+    rels() {
+      return Object.keys(this.rawRels).map(k => this.rawRels[k]);
+    },
   },
   beforeMount() {
     graphml(cytoscape, jquery);
+    viewUtilities(cytoscape, jquery);
     this.setup();
   },
   methods: {
@@ -235,6 +241,37 @@ export default {
           }
         });
     },
+    highlightReaction() {
+      let reactionId = null;
+      for (const elm of this.elms) {
+        if (this.selectedElmId === elm.id) {
+          reactionId = elm.reaction;
+          break;
+        }
+      }
+
+      if (reactionId) {
+        let eles = this.cy.collection();
+
+        for (const rel of this.rels) {
+          if (rel.reaction === reactionId) {
+            const relationEle = this.cy.getElementById(rel.id);
+            eles = eles.add(relationEle);
+
+            const sourceEle = this.cy.getElementById(rel.source);
+            eles = eles.add(sourceEle);
+
+            const targetEle = this.cy.getElementById(rel.target);
+            eles = eles.add(targetEle);
+          }
+        }
+
+        const instance = this.cy.viewUtilities();
+        instance.unhighlight(this.cy.elements());
+        instance.highlight(eles);
+        this.$refs.contextMenuGraph.style.display = 'none';
+      }
+    },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
       const node = this.cy.getElementById(elmId);
@@ -276,6 +313,10 @@ export default {
 
       this.cy.on('tap', () => {
         contextMenuGraph.style.display = 'none';
+        if (this.selectedElmId !== '') {
+          const instance = this.cy.viewUtilities();
+          instance.highlight(this.cy.elements());
+        }
         this.selectedElmId = '';
         this.selectedElm = null;
       });
