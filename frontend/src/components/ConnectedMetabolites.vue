@@ -39,10 +39,10 @@
             </div>
             <div id="contextMenuGraph" ref="contextMenuGraph">
               <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
-               v-on:click='visitLink(selectedElm.hpaLink)'>View in HPA
+               v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
               </span>
               <span v-if="selectedElm && selectedElm.link && selectedElm.type === 'enzyme'" class="button is-dark"
-                v-on:click='visitLink(selectedElm.link)'>View in Uniprot
+                v-on:click='visitLink(selectedElm.link, true)'>View in Uniprot
               </span>
             </div>
           </div>
@@ -72,6 +72,7 @@ import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { default as visitLink } from '../helpers/visit-link';
 
 export default {
   name: 'connected-metabolites',
@@ -125,15 +126,6 @@ export default {
     },
   },
   methods: {
-    visitLink(link) {
-      const a = document.createElement('a');
-      a.href = link;
-      a.target = '_blank';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
       const node = this.cy.getElementById(elmId);
@@ -223,6 +215,7 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
+    visitLink,
   },
   beforeMount() {
     regCose(cytoscape);

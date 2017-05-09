@@ -22,13 +22,13 @@
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
-           v-on:click='visitLink(selectedElm.hpaLink)'>View in HPA
+           v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
           </span>
           <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.uniprot_link)'>View in Uniprot
+            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot
           </span>
           <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.hmdb_link)'>View in HMDB
+            v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB
           </span>
         </div>
         <div class="container columns">
@@ -94,6 +94,7 @@ import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { default as visitLink } from '../helpers/visit-link';
 
 export default {
   name: 'closest-interaction-partners',
@@ -165,15 +166,6 @@ export default {
           this.selectedElm = null;
         }
       );
-    },
-    visitLink(link) {
-      const a = document.createElement('a');
-      a.href = link;
-      a.target = '_blank';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
     },
     load() {
       axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
@@ -350,6 +342,7 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
+    visitLink,
   },
 };
 </script>
