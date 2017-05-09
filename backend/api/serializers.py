@@ -95,4 +95,6 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     compartment = serializers.CharField()
     reactions = MetaboliteReactionSerializer(many=True)
     expressions = ExpressionDataSerializer(many=True)
+    uniprot_link = serializers.CharField()
+    ensembl_link = serializers.CharField()
 

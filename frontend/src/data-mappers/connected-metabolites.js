@@ -15,10 +15,11 @@ export default function (e) {
     formula: 'formula',
     description: 'description',
     compartment: e.compartment,
-    link: getLink(e),
+    link: e.uniprot_link || e.ensembl_link,
     details: e.metabolite || e.enzyme,
   };
   elms.push(enzyme);
+  console.log(enzyme);
 
   for (const r of e.reactions) {
     const reaction = {

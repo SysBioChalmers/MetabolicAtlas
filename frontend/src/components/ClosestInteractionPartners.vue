@@ -21,14 +21,14 @@
         <div id="contextMenuGraph" ref="contextMenuGraph">
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
-          <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
-            <a :href="selectedElm.hpaLink" target="_blank">View in HPA</a>
+          <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
+           v-on:click='visitLink(selectedElm.hpaLink)'>View in HPA
           </span>
-          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark">
-            <a :href="selectedElm.details.uniprot_link" target="_blank">View in Uniprot</a>
+          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.uniprot_link)'>View in Uniprot
           </span>
-          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark">
-            <a :href="selectedElm.details.hmdb_link" target="_blank">View in HMDB</a>
+          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.hmdb_link)'>View in HMDB
           </span>
         </div>
         <div class="container columns">
@@ -165,6 +165,15 @@ export default {
           this.selectedElm = null;
         }
       );
+    },
+    visitLink(link) {
+      const a = document.createElement('a');
+      a.href = link;
+      a.target = '_blank';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     },
     load() {
       axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
