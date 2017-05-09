@@ -37,6 +37,14 @@
                 {{ $t('moreInformation') }}
                </a>
             </div>
+            <div id="contextMenuGraph" ref="contextMenuGraph">
+              <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
+               v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
+              </span>
+              <span v-if="selectedElm && selectedElm.link && selectedElm.type === 'enzyme'" class="button is-dark"
+                v-on:click='visitLink(selectedElm.link, true)'>View in Uniprot
+              </span>
+            </div>
           </div>
           <div class="container">
             <cytoscape-table
@@ -64,6 +72,7 @@ import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { default as visitLink } from '../helpers/visit-link';
 
 export default {
   name: 'connected-metabolites',
@@ -157,15 +166,35 @@ export default {
             });
             this.cy.userZoomingEnabled(false);
 
+            const contextMenuGraph = this.$refs.contextMenuGraph;
+            contextMenuGraph.style.display = 'none';
+
+            const updatePosition = (node) => {
+              contextMenuGraph.style.left = `${node.renderedPosition().x + 20}px`;
+              contextMenuGraph.style.top = `${node.renderedPosition().y + 20}px`;
+            };
+
             this.cy.on('tap', () => {
+              contextMenuGraph.style.display = 'none';
               this.selectedElmId = '';
               this.selectedElm = null;
             });
 
             this.cy.on('tap', 'node', (evt) => {
+              const node = evt.cyTarget;
               const ele = evt.cyTarget;
+
               this.selectedElmId = ele.data().id;
               this.selectedElm = ele.data();
+              contextMenuGraph.style.display = 'block';
+              updatePosition(node);
+            });
+
+            this.cy.on('drag', 'node', (evt) => {
+              const node = evt.cyTarget;
+              if (this.selectedElmId === node.data().id) {
+                updatePosition(node);
+              }
             });
           } else {
             this.reactions = response.data;
@@ -186,6 +215,7 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
+    visitLink,
   },
   beforeMount() {
     regCose(cytoscape);
@@ -210,6 +240,22 @@ h1, h2 {
 #sidebar {
   max-height: 820px;
   overflow-y: auto;
+}
+
+#contextMenuGraph {
+  position: absolute;
+  z-index: 999;
+
+  span {
+    display: block;
+    padding: 5px 10px;
+    text-align: left;
+    border-radius: 0;
+
+    a {
+      color: white;
+    }
+  }
 }
 
 </style>
