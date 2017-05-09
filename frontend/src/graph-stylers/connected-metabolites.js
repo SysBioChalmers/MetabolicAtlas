@@ -12,6 +12,8 @@ export default function (elms, rels) {
           parent: elm.parentid,
           reactionid: elm.reactionid,
           name: elm.short,
+          hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
+          link: elm.link,
           type: elm.type,
           details: elm.details,
         },
@@ -23,6 +25,9 @@ export default function (elms, rels) {
           id: elm.id,
           reactionid: elm.reactionid,
           name: elm.short,
+          hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
+          link: elm.link,
+          details: elm.details,
         },
       });
     }

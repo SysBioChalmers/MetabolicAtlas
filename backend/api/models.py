@@ -191,6 +191,8 @@ class ConnectedMetabolites(object):
         self.compartment = compartment
         self.reactions = reactions
         self.expressions = expressions
+        self.uniprot_link = enzyme.enzyme.uniprot_link
+        self.ensembl_link = enzyme.enzyme.ensembl_link
 
 #
 # Relationships

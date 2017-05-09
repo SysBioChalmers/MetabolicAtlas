@@ -7,4 +7,3 @@ export default function (c) {
 
   return null;
 }
-
