@@ -1,6 +1,6 @@
 <template>
   <div class="connected-metabolites">
-    <h3 class="title is-3">Connected metabolites</h3>
+    <h3 class="title is-3">Catalyzed reactions</h3>
     <loader v-show="loading"></loader>
     <div v-show="!loading">
       <div v-show="errorMessage" class="notification is-danger">{{ errorMessage }}</div>
