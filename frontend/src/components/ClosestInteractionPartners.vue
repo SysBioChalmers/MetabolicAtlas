@@ -142,6 +142,9 @@ export default {
     elms() {
       return Object.keys(this.rawElms).map(k => this.rawElms[k]);
     },
+    rels() {
+      return Object.keys(this.rawRels).map(k => this.rawRels[k]);
+    },
   },
   beforeMount() {
     graphml(cytoscape, jquery);
@@ -248,10 +251,17 @@ export default {
 
       if (reactionId) {
         let eles = this.cy.collection();
-        for (const elm of this.elms) {
-          if (elm.reaction === reactionId) {
-            const ele = this.cy.getElementById(elm.id);
-            eles = eles.add(ele);
+
+        for (const rel of this.rels) {
+          if (rel.reaction === reactionId) {
+            const relationEle = this.cy.getElementById(rel.id);
+            eles = eles.add(relationEle);
+
+            const sourceEle = this.cy.getElementById(rel.source);
+            eles = eles.add(sourceEle);
+
+            const targetEle = this.cy.getElementById(rel.target);
+            eles = eles.add(targetEle);
           }
         }
 
