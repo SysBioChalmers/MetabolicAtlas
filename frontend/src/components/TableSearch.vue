@@ -7,7 +7,7 @@
           @input="search"
           class="input"
           type="text"
-          placeholder="Search in table"
+          :placeholder="$t('tableSearchPlaceholder')"
         >
       </p>
     </div>
@@ -15,7 +15,7 @@
       <a
         class="button is-pulled-right"
         @click="clearSearch()"
-      >Reset</a>
+      >{{ $t('reset') }}</a>
     </div>
   </div>
 </template>

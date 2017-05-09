@@ -15,10 +15,11 @@ export default function (e) {
     formula: 'formula',
     description: 'description',
     compartment: e.compartment,
-    link: getLink(e),
+    link: e.uniprot_link || e.ensembl_link,
     details: e.metabolite || e.enzyme,
   };
   elms.push(enzyme);
+  console.log(enzyme);
 
   for (const r of e.reactions) {
     const reaction = {
@@ -26,7 +27,7 @@ export default function (e) {
       reactionid: r.reaction_id,
       parentid: null,
       type: 'reaction',
-      short: r.reaction_id,
+      short: `${r.reaction_id}\n(${r.reaction_subsystem})`,
       long: r.reaction_id,
       description: r.reaction_id,
       formula: 'formula',
@@ -55,6 +56,7 @@ export default function (e) {
         type: 'product',
         link: getLink(p),
         details: p.metabolite || p.enzyme,
+        isCurrencyMetabolite: p.currency_metabolites.length > 0,
       };
       if (metabolite.id in occ) {
         occ[metabolite.id] += 1;
@@ -78,6 +80,7 @@ export default function (e) {
         type: 'reactant',
         link: getLink(re),
         details: re.metabolite || re.enzyme,
+        isCurrencyMetabolite: re.currency_metabolites.length > 0,
       };
       if (metabolite.id in occ) {
         occ[metabolite.id] += 1;

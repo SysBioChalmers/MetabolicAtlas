@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -191,13 +191,24 @@ def interaction_partner_list(request, id):
 @api_view()
 def get_component_with_interaction_partners(request, id):
     try:
-        component = ReactionComponent.objects.get(id=id)
+        component = ReactionComponent.objects.get(Q(id=id) | Q(long_name=id))
     except ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
     component_serializer = ReactionComponentSerializer(component)
 
-    reactions = list(chain(component.reactions_as_reactant.all(), component.reactions_as_product.all(), component.reactions_as_modifier.all()))
+    reactions_count = component.reactions_as_reactant.count() + \
+            component.reactions_as_product.count() + \
+            component.reactions_as_modifier.count()
+
+    if reactions_count > 10:
+        return HttpResponse(status=406)
+
+    reactions = list(chain(
+        component.reactions_as_reactant.all(),
+        component.reactions_as_product.all(),
+        component.reactions_as_modifier.all()
+    ))
     reactions_serializer = InteractionPartnerSerializer(reactions, many=True)
 
     result = {
@@ -223,10 +234,28 @@ def connected_metabolites(request, id):
     expression_type = request.query_params.get('expression_type', '')
     include_expressions = request.query_params.get('include_expression', '') == 'true' 
     
-    enzyme = ReactionComponent.objects.get(
-            Q(component_type='enzyme') &
-            Q(long_name=id)
-        )
+    try:
+        enzyme = ReactionComponent.objects.get(
+                Q(component_type='enzyme') &
+                (Q(id=id) | Q(long_name=id))
+            )
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
+
+    reactions_count = enzyme.reactions_as_reactant.count() \
+                        + enzyme.reactions_as_product.count() \
+                        + enzyme.reactions_as_modifier.count()
+
+    if reactions_count > 10:
+        reactions = Reaction.objects.filter(
+                Q(reactionreactant__reactant_id=enzyme.id) |
+                Q(reactionproduct__product_id=enzyme.id) |
+                Q(reactionmodifier__modifier_id=enzyme.id)
+                ).distinct()
+        serializer = ReactionSerializer(reactions, many=True)
+        result = serializer.data
+
+        return JSONResponse(result)
 
     as_reactant = [MetaboliteReaction(r, 'reactant') for r in enzyme.reactions_as_reactant.all()]
     as_product = [MetaboliteReaction(r, 'product') for r in enzyme.reactions_as_product.all()]
@@ -256,4 +285,58 @@ def expressions_list(request, enzyme_id):
 
     serializer = ExpressionDataSerializer(expressions, many=True)
     return JSONResponse(serializer.data)
+
+@api_view()
+def get_metabolite_reactions(request, reaction_component_id):
+    try:
+        component = ReactionComponent.objects.get(id=reaction_component_id)
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
+
+    if component.component_type != 'metabolite':
+        return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
+
+    reactions = Reaction.objects.filter(reactionproduct__product_id=reaction_component_id)
+    serializer = ReactionSerializer(reactions, many=True)
+    result = serializer.data
+
+    return JSONResponse(result)
+
+@api_view()
+def get_metabolite_reactome(request, reaction_component_id, reaction_id):
+    try:
+        component = ReactionComponent.objects.get(id=reaction_component_id)
+        reaction = Reaction.objects.get(id=reaction_id)
+    except ReactionComponent.DoesNotExist:
+        return HttpResponse(status=404)
+
+    if component.component_type != 'metabolite':
+        return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
+
+    modifiers = ReactionComponent.objects.filter(reactionmodifier__reaction_id=reaction.id)
+    __reactants = ReactionComponent.objects.filter(reactionreactant__reaction_id=reaction.id)
+    __products = ReactionComponent.objects.filter(reactionproduct__reaction_id=reaction.id)
+
+    reactants = map(lambda
+            rc: CurrencyMetaboliteReactionComponent(
+                reaction_component=rc,
+                reaction_id = reaction.id),
+            __reactants)
+    products = map(lambda
+            rc: CurrencyMetaboliteReactionComponent(
+                reaction_component=rc,
+                reaction_id = reaction.id),
+            __products)
+
+    reaction_serializer = ReactionSerializer(reaction)
+    modifiers_serializer = ReactionComponentSerializer(modifiers, many=True)
+    reactants_serializer = CurrencyMetaboliteReactionComponentSerializer(reactants, many=True)
+    products_serializer = CurrencyMetaboliteReactionComponentSerializer(products, many=True)
+
+    result = reaction_serializer.data
+    result['modifiers'] = modifiers_serializer.data
+    result['reactants'] = reactants_serializer.data
+    result['products'] = products_serializer.data
+
+    return JSONResponse(result)
 

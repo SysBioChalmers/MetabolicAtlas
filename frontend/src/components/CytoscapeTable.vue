@@ -1,10 +1,19 @@
 <template>
   <div class="container cytoscape-table">
-    <table-search
-      :reset="resetTable"
-      @search="searchTable($event)"
-    ></table-search>
-    <table class="table is-bordered is-striped is-narrow">
+    <div class="columns">
+      <table-search
+        :reset="resetTable"
+        @search="searchTable($event)"
+        class="column is-11"
+      ></table-search>
+      <div class="column is-1">
+        <a
+          @click="exportToExcel"
+          class="button is-primary"
+        >{{ $t('export') }}</a>
+      </div>
+    </div>
+    <table class="table is-bordered is-striped is-narrow" ref="table">
       <thead>
         <tr>
           <th
@@ -38,15 +47,17 @@
 </template>
 
 <script>
+
 import TableSearch from 'components/TableSearch';
 import { default as compare } from '../helpers/compare';
+import { default as downloadFile } from '../helpers/excel-export';
 
 export default {
   name: 'cytoscape-table',
   components: {
     TableSearch,
   },
-  props: ['structure', 'elms', 'selectedElmId'],
+  props: ['structure', 'elms', 'selectedElmId', 'filename', 'sheetname'],
   data() {
     return {
       sortedElms: [],
@@ -54,6 +65,7 @@ export default {
       unMatchingElms: [],
       sortAsc: true,
       tableSearchTerm: '',
+      errorMessage: '',
     };
   },
   watch: {
@@ -112,6 +124,13 @@ export default {
             this.unMatchingElms.push(elm);
           }
         }
+      }
+    },
+    exportToExcel() {
+      try {
+        downloadFile(this.$refs.table, `${this.filename}.xlsx`, this.sheetname);
+      } catch (e) {
+        this.errorMessage = e;
       }
     },
   },

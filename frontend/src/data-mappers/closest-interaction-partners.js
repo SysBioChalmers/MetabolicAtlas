@@ -73,7 +73,11 @@ export default function (e, reactionComponentId, reactions) {
         };
 
         if (!(relation.id in Object.keys(rels))) {
-          if (eidMo.reaction === eidMe.reaction) {
+          const mod = mods[eidMo];
+          const met = mets[eidMe];
+
+          if (mod.reaction && mod.reaction === met.reaction) {
+            relation.reaction = mod.reaction;
             rels[relation.id] = relation;
           }
         }
@@ -85,6 +89,7 @@ export default function (e, reactionComponentId, reactions) {
         id: `${eidMo}_${reactionComponentId}`,
         target: eidMo,
         source: reactionComponentId,
+        reaction: mods[eidMo].reaction,
       };
 
       rels[relation.id] = relation;
@@ -95,6 +100,7 @@ export default function (e, reactionComponentId, reactions) {
         id: `${eidMe}_${reactionComponentId}`,
         target: eidMe,
         source: reactionComponentId,
+        reaction: mets[eidMe].reaction,
       };
 
       rels[relation.id] = relation;

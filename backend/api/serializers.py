@@ -19,7 +19,7 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers')
+            'reactants', 'products', 'modifiers', 'subsystem')
 
 class MetaboliteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,7 +38,24 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ReactionComponent
-        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
+        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
+
+# This is a helper class to determine if a component is a currency metabolite
+class CurrencyMetaboliteReactionComponent(object):
+    def __init__(self, reaction_component, reaction_id):
+        self.reaction_component = reaction_component
+        self.reaction_id = reaction_id
+        self.is_currency_metabolite = self.__is_currency_metabolite__()
+
+    def __is_currency_metabolite__(self):
+        for r in self.reaction_component.currency_metabolites.all():
+            if r.id == self.reaction_id:
+                return True
+        return False
+
+class CurrencyMetaboliteReactionComponentSerializer(serializers.Serializer):
+    reaction_component = ReactionComponentSerializer(read_only=True)
+    is_currency_metabolite = serializers.BooleanField()
 
 class CurrencyMetaboliteSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
@@ -65,6 +82,7 @@ class InteractionPartnerSerializer(serializers.ModelSerializer):
 class MetaboliteReactionSerializer(serializers.Serializer):
     reaction_id = serializers.CharField()
     enzyme_role = serializers.CharField()
+    reaction_subsystem = serializers.CharField()
     reactants = ReactionComponentSerializer(many=True, read_only=True)
     products = ReactionComponentSerializer(many=True, read_only=True)
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
@@ -77,4 +95,6 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     compartment = serializers.CharField()
     reactions = MetaboliteReactionSerializer(many=True)
     expressions = ExpressionDataSerializer(many=True)
+    uniprot_link = serializers.CharField()
+    ensembl_link = serializers.CharField()
 

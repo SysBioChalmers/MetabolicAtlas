@@ -12,6 +12,8 @@ export default function (elms, rels) {
           parent: elm.parentid,
           reactionid: elm.reactionid,
           name: elm.short,
+          hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
+          link: elm.link,
           type: elm.type,
           details: elm.details,
         },
@@ -23,6 +25,9 @@ export default function (elms, rels) {
           id: elm.id,
           reactionid: elm.reactionid,
           name: elm.short,
+          hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
+          link: elm.link,
+          details: elm.details,
         },
       });
     }
@@ -48,7 +53,9 @@ export default function (elms, rels) {
     .selector('node')
     .css({
       content: 'data(name)',
-      'font-size': '22px',
+      'font-size': '20px',
+      'text-valign': 'bottom',
+      'text-wrap': 'wrap',
     })
     .selector('$node > node')
     .css({
@@ -75,6 +82,10 @@ export default function (elms, rels) {
       shape: 'heptagon',
       width: 20,
       height: 20,
+    })
+    .selector('node[type="enzyme"]')
+    .css({
+      'font-size': '15px',
     })
     .selector('node[type="product"]') // select the products and make them rectangular instead
     .css({ shape: 'triangle' })

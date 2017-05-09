@@ -25,10 +25,7 @@
     <footer class="footer">
       <div class="container">
         <div class="content has-text-centered">
-          <p>
-            Chalmers University of Technology | Department of Biology and Biological Engineering |
-            <a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a>
-          <p>
+          <p v-html="$t('footerText')"><p>
           <p>
             <a><img src="./assets/chalmers.png" /></a>
             <a><img src="./assets/wallenberg.gif" /></a>
@@ -53,20 +50,26 @@ export default {
   data() {
     return {
       Logo,
-      menuItems: ['network graph', 'models', 'resources', 'about', 'contact'],
+      menuItems: [
+        this.$t('navBut1Title'),
+        this.$t('navBut2Title'),
+        this.$t('navBut3Title'),
+        this.$t('navBut4Title'),
+        this.$t('navBut5Title'),
+      ],
     };
   },
   methods: {
     goToPage(name) {
       // TODO: make this not hard-coded
-      if (name === 'network graph') {
+      if (name === this.menuItems[0]) {
         router.push(
           {
             path: '/',
             query: {
               tab: 3,
               reaction_component_id: 'E_3748',
-              enzyme_id: 'ENSG00000180011',
+              metabolite_rcid: 'M_m00001c',
             },
           },
         );
@@ -86,6 +89,14 @@ export default {
 <style lang='scss'>
 
 $primary: #64CC9A;
+$warning: #FFC67D;
+$danger: #FF865C;
+
+$body-size: 14px !default
+
+$desktop: 1192px !default;
+$widescreen: 1384px !default;
+$fullhd: 1576px !default;
 
 @import '~bulma';
 @import './styles/mixins';

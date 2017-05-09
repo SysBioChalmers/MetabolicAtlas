@@ -1,65 +1,86 @@
 <template>
   <div class="closest-interaction-partners">
-    <title>{{title}}</title>
-    <h3 class="title is-3" v-html="title"></h3>
-    <div id="contextMenu" ref="contextMenu">
-      <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
-      <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark">
-        <a :href="selectedElm.hpaLink" target="_blank">View in HPA</a>
-      </span>
-      <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark">
-        <a :href="selectedElm.details.uniprot_link" target="_blank">View in Uniprot</a>
-      </span>
-      <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark">
-        <a :href="selectedElm.details.hmdb_link" target="_blank">View in HMDB</a>
-      </span>
-    </div>
-
-    <div class="container columns">
-      <div id="cy" ref="cy" class="column is-9">
+    <loader v-show="loading"></loader>
+    <div v-show="!loading">
+      <div v-show="errorMessage" class="notification is-danger">
+        {{ errorMessage }}
       </div>
-      <div id="sidebar" class="column content">
-        <div v-if="selectedElm && selectedElm.details" class="card">
-          <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-            <div v-if="selectedElm.details.function">
-              <p class="label">Function</p>
-              <p>{{ selectedElm.details.function }}</p>
-              <br v-if="selectedElm.details.catalytic_activity">
-            </div>
-            <div v-if="selectedElm.details.catalytic_activity">
-              <p class="label">Catalytic Activity</p>
-              {{ selectedElm.details.catalytic_activity }}
-            </div>
+      <div v-show="!errorMessage">
+        <div class="container columns">
+          <div class="column is-8">
+            <h3 class="title is-3" v-html="title"></h3>
           </div>
-          <div v-if="selectedElm.type === 'metabolite'" class="card-content">
-            <div v-if="selectedElm.details.hmdb_description">
-              <p class="label">Description</p>
-              <p>{{ selectedElm.details.hmdb_description }}</p>
-              <br v-if="selectedElm.details.mass">
-            </div>
-            <div v-if="selectedElm.details.mass">
-              <p class="label">Mass</p>
-              <p>{{ selectedElm.details.mass }}</p>
-              <br v-if="selectedElm.details.kegg">
-            </div>
-            <div v-if="selectedElm.details.kegg">
-              <p class="label">Kegg</p>
-              <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+          <div class="column" v-on:mouseleave="showMenuExport = false">
+            <a class="button is-primary" v-on:click="showMenuExport = !showMenuExport">Export graph</a>
+            <div v-show="showMenuExport" id="contextMenuExport" ref="contextMenuExport">
+              <span class="button is-dark" v-on:click="exportGraphml">Graphml</span>
+              <span class="button is-dark" v-on:click="exportPNG">PNG</span>
             </div>
           </div>
         </div>
-        <br>
-        <p><a class="button is-dark is-outlined" v-on:click="exportGraph">Export to graphml</a></p>
-        <p><a class="button is-dark is-outlined" v-on:click="exportPNG">Export to PNG</a></p>
-        <a href="/about#closestpartners" target="_blank">More information</a>
+        <div id="contextMenuGraph" ref="contextMenuGraph">
+          <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+          <span class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
+          <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
+          <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
+           v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
+          </span>
+          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot
+          </span>
+          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB
+          </span>
+        </div>
+        <div class="container columns">
+          <div id="cy" ref="cy" class="column is-8">
+          </div>
+          <div id="sidebar" class="column content">
+            <div v-if="selectedElm && selectedElm.details" class="card">
+              <div v-if="selectedElm.type === 'enzyme'" class="card-content">
+                <div v-if="selectedElm.details.function">
+                  <p class="label">Function</p>
+                  <p>{{ selectedElm.details.function }}</p>
+                  <br v-if="selectedElm.details.catalytic_activity">
+                </div>
+                <div v-if="selectedElm.details.catalytic_activity">
+                  <p class="label">Catalytic Activity</p>
+                  {{ selectedElm.details.catalytic_activity }}
+                </div>
+              </div>
+              <div v-if="selectedElm.type === 'metabolite'" class="card-content">
+                <div v-if="selectedElm.details.hmdb_description">
+                  <p class="label">Description</p>
+                  <p>{{ selectedElm.details.hmdb_description }}</p>
+                  <br v-if="selectedElm.details.mass">
+                </div>
+                <div v-if="selectedElm.details.mass">
+                  <p class="label">Mass</p>
+                  <p>{{ selectedElm.details.mass }}</p>
+                  <br v-if="selectedElm.details.kegg">
+                </div>
+                <div v-if="selectedElm.details.kegg">
+                  <p class="label">Kegg</p>
+                  <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+                </div>
+              </div>
+            </div>
+            <br>
+            <a href="/about#closestpartners" target="_blank">
+              {{ $t('moreInformation') }}
+            </a>
+          </div>
+        </div>
+        <cytoscape-table
+          :structure="tableStructure"
+          :elms="elms"
+          :selected-elm-id="selectedElmId"
+          :filename="filename"
+          :sheetname="componentName"
+          @highlight="highlightNode($event)"
+        ></cytoscape-table>
       </div>
     </div>
-    <cytoscape-table
-      :structure="tableStructure"
-      :elms="elms"
-      :selected-elm-id="selectedElmId"
-      @highlight="highlightNode($event)"
-    ></cytoscape-table>
   </div>
 </template>
 
@@ -68,25 +89,32 @@ import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml/src/index';
+import viewUtilities from 'cytoscape-view-utilities';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
+import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { default as visitLink } from '../helpers/visit-link';
 
 export default {
   name: 'closest-interaction-partners',
   components: {
     CytoscapeTable,
+    Loader,
   },
   data() {
     return {
-      errorMessage: '',
+      loading: true,
+      errorMessage: null,
       title: '',
-      elms: [],
+      rawRels: {},
+      rawElms: {},
       reactionComponentId: '',
       selectedElmId: '',
       selectedElm: null,
+      componentName: '',
       cy: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -95,6 +123,7 @@ export default {
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
+      showMenuExport: false,
     };
   },
   computed: {
@@ -108,15 +137,25 @@ export default {
       }
       return '';
     },
+    filename() {
+      return `ma_interaction_partners_${this.componentName}`;
+    },
+    elms() {
+      return Object.keys(this.rawElms).map(k => this.rawElms[k]);
+    },
+    rels() {
+      return Object.keys(this.rawRels).map(k => this.rawRels[k]);
+    },
   },
   beforeMount() {
     graphml(cytoscape, jquery);
+    viewUtilities(cytoscape, jquery);
     this.setup();
   },
   methods: {
     setup() {
-      this.reactionComponentId = this.$route.params.reaction_component_id
-                                 || this.$route.query.reaction_component_id;
+      this.reactionComponentId = this.$route.query.reaction_component_id
+                                  || this.$route.query.reaction_component_long_name;
       this.selectedElmId = '';
       this.selectedElm = null;
       this.load();
@@ -128,7 +167,7 @@ export default {
           this.setup();
         },
         () => { // On abort.
-          this.$refs.contextMenu.style.display = 'none';
+          this.$refs.contextMenuGraph.style.display = 'none';
           this.selectedElmId = '';
           this.selectedElm = null;
         }
@@ -137,12 +176,14 @@ export default {
     load() {
       axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
         .then((response) => {
-          this.errorMessage = '';
+          this.loading = false;
+          this.errorMessage = null;
 
           const enzyme = response.data.enzyme;
           const reactions = response.data.reactions;
 
           const enzymeName = enzyme.short_name || enzyme.long_name;
+          this.componentName = enzymeName;
           if (enzyme.enzyme) {
             const uniprotLink = enzyme.enzyme ? enzyme.enzyme.uniprot_link : null;
             const uniprotId = uniprotLink.split('/').pop();
@@ -152,14 +193,84 @@ export default {
             this.title = `Closest interaction partners | ${enzymeName}`;
           }
 
-          const [elms, rels] = transform(enzyme, this.reactionComponentId, reactions);
-          this.selectedElm = elms[enzyme.id];
-          this.elms = Object.keys(elms).map(k => elms[k]);
-          this.constructGraph(elms, rels);
+          [this.rawElms, this.rawRels] = transform(enzyme, this.reactionComponentId, reactions);
+          this.selectedElm = this.rawElms[enzyme.id];
+
+          // The set time out wrapper enforces this happens last.
+          setTimeout(() => {
+            this.constructGraph(this.rawElms, this.rawRels);
+          }, 0);
         })
         .catch((error) => {
-          this.errorMessage = error.message;
+          this.loading = false;
+          switch (error.response.status) {
+            case 406:
+              this.errorMessage = this.$t('tooManyInteractionPartners');
+              break;
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
         });
+    },
+    loadExpansion() {
+      axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
+        .then((response) => {
+          this.loading = false;
+          this.errorMessage = null;
+
+          const enzyme = response.data.enzyme;
+          const reactions = response.data.reactions;
+          const [newElms, newRels] = transform(enzyme, this.selectedElmId, reactions);
+
+          Object.assign(this.rawElms, newElms);
+          Object.assign(this.rawRels, newRels);
+
+          // The set time out wrapper enforces this happens last.
+          setTimeout(() => {
+            this.constructGraph(this.rawElms, this.rawRels);
+          }, 0);
+        })
+        .catch((error) => {
+          this.loading = false;
+          switch (error.response.status) {
+            case 406:
+              this.errorMessage = this.$t('tooManyInteractionPartners');
+              break;
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
+        });
+    },
+    highlightReaction() {
+      let reactionId = null;
+      for (const elm of this.elms) {
+        if (this.selectedElmId === elm.id) {
+          reactionId = elm.reaction;
+          break;
+        }
+      }
+
+      if (reactionId) {
+        let eles = this.cy.collection();
+
+        for (const rel of this.rels) {
+          if (rel.reaction === reactionId) {
+            const relationEle = this.cy.getElementById(rel.id);
+            eles = eles.add(relationEle);
+
+            const sourceEle = this.cy.getElementById(rel.source);
+            eles = eles.add(sourceEle);
+
+            const targetEle = this.cy.getElementById(rel.target);
+            eles = eles.add(targetEle);
+          }
+        }
+
+        const instance = this.cy.viewUtilities();
+        instance.unhighlight(this.cy.elements());
+        instance.highlight(eles);
+        this.$refs.contextMenuGraph.style.display = 'none';
+      }
     },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
@@ -175,9 +286,11 @@ export default {
         elements,
         style: stylesheet,
         layout: {
-          name: 'random',
+         // check 'cola' layout extension
+          name: 'concentric',
         },
       });
+      this.cy.userZoomingEnabled(false);
 
       // const c = document.getElementsByTagName('canvas')[0];
       // const svgCxt = new C2S(c);
@@ -190,16 +303,20 @@ export default {
       // draw(svgCxt);
       // console.log(svgCxt.getSvg());
 
-      const contextMenu = this.$refs.contextMenu;
-      contextMenu.style.display = 'none';
+      const contextMenuGraph = this.$refs.contextMenuGraph;
+      contextMenuGraph.style.display = 'none';
 
       const updatePosition = (node) => {
-        contextMenu.style.left = `${node.renderedPosition().x - 8}px`;
-        contextMenu.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenuGraph.style.left = `${node.renderedPosition().x - 8}px`;
+        contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
       };
 
       this.cy.on('tap', () => {
-        contextMenu.style.display = 'none';
+        contextMenuGraph.style.display = 'none';
+        if (this.selectedElmId !== '') {
+          const instance = this.cy.viewUtilities();
+          instance.highlight(this.cy.elements());
+        }
         this.selectedElmId = '';
         this.selectedElm = null;
       });
@@ -210,7 +327,7 @@ export default {
 
         this.selectedElmId = elmId;
         this.selectedElm = node.data();
-        contextMenu.style.display = 'block';
+        contextMenuGraph.style.display = 'block';
         updatePosition(node);
       });
 
@@ -223,7 +340,7 @@ export default {
       /* eslint-enable no-param-reassign */
     },
     // TODO: refactor
-    exportGraph: function exportGraph() {
+    exportGraphml: function exportGraphml() {
       const a = document.createElement('a');
       this.cy.graphml({
         node: {
@@ -237,7 +354,7 @@ export default {
           data: true,
           discludeds: [],
         },
-        layoutby: 'random',
+        layoutby: 'concentric',
       });
 
       const output = this.cy.graphml();
@@ -250,7 +367,7 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    exportPNG: function exportGraph() {
+    exportPNG: function exportPNG() {
       const a = document.createElement('a');
       const output = this.cy.png();
 
@@ -266,6 +383,7 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
+    visitLink,
   },
 };
 </script>
@@ -284,10 +402,10 @@ h1, h2 {
 
 #sidebar {
   max-height: 820px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
-#contextMenu {
+#contextMenuGraph, #contextMenuExport {
   position: absolute;
   z-index: 999;
 
@@ -296,7 +414,7 @@ h1, h2 {
     padding: 5px 10px;
     text-align: left;
     border-radius: 0;
-    
+
     a {
       color: white;
     }
