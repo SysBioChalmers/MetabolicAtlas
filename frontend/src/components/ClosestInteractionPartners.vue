@@ -32,8 +32,79 @@
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB
           </span>
         </div>
+
         <div class="container columns">
-          <div id="cy" ref="cy" class="column is-8">
+          <div class="column is-8">
+            <div id="graphOption">
+              <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
+              v-on:click="showGraphLegend = !showGraphLegend; showColorPickerEnz = false;
+               showColorPickerMeta = false;">Legend</span>
+              <span class="button" v-on:click="zoomGraph(true)">+</span>
+              <span class="button" v-on:click="zoomGraph(false)">-</span>
+            </div>
+            <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
+              <button class="delete" v-on:click="showGraphLegend = !showGraphLegend;
+               showColorPickerEnz = false; showColorPickerMeta = false"></button>
+              <span class="label">Enzyme</span>
+              <br>
+              <span>Shape:</span>
+              <div>
+                <select v-model="nodeDisplayParams.enzymeNodeShape" v-on:change="redrawGraph()">
+                  <option>rectangle</option>
+                  <option>roundrectangle</option>
+                  <option>cutrectangle</option>
+                  <option>ellipse</option>
+                  <option>rectangle</option>
+                  <option>triangle</option>
+                  <option>pentagon</option>
+                  <option>hexagon</option>
+                  <option>heptagon</option>
+                  <option>octagon</option>
+                  <option>star</option>
+                  <option>diamond</option>
+                  <option>vee</option>
+                  <option>rhomboid</option>
+                </select>
+              </div>
+              <span>Color:</span>
+              <span class=color-span 
+                v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex}"
+                v-on:click="showColorPickerEnz = !showColorPickerEnz">
+                <compact-picker v-show="showColorPickerEnz" 
+                v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph()"></compact-picker>
+              </span>
+              <hr>
+              <span class="label">Metabolite</span>
+              <br>
+              <span>Shape:</span>
+              <div>
+                <select v-model="nodeDisplayParams.metaboliteNodeShape" v-on:change="redrawGraph()">
+                  <option>rectangle</option>
+                  <option>roundrectangle</option>
+                  <option>cutrectangle</option>
+                  <option>ellipse</option>
+                  <option>rectangle</option>
+                  <option>triangle</option>
+                  <option>pentagon</option>
+                  <option>hexagon</option>
+                  <option>heptagon</option>
+                  <option>octagon</option>
+                  <option>star</option>
+                  <option>diamond</option>
+                  <option>vee</option>
+                  <option>rhomboid</option>
+                </select>
+              </div>
+              <span>Color:</span>
+               <span class=color-span 
+                v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
+                v-on:click="showColorPickerMeta = !showColorPickerMeta">
+                <compact-picker v-show="showColorPickerMeta" 
+                v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph()"></compact-picker>
+              </span>
+            </div>
+            <div id="cy" ref="cy">
+            </div>
           </div>
           <div id="sidebar" class="column content">
             <div v-if="selectedElm && selectedElm.details" class="card">
@@ -90,6 +161,7 @@ import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml/src/index';
 import viewUtilities from 'cytoscape-view-utilities';
+import { Compact } from 'vue-color';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
@@ -103,6 +175,7 @@ export default {
   components: {
     CytoscapeTable,
     Loader,
+    'compact-picker': Compact,
   },
   data() {
     return {
@@ -124,6 +197,39 @@ export default {
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
       showMenuExport: false,
+      showGraphLegend: false,
+      showColorPickerEnz: false,
+      showColorPickerMeta: false,
+      nodeDisplayParams: {
+        enzymeNodeShape: 'rectangle',
+        enzymeNodeColor: {
+          hex: '#C92F63',
+          hsl: {
+            h: 150, s: 0.5, l: 0.2, a: 1,
+          },
+          hsv: {
+            h: 150, s: 0.66, v: 0.30, a: 1,
+          },
+          rgba: {
+            r: 25, g: 77, b: 51, a: 1,
+          },
+          a: 1,
+        },
+        metaboliteNodeShape: 'ellipse',
+        metaboliteNodeColor: {
+          hex: '#259F64',
+          hsl: {
+            h: 150, s: 0.5, l: 0.2, a: 1,
+          },
+          hsv: {
+            h: 150, s: 0.66, v: 0.30, a: 1,
+          },
+          rgba: {
+            r: 25, g: 77, b: 51, a: 1,
+          },
+          a: 1,
+        },
+      },
     };
   },
   computed: {
@@ -272,6 +378,18 @@ export default {
         this.$refs.contextMenuGraph.style.display = 'none';
       }
     },
+    redrawGraph() {
+      const [elements, stylesheet] = graph(this.elms, this.rels, this.nodeDisplayParams);
+      const cyzoom = this.cy.zoom();
+      const cypan = this.cy.pan();
+      if (elements) {
+        this.cy.style(stylesheet);
+        this.cy.viewport({
+          zoom: cyzoom,
+          pan: cypan,
+        });
+      }
+    },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
       const node = this.cy.getElementById(elmId);
@@ -280,7 +398,7 @@ export default {
     },
     constructGraph: function constructGraph(elms, rels) {
       /* eslint-disable no-param-reassign */
-      const [elements, stylesheet] = graph(elms, rels);
+      const [elements, stylesheet] = graph(elms, rels, this.nodeDisplayParams);
       this.cy = cytoscape({
         container: this.$refs.cy,
         elements,
@@ -379,6 +497,35 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
+    zoomGraph: function zoomGraph(zoomIn) {
+      const maxZoom = 10;
+      const minZoom = 0.2;
+      let factor = 0.08;
+
+      if (!zoomIn) {
+        factor = -factor;
+      }
+
+      const zoom = this.cy.zoom();
+      let lvl = zoom + factor;
+
+      if (lvl < minZoom) {
+        lvl = minZoom;
+      }
+
+      if (lvl > maxZoom) {
+        lvl = maxZoom;
+      }
+
+      if ((lvl === maxZoom && zoom === maxZoom) ||
+        (lvl === minZoom && zoom === minZoom)) {
+        return;
+      }
+
+      this.cy.zoom({
+        level: lvl,
+      });
+    },
 
     chemicalFormula,
     chemicalName,
@@ -395,7 +542,7 @@ h1, h2 {
 }
 
 #cy {
-  position: static;
+  position: absolute;
   margin: auto;
   height: 820px;
 }
@@ -418,6 +565,55 @@ h1, h2 {
     a {
       color: white;
     }
+  }
+}
+
+#graphOption {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 180px;
+  height: 30px;
+  z-index: 10;
+
+  span {
+    display: inline-block;
+    margin-right: 5px;
+  }
+}
+
+#contextGraphLegend {
+  position: absolute;
+  background: white;
+  top: 32px;
+  left: 0;
+  width: 370px;
+  height: auto;
+  padding: 15px;
+  border: 1px solid black;
+  border-radius: 2px;
+  z-index: 999;
+
+  span, div {
+    display: inline-block;
+    margin-left: 20px;
+  }
+  .delete {
+    position : absolute;
+    right: 10px;
+    top: 10px;
+  }
+  span.label {
+    margin: 0;
+  }
+  span.color-span {
+    height: 20px;
+    width: 25px;
+    border: 1px solid black;
+    vertical-align: middle;
+  }
+  span.color-span:hover {
+    cursor: pointer;
   }
 }
 

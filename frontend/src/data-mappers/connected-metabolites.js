@@ -19,7 +19,6 @@ export default function (e) {
     details: e.metabolite || e.enzyme,
   };
   elms.push(enzyme);
-  console.log(enzyme);
 
   for (const r of e.reactions) {
     const reaction = {

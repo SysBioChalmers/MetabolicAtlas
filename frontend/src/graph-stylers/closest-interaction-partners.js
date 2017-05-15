@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 
-export default function (elms, rels) {
+export default function (elms, rels, nodeDisplayParams) {
   const elmsjson = [];
 
   for (const id of Object.keys(elms)) {
@@ -31,8 +31,9 @@ export default function (elms, rels) {
     });
   }
 
-  const metaboliteColor = '#259F64';
-  const enzymeColor = '#C92F63';
+  const metaboliteColor = nodeDisplayParams.metaboliteNodeColor.hex;
+  const enzymeColor = nodeDisplayParams.enzymeNodeColor.hex;
+
   const textColor = '#363636';
   const lineColor = '#DBDBDB';
 
@@ -46,7 +47,8 @@ export default function (elms, rels) {
     })
     .selector('node[type="metabolite"]')
     .css({
-      shape: 'elipse',
+      // shape: 'elipse',
+      shape: nodeDisplayParams.metaboliteNodeShape,
       'background-color': metaboliteColor,
       width: 15,
       height: 15,
@@ -54,7 +56,8 @@ export default function (elms, rels) {
     })
     .selector('node[type="enzyme"]')
     .css({
-      shape: 'rectangle',
+      // shape: 'rectangle',
+      shape: nodeDisplayParams.enzymeNodeShape,
       'background-color': enzymeColor,
       width: 20,
       height: 20,
