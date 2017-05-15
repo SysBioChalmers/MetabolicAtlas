@@ -20,19 +20,19 @@
         </div>
         <div id="contextMenuGraph" ref="contextMenuGraph">
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
-          <span class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
+          <span v-show="expandedIds.indexOf(selectedElmId) === -1" 
+          class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
-          <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
+          <span v-show="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
            v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
           </span>
-          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark"
+          <span v-show="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark"
             v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot
           </span>
-          <span v-if="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark"
+          <span v-show="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark"
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB
           </span>
         </div>
-
         <div class="container columns">
           <div class="column is-8">
             <div id="graphOption">
@@ -188,6 +188,7 @@ export default {
       selectedElmId: '',
       selectedElm: null,
       componentName: '',
+      expandedIds: [],
       cy: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -302,6 +303,9 @@ export default {
           [this.rawElms, this.rawRels] = transform(enzyme, this.reactionComponentId, reactions);
           this.selectedElm = this.rawElms[enzyme.id];
 
+          this.expandedIds = [];
+          this.expandedIds.push(enzyme.id);
+
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
             this.constructGraph(this.rawElms, this.rawRels);
@@ -330,6 +334,8 @@ export default {
 
           Object.assign(this.rawElms, newElms);
           Object.assign(this.rawRels, newRels);
+
+          this.expandedIds.push(enzyme.id);
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
