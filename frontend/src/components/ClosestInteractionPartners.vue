@@ -379,16 +379,14 @@ export default {
       }
     },
     redrawGraph() {
-      const [elements, stylesheet] = graph(this.elms, this.rels, this.nodeDisplayParams);
+      const stylesheet = graph(this.elms, this.rels, this.nodeDisplayParams)[1];
       const cyzoom = this.cy.zoom();
       const cypan = this.cy.pan();
-      if (elements) {
-        this.cy.style(stylesheet);
-        this.cy.viewport({
-          zoom: cyzoom,
-          pan: cypan,
-        });
-      }
+      this.cy.style(stylesheet);
+      this.cy.viewport({
+        zoom: cyzoom,
+        pan: cypan,
+      });
     },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
