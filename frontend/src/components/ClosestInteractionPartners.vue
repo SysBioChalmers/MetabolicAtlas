@@ -10,7 +10,7 @@
           <div class="column is-8">
             <h3 class="title is-3" v-html="title"></h3>
           </div>
-          <div class="column" v-on:mouseleave="showMenuExport = false">
+          <div v-show="showNetworkGraph" class="column" v-on:mouseleave="showMenuExport = false">
             <a class="button is-primary" v-on:click="showMenuExport = !showMenuExport">Export graph</a>
             <div v-show="showMenuExport" id="contextMenuExport" ref="contextMenuExport">
               <span class="button is-dark" v-on:click="exportGraphml">Graphml</span>
@@ -18,7 +18,7 @@
             </div>
           </div>
         </div>
-        <div id="contextMenuGraph" ref="contextMenuGraph">
+        <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span v-show="expandedIds.indexOf(selectedElmId) === -1" 
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
@@ -33,7 +33,7 @@
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB
           </span>
         </div>
-        <div class="container columns">
+        <div v-show="showNetworkGraph" class="container columns">
           <div class="column is-8">
             <div id="graphOption">
               <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
@@ -41,6 +41,7 @@
                showColorPickerMeta = false;">Legend</span>
               <span class="button" v-on:click="zoomGraph(true)">+</span>
               <span class="button" v-on:click="zoomGraph(false)">-</span>
+              <span class="button" v-on:click="fitGraph()">fit</span>
             </div>
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="showGraphLegend = !showGraphLegend;
@@ -142,6 +143,13 @@
             </a>
           </div>
         </div>
+        <div v-show="!showNetworkGraph" class="container columns">
+          <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
+            <div>Warning: The query has returned too many reactions.<br>The graph has not been generated.</div>
+            <span v-show="reactionsCount <= maxReactionCount" 
+            class="button" v-on:click="constructGraph(rawElms, rawRels); fitGraph(); showNetworkGraph = true">Show it anyway!</span>
+          </div>
+        </div>
         <cytoscape-table
           :structure="tableStructure"
           :elms="elms"
@@ -182,13 +190,23 @@ export default {
       loading: true,
       errorMessage: null,
       title: '',
+
+      reactionsCount: 0,
+      warnReactionCount: 10,
+      maxReactionCount: 100,
+      showNetworkGraph: false,
+
       rawRels: {},
       rawElms: {},
+
       reactionComponentId: '',
       selectedElmId: '',
+
       selectedElm: null,
+
       componentName: '',
       expandedIds: [],
+
       cy: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -197,10 +215,13 @@ export default {
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
+
       showMenuExport: false,
       showGraphLegend: false,
+      showGraphContextMenu: false,
       showColorPickerEnz: false,
       showColorPickerMeta: false,
+
       nodeDisplayParams: {
         enzymeNodeShape: 'rectangle',
         enzymeNodeColor: {
@@ -231,6 +252,10 @@ export default {
           a: 1,
         },
       },
+
+      maxZoom: 10,
+      minZoom: 0.1,
+      factorZoom: 0.08,
     };
   },
   computed: {
@@ -274,7 +299,7 @@ export default {
           this.setup();
         },
         () => { // On abort.
-          this.$refs.contextMenuGraph.style.display = 'none';
+          this.showGraphContextMenu = false;
           this.selectedElmId = '';
           this.selectedElm = null;
         }
@@ -286,25 +311,31 @@ export default {
           this.loading = false;
           this.errorMessage = null;
 
-          const enzyme = response.data.enzyme;
+          const component = response.data.component;
           const reactions = response.data.reactions;
 
-          const enzymeName = enzyme.short_name || enzyme.long_name;
-          this.componentName = enzymeName;
-          if (enzyme.enzyme) {
-            const uniprotLink = enzyme.enzyme ? enzyme.enzyme.uniprot_link : null;
+          this.componentName = component.short_name || component.long_name;
+          if (component.enzyme) {
+            const uniprotLink = component.enzyme ? component.enzyme.uniprot_link : null;
             const uniprotId = uniprotLink.split('/').pop();
-            this.title = `Closest interaction partners | ${enzymeName}
+            this.title = `Closest interaction partners | ${this.componentName}
               (<a href="${uniprotLink}" target="_blank">${uniprotId}</a>)`;
           } else {
-            this.title = `Closest interaction partners | ${enzymeName}`;
+            this.title = `Closest interaction partners | ${this.componentName}`;
           }
 
-          [this.rawElms, this.rawRels] = transform(enzyme, this.reactionComponentId, reactions);
-          this.selectedElm = this.rawElms[enzyme.id];
+          [this.rawElms, this.rawRels] = transform(component, this.reactionComponentId, reactions);
+          this.selectedElm = this.rawElms[component.id];
 
           this.expandedIds = [];
-          this.expandedIds.push(enzyme.id);
+          this.expandedIds.push(component.id);
+
+          this.reactionCount = response.data.reactions.length;
+          if (this.reactionCount > this.warnReactionCount) {
+            this.showNetworkGraph = false;
+            return;
+          }
+          this.showNetworkGraph = true;
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
@@ -312,6 +343,8 @@ export default {
           }, 0);
         })
         .catch((error) => {
+          console.log('error:');
+          console.log(error);
           this.loading = false;
           switch (error.response.status) {
             case 406:
@@ -328,14 +361,21 @@ export default {
           this.loading = false;
           this.errorMessage = null;
 
-          const enzyme = response.data.enzyme;
+          const component = response.data.component;
           const reactions = response.data.reactions;
-          const [newElms, newRels] = transform(enzyme, this.selectedElmId, reactions);
+          const [newElms, newRels] = transform(component, this.selectedElmId, reactions);
 
           Object.assign(this.rawElms, newElms);
           Object.assign(this.rawRels, newRels);
 
-          this.expandedIds.push(enzyme.id);
+          this.expandedIds.push(component.id);
+
+          this.reactionCount = response.data.reactions.length;
+          if (this.reactionCount > this.warnReactionCount) {
+            this.showNetworkGraph = false;
+            return;
+          }
+          this.showNetworkGraph = true;
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
@@ -381,7 +421,7 @@ export default {
         const instance = this.cy.viewUtilities();
         instance.unhighlight(this.cy.elements());
         instance.highlight(eles);
-        this.$refs.contextMenuGraph.style.display = 'none';
+        this.showGraphContextMenu = false;
       }
     },
     redrawGraph() {
@@ -394,7 +434,14 @@ export default {
         pan: cypan,
       });
     },
+    fitGraph() {
+      this.cy.fit();
+      this.minZoom = this.cy.zoom() / 2.0;
+    },
     highlightNode(elmId) {
+      if (!this.showNetworkGraph) {
+        return;
+      }
       this.cy.nodes().deselect();
       const node = this.cy.getElementById(elmId);
       node.json({ selected: true });
@@ -408,11 +455,16 @@ export default {
         elements,
         style: stylesheet,
         layout: {
-         // check 'cola' layout extension
+          // check 'cola' layout extension
           name: 'concentric',
         },
       });
       this.cy.userZoomingEnabled(false);
+      this.fitGraph();
+
+      window.pageYOffset = 0;
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
 
       // const c = document.getElementsByTagName('canvas')[0];
       // const svgCxt = new C2S(c);
@@ -426,15 +478,23 @@ export default {
       // console.log(svgCxt.getSvg());
 
       const contextMenuGraph = this.$refs.contextMenuGraph;
-      contextMenuGraph.style.display = 'none';
+      this.showGraphContextMenu = false;
 
       const updatePosition = (node) => {
         contextMenuGraph.style.left = `${node.renderedPosition().x - 8}px`;
         contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
       };
 
+      const nodeInViewport = (node) => {
+        if (node.renderedPosition().x < 0 || node.renderedPosition().x > this.cy.width()
+          || node.renderedPosition().y < 0 || node.renderedPosition().y > this.cy.height()) {
+          return false;
+        }
+        return true;
+      };
+
       this.cy.on('tap', () => {
-        contextMenuGraph.style.display = 'none';
+        this.showGraphContextMenu = false;
         if (this.selectedElmId !== '') {
           const instance = this.cy.viewUtilities();
           instance.highlight(this.cy.elements());
@@ -449,13 +509,28 @@ export default {
 
         this.selectedElmId = elmId;
         this.selectedElm = node.data();
-        contextMenuGraph.style.display = 'block';
+        this.showGraphContextMenu = true;
         updatePosition(node);
       });
 
       this.cy.on('drag', 'node', (evt) => {
         const node = evt.cyTarget;
-        if (this.selectedElmId === node.data().id) {
+        if (this.selectedElmId === node.data().id && nodeInViewport(node)) {
+          updatePosition(node);
+        }
+      });
+
+      this.cy.on('tapstart', () => {
+        this.showGraphContextMenu = false;
+      });
+
+      this.cy.on('tapdragout, tapend', () => {
+        if (this.selectedElmId !== '') {
+          const node = this.cy.getElementById(this.selectedElmId);
+          if (!nodeInViewport(node)) {
+            return;
+          }
+          this.showGraphContextMenu = true;
           updatePosition(node);
         }
       });
@@ -502,27 +577,24 @@ export default {
       document.body.removeChild(a);
     },
     zoomGraph: function zoomGraph(zoomIn) {
-      const maxZoom = 10;
-      const minZoom = 0.2;
-      let factor = 0.08;
-
+      let factor = this.factorZoom;
       if (!zoomIn) {
         factor = -factor;
       }
 
       const zoom = this.cy.zoom();
-      let lvl = zoom + factor;
+      let lvl = zoom + (zoom * factor);
 
-      if (lvl < minZoom) {
-        lvl = minZoom;
+      if (lvl < this.minZoom) {
+        lvl = this.minZoom;
       }
 
-      if (lvl > maxZoom) {
-        lvl = maxZoom;
+      if (lvl > this.maxZoom) {
+        lvl = this.maxZoom;
       }
 
-      if ((lvl === maxZoom && zoom === maxZoom) ||
-        (lvl === minZoom && zoom === minZoom)) {
+      if ((lvl === this.maxZoom && zoom === this.maxZoom) ||
+        (lvl === this.minZoom && zoom === this.minZoom)) {
         return;
       }
 
@@ -576,7 +648,7 @@ h1, h2 {
   position: absolute;
   top: 0;
   left: 0;
-  width: 180px;
+  width: 200px;
   height: 30px;
   z-index: 10;
 

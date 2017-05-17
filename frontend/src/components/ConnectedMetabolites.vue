@@ -37,7 +37,7 @@
                 {{ $t('moreInformation') }}
                </a>
             </div>
-            <div id="contextMenuGraph" ref="contextMenuGraph">
+            <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
               <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
                v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
               </span>
@@ -87,8 +87,10 @@ export default {
       cy: null,
       errorMessage: null,
       elms: [],
+
       selectedElmId: '',
       selectedElm: null,
+
       enzymeName: '',
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -106,6 +108,7 @@ export default {
       tableSearchTerm: '',
       reactions: [],
       loadTime: 0,
+      showGraphContextMenu: false,
     };
   },
   computed: {
@@ -167,15 +170,23 @@ export default {
             this.cy.userZoomingEnabled(false);
 
             const contextMenuGraph = this.$refs.contextMenuGraph;
-            contextMenuGraph.style.display = 'none';
+            this.showGraphContextMenu = false;
 
             const updatePosition = (node) => {
               contextMenuGraph.style.left = `${node.renderedPosition().x + 20}px`;
               contextMenuGraph.style.top = `${node.renderedPosition().y + 20}px`;
             };
 
+            const nodeInViewport = (node) => {
+              if (node.renderedPosition().x < 0 || node.renderedPosition().x > this.cy.width()
+                || node.renderedPosition().y < 0 || node.renderedPosition().y > this.cy.height()) {
+                return false;
+              }
+              return true;
+            };
+
             this.cy.on('tap', () => {
-              contextMenuGraph.style.display = 'none';
+              this.showGraphContextMenu = false;
               this.selectedElmId = '';
               this.selectedElm = null;
             });
@@ -186,13 +197,28 @@ export default {
 
               this.selectedElmId = ele.data().id;
               this.selectedElm = ele.data();
-              contextMenuGraph.style.display = 'block';
+              this.showGraphContextMenu = true;
               updatePosition(node);
             });
 
             this.cy.on('drag', 'node', (evt) => {
               const node = evt.cyTarget;
               if (this.selectedElmId === node.data().id) {
+                updatePosition(node);
+              }
+            });
+
+            this.cy.on('tapstart', () => {
+              this.showGraphContextMenu = false;
+            });
+
+            this.cy.on('tapdragout, tapend', () => {
+              if (this.selectedElmId !== '') {
+                const node = this.cy.getElementById(this.selectedElmId);
+                if (!nodeInViewport(node)) {
+                  return;
+                }
+                this.showGraphContextMenu = true;
                 updatePosition(node);
               }
             });
