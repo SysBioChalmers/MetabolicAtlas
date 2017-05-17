@@ -233,6 +233,12 @@ export default {
       },
     };
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      this.setup();
+    },
+  },
   computed: {
     keggLink() {
       if (this.selectedElm

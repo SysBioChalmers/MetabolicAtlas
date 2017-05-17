@@ -108,6 +108,12 @@ export default {
       loadTime: 0,
     };
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      this.load();
+    },
+  },
   computed: {
     keggLink() {
       if (this.selectedElm

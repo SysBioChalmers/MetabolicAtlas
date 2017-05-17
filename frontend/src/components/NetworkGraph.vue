@@ -9,24 +9,33 @@
       </div>
       <div class="column is-7">
         <p class="control">
-          <input id="search" class="input" v-model="searchTerm"
-            type="text" :placeholder="$t('searchPlaceholder')">
+          <input
+            id="search"
+            class="input"
+            v-model="searchTerm"
+            @input="search"
+            type="text"
+            :placeholder="$t('searchPlaceholder')">
         </p>
-        <div id="searchResults" v-show="searchTerm.length > 2">
-          <div class="searchResultSection">
-            <label class="title is-5">SULT1A3</label>
+        <div id="searchResults" v-show="searchTerm.length > 2 && searchResults.length > 0">
+          <div v-for="r in searchResults" class="searchResultSection">
+            <label class="title is-5">{{ r.short_name || r.long_name }}</label>
             <div>
-              <span class="tag is-primary is-medium">Closest interaction partners</span>
-              <span class="tag is-primary is-medium">Catalysed reactions</span>
+              <span
+                class="tag is-primary is-medium"
+                @click="selectSearchResult(3, r.id)"
+              >
+                Closest interaction partners
+              </span>
+              <span
+                class="tag is-primary is-medium"
+                v-show="r.component_type=='enzyme'"
+                @click="selectSearchResult(4, r.id)"
+              >
+                Catalysed reactions
+              </span>
             </div>
-          </div>
-          <div class="searchResultSection">
-            <label class="title is-5">SULT1A5</label>
-            <div>
-              <span class="tag is-primary is-medium">Closest interaction partners</span>
-              <span class="tag is-primary is-medium">Catalysed reactions</span>
-              <span class="tag is-primary is-medium">Metabolites</span>
-            </div>
+            <hr>
           </div>
         </div>
       </div>
@@ -52,11 +61,11 @@
 
 <script>
 
+import axios from 'axios';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
 import Reactome from 'components/Reactome';
-import router from '../router';
 
 export default {
   name: 'network-graph',
@@ -70,6 +79,7 @@ export default {
     return {
       selectedTab: 1,
       searchTerm: '',
+      searchResults: [],
       errorMessage: '',
       tabs: [
         this.$t('tab1title'),
@@ -90,7 +100,34 @@ export default {
     },
     goToTab(tabIndex) {
       this.selectedTab = tabIndex + 1;
-      router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
+      this.$router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
+    },
+    search() {
+      if (this.searchTerm.length < 3) {
+        return;
+      }
+      this._.debounce(() => {
+        axios.get(`search/${this.searchTerm}`)
+          .then((response) => {
+            this.searchResults = response.data;
+          })
+          .catch((error) => {
+            this.searchResults = [];
+            console.log(error);
+          });
+      }, 500)();
+    },
+    selectSearchResult(tab, reactionComponentId) {
+      this.searchTerm = '';
+      this.searchResults = [];
+      this.selectedTab = tab;
+      this.$router.push({
+        query: {
+          ...this.$route.query,
+          reaction_component_id: reactionComponentId,
+          tab: this.selectedTab,
+        },
+      });
     },
   },
 };
