@@ -150,10 +150,6 @@ export default {
 
 <style lang="scss">
 
-table, th, td {
-  border: 1px solid black;
-}
-
 th {
   cursor: pointer;
   user-select: none;
