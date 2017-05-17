@@ -9,9 +9,26 @@
       </div>
       <div class="column is-7">
         <p class="control">
-          <input id="search" class="input"
+          <input id="search" class="input" v-model="searchTerm"
             type="text" :placeholder="$t('searchPlaceholder')">
         </p>
+        <div id="searchResults" v-show="searchTerm.length > 2">
+          <div class="searchResultSection">
+            <label class="title is-5">SULT1A3</label>
+            <div>
+              <span class="tag is-primary is-medium">Closest interaction partners</span>
+              <span class="tag is-primary is-medium">Catalysed reactions</span>
+            </div>
+          </div>
+          <div class="searchResultSection">
+            <label class="title is-5">SULT1A5</label>
+            <div>
+              <span class="tag is-primary is-medium">Closest interaction partners</span>
+              <span class="tag is-primary is-medium">Catalysed reactions</span>
+              <span class="tag is-primary is-medium">Metabolites</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <br>
@@ -52,6 +69,7 @@ export default {
   data() {
     return {
       selectedTab: 1,
+      searchTerm: '',
       errorMessage: '',
       tabs: [
         this.$t('tab1title'),
@@ -79,7 +97,31 @@ export default {
 </script>
 
 <style lang="scss">
-  #search {
-    height: 38px;
+
+#search {
+  height: 38px;
+}
+
+#searchResults {
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  border: 1px solid #64CC9A;
+  border-top: 0;
+  margin-top: -2px;
+  padding: 10px;
+
+  .searchResultSection {
+    margin-bottom: 10px;
+
+    label {
+      font-style: italic;
+    }
+
+    span {
+      cursor: pointer;
+    }
   }
+}
+
 </style>
