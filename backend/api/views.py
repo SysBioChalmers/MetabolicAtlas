@@ -201,7 +201,7 @@ def get_component_with_interaction_partners(request, id):
             component.reactions_as_product.count() + \
             component.reactions_as_modifier.count()
 
-    if reactions_count > 10:
+    if reactions_count > 100:
         return HttpResponse(status=406)
 
     reactions = list(chain(
@@ -212,7 +212,7 @@ def get_component_with_interaction_partners(request, id):
     reactions_serializer = InteractionPartnerSerializer(reactions, many=True)
 
     result = {
-             'enzyme': component_serializer.data,
+             'component': component_serializer.data,
              'reactions': reactions_serializer.data
              }
 

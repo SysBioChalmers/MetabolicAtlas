@@ -44,6 +44,7 @@ export default function (elms, rels, nodeDisplayParams) {
       'font-size': '20px',
       'text-valign': 'top',
       'text-halign': 'center',
+      'min-zoomed-font-size': '14px', // not working
     })
     .selector('node[type="metabolite"]')
     .css({
@@ -77,6 +78,12 @@ export default function (elms, rels, nodeDisplayParams) {
       'target-arrow-color': textColor,
       'source-arrow-color': textColor,
       'text-outline-color': textColor,
+    })
+    .selector('core')
+    .css({
+      'active-bg-color': '#64CC9A',
+      'active-bg-opacity': 0.25,
+      'active-bg-size': 10,
     });
 
   return [elmsjson, stylesheet];

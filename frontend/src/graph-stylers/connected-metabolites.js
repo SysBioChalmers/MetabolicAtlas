@@ -103,6 +103,13 @@ export default function (elms, rels) {
       'target-arrow-color': textColor,
       'source-arrow-color': textColor,
       'text-outline-color': textColor,
+    })
+    .selector('core')
+    .css({
+      // the circle visible when clicking on the graph
+      'active-bg-color': '#64CC9A',
+      'active-bg-opacity': 0.25,
+      'active-bg-size': 10,
     });
 
   return [elmsjson, stylesheet];
