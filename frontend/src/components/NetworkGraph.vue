@@ -19,7 +19,7 @@
         </p>
         <div id="searchResults" v-show="searchTerm.length > 2 && searchResults.length > 0">
           <div v-for="r in searchResults" class="searchResultSection">
-            <label class="title is-5">{{ r.short_name || r.long_name }}</label>
+            <label class="title is-5" v-html="formatSearchResultLabel(r)"></label>
             <div>
               <span
                 class="tag is-primary is-medium"
@@ -66,6 +66,7 @@ import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
 import Reactome from 'components/Reactome';
+import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
   name: 'network-graph',
@@ -129,6 +130,10 @@ export default {
         },
       });
     },
+    formatSearchResultLabel(c) {
+      return `${c.short_name || c.long_name} (${c.compartment} | ${this.chemicalFormula(c.formula)})`;
+    },
+    chemicalFormula,
   },
 };
 </script>
