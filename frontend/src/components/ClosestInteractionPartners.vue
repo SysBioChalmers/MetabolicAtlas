@@ -37,15 +37,13 @@
           <div class="column is-8">
             <div id="graphOption">
               <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
-              v-on:click="showGraphLegend = !showGraphLegend; showColorPickerEnz = false;
-               showColorPickerMeta = false;">Legend</span>
+              v-on:click="toggleGraphLegend">Legend</span>
               <span class="button" v-on:click="zoomGraph(true)">+</span>
               <span class="button" v-on:click="zoomGraph(false)">-</span>
               <span class="button" v-on:click="fitGraph()">fit</span>
             </div>
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
-              <button class="delete" v-on:click="showGraphLegend = !showGraphLegend;
-               showColorPickerEnz = false; showColorPickerMeta = false"></button>
+              <button class="delete" v-on:click="toggleGraphLegend"></button>
               <span class="label">Enzyme</span>
               <br>
               <span>Shape:</span>
@@ -147,7 +145,7 @@
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
             <div>Warning: The query has returned too many reactions.<br>The graph has not been generated.</div>
             <span v-show="reactionsCount <= maxReactionCount" 
-            class="button" v-on:click="constructGraph(rawElms, rawRels); fitGraph(); showNetworkGraph = true">Show it anyway!</span>
+            class="button" v-on:click="constructGraph(rawElms, rawRels);">Show it anyway!</span>
           </div>
         </div>
         <cytoscape-table
@@ -424,6 +422,11 @@ export default {
         this.showGraphContextMenu = false;
       }
     },
+    toggleGraphLegend() {
+      this.showGraphLegend = !this.showGraphLegend;
+      this.showColorPickerEnz = false;
+      this.showColorPickerMeta = false;
+    },
     redrawGraph() {
       const stylesheet = graph(this.elms, this.rels, this.nodeDisplayParams)[1];
       const cyzoom = this.cy.zoom();
@@ -435,7 +438,9 @@ export default {
       });
     },
     fitGraph() {
-      this.cy.fit();
+      setTimeout(() => {
+        this.cy.fit();
+      }, 500);
       this.minZoom = this.cy.zoom() / 2.0;
     },
     highlightNode(elmId) {
@@ -479,6 +484,7 @@ export default {
 
       const contextMenuGraph = this.$refs.contextMenuGraph;
       this.showGraphContextMenu = false;
+      this.showNetworkGraph = true;
 
       const updatePosition = (node) => {
         contextMenuGraph.style.left = `${node.renderedPosition().x - 8}px`;
