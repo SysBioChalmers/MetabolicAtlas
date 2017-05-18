@@ -111,6 +111,12 @@ export default {
       showGraphContextMenu: false,
     };
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      this.load();
+    },
+  },
   computed: {
     keggLink() {
       if (this.selectedElm

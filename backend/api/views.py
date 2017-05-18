@@ -340,3 +340,17 @@ def get_metabolite_reactome(request, reaction_component_id, reaction_id):
 
     return JSONResponse(result)
 
+@api_view()
+def search(request, term):
+    components = ReactionComponent.objects.filter(
+            Q(id__icontains=term) |
+            Q(short_name__icontains=term) |
+            Q(long_name__icontains=term) |
+            Q(formula__icontains=term)
+        ).order_by('short_name')[:50]
+    if components.count() == 0:
+        return HttpResponse(status=404)
+
+    serializer = ReactionComponentSerializer(components, many=True)
+    return JSONResponse(serializer.data)
+
