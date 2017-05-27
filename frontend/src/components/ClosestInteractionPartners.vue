@@ -175,6 +175,7 @@ import { default as transform } from '../data-mappers/closest-interaction-partne
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
+import { default as convertGraphML } from '../helpers/graph-ml-converter';
 
 export default {
   name: 'closest-interaction-partners',
@@ -567,8 +568,9 @@ export default {
       });
 
       const output = this.cy.graphml();
+      const converted = convertGraphML(output);
 
-      a.href = window.URL.createObjectURL(new Blob([output], { type: 'text/xml' }));
+      a.href = window.URL.createObjectURL(new Blob([converted], { type: 'text/xml' }));
       a.download = `${this.reactionComponentId}_interaction_partners.graphml`;
       a.target = '_blank';
       a.style.display = 'none';
