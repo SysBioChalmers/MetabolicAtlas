@@ -168,6 +168,7 @@ import jquery from 'jquery';
 import graphml from 'cytoscape-graphml/src/index';
 import viewUtilities from 'cytoscape-view-utilities';
 import { Compact } from 'vue-color';
+import { default as FileSaver } from 'file-saver';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
@@ -551,7 +552,6 @@ export default {
     },
     // TODO: refactor
     exportGraphml: function exportGraphml() {
-      const a = document.createElement('a');
       this.cy.graphml({
         node: {
           css: true,
@@ -570,13 +570,9 @@ export default {
       const output = this.cy.graphml();
       const converted = convertGraphML(output);
 
-      a.href = window.URL.createObjectURL(new Blob([converted], { type: 'text/xml' }));
-      a.download = `${this.reactionComponentId}_interaction_partners.graphml`;
-      a.target = '_blank';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const blob = new Blob([converted], { type: 'text/graphml' });
+      const filename = `${this.reactionComponentId}_interaction_partners.graphml`;
+      FileSaver.saveAs(blob, filename);
     },
     exportPNG: function exportPNG() {
       const a = document.createElement('a');

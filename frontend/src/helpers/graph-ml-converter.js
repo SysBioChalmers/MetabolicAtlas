@@ -11,6 +11,7 @@ export default function (xmlText) {
     //and add them to a new body.  Otherwise I got all sorts of problems with the domians (xmlns).
     //this is only true when parsing XML.
     cleanGraphmlSource($xmlSource);
+    addNewGraphmlNodesToSource($xmlSource);
 
     //create a new valid root graphml document 
     var xmlDocTarget = createCompatibleGraphmlRoot();
@@ -28,11 +29,25 @@ export default function (xmlText) {
         function isWantedCssAttribute(value) {
             if (value === "shape") return true;
             if (value === "backgroundColor") return true;
+            if (value === "height") return true;
+            if (value === "width") return true;
+            return false;
+        }
+        function hasPxAttribute(value) {
+            if (value === "height") return true;
+            if (value === "width") return true;
             return false;
         }
         function renameWantedCssAttribute(value) {
             if (value === "shape") return "Shape";
             if (value === "backgroundColor") return "Color";
+            if (value === "height") return "Height";
+            if (value === "width") return "Width";
+            return "";
+        }
+        function renameLocationAttribute(value) {
+            if (value === "x") return "X Location";
+            if (value === "y") return "Y Location";
             return "";
         }
         //get all nodes 
@@ -42,13 +57,16 @@ export default function (xmlText) {
             //when a node is of type ccc clean using this logic
             var $datumCss = $(this).find("data[type='css']");
             $datumCss.each(function () {
-                var key = $(this).attr("key");
+                const key = $(this).attr("key");
                 $(this).removeAttr("type");
                 //if key is not in wanted list, remove, if it is rename it
                 //NOTE: the key attibute here MUST match the KEY attibute on the createCompatibleGraphmlRoot() function
                 if (isWantedCssAttribute(key)) {
                     var renamedAttribute = renameWantedCssAttribute(key);
                     $(this).attr({ key: renamedAttribute });
+                    if (hasPxAttribute(key))
+                    //remove px from numerical vallue
+                        $(this).text($(this).text().replace("px", ""));
                 } else
                     $(this).remove();
 
@@ -62,7 +80,25 @@ export default function (xmlText) {
             var $datumPosition = $(this).find("data[type='position']");
             $datumPosition.each(function () {
                 $(this).removeAttr("type");
+                var key = $(this).attr("key");
+                var renamedLocAttribute = renameLocationAttribute(key);
+                $(this).attr({ key: renamedLocAttribute });
+                //must be integer value
+                $(this).text(Math.round($(this).text()));
             });
+        });
+    }
+    function addNewGraphmlNodesToSource(xml) {
+        //get all nodes 
+        var $nodes = xml.find("node");
+        //add Id and label position nodes
+        $nodes.each(function (idx, node) {
+            var $currentNode = $(node);
+            var nodeId = $currentNode.attr("id");
+            var newDataIdString = "<data key=\"Id\">" + nodeId + "</data>";
+            $(newDataIdString).appendTo($currentNode);
+            var newDataPositionString = "<data key=\"Label Position\">N,S,c,0.00,0.00</data>";
+            $(newDataPositionString).appendTo($currentNode);
         });
     }
     function createCompatibleGraphmlRoot() {
@@ -77,10 +113,14 @@ export default function (xmlText) {
             '<key attr.name="hpaLink" attr.type="string" for="node" id="hpaLink"/>\n' +
             '<key attr.name="type" attr.type="string" for="node" id="type"/>\n' +
             '<key attr.name="details" attr.type="string" for="node" id="details"/>\n' +
-            '<key attr.name="x" attr.type="long" for="node" id="x"/>\n' +
-            '<key attr.name="y" attr.type="long" for="node" id="y"/>\n' +
+            '<key attr.name="X Location" attr.type="long" for="node" id="X Location"/>\n' +
+            '<key attr.name="Y Location" attr.type="long" for="node" id="Y Location"/>\n' +
             '<key attr.name="Shape" attr.type="string" for="node" id="Shape"/>\n' +
             '<key attr.name="Color" attr.type="string" for="node" id="Color" />\n' +
+            '<key attr.name="Label Position" attr.type="string" for="node" id="Label Position" />\n' +
+            '<key attr.name="Id" attr.type="string" for="node" id="Id" />\n' +
+            '<key attr.name="Height" attr.type="string" for="node" id="Height" />\n' +
+            '<key attr.name="Width" attr.type="string" for="node" id="Width" />\n' +
             ' </graphml>\n'
         );
         return xmlDocTarget;
