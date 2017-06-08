@@ -44,7 +44,6 @@ export default function (elms, rels, nodeDisplayParams) {
       'font-size': '20px',
       'text-valign': 'top',
       'text-halign': 'center',
-      'min-zoomed-font-size': '14px', // not working
     })
     .selector('node[type="metabolite"]')
     .css({

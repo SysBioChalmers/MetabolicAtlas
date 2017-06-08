@@ -17,9 +17,9 @@
             type="text"
             :placeholder="$t('searchPlaceholder')">
         </p>
-        <div id="searchResults" v-show="searchTerm.length > 2 && searchResults.length > 0">
-          <div v-for="r in searchResults" class="searchResultSection">
-            <label class="title is-5" v-html="formatSearchResultLabel(r)"></label>
+        <div id="searchResults" v-show="searchTerm.length > 1">
+          <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
+            <label class="title is-5" v-html="formatSearchResultLabel(r, searchTerm)"></label>
             <div>
               <span
                 class="tag is-primary is-medium"
@@ -36,6 +36,9 @@
               </span>
             </div>
             <hr>
+          </div>
+          <div v-if="searchResults.length == 0">
+            <label class="title is-6">No result found</label>
           </div>
         </div>
       </div>
@@ -104,11 +107,13 @@ export default {
       this.$router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
     },
     search() {
-      if (this.searchTerm.length < 3) {
+      if (this.searchTerm.length < 2) {
         return;
       }
+      // make sure we serach a term of size 2
+      const searchTerm = this.searchTerm;
       this._.debounce(() => {
-        axios.get(`search/${this.searchTerm}`)
+        axios.get(`search/${searchTerm}`)
           .then((response) => {
             this.searchResults = response.data;
           })
@@ -130,8 +135,29 @@ export default {
         },
       });
     },
-    formatSearchResultLabel(c) {
-      return `${c.short_name || c.long_name} (${c.compartment} | ${this.chemicalFormula(c.formula)})`;
+    formatSearchResultLabel(c, searchTerm) {
+      let s = `${c.short_name || c.long_name} (${c.compartment}`;
+      if (c.formula) {
+        s = `${s} | ${this.chemicalFormula(c.formula)})`;
+      } else {
+        s = `${s})`;
+      }
+      if (c.enzyme && c.enzyme.uniprot_acc &&
+       c.enzyme.uniprot_acc.toLowerCase().includes(searchTerm.toLowerCase())) {
+        s = `${s} ‒ Uniprot ACC: ${c.enzyme.uniprot_acc}`;
+      } else if (c.metabolite) {
+        if (c.metabolite.hmdb &&
+          c.metabolite.hmdb.toLowerCase().includes(searchTerm.toLowerCase())) {
+          s = `${s} ‒ HMDB: ${c.metabolite.hmdb}`;
+        } else if (c.metabolite.hmdb_name &&
+          c.metabolite.hmdb_name.toLowerCase().includes(searchTerm.toLowerCase())) {
+          s = `${s} ‒ HMDB: ${c.metabolite.hmdb_name}`;
+        } else if (c.metabolite.kegg &&
+          c.metabolite.kegg.toLowerCase().includes(searchTerm.toLowerCase())) {
+          s = `${s} ‒ Kegg: ${c.metabolite.kegg}`;
+        }
+      }
+      return s;
     },
     chemicalFormula,
   },
@@ -145,16 +171,25 @@ export default {
 }
 
 #searchResults {
+  background: white;
+  position: absolute;
+  top: 50px;
   max-height: 300px;
   overflow-y: auto;
-  width: 100%;
+  width: inherit;
   border: 1px solid #64CC9A;
   border-top: 0;
   margin-top: -2px;
   padding: 10px;
+  z-index: 10;
+
+  .resultSeparator:last-child {
+    display: none;
+  }
 
   .searchResultSection {
     margin-bottom: 10px;
+    background: white;
 
     label {
       font-style: italic;
@@ -164,6 +199,13 @@ export default {
       cursor: pointer;
     }
   }
+
+  .searchResultSection:last-child hr {
+    display: none;
+  }
+
 }
+
+
 
 </style>
