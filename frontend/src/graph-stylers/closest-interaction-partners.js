@@ -2,16 +2,20 @@ import cytoscape from 'cytoscape';
 
 export default function (elms, rels, nodeDisplayParams) {
   const elmsjson = [];
+  const tissue = nodeDisplayParams.activeTissue;
 
   for (const id of Object.keys(elms)) {
     const elm = elms[id];
+    const exprColor = tissue === false ?
+      nodeDisplayParams.enzymeNodeColor.hex : elm.tissue_expression[tissue];
+    console.log(exprColor);
 
     elmsjson.push({
       group: 'nodes',
       data: {
         id: elm.id,
-	expression_color: elm.expression_color,
         name: elm.short,
+        expression_color: exprColor,
         hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
         type: elm.type,
         details: elm.details,
@@ -33,7 +37,7 @@ export default function (elms, rels, nodeDisplayParams) {
   }
 
   const metaboliteColor = nodeDisplayParams.metaboliteNodeColor.hex;
-  const enzymeColor = nodeDisplayParams.enzymeNodeColor.hex;
+  // const enzymeColor = nodeDisplayParams.enzymeNodeColor.hex;
 
   const textColor = '#363636';
   const lineColor = '#DBDBDB';
@@ -60,7 +64,7 @@ export default function (elms, rels, nodeDisplayParams) {
     .css({
       // shape: 'rectangle',
       shape: nodeDisplayParams.enzymeNodeShape,
-      'background-color': enzymeColor,
+      'background-color': 'data(expression_color)',
       width: 20,
       height: 20,
       color: textColor,

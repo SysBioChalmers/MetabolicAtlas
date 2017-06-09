@@ -22,11 +22,10 @@
             <div v-show="showMenuExpression" id="contextMenuExpression" ref="contextMenuExpression">
               <span class="button is-dark" v-on:click="showHPATissues= !showHPATissues">HPA</span>
             </div>
-            <!-- FIXME for loop here, figure out where data goes, and contexts do not exist, dont know what they are
+	    <!-- FIXME for loop here, figure out where data goes, and contexts do not exist, dont know what they are -->
             <div v-for="tissue in hpatissues" v-show="showHPATissues" id="contextHPAExpression" ref="contextHPAExpression">
               <span class="button is-primary is-small is-outlined" v-on:click="switchHPAExpression(tissue.name)">{{ tissue.name }}</span>
             </div>
-            -->
           </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
@@ -230,12 +229,14 @@ export default {
       showMenuExport: false,
       showMenuExpression: false,
       showHPATissues: false,
+      showHPATissueExpression: false,
       showGraphLegend: false,
       showGraphContextMenu: false,
       showColorPickerEnz: false,
       showColorPickerMeta: false,
 
       nodeDisplayParams: {
+        activeTissue: false,
         enzymeNodeShape: 'rectangle',
         enzymeNodeColor: {
           hex: '#C92F63',
@@ -345,8 +346,7 @@ export default {
 
           [this.rawElms, this.rawRels] = transform(component, this.reactionComponentId, reactions);
           this.selectedElm = this.rawElms[component.id];
-          this.loadHPAData(this.rawElms);
-
+          this.rawElms = this.loadHPAData(this.rawElms);
           this.expandedIds = [];
           this.expandedIds.push(component.id);
 
@@ -375,19 +375,32 @@ export default {
           }
         });
     },
-    loadHPAData() {
-      // FIXME need to load whateevr proteins are in graph
-      // And parse the XML, now this is just a dummy thing
-      // Possibly put this function in the load function
-      axios.get('http://www.proteinatlas.org/ENSG00000134057.xml')
-        .then((response) => {
-          this.loading = false;
-          this.errorMessage = null;
+    loadHPAData(rawElms) {
+      // FIXME dummy method that adds color
+      const expressionElms = {};
+      const hpatissues = [{ name: 'heart', color: 'blue' },
+                          { name: 'brain', color: 'red' },
+                          { name: 'lung', color: 'green' }];
+      this.hpatissues = hpatissues;
+      for (const elid of Object.keys(rawElms)) {
+        expressionElms[elid] = rawElms[elid];
+        expressionElms[elid].tissue_expression = {};
+        for (const tissue of hpatissues) {
+          expressionElms[elid].tissue_expression[tissue.name] = tissue.color;
+        }
+      }
+      return expressionElms;
 
-        
-      })
-      .catch((error) => {
-      });
+//      // FIXME need to load whateevr proteins are in graph
+//      // And parse the XML, now this is just a dummy thing
+//      // Possibly put this function in the load function
+//      //axios.get('http://www.proteinatlas.org/ENSG00000134057.xml')
+//        .then((response) => {
+//          this.loading = false;
+//          this.errorMessage = null;
+//      })
+//      .catch((error) => {
+//      });
     },
     loadExpansion() {
       axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
@@ -615,12 +628,14 @@ export default {
       document.body.removeChild(a);
     },
     switchHPAExpression: function colorHPAExpression(tissuename) {
-      if (this.showHPATissueExpression == tissuename) {
+      if (this.showHPATissueExpression === tissuename) {
         this.showHPATissueExpression = false;
-        redrawGraph();
-      }
-      else {
-          this.showHPATissueExpression = tissuename;
+        this.nodeDisplayParams.activeTissue = false;
+        this.redrawGraph();
+      } else {
+        this.showHPATissueExpression = tissuename;
+        this.nodeDisplayParams.activeTissue = tissuename;
+        this.redrawGraph();
       }
     },
     zoomGraph: function zoomGraph(zoomIn) {
