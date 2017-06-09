@@ -109,7 +109,6 @@
             <div v-if="selectedElm" class="card">
               <div v-if="selectedElm.details" class="card">
                 <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-                t1
                   <div v-if="selectedElm.details.function">
                     <p class="label">Function</p>
                     <p>{{ selectedElm.details.function }}</p>
@@ -125,7 +124,6 @@
                   </div>
                 </div>
                 <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
-                t2
                   <div v-if="selectedElm.details.hmdb_description">
                     <p class="label">Description</p>
                     <p>{{ selectedElm.details.hmdb_description }}</p>
@@ -145,17 +143,22 @@
                              !selectedElm.details.kegg">
                     {{ $t('noInfoAvailable') }}
                   </div>
-                  <div v-else v-on:click="showMetaboliteInfo()">
+                  <div v-else>
                     <br>
-                    SEE MORE
+                    <button class="button" v-on:click.prevent="toggleMetaboliteInfo()">More</button>
                   </div>
                 </div>
-                <br>
-                <a href="/about#closestpartners" target="_blank">
-                  {{ $t('moreInformation') }}
-                </a>
+              </div>
+              <div v-else>
+                <div class="card-content">
+                  {{ $t('noInfoAvailable') }}
+                </div>
               </div>
             </div>
+            <br>
+            <a href="/about#closestpartners" target="_blank">
+              {{ $t('moreInformation') }}
+            </a>
           </div>
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
@@ -176,7 +179,7 @@
       </div>
     </div>
     <div class="modal" v-bind:class="{ 'is-active': showMetaboliteTable }">
-      <div class="modal-background"></div>
+      <div class="modal-background" v-on:click.prevent="toggleMetaboliteInfo()"></div>
       <div class="modal-content">
         <div id="metabolite-info">
           <metabolite-table
@@ -185,7 +188,7 @@
           ></metabolite-table>
         </div>
       </div>
-      <button class="modal-close" :click="toggleMetaboliteInfo()"></button>
+      <button class="modal-close" v-on:click.prevent="toggleMetaboliteInfo()"></button>
     </div>
   </div>
 </template>
@@ -334,6 +337,7 @@ export default {
       this.$router.push(
         { query: { ...this.$route.query, reaction_component_id: this.selectedElmId } },
         () => { // On complete.
+          this.showMetaboliteTable = false;
           this.setup();
         },
         () => { // On abort.
@@ -683,8 +687,7 @@ export default {
         level: lvl,
       });
     },
-    toggleMetaboliteInfo: function showMetaboliteInfo() {
-      console.log(this.showMetaboliteTable);
+    toggleMetaboliteInfo: function toggleMetaboliteInfo() {
       this.showMetaboliteTable = !this.showMetaboliteTable;
       if (this.selectedElm) {
         if (this.showMetaboliteTable) {
@@ -693,7 +696,6 @@ export default {
           this.showGraphContextMenu = true;
         }
       }
-      console.log('--');
     },
     chemicalFormula,
     chemicalName,
@@ -722,7 +724,7 @@ h1, h2 {
 
 #contextMenuGraph, #contextMenuExport {
   position: absolute;
-  z-index: 999;
+  z-index: 20;
 
   span {
     display: block;
@@ -787,6 +789,10 @@ h1, h2 {
 
 .modal-content {
   width: 1024px;
+}
+
+.modal-background {
+  overflow: hidden;
 }
 
 /* #metabolite-info {

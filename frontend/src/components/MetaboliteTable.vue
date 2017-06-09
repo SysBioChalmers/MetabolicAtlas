@@ -10,12 +10,13 @@
         <td>{{ info.name }}</td>
       <tr>
       <tr v-for="el, k in info.details">
-        <td> {{ k }} </td>
-        <td> {{ el }} </td>
+        <td> {{ reformatKey(k) }} </td>
+        <td v-if="k.includes('link')"><a :href="el" target="_blank">{{ k }} LOGO</a></td>
+        <td v-else> {{ el }}</td>
       </tr>
       <tr>
         <td>Human Protein atlas</td>
-        <td><a :href="info.hpaLink">{{ info.name }}</a></td>
+        <td><a :href="info.hpaLink"> HPA logo</a></td>
       <tr>
     </table>
   </div>
@@ -49,6 +50,9 @@ export default {
         console.log('error:');
         console.log(error);
       });
+    },
+    reformatKey(k) {
+      return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
     },
   },
   // beforeMount() {
