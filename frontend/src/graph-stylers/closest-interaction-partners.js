@@ -10,6 +10,7 @@ export default function (elms, rels, nodeDisplayParams) {
       group: 'nodes',
       data: {
         id: elm.id,
+	expression_color: elm.expression_color,
         name: elm.short,
         hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
         type: elm.type,
