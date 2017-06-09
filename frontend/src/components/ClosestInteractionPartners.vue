@@ -106,46 +106,63 @@
             </div>
           </div>
           <div id="sidebar" class="column content">
-            <div v-if="selectedElm && selectedElm.details" class="card">
-              <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-                <div v-if="selectedElm.details.function">
-                  <p class="label">Function</p>
-                  <p>{{ selectedElm.details.function }}</p>
-                  <br v-if="selectedElm.details.catalytic_activity">
+            <div v-if="selectedElm" class="card">
+              <div v-if="selectedElm.details" class="card">
+                <div v-if="selectedElm.type === 'enzyme'" class="card-content">
+                t1
+                  <div v-if="selectedElm.details.function">
+                    <p class="label">Function</p>
+                    <p>{{ selectedElm.details.function }}</p>
+                    <br>
+                  </div>
+                  <div v-if="selectedElm.details.catalytic_activity">
+                    <p class="label">Catalytic Activity</p>
+                    {{ selectedElm.details.catalytic_activity }}
+                  </div>
+                  <div v-if="!selectedElm.details.function &&
+                             !selectedElm.details.catalytic_activity">
+                    {{ $t('noInfoAvailable') }}
+                  </div>
                 </div>
-                <div v-if="selectedElm.details.catalytic_activity">
-                  <p class="label">Catalytic Activity</p>
-                  {{ selectedElm.details.catalytic_activity }}
+                <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
+                t2
+                  <div v-if="selectedElm.details.hmdb_description">
+                    <p class="label">Description</p>
+                    <p>{{ selectedElm.details.hmdb_description }}</p>
+                    <br>
+                  </div>
+                  <div v-if="selectedElm.details.mass">
+                    <p class="label">Mass</p>
+                    <p>{{ selectedElm.details.mass }}</p>
+                    <br>
+                  </div>
+                  <div v-if="selectedElm.details.kegg">
+                    <p class="label">Kegg</p>
+                    <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+                  </div>
+                  <div v-if="!selectedElm.details.hmdb_description &&
+                             !selectedElm.details.mass &&
+                             !selectedElm.details.kegg">
+                    {{ $t('noInfoAvailable') }}
+                  </div>
+                  <div v-else v-on:click="showMetaboliteInfo()">
+                    <br>
+                    SEE MORE
+                  </div>
                 </div>
-              </div>
-              <div v-if="selectedElm.type === 'metabolite'" class="card-content">
-                <div v-if="selectedElm.details.hmdb_description">
-                  <p class="label">Description</p>
-                  <p>{{ selectedElm.details.hmdb_description }}</p>
-                  <br v-if="selectedElm.details.mass">
-                </div>
-                <div v-if="selectedElm.details.mass">
-                  <p class="label">Mass</p>
-                  <p>{{ selectedElm.details.mass }}</p>
-                  <br v-if="selectedElm.details.kegg">
-                </div>
-                <div v-if="selectedElm.details.kegg">
-                  <p class="label">Kegg</p>
-                  <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
-                </div>
+                <br>
+                <a href="/about#closestpartners" target="_blank">
+                  {{ $t('moreInformation') }}
+                </a>
               </div>
             </div>
-            <br>
-            <a href="/about#closestpartners" target="_blank">
-              {{ $t('moreInformation') }}
-            </a>
           </div>
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-            <div>Warning: The query has returned too many reactions.<br>The graph has not been generated.</div>
+            <div>{{ $t('tooManyReactionsWarn') }}</div>
             <span v-show="reactionsCount <= maxReactionCount" 
-            class="button" v-on:click="constructGraph(rawElms, rawRels);">Show it anyway!</span>
+            class="button" v-on:click="constructGraph(rawElms, rawRels);">{{ $t('tooManyReactionsBut') }}</span>
           </div>
         </div>
         <cytoscape-table
@@ -157,6 +174,18 @@
           @highlight="highlightNode($event)"
         ></cytoscape-table>
       </div>
+    </div>
+    <div class="modal" v-bind:class="{ 'is-active': showMetaboliteTable }">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div id="metabolite-info">
+          <metabolite-table
+          :metaboliteId="selectedElmId"
+          :metaboliteInfo="selectedElm"
+          ></metabolite-table>
+        </div>
+      </div>
+      <button class="modal-close" :click="toggleMetaboliteInfo()"></button>
     </div>
   </div>
 </template>
@@ -171,6 +200,7 @@ import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
+import MetaboliteTable from 'components/MetaboliteTable';
 import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
@@ -182,6 +212,7 @@ export default {
   name: 'closest-interaction-partners',
   components: {
     CytoscapeTable,
+    MetaboliteTable,
     Loader,
     'compact-picker': Compact,
   },
@@ -221,6 +252,7 @@ export default {
       showGraphContextMenu: false,
       showColorPickerEnz: false,
       showColorPickerMeta: false,
+      showMetaboliteTable: false,
 
       nodeDisplayParams: {
         enzymeNodeShape: 'rectangle',
@@ -651,7 +683,18 @@ export default {
         level: lvl,
       });
     },
-
+    toggleMetaboliteInfo: function showMetaboliteInfo() {
+      console.log(this.showMetaboliteTable);
+      this.showMetaboliteTable = !this.showMetaboliteTable;
+      if (this.selectedElm) {
+        if (this.showMetaboliteTable) {
+          this.showGraphContextMenu = false;
+        } else {
+          this.showGraphContextMenu = true;
+        }
+      }
+      console.log('--');
+    },
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
@@ -741,5 +784,16 @@ h1, h2 {
     cursor: pointer;
   }
 }
+
+.modal-content {
+  width: 1024px;
+}
+
+/* #metabolite-info {
+  position: absolute;
+  background: white;
+  width: 100%;
+  z-index: 20;
+} */
 
 </style>
