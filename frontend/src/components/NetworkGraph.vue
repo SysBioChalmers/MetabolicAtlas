@@ -38,7 +38,7 @@
             <hr>
           </div>
           <div v-if="searchResults.length == 0">
-            <label class="title is-6">No result found</label>
+            <label class="title is-6">{{ $t('searchNoResult') }}</label>
           </div>
         </div>
       </div>

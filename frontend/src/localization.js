@@ -1,6 +1,7 @@
 export default {
   en: {
     searchPlaceholder: 'Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP[c] => cAMP[c] + PPi[c])',
+    searchNoResult: 'No result found',
     footerText: 'Chalmers University of Technology | Department of Biology and Biological Engineering | <a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a>',
     moreInformation: 'More information',
     connectedMetabolites: {
