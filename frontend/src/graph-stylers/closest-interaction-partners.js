@@ -6,16 +6,13 @@ export default function (elms, rels, nodeDisplayParams) {
 
   for (const id of Object.keys(elms)) {
     const elm = elms[id];
-    const exprColor = tissue === false ?
-      nodeDisplayParams.enzymeNodeColor.hex : elm.tissue_expression[tissue];
-    console.log(exprColor);
-
+    elm.tissue_expression.false = nodeDisplayParams.enzymeNodeColor.hex;
     elmsjson.push({
       group: 'nodes',
       data: {
         id: elm.id,
         name: elm.short,
-        expression_color: exprColor,
+        expression_color: elm.tissue_expression,
         hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
         type: elm.type,
         details: elm.details,
@@ -37,8 +34,6 @@ export default function (elms, rels, nodeDisplayParams) {
   }
 
   const metaboliteColor = nodeDisplayParams.metaboliteNodeColor.hex;
-  // const enzymeColor = nodeDisplayParams.enzymeNodeColor.hex;
-
   const textColor = '#363636';
   const lineColor = '#DBDBDB';
 
@@ -64,7 +59,7 @@ export default function (elms, rels, nodeDisplayParams) {
     .css({
       // shape: 'rectangle',
       shape: nodeDisplayParams.enzymeNodeShape,
-      'background-color': 'data(expression_color)',
+      'background-color': function (ele) { return ele.data('expression_color')[tissue]; },
       width: 20,
       height: 20,
       color: textColor,
