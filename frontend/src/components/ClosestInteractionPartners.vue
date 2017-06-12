@@ -145,7 +145,7 @@
                   </div>
                   <div v-else>
                     <br>
-                    <button class="button" v-on:click.prevent="toggleMetaboliteInfo()">More</button>
+                    <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
                   </div>
                 </div>
               </div>
@@ -203,7 +203,6 @@ import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
 // import C2S from 'canvas2svg';
 import CytoscapeTable from 'components/CytoscapeTable';
-import MetaboliteTable from 'components/MetaboliteTable';
 import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
@@ -215,7 +214,6 @@ export default {
   name: 'closest-interaction-partners',
   components: {
     CytoscapeTable,
-    MetaboliteTable,
     Loader,
     'compact-picker': Compact,
   },
@@ -687,15 +685,13 @@ export default {
         level: lvl,
       });
     },
-    toggleMetaboliteInfo: function toggleMetaboliteInfo() {
-      this.showMetaboliteTable = !this.showMetaboliteTable;
-      if (this.selectedElm) {
-        if (this.showMetaboliteTable) {
-          this.showGraphContextMenu = false;
-        } else {
-          this.showGraphContextMenu = true;
-        }
-      }
+    viewMetaboliteInfo: function viewMetaboliteInfo() {
+      this.$router.push({
+        name: 'metabolite',
+        query: {
+          id: this.selectedElmId,
+        },
+      });
     },
     chemicalFormula,
     chemicalName,
@@ -786,20 +782,5 @@ h1, h2 {
     cursor: pointer;
   }
 }
-
-.modal-content {
-  width: 1024px;
-}
-
-.modal-background {
-  overflow: hidden;
-}
-
-/* #metabolite-info {
-  position: absolute;
-  background: white;
-  width: 100%;
-  z-index: 20;
-} */
 
 </style>
