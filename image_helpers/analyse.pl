@@ -2,10 +2,12 @@ use strict;
 
 my $baseDir="/Users/halena/Documents/Sys2Bio/hma-prototype/frontend/src/assets/maps/";
 
-if($ARGV[0]){
-  readFile("input file", $baseDir."compartment_level/lysosome.svg");
+if($ARGV[0] && $ARGV[0] eq "test"){
+  readFile("test file", "test.svg");
+}elsif($ARGV[0]){
+  readFile("input file", $ARGV[0]);
 }else{
-  readFile("L", $baseDir."compartment_level/lysosome.svg");
+  readFile("L", $baseDir."compartment_level/lysosome.svg.lena");
   readFile("P", $baseDir."compartment_level/perixome.svg");
   readFile("ER", $baseDir."compartment_level/ER.svg");
   readFile("Golgi", $baseDir."compartment_level/golgi.svg");
