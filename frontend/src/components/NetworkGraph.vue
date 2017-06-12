@@ -7,41 +7,9 @@
           <li><a><span>{{ $t('yeast') }}</span></a></li>
         </div>
       </div>
-      <div class="column is-7">
-        <p class="control">
-          <input
-            id="search"
-            class="input"
-            v-model="searchTerm"
-            @input="search"
-            type="text"
-            :placeholder="$t('searchPlaceholder')">
-        </p>
-        <div id="searchResults" v-show="searchTerm.length > 1">
-          <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
-            <label class="title is-5" v-html="formatSearchResultLabel(r, searchTerm)"></label>
-            <div>
-              <span
-                class="tag is-primary is-medium"
-                @click="selectSearchResult(2, r.id)"
-              >
-                Closest interaction partners
-              </span>
-              <span
-                class="tag is-primary is-medium"
-                v-show="r.component_type==='enzyme'"
-                @click="selectSearchResult(3, r.id)"
-              >
-                Catalysed reactions
-              </span>
-            </div>
-            <hr>
-          </div>
-          <div v-if="searchResults.length == 0">
-            <label class="title is-6">{{ $t('searchNoResult') }}</label>
-          </div>
-        </div>
-      </div>
+      <global-search
+      :fastSearch=true
+      ><global-search>
     </div>
     <br>
     <div class="tabs is-boxed">
@@ -66,16 +34,16 @@
 
 <script>
 
-import axios from 'axios';
+import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
-import Metabolite from 'components/Metabolite';
-import { chemicalFormula } from '../helpers/chemical-formatters';
+import Reactome from 'components/Reactome';
 
 export default {
   name: 'network-graph',
   components: {
+    GlobalSearch,
     MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
@@ -120,53 +88,6 @@ export default {
         query: fullQuery,
       });
     },
-    search() {
-      if (this.searchTerm.length < 2) {
-        return;
-      }
-      // make sure we serach a term of size 2
-      const searchTerm = this.searchTerm;
-      this._.debounce(() => {
-        axios.get(`search/${searchTerm}`)
-          .then((response) => {
-            this.searchResults = response.data;
-          })
-          .catch((error) => {
-            this.searchResults = [];
-            console.log(error);
-          });
-      }, 500)();
-    },
-    selectSearchResult(tabIndex, reactionComponentId) {
-      this.searchTerm = '';
-      this.searchResults = [];
-      this.goToTab(tabIndex, reactionComponentId, null);
-    },
-    formatSearchResultLabel(c, searchTerm) {
-      let s = `${c.short_name || c.long_name} (${c.compartment}`;
-      if (c.formula) {
-        s = `${s} | ${this.chemicalFormula(c.formula)})`;
-      } else {
-        s = `${s})`;
-      }
-      if (c.enzyme && c.enzyme.uniprot_acc &&
-       c.enzyme.uniprot_acc.toLowerCase().includes(searchTerm.toLowerCase())) {
-        s = `${s} ‒ Uniprot ACC: ${c.enzyme.uniprot_acc}`;
-      } else if (c.metabolite) {
-        if (c.metabolite.hmdb &&
-          c.metabolite.hmdb.toLowerCase().includes(searchTerm.toLowerCase())) {
-          s = `${s} ‒ HMDB: ${c.metabolite.hmdb}`;
-        } else if (c.metabolite.hmdb_name &&
-          c.metabolite.hmdb_name.toLowerCase().includes(searchTerm.toLowerCase())) {
-          s = `${s} ‒ HMDB: ${c.metabolite.hmdb_name}`;
-        } else if (c.metabolite.kegg &&
-          c.metabolite.kegg.toLowerCase().includes(searchTerm.toLowerCase())) {
-          s = `${s} ‒ Kegg: ${c.metabolite.kegg}`;
-        }
-      }
-      return s;
-    },
-    chemicalFormula,
   },
 };
 </script>
@@ -212,7 +133,4 @@ export default {
   }
 
 }
-
-
-
 </style>
