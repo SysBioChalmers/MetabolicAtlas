@@ -463,6 +463,8 @@ export default {
     constructGraph: function constructGraph(elms, rels) {
       /* eslint-disable no-param-reassign */
       const [elements, stylesheet] = graph(elms, rels, this.nodeDisplayParams);
+      const reactionComponentId = this.reactionComponentId;
+
       this.cy = cytoscape({
         container: this.$refs.cy,
         elements,
@@ -470,14 +472,51 @@ export default {
         layout: {
           // check 'cola' layout extension
           name: 'concentric',
+          concentric(node) {
+            if (node.degree() === 1) {
+              return 1;
+            }
+            if (node.data().id === reactionComponentId) {
+              return 10000;
+            }
+            if (node.data().type === 'enzyme') {
+              return 100;
+            }
+            return 200;
+          },
+          fit: true,
         },
+        // fit: true,
       });
+      this.cy.ready = this.cy.fit();
+
       this.cy.userZoomingEnabled(false);
-      this.fitGraph();
+      // this.fitGraph();
 
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
+
+      const cyt = this.cy;
+      cyt.on('zoom', () => {
+        const dim = Math.ceil(10 / cyt.zoom());
+        const edgeWidth = 1 / cyt.zoom();
+
+        console.log(`dim ${dim}`);
+
+        cyt.$('edge').css({
+          width: edgeWidth,
+          'font-size': dim,
+        });
+
+        cyt.$('node').css({
+          width: dim,
+          height: dim,
+          'font-size': dim,
+          'text-opacity': 1,
+          'overlay-padding': edgeWidth * 2,
+        });
+      });
 
       // const c = document.getElementsByTagName('canvas')[0];
       // const svgCxt = new C2S(c);
@@ -658,7 +697,7 @@ h1, h2 {
   position: absolute;
   top: 0;
   left: 0;
-  width: 200px;
+  width: 220px;
   height: 30px;
   z-index: 10;
 

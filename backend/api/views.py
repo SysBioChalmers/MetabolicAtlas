@@ -342,15 +342,28 @@ def get_metabolite_reactome(request, reaction_component_id, reaction_id):
 
 @api_view()
 def search(request, term):
+    metabolites = Metabolite.objects.filter(
+        Q(kegg__icontains=term) |
+        Q(hmdb__icontains=term) |
+        Q(hmdb_name__icontains=term)
+    )
+
+    enzymes = Enzyme.objects.filter(
+        Q(uniprot_acc__icontains=term)
+    )
+
     components = ReactionComponent.objects.filter(
             Q(id__icontains=term) |
             Q(short_name__icontains=term) |
             Q(long_name__icontains=term) |
-            Q(formula__icontains=term)
+            Q(formula__icontains=term) |
+            Q(metabolite__in=metabolites) |
+            Q(enzyme__in=enzymes)
         ).order_by('short_name')[:50]
     if components.count() == 0:
         return HttpResponse(status=404)
 
-    serializer = ReactionComponentSerializer(components, many=True)
+    serializer = ReactionComponentSearchSerializer(components, many=True)
+
     return JSONResponse(serializer.data)
 
