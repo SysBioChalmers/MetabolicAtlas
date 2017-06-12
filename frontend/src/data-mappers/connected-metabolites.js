@@ -39,14 +39,38 @@ export default function (e) {
       id: `${enzyme.id}_${reaction.id}`,
       source: enzyme.id,
       target: reaction.id,
+      type: 'enzyme_reaction',
     };
     rels.push(relation);
+
+    const reactants = {
+      id: `${reaction.id}_reactant`,
+      parentid: r.reaction_id,
+      type: 'reactant_box',
+    };
+    elms.push(reactants);
+
+    const products = {
+      id: `${reaction.id}_product`,
+      parentid: r.reaction_id,
+      type: 'product_box',
+    };
+    elms.push(products);
+
+    const relationRp = {
+      id: `${r.reaction_id}_rp`,
+      source: reactants.id,
+      target: products.id,
+      type: 'reactants_products',
+    };
+    rels.push(relationRp);
 
     for (const p of r.products) {
       const metabolite = {
         id: p.id,
         reactionid: r.reaction_id,
-        parentid: r.reaction_id,
+        // parentid: r.reaction_id,
+        parentid: products.id,
         short: p.short_name || p.long_name,
         long: p.long_name,
         description: 'description',
@@ -70,7 +94,8 @@ export default function (e) {
       const metabolite = {
         id: re.id,
         reactionid: r.reaction_id,
-        parentid: r.reaction_id,
+        // parentid: r.reaction_id,
+        parentid: reactants.id,
         short: re.short_name || re.long_name,
         long: re.long_name,
         description: 'description',

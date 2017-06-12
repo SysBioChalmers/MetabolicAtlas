@@ -38,6 +38,7 @@ export default function (elms, rels) {
       group: 'edges',
       data: {
         id: rel.id,
+        type: rel.type,
         source: rel.source,
         target: rel.target,
       },
@@ -47,7 +48,7 @@ export default function (elms, rels) {
   const reactionColor = '#C5F4DD';
   const metaboliteColor = '#259F64';
   const textColor = '#363636';
-  const lineColor = '#DBDBDB';
+  const lineColor = '#CBDBDB';
 
   const stylesheet = cytoscape.stylesheet()
     .selector('node')
@@ -56,6 +57,7 @@ export default function (elms, rels) {
       'font-size': '20px',
       'text-valign': 'bottom',
       'text-wrap': 'wrap',
+      shape: 'circle',
     })
     .selector('$node > node')
     .css({
@@ -83,6 +85,14 @@ export default function (elms, rels) {
       width: 20,
       height: 20,
     })
+    .selector('node[type="reactant_box"]')
+    .css({
+      'background-color': 'blue',
+    })
+    .selector('node[type="product_box"]')
+    .css({
+      'background-color': 'red',
+    })
     .selector('node[type="enzyme"]')
     .css({
       'font-size': '15px',
@@ -91,9 +101,16 @@ export default function (elms, rels) {
     .css({ shape: 'triangle' })
     .selector('edge') // please note that right now the only edge is from main enzyme to the reactions!
     .css({
-      width: 3,
+      width: 4,
       'line-color': lineColor,
       'target-arrow-color': lineColor,
+      'target-arrow-shape': 'triangle',
+    })
+    .selector('edge[type="reactants_products"]')
+    .css({
+      width: 3,
+      'line-color': 'black',
+      'target-arrow-color': 'black',
       'target-arrow-shape': 'triangle',
     })
     .selector(':selected')
@@ -112,5 +129,6 @@ export default function (elms, rels) {
       'active-bg-size': 10,
     });
 
+  console.log(elmsjson);
   return [elmsjson, stylesheet];
 }
