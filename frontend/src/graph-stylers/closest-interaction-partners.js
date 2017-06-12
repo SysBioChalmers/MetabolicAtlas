@@ -59,7 +59,12 @@ export default function (elms, rels, nodeDisplayParams) {
     .css({
       // shape: 'rectangle',
       shape: nodeDisplayParams.enzymeNodeShape,
-      'background-color': function (ele) { return ele.data('expression_color')[tissue]; },
+      'background-color': function (ele) {
+        if (ele.data('expression_color')[tissue]) {
+          return ele.data('expression_color')[tissue];
+        }
+        return 'grey';
+      },
       width: 20,
       height: 20,
       color: textColor,

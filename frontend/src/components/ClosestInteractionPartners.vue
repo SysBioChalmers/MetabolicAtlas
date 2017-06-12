@@ -22,9 +22,8 @@
             <div v-show="showMenuExpression" id="contextMenuExpression" ref="contextMenuExpression">
               <span class="button is-dark" v-on:click="showHPATissues= !showHPATissues">HPA</span>
             </div>
-	    <!-- FIXME for loop here, figure out where data goes, and contexts do not exist, dont know what they are -->
             <div v-for="tissue in hpatissues" v-show="showHPATissues" id="contextHPAExpression" ref="contextHPAExpression">
-              <span class="button is-primary is-small is-outlined" v-on:click="switchHPAExpression(tissue.name)">{{ tissue.name }}</span>
+              <span class="button is-primary is-small is-outlined" v-on:click="switchHPAExpression(tissue)">{{ tissue }}</span>
             </div>
           </div>
         </div>
@@ -187,6 +186,8 @@ import { default as graph } from '../graph-stylers/closest-interaction-partners'
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
+// FIXME remove this line and its helper file, its a HPA demo XML return function
+import { default as hpaResponse } from '../helpers/hparesponse';
 
 export default {
   name: 'closest-interaction-partners',
@@ -376,31 +377,75 @@ export default {
         });
     },
     loadHPAData(rawElms) {
-      // FIXME dummy method that adds color
+      // TODO fetch XML from proteinatlas, is gzipped file :(
+      // const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
+      // const proteins = 'ENSG00000121410,ENSG00000091831?format=xml';
+      // const url = baseUrl + proteins;
+      // const out = fs.createWriteStream('./feed.xml');
+      // axios.get(url).pipe(zlib.createGunzip()).pipe(out);
+      // FIXME hpaResponse is now a function that reutrns a string in helper dir!
+      const hpaXML = hpaResponse();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(hpaXML, 'text/xml');
+      const genes = xmlDoc.getElementsByTagName('entry');
+      const hpaGeneEx = {};
+      const hpatissues = {};
+      this.hpatissues = [];
+      // Loop through XML, gene by gene
+      for (const gene of genes) {
+        const genename = gene.getElementsByTagName('name')[0].textContent;
+        hpaGeneEx[genename] = [];
+        const samples = gene.getElementsByTagName('rnaExpression')[0].getElementsByTagName('data');
+        // Loop through rnaExpression children 'samples'
+        for (let i = 0; i < samples.length; i += 1) {
+          let sampleType;
+          let sampleName;
+          let replicates = [];
+          // Collect log2(tpm) expression values and sample name of one sample
+          for (const sampleEl of samples[i].children) {
+            if (sampleEl.tagName === 'level') {
+              if (sampleEl.textContent !== 'Not detected') {
+                hpatissues[sampleName] = 1;
+                replicates.push(Math.log2(sampleEl.getAttribute('tpm')));
+              }
+            } else {
+              sampleName = sampleEl.textContent;
+              // sampleType is cell line or tissue AFAIK
+              sampleType = sampleEl.tagName;
+            }
+          }
+          // Now take median in case of replicates
+          replicates = replicates.sort((a, b) => a - b);
+          const middle = Math.floor(replicates.length / 2);
+          const geneExpression = { name: sampleName, type: sampleType };
+          if (!replicates.length) {
+            geneExpression.value = null;
+          } else if (replicates.length % 2 === 0) {
+            geneExpression.value = (replicates[middle] + replicates[middle - 1]) / 2;
+          } else {
+            geneExpression.value = replicates[middle];
+          }
+          hpaGeneEx[genename].push(geneExpression);
+        }
+      }
+      // Make available all tissues with values to browser menu
+      for (const tissue of Object.keys(hpatissues).sort()) {
+        this.hpatissues.push(tissue);
+      }
+      // TODO make color scale of expression values
+
+      // Map colors to DOM elements of genes
       const expressionElms = {};
-      const hpatissues = [{ name: 'heart', color: 'blue' },
-                          { name: 'brain', color: 'red' },
-                          { name: 'lung', color: 'green' }];
-      this.hpatissues = hpatissues;
       for (const elid of Object.keys(rawElms)) {
         expressionElms[elid] = rawElms[elid];
         expressionElms[elid].tissue_expression = {};
-        for (const tissue of hpatissues) {
-          expressionElms[elid].tissue_expression[tissue.name] = tissue.color;
+        if (hpaGeneEx[rawElms[elid].short]) {
+          for (const tissue of hpaGeneEx[rawElms[elid].short]) {
+            expressionElms[elid].tissue_expression[tissue.name] = tissue.value ? 'green' : null;
+          }
         }
       }
       return expressionElms;
-
-//      // FIXME need to load whateevr proteins are in graph
-//      // And parse the XML, now this is just a dummy thing
-//      // Possibly put this function in the load function
-//      //axios.get('http://www.proteinatlas.org/ENSG00000134057.xml')
-//        .then((response) => {
-//          this.loading = false;
-//          this.errorMessage = null;
-//      })
-//      .catch((error) => {
-//      });
     },
     loadExpansion() {
       axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
