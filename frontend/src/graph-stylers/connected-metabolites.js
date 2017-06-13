@@ -87,11 +87,11 @@ export default function (elms, rels) {
     })
     .selector('node[type="reactant_box"]')
     .css({
-      'background-color': 'blue',
+      'border-color': 'blue',
     })
     .selector('node[type="product_box"]')
     .css({
-      'background-color': 'red',
+      'border-color': 'red',
     })
     .selector('node[type="enzyme"]')
     .css({
@@ -112,6 +112,7 @@ export default function (elms, rels) {
       'line-color': 'black',
       'target-arrow-color': 'black',
       'target-arrow-shape': 'triangle',
+      opacity: 0, // hide it
     })
     .selector(':selected')
     .css({

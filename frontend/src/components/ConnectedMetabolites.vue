@@ -236,6 +236,27 @@ export default {
               }
             });
 
+            this.cy.on('mouseover', 'node', (evt) => {
+              const node = evt.cyTarget;
+              console.log(node.data());
+              let s;
+              if (node.data().type === 'reactant_box') {
+                s = 'Reactants';
+              } else if (node.data().type === 'product_box') {
+                s = 'Products';
+              }
+              node.css({
+                content: s,
+              });
+            });
+
+            this.cy.on('mouseout', 'node', (evt) => {
+              const node = evt.cyTarget;
+              node.css({
+                content: '',
+              });
+            });
+
             this.cy.on('tapstart', () => {
               this.showGraphContextMenu = false;
             });
