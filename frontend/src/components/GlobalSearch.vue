@@ -1,30 +1,28 @@
 <template>
-  <div class="column is-7">
+  <div class="column" v-bind:class="quickSearch ? 'is-7' : 'is-8'">
     <p class="control">
       <input
         id="search"
         class="input"
-        v-model="searchTerm"
+        v-model="searchTermString"
         @input="searchDebounce"
         type="text"
         :placeholder="$t('searchPlaceholder')"
         v-on:keyup.enter="validateSearch()">
     </p>
-    <div v-if="fastSearch" id="searchResults" v-show="searchTerm.length > 1">
+    <div v-if="quickSearch" id="searchResults" v-show="searchTerm.length > 1">
       <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
-        <label class="title is-5" v-html="formatSearchResultLabel(r, searchTerm)"></label>
+        <label class="title is-5" v-html="formatSearchResultLabel(r, searchTermString)"></label>
         <div>
           <span
             class="tag is-primary is-medium"
-            @click="selectSearchResult(3, r.id)"
-          >
+            @click="selectSearchResult(3, r.id)">
             Closest interaction partners
           </span>
           <span
             class="tag is-primary is-medium"
-            v-show="r.component_type=='enzyme'"
-            @click="selectSearchResult(4, r.id)"
-          >
+            v-show="r.component_type == 'enzyme'"
+            @click="selectSearchResult(4, r.id)">
             Catalysed reactions
           </span>
         </div>
@@ -44,7 +42,7 @@ import { chemicalFormula } from '../helpers/chemical-formatters';
 export default {
   name: 'global-search',
   props: {
-    fastSearch: {
+    quickSearch: {
       default: false,
     },
     searchTerm: {
@@ -53,20 +51,26 @@ export default {
   },
   data() {
     return {
-      searchResults: [],
       errorMessage: '',
+      searchResults: [],
+      searchTermString: this.searchTerm,
     };
+  },
+  watch: {
+    searchResults() {
+      this.$emit('updateResults', this.searchTermString, this.searchResults);
+    },
   },
   methods: {
     searchDebounce() {
-      if (!this.fastSearch) {
+      if (!this.quickSearch) {
         return;
       }
       if (this.searchTerm.length < 2) {
         return;
       }
       // make sure we search a term of size 2
-      const searchTerm = this.searchTerm;
+      const searchTerm = this.searchTermString;
       this._.debounce(() => {
         this.search(searchTerm);
       }, 500)();
@@ -118,8 +122,7 @@ export default {
       return s;
     },
     validateSearch() {
-      console.log('enter key was pressed!');
-      if (this.fastSearch) {
+      if (this.quickSearch) {
         this.$router.push({
           name: 'search',
           query: {
@@ -128,7 +131,6 @@ export default {
         });
       } else {
         this.search(this.searchTerm);
-        console.log(this.searchResults.length);
       }
     },
     chemicalFormula,
