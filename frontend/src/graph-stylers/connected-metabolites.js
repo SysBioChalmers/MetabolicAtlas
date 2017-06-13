@@ -57,7 +57,7 @@ export default function (elms, rels) {
       'font-size': '20px',
       'text-valign': 'bottom',
       'text-wrap': 'wrap',
-      shape: 'circle',
+      shape: 'triangle',
     })
     .selector('$node > node')
     .css({
@@ -81,7 +81,7 @@ export default function (elms, rels) {
       'text-valign': 'top',
       'text-halign': 'center',
       'background-color': metaboliteColor,
-      shape: 'heptagon',
+      shape: 'ellipse',
       width: 20,
       height: 20,
     })
@@ -98,7 +98,7 @@ export default function (elms, rels) {
       'font-size': '15px',
     })
     .selector('node[type="product"]') // select the products and make them rectangular instead
-    .css({ shape: 'triangle' })
+    .css({ shape: 'circle' })
     .selector('edge') // please note that right now the only edge is from main enzyme to the reactions!
     .css({
       width: 4,
