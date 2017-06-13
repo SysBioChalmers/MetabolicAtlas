@@ -178,18 +178,6 @@
         ></cytoscape-table>
       </div>
     </div>
-    <div class="modal" v-bind:class="{ 'is-active': showMetaboliteTable }">
-      <div class="modal-background" v-on:click.prevent="toggleMetaboliteInfo()"></div>
-      <div class="modal-content">
-        <div id="metabolite-info">
-          <metabolite-table
-          :metaboliteId="selectedElmId"
-          :metaboliteInfo="selectedElm"
-          ></metabolite-table>
-        </div>
-      </div>
-      <button class="modal-close" v-on:click.prevent="toggleMetaboliteInfo()"></button>
-    </div>
   </div>
 </template>
 
@@ -253,7 +241,6 @@ export default {
       showGraphContextMenu: false,
       showColorPickerEnz: false,
       showColorPickerMeta: false,
-      showMetaboliteTable: false,
 
       nodeDisplayParams: {
         enzymeNodeShape: 'rectangle',
@@ -687,9 +674,11 @@ export default {
     },
     viewMetaboliteInfo: function viewMetaboliteInfo() {
       this.$router.push({
-        name: 'metabolite',
         query: {
-          id: this.selectedElmId,
+          ...this.$route.query,
+          reaction_component_id: this.reactionComponentId,
+          metabolite_rcid: this.selectedElmId,
+          tab: 5,
         },
       });
     },

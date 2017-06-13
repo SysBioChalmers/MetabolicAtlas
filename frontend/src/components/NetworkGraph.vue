@@ -29,7 +29,7 @@
               </span>
               <span
                 class="tag is-primary is-medium"
-                v-show="r.component_type=='enzyme'"
+                v-show="r.component_type==='enzyme'"
                 @click="selectSearchResult(4, r.id)"
               >
                 Catalysed reactions
@@ -58,7 +58,7 @@
    <metabolic-network v-if="selectedTab===1"></metabolic-network>
    <closest-interaction-partners v-if="selectedTab===3"></closest-interaction-partners>
    <connected-metabolites v-if="selectedTab===4"></connected-metabolites>
-   <reactome v-if="selectedTab===5"></reactome>
+   <metabolite v-if="selectedTab===5"></metabolite>
   </div>
 </template>
 
@@ -68,7 +68,7 @@ import axios from 'axios';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
-import Reactome from 'components/Reactome';
+import Metabolite from 'components/Metabolite';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
@@ -77,7 +77,7 @@ export default {
     MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
-    Reactome,
+    Metabolite,
   },
   data() {
     return {
