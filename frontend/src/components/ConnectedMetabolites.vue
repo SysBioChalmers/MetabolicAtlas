@@ -102,6 +102,7 @@ export default {
       errorMessage: null,
       elms: [],
 
+      reactionComponentId: '',
       selectedElmId: '',
       selectedElm: null,
 
@@ -149,6 +150,13 @@ export default {
     },
   },
   methods: {
+    setup() {
+      this.reactionComponentId = this.$route.query.reaction_component_id
+                                  || this.$route.query.reaction_component_long_name;
+      this.selectedElmId = '';
+      this.selectedElm = null;
+      this.load();
+    },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
       const node = this.cy.getElementById(elmId);
@@ -157,8 +165,7 @@ export default {
     },
     load() {
       const startTime = Date.now();
-      const enzymeId = this.$route.query.reaction_component_id
-                        || this.$route.query.reaction_component_long_name;
+      const enzymeId = this.reactionComponentId;
 
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
@@ -260,14 +267,7 @@ export default {
         });
     },
     viewMetaboliteInfo: function viewMetaboliteInfo() {
-      this.$router.push({
-        query: {
-          ...this.$route.query,
-          reaction_component_id: this.reactionComponentId,
-          metabolite_rcid: this.selectedElmId,
-          tab: 5,
-        },
-      });
+      this.$emit('updateSelTab', 4, this.reactionComponentId, this.selectedElmId);
     },
     chemicalFormula,
     chemicalName,
@@ -276,7 +276,7 @@ export default {
   },
   beforeMount() {
     regCose(cytoscape);
-    this.load();
+    this.setup();
   },
 };
 

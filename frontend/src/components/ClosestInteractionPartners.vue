@@ -673,14 +673,7 @@ export default {
       });
     },
     viewMetaboliteInfo: function viewMetaboliteInfo() {
-      this.$router.push({
-        query: {
-          ...this.$route.query,
-          reaction_component_id: this.reactionComponentId,
-          metabolite_rcid: this.selectedElmId,
-          tab: 5,
-        },
-      });
+      this.$emit('updateSelTab', 4, this.reactionComponentId, this.selectedElmId);
     },
     chemicalFormula,
     chemicalName,
