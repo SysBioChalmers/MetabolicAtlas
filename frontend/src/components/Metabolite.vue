@@ -49,7 +49,7 @@
         <td v-else> - </td>
       </tr>
     </table>
-    <reactome v-show="false"></reactome>
+    <reactome v-show="true"></reactome>
   </div>
 </template>
 

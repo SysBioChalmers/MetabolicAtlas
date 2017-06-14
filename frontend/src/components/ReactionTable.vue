@@ -5,8 +5,8 @@
         <tr>
           <th>Reaction Id</th>
           <th>Equation</th>
-          <th>Reactants</th>
-          <th>Products</th>
+          <th v-if="false">Reactants</th>
+          <th v-if="false">Products</th>
           <th>Modifiers</th>
         </tr>
       </thead>
@@ -14,9 +14,9 @@
         <tr v-for="r in reactions">
           <td>{{ r.id }}</td>
           <td>{{ r.equation }}</td>
-          <td>{{ r.reactants.length }}</td>
-          <td>{{ r.products.length }}</td>
-          <td>{{ r.modifiers.length }}</td>
+          <td v-if="false">{{ r.reactants.length }}</td>
+          <td v-if="false">{{ r.products.length }}</td>
+          <td>{{ r.modifiers.join(', ') }}</td>
         </tr>
       </tbody>
     </table>
