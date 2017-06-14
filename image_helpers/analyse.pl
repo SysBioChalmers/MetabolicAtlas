@@ -1,22 +1,25 @@
 use strict;
 
-my $baseDir="/Users/halena/Documents/Sys2Bio/hma-prototype/frontend/src/assets/maps/";
+my $baseDir="/Users/halena/Documents/Sys2Bio/hma-prototype/frontend/src/assets/maps/compartment_level/";
+
+my $only_look_at_lines_with="a28dff.*stroke.*transform";    # metabolite default color...
+#my $only_look_at_lines_with="stroke.*transform";            # all
 
 if($ARGV[0] && $ARGV[0] eq "test"){
   readFile("test file", "test.svg");
 }elsif($ARGV[0]){
-  readFile("input file", $ARGV[0]);
+  readFile("input file - ".$ARGV[0], $baseDir.$ARGV[0].".svg");
 }else{
-  readFile("L", $baseDir."compartment_level/lysosome.svg.lena");
-  readFile("P", $baseDir."compartment_level/perixome.svg");
-  readFile("ER", $baseDir."compartment_level/ER.svg");
-  readFile("Golgi", $baseDir."compartment_level/golgi.svg");
-  readFile("C1", $baseDir."compartment_level/cytosol_1.svg");
-  readFile("C2", $baseDir."compartment_level/cytosol_2.svg");
-  readFile("C3", $baseDir."compartment_level/cytosol_3.svg");
-  readFile("C4", $baseDir."compartment_level/cytosol_4.svg");
-  readFile("C5", $baseDir."compartment_level/cytosol_5.svg");
-  readFile("C6", $baseDir."compartment_level/cytosol_6.svg");
+  readFile("L", $baseDir."lysosome.svg.lena");
+  readFile("P", $baseDir."perixome.svg");
+  readFile("ER", $baseDir."ER.svg");
+  readFile("Golgi", $baseDir."golgi.svg");
+  readFile("C1", $baseDir."cytosol_1.svg");
+  readFile("C2", $baseDir."cytosol_2.svg");
+  readFile("C3", $baseDir."cytosol_3.svg");
+  readFile("C4", $baseDir."cytosol_4.svg");
+  readFile("C5", $baseDir."cytosol_5.svg");
+  readFile("C6", $baseDir."cytosol_6.svg");
 }
 
 
@@ -26,7 +29,7 @@ sub readFile{
   my $minX=1000000; my $maxX=0; my $minY=10000000; my $maxY=0; my $count = 0;
   open FILE, "<" . $file or die "not possible to open file '$file'\n";
   while(my $line=<FILE>){
-    if($line =~ m/stroke.*transform/){
+    if($line =~ m/$only_look_at_lines_with/){
       chomp($line);
       my $pos = $line;
       $pos =~ s/^.*transform=.matrix.//;
