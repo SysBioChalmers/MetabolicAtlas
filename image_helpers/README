@@ -1,0 +1,15 @@
+############################################################
+### How to fix the SVG files that comes out from Omix... ###
+############################################################
+
+1) compact the SVG format (eg make the g elements pretty, remove duplicated rows)
+   will create a new file ER.svg.fixed.svg.unique.svg in the src/assets/maps/compartment_level folder
+   (one compartment at the time...)
+perl fixOutput.pl ER
+
+2) then figure out the coordinate match for one of the pathways in the ER
+   (all compartments at once)
+   by manually looking at the output the adjust values were determined...
+
+3) then change the coordinate system in the SVG file to match and add the corresponding id
+python update.py
