@@ -74,6 +74,8 @@ export default {
     },
     goToTab(tabIndex, reactionComponentId, metaboliteRcId) {
       this.selectedTab = tabIndex + 1;
+      this.$router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
+    },
       const fullQuery = {
         ...this.$route.query,
         tab: this.selectedTab,
