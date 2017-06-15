@@ -70,8 +70,14 @@ export default {
   },
   watch: {
     elms() {
-      this.sortedElms = this.elms;
-      this.matchingElms = this.elms;
+      this.sortedElms = this.filteredElms;
+      this.matchingElms = this.sortedElms;
+    },
+  },
+  computed: {
+    filteredElms: function f() {
+      return this.elms.filter(
+        el => el.type !== 'reactant_box' && el.type !== 'product_box');
     },
   },
   methods: {

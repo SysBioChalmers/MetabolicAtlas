@@ -264,7 +264,7 @@ def connected_metabolites(request, id):
 
     expressions = ExpressionData.objects.filter(
             Q(gene_id=enzyme.id) &
-            Q(tissue__icontains=tissue) & 
+            Q(tissue__icontains=tissue) &
             Q(expression_type__icontains=expression_type)
         )
 
@@ -279,7 +279,7 @@ def expressions_list(request, enzyme_id):
 
     expressions = ExpressionData.objects.filter(
             Q(gene_id__icontains=enzyme_id) &
-            Q(tissue__icontains=tissue) & 
+            Q(tissue__icontains=tissue) &
             Q(expression_type__icontains=expression_type)
         )
 
