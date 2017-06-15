@@ -106,32 +106,52 @@
             </div>
           </div>
           <div id="sidebar" class="column content">
-            <div v-if="selectedElm && selectedElm.details" class="card">
-              <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-                <div v-if="selectedElm.details.function">
-                  <p class="label">Function</p>
-                  <p>{{ selectedElm.details.function }}</p>
-                  <br v-if="selectedElm.details.catalytic_activity">
+            <div v-if="selectedElm" class="card">
+              <div v-if="selectedElm.details" class="card">
+                <div v-if="selectedElm.type === 'enzyme'" class="card-content">
+                  <div v-if="selectedElm.details.function">
+                    <p class="label">Function</p>
+                    <p>{{ selectedElm.details.function }}</p>
+                    <br>
+                  </div>
+                  <div v-if="selectedElm.details.catalytic_activity">
+                    <p class="label">Catalytic Activity</p>
+                    {{ selectedElm.details.catalytic_activity }}
+                  </div>
+                  <div v-if="!selectedElm.details.function &&
+                             !selectedElm.details.catalytic_activity">
+                    {{ $t('noInfoAvailable') }}
+                  </div>
                 </div>
-                <div v-if="selectedElm.details.catalytic_activity">
-                  <p class="label">Catalytic Activity</p>
-                  {{ selectedElm.details.catalytic_activity }}
+                <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
+                  <div v-if="selectedElm.details.hmdb_description">
+                    <p class="label">Description</p>
+                    <p>{{ selectedElm.details.hmdb_description }}</p>
+                    <br>
+                  </div>
+                  <div v-if="selectedElm.details.mass">
+                    <p class="label">Mass</p>
+                    <p>{{ selectedElm.details.mass }}</p>
+                    <br>
+                  </div>
+                  <div v-if="selectedElm.details.kegg">
+                    <p class="label">Kegg</p>
+                    <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+                  </div>
+                  <div v-if="!selectedElm.details.hmdb_description &&
+                             !selectedElm.details.mass &&
+                             !selectedElm.details.kegg">
+                    {{ $t('noInfoAvailable') }}
+                  </div>
+                  <div v-else>
+                    <br>
+                    <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
+                  </div>
                 </div>
               </div>
-              <div v-if="selectedElm.type === 'metabolite'" class="card-content">
-                <div v-if="selectedElm.details.hmdb_description">
-                  <p class="label">Description</p>
-                  <p>{{ selectedElm.details.hmdb_description }}</p>
-                  <br v-if="selectedElm.details.mass">
-                </div>
-                <div v-if="selectedElm.details.mass">
-                  <p class="label">Mass</p>
-                  <p>{{ selectedElm.details.mass }}</p>
-                  <br v-if="selectedElm.details.kegg">
-                </div>
-                <div v-if="selectedElm.details.kegg">
-                  <p class="label">Kegg</p>
-                  <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+              <div v-else>
+                <div class="card-content">
+                  {{ $t('noInfoAvailable') }}
                 </div>
               </div>
             </div>
@@ -143,9 +163,9 @@
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-            <div>Warning: The query has returned too many reactions.<br>The graph has not been generated.</div>
+            <div>{{ $t('tooManyReactionsWarn') }}</div>
             <span v-show="reactionsCount <= maxReactionCount" 
-            class="button" v-on:click="constructGraph(rawElms, rawRels);">Show it anyway!</span>
+            class="button" v-on:click="constructGraph(rawElms, rawRels);">{{ $t('tooManyReactionsBut') }}</span>
           </div>
         </div>
         <cytoscape-table
@@ -302,6 +322,7 @@ export default {
       this.$router.push(
         { query: { ...this.$route.query, reaction_component_id: this.selectedElmId } },
         () => { // On complete.
+          this.showMetaboliteTable = false;
           this.setup();
         },
         () => { // On abort.
@@ -651,7 +672,9 @@ export default {
         level: lvl,
       });
     },
-
+    viewMetaboliteInfo: function viewMetaboliteInfo() {
+      this.$emit('updateSelTab', 4, this.reactionComponentId, this.selectedElmId);
+    },
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
@@ -679,7 +702,7 @@ h1, h2 {
 
 #contextMenuGraph, #contextMenuExport {
   position: absolute;
-  z-index: 999;
+  z-index: 20;
 
   span {
     display: block;

@@ -136,7 +136,6 @@ class Metabolite(models.Model):
     hmdb_link = models.CharField(max_length=255, null=True)
     pubchem_link = models.CharField(max_length=255, null=True)
     hmdb_name = models.CharField(max_length=255, null=True)
-    hmdb_description = models.CharField(max_length=5000, null=True)
     hmdb_function = models.CharField(max_length=255, null=True)
 
     class Meta:

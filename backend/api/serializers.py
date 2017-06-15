@@ -24,7 +24,7 @@ class ReactionSerializer(serializers.ModelSerializer):
 class MetaboliteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metabolite
-        fields = ('mass', 'kegg', 'hmdb_description', 'hmdb_link', 'pubchem_link')
+        fields = ('mass', 'kegg', 'charge', 'chebi', 'inchi', 'hmdb_description', 'hmdb_link', 'hmdb_function', 'pubchem_link')
 
 class MetaboliteSearchSerializer(serializers.ModelSerializer):
     class Meta:

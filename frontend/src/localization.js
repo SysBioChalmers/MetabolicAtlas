@@ -9,6 +9,8 @@ export default {
     },
     tableSearchPlaceholder: 'Search in table',
     tooManyReactions: 'There are too many reactions to be displayed in a graph (> 10). Here is a list of all the reactions.',
+    tooManyReactionsWarn: 'Warning: The query has returned too many reactions.<br>The graph has not been generated.',
+    tooManyReactionsBut: 'Show it anyway!',
     tooManyInteractionPartners: 'There are too many interaction partners to be displayed in a graph.',
     navBut1Title: 'Network graph',
     navBut2Title: 'Models',
@@ -27,5 +29,6 @@ export default {
     tab6title: 'Pathways',
     notFoundError: 'No matching record found, please check the parameters and try again.',
     unknownError: 'Something went wrong, please try again or contact the system admin.',
+    noInfoAvailable: 'No information available',
   },
 };

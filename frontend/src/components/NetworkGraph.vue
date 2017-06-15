@@ -23,14 +23,14 @@
             <div>
               <span
                 class="tag is-primary is-medium"
-                @click="selectSearchResult(3, r.id)"
+                @click="selectSearchResult(2, r.id)"
               >
                 Closest interaction partners
               </span>
               <span
                 class="tag is-primary is-medium"
-                v-show="r.component_type=='enzyme'"
-                @click="selectSearchResult(4, r.id)"
+                v-show="r.component_type==='enzyme'"
+                @click="selectSearchResult(3, r.id)"
               >
                 Catalysed reactions
               </span>
@@ -56,9 +56,11 @@
      </ul>
    </div>
    <metabolic-network v-if="selectedTab===1"></metabolic-network>
-   <closest-interaction-partners v-if="selectedTab===3"></closest-interaction-partners>
-   <connected-metabolites v-if="selectedTab===4"></connected-metabolites>
-   <reactome v-if="selectedTab===5"></reactome>
+   <closest-interaction-partners v-if="selectedTab===3" 
+    @updateSelTab="goToTab"></closest-interaction-partners>
+   <connected-metabolites v-if="selectedTab===4" 
+    @updateSelTab="goToTab"></connected-metabolites>
+   <metabolite v-if="selectedTab===5"></metabolite>
   </div>
 </template>
 
@@ -68,7 +70,7 @@ import axios from 'axios';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
-import Reactome from 'components/Reactome';
+import Metabolite from 'components/Metabolite';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
@@ -77,7 +79,7 @@ export default {
     MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
-    Reactome,
+    Metabolite,
   },
   data() {
     return {
@@ -102,9 +104,21 @@ export default {
     isActive(tabIndex) {
       return tabIndex + 1 === this.selectedTab;
     },
-    goToTab(tabIndex) {
+    goToTab(tabIndex, reactionComponentId, metaboliteRcId) {
       this.selectedTab = tabIndex + 1;
-      this.$router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
+      const fullQuery = {
+        ...this.$route.query,
+        tab: this.selectedTab,
+      };
+      if (reactionComponentId) {
+        fullQuery.reaction_component_id = reactionComponentId;
+      }
+      if (reactionComponentId) {
+        fullQuery.metabolite_rcid = metaboliteRcId;
+      }
+      this.$router.push({
+        query: fullQuery,
+      });
     },
     search() {
       if (this.searchTerm.length < 2) {
@@ -123,17 +137,10 @@ export default {
           });
       }, 500)();
     },
-    selectSearchResult(tab, reactionComponentId) {
+    selectSearchResult(tabIndex, reactionComponentId) {
       this.searchTerm = '';
       this.searchResults = [];
-      this.selectedTab = tab;
-      this.$router.push({
-        query: {
-          ...this.$route.query,
-          reaction_component_id: reactionComponentId,
-          tab: this.selectedTab,
-        },
-      });
+      this.goToTab(tabIndex, reactionComponentId, null);
     },
     formatSearchResultLabel(c, searchTerm) {
       let s = `${c.short_name || c.long_name} (${c.compartment}`;
