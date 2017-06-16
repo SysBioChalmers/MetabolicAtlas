@@ -17,6 +17,15 @@
               <span class="button is-dark" v-on:click="exportPNG">PNG</span>
             </div>
           </div>
+          <div v-show="showNetworkGraph" class="column" v-on:mouseleave="showMenuExpression = false">
+            <a class="button is-primary" v-on:click="showMenuExpression= !showMenuExpression">Expression levels</a>
+            <div v-show="showMenuExpression" id="contextMenuExpression" ref="contextMenuExpression">
+              <span class="button is-dark" v-on:click="showHPATissues= !showHPATissues">HPA</span>
+            </div>
+            <div v-for="tissue in hpatissues" v-show="showHPATissues" id="contextHPAExpression" ref="contextHPAExpression">
+              <span class="button is-primary is-small is-outlined" v-on:click="switchHPAExpression(tissue)">{{ tissue }}</span>
+            </div>
+          </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
           <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
@@ -197,6 +206,8 @@ import { default as graph } from '../graph-stylers/closest-interaction-partners'
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
+// FIXME remove this line and its helper file, its a HPA demo XML return function
+import { default as hpaResponse } from '../helpers/hparesponse';
 
 export default {
   name: 'closest-interaction-partners',
@@ -237,12 +248,16 @@ export default {
       ],
 
       showMenuExport: false,
+      showMenuExpression: false,
+      showHPATissues: false,
+      showHPATissueExpression: false,
       showGraphLegend: false,
       showGraphContextMenu: false,
       showColorPickerEnz: false,
       showColorPickerMeta: false,
 
       nodeDisplayParams: {
+        activeTissue: false,
         enzymeNodeShape: 'rectangle',
         enzymeNodeColor: {
           hex: '#C92F63',
@@ -353,7 +368,7 @@ export default {
 
           [this.rawElms, this.rawRels] = transform(component, this.reactionComponentId, reactions);
           this.selectedElm = this.rawElms[component.id];
-
+          this.rawElms = this.loadHPAData(this.rawElms);
           this.expandedIds = [];
           this.expandedIds.push(component.id);
 
@@ -381,6 +396,77 @@ export default {
               this.errorMessage = this.$t('unknownError');
           }
         });
+    },
+    loadHPAData(rawElms) {
+      // TODO fetch XML from proteinatlas, is gzipped file :(
+      // const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
+      // const proteins = 'ENSG00000121410,ENSG00000091831?format=xml';
+      // const url = baseUrl + proteins;
+      // const out = fs.createWriteStream('./feed.xml');
+      // axios.get(url).pipe(zlib.createGunzip()).pipe(out);
+      // FIXME hpaResponse is now a function that reutrns a string in helper dir!
+      const hpaXML = hpaResponse();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(hpaXML, 'text/xml');
+      const genes = xmlDoc.getElementsByTagName('entry');
+      const hpaGeneEx = {};
+      const hpatissues = {};
+      this.hpatissues = [];
+      // Loop through XML, gene by gene
+      for (const gene of genes) {
+        const genename = gene.getElementsByTagName('name')[0].textContent;
+        hpaGeneEx[genename] = [];
+        const samples = gene.getElementsByTagName('rnaExpression')[0].getElementsByTagName('data');
+        // Loop through rnaExpression children 'samples'
+        for (let i = 0; i < samples.length; i += 1) {
+          let sampleType;
+          let sampleName;
+          let replicates = [];
+          // Collect log2(tpm) expression values and sample name of one sample
+          for (const sampleEl of samples[i].children) {
+            if (sampleEl.tagName === 'level') {
+              if (sampleEl.textContent !== 'Not detected') {
+                hpatissues[sampleName] = 1;
+                replicates.push(Math.log2(sampleEl.getAttribute('tpm')));
+              }
+            } else {
+              sampleName = sampleEl.textContent;
+              // sampleType is cell line or tissue AFAIK
+              sampleType = sampleEl.tagName;
+            }
+          }
+          // Now take median in case of replicates
+          replicates = replicates.sort((a, b) => a - b);
+          const middle = Math.floor(replicates.length / 2);
+          const geneExpression = { name: sampleName, type: sampleType };
+          if (!replicates.length) {
+            geneExpression.value = null;
+          } else if (replicates.length % 2 === 0) {
+            geneExpression.value = (replicates[middle] + replicates[middle - 1]) / 2;
+          } else {
+            geneExpression.value = replicates[middle];
+          }
+          hpaGeneEx[genename].push(geneExpression);
+        }
+      }
+      // Make available all tissues with values to browser menu
+      for (const tissue of Object.keys(hpatissues).sort()) {
+        this.hpatissues.push(tissue);
+      }
+      // TODO make color scale of expression values
+
+      // Map colors to DOM elements of genes
+      const expressionElms = {};
+      for (const elid of Object.keys(rawElms)) {
+        expressionElms[elid] = rawElms[elid];
+        expressionElms[elid].tissue_expression = {};
+        if (hpaGeneEx[rawElms[elid].short]) {
+          for (const tissue of hpaGeneEx[rawElms[elid].short]) {
+            expressionElms[elid].tissue_expression[tissue.name] = tissue.value ? 'green' : null;
+          }
+        }
+      }
+      return expressionElms;
     },
     loadExpansion() {
       axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
@@ -646,6 +732,17 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
+    switchHPAExpression: function colorHPAExpression(tissuename) {
+      if (this.showHPATissueExpression === tissuename) {
+        this.showHPATissueExpression = false;
+        this.nodeDisplayParams.activeTissue = false;
+        this.redrawGraph();
+      } else {
+        this.showHPATissueExpression = tissuename;
+        this.nodeDisplayParams.activeTissue = tissuename;
+        this.redrawGraph();
+      }
+    },
     zoomGraph: function zoomGraph(zoomIn) {
       let factor = this.factorZoom;
       if (!zoomIn) {
@@ -700,7 +797,7 @@ h1, h2 {
   overflow-y: auto;
 }
 
-#contextMenuGraph, #contextMenuExport {
+#contextMenuGraph, #contextMenuExport, #contextMenuExpression {
   position: absolute;
   z-index: 20;
 
