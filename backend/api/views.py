@@ -201,7 +201,7 @@ def get_component_with_interaction_partners(request, id):
             component.reactions_as_product.count() + \
             component.reactions_as_modifier.count()
 
-    if reactions_count > 10:
+    if reactions_count > 100:
         return HttpResponse(status=406)
 
     reactions = list(chain(
@@ -212,7 +212,7 @@ def get_component_with_interaction_partners(request, id):
     reactions_serializer = InteractionPartnerSerializer(reactions, many=True)
 
     result = {
-             'enzyme': component_serializer.data,
+             'component': component_serializer.data,
              'reactions': reactions_serializer.data
              }
 
@@ -339,4 +339,18 @@ def get_metabolite_reactome(request, reaction_component_id, reaction_id):
     result['products'] = products_serializer.data
 
     return JSONResponse(result)
+
+@api_view()
+def search(request, term):
+    components = ReactionComponent.objects.filter(
+            Q(id__icontains=term) |
+            Q(short_name__icontains=term) |
+            Q(long_name__icontains=term) |
+            Q(formula__icontains=term)
+        ).order_by('short_name')[:50]
+    if components.count() == 0:
+        return HttpResponse(status=404)
+
+    serializer = ReactionComponentSerializer(components, many=True)
+    return JSONResponse(serializer.data)
 

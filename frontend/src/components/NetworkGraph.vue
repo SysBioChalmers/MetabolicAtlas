@@ -9,9 +9,35 @@
       </div>
       <div class="column is-7">
         <p class="control">
-          <input id="search" class="input"
-            type="text" :placeholder="$t('searchPlaceholder')">
+          <input
+            id="search"
+            class="input"
+            v-model="searchTerm"
+            @input="search"
+            type="text"
+            :placeholder="$t('searchPlaceholder')">
         </p>
+        <div id="searchResults" v-show="searchTerm.length > 2 && searchResults.length > 0">
+          <div v-for="r in searchResults" class="searchResultSection">
+            <label class="title is-5" v-html="formatSearchResultLabel(r)"></label>
+            <div>
+              <span
+                class="tag is-primary is-medium"
+                @click="selectSearchResult(3, r.id)"
+              >
+                Closest interaction partners
+              </span>
+              <span
+                class="tag is-primary is-medium"
+                v-show="r.component_type=='enzyme'"
+                @click="selectSearchResult(4, r.id)"
+              >
+                Catalysed reactions
+              </span>
+            </div>
+            <hr>
+          </div>
+        </div>
       </div>
     </div>
     <br>
@@ -35,11 +61,12 @@
 
 <script>
 
+import axios from 'axios';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
 import Reactome from 'components/Reactome';
-import router from '../router';
+import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
   name: 'network-graph',
@@ -52,6 +79,8 @@ export default {
   data() {
     return {
       selectedTab: 1,
+      searchTerm: '',
+      searchResults: [],
       errorMessage: '',
       tabs: [
         this.$t('tab1title'),
@@ -72,14 +101,69 @@ export default {
     },
     goToTab(tabIndex) {
       this.selectedTab = tabIndex + 1;
-      router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
+      this.$router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
     },
+    search() {
+      if (this.searchTerm.length < 3) {
+        return;
+      }
+      this._.debounce(() => {
+        axios.get(`search/${this.searchTerm}`)
+          .then((response) => {
+            this.searchResults = response.data;
+          })
+          .catch((error) => {
+            this.searchResults = [];
+            console.log(error);
+          });
+      }, 500)();
+    },
+    selectSearchResult(tab, reactionComponentId) {
+      this.searchTerm = '';
+      this.searchResults = [];
+      this.selectedTab = tab;
+      this.$router.push({
+        query: {
+          ...this.$route.query,
+          reaction_component_id: reactionComponentId,
+          tab: this.selectedTab,
+        },
+      });
+    },
+    formatSearchResultLabel(c) {
+      return `${c.short_name || c.long_name} (${c.compartment} | ${this.chemicalFormula(c.formula)})`;
+    },
+    chemicalFormula,
   },
 };
 </script>
 
 <style lang="scss">
-  #search {
-    height: 38px;
+
+#search {
+  height: 38px;
+}
+
+#searchResults {
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  border: 1px solid #64CC9A;
+  border-top: 0;
+  margin-top: -2px;
+  padding: 10px;
+
+  .searchResultSection {
+    margin-bottom: 10px;
+
+    label {
+      font-style: italic;
+    }
+
+    span {
+      cursor: pointer;
+    }
   }
+}
+
 </style>
