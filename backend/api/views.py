@@ -7,6 +7,8 @@ from itertools import chain
 from api.models import MetabolicModel, Author
 from api.serializers import *
 
+import logging
+
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
@@ -201,7 +203,7 @@ def get_component_with_interaction_partners(request, id):
             component.reactions_as_product.count() + \
             component.reactions_as_modifier.count()
 
-    if reactions_count > 10:
+    if reactions_count > 100:
         return HttpResponse(status=406)
 
     reactions = list(chain(
@@ -212,7 +214,7 @@ def get_component_with_interaction_partners(request, id):
     reactions_serializer = InteractionPartnerSerializer(reactions, many=True)
 
     result = {
-             'enzyme': component_serializer.data,
+             'component': component_serializer.data,
              'reactions': reactions_serializer.data
              }
 
@@ -264,7 +266,7 @@ def connected_metabolites(request, id):
 
     expressions = ExpressionData.objects.filter(
             Q(gene_id=enzyme.id) &
-            Q(tissue__icontains=tissue) & 
+            Q(tissue__icontains=tissue) &
             Q(expression_type__icontains=expression_type)
         )
 
@@ -279,7 +281,7 @@ def expressions_list(request, enzyme_id):
 
     expressions = ExpressionData.objects.filter(
             Q(gene_id__icontains=enzyme_id) &
-            Q(tissue__icontains=tissue) & 
+            Q(tissue__icontains=tissue) &
             Q(expression_type__icontains=expression_type)
         )
 
@@ -340,3 +342,35 @@ def get_metabolite_reactome(request, reaction_component_id, reaction_id):
 
     return JSONResponse(result)
 
+@api_view()
+def search(request, term, truncated):
+    metabolites = Metabolite.objects.filter(
+        Q(kegg__icontains=term) |
+        Q(hmdb__icontains=term) |
+        Q(hmdb_name__icontains=term)
+    )
+
+    enzymes = Enzyme.objects.filter(
+        Q(uniprot_acc__icontains=term)
+    )
+
+    if truncated:
+        limit = 50
+    else:
+        # limit the size anyway
+        limit = 1000
+
+    components = ReactionComponent.objects.filter(
+            Q(id__icontains=term) |
+            Q(short_name__icontains=term) |
+            Q(long_name__icontains=term) |
+            Q(formula__icontains=term) |
+            Q(metabolite__in=metabolites) |
+            Q(enzyme__in=enzymes)
+        ).order_by('short_name')[:limit]
+    if components.count() == 0:
+        return HttpResponse(status=404)
+
+    serializer = ReactionComponentSearchSerializer(components, many=True)
+
+    return JSONResponse(serializer.data)

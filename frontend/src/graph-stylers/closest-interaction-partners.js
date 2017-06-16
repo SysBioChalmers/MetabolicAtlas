@@ -1,16 +1,18 @@
 import cytoscape from 'cytoscape';
 
-export default function (elms, rels) {
+export default function (elms, rels, nodeDisplayParams) {
   const elmsjson = [];
+  const tissue = nodeDisplayParams.activeTissue;
 
   for (const id of Object.keys(elms)) {
     const elm = elms[id];
-
+    elm.tissue_expression.false = nodeDisplayParams.enzymeNodeColor.hex;
     elmsjson.push({
       group: 'nodes',
       data: {
         id: elm.id,
         name: elm.short,
+        expression_color: elm.tissue_expression,
         hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
         type: elm.type,
         details: elm.details,
@@ -31,8 +33,7 @@ export default function (elms, rels) {
     });
   }
 
-  const metaboliteColor = '#259F64';
-  const enzymeColor = '#C92F63';
+  const metaboliteColor = nodeDisplayParams.metaboliteNodeColor.hex;
   const textColor = '#363636';
   const lineColor = '#DBDBDB';
 
@@ -46,7 +47,8 @@ export default function (elms, rels) {
     })
     .selector('node[type="metabolite"]')
     .css({
-      shape: 'elipse',
+      // shape: 'elipse',
+      shape: nodeDisplayParams.metaboliteNodeShape,
       'background-color': metaboliteColor,
       width: 15,
       height: 15,
@@ -54,8 +56,14 @@ export default function (elms, rels) {
     })
     .selector('node[type="enzyme"]')
     .css({
-      shape: 'rectangle',
-      'background-color': enzymeColor,
+      // shape: 'rectangle',
+      shape: nodeDisplayParams.enzymeNodeShape,
+      'background-color': function (ele) {
+        if (ele.data('expression_color')[tissue]) {
+          return ele.data('expression_color')[tissue];
+        }
+        return 'grey';
+      },
       width: 20,
       height: 20,
       color: textColor,
@@ -74,6 +82,12 @@ export default function (elms, rels) {
       'target-arrow-color': textColor,
       'source-arrow-color': textColor,
       'text-outline-color': textColor,
+    })
+    .selector('core')
+    .css({
+      'active-bg-color': '#64CC9A',
+      'active-bg-opacity': 0.25,
+      'active-bg-size': 10,
     });
 
   return [elmsjson, stylesheet];

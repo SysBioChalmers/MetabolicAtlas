@@ -72,3 +72,4 @@ GitHub.sublime-settings
 backend/api/migrations/*py
 
 postgres_data/
+frontend/src/assets/svg/

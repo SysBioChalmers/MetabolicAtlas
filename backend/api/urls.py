@@ -25,4 +25,7 @@ urlpatterns = [
     url(r'^expressions/(?P<enzyme_id>[^/]+)/?$', views.expressions_list),
     url(r'^metabolite_reactions/(?P<reaction_component_id>[^/]+)/?$', views.get_metabolite_reactions),
     url(r'^metabolite_reactions/(?P<reaction_component_id>[^/]+)/reactome/(?P<reaction_id>[^/]+)/?$', views.get_metabolite_reactome),
+    url(r'^search/quick/(?P<term>[^/]+)/?$', views.search, { 'truncated': True } ),
+    url(r'^search/(?P<term>[^/]+)/?$', views.search, { 'truncated': False } ),
+    url(r'^metabolite/(?P<id>[^/]+)/?$', views.get_component),
 ]

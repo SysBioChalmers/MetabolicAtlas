@@ -22,7 +22,7 @@
           >{{ s.colName }}</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="machingTableBody" ref="machingTableBody">
         <tr
           v-for="elm in matchingElms"
           :class="[{ 'highlight': isSelected(elm.id) }, '']"
@@ -32,7 +32,7 @@
           <td v-else>{{ elm[s.field] }}</td>
         </tr>
       </tbody>
-      <tbody class="unMatchingTable">
+      <tbody id="unmachingTableBody" ref="unmachingTableBody">
         <tr
           v-for="elm in unMatchingElms"
           :class="[{ 'highlight': isSelected(elm.id) }, '']"
@@ -70,8 +70,14 @@ export default {
   },
   watch: {
     elms() {
-      this.sortedElms = this.elms;
-      this.matchingElms = this.elms;
+      this.sortedElms = this.filteredElms;
+      this.matchingElms = this.sortedElms;
+    },
+  },
+  computed: {
+    filteredElms: function f() {
+      return this.elms.filter(
+        el => el.type !== 'reactant_box' && el.type !== 'product_box');
     },
   },
   methods: {
@@ -103,6 +109,7 @@ export default {
       if (this.tableSearchTerm === '') {
         this.matchingElms = this.sortedElms;
         this.unMatchingElms = [];
+        this.$refs.machingTableBody.style.display = '';
       } else {
         this.matchingElms = [];
         this.unMatchingElms = [];
@@ -112,6 +119,9 @@ export default {
           let matches = false;
           for (const s of this.structure) {
             const val = elm[s.field];
+            if (typeof val === 'boolean') {
+              break;
+            }
             if (val && val.toLowerCase().includes(t)) {
               matches = true;
               break;
@@ -123,6 +133,12 @@ export default {
           } else {
             this.unMatchingElms.push(elm);
           }
+        }
+        // fix disappearing row/cell borders
+        if (this.matchingElms.length === 0) {
+          this.$refs.machingTableBody.style.display = 'none';
+        } else {
+          this.$refs.machingTableBody.style.display = '';
         }
       }
     },
@@ -149,7 +165,7 @@ tr.highlight {
   background-color: #C5F4DD !important;
 }
 
-.unMatchingTable {
+#unmachingTableBody {
   opacity: 0.3;
 }
 

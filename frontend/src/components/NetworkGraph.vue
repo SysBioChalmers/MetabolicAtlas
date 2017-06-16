@@ -7,12 +7,9 @@
           <li><a><span>{{ $t('yeast') }}</span></a></li>
         </div>
       </div>
-      <div class="column is-7">
-        <p class="control">
-          <input id="search" class="input"
-            type="text" :placeholder="$t('searchPlaceholder')">
-        </p>
-      </div>
+      <global-search
+      :quickSearch=true
+      ><global-search>
     </div>
     <br>
     <div class="tabs is-boxed">
@@ -27,19 +24,22 @@
      </ul>
    </div>
    <metabolic-network v-if="selectedTab===1"></metabolic-network>
-   <closest-interaction-partners v-if="selectedTab===3"></closest-interaction-partners>
-   <connected-metabolites v-if="selectedTab===4"></connected-metabolites>
-   <reactome v-if="selectedTab===5"></reactome>
+   <closest-interaction-partners v-if="selectedTab===3" 
+    @updateSelTab="goToTab"></closest-interaction-partners>
+   <connected-metabolites v-if="selectedTab===4" 
+    @updateSelTab="goToTab"></connected-metabolites>
+   <metabolite v-if="selectedTab===5"></metabolite>
   </div>
 </template>
 
 <script>
 
+import axios from 'axios';
+import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
-import Reactome from 'components/Reactome';
-import router from '../router';
+import Metabolite from 'components/Metabolite';
 
 export default {
   name: 'network-graph',
@@ -47,11 +47,14 @@ export default {
     MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
-    Reactome,
+    Metabolite,
+    GlobalSearch,
   },
   data() {
     return {
       selectedTab: 1,
+      searchTerm: '',
+      searchResults: [],
       errorMessage: '',
       tabs: [
         this.$t('tab1title'),
@@ -70,16 +73,90 @@ export default {
     isActive(tabIndex) {
       return tabIndex + 1 === this.selectedTab;
     },
-    goToTab(tabIndex) {
+    goToTab(tabIndex, reactionComponentId, metaboliteRcId) {
       this.selectedTab = tabIndex + 1;
-      router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
+      const fullQuery = {
+        ...this.$route.query,
+        tab: this.selectedTab,
+      };
+      if (reactionComponentId) {
+        fullQuery.reaction_component_id = reactionComponentId;
+      }
+      if (reactionComponentId) {
+        fullQuery.metabolite_rcid = metaboliteRcId;
+      }
+      this.$router.push({
+        query: fullQuery,
+      });
+    },
+    search() {
+      if (this.searchTerm.length < 2) {
+        return;
+      }
+      // make sure we serach a term of size 2
+      const searchTerm = this.searchTerm;
+      this._.debounce(() => {
+        axios.get(`search/${searchTerm}`)
+          .then((response) => {
+            this.searchResults = response.data;
+          })
+          .catch((error) => {
+            this.searchResults = [];
+            console.log(error);
+          });
+      }, 500)();
+    },
+    selectSearchResult(tabIndex, reactionComponentId) {
+      this.searchTerm = '';
+      this.searchResults = [];
+      this.goToTab(tabIndex, reactionComponentId, null);
     },
   },
 };
 </script>
 
 <style lang="scss">
-  #search {
-    height: 38px;
+
+#search {
+  height: 38px;
+}
+
+#searchResults {
+  background: white;
+  position: absolute;
+  top: 50px;
+  max-height: 300px;
+  overflow-y: auto;
+  width: inherit;
+  border: 1px solid #64CC9A;
+  border-top: 0;
+  margin-top: -2px;
+  padding: 10px;
+  z-index: 10;
+
+  .resultSeparator:last-child {
+    display: none;
   }
+
+  .searchResultSection {
+    margin-bottom: 10px;
+    background: white;
+
+    label {
+      font-style: italic;
+    }
+
+    span {
+      cursor: pointer;
+    }
+  }
+
+  .searchResultSection:last-child hr {
+    display: none;
+  }
+
+}
+
+
+
 </style>
