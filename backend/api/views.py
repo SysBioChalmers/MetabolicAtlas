@@ -7,6 +7,8 @@ from itertools import chain
 from api.models import MetabolicModel, Author
 from api.serializers import *
 
+import logging
+
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
@@ -341,7 +343,7 @@ def get_metabolite_reactome(request, reaction_component_id, reaction_id):
     return JSONResponse(result)
 
 @api_view()
-def search(request, term):
+def search(request, term, truncated):
     metabolites = Metabolite.objects.filter(
         Q(kegg__icontains=term) |
         Q(hmdb__icontains=term) |
@@ -352,6 +354,12 @@ def search(request, term):
         Q(uniprot_acc__icontains=term)
     )
 
+    if truncated:
+        limit = 50
+    else:
+        # limit the size anyway
+        limit = 1000
+
     components = ReactionComponent.objects.filter(
             Q(id__icontains=term) |
             Q(short_name__icontains=term) |
@@ -359,11 +367,10 @@ def search(request, term):
             Q(formula__icontains=term) |
             Q(metabolite__in=metabolites) |
             Q(enzyme__in=enzymes)
-        ).order_by('short_name')[:50]
+        ).order_by('short_name')[:limit]
     if components.count() == 0:
         return HttpResponse(status=404)
 
     serializer = ReactionComponentSearchSerializer(components, many=True)
 
     return JSONResponse(serializer.data)
-

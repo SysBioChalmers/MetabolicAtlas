@@ -10,7 +10,7 @@
         :placeholder="$t('searchPlaceholder')"
         v-on:keyup.enter="validateSearch()">
     </p>
-    <div v-if="quickSearch" id="searchResults" v-show="searchTerm.length > 1">
+    <div v-if="quickSearch" id="searchResults" v-show="searchTermString.length > 1">
       <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
         <label class="title is-5" v-html="formatSearchResultLabel(r, searchTermString)"></label>
         <div>
@@ -58,7 +58,9 @@ export default {
   },
   watch: {
     searchResults() {
-      this.$emit('updateResults', this.searchTermString, this.searchResults);
+      if (!this.quickSearch) {
+        this.$emit('updateResults', this.searchTermString, this.searchResults);
+      }
     },
   },
   methods: {
@@ -66,7 +68,7 @@ export default {
       if (!this.quickSearch) {
         return;
       }
-      if (this.searchTerm.length < 2) {
+      if (this.searchTermString.length < 2) {
         return;
       }
       // make sure we search a term of size 2
@@ -76,7 +78,8 @@ export default {
       }, 500)();
     },
     search(searchTerm) {
-      axios.get(`search/${searchTerm}`)
+      const url = this.quickSearch ? `search/quick/${searchTerm}` : `search/${searchTerm}`;
+      axios.get(url)
       .then((response) => {
         this.searchResults = response.data;
       })
@@ -87,6 +90,7 @@ export default {
     },
     selectSearchResult(tab, reactionComponentId) {
       this.searchTerm = '';
+      this.searchTermString = '';
       this.searchResults = [];
       this.$parent.$data.selectedTab = tab;
       this.$router.push({
@@ -126,11 +130,11 @@ export default {
         this.$router.push({
           name: 'search',
           query: {
-            term: this.searchTerm,
+            term: this.searchTermString,
           },
         });
       } else {
-        this.search(this.searchTerm);
+        this.search(this.searchTermString);
       }
     },
     chemicalFormula,

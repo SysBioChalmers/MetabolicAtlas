@@ -8,7 +8,7 @@
         </div>
       </div>
       <global-search
-      :fastSearch=true
+      :quickSearch=true
       ><global-search>
     </div>
     <br>
@@ -34,20 +34,21 @@
 
 <script>
 
+import axios from 'axios';
 import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
-import Reactome from 'components/Reactome';
+import Metabolite from 'components/Metabolite';
 
 export default {
   name: 'network-graph',
   components: {
-    GlobalSearch,
     MetabolicNetwork,
     ClosestInteractionPartners,
     ConnectedMetabolites,
     Metabolite,
+    GlobalSearch,
   },
   data() {
     return {
@@ -74,8 +75,6 @@ export default {
     },
     goToTab(tabIndex, reactionComponentId, metaboliteRcId) {
       this.selectedTab = tabIndex + 1;
-      this.$router.push({ query: { ...this.$route.query, tab: this.selectedTab } });
-    },
       const fullQuery = {
         ...this.$route.query,
         tab: this.selectedTab,
@@ -89,6 +88,28 @@ export default {
       this.$router.push({
         query: fullQuery,
       });
+    },
+    search() {
+      if (this.searchTerm.length < 2) {
+        return;
+      }
+      // make sure we serach a term of size 2
+      const searchTerm = this.searchTerm;
+      this._.debounce(() => {
+        axios.get(`search/${searchTerm}`)
+          .then((response) => {
+            this.searchResults = response.data;
+          })
+          .catch((error) => {
+            this.searchResults = [];
+            console.log(error);
+          });
+      }, 500)();
+    },
+    selectSearchResult(tabIndex, reactionComponentId) {
+      this.searchTerm = '';
+      this.searchResults = [];
+      this.goToTab(tabIndex, reactionComponentId, null);
     },
   },
 };
@@ -135,4 +156,7 @@ export default {
   }
 
 }
+
+
+
 </style>

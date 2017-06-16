@@ -6,61 +6,41 @@
       :quickSearch=false
       :searchTerm=searchTerm
       @updateResults="updateResults">
-
       </global-search>
-      searchterm = {{ searchTerm }}
-      result = {{ searchResults.length }}
     </div>
   </div>
   <div class="columns">
     <div v-if="searchResults.length === 0" class="column is-8 is-offset-2 has-text-centered">
-      {{ $t('noResultFound') }}
+      {{ $t('searchNoResult') }}
     </div>
     <div v-else class="column">
-      <table>
-        <tr v-for="item in searchResultsOrdered">
-          <td>
-            <table>
-            <tr>
-              <td class="lab">ID</td>
-              <td>{{ item.id }}</td>
-              <td class="lab">Compartment</td>
-              <td>{{ item.compartment }}</td>
-              <td class="lab">uniprot ACC</td>
-              <td>item.</td>
-              <td rowspan="4">
-                linkA<br>
-                linkB
-              </td>
-            </tr>
-            <tr>
-              <td class="lab">Name</td>
-              <td>{{ item.short_name }}</td>
-              <td class="lab">Organism</td>
-              <td>{{ item.organism }}</td>
-              <td class="lab">other ACC</td>
-              <td>otherID</td>
-            </tr>
-            <tr>
-              <td class="lab">Full name</td>
-              <td>{{ item.long_name }}</td>
-              <td class="lab">Formula</td>
-              <td>{{ item.formula }}</td>
-              <td class="lab">Kegg</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td class="lab">Type</td>
-              <td v-bind:class="item.component_type === 'enzyme' ? 'red' : 'green'">{{ item.component_type }}</td>
-              <td class="lab">Mass</td>
-              <td>132.45</td>
-              <td></td>
-              <td></td>
-            </tr>
-            </table>
-            {{ item }}
-          </td>
-        </tr>
+      Results: {{ searchResults.length }}
+      <table class="table main">
+        <thead>
+          <tr>
+            <th>Organism</th>
+            <th>Type</th>
+            <th>Compartment</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Formula</th>
+            <th>HMDB/Uniprot ID</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in searchResultsOrdered">
+            <td>{{ item.organism | capitalize }}</td>
+            <td v-bind:class="item.component_type === 'enzyme' ? 'red' : 'green'">{{ item.component_type | capitalize }}</td>
+            <td>{{ item.compartment | capitalize }}</td>
+            <td>{{ item.id.slice(2) }}</td>
+            <td>{{ item.short_name }}</td>
+            <td v-html="formulaFormater(item.formula)"></td>
+            <td v-if="item.enzyme || item.metabolite">{{ item.component_type === 'enzyme' ? item.enzyme.uniprot_acc : item.metabolite.hmdb }}</td>
+            <td v-else></td>
+            <td></td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -70,6 +50,7 @@
 <script>
 import GlobalSearch from 'components/GlobalSearch';
 import { default as compare } from '../helpers/compare';
+import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
   name: 'search-table',
@@ -89,7 +70,18 @@ export default {
       return res;
     },
   },
+  filters: {
+    capitalize(value) {
+      if (!value) {
+        return '';
+      }
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    },
+  },
   methods: {
+    formulaFormater(s) {
+      return chemicalFormula(s);
+    },
     updateResults(term, val) {
       this.searchTerm = term;
       this.searchResults = val;
@@ -104,6 +96,7 @@ export default {
       this.$children[0].search(this.searchTerm);
     }
   },
+  chemicalFormula,
 };
 
 </script>
@@ -111,30 +104,14 @@ export default {
 <style lang="scss">
 
 .red {
-  color: #ffadad;
+  color: #ff1a1a;
 }
 
 .green {
-  color: #bbff99;
+  color: #33cc33;
 }
 
-td {
-  table {
-    border-collapse: collapse;
-    border: 1px solid black;
-
-    td {
-      padding-left: 5px;
-      padding-right: 5px;
-    }
-
-    tr:first-child > td:last-child {
-      border-left: 1px solid black;
-    }
-  }
-
-}
-
+table.main
 
 table td.lab {
   font-weight: 600;
