@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-import libsbml
+import libsbml, re
 
 baseDir="/Users/halena/Documents/Sys2Bio/hma-prototype/frontend/src/assets/maps/compartment_level/"
 sbmlVersion="{http://www.sbml.org/sbml/level3/version1/layout/version1}"
@@ -7,6 +7,7 @@ svgVersion="{http://www.w3.org/2000/svg}"
 
 def readXML(xml_file):
     # https://docs.python.org/2/library/xml.etree.elementtree.html
+    # https://docs.python.org/3.6/library/xml.etree.elementtree.html
     doc = ET.parse(xml_file)
     return(doc.getroot())
 
@@ -15,7 +16,7 @@ def readSBML(xml_file):
     return(doc)
 
 def getAllSpeciesFromSBMLFile(xml_file):
-    sbml = readXML(baseDir+xml_file)
+    sbml = readXML(xml_file)
     species = [] # multiple objects could theoretically end up at the same position...
     for lol in sbml.iter(sbmlVersion+'listOfLayouts'):
         for l in lol.iter(sbmlVersion+'layout'):
@@ -52,7 +53,7 @@ def _retrieveSpecies(list, x, y, attrib):
     foundCount=0
     found = None
     for cur in list:
-        if cur['x'] == x and cur['yAdj'] == y:
+        if cur['x'] == x and cur['y'] == y:
             if foundCount > 0:
                 print("previously found "+found['id']+" for position X="+x+" and Y="+y+" now found "+cur['id'])
                 print("ATTRIBUTES are: "+str(attrib))
@@ -60,8 +61,6 @@ def _retrieveSpecies(list, x, y, attrib):
                 return(found)
             foundCount+=1
             found=cur
-    if foundCount==0:
-        print("No map found for "+x+" and "+y+" ATTRIBuTES were "+str(attrib))
     return(found)
 
 def _truncate(number):
@@ -85,24 +84,24 @@ def updateSVGWithID(compartmentName, svg_file, sbmlSpecies, xAdjustENSG, yAdjust
     doc = ET.parse(baseDir+svg_file)
     svg = doc.getroot()
     gOuter = svg.find(svgVersion+'g')
-    nonMapped=0
+    nonMappedGenes=0; nonMappedMetabolites=0;
     for g in gOuter.findall(svgVersion+'g'):
         transform = g.get('transform')
         temp = transform.split(',')
         x = float(temp[4])
         y = float(temp[5].replace(')',''))
-        # handle the gene/protein/enzymes
-        xSBML = _truncate(str(x + xAdjustENSG))
-        ySBML = _truncate(str(y + yAdjustENSG))
-        for textElement in g.findall(svgVersion+'text'):
-            if textElement.text.startswith("ENSG"):
-                found = _retrieveSpecies(sbmlSpecies, xSBML, ySBML, g.attrib)
-                if not found is None:
-                    g.set('reaction_component_id', found['id'])
-                else:
-                    nonMapped+=1
-        # find the metabolites...
         fill = g.get('fill')
+        # handle the gene/protein/enzymes
+        if fill == "#ffee8d":
+            xSBML = _truncate(str(x + xAdjustENSG))
+            ySBML = _truncate(str(y + yAdjustENSG))
+            found = _retrieveSpecies(sbmlSpecies, xSBML, ySBML, g.attrib)
+            if not found is None:
+                g.set('reaction_component_id', found['id'])
+            else:
+                nonMappedGenes+=1
+                #print("No map found for "+xSBML+" and "+ySBML+" ATTRIBuTES were "+str(g.attrib))
+        # handle the metabolites...
         if fill == "#a28dff":
             xSBML = _truncate(str(x + xAdjustMet))
             ySBML = _truncate(str(y + yAdjustMet))
@@ -111,7 +110,8 @@ def updateSVGWithID(compartmentName, svg_file, sbmlSpecies, xAdjustENSG, yAdjust
             if not found is None:
                 g.set('reaction_component_id', found['id'])
             else:
-                nonMapped+=1
+                nonMappedMetabolites+=1
+                print("No map found for "+xSBML+" and "+ySBML+" ATTRIBuTES were "+str(g.attrib))
     # write the new version of the SVG file with the identifiers...
     doc.write(baseDir+compartmentName+'.id_added.svg')
-    print("A total of "+str(nonMapped)+" missing maps")
+    print("A total of "+str(nonMappedMetabolites)+" metabolites and "+str(nonMappedGenes)+" genes could not be mapped")
