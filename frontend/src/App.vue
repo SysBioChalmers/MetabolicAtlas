@@ -2,7 +2,7 @@
   <div id="app">
     <nav id="main-nav" class="nav">
       <div class="container">
-        <div class="container">
+        <div>
           <a id="logo" class="nav-item">
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>

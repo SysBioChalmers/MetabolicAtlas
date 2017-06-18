@@ -13,31 +13,45 @@
           <div class="container columns">
             <figure id="cy" ref="cy" class="column is-8"></figure>
             <div id="sidebar" class="column content">
-              <div v-if="selectedElm && selectedElm.details" class="card">
-                <div class="card-content">
-                  <div v-if="selectedElm.details.hmdb_description">
-                    <p class="label">Description</p>
-                    <p>{{ selectedElm.details.hmdb_description }}</p>
-                    <br v-if="selectedElm.details.mass">
+              <div v-if="selectedElm && selectedElm.type !== 'enzyme'" class="card">
+                <div v-if="selectedElm.details" class="card">
+                  <div class="card-content">
+                    <div v-if="selectedElm.details.hmdb_description">
+                      <p class="label">Description</p>
+                      <p>{{ selectedElm.details.hmdb_description }}</p>
+                      <br>
+                    </div>
+                    <div v-if="selectedElm.details.mass">
+                      <p class="label">Mass</p>
+                      {{ selectedElm.details.mass }}
+                    </div>
+                    <div v-if="selectedElm.details.kegg">
+                      <p class="label">Kegg</p>
+                      <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+                    </div>
+                    <div v-if="!selectedElm.details.mass &&
+                               !selectedElm.details.catalytic_activity &&
+                               !selectedElm.details.kegg">
+                      {{ $t('noInfoAvailable') }}
+                    </div>
+                    <div v-else>
+                      <br>
+                      <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
+                    </div>
                   </div>
-                  <div v-if="selectedElm.details.mass">
-                    <p class="label">Mass</p>
-                    <p>{{ selectedElm.details.mass }}</p>
-                    <br v-if="selectedElm.details.kegg">
-                  </div>
-                  <div v-if="selectedElm.details.kegg">
-                    <p class="label">Kegg</p>
-                    <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+                </div>
+                <div v-else>
+                  <div class="card-content">
+                    {{ $t('noInfoAvailable') }}
                   </div>
                 </div>
               </div>
-              <div v-else>{{ $t('connectedMetabolites.instructions') }}</div>
               <br>
               <a href="/about#connectedmetabolites" target="_blank">
                 {{ $t('moreInformation') }}
-               </a>
+              </a>
             </div>
-            <div id="contextMenuGraph" ref="contextMenuGraph">
+            <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
               <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
                v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
               </span>
@@ -87,8 +101,11 @@ export default {
       cy: null,
       errorMessage: null,
       elms: [],
+
+      reactionComponentId: '',
       selectedElmId: '',
       selectedElm: null,
+
       enzymeName: '',
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -106,7 +123,14 @@ export default {
       tableSearchTerm: '',
       reactions: [],
       loadTime: 0,
+      showGraphContextMenu: false,
     };
+  },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      this.load();
+    },
   },
   computed: {
     keggLink() {
@@ -126,6 +150,13 @@ export default {
     },
   },
   methods: {
+    setup() {
+      this.reactionComponentId = this.$route.query.reaction_component_id
+                                  || this.$route.query.reaction_component_long_name;
+      this.selectedElmId = '';
+      this.selectedElm = null;
+      this.load();
+    },
     highlightNode(elmId) {
       this.cy.nodes().deselect();
       const node = this.cy.getElementById(elmId);
@@ -134,8 +165,7 @@ export default {
     },
     load() {
       const startTime = Date.now();
-      const enzymeId = this.$route.query.reaction_component_id
-                        || this.$route.query.reaction_component_long_name;
+      const enzymeId = this.reactionComponentId;
 
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
@@ -167,15 +197,23 @@ export default {
             this.cy.userZoomingEnabled(false);
 
             const contextMenuGraph = this.$refs.contextMenuGraph;
-            contextMenuGraph.style.display = 'none';
+            this.showGraphContextMenu = false;
 
             const updatePosition = (node) => {
               contextMenuGraph.style.left = `${node.renderedPosition().x + 20}px`;
               contextMenuGraph.style.top = `${node.renderedPosition().y + 20}px`;
             };
 
+            const nodeInViewport = (node) => {
+              if (node.renderedPosition().x < 0 || node.renderedPosition().x > this.cy.width()
+                || node.renderedPosition().y < 0 || node.renderedPosition().y > this.cy.height()) {
+                return false;
+              }
+              return true;
+            };
+
             this.cy.on('tap', () => {
-              contextMenuGraph.style.display = 'none';
+              this.showGraphContextMenu = false;
               this.selectedElmId = '';
               this.selectedElm = null;
             });
@@ -186,13 +224,50 @@ export default {
 
               this.selectedElmId = ele.data().id;
               this.selectedElm = ele.data();
-              contextMenuGraph.style.display = 'block';
+              this.showGraphContextMenu = true;
               updatePosition(node);
+              console.log(this.selectedElm);
             });
 
             this.cy.on('drag', 'node', (evt) => {
               const node = evt.cyTarget;
               if (this.selectedElmId === node.data().id) {
+                updatePosition(node);
+              }
+            });
+
+            this.cy.on('mouseover', 'node', (evt) => {
+              const node = evt.cyTarget;
+              console.log(node.data());
+              let s;
+              if (node.data().type === 'reactant_box') {
+                s = 'Reactants';
+              } else if (node.data().type === 'product_box') {
+                s = 'Products';
+              }
+              node.css({
+                content: s,
+              });
+            });
+
+            this.cy.on('mouseout', 'node', (evt) => {
+              const node = evt.cyTarget;
+              node.css({
+                content: '',
+              });
+            });
+
+            this.cy.on('tapstart', () => {
+              this.showGraphContextMenu = false;
+            });
+
+            this.cy.on('tapdragout, tapend', () => {
+              if (this.selectedElmId !== '') {
+                const node = this.cy.getElementById(this.selectedElmId);
+                if (!nodeInViewport(node)) {
+                  return;
+                }
+                this.showGraphContextMenu = true;
                 updatePosition(node);
               }
             });
@@ -212,6 +287,9 @@ export default {
           }
         });
     },
+    viewMetaboliteInfo: function viewMetaboliteInfo() {
+      this.$emit('updateSelTab', 4, this.reactionComponentId, this.selectedElmId);
+    },
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
@@ -219,7 +297,7 @@ export default {
   },
   beforeMount() {
     regCose(cytoscape);
-    this.load();
+    this.setup();
   },
 };
 

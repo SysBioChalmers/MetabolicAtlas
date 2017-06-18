@@ -24,12 +24,22 @@ class ReactionSerializer(serializers.ModelSerializer):
 class MetaboliteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metabolite
-        fields = ('mass', 'kegg', 'hmdb_description', 'hmdb_link', 'pubchem_link')
+        fields = ('mass', 'kegg', 'charge', 'chebi', 'inchi', 'hmdb_description', 'hmdb_link', 'hmdb_function', 'pubchem_link')
+
+class MetaboliteSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Metabolite
+        fields = ('kegg', 'hmdb', 'hmdb_name')
 
 class EnzymeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enzyme
         fields = ('function', 'catalytic_activity', 'uniprot_link', 'ensembl_link')
+
+class EnzymeSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Enzyme
+        fields = ('uniprot_acc',)
 
 class ReactionComponentSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
@@ -39,6 +49,16 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
+
+class ReactionComponentSearchSerializer(serializers.ModelSerializer):
+    compartment = serializers.StringRelatedField()
+    metabolite = MetaboliteSearchSerializer(read_only=True)
+    enzyme = EnzymeSearchSerializer(read_only=True)
+    
+    class Meta:
+        model = ReactionComponent
+        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
+
 
 # This is a helper class to determine if a component is a currency metabolite
 class CurrencyMetaboliteReactionComponent(object):

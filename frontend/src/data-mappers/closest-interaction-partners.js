@@ -1,21 +1,21 @@
 import { default as getLink } from '../helpers/component-link';
 
-export default function (e, reactionComponentId, reactions) {
+export default function (c, reactionComponentId, reactions) {
   const elms = {};
   const rels = {};
 
-  const enzyme = {
-    id: e.id,
-    type: 'enzyme',
-    short: e.short_name || e.long_name,
-    long: e.long_name,
-    formula: e.formula,
-    compartment: e.compartment,
-    link: getLink(e),
-    details: e.metabolite || e.enzyme,
+  const component = {
+    id: c.id,
+    type: c.component_type,
+    short: c.short_name || c.long_name,
+    long: c.long_name,
+    formula: c.formula,
+    compartment: c.compartment,
+    link: getLink(c),
+    details: c.metabolite || c.enzyme,
   };
 
-  elms[reactionComponentId] = enzyme;
+  elms[reactionComponentId] = component;
 
   for (const r of reactions) {
     const mods = {};

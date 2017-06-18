@@ -2,7 +2,7 @@
   <div class="reactome">
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
-      <div id="diagram"></div>
+      <div v-show="false" id="diagram"></div>
       <reaction-table :reactions="reactions"></reaction-table>
     </div>
   </div>
