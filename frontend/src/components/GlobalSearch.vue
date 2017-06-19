@@ -8,9 +8,13 @@
         @input="searchDebounce"
         type="text"
         :placeholder="$t('searchPlaceholder')"
-        v-on:keyup.enter="validateSearch()">
+        v-on:keyup.enter="validateSearch()"
+        v-on:keyup.esc="showResults = false"
+        v-on:focusout="showResults = false"
+        v-on:focus="showResults = true"
+        ref="searchInput">
     </p>
-    <div v-if="quickSearch" id="searchResults" v-show="searchTermString.length > 1">
+    <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
       <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
         <label class="title is-5" v-html="formatSearchResultLabel(r, searchTermString)"></label>
         <div>
@@ -54,6 +58,7 @@ export default {
       errorMessage: '',
       searchResults: [],
       searchTermString: this.searchTerm,
+      showResults: true,
     };
   },
   watch: {
