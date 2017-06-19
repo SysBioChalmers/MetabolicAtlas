@@ -130,6 +130,5 @@ export default function (elms, rels) {
       'active-bg-size': 10,
     });
 
-  console.log(elmsjson);
   return [elmsjson, stylesheet];
 }
