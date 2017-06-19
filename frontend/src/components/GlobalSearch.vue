@@ -1,6 +1,6 @@
 <template>
   <div class="column" v-bind:class="quickSearch ? 'is-7' : 'is-8'">
-    <p class="control">
+    <div class="control">
       <input
         id="search"
         class="input"
@@ -13,29 +13,30 @@
         v-on:focusout="showResults = false"
         v-on:focus="showResults = true"
         ref="searchInput">
-    </p>
-    <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
-      <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
-        <label class="title is-5" v-html="formatSearchResultLabel(r, searchTermString)"></label>
-        <div>
-          <span
-            class="tag is-primary is-medium"
-            @click="selectSearchResult(3, r.id)">
-            Closest interaction partners
-          </span>
-          <span
-            class="tag is-primary is-medium"
-            v-show="r.component_type == 'enzyme'"
-            @click="selectSearchResult(4, r.id)">
-            Catalysed reactions
-          </span>
+      <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
+        <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
+          <label class="title is-5" v-html="formatSearchResultLabel(r, searchTermString)"></label>
+          <div>
+            <span
+              class="tag is-primary is-medium"
+              @click="selectSearchResult(3, r.id)">
+              Closest interaction partners
+            </span>
+            <span
+              class="tag is-primary is-medium"
+              v-show="r.component_type == 'enzyme'"
+              @click="selectSearchResult(4, r.id)">
+              Catalysed reactions
+            </span>
+          </div>
+          <hr>
         </div>
-        <hr>
-      </div>
-      <div v-if="searchResults.length == 0">
-        <label class="title is-6">{{ $t('searchNoResult') }}</label>
+        <div v-if="searchResults.length == 0">
+          <label class="title is-6">{{ $t('searchNoResult') }}</label>
+        </div>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -88,9 +89,9 @@ export default {
       .then((response) => {
         this.searchResults = response.data;
       })
-      .catch((error) => {
+      .catch(() => {
         this.searchResults = [];
-        console.log(error);
+        // console.log(error);
       });
     },
     selectSearchResult(tab, reactionComponentId) {
@@ -156,14 +157,13 @@ export default {
 #searchResults {
   background: white;
   position: absolute;
-  top: 50px;
+  top: 40px;
   max-height: 300px;
   overflow-y: auto;
-  width: inherit;
+  width: 100%;
   border: 1px solid #64CC9A;
   border-top: 0;
   margin-top: -2px;
-  padding: 10px;
   z-index: 10;
 
   .resultSeparator:last-child {

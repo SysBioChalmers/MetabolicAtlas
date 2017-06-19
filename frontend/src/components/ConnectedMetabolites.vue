@@ -226,7 +226,6 @@ export default {
               this.selectedElm = ele.data();
               this.showGraphContextMenu = true;
               updatePosition(node);
-              console.log(this.selectedElm);
             });
 
             this.cy.on('drag', 'node', (evt) => {
@@ -238,7 +237,6 @@ export default {
 
             this.cy.on('mouseover', 'node', (evt) => {
               const node = evt.cyTarget;
-              console.log(node.data());
               let s;
               if (node.data().type === 'reactant_box') {
                 s = 'Reactants';
@@ -288,7 +286,7 @@ export default {
         });
     },
     viewMetaboliteInfo: function viewMetaboliteInfo() {
-      this.$emit('updateSelTab', 4, this.reactionComponentId, this.selectedElmId);
+      this.$emit('updateSelTab', 4, this.selectedElmId);
     },
     chemicalFormula,
     chemicalName,

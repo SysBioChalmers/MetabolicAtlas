@@ -73,7 +73,7 @@ export default {
     isActive(tabIndex) {
       return tabIndex + 1 === this.selectedTab;
     },
-    goToTab(tabIndex, reactionComponentId, metaboliteRcId) {
+    goToTab(tabIndex, reactionComponentId) {
       this.selectedTab = tabIndex + 1;
       const fullQuery = {
         ...this.$route.query,
@@ -81,9 +81,6 @@ export default {
       };
       if (reactionComponentId) {
         fullQuery.reaction_component_id = reactionComponentId;
-      }
-      if (reactionComponentId) {
-        fullQuery.metabolite_rcid = metaboliteRcId;
       }
       this.$router.push({
         query: fullQuery,
@@ -100,16 +97,16 @@ export default {
           .then((response) => {
             this.searchResults = response.data;
           })
-          .catch((error) => {
+          .catch(() => {
             this.searchResults = [];
-            console.log(error);
+            // console.log(error);
           });
       }, 500)();
     },
     selectSearchResult(tabIndex, reactionComponentId) {
       this.searchTerm = '';
       this.searchResults = [];
-      this.goToTab(tabIndex, reactionComponentId, null);
+      this.goToTab(tabIndex, reactionComponentId);
     },
   },
 };

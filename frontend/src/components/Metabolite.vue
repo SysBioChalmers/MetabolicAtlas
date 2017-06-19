@@ -49,7 +49,7 @@
         <td v-else> - </td>
       </tr>
     </table>
-    <reactome v-show="true"></reactome>
+    <reactome></reactome>
   </div>
 </template>
 
@@ -66,7 +66,7 @@ export default {
   },
   data() {
     return {
-      mId: this.$route.query.metabolite_rcid,
+      mId: this.$route.query.reaction_component_id,
       mainTableKey: [
         { name: 'id', display: 'Identifier', modifier: this.reformatID },
         { name: 'long_name', display: 'Name' },
@@ -99,16 +99,14 @@ export default {
     load() {
       axios.get(`metabolite/${this.mId}/`)
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         if (response.data.component_type === 'metabolite') {
           this.info = response.data;
         } else {
           this.errorMessage = this.$t('notFoundError');
         }
       })
-      .catch((error) => {
-        console.log('error:');
-        console.log(error);
+      .catch(() => {
         this.errorMessage = this.$t('notFoundError');
       });
     },

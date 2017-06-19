@@ -22,14 +22,15 @@
             <div v-show="showMenuExpression" id="contextMenuExpression" ref="contextMenuExpression">
               <span class="button is-dark" v-on:click="showHPATissues= !showHPATissues">HPA</span>
             </div>
-            <div v-for="tissue in hpatissues" v-show="showHPATissues" id="contextHPAExpression" ref="contextHPAExpression">
+            <div v-for="tissue in hpaTissues" v-show="showHPATissues" id="contextHPAExpression" ref="contextHPAExpression">
               <span class="button is-primary is-small is-outlined" v-on:click="switchHPAExpression(tissue)">{{ tissue }}</span>
             </div>
           </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-          <span class="button is-dark" v-on:click="navigate">Load interaction partners</span>
-          <span v-show="expandedIds.indexOf(selectedElmId) === -1" 
+          <span v-show="selectedElmId !==reactionComponentId" 
+          class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+          <span v-show="!expandedIds.includes(selectedElmId)" 
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
           <span v-show="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
@@ -238,6 +239,8 @@ export default {
       componentName: '',
       expandedIds: [],
 
+      hpaTissues: [],
+
       cy: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -357,6 +360,7 @@ export default {
           const reactions = response.data.reactions;
 
           this.componentName = component.short_name || component.long_name;
+          this.reactionComponentId = component.id;
           if (component.enzyme) {
             const uniprotLink = component.enzyme ? component.enzyme.uniprot_link : null;
             const uniprotId = uniprotLink.split('/').pop();
@@ -366,7 +370,7 @@ export default {
             this.title = `Closest interaction partners | ${this.componentName}`;
           }
 
-          [this.rawElms, this.rawRels] = transform(component, this.reactionComponentId, reactions);
+          [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
           this.selectedElm = this.rawElms[component.id];
           this.rawElms = this.loadHPAData(this.rawElms);
           this.expandedIds = [];
@@ -385,8 +389,8 @@ export default {
           }, 0);
         })
         .catch((error) => {
-          console.log('error:');
-          console.log(error);
+          // console.log('error:');
+          // console.log(error);
           this.loading = false;
           switch (error.response.status) {
             case 406:
@@ -410,8 +414,8 @@ export default {
       const xmlDoc = parser.parseFromString(hpaXML, 'text/xml');
       const genes = xmlDoc.getElementsByTagName('entry');
       const hpaGeneEx = {};
-      const hpatissues = {};
-      this.hpatissues = [];
+      const hpaTissues = {};
+      this.hpaTissues = [];
       // Loop through XML, gene by gene
       for (const gene of genes) {
         const genename = gene.getElementsByTagName('name')[0].textContent;
@@ -426,7 +430,7 @@ export default {
           for (const sampleEl of samples[i].children) {
             if (sampleEl.tagName === 'level') {
               if (sampleEl.textContent !== 'Not detected') {
-                hpatissues[sampleName] = 1;
+                hpaTissues[sampleName] = 1;
                 replicates.push(Math.log2(sampleEl.getAttribute('tpm')));
               }
             } else {
@@ -450,8 +454,8 @@ export default {
         }
       }
       // Make available all tissues with values to browser menu
-      for (const tissue of Object.keys(hpatissues).sort()) {
-        this.hpatissues.push(tissue);
+      for (const tissue of Object.keys(hpaTissues).sort()) {
+        this.hpaTissues.push(tissue);
       }
       // TODO make color scale of expression values
 
@@ -609,8 +613,6 @@ export default {
         const dim = Math.ceil(10 / cyt.zoom());
         const edgeWidth = 1 / cyt.zoom();
 
-        console.log(`dim ${dim}`);
-
         cyt.$('edge').css({
           width: edgeWidth,
           'font-size': dim,
@@ -732,16 +734,15 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    switchHPAExpression: function colorHPAExpression(tissuename) {
-      if (this.showHPATissueExpression === tissuename) {
+    switchHPAExpression: function switchHPAExpression(tissueName) {
+      if (this.showHPATissueExpression === tissueName) {
         this.showHPATissueExpression = false;
         this.nodeDisplayParams.activeTissue = false;
-        this.redrawGraph();
       } else {
-        this.showHPATissueExpression = tissuename;
-        this.nodeDisplayParams.activeTissue = tissuename;
-        this.redrawGraph();
+        this.showHPATissueExpression = tissueName;
+        this.nodeDisplayParams.activeTissue = tissueName;
       }
+      this.redrawGraph();
     },
     zoomGraph: function zoomGraph(zoomIn) {
       let factor = this.factorZoom;
@@ -770,7 +771,7 @@ export default {
       });
     },
     viewMetaboliteInfo: function viewMetaboliteInfo() {
-      this.$emit('updateSelTab', 4, this.reactionComponentId, this.selectedElmId);
+      this.$emit('updateSelTab', 4, this.selectedElmId);
     },
     chemicalFormula,
     chemicalName,
