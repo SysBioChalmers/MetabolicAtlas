@@ -91,7 +91,7 @@ export default {
       this.$emit('highlight', elmId);
     },
     resetTable() {
-      this.sortedElms = this.elms;
+      this.sortedElms = this.filteredElms;
       this.tableSearchTerm = '';
       this.updateTable();
     },
@@ -100,7 +100,7 @@ export default {
       this.updateTable();
     },
     sortBy(field) {
-      const elms = Array.prototype.slice.call(this.elms); // Do not mutate original elms;
+      const elms = Array.prototype.slice.call(this.filteredElms); // Do not mutate original elms;
       this.sortedElms = elms.sort(compare(field, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
       this.updateTable();
