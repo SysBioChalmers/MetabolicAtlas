@@ -90,6 +90,10 @@ def updateSVGWithID(compartmentName, svg_file, sbmlSpecies, xAdjustENSG, yAdjust
         temp = transform.split(',')
         x = float(temp[4])
         y = float(temp[5].replace(')',''))
+        # if I need to subset the SVG for some reason..., the below three lines work very well :)
+        #if x>5000 or x<0 or y>5000 or y<0:
+        #    gOuter.remove(g)
+        #    continue
         fill = g.get('fill')
         # handle the gene/protein/enzymes
         if fill == "#ffee8d":
@@ -98,6 +102,8 @@ def updateSVGWithID(compartmentName, svg_file, sbmlSpecies, xAdjustENSG, yAdjust
             found = _retrieveSpecies(sbmlSpecies, xSBML, ySBML, g.attrib)
             if not found is None:
                 g.set('reaction_component_id', found['id'])
+                path = g.find(svgVersion+'path')
+                path.set('reaction_component_id', found['id'])
             else:
                 nonMappedGenes+=1
                 #print("No map found for "+xSBML+" and "+ySBML+" ATTRIBuTES were "+str(g.attrib))
@@ -109,6 +115,8 @@ def updateSVGWithID(compartmentName, svg_file, sbmlSpecies, xAdjustENSG, yAdjust
             found = _retrieveSpecies(sbmlSpecies, xSBML, ySBML, g.attrib)
             if not found is None:
                 g.set('reaction_component_id', found['id'])
+                path = g.find(svgVersion+'path')
+                path.set('reaction_component_id', found['id'])
             else:
                 nonMappedMetabolites+=1
                 print("No map found for "+xSBML+" and "+ySBML+" ATTRIBuTES were "+str(g.attrib))
