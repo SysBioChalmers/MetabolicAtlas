@@ -13,7 +13,7 @@
              class="nav-item"
              :class="[{ 'is-active': isActive(menuItem) }, '']"
              @click="goToPage(menuItem)"
-          >{{menuItem}}</a>
+          >{{ menuItem }}</a>
         </div>
       </div>
     </nav>

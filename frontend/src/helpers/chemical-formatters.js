@@ -27,3 +27,10 @@ export function chemicalNameLink(value, link) {
             href='${link}'
           >${chemicalName(value)}</a>`;
 }
+
+export function chemicalReaction(value) {
+  if (value === null) {
+    return '';
+  }
+  return value.replace(/(=>)/g, ' &#8680; ');
+}
