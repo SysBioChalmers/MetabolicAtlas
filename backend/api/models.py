@@ -54,7 +54,7 @@ class Reaction(models.Model):
     models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
 
     def __str__(self):
-        return "<Reaction: {0}>".format(self.id)
+        return "<Reaction: {0} {1}>".format(self.id, self.modifiers)
 
     class Meta:
         db_table = "reaction"

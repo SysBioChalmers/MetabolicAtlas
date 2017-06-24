@@ -302,7 +302,9 @@ def get_metabolite_reactions(request, reaction_component_id):
     if component.component_type != 'metabolite':
         return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
 
-    reactions = Reaction.objects.filter(reactionproduct__product_id=reaction_component_id)
+    reactions = Reaction.objects.filter(Q(reactionproduct__product_id=reaction_component_id) |
+                                        Q(reactionreactant__reactant_id=reaction_component_id))
+
     serializer = ReactionSerializer(reactions, many=True)
     result = serializer.data
 

@@ -484,6 +484,7 @@ export default {
 
           Object.assign(this.rawElms, newElms);
           Object.assign(this.rawRels, newRels);
+          this.rawElms = this.loadHPAData(this.rawElms);
 
           this.expandedIds.push(component.id);
 
