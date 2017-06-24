@@ -81,9 +81,9 @@ export default {
   },
   computed: {
     tabs() {
-      let disabledTab4 = false;
-      let disabledTab5 = false;
-      if ([3, 4, 5].includes(this.selectedTab) && this.reactionComponentID) {
+      let disabledTab4 = true;
+      let disabledTab5 = true;
+      if (this.reactionComponentID) {
         disabledTab4 = this.reactionComponentID[0] === 'M';
         disabledTab5 = this.reactionComponentID[0] === 'E';
       }

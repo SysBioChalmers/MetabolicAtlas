@@ -10,7 +10,6 @@
         :placeholder="$t('searchPlaceholder')"
         v-on:keyup.enter="validateSearch()"
         v-on:keyup.esc="showResults = false"
-        v-on:focusout="showResults = false"
         v-on:focus="showResults = true"
         ref="searchInput">
       <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
@@ -28,6 +27,12 @@
               @click="selectSearchResult(4, r.id)">
               Catalysed reactions
             </span>
+            <span
+              class="tag is-primary is-medium"
+              v-show="r.component_type == 'metabolite'"
+              @click="selectSearchResult(5, r.id)">
+              Metabolite
+            </span>
           </div>
           <hr>
         </div>
@@ -36,7 +41,6 @@
         </div>
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -94,16 +98,15 @@ export default {
         // console.log(error);
       });
     },
-    selectSearchResult(tab, reactionComponentId) {
+    selectSearchResult(tabIndex, reactionComponentId) {
       this.searchTerm = '';
       this.searchTermString = '';
       this.searchResults = [];
-      this.$parent.$data.selectedTab = tab;
       this.$router.push({
         query: {
           ...this.$route.query,
           reaction_component_id: reactionComponentId,
-          tab: this.$parent.$data.selectedTab,
+          tab: tabIndex,
         },
       });
     },
