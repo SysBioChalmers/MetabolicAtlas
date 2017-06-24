@@ -13,7 +13,7 @@ export default function (e) {
     short: e.short_name || e.long_name,
     long: e.long_name,
     formula: 'formula',
-    description: 'description',
+    // description: 'description',
     compartment: e.compartment,
     link: e.uniprot_link || e.ensembl_link,
     details: e.metabolite || e.enzyme,
@@ -28,7 +28,7 @@ export default function (e) {
       type: 'reaction',
       short: `${r.reaction_id}\n(${r.reaction_subsystem})`,
       long: r.reaction_id,
-      description: r.reaction_id,
+      // description: r.reaction_id,
       formula: 'formula',
       link: getLink(r),
       details: r.metabolite || r.enzyme,
@@ -68,12 +68,13 @@ export default function (e) {
     for (const p of r.products) {
       const metabolite = {
         id: p.id,
+        real_id: p.id, // add because the id is transform below if duplicate => id_2, _3 etc..
         reactionid: r.reaction_id,
         // parentid: r.reaction_id,
         parentid: products.id,
         short: p.short_name || p.long_name,
         long: p.long_name,
-        description: 'description',
+        // description: 'description',
         formula: p.formula,
         compartment: p.compartment,
         type: 'product',
@@ -93,12 +94,13 @@ export default function (e) {
     for (const re of r.reactants) {
       const metabolite = {
         id: re.id,
+        real_id: re.id,
         reactionid: r.reaction_id,
         // parentid: r.reaction_id,
         parentid: reactants.id,
         short: re.short_name || re.long_name,
         long: re.long_name,
-        description: 'description',
+        // description: 'description',
         formula: re.formula,
         compartment: re.compartment,
         type: 'reactant',
