@@ -114,8 +114,6 @@ export default {
 
       if ([2, 3, 4].includes(this.tabIndex) && !reactionComponentID) {
         this.errorMessage = this.$t('noIDProvided');
-        console.log(this.$children);
-        // this.$children[0]
       } else {
         this.errorMessage = '';
       }

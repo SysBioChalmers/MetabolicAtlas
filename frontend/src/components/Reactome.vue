@@ -38,7 +38,6 @@ export default {
         TODO: the following is a start into laying out a reactome diagram
         A small tool needs to be developed in order to generate the diagram.
       */
-
       const diagram = new SVG('diagram').size('100%', 500);
 
       const links = diagram.group();
@@ -84,7 +83,6 @@ export default {
       axios.get(`metabolite_reactions/${rcid}/reactome/${reactionId}`)
         .then((response) => {
           this.errorMessage = '';
-
           this.reactome = response.data;
         });
     },
