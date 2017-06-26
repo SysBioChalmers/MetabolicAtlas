@@ -54,6 +54,8 @@ class ReactionComponentSearchSerializer(serializers.ModelSerializer):
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
 
 class ReactionSerializer(serializers.ModelSerializer):
+    reactants = ReactionComponentSerializer(many=True)
+    products = ReactionComponentSerializer(many=True)
     modifiers = ReactionComponentSerializer(many=True)
     class Meta:
         model = Reaction

@@ -10,7 +10,7 @@ export function chemicalName(value) {
     return '';
   }
   // TODO: Add logic to format formulas
-  return value.replace(/(\+)/g, '<sup class="top">$1</sup>').replace(/H2O/, 'H<sub>2</sub>O');
+  return value.replace(/([^\s])(\+)([^\s]?)/g, '$1<sup class="top">$2</sup>$3').replace(/H2O/, 'H<sub>2</sub>O');
 }
 
 export function chemicalNameLink(value, link) {
@@ -32,5 +32,6 @@ export function chemicalReaction(value) {
   if (value === null) {
     return '';
   }
-  return value.replace(/(=>)/g, ' &#8680; ');
+  // apply chemical name to all metabolites
+  return chemicalName(value).replace(/(=>)/g, '&#8680;');
 }

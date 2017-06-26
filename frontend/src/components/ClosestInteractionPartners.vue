@@ -364,10 +364,10 @@ export default {
           if (component.enzyme) {
             const uniprotLink = component.enzyme ? component.enzyme.uniprot_link : null;
             const uniprotId = uniprotLink.split('/').pop();
-            this.title = `Closest interaction partners | ${this.componentName}
+            this.title = `Closest interaction partners | ${this.chemicalName(this.componentName)}
               (<a href="${uniprotLink}" target="_blank">${uniprotId}</a>)`;
           } else {
-            this.title = `Closest interaction partners | ${this.componentName}`;
+            this.title = `Closest interaction partners | ${this.chemicalName(this.componentName)}`;
           }
 
           [this.rawElms, this.rawRels] = transform(component, component.id, reactions);

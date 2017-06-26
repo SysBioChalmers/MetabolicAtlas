@@ -69,10 +69,10 @@ export default {
       mId: this.$route.query.reaction_component_id,
       mainTableKey: [
         { name: 'id', display: 'Identifier', modifier: this.reformatID },
-        { name: 'long_name', display: 'Name' },
+        { name: 'long_name', display: 'Name', modifier: chemicalName },
         { name: 'compartment' },
         { name: 'organism' },
-        { name: 'formula', modifier: this.getChemicalFormula },
+        { name: 'formula', modifier: chemicalFormula },
         { name: 'charge' },
         { name: 'mass', modifier: this.reformatMass },
         { name: 'kegg', modifier: this.reformatLink },
@@ -99,7 +99,6 @@ export default {
     load() {
       axios.get(`metabolite/${this.mId}/`)
       .then((response) => {
-        console.log(response.data);
         if (response.data.component_type === 'metabolite' &&
           response.data.metabolite) {
           this.info = response.data;
@@ -122,9 +121,6 @@ export default {
     },
     reformatMass(s) {
       return `${s} g/mol`;
-    },
-    getChemicalFormula(s) {
-      return chemicalFormula(s);
     },
   },
   beforeMount() {
