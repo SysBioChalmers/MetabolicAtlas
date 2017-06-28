@@ -27,9 +27,9 @@
       </tr>
     </table>
     <br>
+    <span class="subtitle">HMDB</span>
     <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
-      <tr v-for="(el, index) in HMDBRAbleKey">
-        <td v-if="index === 0" :rowspan="Object.keys(info).length">HMDB</td>
+      <tr v-for="el in HMDBRAbleKey">
         <td v-if="el.display" class="td-key">{{ el.display }}</td>
         <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
         <td v-if="info.metabolite[el.name]">
@@ -49,7 +49,7 @@
         <td v-else> - </td>
       </tr>
     </table>
-    <reactome v-show="true"></reactome>
+    <reactome></reactome>
   </div>
 </template>
 
@@ -66,13 +66,13 @@ export default {
   },
   data() {
     return {
-      mId: this.$route.query.metabolite_rcid,
+      mId: this.$route.query.reaction_component_id,
       mainTableKey: [
         { name: 'id', display: 'Identifier', modifier: this.reformatID },
-        { name: 'long_name', display: 'Name' },
+        { name: 'long_name', display: 'Name', modifier: chemicalName },
         { name: 'compartment' },
         { name: 'organism' },
-        { name: 'formula', modifier: this.getChemicalFormula },
+        { name: 'formula', modifier: chemicalFormula },
         { name: 'charge' },
         { name: 'mass', modifier: this.reformatMass },
         { name: 'kegg', modifier: this.reformatLink },
@@ -99,16 +99,14 @@ export default {
     load() {
       axios.get(`metabolite/${this.mId}/`)
       .then((response) => {
-        console.log(response.data);
-        if (response.data.component_type === 'metabolite') {
+        if (response.data.component_type === 'metabolite' &&
+          response.data.metabolite) {
           this.info = response.data;
         } else {
           this.errorMessage = this.$t('notFoundError');
         }
       })
-      .catch((error) => {
-        console.log('error:');
-        console.log(error);
+      .catch(() => {
         this.errorMessage = this.$t('notFoundError');
       });
     },
@@ -124,9 +122,6 @@ export default {
     reformatMass(s) {
       return `${s} g/mol`;
     },
-    getChemicalFormula(s) {
-      return chemicalFormula(s);
-    },
   },
   beforeMount() {
     this.load();
@@ -140,15 +135,9 @@ export default {
 <style lang="scss">
 
 #main-table tr td.td-key, #hmdb-table tr td.td-key {
-  background: lightgray;
+  background: #64CC9A;
   width: 150px;
-}
-
-#hmdb-table tr:first-child > td:first-child {
-  background: gray;
   color: white;
-  width: 75px;
-  vertical-align: middle;
 }
 
 </style>

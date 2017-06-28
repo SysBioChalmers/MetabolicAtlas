@@ -13,7 +13,7 @@
              class="nav-item"
              :class="[{ 'is-active': isActive(menuItem) }, '']"
              @click="goToPage(menuItem)"
-          >{{menuItem}}</a>
+          >{{ menuItem }}</a>
         </div>
       </div>
     </nav>
@@ -69,7 +69,6 @@ export default {
             query: {
               tab: 3,
               reaction_component_id: 'E_3748',
-              metabolite_rcid: 'M_m00001c',
             },
           },
         );

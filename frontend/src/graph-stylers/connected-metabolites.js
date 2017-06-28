@@ -4,7 +4,7 @@ export default function (elms, rels) {
   const elmsjson = [];
 
   for (const elm of elms) {
-    if (elm.parentid !== 'null') {
+    if (elm.type === 'enzyme') {
       elmsjson.push({
         group: 'nodes',
         data: {
@@ -18,16 +18,60 @@ export default function (elms, rels) {
           details: elm.details,
         },
       });
-    } else {
+    } else if (elm.type === 'reactant') {
       elmsjson.push({
         group: 'nodes',
         data: {
           id: elm.id,
+          real_id: elm.real_id,
+          parent: elm.parentid,
           reactionid: elm.reactionid,
           name: elm.short,
-          hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
           link: elm.link,
+          type: elm.type,
           details: elm.details,
+        },
+      });
+    } else if (elm.type === 'product') {
+      elmsjson.push({
+        group: 'nodes',
+        data: {
+          id: elm.id,
+          real_id: elm.real_id,
+          parent: elm.parentid,
+          reactionid: elm.reactionid,
+          name: elm.short,
+          link: elm.link,
+          type: elm.type,
+          details: elm.details,
+        },
+      });
+    } else if (elm.type === 'reaction') {
+      elmsjson.push({
+        group: 'nodes',
+        data: {
+          id: elm.id,
+          parent: elm.parentid,
+          reactionid: elm.reactionid,
+          type: elm.type,
+        },
+      });
+    } else if (elm.type === 'reactant_box') {
+      elmsjson.push({
+        group: 'nodes',
+        data: {
+          id: elm.id,
+          parent: elm.parentid,
+          type: elm.type,
+        },
+      });
+    } else if (elm.type === 'product_box') {
+      elmsjson.push({
+        group: 'nodes',
+        data: {
+          id: elm.id,
+          parent: elm.parentid,
+          type: elm.type,
         },
       });
     }
@@ -130,6 +174,5 @@ export default function (elms, rels) {
       'active-bg-size': 10,
     });
 
-  console.log(elmsjson);
   return [elmsjson, stylesheet];
 }

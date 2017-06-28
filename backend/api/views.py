@@ -149,7 +149,8 @@ def component_list(request):
 @api_view()
 def get_component(request, id):
     try:
-        component = ReactionComponent.objects.get(id=id)
+        component = ReactionComponent.objects.get(Q(id=id) |
+                                                  Q(long_name=id))
     except ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -237,6 +238,7 @@ def connected_metabolites(request, id):
     include_expressions = request.query_params.get('include_expression', '') == 'true' 
     
     try:
+        logging.warn(id)
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
                 (Q(id=id) | Q(long_name=id))
@@ -291,14 +293,18 @@ def expressions_list(request, enzyme_id):
 @api_view()
 def get_metabolite_reactions(request, reaction_component_id):
     try:
-        component = ReactionComponent.objects.get(id=reaction_component_id)
+        component = ReactionComponent.objects.get(Q(id=reaction_component_id) |
+                                                  Q(long_name=reaction_component_id))
+
     except ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
     if component.component_type != 'metabolite':
         return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
 
-    reactions = Reaction.objects.filter(reactionproduct__product_id=reaction_component_id)
+    reactions = Reaction.objects.filter(Q(reactionproduct__product_id=reaction_component_id) |
+                                        Q(reactionreactant__reactant_id=reaction_component_id))
+
     serializer = ReactionSerializer(reactions, many=True)
     result = serializer.data
 

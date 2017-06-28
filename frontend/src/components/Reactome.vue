@@ -38,7 +38,6 @@ export default {
         TODO: the following is a start into laying out a reactome diagram
         A small tool needs to be developed in order to generate the diagram.
       */
-
       const diagram = new SVG('diagram').size('100%', 500);
 
       const links = diagram.group();
@@ -65,11 +64,11 @@ export default {
       }, g3).setLineColor('#5D4037');
     },
     loadReactions() {
-      const id = this.$route.params.metabolite_rcid || this.$route.query.metabolite_rcid;
+      const id = this.$route.params.reaction_component_id ||
+       this.$route.query.reaction_component_id;
       axios.get(`metabolite_reactions/${id}`)
         .then((response) => {
           this.errorMessage = '';
-
           this.reactions = response.data;
           if (this.reactions.length > 0) {
             const r = this.reactions[0];
@@ -79,11 +78,11 @@ export default {
     },
     // TODO: call loadReactome when selecting a row from the table of reactions
     loadReactome(reactionId) {
-      const rcid = this.$route.params.metabolite_rcid || this.$route.query.metabolite_rcid;
+      const rcid = this.$route.params.reaction_component_id ||
+       this.$route.query.reaction_component_id;
       axios.get(`metabolite_reactions/${rcid}/reactome/${reactionId}`)
         .then((response) => {
           this.errorMessage = '';
-
           this.reactome = response.data;
         });
     },

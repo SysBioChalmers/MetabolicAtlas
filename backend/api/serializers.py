@@ -15,12 +15,6 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ('id', 'given_name', 'family_name', 'email', 'organization', 'models')
 
-class ReactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reaction
-        fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers', 'subsystem')
-
 class MetaboliteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metabolite
@@ -58,6 +52,15 @@ class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
+
+class ReactionSerializer(serializers.ModelSerializer):
+    reactants = ReactionComponentSerializer(many=True)
+    products = ReactionComponentSerializer(many=True)
+    modifiers = ReactionComponentSerializer(many=True)
+    class Meta:
+        model = Reaction
+        fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
+            'reactants', 'products', 'modifiers', 'subsystem')
 
 
 # This is a helper class to determine if a component is a currency metabolite

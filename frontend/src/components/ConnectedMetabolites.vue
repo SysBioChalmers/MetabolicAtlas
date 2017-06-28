@@ -36,7 +36,7 @@
                     </div>
                     <div v-else>
                       <br>
-                      <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
+                      <button class="button" v-on:click="viewMetaboliteInfo(selectedElm.real_id)">More</button>
                     </div>
                   </div>
                 </div>
@@ -180,6 +180,7 @@ export default {
             this.reactions = [];
 
             const [elms, rels] = transform(response.data);
+
             this.enzymeName = response.data.short_name || response.data.long_name;
             this.selectedElm = elms[enzymeId];
             this.elms = elms;
@@ -226,7 +227,6 @@ export default {
               this.selectedElm = ele.data();
               this.showGraphContextMenu = true;
               updatePosition(node);
-              console.log(this.selectedElm);
             });
 
             this.cy.on('drag', 'node', (evt) => {
@@ -238,7 +238,6 @@ export default {
 
             this.cy.on('mouseover', 'node', (evt) => {
               const node = evt.cyTarget;
-              console.log(node.data());
               let s;
               if (node.data().type === 'reactant_box') {
                 s = 'Reactants';
@@ -287,8 +286,8 @@ export default {
           }
         });
     },
-    viewMetaboliteInfo: function viewMetaboliteInfo() {
-      this.$emit('updateSelTab', 4, this.reactionComponentId, this.selectedElmId);
+    viewMetaboliteInfo: function viewMetaboliteInfo(id) {
+      this.$emit('updateSelTab', 4, id);
     },
     chemicalFormula,
     chemicalName,

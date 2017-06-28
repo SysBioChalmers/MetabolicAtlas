@@ -30,5 +30,6 @@ export default {
     notFoundError: 'No matching record found, please check the parameters and try again.',
     unknownError: 'Something went wrong, please try again or contact the system admin.',
     noInfoAvailable: 'No information available',
+    noIDProvided: 'No ID provided',
   },
 };
