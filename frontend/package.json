@@ -18,8 +18,10 @@
     "cytoscape-graphml": "1.0.5",
     "cytoscape-view-utilities": "2.0.3",
     "file-saver": "^1.3.3",
+    "imports-loader": "^0.7.1",
     "jquery": "^3.0",
     "lodash": "^4.17.4",
+    "snapsvg": "^0.5.1",
     "svg.js": "2.5.1",
     "svg.draggy.js": "^1.1.1",
     "svg.connectable.js": "^2.0.0",
@@ -72,7 +74,8 @@
     "webpack-merge": "^0.14.1",
     "node-sass": "^4.5.0",
     "sass-loader": "^4.1.1",
-    "svg-sprite-loader": "^0.3.0"
+    "svg-sprite-loader": "^0.3.0",
+    "raw-loader": "^0.5.1"
   },
   "engines": {
     "node": ">= 4.0.0",
