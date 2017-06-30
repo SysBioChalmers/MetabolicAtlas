@@ -71,14 +71,16 @@ class Author(models.Model):
 
 class Reaction(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
-    name = models.CharField(max_length=255)
-    sbo_id = models.CharField(max_length=255)
+    name = models.CharField(max_length=50)
+    sbo_id = models.CharField(max_length=50)
     equation = models.TextField(blank=False)
     ec = models.CharField(max_length=255, null=True)
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField()
     subsystem = models.CharField(max_length=70)
+    compartment = models.CharField(max_length=125)
+    is_transport = models.BooleanField(default=False)
 
     models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
 
@@ -87,6 +89,17 @@ class Reaction(models.Model):
 
     class Meta:
         db_table = "reaction"
+
+class ReactionReference(models.Model):
+    reaction = models.ForeignKey('Reaction', db_column='reaction_id', on_delete=models.CASCADE)
+    pmid = models.CharField(max_length=25, blank=False)
+
+    def __str__(self):
+        return "<ReactionReference: {0}={1}>".format(self.reaction.id, self.pmid)
+
+    class Meta:
+        db_table = "reaction_reference"
+        unique_together = (('reaction', 'pmid'),)
 
 class ReactionComponent(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
