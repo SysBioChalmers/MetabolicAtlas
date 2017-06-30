@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     'icsb.chalmers.se',
+    '192.168.99.100', 'http://localhost', 'http://192.168.99.100'
 ]
 
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'api',
     'corsheaders',
+    #'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -84,11 +86,18 @@ WSGI_APPLICATION = 'metabolicatlas.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db',
-        'PORT': 5432,
+        # the below are for making the DB migrations
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASS'),
+        'HOST': os.getenv('DB_SERVICE'),
+        'PORT': os.getenv('DB_PORT'),
+        # the below are for running the web-development
+        #'NAME': os.getenv('POSTGRES_DB'),
+        #'USER': os.getenv('POSTGRES_USER'),
+        #'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        #'HOST': 'db',
+        #'PORT': 5432,
     }
 }
 
@@ -98,6 +107,8 @@ DATABASES = {
 CORS_ORIGIN_WHITELIST = (
     'localhost',
     'icsb.chalmers.se',
+    '192.168.99.100:8080',
+    'localhost:8080',
 )
 
 

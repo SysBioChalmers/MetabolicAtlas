@@ -1,14 +1,10 @@
-import sys, os, csv
+##########################################################################
+# the actual code to read and import annotations for reaction components #
+##########################################################################
 
-from django.db import models
-from api.models import *
-
-from django.core.management.base import BaseCommand
-annotationsToAdd = {}
-verbose = False
-
-def readFileAndAdd(idType, idCol, annType, annFile, annCol):
+def addReactionComponentAnnotation(idType, idCol, annType, annFile, annCol):
     notFoundCount = 0
+    annotationsToAdd = {}
     with open(annFile, 'r') as f:
         for line in f:
             tokens = line.strip().split("\t")
@@ -24,7 +20,9 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
                         if verbose:
                             print("No enzyme found for ensg "+enzymeId)
                     else:
-                        _addAnnotation(component[0], annType, annotation)
+                        ann = ReactionComponentAnnotation(
+                            component = component[0], annotation_type = annType, annotation = annotation)
+                        annotationsToAdd[str(ann)] = ann # ensure only unique annotations are added!
                 elif(idType == "uniprot"):
                     upId = tokens[idCol]
                     rca = ReactionComponentAnnotation.objects.filter(
@@ -33,10 +31,14 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
                         if verbose:
                             print("No ann found for "+upId)
                     elif(len(rca)==1):
-                        _addAnnotation(rca[0].component, annType, annotation)
+                        ann = ReactionComponentAnnotation(
+                            component = rca[0].component, annotation_type = annType, annotation = annotation)
+                        annotationsToAdd[str(ann)] = ann # ensure only unique annotations are added!
                     else:
                         for up in rca:
-                            _addAnnotation(up.component, annType, annotation)
+                            ann = ReactionComponentAnnotation(
+                                component = up.component, annotation_type = annType, annotation = annotation)
+                            annotationsToAdd[str(ann)] = ann # ensure only unique annotations are added!
                 elif(idType == "metName"):
                     name = tokens[idCol]
                     met = ReactionComponent.objects.filter(long_name=name)
@@ -44,7 +46,9 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
                         print("No reaction comopnent found for metabolite name '"+name+"' ")
                         notFoundCount = notFoundCount + 1
                     elif(len(met)==1):
-                        _addAnnotation(met[0], annType, annotation)
+                        ann = ReactionComponentAnnotation(
+                            component = met[0], annotation_type = annType, annotation = annotation)
+                        annotationsToAdd[str(ann)] = ann # ensure only unique annotations are added!
                     else:
                         print("Multiple rc found for "+name)
         temp = []
@@ -54,26 +58,3 @@ def readFileAndAdd(idType, idCol, annType, annFile, annCol):
         print("Added "+str(len(temp))+" reaction component annotations of type "+annType)
         if(idType == "metName" and notFoundCount>0):
             print("ERROR! there were HMR metabolite names that were not found in DB, fix these before proceding!")
-
-
-def _addAnnotation(c, t, ann):
-    # make the annotation
-    ann = ReactionComponentAnnotation(
-        component = c, annotation_type = t, annotation = ann)
-    annotationsToAdd[str(ann)] = ann # ensure only unique annotations are added!
-
-
-class Command(BaseCommand):
-    help = 'our help string comes here'
-
-    def add_arguments(self, parser):
-        parser.add_argument('file', type=str, help="the path to the file to read")
-        parser.add_argument('id_type', type=str, help="(ensg|uniprot)")
-        parser.add_argument('id_col', type=int, help="the colNr of the identifier")
-        parser.add_argument('annotation_type', type=str, help="(uniprot|up_keywords)")
-        parser.add_argument('annotation_col', type=str, help="(the colNr of the annotation")
-
-    def handle(self, *args, **options):
-        readFileAndAdd(str(options['id_type']), int(options['id_col']),
-            str(options['annotation_type']), str(options['file']),
-            int(options['annotation_col']))
