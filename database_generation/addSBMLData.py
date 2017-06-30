@@ -115,6 +115,46 @@ def get_author(sbml_model):
     return author
 
 
+def _getCompartmentInfo(rID, rc, pc):
+    r_it = iter(rc.keys())
+    r_first = next(r_it)
+    p_it = iter(pc.keys())
+    p_first = next(p_it)
+    if((len(rc)==1) & (len(pc)==1) & (r_first.name==p_first.name)):
+        return(r_first.name)
+    if((len(rc)==1) & (len(pc)==1) & (r_first.name!=p_first.name)):
+        return(r_first.name + " => "+p_first.name)
+    if((len(rc)==1) & (len(pc)==2)):
+        p_second = next(p_it)
+        return(r_first.name + " => " + p_first.name + " + " + p_second.name)
+    if((len(rc)==2) & (len(pc)==1)):
+        r_second = next(r_it)
+        return(r_first.name + " + " + r_second.name + " => " + p_first.name)
+    if((len(rc)==2) & (len(pc)==2)):
+        r_second = next(r_it)
+        p_second = next(p_it)
+        return(r_first.name + " + " + r_second.name + " => " + p_first.name + " + " + p_second.name)
+    if((len(rc)==3) & (len(pc)==1)):
+        r_second = next(r_it)
+        r_third = next(r_it)
+        return(r_first.name + " + " + r_second.name + " + " + r_third.name + " => " + p_first.name)
+    if((len(rc)==5) & (len(pc)==1)):
+        r_second = next(r_it)
+        r_third = next(r_it)
+        r_fourth = next(r_it)
+        r_fifth = next(r_it)
+        return(r_first.name + " + " + r_second.name + " + " + r_third.name + r_fourth.name + " + " + r_fifth.name + " => " + p_first.name)
+    if((len(rc)==8) & (len(pc)==1)):
+        r_second = next(r_it)
+        r_third = next(r_it)
+        r_fourth = next(r_it)
+        r_fifth = next(r_it)
+        r_sixth = next(r_it)
+        r_seventh = next(r_it)
+        r_eight = next(r_it)
+        return(r_first.name + " + " + r_second.name + " + " + r_third.name + r_fourth.name + " + " + r_fifth.name + " + " + r_sixth.name + " + " + r_seventh.name + " + " + r_eight.name + " => " + p_first.name)
+    sys.exit("Missing compartment information for reaction"+rID+" with "+str(len(rc))+ " and "+str(len(pc)))
+
 def get_reaction(sbml_model, index):
     """ Get the specified reaction from the supplied SBML model. """
     sbml_reaction = sbml_model.getReaction(index)
@@ -130,26 +170,35 @@ def get_reaction(sbml_model, index):
     reaction_to_add.upper_bound = kinetic_law_parameters.get("UPPER_BOUND")
     objective_coefficient = kinetic_law_parameters.get("OBJECTIVE_COEFFICIENT")
     reaction_to_add.objective_coefficient = objective_coefficient
+
+    # in order to determine which compartment the reaction takes place
+    reactant_compartment = collections.OrderedDict()
+    product_compartment = collections.OrderedDict()
+    reactants_list = get_reaction_components(sbml_model, sbml_reaction.getListOfReactants())
+    products_list = get_reaction_components(sbml_model, sbml_reaction.getListOfProducts())
+    modifiers_list = get_reaction_components(sbml_model, sbml_reaction.getListOfModifiers())
+    for currentReactant_reactioncomponent in reactants_list:
+        reactant_compartment[currentReactant_reactioncomponent.compartment] = "1"
+    for currentProduct_reactioncomponent in products_list:
+        product_compartment[currentProduct_reactioncomponent.compartment] = "1"
+    c = _getCompartmentInfo(sbml_reaction.id, reactant_compartment, product_compartment)
+    reaction_to_add.compartment = c
+    if( re.search(r'=>', c)):
+        reaction_to_add.is_transport = True
+
     reaction_to_add.save() # FIXME would be nicer with a bulk save
 
-    reactants_list = get_reaction_components(sbml_model,
-                                        sbml_reaction.getListOfReactants())
+    # populate all the associated tables
     rr_to_add = []
     for currentReactant_reactioncomponent in reactants_list:
         rr = ReactionReactant(reaction=reaction_to_add, reactant=currentReactant_reactioncomponent)
         rr_to_add.append(rr)
     ReactionReactant.objects.bulk_create(rr_to_add)
-
-    products_list = get_reaction_components(sbml_model,
-                                       sbml_reaction.getListOfProducts())
     rp_to_add = []
     for currentProduct_reactioncomponent in products_list:
         rp = ReactionProduct(reaction=reaction_to_add, product=currentProduct_reactioncomponent)
         rp_to_add.append(rp)
     ReactionProduct.objects.bulk_create(rp_to_add)
-
-    modifiers_list = get_reaction_components(sbml_model,
-                                        sbml_reaction.getListOfModifiers())
     rm_to_add = []
     for currentModifier_reactioncomponent in modifiers_list:
         rm = ReactionModifier(reaction=reaction_to_add, modifier=currentModifier_reactioncomponent)
