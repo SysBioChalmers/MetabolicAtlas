@@ -1,11 +1,8 @@
-import sys, os
+############################################################
+# the actual code to read and set the currency metabolites #
+############################################################
 
-from django.db import models
-from api.models import ReactionComponent, Reaction, CurrencyMetabolite
-
-from django.core.management.base import BaseCommand
-
-def readTextFileAndAdd(cm_file):
+def addCurrencyMetabolites(cm_file):
     cm_to_add = []
     with open(cm_file, 'r') as f:
         for line in f:
@@ -22,12 +19,3 @@ def readTextFileAndAdd(cm_file):
                 cm = CurrencyMetabolite(component=component[0], reaction=reaction[0])
                 cm_to_add.append(cm)
     CurrencyMetabolite.objects.bulk_create(cm_to_add)
-
-
-
-class Command(BaseCommand):
-    args = '<foo bar ...>'
-    help = 'our help string comes here'
-
-    def handle(self, *args, **options):
-        readTextFileAndAdd("/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/currencyMets.csv")

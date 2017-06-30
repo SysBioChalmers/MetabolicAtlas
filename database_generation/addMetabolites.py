@@ -1,9 +1,6 @@
-import sys, os, csv
-
-from django.db import models
-from api.models import Metabolite, ReactionComponent
-
-from django.core.management.base import BaseCommand
+######################################################################
+# the actual code to read and import annotations for the metabolites #
+######################################################################
 
 
 #metaboliteListFromExcel
@@ -78,17 +75,3 @@ def readHMDBFile(fileName):
             h = {"name":row[1], "description":row[2], "function":row[3]};
             hmdb_info[row[0]] = h
     return hmdb_info
-
-
-class Command(BaseCommand):
-    args = '<foo bar ...>'
-    help = 'our help string comes here'
-    folder="/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/"
-    massFile=folder+"massCalc.txt"
-    annFile=folder+"metaboliteListFromExcel.txt"
-    hmdbFile=folder+"hmdb.tab"
-
-    def handle(self, *args, **options):
-        masses = readMassCalcFile(self.massFile)
-        hmdb = readHMDBFile(self.hmdbFile)
-        metaboliteDefinitions(self.annFile, masses, hmdb)

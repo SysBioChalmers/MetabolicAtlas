@@ -1,38 +1,3 @@
-"""Import SBML model."""
-
-import logging, re, sys, os
-import xml.etree.ElementTree as etree
-import libsbml
-
-from django.db import *
-from api.models import *
-
-from django.core.management.base import BaseCommand
-
-logger = logging.getLogger(__name__)
-sh = logging.StreamHandler(stream=sys.stderr)
-logger.addHandler(sh)
-formatter = logging.Formatter(("%(asctime)s - %(name)s - %(levelname)s - "
-                               "%(message)s"))
-sh.setFormatter(formatter)
-logger.setLevel(logging.INFO)
-
-
-class Command(BaseCommand):
-    help = 'our help string comes here'
-
-    def add_arguments(self, parser):
-        parser.add_argument('gemFile', type=str, help="path to GEM file")
-        parser.add_argument('ensembl_version_for_the_proteins', type=int, help="the ensembl version for the proteins")
-
-    def handle(self, *args, **options):
-        version = options['ensembl_version_for_the_proteins']
-        gemFile = str(options['gemFile'])
-        print("Ensembl version to use: "+str(version))
-        print("GEM file to import is: "+gemFile)
-        readGEM(gemFile, version)
-
-
 #########################################################
 # the actual code to read and import the GEM SBML model #
 #########################################################
@@ -260,7 +225,7 @@ def _getEnsemblArchivePath(v):
 		sys.exit("\n*******************************\nError:\n\tNot a known version map\n*******************************\n");
 
 
-def readGEM(gem_file, ensembl_version):
+def addSBMLData(gem_file, ensembl_version):
     doc = libsbml.readSBML(gem_file)
     errors = doc.getNumErrors()
     if errors != 0:
@@ -271,13 +236,19 @@ def readGEM(gem_file, ensembl_version):
 
     # get author and model
     logger.info("Importing model")
-    model = MetabolicModel(short_name=sbml_model.id,
-        name=sbml_model.name, ensembl_version=ensembl_version,
+    pmid = "24419221"
+    title="Genome-scale metabolic modelling of hepatocytes reveals serine deficiency in patients with non-alcoholic fatty liver disease"
+    if(not sbml_model.name == "HMRdatabase"):
+        pmid="NA"
+        title="NA"
+    model = GEM(short_name=sbml_model.id,
+        name=sbml_model.name, pmid=pmid, article_title=title,
+        ensembl_version=ensembl_version,
         ensembl_archive_path = _getEnsemblArchivePath(ensembl_version))
     model.save()
     author = get_author(sbml_model)
     author.save()
-    ma = ModelAuthor(model=model, author=author)
+    ma = GEMAuthor(model=model, author=author)
     ma.save()
 
     # get compartments
@@ -296,6 +267,6 @@ def readGEM(gem_file, ensembl_version):
     mr_to_add = []
     for i in range(sbml_model.getNumReactions()):
         reaction = get_reaction(sbml_model, i)
-        mr = ModelReaction(model=model, reaction=reaction)
+        mr = GEMReaction(model=model, reaction=reaction)
         mr_to_add.append(mr)
-    ModelReaction.objects.bulk_create(mr_to_add)
+    GEMReaction.objects.bulk_create(mr_to_add)

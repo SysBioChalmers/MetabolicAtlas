@@ -42,24 +42,26 @@ class TissueOntology(models.Model):
 # Models
 #
 
-class MetabolicModel(models.Model):
+class GEM(models.Model):
     short_name = models.CharField(max_length=255, blank=False)
     name = models.CharField(max_length=255, blank=False)
+    pmid = models.CharField(max_length=11, blank=False)
+    article_title = models.CharField(max_length=255, blank=False)
     ensembl_version = models.CharField(max_length=50, null=True) # keep track of this... for HMR2 make an educated guess!
     ensembl_archive_path = models.CharField(max_length=50, null=True)
 
     def __str__(self):
-        return "<MetabolicModel: {0}>".format(self.short_name)
+        return "<GEM: {0}>".format(self.short_name)
 
     class Meta:
-        db_table = "metabolic_model"
+        db_table = "gem"
 
 class Author(models.Model):
     given_name = models.CharField(max_length=255, blank=False)
     family_name = models.CharField(max_length=255, blank=False)
     email = models.CharField(max_length=255, blank=False)
     organization = models.CharField(max_length=255, blank=False)
-    models = models.ManyToManyField(MetabolicModel, related_name='authors', through='ModelAuthor')
+    models = models.ManyToManyField(GEM, related_name='authors', through='GemAuthor')
 
     def __str__(self):
         return "<Author: {0} {1}>".format(self.given_name, self.family_name)
@@ -78,7 +80,7 @@ class Reaction(models.Model):
     objective_coefficient = models.FloatField()
     subsystem = models.CharField(max_length=70)
 
-    models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
+    models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
 
     def __str__(self):
         return "<Reaction: {0} {1}>".format(self.id, self.modifiers)
@@ -224,19 +226,19 @@ class ConnectedMetabolites(object):
 # Relationships
 #
 
-class ModelAuthor(models.Model):
-    model = models.ForeignKey(MetabolicModel, on_delete=models.CASCADE)
+class GEMAuthor(models.Model):
+    model = models.ForeignKey(GEM, on_delete=models.CASCADE)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "model_authors"
+        db_table = "gem_authors"
 
-class ModelReaction(models.Model):
-    model = models.ForeignKey(MetabolicModel, on_delete=models.CASCADE)
+class GEMReaction(models.Model):
+    model = models.ForeignKey(GEM, on_delete=models.CASCADE)
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "model_reactions"
+        db_table = "gem_reactions"
 
 class ReactionReactant(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)

@@ -1,11 +1,11 @@
 from rest_framework import serializers
 from api.models import *
 
-class MetabolicModelSerializer(serializers.ModelSerializer):
+class GEMSerializer(serializers.ModelSerializer):
     authors = serializers.StringRelatedField(many=True)
 
     class Meta:
-        model = MetabolicModel
+        model = GEM
         fields = ('id', 'short_name', 'name', 'authors')
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -39,7 +39,7 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
     metabolite = MetaboliteSerializer(read_only=True)
     enzyme = EnzymeSerializer(read_only=True)
-    
+
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
@@ -48,7 +48,7 @@ class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
     metabolite = MetaboliteSearchSerializer(read_only=True)
     enzyme = EnzymeSearchSerializer(read_only=True)
-    
+
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
@@ -82,7 +82,7 @@ class CurrencyMetaboliteReactionComponentSerializer(serializers.Serializer):
 
 class CurrencyMetaboliteSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
-    
+
     class Meta:
         model = CurrencyMetabolite
         fields = ('reaction_id', 'compartment')
@@ -120,4 +120,3 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     expressions = ExpressionDataSerializer(many=True)
     uniprot_link = serializers.CharField()
     ensembl_link = serializers.CharField()
-
