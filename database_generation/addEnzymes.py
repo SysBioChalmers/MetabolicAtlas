@@ -1,17 +1,13 @@
-import sys, os, csv
-
-from django.db import models
-from api.models import Enzyme, ReactionComponentAnnotation
-from api.models import ReactionModifier, ModelReaction, MetabolicModel # needed in order to get the ensembl path information from the metabolic model...
-
-from django.core.management.base import BaseCommand
-proteinsAdded = {}
+####################################################################
+# the actual code to read and import enzymes and their annotations #
+####################################################################
 
 #UniProtID	UniProtACC	RecommendedName	ShortName	GeneSymbol
 #1433B_HUMAN	P31946	14-3-3 protein beta/alpha	KCIP-1	YWHAB
-def readNameFileAndAdd(fileName, ecs, functions, activities, keggs):
+def addEnzymes(fileName, ecs, functions, activities, keggs):
     proteinsToAdd = []
     ensembl_archive_path = None
+    proteinsAdded = {}
     with open(fileName, "r") as f:
         reader = csv.reader(f, delimiter='\t')
         next(f) # skip the header
@@ -59,19 +55,6 @@ def readAnnotationFile(fileName):
 # use the reactant relationship to a reaction and then to the metabolic model via the model reaction relationship...
 def _getEnsemblArchivePathFromModel(component):
     reaction = ReactionModifier.objects.filter(modifier_id=component.id)
-    mr = ModelReaction.objects.filter(reaction_id=reaction[0].reaction_id)
-    model = MetabolicModel.objects.filter(id=mr[0].model_id)
+    mr = GEMReaction.objects.filter(reaction_id=reaction[0].reaction_id)
+    model = GEM.objects.filter(id=mr[0].model_id)
     return(model[0].ensembl_archive_path)
-
-
-class Command(BaseCommand):
-    args = '<foo bar ...>'
-    help = 'our help string comes here'
-    folder="/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/"
-
-    def handle(self, *args, **options):
-        ec = readAnnotationFile(self.folder+"uniprot.human.EC.tab")
-        function = readAnnotationFile(self.folder+"uniprot.human.function.tab")
-        activity = readAnnotationFile(self.folder+"uniprot.human.CatalyticActivity.tab")
-        kegg = readAnnotationFile(self.folder+"human.kegg.tab")
-        readNameFileAndAdd(self.folder+"uniprot.human.names.tab", ec, function, activity, kegg)

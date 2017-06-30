@@ -4,7 +4,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from itertools import chain
-from api.models import MetabolicModel, Author
+from api.models import GEM, Author
 from api.serializers import *
 
 import logging
@@ -17,18 +17,18 @@ class JSONResponse(HttpResponse):
 
 @api_view()
 def model_list(request):
-    models = MetabolicModel.objects.all()
-    serializer = MetabolicModelSerializer(models, many=True)
+    models = GEM.objects.all()
+    serializer = GEMSerializer(models, many=True)
     return JSONResponse(serializer.data)
 
 @api_view()
 def get_model(request, id):
     try:
-        model = MetabolicModel.objects.get(id=id)
-    except MetabolicModel.DoesNotExist:
+        model = GEM.objects.get(id=id)
+    except GEM.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = MetabolicModelSerializer(model)
+    serializer = GEM(model)
     return JSONResponse(serializer.data)
 
 @api_view()
@@ -136,8 +136,8 @@ def component_list(request):
     name = request.query_params.get('name', None)
     if name:
         components = ReactionComponent.objects.filter(
-                Q(id__icontains=name) | 
-                Q(long_name__icontains=name) | 
+                Q(id__icontains=name) |
+                Q(long_name__icontains=name) |
                 Q(short_name__icontains=name)
             )[offset:(offset+limit)]
     else:
@@ -173,7 +173,7 @@ def component_expression_list(request, id):
     expression_type = request.query_params.get('expression_type', '')
     expressions = ExpressionData.objects.filter(
             Q(reaction_component=id) &
-            Q(tissue__icontains=tissue) & 
+            Q(tissue__icontains=tissue) &
             Q(expression_type__icontains=expression_type)
         )
 
@@ -235,8 +235,8 @@ def enzyme_list(request):
 def connected_metabolites(request, id):
     tissue = request.query_params.get('tissue', '')
     expression_type = request.query_params.get('expression_type', '')
-    include_expressions = request.query_params.get('include_expression', '') == 'true' 
-    
+    include_expressions = request.query_params.get('include_expression', '') == 'true'
+
     try:
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
@@ -436,7 +436,7 @@ def get_gemodels(request):
         logging.warn(repo['name'])
         if repo['name'].startswith('GEM_') or False:
             try:
-                result = urllib.request.urlopen(repo['url'] + '/contents/README.md?ref=master') 
+                result = urllib.request.urlopen(repo['url'] + '/contents/README.md?ref=master')
                 readme = json.loads(result.read().decode('UTF-8'))['content']
             except Exception as e:
                 logging.warn(e)
@@ -470,4 +470,3 @@ def parse_readme_file(content):
             d[key_entry[entry]] = value.strip()
 
     return d
-
