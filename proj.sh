@@ -25,6 +25,8 @@ function db-make-migrations {
 
 function db-migrate {
     docker exec metabolicatlas_backend_1 python manage.py migrate
+    docker exec metabolicatlas_backend_1 python manage.py migrate --database=gems
+    docker exec metabolicatlas_backend_1 python manage.py migrate --database=tiles
 }
 
 function create-su {
