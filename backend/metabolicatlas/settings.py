@@ -89,8 +89,33 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
         'PORT': 5432,
+    },
+    'gems': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB2_GEMS_DB'),
+        'USER': os.getenv('POSTGRES_DB2_USER'),
+        'PASSWORD': os.getenv('POSTGRES_DB2_PASSWORD'),
+        'HOST': 'db2',
+        'PORT': 5432,
+    },
+    'tiles': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB2_TILES_DB'),
+        'USER': os.getenv('POSTGRES_DB2_USER'),
+        'PASSWORD': os.getenv('POSTGRES_DB2_PASSWORD'),
+        'HOST': 'db2',
+        'PORT': 5432,
     }
 }
+
+
+# Database routers
+
+DATABASE_ROUTERS = [
+    'api.routers.GemRouter',
+    'api.routers.TileRouter',
+    'api.routers.ApiRouter'
+]
 
 
 # CORS
