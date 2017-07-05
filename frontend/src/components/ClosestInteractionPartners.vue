@@ -389,15 +389,15 @@ export default {
         })
         .catch((error) => {
           // console.log('error:');
-          console.log(error);
+          // console.log(error);
           this.loading = false;
-          // switch (error.response.status) {
-          //   case 406:
-          //     this.errorMessage = this.$t('tooManyInteractionPartners');
-          //     break;
-          //   default:
-          //     this.errorMessage = this.$t('unknownError');
-          // }
+          switch (error.response.status) {
+            case 406:
+              this.errorMessage = this.$t('tooManyInteractionPartners');
+              break;
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
         });
     },
     loadHPAData(rawElms) {
