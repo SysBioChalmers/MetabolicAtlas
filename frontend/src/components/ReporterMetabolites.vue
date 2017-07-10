@@ -62,6 +62,14 @@ export default {
 
     s.selectAll('g') // or whatever ID it has, or give it one
     .attr({ width: '100%', height: '100%', viewBox: '0 0 600 600' });
+
+    // Example for modifying network SVG
+    setTimeout(() => {
+      const s2 = snap('#svg-wrapper svg');
+      s2.select('g').attr({
+        fill: 'grey',
+      });
+    }, 0);
   },
   methods: {
   },
