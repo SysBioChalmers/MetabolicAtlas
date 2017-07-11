@@ -28,9 +28,9 @@
           </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-          <span v-show="selectedElmId !==reactionComponentId" 
+          <span v-show="selectedElmId !==reactionComponentId"
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
-          <span v-show="!expandedIds.includes(selectedElmId)" 
+          <span v-show="!expandedIds.includes(selectedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
           <span v-show="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
@@ -76,10 +76,10 @@
                 </select>
               </div>
               <span>Color:</span>
-              <span class=color-span 
+              <span class=color-span
                 v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex}"
                 v-on:click="showColorPickerEnz = !showColorPickerEnz">
-                <compact-picker v-show="showColorPickerEnz" 
+                <compact-picker v-show="showColorPickerEnz"
                 v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph()"></compact-picker>
               </span>
               <hr>
@@ -105,10 +105,10 @@
                 </select>
               </div>
               <span>Color:</span>
-               <span class=color-span 
+               <span class=color-span
                 v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
                 v-on:click="showColorPickerMeta = !showColorPickerMeta">
-                <compact-picker v-show="showColorPickerMeta" 
+                <compact-picker v-show="showColorPickerMeta"
                 v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph()"></compact-picker>
               </span>
             </div>
@@ -174,7 +174,7 @@
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
             <div>{{ $t('tooManyReactionsWarn') }}</div>
-            <span v-show="reactionsCount <= maxReactionCount" 
+            <span v-show="reactionsCount <= maxReactionCount"
             class="button" v-on:click="constructGraph(rawElms, rawRels);">{{ $t('tooManyReactionsBut') }}</span>
           </div>
         </div>
@@ -205,10 +205,9 @@ import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { fetchXML, parseXML } from '../helpers/xml-tools';
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
-// FIXME remove this line and its helper file, its a HPA demo XML return function
-import { default as hpaResponse } from '../helpers/hparesponse';
 
 export default {
   name: 'closest-interaction-partners',
@@ -402,21 +401,18 @@ export default {
         });
     },
     loadHPAData(rawElms) {
-      // TODO fetch XML from proteinatlas, is gzipped file :(
-      // const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
-      // const proteins = 'ENSG00000121410,ENSG00000091831?format=xml';
-      // const url = baseUrl + proteins;
-      // const out = fs.createWriteStream('./feed.xml');
-      // axios.get(url).pipe(zlib.createGunzip()).pipe(out);
-      // FIXME hpaResponse is now a function that reutrns a string in helper dir!
-      const hpaXML = hpaResponse();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(hpaXML, 'text/xml');
+      const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
+      const proteins = 'ENSG00000121410,ENSG00000091831?format=xml';
+      const url = baseUrl + proteins;
+
+      const xmlContent = fetchXML(url);
+      if (xmlContent === '') {
+        return [];
+      }
+      const xmlDoc = parseXML(xmlContent);
       const genes = xmlDoc.getElementsByTagName('entry');
       const hpaGeneEx = {};
       const hpaTissues = {};
-      this.hpaTissues = [];
-      // Loop through XML, gene by gene
       for (const gene of genes) {
         const genename = gene.getElementsByTagName('name')[0].textContent;
         hpaGeneEx[genename] = [];
@@ -778,6 +774,8 @@ export default {
     chemicalName,
     chemicalNameLink,
     visitLink,
+    fetchXML,
+    parseXML,
   },
 };
 </script>
