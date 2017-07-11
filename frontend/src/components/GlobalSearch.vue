@@ -78,14 +78,12 @@ export default {
       if (!this.quickSearch) {
         return;
       }
-      if (this.searchTermString.length < 2) {
-        return;
-      }
-      // make sure we search a term of size 2
-      const searchTerm = this.searchTermString;
+
       this._.debounce(() => {
-        this.search(searchTerm);
-      }, 500)();
+        if (this.searchTermString.length >= 2) {
+          this.search(this.searchTermString);
+        }
+      }, 700)();
     },
     search(searchTerm) {
       const url = this.quickSearch ? `search/quick/${searchTerm}` : `search/${searchTerm}`;
