@@ -219,7 +219,7 @@ export default {
   data() {
     return {
       loading: true,
-      errorMessage: null,
+      errorMessage: this.$t('unknownError'),
       title: '',
 
       reactionsCount: 0,
@@ -353,8 +353,6 @@ export default {
       axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
-          this.errorMessage = null;
-
           const component = response.data.component;
           const reactions = response.data.reactions;
 
@@ -381,6 +379,7 @@ export default {
             return;
           }
           this.showNetworkGraph = true;
+          this.errorMessage = null;
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
@@ -388,8 +387,6 @@ export default {
           }, 0);
         })
         .catch((error) => {
-          // console.log('error:');
-          // console.log(error);
           this.loading = false;
           switch (error.response.status) {
             case 406:
