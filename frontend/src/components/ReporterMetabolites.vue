@@ -30,6 +30,7 @@
 
 import { default as snap } from 'snapsvg';
 import axios from 'axios';
+import svgPanZoom from 'svg-pan-zoom';
 
 export default {
   name: 'reporter-metabolites',
@@ -50,6 +51,11 @@ export default {
       const s = snap('#svg-wrapper svg');
       s.attr({ width: '1200px' });
       s.attr({ height: '1200px' });
+
+      // Example to allow panning and zooming
+      svgPanZoom('#svg-wrapper svg', {
+        controlIconsEnabled: true,
+      });
 
       // console.log(s.select('path').transform());
       // console.log(s.selectAll('path'));
