@@ -13,6 +13,7 @@
       </div>
       <div class="column">
         <button class="button is-primary" @click="highLightElements">Highlight</button>
+        <button class="button is-primary" @click="switchSVG">Switch SVG</button>
       </div>
     </div>
     <div id="svg-wrapper" v-html="svgContent" style="width:1200px; height:1200px; border: 2px solid black">
@@ -32,6 +33,7 @@ import { default as snap } from 'snapsvg';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 
+/* eslint-disable global-require */
 export default {
   name: 'reporter-metabolites',
   data() {
@@ -39,35 +41,50 @@ export default {
       svgContent: '',
       compartmentID: 8, // TODO make it dynamic
       HLColor: '#22FFFF',
+      switched: true,
     };
   },
   mounted() {
-    /* eslint-disable global-require */
     // this.svgContent = require('assets/svg/ER.id_added.svg2');
-    this.svgContent = require('assets/svg/nucleus_no_min.svg2');
-
-    // Example for modifying network SVG
-    setTimeout(() => {
-      const s = snap('#svg-wrapper svg');
-      s.attr({ width: '1200px' });
-      s.attr({ height: '1200px' });
-
-      // Example to allow panning and zooming
-      svgPanZoom('#svg-wrapper svg', {
-        controlIconsEnabled: true,
-      });
-
-      // console.log(s.select('path').transform());
-      // console.log(s.selectAll('path'));
-
-      /* s.selectAll('path') // or whatever ID it has, or give it one
-      .attr({ width: '100%', height: '100%', viewBox: '0 0 600 600' });
-
-      s.selectAll('g') // or whatever ID it has, or give it one
-      .attr({ width: '100%', height: '100%', viewBox: '0 0 600 600' }); */
-    }, 0);
+    this.switchSVG();
   },
   methods: {
+    superchargeSVG() {
+      // Example for modifying network SVG
+      setTimeout(() => {
+        const s = snap('#svg-wrapper svg');
+        s.attr({ width: '1200px' });
+        s.attr({ height: '1200px' });
+
+        // Example to allow panning and zooming
+        svgPanZoom('#svg-wrapper svg', {
+          controlIconsEnabled: true,
+        });
+
+        // console.log(s.select('path').transform());
+        // console.log(s.selectAll('path'));
+
+        /* s.selectAll('path') // or whatever ID it has, or give it one
+        .attr({ width: '100%', height: '100%', viewBox: '0 0 600 600' });
+
+        s.selectAll('g') // or whatever ID it has, or give it one
+        .attr({ width: '100%', height: '100%', viewBox: '0 0 600 600' }); */
+      }, 0);
+    },
+    // Example for loading a different SVG
+    switchSVG() {
+      if (this.switched) {
+        this.svgContent = require('assets/svg/nucleus_no_min.svg2');
+
+        this.switched = false;
+      } else {
+        this.svgContent = require('assets/svg/logo.svg2');
+
+        this.switched = true;
+      }
+
+      this.superchargeSVG();
+    },
     highLightElements() {
       const termsString = this.$refs.textarea.value;
 
