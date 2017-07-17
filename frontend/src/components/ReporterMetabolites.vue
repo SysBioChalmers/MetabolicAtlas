@@ -7,7 +7,7 @@
             <label class="label">IDs: </label>
           </div>
           <p class="control">
-            <textarea class="textarea" ref="textarea" placeholder="udp, h2o2, sam, m_m01784n"></textarea>
+            <textarea class="textarea" ref="textarea" placeholder="udp, h2o2, sam, m_m01784n">udp, h2o2, sam, m_m01784n</textarea>
           </p>
         </div>
       </div>
@@ -40,7 +40,7 @@ export default {
     return {
       svgContent: '',
       compartmentID: 8, // TODO make it dynamic
-      HLColor: '#22FFFF',
+      HLElements: [],
       switched: true,
     };
   },
@@ -100,15 +100,21 @@ export default {
     },
     hlReactionComponentIDs(array) {
       // get the correct IDs from the backend
-      axios.get(`convert_to_reaction_component_ids/${this.compartmentID}/${array.join(',')}`)
+      axios.post(`convert_to_reaction_component_ids/${this.compartmentID}`, { data: array })
       .then((response) => {
+        if (this.HLElements) {
+          for (let i = 0; i < this.HLElements.length; i += 1) {
+            this.HLElements[i].removeClass('hl');
+          }
+        }
         const result = response.data;
         const s = snap('#svg-wrapper svg');
         for (let i = 0; i < result.length; i += 1) {
           const id = result[i].trim();
           const elms = s.selectAll(`.${id}`);  // rcID should be assign to class attribut
           for (let j = 0; j < elms.length; j += 1) {
-            elms[j].attr({ fill: this.HLColor });
+            this.HLElements.push(elms[j]);
+            elms[j].addClass('hl');
           }
         }
       })
@@ -129,6 +135,10 @@ export default {
     width: 600px;
     margin: auto;
   }
+}
+
+svg .hl {
+  fill: #22FFFF;
 }
 
 </style>

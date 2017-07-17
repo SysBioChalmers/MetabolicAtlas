@@ -381,9 +381,9 @@ def search(request, term, truncated):
 
     return JSONResponse(serializer.data)
 
-@api_view()
-def convert_to_reaction_component_ids(request, commaSeparatedTerms, compartmentID):
-    arrayTerms = [el.strip() for el in commaSeparatedTerms.split(',') if len(el) != 0]
+@api_view(['POST'])
+def convert_to_reaction_component_ids(request, compartmentID):
+    arrayTerms = [el.strip() for el in request.data['data'].split(',') if len(el) != 0]
     query = Q()
     for term in arrayTerms:
         query |= Q(id__iexact=term)
