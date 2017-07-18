@@ -380,3 +380,13 @@ def search(request, term, truncated):
     serializer = ReactionComponentSearchSerializer(components, many=True)
 
     return JSONResponse(serializer.data)
+
+@api_view()
+def get_gems(request):
+    # get models from git
+    pass
+
+@api_view()
+def get_old_gems(request):
+    # get old models from database
+    pass

@@ -28,4 +28,6 @@ urlpatterns = [
     url(r'^search/quick/(?P<term>[^/]+)/?$', views.search, { 'truncated': True } ),
     url(r'^search/(?P<term>[^/]+)/?$', views.search, { 'truncated': False } ),
     url(r'^metabolite/(?P<id>[^/]+)/?$', views.get_component),
+    url(r'^gems/?$', views.get_gems),
+    url(r'^old_gems/?$', views.get_old_gems),
 ]
