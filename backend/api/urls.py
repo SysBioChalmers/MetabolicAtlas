@@ -28,4 +28,5 @@ urlpatterns = [
     url(r'^search/quick/(?P<term>[^/]+)/?$', views.search, { 'truncated': True } ),
     url(r'^search/(?P<term>[^/]+)/?$', views.search, { 'truncated': False } ),
     url(r'^metabolite/(?P<id>[^/]+)/?$', views.get_component),
+    url(r'^convert_to_reaction_component_ids/(?P<compartmentID>[^/]+)/?$', views.convert_to_reaction_component_ids),
 ]

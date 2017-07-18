@@ -380,3 +380,24 @@ def search(request, term, truncated):
     serializer = ReactionComponentSearchSerializer(components, many=True)
 
     return JSONResponse(serializer.data)
+
+@api_view(['POST'])
+def convert_to_reaction_component_ids(request, compartmentID):
+    arrayTerms = [el.strip() for el in request.data['data'].split(',') if len(el) != 0]
+    query = Q()
+    for term in arrayTerms:
+        query |= Q(id__iexact=term)
+        query |= Q(short_name__iexact=term)
+        query |= Q(long_name__iexact=term)
+
+    if compartmentID:
+        reactionComponents = ReactionComponent.objects.filter(query & Q(compartment=compartmentID))
+    else:
+        reactionComponents = ReactionComponent.objects.filter(query)
+
+    if reactionComponents.count() == 0:
+        return HttpResponse(status=404)
+
+    ids = reactionComponents.values_list('id', flat=True)
+
+    return JSONResponse(ids);
