@@ -129,7 +129,7 @@ export default {
   watch: {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
-      this.load();
+      this.setup();
     },
   },
   computed: {
