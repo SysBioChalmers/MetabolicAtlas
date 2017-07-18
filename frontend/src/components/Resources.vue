@@ -7,7 +7,7 @@
           <div class="columns">
             <div class="column is-1">
               <a v-if="tool_data.img" :href="tool_data.link" target="_blank">
-                <img  :src="tool_data.img" width="150">
+                <img :src="'tool_data.img'" width="150">
               </a>
               <a v-else :href="tool_data.link" target="_blank">
                 <div class="name">
@@ -75,7 +75,7 @@ export default {
       databases: [
         { name: 'YSeq Browser',
           link: 'http://www.sysbio.se/Yseq/',
-          img: './assets/YseqLogo.png',
+          img: '../assets/YseqLogo.png',
           description: 'Genome and trascriptome (RNAseq and Microarray) browser of Saccharomyces cerevisiae.' },
         { name: 'yApoptosis',
           link: 'http://www.ycelldeath.com/yapoptosis/',
