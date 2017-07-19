@@ -22,7 +22,7 @@ export default {
     reset: 'Reset',
     export: 'Export',
     tab1title: 'The whole metabolic network',
-    tab2title: 'Zoom in on region',
+    tab2title: 'Reporter metabolites',
     tab3title: 'Closest interaction partners',
     tab4title: 'Catalysed reactions',
     tab5title: 'Metabolites',

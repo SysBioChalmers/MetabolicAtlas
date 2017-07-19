@@ -1,28 +1,51 @@
 <template>
   <div>
     <div class="columns">
-      <div class="column is-half">
+      <div class="column is-2">
         <div class="field">
           <div class="">
             <label class="label">IDs: </label>
           </div>
           <p class="control">
-            <textarea class="textarea" ref="textarea" placeholder="udp, h2o2, sam, m_m01784n">udp, h2o2, sam, m_m01784n</textarea>
+            <textarea id="idarea" class="textarea" ref="textarea" placeholder="udp, h2o2, sam, m_m01784n">udp, h2o2, sam, m_m01784n</textarea>
           </p>
         </div>
+        <div>
+          <button class="button is-primary" @click="searchElements">Search</button>
+          <button class="button is-primary">Switch SVG</button>
+        </div>
+        <div id="table-res" v-show="showResults">
+          <span class="help is-small">Click on a row to highlight the corresponding components</span>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Compartment</th>
+                 <th>Elements<br>found</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="m-tr" v-for="v, k in results"
+                @click="hlElements($event, k, v)">
+                <td>{{ getCompartmentFromCID(k).name }}</td>
+                <td>{{ v.length  }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="column">
-        <button class="button is-primary" @click="highLightElements">Highlight</button>
-        <button class="button is-primary" @click="switchSVG">Switch SVG</button>
+      <div class="column is-10">
+        <loader v-show="showLoader"></loader>
+        <div v-show="!showLoader" id="svgbox">
+          <div id="svg-wrapper" v-html="svgContent">
+          </div>
+          <div id="svgOption">
+            <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom.resetZoom()">RESET</span>
+          </div>
+          <div id="svgMissing" v-show="showMissingSVGString">
+            The SVG file is not yet available for this compartment
+          </div>
+        </div>
       </div>
-    </div>
-    <div id="svg-wrapper" v-html="svgContent" style="width:1200px; height:1200px; border: 2px solid black">
-      <object type="image/svg+xml" data="../assets/svg/nucleus_no_min.svg">
-        Your browser does not support SVG
-      </object>
-      <object type="image/svg+xml" data="assets/svg/nucleus_no_min.svg2">
-        Your browser does not support SVG
-      </object>
     </div>
   </div>
 </template>
@@ -32,62 +55,135 @@
 import { default as snap } from 'snapsvg';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
+import Loader from 'components/Loader';
+import { getCompartmentFromCID } from '../helpers/compartment';
 
-/* eslint-disable global-require */
+/* eslint-disable global-require, no-dynamic-require */
 export default {
   name: 'reporter-metabolites',
+  components: {
+    Loader,
+  },
   data() {
     return {
-      svgContent: '',
-      compartmentID: 8, // TODO make it dynamic
-      HLElements: [],
+      errorMessage: '',
+      showResults: false,
+      showMissingSVGString: true,
+      showLoader: true,
+      svgContent: null,
+      svgName: '',
+      compartmentID: 0,
+      results: {},
+      HLelms: [],
       switched: true,
+      panZoom: null,
+      snap: null,
     };
   },
   mounted() {
-    // this.svgContent = require('assets/svg/ER.id_added.svg2');
-    this.switchSVG();
+    this.switchSVG(1, null);
   },
   methods: {
-    superchargeSVG() {
+    superchargeSVG(callback) {
       // Example for modifying network SVG
       setTimeout(() => {
-        const s = snap('#svg-wrapper svg');
-        s.attr({ width: '1200px' });
-        s.attr({ height: '1200px' });
-
+        this.snap = snap('#svg-wrapper svg');
+        this.snap.attr({ width: '1200px' });
+        this.snap.attr({ height: '700px' });
         // Example to allow panning and zooming
-        svgPanZoom('#svg-wrapper svg', {
-          controlIconsEnabled: true,
+        this.panZoom = svgPanZoom('#svg-wrapper svg', {
+          controlIconsEnabled: false, // got a reset button now
+          fit: false, // if set to true => matrix(NaN) error
         });
-
-        // console.log(s.select('path').transform());
-        // console.log(s.selectAll('path'));
-
-        /* s.selectAll('path') // or whatever ID it has, or give it one
-        .attr({ width: '100%', height: '100%', viewBox: '0 0 600 600' });
-
-        s.selectAll('g') // or whatever ID it has, or give it one
-        .attr({ width: '100%', height: '100%', viewBox: '0 0 600 600' }); */
+        if (callback) {
+          callback();
+        }
       }, 0);
     },
-    // Example for loading a different SVG
-    switchSVG() {
-      if (this.switched) {
-        this.svgContent = require('assets/svg/nucleus_no_min.svg2');
-
-        this.switched = false;
-      } else {
-        this.svgContent = require('assets/svg/logo.svg2');
-
-        this.switched = true;
+    switchSVG(compartmentID, callback) {
+      const newSvgName = getCompartmentFromCID(compartmentID).svgName;
+      // const svgLink = `assets/svg/${newSvgName}.svg3`;
+      if (!newSvgName) {
+        // TODO remove this when all svg files available
+        this.showMissingSVGString = true;
+        this.svgContent = '';
+        this.showLoader = false;
+        return;
       }
-
-      this.superchargeSVG();
+      this.showMissingSVGString = false;
+      if (newSvgName !== this.svgName) {
+        // the following line doesn't work
+        // this.svgContent = require(svgLink); // eslint-disable-line
+        this.svgContent = require('assets/svg/ERtestwithid.svg2'); // raw string require works
+        this.showLoader = true;
+        this.svgName = newSvgName;
+        // TODO pass width, height
+        this.superchargeSVG(() => {
+          callback();
+          this.showLoader = false;
+        });
+      } else {
+        callback();
+        this.showLoader = false;
+      }
     },
-    highLightElements() {
-      const termsString = this.$refs.textarea.value;
+    hlRow(tr) {
+      const currentRow = tr;
+      for (const row of tr.parentElement.getElementsByTagName('tr')) {
+        row.style.background = 'white';
+      }
+      currentRow.style.background = '#dbdbdb';
+    },
+    hlElements(event, compartmentID, ids) {
+      const tr = event.srcElement.parentElement;
+      this.hlRow(tr);
+      this.switchSVG(compartmentID, () => {
+        const a = [];
+        // select using class
+        /*
+        for (let i = 0; i < ids.length; i += 1) {
+          const id = ids[i].trim();
+          const elms = this.snap.selectAll(`.${id}`);  // rcID should be assign to class attribut
+          for (let j = 0; j < elms.length; j += 1) {
+            a.push(elms[j]);
+          }
+        }
+        */
+        // select by id: <g class="Metabolite" id="Metabolite$E_3131$0" name="E_3131">
+        // not $ have been replaced by _
 
+        for (const type of ['Metabolite', 'Enzyme']) {
+          for (let i = 0; i < ids.length; i += 1) {
+            const id = ids[i].trim();
+            console.log(`${type}_${id}`);
+            let elm = this.snap.select(`${type}_${id}`);
+            if (elm) {
+              elm = elm.select('path');
+              a.push(elm);
+            }
+            for (let j = 0; j < 1000; j += 1) {
+              elm = this.snap.select(`${type}_${id}_${j}`);
+              console.log(`${type}_${id}_${j}`);
+              if (elm) {
+                elm = elm.select('path');
+                a.push(elm);
+              } else {
+                break;
+              }
+            }
+          }
+        }
+        this.HLelms = a;
+        if (this.HLelms) {
+          for (let i = 0; i < this.HLelms.length; i += 1) {
+            this.HLelms[i].addClass('hl');
+          }
+        }
+        // this.panZoom.fit(); //do not worj with snap
+      });
+    },
+    searchElements() {
+      const termsString = this.$refs.textarea.value;
       const arrayTerms = termsString.trim().split(',');
       const filterArray = [];
       for (let i = 0; i < arrayTerms.length; i += 1) {
@@ -96,36 +192,44 @@ export default {
           filterArray.push(trimTerm);
         }
       }
-      this.hlReactionComponentIDs(filterArray);
+      this.getReactionComponentIDs(filterArray);
     },
-    hlReactionComponentIDs(array) {
+    getReactionComponentIDs(array) {
       // get the correct IDs from the backend
+      if (this.HLelms) {
+        // un-highligh elements
+        for (let i = 0; i < this.HLelms.length; i += 1) {
+          this.HLelms[i].removeClass('hl');
+        }
+      }
       axios.post(`convert_to_reaction_component_ids/${this.compartmentID}`, { data: array })
       .then((response) => {
-        if (this.HLElements) {
-          for (let i = 0; i < this.HLElements.length; i += 1) {
-            this.HLElements[i].removeClass('hl');
+        const res = response.data;
+        const d = {};
+        for (let i = 0; i < res.length; i += 1) {
+          const compartmentID = res[i][0];
+          const id = res[i][1];
+          if (!d[compartmentID.toString()]) {
+            d[compartmentID.toString()] = [];
           }
+          d[compartmentID.toString()].push(id);
         }
-        const result = response.data;
-        const s = snap('#svg-wrapper svg');
-        for (let i = 0; i < result.length; i += 1) {
-          const id = result[i].trim();
-          const elms = s.selectAll(`.${id}`);  // rcID should be assign to class attribut
-          for (let j = 0; j < elms.length; j += 1) {
-            this.HLElements.push(elms[j]);
-            elms[j].addClass('hl');
-          }
-        }
+        this.results = d;
+        this.showResults = this.results.length !== 0;
       })
       .catch(() => {});
     },
+    getCompartmentFromCID,
   },
-
 };
 </script>
 
 <style lang="scss">
+
+#idarea {
+  width: 100px;
+  height: 200px;
+}
 
 #svg-wrapper {
   margin: auto;
@@ -134,6 +238,46 @@ export default {
     padding: 20px;
     width: 600px;
     margin: auto;
+  }
+}
+
+#svgbox {
+  position: relative;
+  margin: auto;
+  width:1200px;
+  height:700px;
+  border: 1px solid black;
+}
+
+#svgOption {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 50px;
+  height: 30px;
+  z-index: 10;
+
+  span {
+    display: inline-block;
+    margin-right: 5px;
+  }
+}
+
+#svgMissing {
+  position: absolute;
+  top: 10rem;
+  left: 28rem;
+  z-index: 10;
+}
+
+#table-res {
+  margin-top: 1rem;
+}
+
+.m-tr {
+  cursor: pointer;
+  td {
+      padding: 0.3em 0.5em;
   }
 }
 
