@@ -12,7 +12,6 @@
         </div>
         <div>
           <button class="button is-primary" @click="searchElements">Search</button>
-          <button class="button is-primary">Switch SVG</button>
         </div>
         <div id="table-res" v-show="showResults">
           <span class="help is-small">Click on a row to highlight the corresponding components</span>
@@ -91,18 +90,20 @@ export default {
         this.snap.attr({ width: '1200px' });
         this.snap.attr({ height: '700px' });
         // Example to allow panning and zooming
-        this.panZoom = svgPanZoom('#svg-wrapper svg', {
-          controlIconsEnabled: false, // got a reset button now
-          fit: false, // if set to true => matrix(NaN) error
-        });
+        // svgPanZoom('#svg-wrapper svg').destroy();
         if (callback) {
           callback();
         }
+        setTimeout(() => {
+          this.panZoom = svgPanZoom('#svg-wrapper svg', {
+            controlIconsEnabled: false, // got a reset button now
+          });
+        }, 0);
       }, 0);
     },
     switchSVG(compartmentID, callback) {
       const newSvgName = getCompartmentFromCID(compartmentID).svgName;
-      // const svgLink = `assets/svg/${newSvgName}.svg3`;
+      const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
       if (!newSvgName) {
         // TODO remove this when all svg files available
         this.showMissingSVGString = true;
@@ -112,16 +113,22 @@ export default {
       }
       this.showMissingSVGString = false;
       if (newSvgName !== this.svgName) {
-        // the following line doesn't work
-        // this.svgContent = require(svgLink); // eslint-disable-line
-        this.svgContent = require('assets/svg/ERtestwithid.svg2'); // raw string require works
-        this.showLoader = true;
-        this.svgName = newSvgName;
-        // TODO pass width, height
-        this.superchargeSVG(() => {
-          callback();
-          this.showLoader = false;
-        });
+        axios.get(svgLink)
+          .then((response) => {
+            this.svgContent = response.data;
+            this.showLoader = true;
+            this.svgName = newSvgName;
+            // TODO pass width, height
+            this.superchargeSVG(() => {
+              callback();
+              this.showLoader = false;
+            });
+          })
+          .catch((error) => {
+            // TODO: handle error
+            console.log(error);
+            this.showLoader = false;
+          });
       } else {
         callback();
         this.showLoader = false;
