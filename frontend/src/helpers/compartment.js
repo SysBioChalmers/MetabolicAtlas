@@ -4,7 +4,7 @@ const data = {
     name: 'Extracellular',
     letter: 's',
     color: '',
-    svgName: '',
+    svgName: 'fakesvg',
     compartmentID: 1,
   },
   peroxisome: {

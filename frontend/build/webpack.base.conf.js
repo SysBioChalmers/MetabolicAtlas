@@ -97,10 +97,6 @@ module.exports = {
       {
         test: /\.(sbgn|svg2)$/,
         loader: 'raw-loader'
-      },
-      {
-        test: /\.svg3$/,
-         loader: 'svg-inline-loader'
       }
     ]
   },

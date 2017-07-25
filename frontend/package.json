@@ -22,6 +22,7 @@
     "jquery": "^3.0",
     "lodash": "^4.17.4",
     "snapsvg": "^0.5.1",
+    "snap.svg.zpd": "^0.0.11",
     "pako": "^1.0.5",
     "svg.js": "2.5.1",
     "svg.draggy.js": "^1.1.1",
@@ -76,7 +77,6 @@
     "webpack-merge": "^0.14.1",
     "node-sass": "^4.5.0",
     "sass-loader": "^4.1.1",
-    "svg-inline-loader": "^0.8.0",
     "svg-sprite-loader": "^0.3.0",
     "raw-loader": "^0.5.1"
   },

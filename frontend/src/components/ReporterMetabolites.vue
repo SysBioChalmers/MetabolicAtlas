@@ -38,7 +38,7 @@
           <div id="svg-wrapper" v-html="svgContent">
           </div>
           <div id="svgOption">
-            <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom.resetZoom()">RESET</span>
+            <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom.reset()">RESET</span>
           </div>
           <div id="svgMissing" v-show="showMissingSVGString">
             The SVG file is not yet available for this compartment
@@ -52,6 +52,7 @@
 <script>
 
 import { default as snap } from 'snapsvg';
+// import zpd from 'snap.svg.zpd';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
@@ -77,6 +78,12 @@ export default {
       switched: true,
       panZoom: null,
       snap: null,
+      zoomBox: {
+        minX: 99999,
+        maxX: 0,
+        minY: 99999,
+        maxY: 0,
+      },
     };
   },
   mounted() {
@@ -86,19 +93,17 @@ export default {
     superchargeSVG(callback) {
       // Example for modifying network SVG
       setTimeout(() => {
+        console.log('load snap');
         this.snap = snap('#svg-wrapper svg');
-        this.snap.attr({ width: '1200px' });
-        this.snap.attr({ height: '700px' });
+        // this.snap.attr({ width: '1200px' });
+        // this.snap.attr({ height: '700px' });
+        console.log('load snap finished');
+
         // Example to allow panning and zooming
         // svgPanZoom('#svg-wrapper svg').destroy();
         if (callback) {
           callback();
         }
-        setTimeout(() => {
-          this.panZoom = svgPanZoom('#svg-wrapper svg', {
-            controlIconsEnabled: false, // got a reset button now
-          });
-        }, 0);
       }, 0);
     },
     switchSVG(compartmentID, callback) {
@@ -120,7 +125,9 @@ export default {
             this.svgName = newSvgName;
             // TODO pass width, height
             this.superchargeSVG(() => {
-              callback();
+              if (callback) {
+                callback();
+              }
               this.showLoader = false;
             });
           })
@@ -137,55 +144,134 @@ export default {
     hlRow(tr) {
       const currentRow = tr;
       for (const row of tr.parentElement.getElementsByTagName('tr')) {
-        row.style.background = 'white';
+        row.classList.remove('sel-tr');
       }
-      currentRow.style.background = '#dbdbdb';
+      currentRow.classList.add('sel-tr');
+    },
+    updateZoomBox(elBox) {
+      if (elBox.x < this.zoomBox.minX) {
+        this.zoomBox.minX = elBox.x;
+      }
+      if (elBox.x > this.zoomBox.maxX) {
+        this.zoomBox.maxX = elBox.x;
+      }
+      if (elBox.y < this.zoomBox.minY) {
+        this.zoomBox.minY = elBox.y;
+      }
+      if (elBox.y > this.zoomBox.maxY) {
+        this.zoomBox.maxY = elBox.y;
+      }
+
+      const debug = false;
+      if (debug) {
+        this.zoomBox.minX = 77.9296875;
+        this.zoomBox.maxX = 77.9296875;
+        this.zoomBox.minY = 17412.85586262676;
+        this.zoomBox.maxY = 17412.85586262676;
+      }
+
+      console.log('new zoomBox');
+      console.log(this.zoomBox);
+    },
+    zoomInBox() {
+      // const realZoom = this.panZoom.getSizes().realZoom;
+      const nx = this.zoomBox.minX + ((this.zoomBox.maxX - this.zoomBox.minX) / 2);
+      const ny = this.zoomBox.minY + ((this.zoomBox.maxY - this.zoomBox.minY) / 2);
+      // nx = 100;
+      // ny = 100;
+      console.log(this.panZoom.getSizes());
+      console.log(`zoomto nx: ${nx} | ny: ${ny}`);
+      // this.panZoom.pan({ x: 500, y: 500 });
+      // this.panZoom.fit();
+      this.panZoom.zoomAtPoint(1, {
+        x: nx,
+        y: ny,
+      });
     },
     hlElements(event, compartmentID, ids) {
       const tr = event.srcElement.parentElement;
+
       this.hlRow(tr);
       this.switchSVG(compartmentID, () => {
-        const a = [];
-        // select using class
-        /*
-        for (let i = 0; i < ids.length; i += 1) {
-          const id = ids[i].trim();
-          const elms = this.snap.selectAll(`.${id}`);  // rcID should be assign to class attribut
-          for (let j = 0; j < elms.length; j += 1) {
-            a.push(elms[j]);
-          }
-        }
-        */
-        // select by id: <g class="Metabolite" id="Metabolite$E_3131$0" name="E_3131">
-        // not $ have been replaced by _
-
-        for (const type of ['Metabolite', 'Enzyme']) {
+        setTimeout(() => {
+          console.log('load pan zoom');
+          this.panZoom = svgPanZoom('#svg-wrapper svg', {
+            minZoom: 0.01,
+            maxZoom: 50,
+            zoomScaleSensitivity: 0.6,
+            onZoom: function f() {
+              console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
+            },
+          });
+          // this.panZoom.fit();
+          console.log('load pan zoom finished');
+          const a = [];
+          // select using class
+          /*
           for (let i = 0; i < ids.length; i += 1) {
             const id = ids[i].trim();
-            console.log(`${type}_${id}`);
-            let elm = this.snap.select(`${type}_${id}`);
-            if (elm) {
-              elm = elm.select('path');
-              a.push(elm);
+            const elms = this.snap.selectAll(`.${id}`);  // rcID should be assign to class attribut
+            for (let j = 0; j < elms.length; j += 1) {
+              a.push(elms[j]);
             }
-            for (let j = 0; j < 1000; j += 1) {
-              elm = this.snap.select(`${type}_${id}_${j}`);
-              console.log(`${type}_${id}_${j}`);
+          }
+          */
+          // select by id: <g class="Metabolite" id="Metabolite$E_3131$0" name="E_3131">
+          // not $ have been replaced by _
+
+          // debug
+          const debug = true;
+          if (ids) {
+            console.log('debug');
+          }
+          const ids2 = ['M_m03052r'];
+
+          for (const type of ['Metabolite', 'Enzyme']) {
+            for (let i = 0; i < ids2.length; i += 1) {
+              const id = ids2[i].trim();
+              let elm = this.snap.select(`#${type}_${id}`);
               if (elm) {
                 elm = elm.select('path');
+                if (debug) {
+                  console.log(`${type}_${id} box : ${elm.getBBox()}`);
+                }
+                this.updateZoomBox(elm.getBBox());
                 a.push(elm);
-              } else {
-                break;
+              }
+              for (let j = 2; j < 3; j += 1) {
+                elm = this.snap.select(`#${type}_${id}_${j}`);
+                if (debug) {
+                  console.log(`${type}_${id}_${j}`);
+                }
+                if (elm) {
+                  elm = elm.select('path');
+                  if (debug) {
+                    console.log(`${type}_${id}_${j} box : ${elm.getBBox()}`);
+                    elm.click(function f() {
+                      console.log(this);
+                      console.log(this.element.getTransformToElement(this.svgContent));
+                    });
+                  }
+                  this.updateZoomBox(elm.getBBox());
+                  console.log(elm.matrix);
+                  a.push(elm);
+                } else {
+                  break;
+                }
               }
             }
           }
-        }
-        this.HLelms = a;
-        if (this.HLelms) {
-          for (let i = 0; i < this.HLelms.length; i += 1) {
-            this.HLelms[i].addClass('hl');
+          console.log(this.zoomBox);
+          this.HLelms = a;
+          if (this.HLelms) {
+            console.log('elms found');
+            console.log(this.HLelms.length);
+            for (let i = 0; i < this.HLelms.length; i += 1) {
+              this.HLelms[i].addClass('hl');
+            }
+            this.zoomInBox();
           }
-        }
+        }, 0);
         // this.panZoom.fit(); //do not worj with snap
       });
     },
@@ -281,12 +367,18 @@ export default {
   margin-top: 1rem;
 }
 
-.m-tr {
+
+tr.m-tr {
   cursor: pointer;
   td {
       padding: 0.3em 0.5em;
   }
 }
+
+tr.sel-tr {
+  background: #eee;
+}
+
 
 svg .hl {
   fill: #22FFFF;
