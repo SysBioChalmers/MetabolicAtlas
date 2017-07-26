@@ -18,12 +18,24 @@
             </div>
           </div>
           <div v-show="showNetworkGraph" class="column" v-on:mouseleave="showMenuExpression = false">
-            <a class="button is-primary" v-on:click="showMenuExpression= !showMenuExpression">Expression levels</a>
-            <div v-show="showMenuExpression" id="contextMenuExpression" ref="contextMenuExpression">
-              <span class="button is-dark" v-on:click="showHPATissues= !showHPATissues">HPA</span>
+            <div class="has-dropdown">
+              <label class="button is-primary" for="cb"
+              v-on:click="showMenuExpression=!showMenuExpression"
+              >Expression levels</label>
+              <div class="dropdown box" v-show="showMenuExpression">
+                <ul>
+                  <li v-on:click="showMenuExpression=!showMenuExpression; showHPATissues=!showHPATissues"><a>HPA</a></li>
+                </ul>
+              </div>
             </div>
-            <div v-for="tissue in hpaTissues" v-show="showHPATissues" id="contextHPAExpression" ref="contextHPAExpression">
-              <span class="button is-primary is-small is-outlined" v-on:click="switchHPAExpression(tissue)">{{ tissue }}</span>
+            <div v-show="showHPATissues">
+              <select id="t-select" class="select" v-model="selectedTissue"
+              @change.prevent="switchHPAExpression(selectedTissue)">
+                <option value="">None</option>
+                <option v-for="tissue in hpaTissues" :value="tissue">
+                  {{ tissue }}
+                </option>
+              </select>
             </div>
           </div>
         </div>
@@ -181,6 +193,7 @@ export default {
       selectedElmId: '',
 
       selectedElm: null,
+      selectedTissue: '',
 
       componentName: '',
       expandedIds: [],
@@ -336,7 +349,7 @@ export default {
     },
     loadHPAData(rawElms) {
       const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
-      const proteins = 'ENSG00000121410,ENSG00000091831?format=xml';
+      const proteins = 'ENSG00000121410,ENSG00000091831,ENSG00000196502?format=xml';
       const url = baseUrl + proteins;
 
       const xmlContent = fetchXML(url);
@@ -380,9 +393,19 @@ export default {
           } else {
             geneExpression.value = replicates[middle];
           }
+          if (geneExpression.value) {
+            // simple color scale
+            // 100 possible values, fromt 0 to 5 tmp
+            let n = (geneExpression.value * 100) / 5;
+            n = n > 100 ? 100 : n;
+            const r = (255 * n) / 100;
+            const g = (255 * (100 - n)) / 100;
+            geneExpression.color = `rgb(${r},${g},0)`;
+          }
           hpaGeneEx[genename].push(geneExpression);
         }
       }
+
       // Make available all tissues with values to browser menu
       for (const tissue of Object.keys(hpaTissues).sort()) {
         this.hpaTissues.push(tissue);
@@ -396,7 +419,8 @@ export default {
         expressionElms[elid].tissue_expression = {};
         if (hpaGeneEx[rawElms[elid].short]) {
           for (const tissue of hpaGeneEx[rawElms[elid].short]) {
-            expressionElms[elid].tissue_expression[tissue.name] = tissue.value ? 'green' : null;
+            expressionElms[elid].tissue_expression[tissue.name] =
+            tissue.value ? tissue.color : null;
           }
         }
       }
@@ -666,14 +690,16 @@ export default {
       document.body.removeChild(a);
     },
     switchHPAExpression: function switchHPAExpression(tissueName) {
-      if (this.showHPATissueExpression === tissueName) {
-        this.showHPATissueExpression = false;
-        this.nodeDisplayParams.activeTissue = false;
-      } else {
-        this.showHPATissueExpression = tissueName;
-        this.nodeDisplayParams.activeTissue = tissueName;
+      if (tissueName !== this.showHPATissueExpression) {
+        if (tissueName) {
+          this.showHPATissueExpression = tissueName;
+          this.nodeDisplayParams.activeTissue = tissueName;
+        } else {
+          this.showHPATissueExpression = '';
+          this.nodeDisplayParams.activeTissue = false;
+        }
+        this.redrawGraph();
       }
-      this.redrawGraph();
     },
     zoomGraph: function zoomGraph(zoomIn) {
       let factor = this.factorZoom;
@@ -791,6 +817,10 @@ h1, h2 {
   span.color-span:hover {
     cursor: pointer;
   }
+}
+
+#t-select {
+  margin-top: 0.75rem;
 }
 
 </style>
