@@ -52,7 +52,6 @@
 <script>
 
 import { default as snap } from 'snapsvg';
-// import zpd from 'snap.svg.zpd';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
@@ -93,11 +92,11 @@ export default {
     superchargeSVG(callback) {
       // Example for modifying network SVG
       setTimeout(() => {
-        console.log('load snap');
+        // console.log('load snap');
         this.snap = snap('#svg-wrapper svg');
         // this.snap.attr({ width: '1200px' });
         // this.snap.attr({ height: '700px' });
-        console.log('load snap finished');
+        // console.log('load snap finished');
 
         // Example to allow panning and zooming
         // svgPanZoom('#svg-wrapper svg').destroy();
@@ -170,8 +169,8 @@ export default {
         this.zoomBox.maxY = 17412.85586262676;
       }
 
-      console.log('new zoomBox');
-      console.log(this.zoomBox);
+      // console.log('new zoomBox');
+      // console.log(this.zoomBox);
     },
     zoomInBox() {
       // const realZoom = this.panZoom.getSizes().realZoom;
@@ -179,8 +178,8 @@ export default {
       const ny = this.zoomBox.minY + ((this.zoomBox.maxY - this.zoomBox.minY) / 2);
       // nx = 100;
       // ny = 100;
-      console.log(this.panZoom.getSizes());
-      console.log(`zoomto nx: ${nx} | ny: ${ny}`);
+      // console.log(this.panZoom.getSizes());
+      // console.log(`zoomto nx: ${nx} | ny: ${ny}`);
       // this.panZoom.pan({ x: 500, y: 500 });
       // this.panZoom.fit();
       this.panZoom.zoomAtPoint(1, {
@@ -194,7 +193,7 @@ export default {
       this.hlRow(tr);
       this.switchSVG(compartmentID, () => {
         setTimeout(() => {
-          console.log('load pan zoom');
+          // console.log('load pan zoom');
           this.panZoom = svgPanZoom('#svg-wrapper svg', {
             minZoom: 0.01,
             maxZoom: 50,
@@ -204,7 +203,7 @@ export default {
             },
           });
           // this.panZoom.fit();
-          console.log('load pan zoom finished');
+          // console.log('load pan zoom finished');
           const a = [];
           // select using class
           /*
@@ -220,11 +219,12 @@ export default {
           // not $ have been replaced by _
 
           // debug
-          const debug = true;
+          const debug = false;
           if (ids) {
             console.log('debug');
           }
-          const ids2 = ['M_m03052r'];
+          let ids2 = ['M_m03052r'];
+          ids2 = ids;
 
           for (const type of ['Metabolite', 'Enzyme']) {
             for (let i = 0; i < ids2.length; i += 1) {
@@ -253,7 +253,7 @@ export default {
                     });
                   }
                   this.updateZoomBox(elm.getBBox());
-                  console.log(elm.matrix);
+                  // console.log(elm.matrix);
                   a.push(elm);
                 } else {
                   break;
@@ -261,11 +261,11 @@ export default {
               }
             }
           }
-          console.log(this.zoomBox);
+          // console.log(this.zoomBox);
           this.HLelms = a;
           if (this.HLelms) {
-            console.log('elms found');
-            console.log(this.HLelms.length);
+            // console.log('elms found');
+            // console.log(this.HLelms.length);
             for (let i = 0; i < this.HLelms.length; i += 1) {
               this.HLelms[i].addClass('hl');
             }

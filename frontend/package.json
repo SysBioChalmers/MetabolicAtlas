@@ -22,7 +22,6 @@
     "jquery": "^3.0",
     "lodash": "^4.17.4",
     "snapsvg": "^0.5.1",
-    "snap.svg.zpd": "^0.0.11",
     "pako": "^1.0.5",
     "svg.js": "2.5.1",
     "svg.draggy.js": "^1.1.1",
