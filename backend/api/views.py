@@ -383,21 +383,19 @@ def search(request, term, truncated):
 
 @api_view(['POST'])
 def convert_to_reaction_component_ids(request, compartmentID):
-    arrayTerms = [el.strip() for el in request.data['data'].split(',') if len(el) != 0]
+    arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
     query = Q()
     for term in arrayTerms:
         query |= Q(id__iexact=term)
         query |= Q(short_name__iexact=term)
         query |= Q(long_name__iexact=term)
 
-    if compartmentID:
-        reactionComponents = ReactionComponent.objects.filter(query & Q(compartment=compartmentID))
+    if str(compartmentID) != '0':
+        reactionComponents = ReactionComponent.objects.filter(query & Q(compartment=compartmentID)).values_list('compartment_id', 'id')
     else:
-        reactionComponents = ReactionComponent.objects.filter(query)
+        reactionComponents = ReactionComponent.objects.filter(query).values_list('compartment_id', 'id').distinct()
 
     if reactionComponents.count() == 0:
         return HttpResponse(status=404)
 
-    ids = reactionComponents.values_list('id', flat=True)
-
-    return JSONResponse(ids);
+    return JSONResponse(reactionComponents);

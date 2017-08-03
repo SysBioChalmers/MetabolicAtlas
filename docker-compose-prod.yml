@@ -30,6 +30,7 @@ services:
       - backend:backend
     volumes:
       - ./nginx/static:/static
+      - ./nginx/svgs:/svgs
       - ./nginx/static:/usr/share/nginx/html:ro
       - ./backend/media:/media
     ports:
