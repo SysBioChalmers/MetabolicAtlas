@@ -123,58 +123,60 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
 
 # =======================================================================================
 
-class GemFileSerializer(serializers.ModelSerializer):
+class GEModelFileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GemFile
+        model = GEModelFile
         fields = ('path', 'format')
 
-class GemReferenceSerializer(serializers.ModelSerializer):
+class GEModelReferenceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GemReference
-        fields = ('title', 'link', 'pubmed')
+        model = GEModelReference
+        fields = ('title', 'link', 'pubmed', 'year')
 
-class GemGroupSerializer(serializers.ModelSerializer):
-    reference = GemReferenceSerializer(many=True, read_only=True)
+class GEModelSetSerializer(serializers.ModelSerializer):
+    reference = GEModelReferenceSerializer(many=True, read_only=True)
     class Meta:
-        model = GemGroup
+        model = GEModelSet
         fields = ('name', 'description', 'reference')
 
-class GemSampleSerializer(serializers.ModelSerializer):
+class GEModelSampleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GemSample
+        model = GEModelSample
         fields = ('organism', 'organ_system', 'tissue', 'cell_line', 'cell_type')
 
 
-class GemReferenceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GemReference
-        fields = ('title', 'link', 'pubmed')
+class GEModelSerializer(serializers.ModelSerializer):
+    gemodelset = GEModelSetSerializer()
+    sample = GEModelSampleSerializer()
+    files = GEModelFileSerializer(many=True, read_only=True)
+    reference = serializers.SerializerMethodField('get_gemodel_reference')
 
-class GemSerializer(serializers.ModelSerializer):
-    group = GemGroupSerializer()
-    sample = GemSampleSerializer()
-    files = GemFileSerializer(many=True, read_only=True)
-    reference = serializers.SerializerMethodField('get_gem_reference')
-
-    def get_gem_reference(self, model):
+    def get_gemodel_reference(self, model):
         if model.reference:
             return model.reference
         else:
-            return model.group.reference[0]
+            return model.gemodelset.reference[0]
 
     class Meta:
-        model = Gem
-        fields = ('id', 'group', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained', 'year')
+        model = GEModel
+        fields = ('id', 'gemodelset', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained')
 
 
-class GemListSerializer(serializers.ModelSerializer):
-    group_name = serializers.SerializerMethodField('get_gem_group_name')
-    sample = GemSampleSerializer()
+class GEModelListSerializer(serializers.ModelSerializer):
+    set_name = serializers.SerializerMethodField('get_model_set_name')
+    sample = GEModelSampleSerializer()
+    year = serializers.SerializerMethodField('get_model_year')
 
-    def get_gem_group_name(self, model):
-        gg = GemGroup.objects.get(id=model.group.id)
+    def get_model_set_name(self, model):
+        gg = GEModelSet.objects.get(id=model.gemodelset.id)
         return gg.name
 
+    def get_model_year(self, model):
+        if model.reference:
+            return model.reference.year
+        else:
+            return model.gemodelset.reference.first().year
+
     class Meta:
-        model = Gem
-        fields = ('group_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
+        model = GEModel
+        fields = ('set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')

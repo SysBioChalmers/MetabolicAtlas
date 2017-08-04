@@ -389,5 +389,5 @@ def get_gems(request):
 @api_view()
 def get_old_gems(request):
     # get old models from database
-    serializer = GemListSerializer(Gem.objects.all(), many=True)
+    serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
     return JSONResponse(serializer.data)

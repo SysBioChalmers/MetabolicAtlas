@@ -9,20 +9,20 @@ import re
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.db import models
-from api.models import GemReference
-from api.models import GemGroup
-from api.models import GemSample
-from api.models import GemFile
-from api.models import Gem
+from api.models import GEModelReference
+from api.models import GEModelSet
+from api.models import GEModelSample
+from api.models import GEModelFile
+from api.models import GEModel
 
 import xml.etree.ElementTree as ET
 import urllib
 import urllib.request
 
-def build_ftp_path_and_dl(liste_dico_data, FTP_root, GEM_group):
+def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set):
 
     path_key = ['organism', 'name', 'organ_system', ['tissue', 'cell_type', 'cell_line']]
-    GEM_data_list = []
+    model_data_list = []
     for i in range(len(liste_dico_data)):
         GEM_sample = {}
         GEM = {}
@@ -40,8 +40,8 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, GEM_group):
                         path = os.path.join(path, dic[name].lower().replace(',', '').replace(' ', '_'))
                         break
             else:
-                if k in dic or k in GEM_group:
-                    v = dic[k] if k in dic else GEM_group[k]
+                if k in dic or k in model_set:
+                    v = dic[k] if k in dic else model_set[k]
                     path = os.path.join(path, v.lower().replace(',', '').replace(' ', '_'))
         path = os.path.join(FTP_root, path)
         if not os.path.isdir(path):
@@ -106,22 +106,28 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, GEM_group):
             else:
                 GEM_sample[k] = dic[k]
         
-        for k in ['description', 'label', 'maintained', 'reference', 'year']:
+        for k in ['description', 'label', 'maintained']:
             if k not in dic:
                 GEM[k] = None
             else:
                 GEM[k] = dic[k]
 
-        if (('reference_title' in dic) != ('reference_link' in dic)) != (('reference_pubmed' in dic) != ('reference_link' in dic)):
+        a = 'reference_title' in dic
+        b = 'reference_pubmed' in dic
+        c = 'reference_link' in dic
+        d = 'reference_year' in dic
+
+        if len(set([a,b,c,d])) != 1:
             print ("Error: missing reference info")
             print (dic)
             exit()
 
-        if 'reference_title' in dic and 'reference_link' in dic and 'reference_pubmed' in dic:
+        if next(iter(set([a,b,c,d]))):
             GEM['reference'] = {
                                 'title': dic['reference_title'], 
                                 'link': dic['reference_link'],
                                 'pubmed': dic['reference_pubmed'],
+                                'year': dic['reference_year'],
                                 }
         elif 'reference' in dic:
             GEM['reference'] = dic['reference']
@@ -133,9 +139,10 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, GEM_group):
             GEM['files'].append({'path': path, 'format': formatt})
 
         GEM['sample'] = GEM_sample
-        GEM_data_list.append(GEM)
+        # print (GEM)
+        model_data_list.append(GEM)
 
-    return GEM_data_list
+    return model_data_list
 
 
 def write_count_file(reaction_count, metabolite_count, enzyme_count, output_file):
@@ -157,9 +164,9 @@ def read_count_file(count_file):
 
 
 def parse_info_file(info_file):
-    # get the GEM_group information and GEM_reference association to this group if any
+    # get the model_set information and Model_reference association to this set if any
     global_dict = {}
-    GEM_group_data = {}
+    model_set_data = {}
     with open(info_file, "r") as f:
         reader = csv.reader(f, delimiter='\t')
         for row in reader:
@@ -167,29 +174,35 @@ def parse_info_file(info_file):
                 continue
             global_dict[row[0]] = row[1]
 
-        GEM_group_data['name'] = global_dict.pop('name')
+        model_set_data['name'] = global_dict.pop('name')
         if 'description' in global_dict:
-            GEM_group_data['description'] = global_dict.pop('description')
+            model_set_data['description'] = global_dict.pop('description')
         else:
-            GEM_group_data['description'] = None
+            model_set_data['description'] = None
 
-        group_reference_data_list = []
+        set_reference_data_list = []
         if 'reference_link' in global_dict:
-            group_reference_data_list.append({
+            set_reference_data_list.append({
                 'link': global_dict.pop('reference_link'),
                 'title': global_dict.pop('reference_title'),
-                'pubmed': global_dict.pop('reference_pubmed')})
+                'pubmed': global_dict.pop('reference_pubmed'),
+                'year': global_dict.pop('reference_year'),})
         else:
-            for key_link, key_title, key_pubmed in [["reference_link%s" % k, "reference_title%s" % k, "reference_pubmed%s" % k] for k in range(1,10)]:
+            for key_link, key_title, key_pubmed, key_year in [["reference_link%s" % k,
+                                                     "reference_title%s" % k,
+                                                     "reference_pubmed%s" % k,
+                                                     "reference_year%s" % k
+                                                      ] for k in range(1,10)]:
                 if not key_link in global_dict:
                     break
-                group_reference_data_list.append({
+                set_reference_data_list.append({
                     'link': global_dict.pop(key_link),
                     'title': global_dict.pop(key_title),
-                    'pubmed': global_dict.pop(key_pubmed)})
+                    'pubmed': global_dict.pop(key_pubmed),
+                    'year': global_dict.pop(key_year)})
 
-        GEM_group_data['reference'] = group_reference_data_list
-        return global_dict, GEM_group_data
+        model_set_data['reference'] = set_reference_data_list
+        return global_dict, model_set_data
 
 
 def parse_xml(xml_file):
@@ -283,25 +296,27 @@ def read_gems_data_file(parse_data_file, global_dict=None):
                 print (row)
                 exit()
             res.append(d)
-            #print "d: %s" % d
+            # print ("d: %s" % d)
 
     return res
 
 '''
-    GemReference
+    GEModelReference
     title = models.CharField(max_length=255, null=True)
     link = models.CharField(max_length=255, unique=True)
+    pubmed = models.CharField(max_length=50, unique=True)
+    year = models.CharField(max_length=4, null=True)
 '''
 
 '''
-    GemGroup
-    name = models.CharField(max_length=200, primary_key=True) # was named 'name' in the info/parsed_data files
+    GEModelSet
+    name = models.CharField(max_length=200, primary_key=True)
     description = models.TextField(null=True)
-    reference = models.ManyToManyField(GemReference, related_name='gem_references')
+    reference = models.ManyToManyField(GEModelReference, related_name='gem_references')
 '''
 
 '''
-    GemSample
+    GEModelSample
     organism = models.CharField(max_length=200)
     organ_system = models.CharField(max_length=200, null=True)
     tissue = models.CharField(max_length=200, null=True)
@@ -310,117 +325,139 @@ def read_gems_data_file(parse_data_file, global_dict=None):
 '''
 
 '''
-    GemFile
+    GEModelFile
     path = models.CharField(max_length=200, unique=True)
     format = models.CharField(max_length=50)
 '''
 
 '''
-    Gem
-    group = models.ForeignKey(GemGroup)
-    sample = models.ForeignKey(GemSample)
+    GEModel
+    set = models.ForeignKey(GEModelSet)
+    sample = models.ForeignKey(GEModelSample)
     description = models.TextField(null=True)
     label = models.CharField(max_length=200)
     reaction_count = models.IntegerField()
     metabolite_count = models.IntegerField()
     enzyme_count = models.IntegerField()
-    files = models.ManyToManyField(GemFile, related_name='gem_files')
+    files = models.ManyToManyField(GEModelFile, related_name='gem_files')
     maintained = models.CharField(max_length=200)
-    reference = models.ForeignKey(GemReference, null=True)
-    year = models.CharField(max_length=4, null=True)
+    reference = models.ForeignKey(GEModelReference, null=True)
 '''
 
+def delete_gems():
+        # delete all object
+    GEModelReference.objects.all().delete()
+    GEModelFile.objects.all().delete()
+    GEModelSet.objects.all().delete()
+    GEModelSample.objects.all().delete()
+    GEModel.objects.all().delete()
 
-def insert_gems(GEM_group_data, GEM_data_list):
+
+def insert_gems(model_set_data, model_data_list):
 
 
-
-        #insert group references
-    group_references = []
-    group_references_ids = []
-    for reference in GEM_group_data['reference']:
+    # insert set references
+    set_references = []
+    set_references_ids = []
+    for reference in model_set_data['reference']:
         try:
-            gr = GemReference.objects.get(Q(link=reference['link']) &
+            gr = GEModelReference.objects.get(Q(link=reference['link']) &
                                           Q(pubmed=reference['pubmed']))
-            print ("gr1 %s" % gr)
-        except GemReference.DoesNotExist:
-            gr = GemReference(**reference)
-            print ("gr2 %s" % gr)
+            # print ("gr1 %s" % gr)
+        except GEModelReference.DoesNotExist:
+            gr = GEModelReference(**reference)
+            print ("gem_set_reference %s" % reference)
+            # print ("gr2 %s" % gr)
             gr.save()
-        group_references.append(gr)
-        group_references_ids.append(gr.id)
+        set_references.append(gr)
+        set_references_ids.append(gr.id)
 
-    print (group_references_ids)
+    # print (set_references_ids)
+    # print (set_references)
 
-    #insert group if new
+    # insert set if new
     try:
-        gg = GemGroup.objects.get(name=GEM_group_data['name'])
-        print ("gg1 %s" % gg)
-    except GemGroup.DoesNotExist:
-        gg = GemGroup(name=GEM_group_data['name'] , description=GEM_group_data['description'])
+        gg = GEModelSet.objects.get(name=model_set_data['name'])
+        # print ("gg1 %s" % gg)
+    except GEModelSet.DoesNotExist:
+        gg = GEModelSet(name=model_set_data['name'] , description=model_set_data['description'])
         gg.save()
-        print ("gg2 %s" % gg)
-    gg.reference.add(*group_references_ids)
+        # print ("gg2 %s" % gg)
+    gg.reference.add(*set_references_ids)
 
-
-    for gem_dict in GEM_data_list:
+    i = 0
+    for model_dict in model_data_list:
         # insert the gem sample if new
-        gem_sample = gem_dict.pop('sample')
+        model_sample = model_dict.pop('sample')
         try:
-            gs = GemSample.objects.get(Q(organism=gem_sample['organism']) &
-                                       Q(organ_system=gem_sample['organ_system']) &
-                                       Q(tissue=gem_sample['tissue']) &
-                                       Q(cell_type=gem_sample['cell_type']) &
-                                       Q(cell_line=gem_sample['cell_line']))
-        except GemSample.DoesNotExist:
-            gs = GemSample(**gem_sample)
+            gs = GEModelSample.objects.get(Q(organism=model_sample['organism']) &
+                                       Q(organ_system=model_sample['organ_system']) &
+                                       Q(tissue=model_sample['tissue']) &
+                                       Q(cell_type=model_sample['cell_type']) &
+                                       Q(cell_line=model_sample['cell_line']))
+        except GEModelSample.DoesNotExist:
+            gs = GEModelSample(**model_sample)
             gs.save()
 
-        gem_reference = gem_dict.pop('reference')
+        gem_reference = model_dict.pop('reference')
         if isinstance(gem_reference, dict):
             print ("gem_reference %s" % gem_reference)
             try:
-                gr = GemReference.objects.get(Q(link=gem_reference['link']) &
+                gr = GEModelReference.objects.get(Q(link=gem_reference['link']) &
                                               Q(pubmed=gem_reference['pubmed']))
-                print ("gr1 %s" % gr)
-            except GemReference.DoesNotExist:
-                gr = GemReference(**gem_reference)
+                print ("current Gem ref year %s " % gr.year)
+                # print ("gr1 %s" % gr)
+            except GEModelReference.DoesNotExist:
+                gr = GEModelReference(**gem_reference)
+                print ("current Gem ref year %s " % gem_reference['year'])
                 gr.save()
-                print ("gr2 %s" % gr)
+                # print ("gr2 %s" % gr)
             gem_reference = gr
         elif gem_reference:
-            gem_reference = group_references[int(gem_reference[-1]) -1] # ":reference1" -> index 0 de group_reference
-
+            gem_reference = set_references[int(gem_reference[-1]) -1] # ":reference1" -> index 0 de set_reference
+            print ("current Gem ref year %s " % gem_reference.year)
+        elif len(set_references) == 1:
+            gem_reference = set_references[0]
+            print ("current Gem ref year %s " % gem_reference.year)
+        else:
+            gem_reference = None
+            print ("current Gem ref year None")
 
         # save the files
         files_ids = []
-        for file in gem_dict.pop('files'):
+        for file in model_dict.pop('files'):
             try:
-                gf = GemFile.objects.get(path=file['path'])
-                print ("gf1 %s" % gf)
-            except GemFile.DoesNotExist:
-                gf = GemFile(**file)
+                gf = GEModelFile.objects.get(path=file['path'])
+                # print ("gf1 %s" % gf)
+            except GEModelFile.DoesNotExist:
+                gf = GEModelFile(**file)
                 gf.save()
-                print ("gf2 %s" % gf)
+                # print ("gf2 %s" % gf)
             files_ids.append(gf.id)
 
-        if not gem_dict['maintained']:
-            gem_dict['maintained'] = False
+        if not model_dict['maintained']:
+            model_dict['maintained'] = False
 
         try:
-            g = Gem.objects.get(Q(group=gg) &
+            g = GEModel.objects.get(Q(gemodelset=gg) &
                                 Q(sample=gs) &
-                                Q(label=gem_dict['label']) &
-                                Q(reaction_count=gem_dict['reaction_count']) &
-                                Q(enzyme_count=gem_dict['enzyme_count']) &
-                                Q(metabolite_count=gem_dict['metabolite_count']))
-            print ("g1 %s" % g)
-        except Gem.DoesNotExist:
-            g = Gem(group=gg, reference=gem_reference, sample=gs, **gem_dict)
+                                Q(label=model_dict['label']) &
+                                Q(reaction_count=model_dict['reaction_count']) &
+                                Q(enzyme_count=model_dict['enzyme_count']) &
+                                Q(metabolite_count=model_dict['metabolite_count']))
+            # print ("g1 %s" % g)
+        except GEModel.DoesNotExist:
+            g = GEModel(gemodelset=gg, reference=gem_reference, sample=gs, **model_dict)
+            print (model_dict)
+            # print (gem_reference.year)
             g.save()
-            print ("g2 %s" % g)
+            # print ("g2 %s" % g)
+        #exit()
 
         g.files.add(*files_ids)
+        i += 1
+
+    print ("%s models added" % i)
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -437,19 +474,19 @@ for root, dirnames, filenames in os.walk(dir_path):
     for filename in fnmatch.filter(filenames, 'parsed_data.txt'):
         matches.append([os.path.join(root, filename), os.path.join(root, 'info.txt')])
 
-
+delete_gems()
 for parse_data_file, info_file in matches:
     print ("Parsing: %s" % parse_data_file)
     global_dict = None
     if os.path.isfile(info_file):
-        global_dict, GEM_group_data = parse_info_file(info_file)
+        global_dict, model_set_data = parse_info_file(info_file)
 
     print ("global_dict %s" % global_dict)
-    print ("GEM_group_data %s" % GEM_group_data)
+    print ("model_set_data %s" % model_set_data)
 
     results = read_gems_data_file(parse_data_file, global_dict=global_dict)
-    GEM_data_list = build_ftp_path_and_dl(results, '/project/model_files/FTP', GEM_group_data)
-    insert_gems(GEM_group_data, GEM_data_list)
+    model_data_list = build_ftp_path_and_dl(results, '/project/model_files/FTP', model_set_data)
+    insert_gems(model_set_data, model_data_list)
 
 
 class Command(BaseCommand):

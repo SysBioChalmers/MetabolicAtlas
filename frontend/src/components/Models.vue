@@ -4,8 +4,14 @@
    </div>
   <div v-else>
     <span class="title">Models</span>
+    <br>
+    <span id="show-m-but" class="button is-primary" :class="{'is-active': showMaintained }"
+    @click="showMaintained = !showMaintained">
+      Maintained only
+    </span>
     <div class="container">
-      <table class="table is-bordered is-striped is-narrow" ref="table">
+      <table v-show="filteredOldGEMS.length != 0" 
+      class="table is-bordered is-striped is-narrow">
         <thead>
           <tr>
             <th v-for="f in fields"
@@ -14,7 +20,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="gem in sortedOldGEMS">
+          <tr v-for="gem in filteredOldGEMS">
             <td v-for="i in fields.length">
               {{ gem[fields[i-1].name] }}
             </td>
@@ -37,7 +43,7 @@ export default {
     return {
       fields: [
         { name: 'organism', display: 'Organism' },
-        { name: 'group_name', display: 'Group' },
+        { name: 'set_name', display: 'Set' },
         { name: 'label', display: 'Label' },
         { name: 'organ_system', display: 'System' },
         { name: 'tissue', display: 'Tissue' },
@@ -53,9 +59,15 @@ export default {
       oldGEMs: [],
       sortedOldGEMS: [],
       GEMS: [],
+      showMaintained: false,
     };
   },
-
+  computed: {
+    filteredOldGEMS: function f() {
+      return this.showMaintained ?
+       this.sortedOldGEMS.filter(el => el.maintained) : this.sortedOldGEMS;
+    },
+  },
   methods: {
     getGEMs() {
       axios.get('gems/')
@@ -106,6 +118,10 @@ export default {
 
 .title {
   display: block;
+  margin-bottom: 1rem;
+}
+
+#show-m-but {
   margin-bottom: 1rem;
 }
 
