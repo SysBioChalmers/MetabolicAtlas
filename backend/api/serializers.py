@@ -149,17 +149,11 @@ class GEModelSerializer(serializers.ModelSerializer):
     gemodelset = GEModelSetSerializer()
     sample = GEModelSampleSerializer()
     files = GEModelFileSerializer(many=True, read_only=True)
-    reference = serializers.SerializerMethodField('get_gemodel_reference')
-
-    def get_gemodel_reference(self, model):
-        if model.reference:
-            return model.reference
-        else:
-            return model.gemodelset.reference[0]
+    reference = GEModelReferenceSerializer()
 
     class Meta:
         model = GEModel
-        fields = ('id', 'gemodelset', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained')
+        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained')
 
 
 class GEModelListSerializer(serializers.ModelSerializer):
@@ -172,11 +166,8 @@ class GEModelListSerializer(serializers.ModelSerializer):
         return gg.name
 
     def get_model_year(self, model):
-        if model.reference:
-            return model.reference.year
-        else:
-            return model.gemodelset.reference.first().year
+        return model.reference.year
 
     class Meta:
         model = GEModel
-        fields = ('set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
+        fields = ('id','set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')

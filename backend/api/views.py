@@ -238,7 +238,6 @@ def connected_metabolites(request, id):
     include_expressions = request.query_params.get('include_expression', '') == 'true' 
     
     try:
-        logging.warn(id)
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
                 (Q(id=id) | Q(long_name=id))
@@ -382,12 +381,21 @@ def search(request, term, truncated):
     return JSONResponse(serializer.data)
 
 @api_view()
-def get_gems(request):
-    # get models from git
-    pass
+def get_gemodels(request):
+    # get models from database
+    logging.warn("test")
+    serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
+    return JSONResponse(serializer.data)
+
 
 @api_view()
-def get_old_gems(request):
-    # get old models from database
-    serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
+def get_gemodel(request, id):
+    try:
+        model = GEModel.objects.get(id=id)
+    except GEModel.DoesNotExist:
+        return HttpResponse(status=404)
+
+    logging.warn(model)
+    serializer = GEModelSerializer(model)
+    logging.warn(serializer.data)
     return JSONResponse(serializer.data)
