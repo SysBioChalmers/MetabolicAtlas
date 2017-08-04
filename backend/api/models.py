@@ -3,6 +3,77 @@ from django.db import models
 #
 # From gems db
 #
+
+class GemReference(models.Model):
+    title = models.CharField(max_length=255, null=True)
+    link = models.CharField(max_length=255, unique=True)
+    pubmed = models.CharField(max_length=20, unique=True)
+
+    class Meta:
+        db_table = "gem_reference"
+
+
+class GemGroup(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(null=True)
+    reference = models.ManyToManyField(GemReference, related_name='gem_references')
+
+    class Meta:
+        db_table = "gem_group"
+
+
+class GemSample(models.Model):
+    organism = models.CharField(max_length=200)
+    organ_system = models.CharField(max_length=200, null=True)
+    tissue = models.CharField(max_length=200, null=True)
+    cell_type = models.CharField(max_length=200, null=True)
+    cell_line = models.CharField(max_length=200, null=True)
+
+    unique_together = (('organism', 'organ_system', 'tissue', 'cell_type', 'cell_line'),)
+
+    class Meta:
+        db_table = "gem_sample"
+
+
+class GemFile(models.Model):
+    path = models.CharField(max_length=200, unique=True)
+    format = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = "gem_file"
+
+
+class Gem(models.Model):
+    group = models.ForeignKey(GemGroup, default=1)
+    sample = models.ForeignKey(GemSample, default=1)
+    description = models.TextField(null=True)
+    label = models.CharField(max_length=200, null=True)
+    reaction_count = models.IntegerField(default=0)
+    metabolite_count = models.IntegerField(default=0)
+    enzyme_count = models.IntegerField(default=0)
+    files = models.ManyToManyField(GemFile, related_name='gem_files')
+    maintained = models.BooleanField(default=False)
+    reference = models.ForeignKey(GemReference, null=True)
+    year = models.CharField(max_length=4, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.group:
+            raise AttributError("GEM group must me specify")
+        if not self.sample:
+            raise AttributError("GEM sample must me specify")
+        if not self.reaction_count:
+            raise AttributError("reaction count cannot be 0")
+        if not self.metabolite_count:
+            raise AttributError("metabolite count cannot be 0")
+        if not self.enzyme_count:
+            raise AttributError("enzyme count cannot be 0")
+        super(Gem, self).save(*args, **kwargs)
+
+    class Meta:
+        db_table = "gem"
+
+
+'''
 class Gem(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=200, null=True)
@@ -16,7 +87,10 @@ class Gem(models.Model):
 
     class Meta:
         db_table = "gems"
+'''
 
+##########################################################################################################################
+##########################################################################################################################
 #
 # From tiles db
 #
@@ -27,6 +101,9 @@ class Tile(models.Model):
     class Meta:
         db_table = "tiles"
 
+
+##########################################################################################################################
+##########################################################################################################################
 #
 # Extra "annotation" models, such as BTO mappings
 #
@@ -38,6 +115,9 @@ class TissueOntology(models.Model):
     class Meta:
         db_table = "tissue_ontology"
 
+
+##########################################################################################################################
+##########################################################################################################################
 #
 # Models
 #

@@ -121,3 +121,60 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     uniprot_link = serializers.CharField()
     ensembl_link = serializers.CharField()
 
+# =======================================================================================
+
+class GemFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GemFile
+        fields = ('path', 'format')
+
+class GemReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GemReference
+        fields = ('title', 'link', 'pubmed')
+
+class GemGroupSerializer(serializers.ModelSerializer):
+    reference = GemReferenceSerializer(many=True, read_only=True)
+    class Meta:
+        model = GemGroup
+        fields = ('name', 'description', 'reference')
+
+class GemSampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GemSample
+        fields = ('organism', 'organ_system', 'tissue', 'cell_line', 'cell_type')
+
+
+class GemReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GemReference
+        fields = ('title', 'link', 'pubmed')
+
+class GemSerializer(serializers.ModelSerializer):
+    group = GemGroupSerializer()
+    sample = GemSampleSerializer()
+    files = GemFileSerializer(many=True, read_only=True)
+    reference = serializers.SerializerMethodField('get_gem_reference')
+
+    def get_gem_reference(self, model):
+        if model.reference:
+            return model.reference
+        else:
+            return model.group.reference[0]
+
+    class Meta:
+        model = Gem
+        fields = ('id', 'group', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained', 'year')
+
+
+class GemListSerializer(serializers.ModelSerializer):
+    group_name = serializers.SerializerMethodField('get_gem_group_name')
+    sample = GemSampleSerializer()
+
+    def get_gem_group_name(self, model):
+        gg = GemGroup.objects.get(id=model.group.id)
+        return gg.name
+
+    class Meta:
+        model = Gem
+        fields = ('group_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
