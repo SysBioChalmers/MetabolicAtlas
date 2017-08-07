@@ -37,33 +37,33 @@ baseFolder="/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/da
 
 # the human files and the yeast files are obviously different :)
 # so wrap up all the files for the given species
-def populate_human_db(organism):
+def populate_human_db():
     # first check that ALL files exists
     missingFiles = 0
-    missingFiles+=_checkIfFileFiles("HMRdatabase2_00.xml")
-    missingFiles+=_checkIfFileFiles(organism+"_currencyMets.csv")
-    missingFiles+=_checkIfFileFiles(organism+"_massCalc.txt")
-    missingFiles+=_checkIfFileFiles(organism+"_metaboliteListFromExcel.txt")
-    missingFiles+=_checkIfFileFiles("hmdb.tab")
-    missingFiles+=_checkIfFileFiles("ensembl82_uniprot_swissprot.tab")
-    missingFiles+=_checkIfFileFiles("uniprot.human.keywords.tab")
-    missingFiles+=_checkIfFileFiles("uniprot.human.EC.tab")
-    missingFiles+=_checkIfFileFiles("uniprot.human.function.tab")
-    missingFiles+=_checkIfFileFiles("uniprot.human.CatalyticActivity.tab")
-    missingFiles+=_checkIfFileFiles("human.kegg.tab")
-    missingFiles+=_checkIfFileFiles("uniprot.human.names.tab")
+    missingFiles+=_checkIfFileExists("HMRdatabase2_00.xml")
+    missingFiles+=_checkIfFileExists("human_currencyMets.csv")
+    missingFiles+=_checkIfFileExists("human_massCalc.txt")
+    missingFiles+=_checkIfFileExists("human_metaboliteListFromExcel.txt")
+    missingFiles+=_checkIfFileExists("hmdb.tab")
+    missingFiles+=_checkIfFileExists("ensembl82_uniprot_swissprot.tab")
+    missingFiles+=_checkIfFileExists("uniprot.human.keywords.tab")
+    missingFiles+=_checkIfFileExists("uniprot.human.EC.tab")
+    missingFiles+=_checkIfFileExists("uniprot.human.function.tab")
+    missingFiles+=_checkIfFileExists("uniprot.human.CatalyticActivity.tab")
+    missingFiles+=_checkIfFileExists("human.kegg.tab")
+    missingFiles+=_checkIfFileExists("uniprot.human.names.tab")
     if missingFiles>0:
         sys.exit("At least one missing annotation file, see above for specifications, will not attempt to add any data to the database...")
 
     # then add the data to the database in the RIGHT order
-    addSBMLData(baseFolder+"HMRdatabase2_00.xml", 67)                       # addSBMLData
+    addSBMLData(baseFolder+"HMRdatabase2_00.xml", 67, None)                 # addSBMLData
     logger.info("Currency Metabolites")
-    addCurrencyMetabolites(baseFolder+organism+"_currencyMets.csv")         # addCurrencyMetabolites
+    addCurrencyMetabolites(baseFolder+"human_currencyMets.csv")         # addCurrencyMetabolites
     # addMetabolites
     logger.info("Add annotations for the metabolites")
-    masses = readMassCalcFile(baseFolder+organism+"_massCalc.txt")
+    masses = readMassCalcFile(baseFolder+"human_massCalc.txt")
     hmdb = readHMDBFile(baseFolder+"hmdb.tab")
-    metaboliteDefinitions(baseFolder+organism+"_metaboliteListFromExcel.txt", masses, hmdb)
+    metaboliteDefinitions(baseFolder+"human_metaboliteListFromExcel.txt", masses, hmdb)
     # addReactionComponentAnnotation
     logger.info("Add 'mappings' between identifiers")
     addReactionComponentAnnotation("ensg", 0, "uniprot",
@@ -79,8 +79,16 @@ def populate_human_db(organism):
     addEnzymes(baseFolder+"uniprot.human.names.tab", ec, function, activity, kegg)
 
 
+def populate_yeast_db():
+    # first check that ALL files exists
+    missingFiles = 0
+    missingFiles+=_checkIfFileExists("yeast76.xml")
+    if missingFiles>0:
+        sys.exit("At least one missing annotation file, see above for specifications, will not attempt to add any data to the database...")
+    addSBMLData(baseFolder+"yeast76.xml", 2017, "http://yeastgenome.org/")
 
-def _checkIfFileFiles(fName):
+
+def _checkIfFileExists(fName):
     if not os.path.isfile(baseFolder+fName):
         print("Missing the file "+baseFolder+fName)
         return(1)
@@ -89,14 +97,10 @@ def _checkIfFileFiles(fName):
 
 
 class Command(BaseCommand):
-    args = '--organism human|yeast'
-    help = 'our help string comes here'
-
-    def add_arguments(self, parser):
-        parser.add_argument('--organism', type=str, help="specify organism, assume the file names match", choices=["human","yeast"])
 
     def handle(self, *args, **options):
-        #populate_human_db(options['organism'])
+        populate_human_db()
+        populate_yeast_db()
         # until Dimitra have added the annotations to the SBML file...
         pmids_to_add = {}
         with open(baseFolder+"human_reactionsFromExcel.txt", 'r') as f:
@@ -111,6 +115,7 @@ class Command(BaseCommand):
                     reaction = Reaction.objects.filter(id="R_"+reaction_id)
                     if(len(reaction)<1):
                         print("No reaction found with id "+"R_"+reaction_id)
+                        next;
                     for pmid in r:
                         if(re.match(r'PMID', pmid)): # skip the uniprot entry records???
                             rr = ReactionReference(reaction=reaction[0], pmid=pmid)

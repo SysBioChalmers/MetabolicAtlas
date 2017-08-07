@@ -5,11 +5,20 @@
 class SbmlAuthor(object):
     def __init__(self, sbml_model):
         annotations = sbml_model.getAnnotation()
-        rdf = etree.fromstring(annotations.getChild(0).toXMLString())
-        self.given_name = self._get_given_name(rdf)
-        self.family_name = self._get_family_name(rdf)
-        self.email = self._get_email(rdf)
-        self.organization = self._get_organization(rdf)
+        if annotations:
+            rdf = etree.fromstring(annotations.getChild(0).toXMLString())
+            self.given_name = self._get_given_name(rdf)
+            self.family_name = self._get_family_name(rdf)
+            self.email = self._get_email(rdf)
+            self.organization = self._get_organization(rdf)
+        else:
+            # if no annotations on the model level then make an "empty" author object
+            # this should preferably be fixed in the model though so print a message!
+            self.given_name = ""
+            self.family_name = ""
+            self.email = ""
+            self.organization = ""
+            print("Error: Missing annotations for the model, so no author information will be made!")
 
     def __repr__(self):
         return "{0} {1} ({2}), {3}".format(self.given_name,
@@ -52,7 +61,8 @@ def get_subsystem_from_notes(notes):
     if match:
         return match.group(1)
     else:
-        return None
+        print("Missing subsystem!")
+        return "NA"
 
 class Equation(object):
     def __init__(self, reaction):
@@ -118,6 +128,8 @@ def get_author(sbml_model):
 def _getCompartmentInfo(rID, rc, pc):
     r_it = iter(rc.keys())
     r_first = next(r_it)
+    if len(pc) < 1:
+        return(r_first.name) # for some of the yeast reactions we only have a single reactant, I have emailed Benjamin about this...
     p_it = iter(pc.keys())
     p_first = next(p_it)
     if((len(rc)==1) & (len(pc)==1) & (r_first.name==p_first.name)):
@@ -155,6 +167,14 @@ def _getCompartmentInfo(rID, rc, pc):
         return(r_first.name + " + " + r_second.name + " + " + r_third.name + r_fourth.name + " + " + r_fifth.name + " + " + r_sixth.name + " + " + r_seventh.name + " + " + r_eight.name + " => " + p_first.name)
     sys.exit("Missing compartment information for reaction"+rID+" with "+str(len(rc))+ " and "+str(len(pc)))
 
+def _getBound(sbml_model, paramIDAsString):
+    params = sbml_model.getListOfParameters()
+    for i in range(len(params)):
+        p = params[i]
+        if(p.getId() == paramIDAsString):
+            return p.getValue()
+    return -999
+
 def get_reaction(sbml_model, index):
     """ Get the specified reaction from the supplied SBML model. """
     sbml_reaction = sbml_model.getReaction(index)
@@ -166,10 +186,15 @@ def get_reaction(sbml_model, index):
     reaction_to_add.subsystem = get_subsystem_from_notes(sbml_reaction.notes_string)
 
     kinetic_law_parameters = get_kinetic_law_parameters(sbml_reaction)
-    reaction_to_add.lower_bound = kinetic_law_parameters.get("LOWER_BOUND")
-    reaction_to_add.upper_bound = kinetic_law_parameters.get("UPPER_BOUND")
-    objective_coefficient = kinetic_law_parameters.get("OBJECTIVE_COEFFICIENT")
-    reaction_to_add.objective_coefficient = objective_coefficient
+    if kinetic_law_parameters:
+        reaction_to_add.lower_bound = kinetic_law_parameters.get("LOWER_BOUND")
+        reaction_to_add.upper_bound = kinetic_law_parameters.get("UPPER_BOUND")
+        objective_coefficient = kinetic_law_parameters.get("OBJECTIVE_COEFFICIENT")
+        reaction_to_add.objective_coefficient = objective_coefficient
+    else:
+        RFBCplg = sbml_reaction.getPlugin('fbc')
+        reaction_to_add.lower_bound = _getBound(sbml_model, RFBCplg.getLowerFluxBound())
+        reaction_to_add.upper_bound = _getBound(sbml_model, RFBCplg.getUpperFluxBound())
 
     # in order to determine which compartment the reaction takes place
     reactant_compartment = collections.OrderedDict()
@@ -212,10 +237,13 @@ def get_kinetic_law_parameters(sbml_reaction):
     """Get kinetic law parameters for the specified SBML reaction."""
     params = {}
     kinetic_law = sbml_reaction.getKineticLaw()
-    for i in range(kinetic_law.getNumParameters()):
-        parameter = kinetic_law.getParameter(i)
-        params[parameter.name] = parameter.value
-    return params
+    if kinetic_law:
+        for i in range(kinetic_law.getNumParameters()):
+            parameter = kinetic_law.getParameter(i)
+            params[parameter.name] = parameter.value
+        return params
+    print("Missing <kineticLaw> information for reaction "+str(sbml_reaction))
+    return None
 
 def get_EC_number(sbml_reaction):
     """ Get the EC number(s), if applicable, for the reaction """
@@ -260,7 +288,9 @@ def get_reaction_components(sbml_model, sbml_species):
     return components_found
 
 def _getEnsemblArchivePath(v):
-	if(v==82):
+	if(v==89):
+		return 'http://May2017.archive.ensembl.org/'
+	elif(v==82):
 		return 'http://sep2015.archive.ensembl.org/'
 	elif(v==81):
 		return 'http://jul2015.archive.ensembl.org/'
@@ -274,12 +304,13 @@ def _getEnsemblArchivePath(v):
 		sys.exit("\n*******************************\nError:\n\tNot a known version map\n*******************************\n");
 
 
-def addSBMLData(gem_file, ensembl_version):
+def addSBMLData(gem_file, db_version, db_path):
     doc = libsbml.readSBML(gem_file)
+    print("read file"+gem_file)
     errors = doc.getNumErrors()
     if errors != 0:
         print("Encountered {0} errors. Exiting...".format(errors))
-        sys.exit(1)
+        #sys.exit(1)
 
     sbml_model = doc.getModel()
 
@@ -290,10 +321,11 @@ def addSBMLData(gem_file, ensembl_version):
     if(not sbml_model.name == "HMRdatabase"):
         pmid="NA"
         title="NA"
+    if not db_path:
+        db_path = _getEnsemblArchivePath(db_version)
     model = GEM(short_name=sbml_model.id,
         name=sbml_model.name, pmid=pmid, article_title=title,
-        ensembl_version=ensembl_version,
-        ensembl_archive_path = _getEnsemblArchivePath(ensembl_version))
+        ensembl_version=db_version, ensembl_archive_path = db_path)
     model.save()
     author = get_author(sbml_model)
     author.save()

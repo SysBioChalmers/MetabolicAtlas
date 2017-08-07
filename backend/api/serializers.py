@@ -40,7 +40,6 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
     metabolite = MetaboliteSerializer(read_only=True)
     enzyme = EnzymeSerializer(read_only=True)
 
-<<<<<<< HEAD
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
@@ -50,8 +49,6 @@ class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     metabolite = MetaboliteSearchSerializer(read_only=True)
     enzyme = EnzymeSearchSerializer(read_only=True)
 
-=======
->>>>>>> 0295eed7a68879f2c59b267e910743137c4764d8
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
