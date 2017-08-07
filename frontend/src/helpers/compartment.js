@@ -118,7 +118,7 @@ export function getCompartmentFromCID(compartmentID) {
 function formatSpan(x) {
   const regex = /(.+)\[(.)\]/g;
   const match = regex.exec(x);
-  return `${match[1]}<span class="sc" title="${data[match[2]].name}">${match[2]}</span>`;
+  return `${match[1]}<span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
 }
 
 export function reformatChemicalReaction(value) {
