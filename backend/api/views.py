@@ -400,20 +400,22 @@ def get_gemodels(request):
     import json
     import base64
     # get models from database
-    # serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
-    serializer = None
+    serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
+    # serializer = None
     # get models from git
+    list_repo = []
     try:
         URL = 'https://api.github.com/orgs/SysBioChalmers/repos'
         result = urllib.request.urlopen(URL)
         list_repo = json.loads(result.read().decode('UTF-8'))
     except Exception as e:
         logging.warn(e)
-        return HttpResponse(status=400)
+        pass
+        # return HttpResponse(status=400)
 
     for repo in list_repo:
         logging.warn(repo['name'])
-        if repo['name'].startswith('GEM_') or True:
+        if repo['name'].startswith('GEM_') or False:
             try:
                 result = urllib.request.urlopen(repo['url'] + '/contents/README.md?ref=master') 
                 readme = json.loads(result.read().decode('UTF-8'))['content']
@@ -437,8 +439,8 @@ def parse_readme_file(content):
         'name': 'label',
     }
     parse_entries = False
-    for line in content:
-        if line.startswith(""):
+    for line in content.decode('UTF-8'):
+        if line.startswith("| Name |"):
             if not parse_entries:
                 parse_entries = True
             else:

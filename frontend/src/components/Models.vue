@@ -70,15 +70,10 @@
           <br>
           <span class="subtitle">Files</span>
           <table class="table">
-            <thead>
-              <tr>
-                <th v-for="file in selectedModel.files">{{ file.format }}</th>
-              </tr>
-            </thead>
             <tbody>
               <tr>
                 <td v-for="file in selectedModel.files">
-                  <a href="">{{ file.path }}</a>
+                  <a :href="file.path">{{ file.format }}</a>
                 </td>
               </tr>
             </tbody>
