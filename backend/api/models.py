@@ -134,7 +134,7 @@ class GEM(models.Model):
         return "<GEM: {0}>".format(self.short_name)
 
     class Meta:
-        db_table = "gem"
+        db_table = "gems"
 
 class Author(models.Model):
     given_name = models.CharField(max_length=255, blank=False)
@@ -157,8 +157,8 @@ class Reaction(models.Model):
     ec = models.CharField(max_length=255, null=True)
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
-    objective_coefficient = models.FloatField()
-    subsystem = models.CharField(max_length=70)
+    objective_coefficient = models.FloatField(null=True)
+    subsystem = models.CharField(max_length=600)
     compartment = models.CharField(max_length=125)
     is_transport = models.BooleanField(default=False)
 
