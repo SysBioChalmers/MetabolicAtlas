@@ -380,13 +380,6 @@ def search(request, term, truncated):
 
     return JSONResponse(serializer.data)
 
-@api_view()
-def get_gemodels(request):
-    # get models from database
-    logging.warn("test")
-    serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
-    return JSONResponse(serializer.data)
-
 
 @api_view()
 def get_gemodel(request, id):
@@ -399,3 +392,60 @@ def get_gemodel(request, id):
     serializer = GEModelSerializer(model)
     logging.warn(serializer.data)
     return JSONResponse(serializer.data)
+
+
+@api_view()
+def get_gemodels(request):
+    import urllib
+    import json
+    import base64
+    # get models from database
+    # serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
+    serializer = None
+    # get models from git
+    try:
+        URL = 'https://api.github.com/orgs/SysBioChalmers/repos'
+        result = urllib.request.urlopen(URL)
+        list_repo = json.loads(result.read().decode('UTF-8'))
+    except Exception as e:
+        logging.warn(e)
+        return HttpResponse(status=400)
+
+    for repo in list_repo:
+        logging.warn(repo['name'])
+        if repo['name'].startswith('GEM_') or True:
+            try:
+                result = urllib.request.urlopen(repo['url'] + '/contents/README.md?ref=master') 
+                readme = json.loads(result.read().decode('UTF-8'))['content']
+            except Exception as e:
+                logging.warn(e)
+                continue
+
+            readme_content = base64.b64decode(readme)
+            logging.warn(readme)
+            d = parse_readme_file(readme_content)
+            # TODO make GEM objects and json to current serializer
+
+            break
+
+    return JSONResponse(serializer.data)
+
+
+def parse_readme_file(content):
+    d = {}
+    key_entry = {
+        'name': 'label',
+    }
+    parse_entries = False
+    for line in content:
+        if line.startswith(""):
+            if not parse_entries:
+                parse_entries = True
+            else:
+                break
+
+        if parse_entries:
+            entry, value = line.split('\t')
+            d[key_entry[entry]] = value.strip()
+
+    return d
