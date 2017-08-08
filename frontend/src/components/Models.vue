@@ -106,7 +106,6 @@ export default {
         { name: 'metabolite_count', display: '# metabolites' },
         { name: 'enzyme_count', display: '# enzymes' },
         { name: 'year', display: 'Year' },
-        { name: 'maintained', display: 'Maintained' },
       ],
       model_fields: [
         { name: 'description', display: 'Description' },
