@@ -5,11 +5,13 @@ export default function (e) {
   const rels = [];
   const occ = {};
 
+  console.log(e);
   const enzyme = {
     id: e.id,
     reactionid: '-',
     parentid: null,
     type: 'enzyme',
+    substance_type: 'modifier',
     short: e.short_name || e.long_name,
     long: e.long_name,
     formula: 'formula',
@@ -29,9 +31,10 @@ export default function (e) {
       short: `${r.reaction_id}\n(${r.reaction_subsystem})`,
       long: r.reaction_id,
       // description: r.reaction_id,
-      formula: 'formula',
+      // formula: r.formla,
+      pathway: r.reaction_subsystem,
       link: getLink(r),
-      details: r.metabolite || r.enzyme,
+      // details: r.metabolite || r.enzyme,
     };
     elms.push(reaction);
 
@@ -77,7 +80,8 @@ export default function (e) {
         // description: 'description',
         formula: p.formula,
         compartment: p.compartment,
-        type: 'product',
+        substance_type: 'product',
+        type: 'metabolite',
         link: getLink(p),
         details: p.metabolite || p.enzyme,
         isCurrencyMetabolite: p.currency_metabolites.length > 0,
@@ -103,7 +107,8 @@ export default function (e) {
         // description: 'description',
         formula: re.formula,
         compartment: re.compartment,
-        type: 'reactant',
+        substance_type: 'reactant',
+        type: 'metabolite',
         link: getLink(re),
         details: re.metabolite || re.enzyme,
         isCurrencyMetabolite: re.currency_metabolites.length > 0,

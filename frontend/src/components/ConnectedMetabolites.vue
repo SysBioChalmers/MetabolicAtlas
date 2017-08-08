@@ -12,45 +12,7 @@
         <div v-show="reactions.length === 0">
           <div class="container columns">
             <figure id="cy" ref="cy" class="column is-8"></figure>
-            <div id="sidebar" class="column content">
-              <div v-if="selectedElm && selectedElm.type !== 'enzyme'" class="card">
-                <div v-if="selectedElm.details" class="card">
-                  <div class="card-content">
-                    <div v-if="selectedElm.details.hmdb_description">
-                      <p class="label">Description</p>
-                      <p>{{ selectedElm.details.hmdb_description }}</p>
-                      <br>
-                    </div>
-                    <div v-if="selectedElm.details.mass">
-                      <p class="label">Mass</p>
-                      {{ selectedElm.details.mass }}
-                    </div>
-                    <div v-if="selectedElm.details.kegg">
-                      <p class="label">Kegg</p>
-                      <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
-                    </div>
-                    <div v-if="!selectedElm.details.mass &&
-                               !selectedElm.details.catalytic_activity &&
-                               !selectedElm.details.kegg">
-                      {{ $t('noInfoAvailable') }}
-                    </div>
-                    <div v-else>
-                      <br>
-                      <button class="button" v-on:click="viewMetaboliteInfo(selectedElm.real_id)">More</button>
-                    </div>
-                  </div>
-                </div>
-                <div v-else>
-                  <div class="card-content">
-                    {{ $t('noInfoAvailable') }}
-                  </div>
-                </div>
-              </div>
-              <br>
-              <a href="/about#connectedmetabolites" target="_blank">
-                {{ $t('moreInformation') }}
-              </a>
-            </div>
+            <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
             <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
               <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
                v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
@@ -80,6 +42,7 @@
 import axios from 'axios';
 import cytoscape from 'cytoscape';
 import regCose from 'cytoscape-cose-bilkent';
+import Sidebar from 'components/Sidebar';
 import CytoscapeTable from 'components/CytoscapeTable';
 import ReactionTable from 'components/ReactionTable';
 import Loader from 'components/Loader';
@@ -91,6 +54,7 @@ import { default as visitLink } from '../helpers/visit-link';
 export default {
   name: 'connected-metabolites',
   components: {
+    Sidebar,
     CytoscapeTable,
     ReactionTable,
     Loader,
@@ -133,15 +97,6 @@ export default {
     },
   },
   computed: {
-    keggLink() {
-      if (this.selectedElm
-        && this.selectedElm.details
-        && this.selectedElm.details.kegg
-      ) {
-        return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
-      }
-      return '';
-    },
     filename() {
       return `ma_catalyzed_reaction_${this.enzymeName}`;
     },
@@ -225,6 +180,7 @@ export default {
 
               this.selectedElmId = ele.data().id;
               this.selectedElm = ele.data();
+              console.log(this.selectedElm);
               this.showGraphContextMenu = true;
               updatePosition(node);
             });
