@@ -348,8 +348,12 @@ export default {
         });
     },
     loadHPAData(rawElms) {
+      // get the list of enzyme ids
+      const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
+      const enzymeIDs = enzymes.map(k => rawElms[k].long);
+
       const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
-      const proteins = 'ENSG00000121410,ENSG00000091831,ENSG00000196502?format=xml';
+      const proteins = `${enzymeIDs.join(',')}?format=xml`;
       const url = baseUrl + proteins;
 
       const xmlContent = fetchXML(url);
@@ -394,8 +398,9 @@ export default {
             geneExpression.value = replicates[middle];
           }
           if (geneExpression.value) {
+            console.log(geneExpression.value);
             // simple color scale
-            // 100 possible values, fromt 0 to 5 tmp
+            // 100 possible values, from 0 to 5 tmp
             let n = (geneExpression.value * 100) / 5;
             n = n > 100 ? 100 : n;
             const r = (255 * n) / 100;
