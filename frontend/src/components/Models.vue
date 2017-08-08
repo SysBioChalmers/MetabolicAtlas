@@ -57,7 +57,7 @@
                 </td>
               </tr>
               <tr>
-                <td>PUMED ID</td>
+                <td>PUBMED ID</td>
                 <td>
                   <a :href="'https://www.ncbi.nlm.nih.gov/pubmed/' + selectedModel.pubmed" 
                   target="_blank">
