@@ -100,7 +100,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         populate_human_db()
-        populate_yeast_db()
+        #populate_yeast_db()
         # until Dimitra have added the annotations to the SBML file...
         pmids_to_add = {}
         with open(baseFolder+"human_reactionsFromExcel.txt", 'r') as f:
