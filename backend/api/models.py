@@ -3,6 +3,77 @@ from django.db import models
 #
 # From gems db
 #
+
+class GEModelReference(models.Model):
+    title = models.CharField(max_length=255)
+    link = models.CharField(max_length=255, unique=True, null=True)
+    pubmed = models.CharField(max_length=20, unique=True, null=True)
+    year = models.CharField(max_length=4)
+
+    class Meta:
+        db_table = "gemodel_reference"
+
+
+class GEModelSet(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(null=True)
+    reference = models.ManyToManyField(GEModelReference, related_name='gemodel_references')
+
+    class Meta:
+        db_table = "gemodel_set"
+
+
+class GEModelSample(models.Model):
+    organism = models.CharField(max_length=200)
+    organ_system = models.CharField(max_length=200, null=True)
+    tissue = models.CharField(max_length=200, null=True)
+    cell_type = models.CharField(max_length=200, null=True)
+    cell_line = models.CharField(max_length=200, null=True)
+
+    unique_together = (('organism', 'organ_system', 'tissue', 'cell_type', 'cell_line'),)
+
+    class Meta:
+        db_table = "gemodel_sample"
+
+
+class GEModelFile(models.Model):
+    path = models.CharField(max_length=200, unique=True)
+    format = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = "gemodel_file"
+
+
+class GEModel(models.Model):
+    gemodelset = models.ForeignKey(GEModelSet, default=1)
+    sample = models.ForeignKey(GEModelSample, default=1)
+    description = models.TextField(null=True)
+    label = models.CharField(max_length=200, null=True)
+    reaction_count = models.IntegerField(default=0)
+    metabolite_count = models.IntegerField(default=0)
+    enzyme_count = models.IntegerField(default=0)
+    files = models.ManyToManyField(GEModelFile, related_name='gemodel_files')
+    maintained = models.BooleanField(default=False)
+    reference = models.ForeignKey(GEModelReference, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.gemodelset:
+            raise AttributError("Model set must me specify")
+        if not self.sample:
+            raise AttributError("Model sample must me specify")
+        if not self.reaction_count:
+            raise AttributError("reaction count cannot be 0")
+        if not self.metabolite_count:
+            raise AttributError("metabolite count cannot be 0")
+        if not self.enzyme_count:
+            raise AttributError("enzyme count cannot be 0")
+        super(GEModel, self).save(*args, **kwargs)
+
+    class Meta:
+        db_table = "gemodel"
+
+
+'''
 class Gem(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=200, null=True)
@@ -16,7 +87,10 @@ class Gem(models.Model):
 
     class Meta:
         db_table = "gems"
+'''
 
+##########################################################################################################################
+##########################################################################################################################
 #
 # From tiles db
 #
@@ -27,6 +101,9 @@ class Tile(models.Model):
     class Meta:
         db_table = "tiles"
 
+
+##########################################################################################################################
+##########################################################################################################################
 #
 # Extra "annotation" models, such as BTO mappings
 #
@@ -38,6 +115,9 @@ class TissueOntology(models.Model):
     class Meta:
         db_table = "tissue_ontology"
 
+
+##########################################################################################################################
+##########################################################################################################################
 #
 # Models
 #

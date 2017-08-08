@@ -1,21 +1,25 @@
 class GemRouter(object):
     def db_for_read(self, model, **hints):
-        if model.__name__ == 'Gem':
+        # print("model.__name__1 %s" % model.__name__)
+        if model.__name__ in ['GEModelSet', 'GEModelSample', 'GEModelReference', 'GEModelFile', 'GEModel', 'GEModelSet_reference', 'GEModel_files']:
             return 'gems'
         return None
 
     def db_for_write(self, model, **hints):
-        if model.__name__ == 'Gem':
+        # print("model.__name__2 %s" % model.__name__)
+        if model.__name__ in ['GEModelSet', 'GEModelSample', 'GEModelReference', 'GEModelFile', 'GEModel', 'GEModelSet_reference', 'GEModel_files']:
             return 'gems'
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
-        if obj1.__name__ == 'Gem':
+        # print("object1 %s" % obj1)
+        if obj1.__class__.__name__ in ['GEModelSet', 'GEModelSample', 'GEModelReference', 'GEModelFile', 'GEModel']:
             return True
         return None
 
     def allow_migrate(self, db, app_label, model_name, **hints):
-        if model_name == 'gem':
+        # print("model_name %s" % model_name)
+        if model_name in ['gemodelset', 'gemodelsample', 'gemodelreference', 'gemodelfile', 'gemodel']:
             return db == 'gems'
         return None
 

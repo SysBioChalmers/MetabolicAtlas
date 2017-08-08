@@ -238,7 +238,6 @@ def connected_metabolites(request, id):
     include_expressions = request.query_params.get('include_expression', '') == 'true' 
     
     try:
-        logging.warn(id)
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
                 (Q(id=id) | Q(long_name=id))
@@ -399,3 +398,76 @@ def convert_to_reaction_component_ids(request, compartmentID):
         return HttpResponse(status=404)
 
     return JSONResponse(reactionComponents);
+
+
+@api_view()
+def get_gemodel(request, id):
+    try:
+        model = GEModel.objects.get(id=id)
+    except GEModel.DoesNotExist:
+        return HttpResponse(status=404)
+
+    logging.warn(model)
+    serializer = GEModelSerializer(model)
+    logging.warn(serializer.data)
+    return JSONResponse(serializer.data)
+
+
+@api_view()
+def get_gemodels(request):
+    import urllib
+    import json
+    import base64
+    # get models from database
+    serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
+    # serializer = None
+    # get models from git
+    list_repo = []
+    try:
+        URL = 'https://api.github.com/orgs/SysBioChalmers/repos'
+        result = urllib.request.urlopen(URL)
+        list_repo = json.loads(result.read().decode('UTF-8'))
+    except Exception as e:
+        logging.warn(e)
+        pass
+        # return HttpResponse(status=400)
+
+    for repo in list_repo:
+        logging.warn(repo['name'])
+        if repo['name'].startswith('GEM_') or False:
+            try:
+                result = urllib.request.urlopen(repo['url'] + '/contents/README.md?ref=master') 
+                readme = json.loads(result.read().decode('UTF-8'))['content']
+            except Exception as e:
+                logging.warn(e)
+                continue
+
+            readme_content = base64.b64decode(readme)
+            logging.warn(readme)
+            d = parse_readme_file(readme_content)
+            # TODO make GEM objects and json to current serializer
+
+            break
+
+    return JSONResponse(serializer.data)
+
+
+def parse_readme_file(content):
+    d = {}
+    key_entry = {
+        'name': 'label',
+    }
+    parse_entries = False
+    for line in content.decode('UTF-8'):
+        if line.startswith("| Name |"):
+            if not parse_entries:
+                parse_entries = True
+            else:
+                break
+
+        if parse_entries:
+            entry, value = line.split('\t')
+            d[key_entry[entry]] = value.strip()
+
+    return d
+

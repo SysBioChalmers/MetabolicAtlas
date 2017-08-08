@@ -121,3 +121,53 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     uniprot_link = serializers.CharField()
     ensembl_link = serializers.CharField()
 
+# =======================================================================================
+
+class GEModelFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GEModelFile
+        fields = ('path', 'format')
+
+class GEModelReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GEModelReference
+        fields = ('title', 'link', 'pubmed', 'year')
+
+class GEModelSetSerializer(serializers.ModelSerializer):
+    reference = GEModelReferenceSerializer(many=True, read_only=True)
+    class Meta:
+        model = GEModelSet
+        fields = ('name', 'description', 'reference')
+
+class GEModelSampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GEModelSample
+        fields = ('organism', 'organ_system', 'tissue', 'cell_line', 'cell_type')
+
+
+class GEModelSerializer(serializers.ModelSerializer):
+    gemodelset = GEModelSetSerializer()
+    sample = GEModelSampleSerializer()
+    files = GEModelFileSerializer(many=True, read_only=True)
+    reference = GEModelReferenceSerializer()
+
+    class Meta:
+        model = GEModel
+        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained')
+
+
+class GEModelListSerializer(serializers.ModelSerializer):
+    set_name = serializers.SerializerMethodField('get_model_set_name')
+    sample = GEModelSampleSerializer()
+    year = serializers.SerializerMethodField('get_model_year')
+
+    def get_model_set_name(self, model):
+        gg = GEModelSet.objects.get(id=model.gemodelset.id)
+        return gg.name
+
+    def get_model_year(self, model):
+        return model.reference.year
+
+    class Meta:
+        model = GEModel
+        fields = ('id','set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
