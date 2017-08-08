@@ -66,7 +66,7 @@ $ source postgres.env                               # to load the environment va
 python manage.py makemigrations
 python manage.py migrate
 python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables
-python manage.py populateDB --organism human      # read in the HMR database, and all associated annotations
+python manage.py populateDB      # read in the HMR database, and all associated annotations
 python manage.py addTissueOntology                # add the BrendaTissueOntology, this is model independent and should only be added once...
 python manage.py addNumberOfInteractionPartners   # for each reaction_component calculate the number of interaction partners...
 python manage.py expressionDataFromHPA
@@ -85,7 +85,7 @@ update reaction_component set short_name=exp.gene_name FROM (SELECT gene_id, gen
 
 Make a database dump of the content of the database
 ```bash
-pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v3.db
+pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v5.db
 ```
 
 (takes about 15 minutes + 15 to prepare the expression data)
