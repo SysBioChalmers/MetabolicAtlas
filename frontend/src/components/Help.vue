@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="container">
+  <div class="columns">
+    <div class="container column is-8">
       <h2 class="title is-2">Network graph</h2>
       <br>
 
@@ -82,6 +82,11 @@
       <p>The API allows to retrieve...</p>
       <br>
 
+    </div>
+    <div id="help-sidebar"class="column is-3">
+      <div class="box">
+        help content
+      <div>
     </div>
   </div>
 </template>

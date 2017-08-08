@@ -15,20 +15,6 @@
       </div>
       <br>
       <div class="text">
-        <h4 class="subtitle is-4">Objectives</h4>
-        <p class="text">
-          nice objectif text here
-        </p>
-      </div>
-      <br>
-      <div class="text">
-        <h4 class="subtitle is-4">Background and history</h4>
-        <p class="text">
-          nice history here
-        </p>
-      </div>
-      <br>
-      <div class="text">
         <h4 class="subtitle is-4">Release notes</h4>
         <p class="text">
           what changed - what's new
@@ -49,7 +35,7 @@
       <br>
       <h2 class="subtitle is-2">Citing Metabolic Atlas</h2>
       <p class="text">
-        Please use the following paper for citation: <a href="http://database.oxfordjournals.org/content/2015/bav068.full">Human metabolic atlas: an online resource for human metabolism</a>
+        Please use the following paper for citation: <a href="http://database.oxfordjournals.org/content/2015/bav068.full" target="_blank">Human metabolic atlas: an online resource for human metabolism</a>
         <br><br>
         <strong>Natapol Pornputtapong, Intawat Nookaew and Jens Nielsen</strong>
         <br>
