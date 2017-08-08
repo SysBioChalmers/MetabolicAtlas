@@ -380,6 +380,25 @@ def search(request, term, truncated):
 
     return JSONResponse(serializer.data)
 
+@api_view(['POST'])
+def convert_to_reaction_component_ids(request, compartmentID):
+    arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
+    query = Q()
+    for term in arrayTerms:
+        query |= Q(id__iexact=term)
+        query |= Q(short_name__iexact=term)
+        query |= Q(long_name__iexact=term)
+
+    if str(compartmentID) != '0':
+        reactionComponents = ReactionComponent.objects.filter(query & Q(compartment=compartmentID)).values_list('compartment_id', 'id')
+    else:
+        reactionComponents = ReactionComponent.objects.filter(query).values_list('compartment_id', 'id').distinct()
+
+    if reactionComponents.count() == 0:
+        return HttpResponse(status=404)
+
+    return JSONResponse(reactionComponents);
+
 
 @api_view()
 def get_gemodel(request, id):
@@ -451,3 +470,4 @@ def parse_readme_file(content):
             d[key_entry[entry]] = value.strip()
 
     return d
+

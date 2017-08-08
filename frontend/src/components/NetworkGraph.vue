@@ -29,9 +29,10 @@
    </div>
    <div v-else>
       <metabolic-network v-if="selectedTab===1"></metabolic-network>
-     <closest-interaction-partners v-if="selectedTab===3" 
+      <reporter-metabolites v-if="selectedTab===2"></reporter-metabolites>
+     <closest-interaction-partners v-if="selectedTab===3"
       @updateSelTab="goToTab"></closest-interaction-partners>
-     <connected-metabolites v-if="selectedTab===4" 
+     <connected-metabolites v-if="selectedTab===4"
       @updateSelTab="goToTab"></connected-metabolites>
      <metabolite v-if="selectedTab===5"></metabolite>
    </div>
@@ -43,6 +44,7 @@
 import axios from 'axios';
 import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';
+import ReporterMetabolites from 'components/ReporterMetabolites';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
 import Metabolite from 'components/Metabolite';
@@ -52,6 +54,7 @@ export default {
   name: 'network-graph',
   components: {
     MetabolicNetwork,
+    ReporterMetabolites,
     ClosestInteractionPartners,
     ConnectedMetabolites,
     Metabolite,
