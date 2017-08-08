@@ -115,61 +115,7 @@
             <div id="cy" ref="cy">
             </div>
           </div>
-          <div id="sidebar" class="column content">
-            <div v-if="selectedElm" class="card">
-              <div v-if="selectedElm.details" class="card">
-                <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-                  <div v-if="selectedElm.details.function">
-                    <p class="label">Function</p>
-                    <p>{{ selectedElm.details.function }}</p>
-                    <br>
-                  </div>
-                  <div v-if="selectedElm.details.catalytic_activity">
-                    <p class="label">Catalytic Activity</p>
-                    {{ selectedElm.details.catalytic_activity }}
-                  </div>
-                  <div v-if="!selectedElm.details.function &&
-                             !selectedElm.details.catalytic_activity">
-                    {{ $t('noInfoAvailable') }}
-                  </div>
-                </div>
-                <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
-                  <div v-if="selectedElm.details.hmdb_description">
-                    <p class="label">Description</p>
-                    <p>{{ selectedElm.details.hmdb_description }}</p>
-                    <br>
-                  </div>
-                  <div v-if="selectedElm.details.mass">
-                    <p class="label">Mass</p>
-                    <p>{{ selectedElm.details.mass }}</p>
-                    <br>
-                  </div>
-                  <div v-if="selectedElm.details.kegg">
-                    <p class="label">Kegg</p>
-                    <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
-                  </div>
-                  <div v-if="!selectedElm.details.hmdb_description &&
-                             !selectedElm.details.mass &&
-                             !selectedElm.details.kegg">
-                    {{ $t('noInfoAvailable') }}
-                  </div>
-                  <div v-else>
-                    <br>
-                    <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <div class="card-content">
-                  {{ $t('noInfoAvailable') }}
-                </div>
-              </div>
-            </div>
-            <br>
-            <a href="/about#closestpartners" target="_blank">
-              {{ $t('moreInformation') }}
-            </a>
-          </div>
+          <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
@@ -199,7 +145,7 @@ import graphml from 'cytoscape-graphml/src/index';
 import viewUtilities from 'cytoscape-view-utilities';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
-// import C2S from 'canvas2svg';
+import Sidebar from 'components/Sidebar';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
@@ -212,6 +158,7 @@ import { default as convertGraphML } from '../helpers/graph-ml-converter';
 export default {
   name: 'closest-interaction-partners',
   components: {
+    Sidebar,
     CytoscapeTable,
     Loader,
     'compact-picker': Compact,
@@ -302,16 +249,6 @@ export default {
     },
   },
   computed: {
-    keggLink() {
-      if (this.selectedElm
-        && this.selectedElm.type === 'metabolite'
-        && this.selectedElm.details
-        && this.selectedElm.details.kegg
-      ) {
-        return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
-      }
-      return '';
-    },
     filename() {
       return `ma_interaction_partners_${this.componentName}`;
     },
@@ -763,9 +700,6 @@ export default {
       this.cy.zoom({
         level: lvl,
       });
-    },
-    viewMetaboliteInfo: function viewMetaboliteInfo() {
-      this.$emit('updateSelTab', 4, this.selectedElmId);
     },
     chemicalFormula,
     chemicalName,
