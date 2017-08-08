@@ -56,6 +56,7 @@ export default {
         this.$t('navBut3Title'),
         this.$t('navBut4Title'),
         this.$t('navBut5Title'),
+        this.$t('navBut6Title'),
       ],
     };
   },
