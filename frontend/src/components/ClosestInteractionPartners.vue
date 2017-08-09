@@ -17,27 +17,6 @@
               <span class="button is-dark" v-on:click="exportPNG">PNG</span>
             </div>
           </div>
-          <div v-show="showNetworkGraph" class="column" v-on:mouseleave="showMenuExpression = false">
-            <div class="has-dropdown">
-              <label class="button is-primary" for="cb"
-              v-on:click="showMenuExpression=!showMenuExpression"
-              >Expression levels</label>
-              <div class="dropdown box" v-show="showMenuExpression">
-                <ul>
-                  <li v-on:click="showMenuExpression=!showMenuExpression; showHPATissues=!showHPATissues"><a>HPA</a></li>
-                </ul>
-              </div>
-            </div>
-            <div v-show="showHPATissues">
-              <select id="t-select" class="select" v-model="selectedTissue"
-              @change.prevent="switchHPAExpression(selectedTissue)">
-                <option value="">None</option>
-                <option v-for="tissue in hpaTissues" :value="tissue">
-                  {{ tissue }}
-                </option>
-              </select>
-            </div>
-          </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
           <span v-show="selectedElmId !==reactionComponentId"
@@ -59,7 +38,7 @@
           <div class="column is-8">
             <div id="graphOption">
               <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
-              v-on:click="toggleGraphLegend">Legend</span>
+              v-on:click="toggleGraphLegend">Options</span>
               <span class="button" v-on:click="zoomGraph(true)">+</span>
               <span class="button" v-on:click="zoomGraph(false)">-</span>
               <span class="button" v-on:click="fitGraph()">fit</span>
@@ -67,62 +46,61 @@
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="toggleGraphLegend"></button>
               <span class="label">Enzyme</span>
-              <br>
-              <span>Shape:</span>
               <div>
-                <select v-model="nodeDisplayParams.enzymeNodeShape" v-on:change="redrawGraph()">
-                  <option>rectangle</option>
-                  <option>roundrectangle</option>
-                  <option>cutrectangle</option>
-                  <option>ellipse</option>
-                  <option>rectangle</option>
-                  <option>triangle</option>
-                  <option>pentagon</option>
-                  <option>hexagon</option>
-                  <option>heptagon</option>
-                  <option>octagon</option>
-                  <option>star</option>
-                  <option>diamond</option>
-                  <option>vee</option>
-                  <option>rhomboid</option>
+                <span>Shape:</span>
+                <select v-model="nodeDisplayParams.enzymeNodeShape" 
+                v-on:change="redrawGraph()">
+                  <option v-for="shape in availableNodeShape">
+                  {{ shape }}
+                  </option>
                 </select>
+                <span>Color:</span>
+                <span class="color-span"
+                  v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
+                  v-on:click="showColorPickerEnz = !showColorPickerEnz">
+                  <compact-picker v-show="showColorPickerEnz"
+                  v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph()"></compact-picker>
+                </span>
               </div>
-              <span>Color:</span>
-              <span class=color-span
-                v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex}"
-                v-on:click="showColorPickerEnz = !showColorPickerEnz">
-                <compact-picker v-show="showColorPickerEnz"
-                v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph()"></compact-picker>
-              </span>
+              <div>
+                <label class="checkbox">
+                  <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchHPAExpression(selectedSample)">
+                  <span>Show expression levels</span>
+                </label>
+                <div>
+                  <select v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
+                  @change.prevent="switchHPAExpression(selectedSample)">
+                    <optgroup label="HPA RNA levels - Tissues">
+                      <option v-for="tissue in hpaTissues" :value="tissue">
+                        {{ tissue }}
+                      </option>
+                    </optgroup>
+                    <optgroup label="HPA RNA levels - Cell-type">
+                      <option v-for="cellType in hpaCellLines" :value="cellType">
+                        {{ cellType }}
+                      </option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
               <hr>
               <span class="label">Metabolite</span>
-              <br>
-              <span>Shape:</span>
               <div>
-                <select v-model="nodeDisplayParams.metaboliteNodeShape" v-on:change="redrawGraph()">
-                  <option>rectangle</option>
-                  <option>roundrectangle</option>
-                  <option>cutrectangle</option>
-                  <option>ellipse</option>
-                  <option>rectangle</option>
-                  <option>triangle</option>
-                  <option>pentagon</option>
-                  <option>hexagon</option>
-                  <option>heptagon</option>
-                  <option>octagon</option>
-                  <option>star</option>
-                  <option>diamond</option>
-                  <option>vee</option>
-                  <option>rhomboid</option>
+                <span>Shape:</span>
+                <select v-model="nodeDisplayParams.metaboliteNodeShape" 
+                v-on:change="redrawGraph()">
+                  <option v-for="shape in availableNodeShape">
+                  {{ shape }}
+                  </option>
                 </select>
+                <span>Color:</span>
+                 <span class="color-span"
+                  v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
+                  v-on:click="showColorPickerMeta = !showColorPickerMeta">
+                  <compact-picker v-show="showColorPickerMeta"
+                  v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph()"></compact-picker>
+                </span>
               </div>
-              <span>Color:</span>
-               <span class=color-span
-                v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
-                v-on:click="showColorPickerMeta = !showColorPickerMeta">
-                <compact-picker v-show="showColorPickerMeta"
-                v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph()"></compact-picker>
-              </span>
             </div>
             <div id="cy" ref="cy">
             </div>
@@ -193,12 +171,13 @@ export default {
       selectedElmId: '',
 
       selectedElm: null,
-      selectedTissue: '',
+      selectedSample: '',
 
       componentName: '',
       expandedIds: [],
 
       hpaTissues: [],
+      hpaCellLines: [],
 
       cy: null,
       tableStructure: [
@@ -211,12 +190,29 @@ export default {
 
       showMenuExport: false,
       showMenuExpression: false,
-      showHPATissues: false,
-      showHPATissueExpression: false,
+      toggleEnzymeExpLevel: false,
+      currentEnzymeExpLvl: false,
       showGraphLegend: false,
       showGraphContextMenu: false,
       showColorPickerEnz: false,
       showColorPickerMeta: false,
+
+      availableNodeShape: [
+        'rectangle',
+        'roundrectangle',
+        'cutrectangle',
+        'ellipse',
+        'rectangle',
+        'triangle',
+        'pentagon',
+        'hexagon',
+        'heptagon',
+        'octagon',
+        'star',
+        'diamond',
+        'vee',
+        'rhomboid',
+      ],
 
       nodeDisplayParams: {
         activeTissue: false,
@@ -363,7 +359,8 @@ export default {
       const xmlDoc = parseXML(xmlContent);
       const genes = xmlDoc.getElementsByTagName('entry');
       const hpaGeneEx = {};
-      const hpaTissues = {};
+      this.hpaTissues = {};
+      this.hpaCellLines = {};
       for (const gene of genes) {
         const genename = gene.getElementsByTagName('name')[0].textContent;
         hpaGeneEx[genename] = [];
@@ -377,7 +374,11 @@ export default {
           for (const sampleEl of samples[i].children) {
             if (sampleEl.tagName === 'level') {
               if (sampleEl.textContent !== 'Not detected') {
-                hpaTissues[sampleName] = 1;
+                if (sampleType === 'cellLine') {
+                  this.hpaCellLines[sampleName] = null;
+                } else if (sampleType === 'tissue') {
+                  this.hpaTissues[sampleName] = null;
+                }
                 replicates.push(Math.log2(sampleEl.getAttribute('tpm')));
               }
             } else {
@@ -398,7 +399,6 @@ export default {
             geneExpression.value = replicates[middle];
           }
           if (geneExpression.value) {
-            console.log(geneExpression.value);
             // simple color scale
             // 100 possible values, from 0 to 5 tmp
             let n = (geneExpression.value * 100) / 5;
@@ -411,11 +411,8 @@ export default {
         }
       }
 
-      // Make available all tissues with values to browser menu
-      for (const tissue of Object.keys(hpaTissues).sort()) {
-        this.hpaTissues.push(tissue);
-      }
-      // TODO make color scale of expression values
+      this.hpaTissues = Object.keys(this.hpaTissues).sort();
+      this.hpaCellLines = Object.keys(this.hpaCellLines).sort();
 
       // Map colors to DOM elements of genes
       const expressionElms = {};
@@ -694,13 +691,17 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    switchHPAExpression: function switchHPAExpression(tissueName) {
-      if (tissueName !== this.showHPATissueExpression) {
-        if (tissueName) {
-          this.showHPATissueExpression = tissueName;
-          this.nodeDisplayParams.activeTissue = tissueName;
+    switchHPAExpression: function switchHPAExpression(sampleName) {
+      if (!this.toggleEnzymeExpLevel) {
+        this.currentEnzymeExpLvl = false;
+        this.nodeDisplayParams.activeTissue = false;
+        this.redrawGraph();
+      } else if (sampleName !== this.currentEnzymeExpLvl) {
+        if (sampleName) {
+          this.currentEnzymeExpLvl = sampleName;
+          this.nodeDisplayParams.activeTissue = sampleName;
         } else {
-          this.showHPATissueExpression = '';
+          this.currentEnzymeExpLvl = '';
           this.nodeDisplayParams.activeTissue = false;
         }
         this.redrawGraph();
@@ -794,31 +795,44 @@ h1, h2 {
   background: white;
   top: 32px;
   left: 0;
-  width: 370px;
+  width: auto;
   height: auto;
   padding: 15px;
   border: 1px solid black;
   border-radius: 2px;
   z-index: 999;
 
-  span, div {
+  span, select, compact-picker {
     display: inline-block;
-    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
   }
+
+  div {
+    margin-left: 20px;
+    display: block;
+  }
+
+  span.label {
+    display: block;
+    margin-left: 0;
+  }
+
   .delete {
     position : absolute;
     right: 10px;
     top: 10px;
   }
-  span.label {
-    margin: 0;
-  }
+
   span.color-span {
     height: 20px;
     width: 25px;
     border: 1px solid black;
     vertical-align: middle;
+    margin-right: 15px;
+    margin-bottom: 5px;
   }
+
   span.color-span:hover {
     cursor: pointer;
   }
