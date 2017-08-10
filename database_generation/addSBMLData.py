@@ -60,7 +60,7 @@ def get_subsystem_from_notes(notes):
     match = re.search(".*<p>SUBSYSTEM: ([A-Za-z].+)</p>.*", notes)
     collections = dict([("Isolated", 1),("Miscellaneous",1),("Pool reactions",1),
         ("isolated",1),("Exchange reactions ",1),("Artificial reactions",1),
-        ("ABC transporters",1)])
+        ("ABC transporters",1),("Other amino acid",1)])
     if match:
         name = match.group(1)
         pathways = []
@@ -74,7 +74,7 @@ def get_subsystem_from_notes(notes):
                 pathway = Subsystem.objects.filter(external_id=eid)
                 if len(pathway)<1:
                     cat = "Pathway"
-                    if( name in collections):
+                    if( s in collections or s.startswith("Transport")):
                         cat = "Collection"
                     pathway = Subsystem(name=s, category=cat, external_id=eid, description="")
                     pathway.save()
@@ -91,6 +91,8 @@ def get_subsystem_from_notes(notes):
                     cat = "Collection"
                 pathway = Subsystem(name=name, category=cat, external_id="", description="")
                 pathway.save()
+                pathways.append(pathway)
+            else:
                 pathways.append(pathway[0])
             return pathways
     else:

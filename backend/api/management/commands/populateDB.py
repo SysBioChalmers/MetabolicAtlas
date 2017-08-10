@@ -99,8 +99,8 @@ def _checkIfFileExists(fName):
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        #populate_human_db()
-        populate_yeast_db()
+        populate_human_db()
+        #populate_yeast_db()
         # until Dimitra have added the annotations to the SBML file...
         pmids_to_add = {}
         with open(baseFolder+"human_reactionsFromExcel.txt", 'r') as f:
@@ -126,4 +126,4 @@ class Command(BaseCommand):
                     #print("No references found for reaction "+reaction_id)
                     #do nothing atm
                     a = 1
-        #ReactionReference.objects.bulk_create(pmids_to_add.values())
+        ReactionReference.objects.bulk_create(pmids_to_add.values())
