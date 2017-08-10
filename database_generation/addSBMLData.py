@@ -58,11 +58,43 @@ def get_short_name_from_notes(notes):
 def get_subsystem_from_notes(notes):
     """Get sub-system name from SBML notes for the reactions."""
     match = re.search(".*<p>SUBSYSTEM: ([A-Za-z].+)</p>.*", notes)
+    collections = dict([("Isolated", 1),("Miscellaneous",1),("Pool reactions",1),
+        ("isolated",1),("Exchange reactions ",1),("Artificial reactions",1),
+        ("ABC transporters",1)])
     if match:
-        return match.group(1)
+        name = match.group(1)
+        pathways = []
+        # if its the HMR model its straightforward, if its yeast not so much as this is not manually curated ATM
+        if name.startswith("sce"):
+            names = name.split(" / ")
+            eid = ""
+            for n in names:
+                eid = n[0:8]
+                s = n[10:]
+                pathway = Subsystem.objects.filter(external_id=eid)
+                if len(pathway)<1:
+                    cat = "Pathway"
+                    if( name in collections):
+                        cat = "Collection"
+                    pathway = Subsystem(name=s, category=cat, external_id=eid, description="")
+                    pathway.save()
+                    pathways.append(pathway)
+                else:
+                    pathways.append(pathway[0])
+            return pathways
+        else:
+            # HMR2.0 model one subsystem per reaction only!
+            pathway = Subsystem.objects.filter(name=name)
+            if len(pathway)<1:
+                cat = "Pathway"
+                if( name in collections or name.startswith("Transport")):
+                    cat = "Collection"
+                pathway = Subsystem(name=name, category=cat, external_id="", description="")
+                pathway.save()
+                pathways.append(pathway[0])
+            return pathways
     else:
-        print("Missing subsystem!")
-        return "NA"
+        return []
 
 class Equation(object):
     def __init__(self, reaction):
@@ -183,7 +215,7 @@ def get_reaction(sbml_model, index):
     reaction_to_add.sbo_id = sbml_reaction.sbo_term_id
     reaction_to_add.equation = get_equation(sbml_reaction)
     reaction_to_add.ec = get_EC_number(sbml_reaction)
-    reaction_to_add.subsystem = get_subsystem_from_notes(sbml_reaction.notes_string)
+    pathways = get_subsystem_from_notes(sbml_reaction.notes_string)
 
     kinetic_law_parameters = get_kinetic_law_parameters(sbml_reaction)
     if kinetic_law_parameters:
@@ -212,6 +244,9 @@ def get_reaction(sbml_model, index):
         reaction_to_add.is_transport = True
 
     reaction_to_add.save() # FIXME would be nicer with a bulk save
+    for p in pathways:
+        rs = ReactionSubsystem(reaction=reaction_to_add, subsystem=p)
+        rs.save()
 
     # populate all the associated tables
     rr_to_add = []
@@ -242,7 +277,7 @@ def get_kinetic_law_parameters(sbml_reaction):
             parameter = kinetic_law.getParameter(i)
             params[parameter.name] = parameter.value
         return params
-    print("Missing <kineticLaw> information for reaction "+str(sbml_reaction))
+    #print("Missing <kineticLaw> information for reaction "+str(sbml_reaction))
     return None
 
 def get_EC_number(sbml_reaction):

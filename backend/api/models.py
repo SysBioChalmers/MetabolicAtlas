@@ -78,7 +78,7 @@ class Reaction(models.Model):
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField(null=True)
-    subsystem = models.CharField(max_length=600)
+    #subsystem = models.CharField(max_length=600)
     compartment = models.CharField(max_length=125)
     is_transport = models.BooleanField(default=False)
 
@@ -200,6 +200,17 @@ class Enzyme(models.Model):
         db_table = "enzymes"
 
 
+class Subsystem(models.Model):
+    name = models.CharField(max_length=100, null=False)
+    category = models.CharField(max_length=25, null=False,
+        choices=[("Pathway","Pathway"),("Collection","Collection")])
+    external_id = models.CharField(max_length=25, null=True)
+    description = models.CharField(max_length=255, null=True)
+
+    class Meta:
+        db_table = "subsystems"
+
+
 # "Meta-information" tables
 class NumberOfInteractionPartners(models.Model):
     reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
@@ -281,3 +292,10 @@ class CurrencyMetabolite(models.Model):
     class Meta:
         db_table = "currency_metabolites"
         unique_together = (('component', 'reaction'),)
+
+class ReactionSubsystem(models.Model):
+    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "reaction_subsystem"
