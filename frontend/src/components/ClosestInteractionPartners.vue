@@ -59,17 +59,17 @@
                   v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
                   v-on:click="showColorPickerEnz = !showColorPickerEnz">
                   <compact-picker v-show="showColorPickerEnz"
-                  v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph()"></compact-picker>
+                  v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph(false, 'enzyme')"></compact-picker>
                 </span>
               </div>
               <div>
                 <label class="checkbox">
-                  <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchHPAExpression(selectedSample)">
+                  <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
                   <span>Show expression levels</span>
                 </label>
                 <div>
-                  <select v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
-                  @change.prevent="switchHPAExpression(selectedSample)">
+                  <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
+                  @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
                     <optgroup label="HPA RNA levels - Tissues">
                       <option v-for="tissue in hpaTissues" :value="tissue">
                         {{ tissue }}
@@ -98,7 +98,7 @@
                   v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
                   v-on:click="showColorPickerMeta = !showColorPickerMeta">
                   <compact-picker v-show="showColorPickerMeta"
-                  v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph()"></compact-picker>
+                  v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph(false, 'metabolite')"></compact-picker>
                 </span>
               </div>
             </div>
@@ -179,6 +179,12 @@ export default {
       hpaTissues: [],
       hpaCellLines: [],
 
+      // keep track of exp lvl source already loaded
+      expSourceLoaded: {
+        enzyme: {},
+        metabolite: {},
+      },
+
       cy: null,
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: null },
@@ -191,7 +197,8 @@ export default {
       showMenuExport: false,
       showMenuExpression: false,
       toggleEnzymeExpLevel: false,
-      currentEnzymeExpLvl: false,
+      toggleMetaboliteExpLevel: false,
+
       showGraphLegend: false,
       showGraphContextMenu: false,
       showColorPickerEnz: false,
@@ -215,7 +222,9 @@ export default {
       ],
 
       nodeDisplayParams: {
-        activeTissue: false,
+        enzymeExpSource: false,
+        enzymeExpType: false,
+        enzymeExpSample: false,
         enzymeNodeShape: 'rectangle',
         enzymeNodeColor: {
           hex: '#C92F63',
@@ -230,6 +239,9 @@ export default {
           },
           a: 1,
         },
+        metaboliteExpSource: false,
+        metaboliteExpType: false,
+        metaboliteExpSample: false,
         metaboliteNodeShape: 'ellipse',
         metaboliteNodeColor: {
           hex: '#259F64',
@@ -315,7 +327,7 @@ export default {
 
           [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
           this.selectedElm = this.rawElms[component.id];
-          this.rawElms = this.loadHPAData(this.rawElms);
+          // this.rawElms = this.loadHPAData(this.rawElms);
           this.expandedIds = [];
           this.expandedIds.push(component.id);
 
@@ -335,6 +347,7 @@ export default {
         })
         .catch((error) => {
           this.loading = false;
+          console.log(error);
           switch (error.response.status) {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
@@ -363,6 +376,7 @@ export default {
       this.hpaTissues = {};
       this.hpaCellLines = {};
       for (const gene of genes) {
+        console.log(`gene JSON.stringyfy(${gene})`);
         const genename = gene.getElementsByTagName('name')[0].textContent;
         hpaGeneEx[genename] = [];
         const samples = gene.getElementsByTagName('rnaExpression')[0].getElementsByTagName('data');
@@ -380,7 +394,7 @@ export default {
                 } else if (sampleType === 'tissue') {
                   this.hpaTissues[sampleName] = null;
                 }
-                replicates.push(Math.log2(sampleEl.getAttribute('tpm')));
+                replicates.push(Math.log2(sampleEl.getAttribute('tpm') + 1));
               }
             } else {
               sampleName = sampleEl.textContent;
@@ -394,19 +408,24 @@ export default {
           const geneExpression = { name: sampleName, type: sampleType };
           if (!replicates.length) {
             geneExpression.value = null;
+            geneExpression.color = 'whitesmoke';
           } else if (replicates.length % 2 === 0) {
             geneExpression.value = (replicates[middle] + replicates[middle - 1]) / 2;
           } else {
             geneExpression.value = replicates[middle];
           }
           if (geneExpression.value) {
-            // simple color scale
-            // 100 possible values, from 0 to 5 tmp
-            let n = (geneExpression.value * 100) / 5;
-            n = n > 100 ? 100 : n;
-            const r = (255 * n) / 100;
-            const g = (255 * (100 - n)) / 100;
-            geneExpression.color = `rgb(${r},${g},0)`;
+            if (geneExpression.value <= 1) {
+              geneExpression.color = 'lightgray';
+            } else if (geneExpression.value <= 4) {
+              geneExpression.color = 'lightyellow';
+            } else if (geneExpression.value <= 5.5) {
+              geneExpression.color = 'orange';
+            } else if (geneExpression.value <= 6.6) {
+              geneExpression.color = 'red';
+            } else {
+              geneExpression.color = 'darkred';
+            }
           }
           hpaGeneEx[genename].push(geneExpression);
         }
@@ -415,19 +434,27 @@ export default {
       this.hpaTissues = Object.keys(this.hpaTissues).sort();
       this.hpaCellLines = Object.keys(this.hpaCellLines).sort();
 
-      // Map colors to DOM elements of genes
-      const expressionElms = {};
-      for (const elid of Object.keys(rawElms)) {
-        expressionElms[elid] = rawElms[elid];
-        expressionElms[elid].tissue_expression = {};
+      const rawElms2 = rawElms;
+
+      for (const elid of Object.keys(rawElms2)) {
+        // expressionElms[elid] = rawElms[elid];
+        if (!rawElms2[elid].expressionLvl) {
+          rawElms2[elid].expressionLvl = {};
+        }
+        if (!rawElms2[elid].expressionLvl.HPA) {
+          rawElms2[elid].expressionLvl.HPA = {};
+        }
+        rawElms2[elid].expressionLvl.HPA.RNA = {};
+        const HPARNAexp = rawElms2[elid].expressionLvl.HPA.RNA;
         if (hpaGeneEx[rawElms[elid].short]) {
           for (const tissue of hpaGeneEx[rawElms[elid].short]) {
-            expressionElms[elid].tissue_expression[tissue.name] =
-            tissue.value ? tissue.color : null;
+            HPARNAexp[tissue.name] = tissue.color;
           }
         }
       }
-      return expressionElms;
+      console.log('|||||');
+      console.log(rawElms2);
+      return rawElms2;
     },
     loadExpansion() {
       axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
@@ -441,7 +468,7 @@ export default {
 
           Object.assign(this.rawElms, newElms);
           Object.assign(this.rawRels, newRels);
-          this.rawElms = this.loadHPAData(this.rawElms);
+          // this.rawElms = this.loadHPAData(this.rawElms);
 
           this.expandedIds.push(component.id);
 
@@ -504,8 +531,15 @@ export default {
       this.showColorPickerEnz = false;
       this.showColorPickerMeta = false;
     },
-    redrawGraph() {
-      const stylesheet = graph(this.elms, this.rels, this.nodeDisplayParams)[1];
+    redrawGraph(usingExpressionLevel, nodeType) {
+      if (!usingExpressionLevel) {
+        if ((nodeType === 'enzyme' && this.toggleEnzymeExpLevel) ||
+          (nodeType === 'metabolite' && this.toggleMetaboliteExpLevel)) {
+          return;
+        }
+      }
+      const stylesheet = graph(this.rawElms, this.rawRels, this.nodeDisplayParams)[1];
+      console.log(`stylesheet ${stylesheet}`);
       const cyzoom = this.cy.zoom();
       const cypan = this.cy.pan();
       this.cy.style(stylesheet);
@@ -513,6 +547,10 @@ export default {
         zoom: cyzoom,
         pan: cypan,
       });
+    },
+    refreshGraph() {
+      // this.cy.elements().remove();
+      // this.cy.add(this.rawElms);
     },
     fitGraph() {
       setTimeout(() => {
@@ -692,20 +730,76 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    switchHPAExpression: function switchHPAExpression(sampleName) {
-      if (!this.toggleEnzymeExpLevel) {
-        this.currentEnzymeExpLvl = false;
-        this.nodeDisplayParams.activeTissue = false;
-        this.redrawGraph();
-      } else if (sampleName !== this.currentEnzymeExpLvl) {
-        if (sampleName) {
-          this.currentEnzymeExpLvl = sampleName;
-          this.nodeDisplayParams.activeTissue = sampleName;
-        } else {
-          this.currentEnzymeExpLvl = '';
-          this.nodeDisplayParams.activeTissue = false;
+    fixSelectOption() {
+      const option = document.getElementById('enz-select')
+      .getElementsByTagName('optgroup')[0].childNodes[0];
+      console.log(option);
+      option.selected = 'selected';
+      this.nodeDisplayParams.enzymeExpSample = option.label;
+    },
+    switchToExpressionLevel: function switchToExpressionLevel(
+      componentType, expSource, expType, expSample) {
+      // console.log(expSource);
+      // console.log(expType);
+      // console.log(expSample);
+      let redraw = false;
+      if (componentType === 'enzyme') {
+        if (this.toggleEnzymeExpLevel) {
+          if (this.nodeDisplayParams.enzymeExpSource !== expSource) {
+            this.nodeDisplayParams.enzymeExpSource = expSource;
+            this.nodeDisplayParams.enzymeExpType = expType;
+            // check if this source for ths type of component have been already loaded
+            if (!Object.keys(this.expSourceLoaded[componentType]).length === 0 ||
+              !this.expSourceLoaded[componentType][expSource]) {
+              // sources that load all exp type
+              if (expSource === 'HPA') {
+                this.rawElms = this.loadHPAData(this.rawElms);
+                this.expSourceLoaded[componentType].HPA = {};
+                this.expSourceLoaded[componentType].HPA.RNA = true;
+              } else {
+                // load expression data from another source here
+                console.log(expSample);
+              }
+              redraw = true;
+            } else {
+              redraw = true;
+            }
+          } else if (this.nodeDisplayParams.enzymeExpType !== expType) {
+            this.nodeDisplayParams.enzymeExpType = expType;
+            if (!this.expSourceLoaded.componentType.expSource.expType) {
+              // sources that load only one specific exp type
+              redraw = true;
+            }
+          } else if (this.nodeDisplayParams.enzymeExpSample !== expSample) {
+            redraw = true;
+          }
+          this.nodeDisplayParams.enzymeExpSample = expSample;
+        } else if (this.nodeDisplayParams.enzymeExpSource) {
+          this.nodeDisplayParams.enzymeExpSource = false;
+          this.nodeDisplayParams.enzymeExpType = false;
+          this.nodeDisplayParams.enzymeExpSample = false;
+          redraw = true;
         }
-        this.redrawGraph();
+      } else if (this.toggleMetaboliteExpLevel) {
+        console.log(expSample);
+      } else if (componentType === 'enzyme') {
+        this.nodeDisplayParams.enzymeExpSource = false;
+        this.nodeDisplayParams.enzymeExpType = false;
+        this.nodeDisplayParams.enzymeExpSample = false;
+      } else {
+        this.nodeDisplayParams.metaboliteExpSource = false;
+        this.nodeDisplayParams.metaboliteExpType = false;
+        this.nodeDisplayParams.metaboliteExpSample = false;
+      }
+      if (redraw) {
+        console.log('redraw');
+        setTimeout(() => {
+          if (!expSample) {
+            // fix option selection
+            this.fixSelectOption();
+          }
+          this.redrawGraph(true);
+        }, 0);
       }
     },
     zoomGraph: function zoomGraph(zoomIn) {
@@ -841,6 +935,10 @@ h1, h2 {
 
 #t-select {
   margin-top: 0.75rem;
+}
+
+#enz-select {
+  min-width: 240px;
 }
 
 </style>

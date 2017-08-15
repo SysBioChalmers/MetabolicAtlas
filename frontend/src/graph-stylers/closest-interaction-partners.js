@@ -2,22 +2,55 @@ import cytoscape from 'cytoscape';
 
 export default function (elms, rels, nodeDisplayParams) {
   const elmsjson = [];
-  const tissue = nodeDisplayParams.activeTissue;
+  const enzExpSource = nodeDisplayParams.enzymeExpSource;
+  const enzExpType = nodeDisplayParams.enzymeExpType;
+  let enzSample = nodeDisplayParams.enzymeExpSample;
 
+  // console.log(enzExpSource);
+  // nconsole.log(enzExpType);
+  // console.log(enzSample);
+  // console.log(nodeDisplayParams.enzymeNodeColor.hex);
+
+  // console.log(elms);
   for (const id of Object.keys(elms)) {
     const elm = elms[id];
-    elm.tissue_expression.false = nodeDisplayParams.enzymeNodeColor.hex;
-    elmsjson.push({
-      group: 'nodes',
-      data: {
-        id: elm.id,
-        name: elm.short,
-        expression_color: elm.tissue_expression,
-        hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
-        type: elm.type,
-        details: elm.details,
-      },
-    });
+
+    if (elm.type === 'enzyme') {
+      let hpaLink = `http://www.proteinatlas.org/${elm.long}/`;
+      if (enzExpSource && elm.expressionLvl) {
+        if (nodeDisplayParams.enzymeExpSource === 'HPA') {
+          hpaLink = `http://www.proteinatlas.org/${elm.long}/nodeDisplayParams.enzymeExpSample#top`;
+        }
+      } else if (!elm.expressionLvl) {
+        elm.expressionLvl = {};
+        elm.expressionLvl.false = {};
+        elm.expressionLvl.false.false = {};
+        elm.expressionLvl.false.false.false = nodeDisplayParams.enzymeNodeColor.hex;
+      } else {
+        elm.expressionLvl.false.false.false = nodeDisplayParams.enzymeNodeColor.hex;
+      }
+      elmsjson.push({
+        group: 'nodes',
+        data: {
+          id: elm.id,
+          name: elm.short,
+          color: elm.expressionLvl,
+          hpaLink, // TODO: move into config
+          type: elm.type,
+          details: elm.details,
+        },
+      });
+    } else {
+      elmsjson.push({
+        group: 'nodes',
+        data: {
+          id: elm.id,
+          name: elm.short,
+          type: elm.type,
+          details: elm.details,
+        },
+      });
+    }
   }
 
   for (const id of Object.keys(rels)) {
@@ -56,13 +89,15 @@ export default function (elms, rels, nodeDisplayParams) {
     })
     .selector('node[type="enzyme"]')
     .css({
-      // shape: 'rectangle',
       shape: nodeDisplayParams.enzymeNodeShape,
       'background-color': function f(ele) {
-        if (ele.data('expression_color')[tissue]) {
-          return ele.data('expression_color')[tissue];
+        if (ele.data('color')) {
+          if (!enzSample) {
+            enzSample = false;
+          }
+          return ele.data('color')[enzExpSource][enzExpType][enzSample];
         }
-        return 'grey';
+        return 'whitesmoke';
       },
       width: 20,
       height: 20,
