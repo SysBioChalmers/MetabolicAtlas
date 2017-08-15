@@ -359,6 +359,7 @@ export default {
 
           [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
           this.selectedElm = this.rawElms[component.id];
+          // this.rawElms = this.loadHPAData(this.rawElms);
           this.selectedElm.name = this.componentName;
 
           this.expandedIds = [];
@@ -409,6 +410,7 @@ export default {
       this.hpaTissues = {};
       this.hpaCellLines = {};
       for (const gene of genes) {
+        console.log(`gene JSON.stringyfy(${gene})`);
         const genename = gene.getElementsByTagName('name')[0].textContent;
         hpaGeneEx[genename] = [];
         const samples = gene.getElementsByTagName('rnaExpression')[0].getElementsByTagName('data');
@@ -576,6 +578,10 @@ export default {
         zoom: cyzoom,
         pan: cypan,
       });
+    },
+    refreshGraph() {
+      // this.cy.elements().remove();
+      // this.cy.add(this.rawElms);
     },
     fitGraph() {
       setTimeout(() => {
