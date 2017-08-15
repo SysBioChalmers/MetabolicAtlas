@@ -282,8 +282,7 @@ class Enzyme(models.Model):
 
 class Subsystem(models.Model):
     name = models.CharField(max_length=100, null=False)
-    category = models.CharField(max_length=25, null=False,
-        choices=[("Pathway","Pathway"),("Collection","Collection")])
+    system = models.CharField(max_length=100, null=False)
     external_id = models.CharField(max_length=25, null=True)
     description = models.CharField(max_length=255, null=True)
 
@@ -378,3 +377,4 @@ class ReactionSubsystem(models.Model):
 
     class Meta:
         db_table = "reaction_subsystem"
+        unique_together = (('reaction', 'subsystem'),)
