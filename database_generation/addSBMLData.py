@@ -58,9 +58,8 @@ def get_short_name_from_notes(notes):
 def get_subsystem_from_notes(notes):
     """Get sub-system name from SBML notes for the reactions."""
     match = re.search(".*<p>SUBSYSTEM: ([A-Za-z].+)</p>.*", notes)
-    collections = dict([("Isolated", 1),("Miscellaneous",1),("Pool reactions",1),
-        ("isolated",1),("Exchange reactions ",1),("Artificial reactions",1),
-        ("ABC transporters",1),("Other amino acid",1)])
+
+
     if match:
         name = match.group(1)
         pathways = []
@@ -73,12 +72,7 @@ def get_subsystem_from_notes(notes):
                 s = n[10:]
                 pathway = Subsystem.objects.filter(external_id=eid)
                 if len(pathway)<1:
-                    cat = "Pathway"
-                    if( s in collections or s.startswith("Transport")):
-                        cat = "Collection"
-                    pathway = Subsystem(name=s, category=cat, external_id=eid, description="")
-                    pathway.save()
-                    pathways.append(pathway)
+                    pathways.append(_addPathway(s, eid))
                 else:
                     pathways.append(pathway[0])
             return pathways
@@ -86,17 +80,47 @@ def get_subsystem_from_notes(notes):
             # HMR2.0 model one subsystem per reaction only!
             pathway = Subsystem.objects.filter(name=name)
             if len(pathway)<1:
-                cat = "Pathway"
-                if( name in collections or name.startswith("Transport")):
-                    cat = "Collection"
-                pathway = Subsystem(name=name, category=cat, external_id="", description="")
-                pathway.save()
-                pathways.append(pathway)
+                pathways.append(_addPathway(name, ""))
             else:
                 pathways.append(pathway[0])
             return pathways
     else:
         return []
+
+def _addPathway(name, eid):
+    sys = "Other"
+    # assume that its a pathway UNLESS the name matches one of the below, or starts with 'Transport'
+    # because then I will consider it a 'collection of reactions' rather than a pathway
+    collections = dict([("Isolated", 1),("Miscellaneous",1),("Pool reactions",1),
+        ("isolated",1),("Exchange reactions ",1),("Artificial reactions",1),
+        ("ABC transporters",1),("Other amino acid",1)])
+    aa=dict([("Purine metabolism",1),("Pyrimidine metabolism",1),("Alanine, aspartate and glutamate metabolism",1),
+        ("Arginine and proline metabolism",1),("Glycine, serine and threonine metabolism",1),
+        ("Lysine metabolism",1),("Tyrosine metabolism",1),("Valine, leucine, and isoleucine metabolism",1),
+        ("Cysteine and methionine metabolism",1),("Thiamine metabolism",1),
+        ("Tryptophan metabolism",1),("Histidine metabolism",1)]);
+    vitamins=dict([("Folate metabolism",1),("Biotin metabolism",1),("Retinol metabolism",1),
+        ("Riboflavin metabolism",1)])
+    if( name.startswith("Fatty acid") or name.startswith("Beta oxidation")):
+        sys = "Fatty acid"
+    elif( name in aa):
+        sys = "Amino Acid metabolism"
+    elif( name in vitamins or name.startswith("Vitamin") ):
+        sys = "Vitamin metabolism"
+    elif( name.startswith("Glycosphingolipid") ):
+        sys = "Glycosphingolipid biosynthesis/metabolism"
+    elif( name.startswith("Carnitine shuttle") ):
+        sys = "Carnitine shuttle"
+    elif( name.startswith("Cholesterol biosynthesis") ):
+        sys = "Cholesterol biosynthesis"
+    elif( "metabolism" in name ):
+        sys = "Other metabolism"
+    elif( name in collections or name.startswith("Transport")):
+        sys = "Collection of reactions"
+    pathway = Subsystem(name=name, system=sys, external_id=eid, description="")
+    pathway.save()
+    return(pathway)
+
 
 class Equation(object):
     def __init__(self, reaction):

@@ -202,8 +202,7 @@ class Enzyme(models.Model):
 
 class Subsystem(models.Model):
     name = models.CharField(max_length=100, null=False)
-    category = models.CharField(max_length=25, null=False,
-        choices=[("Pathway","Pathway"),("Collection","Collection")])
+    system = models.CharField(max_length=100, null=False)
     external_id = models.CharField(max_length=25, null=True)
     description = models.CharField(max_length=255, null=True)
 
@@ -230,7 +229,7 @@ class MetaboliteReaction(object):
     def __init__(self, reaction, role):
         self.reaction_id = reaction.id
         self.enzyme_role = role
-        self.reaction_subsystem = reaction.subsystem
+        self.reaction_subsystem = "NEED TO ADD SOMETHING HERE"
         self.reactants = reaction.reactants.filter(component_type='metabolite')
         self.products = reaction.products.filter(component_type='metabolite')
         self.modifiers = reaction.modifiers.filter(component_type='metabolite')
@@ -299,3 +298,4 @@ class ReactionSubsystem(models.Model):
 
     class Meta:
         db_table = "reaction_subsystem"
+        unique_together = (('reaction', 'subsystem'),)
