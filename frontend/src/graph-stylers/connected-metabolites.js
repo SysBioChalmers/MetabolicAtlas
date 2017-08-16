@@ -51,6 +51,7 @@ export default function (elms, rels) {
         group: 'nodes',
         data: {
           id: elm.id,
+          name: elm.short,
           parent: elm.parentid,
           reactionid: elm.reactionid,
           type: elm.type,
