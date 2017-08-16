@@ -20,60 +20,57 @@
         </ul>
       </div>
       <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
-        Metabolite results
-        <div class="columns">
-          <div class="column">
-            <table class="table main">
-              <thead>
-                <tr>
-                  <th>Organism</th>
-                  <th>Model</th>
-                  <th>Pathway</th>
-                  <th>Compartment</th>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Formula</th>
-                  <th>HMDB ID</th>
-                  <th>Link</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in searchResultsOrdered" v-if="resultsCount['metabolite'] !== 0 && item.component_type === 'metabolite'">
-                  <td>{{ item.organism | capitalize }}</td>
-                  <td>the model</td>
-                  <td>the pathway</td>
-                  <td>{{ item.compartment | capitalize }}</td>
-                  <td>{{ item.id.slice(2) }}</td>
-                  <td>{{ item.short_name }}</td>
-                  <td v-html="formulaFormater(item.formula)"></td>
-                  <td>{{ item.metabolite ? item.metabolite.hmdb : '' }}</td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="button" 
+        v-on:click="toggleFilter('metabolite')" 
+        :disabled="disabledFilters['metabolite']"
+        :class="{'is-active': toggleFilters['metabolite'], 'is-primary': Object.keys(activeFilters['metabolite']).length !== 0}"
+        >Filters</div>
+        <div class="box columns" v-show="toggleFilters['metabolite']">
+          <div class="column" v-for="(types, key) in filters['metabolite']">
+            {{ key | capitalize }}
+            <select :disabled="types.length === 1"
+            @change="doFilterResults('metabolite', key, $event)">
+              <option v-for="el in types">
+                {{ el }}
+              </option>
+            </select>
           </div>
         </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
+              <th>ID</th><th>Name</th><th>Formula</th><th>HMDB ID</th><th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in searchResultsSplittedFiltered['metabolite']">
+              <td>{{ item.organism | capitalize }}</td>
+              <td>the model</td>
+              <td>the pathway</td>
+              <td>{{ item.compartment | capitalize }}</td>
+              <td>{{ item.id.slice(2) }}</td>
+              <td>{{ item.short_name }}</td>
+              <td v-html="formulaFormater(item.formula)"></td>
+              <td>{{ item.metabolite ? item.metabolite.hmdb : '' }}</td>
+              <td>link</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
         Enzyme results
         <div class="columns">
           <div class="column">
-            <table class="table main">
+            <table class="table">
               <thead>
                 <tr>
-                  <th>Organism</th>
-                  <th>Model</th>
-                  <th>Pathway</th>
-                  <th>Compartment</th>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Formula</th>
-                  <th>Uniprot ID</th>
-                  <th>Link</th>
+                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th><th>ID</th>
+                  <th>Name</th><th>Formula</th><th>Uniprot ID</th><th>Link</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in searchResultsOrdered" v-if="resultsCount['enzyme'] !== 0 && item.component_type === 'enzyme'">
+                <tr v-for="item in searchResultsSplitted['enzyme']">
                   <td>{{ item.organism | capitalize }}</td>
                   <td>the model</td>
                   <td>the pathway</td>
@@ -82,7 +79,7 @@
                   <td>{{ item.short_name }}</td>
                   <td v-html="formulaFormater(item.formula)"></td>
                   <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
-                  <td></td>
+                  <td>link</td>
                 </tr>
               </tbody>
             </table>
@@ -91,96 +88,80 @@
       </div>
       <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
         Reaction results
+        <div class="columns">
+          <div class="column">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
+                  <th>ID</th><th>Equation</th><th>Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in searchResultsSplitted['reaction']">
+                  <td>{{ item.organism | capitalize }}</td>
+                  <td>the model</td>
+                  <td>the pathway</td>
+                  <td>{{ item.compartment | capitalize }}</td>
+                  <td>{{ item.id }}</td>
+                  <td>{{ item.equation }}</td>
+                  <td>link</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div v-show="showTab('pathway') && resultsCount['pathway'] !== 0">
+      <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
         Pathway results
+        <div class="columns">
+          <div class="column">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Organism</th><th>Model</th><th>Pathway</th><th>Compartment</th>
+                  <th>Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in searchResultsSplitted['subsystem']">
+                  <td>{{ item.organism | capitalize }}</td>
+                  <td>the model</td>
+                  <td>the subsystem</td>
+                  <td>{{ item.compartment | capitalize }}</td>
+                  <td>link</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
         Compartement results
+        <div class="columns">
+          <div class="column">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Organism</th><th>Model</th><th>Compartment</th><th>Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in searchResultsSplitted['compartment']">
+                  <td>{{ item.organism | capitalize }}</td>
+                  <td>the model</td>
+                  <td>{{ item.compartment | capitalize }}</td>
+                  <td>link</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       </div>
       <div v-show="!showTabType">
         <div v-if="searchResults.length === 0" class="column is-8 is-offset-2 has-text-centered">
           {{ $t('searchNoResult') }}
-        </div>
-      </div>
-    </div>
-    <br>
-    <hr>
-    <br>
-    <div>
-      <div>
-        <div v-if="searchResults.length === 0" class="columns">
-          <div class="column is-8 is-offset-2 has-text-centered">
-            {{ $t('searchNoResult') }}
-          </div>
-        </div>
-        <div v-else>
-          Results: {{ searchResults.length }}
-          <section class="res-section metabolite-div columns is-multiline" v-for="item in searchResultsOrdered" v-if="item.component_type === 'metabolite'">
-            <div class="res-title column is-12">{{ item.component_type | capitalize }}</div>
-            <div class="res-label column is-1">ID/name:</div>
-            <div class="column is-8">{{ item.id.slice(2) }} - {{ item.short_name }} - <span v-html="formulaFormater(item.formula)"></span></div>
-            <div class="res-label column is-1">HMDB ACC:</div>
-            <div class="column is-2"> {{ item.metabolite ? item.metabolite.hmdb : '' }}</div>
-            <div class="res-label column is-1">Model:</div>
-            <div class="column is-5">'the model' ({{ item.organism | capitalize }})</div>
-            <div class="res-label column is-1">Localization:</div>
-            <div class="column is-5"> {{ item.compartment | capitalize }} | 'the pathway name'</div>
-            <div class="res-label column is-1">Description:</div>
-            <div class="column is-11"> 'the description' </div>
-          </section>
-          <section class="res-section enzyme-div columns is-multiline" v-else-if="item.component_type === 'enzyme'">
-            <div class="res-title column is-12">{{ item.component_type | capitalize }}</div>
-            <div class="res-label column is-1">ID/name:</div>
-            <div class="column is-8">{{ item.id.slice(2) }} - {{ item.short_name }}</div>
-            <div class="res-label column is-1">UNIPROT ACC:</div>
-            <div class="column is-2"> {{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</div>
-            <div class="res-label column is-1">Model:</div>
-            <div class="column is-5">'the model' ({{ item.organism | capitalize }})</div>
-            <div class="res-label column is-1">Localization:</div>
-            <div class="column is-5"> {{ item.compartment | capitalize }} | 'the pathway name'</div>
-            <div class="res-label column is-1">Description:</div>
-            <div class="column is-11"> 'the description' </div>
-          </section>
-          <section class="res-section reaction-div columns is-multiline">
-            <div class="res-title column is-12">Reaction</div>
-              <div class="res-label column is-1">ID/name:</div>
-              <div class="column is-8">R_HMR_0001 - 'reaction name'</div>
-              <div class="res-label column is-1">ACC:</div>
-              <div class="column is-2"> SBO:0000176 - EC:3.1.1.23</div>
-              <div class="res-label column is-1">Model:</div>
-              <div class="column is-5">'the model' (Human)</div>
-              <div class="res-label column is-1">Localization:</div>
-              <div class="column is-5"> 'the compartment' | 'the pathway name (subsytem)'</div>
-              <div class="res-label column is-1">Equation:</div>
-              <div class="column is-11">1-acylglycerol-chylomicron pool[s] => 1-acylglycerol-chylomicron pool[c]</div>
-              <div class="res-label column is-1">Description:</div>
-              <div class="column is-11">'the description'</div>
-          </section>
-          <section class="res-section pathway-div columns is-multiline">
-            <div class="res-title column is-12">Pathway</div>
-              <div class="res-label column is-1">ID/name:</div>
-              <div class="column is-8">P-00125 - 'pathway name'</div>
-              <div class="res-label column is-1">KEGG ACC:</div>
-              <div class="column is-2">XXXXX</div>
-              <div class="res-label column is-1">Model:</div>
-              <div class="column is-5">'the model' (Human)</div>
-              <div class="res-label column is-1">Localization:</div>
-              <div class="column is-5"> 'the compartment'</div>
-              <div class="res-label column is-1">Description:</div>
-              <div class="column is-11">'the description'</div>
-          </section>
-          <section class="res-section compartment-div columns is-multiline">
-            <div class="res-title column is-12">Compartment</div>
-              <div class="res-label column is-1">ID/name:</div>
-              <div class="column is-8">R_HMR_0001 - 'pathway name'</div>
-              <div class="res-label column is-1">ACC:</div>
-              <div class="column is-2">XXXXX</div>
-              <div class="res-label column is-1">Model:</div>
-              <div class="column is-11">'the model' (Human)</div>
-              <div class="res-label column is-1">Description:</div>
-              <div class="column is-11">'the description'</div>
-          </section>
         </div>
       </div>
     </div>
@@ -199,19 +180,49 @@ export default {
   },
   data() {
     return {
+      selectedFilter: '',
+      toggleFilters: {
+        metabolite: false,
+      },
+      activeFilters: {},
+      disabledFilters: {},
+
       tabs: [
         'metabolite',
         'enzyme',
         'reaction',
-        'pathway',
+        'subsystem',
         'compartment',
       ],
-      resultsCount: {
-        metabolite: 0,
-        enzyme: 0,
-        reaction: 0,
-        pathway: 0,
-        compartment: 0,
+      resultsCount: {},
+      filters: {
+        metabolite: {
+          organism: {},
+          model: {},
+          compartment: {},
+          subsystem: {},
+        },
+        enzyme: {
+          organism: {},
+          model: {},
+          compartment: {},
+          subsystem: {},
+        },
+        reaction: {
+          organism: {},
+          model: {},
+          compartment: {},
+          subsystem: {},
+        },
+        subsystem: {
+          organism: {},
+          model: {},
+          compartment: {},
+        },
+        compartment: {
+          organism: {},
+          model: {},
+        },
       },
       searchTerm: 'metabolite',
       searchResults: [],
@@ -220,9 +231,28 @@ export default {
   },
   computed: {
     searchResultsOrdered() {
-      let res = this.searchResults;
+      // copy to avoid to mutate the origin array (watched)
+      let res = Array.prototype.slice.call(this.searchResults);
       res = res.sort(compare('component_type', 'asc'));
       return res;
+    },
+    searchResultsSplitted() {
+      return this.searchResultsOrdered.reduce((subarray, el) => {
+        const arr = subarray;
+        if (!arr[el.component_type]) { arr[el.component_type] = []; }
+        arr[el.component_type].push(el);
+        return arr;
+      }, {});
+    },
+    searchResultsSplittedFiltered() {
+      const arr = JSON.parse(JSON.stringify(this.searchResultsSplitted));
+      for (const key of Object.keys(this.activeFilters)) {
+        for (const compo of Object.keys(this.activeFilters[key])) {
+          const val = this.activeFilters[key][compo];
+          arr[key] = arr[key].filter(el => el[compo].toLowerCase() === val.toLowerCase());
+        }
+      }
+      return arr;
     },
   },
   filters: {
@@ -237,14 +267,15 @@ export default {
     formulaFormater(s) {
       return chemicalFormula(s);
     },
-    updateResults(term, val) {
-      this.searchTerm = term;
-      this.searchResults = val;
-
-      // count types
-      console.log('====');
-      console.log(this.searchResults);
-      for (const key of Object.keys(this.resultsCount)) {
+    toggleFilter(type) {
+      if (this.disabledFilters[type]) {
+        this.toggleFilters[type] = false;
+        return;
+      }
+      this.toggleFilters[type] = !this.toggleFilters[type];
+    },
+    countResults() {
+      for (const key of this.tabs) {
         this.resultsCount[key] = 0;
       }
       for (const el of this.searchResults) {
@@ -254,7 +285,54 @@ export default {
           this.resultsCount.metabolite += 1;
         }
       }
-      // set up the active tab
+    },
+    fillFilterFields() {
+      // get the otion values of the <select> in the filter panels
+      // reset filter
+      for (const type of Object.keys(this.filters)) {
+        for (const field of Object.keys(this.filters[type])) {
+          this.filters[type][field] = {};
+        }
+      }
+
+      // store choice only once in a dict
+      for (const el of this.searchResults) {
+        const componentType = el.component_type;
+        for (const field of Object.keys(this.filters[componentType])) {
+          this.filters[componentType][field][el[field]] = 1;
+        }
+      }
+
+      // convert dict in array ad add 'None' if more than one choice
+      for (const kType of Object.keys(this.filters)) {
+        let validFilter = false;
+        const fields = this.filters[kType];
+        for (const kComp of Object.keys(fields)) {
+          // console.log(`kComp ${kComp}`);
+          const values = fields[kComp];
+          if (Object.keys(values).length === 1) {
+            this.filters[kType][kComp] = Object.keys(values);
+          } else {
+            this.filters[kType][kComp] = ['None'].concat(Object.keys(values).sort());
+            validFilter = true;
+          }
+        }
+        if (!validFilter) {
+          // of all filter contains only one choice
+          // desactivate the filter panel
+          this.disabledFilters[kType] = true;
+          this.toggleFilters[kType] = false;
+        }
+      }
+    },
+    updateResults(term, val) {
+      this.searchTerm = term;
+      this.searchResults = val;
+      // count types
+      this.countResults();
+      // get filters
+      this.fillFilterFields();
+      // select the active tab
       for (const key of Object.keys(this.resultsCount)) {
         if (this.resultsCount[key] !== 0) {
           this.showTabType = key;
@@ -263,9 +341,31 @@ export default {
       }
       this.showTabType = '';
     },
+    doFilterResults(type, compo, event) {
+      const select = event.srcElement;
+      const value = select.options[select.selectedIndex].innerHTML.trim().toLowerCase();
+
+      // copy the dict of filter to trigger the change
+      const test = JSON.parse(JSON.stringify(this.activeFilters));
+      if (value === 'none') {
+        delete test[type][compo];
+      } else {
+        test[type][compo] = value;
+      }
+      // trigger changes in the computed property 'searchResultsSplittedFiltered'
+      this.activeFilters = test;
+    },
     showTab(elementType) {
       return this.showTabType === elementType;
     },
+  },
+  created() {
+    // init filter booleans
+    for (const tabname of this.tabs) {
+      this.toggleFilters[tabname] = false;
+      this.activeFilters[tabname] = {};
+      this.disabledFilters[tabname] = false;
+    }
   },
   beforeMount() {
     this.searchTerm = this.$route.query.term;
@@ -291,15 +391,6 @@ export default {
   color: #33cc33;
 }
 
-table.main
-
-table td.lab {
-  font-weight: 600;
-  background: lightgray;
-  width: 150px;
-  border: 1px solid gray;
-}
-
 .tabs li.is-disabled {
   cursor: not-allowed;
   color: gray;
@@ -308,49 +399,6 @@ table td.lab {
   a {
     cursor: not-allowed;
   }
-}
-
-
-.res-section {
-
-  display: table;
-  border-collapse:collapse;
-
-  div {
-    border: 1px solid black;
-    display:table-row;
-  }
-
-  div.res-title {
-    font-weight: 600;
-    font-size: 16px;
-    padding: 0 0.75rem;
-    background: rgba(0, 0, 0,0.1 );
-  }
-
-  div.res-label {
-    text-decoration: underline;
-  }
-}
-
-.metabolite-div {
-  background: rgba(102, 255, 102, 0.1);
-}
-
-.enzyme-div {
-  background: rgba(255, 0, 0, 0.1);
-}
-
-.reaction-div {
-  background: rgba(255, 153, 0, 0.1);
-}
-
-.pathway-div {
-  background: rgba(128, 0, 128, 0.1);
-}
-
-.compartment-div {
-  background: rgba(0, 0, 255, 0.1);
 }
 
 </style>
