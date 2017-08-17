@@ -73,22 +73,6 @@ class GEModel(models.Model):
         db_table = "gemodel"
 
 
-'''
-class Gem(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
-    name = models.CharField(max_length=200, null=True)
-    organism = models.CharField(max_length=200, null=True)
-    tissue = models.CharField(max_length=200, null=True)
-    celltype = models.CharField(max_length=200, null=True)
-    cellline = models.CharField(max_length=200, null=True)
-    path = models.CharField(max_length=200, null=True)
-    maintained = models.CharField(max_length=200, null=True)
-    pubmed = models.CharField(max_length=200, null=True)
-
-    class Meta:
-        db_table = "gems"
-'''
-
 ##########################################################################################################################
 ##########################################################################################################################
 #

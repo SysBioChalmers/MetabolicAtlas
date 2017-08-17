@@ -58,8 +58,6 @@ def get_short_name_from_notes(notes):
 def get_subsystem_from_notes(notes):
     """Get sub-system name from SBML notes for the reactions."""
     match = re.search(".*<p>SUBSYSTEM: ([A-Za-z].+)</p>.*", notes)
-
-
     if match:
         name = match.group(1)
         pathways = []
