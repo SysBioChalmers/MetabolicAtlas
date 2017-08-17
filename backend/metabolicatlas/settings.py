@@ -114,7 +114,7 @@ DATABASES = {
 # Database routers
 
 DATABASE_ROUTERS = [
-    'api.routers.GemRouter',
+    'api.routers.GemodelRouter',
     'api.routers.TileRouter',
     'api.routers.ApiRouter'
 ]
