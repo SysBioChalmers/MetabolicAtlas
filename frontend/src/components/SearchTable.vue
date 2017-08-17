@@ -40,20 +40,21 @@
           <thead>
             <tr>
               <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
-              <th>ID</th><th>Name</th><th>Formula</th><th>HMDB ID</th><th>Link</th>
+              <th>ID</th><th>Name</th><th>Formula</th><th>Mass</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="item in searchResultsSplittedFiltered['metabolite']">
               <td>{{ item.organism | capitalize }}</td>
               <td>the model</td>
-              <td>the pathway</td>
+              <td>the subsystem</td>
               <td>{{ item.compartment | capitalize }}</td>
-              <td>{{ item.id.slice(2) }}</td>
+              <td>
+                <a @click="viewComponentInfo(item.id, 5)">{{ item.id.slice(2) }}</a>
+              </td>
               <td>{{ item.short_name }}</td>
               <td v-html="formulaFormater(item.formula)"></td>
-              <td>{{ item.metabolite ? item.metabolite.hmdb : '' }}</td>
-              <td>link</td>
+              <td>{{ item.mass }}</td>
             </tr>
           </tbody>
         </table>
@@ -66,20 +67,19 @@
               <thead>
                 <tr>
                   <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th><th>ID</th>
-                  <th>Name</th><th>Formula</th><th>Uniprot ID</th><th>Link</th>
+                  <th>Name</th><th>Formula</th><th>Uniprot ID</th><th>Length</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in searchResultsSplitted['enzyme']">
                   <td>{{ item.organism | capitalize }}</td>
                   <td>the model</td>
-                  <td>the pathway</td>
+                  <td>the subsystem</td>
                   <td>{{ item.compartment | capitalize }}</td>
                   <td>{{ item.id.slice(2) }}</td>
                   <td>{{ item.short_name }}</td>
                   <td v-html="formulaFormater(item.formula)"></td>
-                  <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
-                  <td>link</td>
+                  <td>length</td>
                 </tr>
               </tbody>
             </table>
@@ -94,18 +94,17 @@
               <thead>
                 <tr>
                   <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
-                  <th>ID</th><th>Equation</th><th>Link</th>
+                  <th>ID</th><th>Equation</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in searchResultsSplitted['reaction']">
                   <td>{{ item.organism | capitalize }}</td>
                   <td>the model</td>
-                  <td>the pathway</td>
+                  <td>the subsystem</td>
                   <td>{{ item.compartment | capitalize }}</td>
                   <td>{{ item.id }}</td>
                   <td>{{ item.equation }}</td>
-                  <td>link</td>
                 </tr>
               </tbody>
             </table>
@@ -113,14 +112,13 @@
         </div>
       </div>
       <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
-        Pathway results
+        Subsystem results
         <div class="columns">
           <div class="column">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Organism</th><th>Model</th><th>Pathway</th><th>Compartment</th>
-                  <th>Link</th>
+                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
                 </tr>
               </thead>
               <tbody>
@@ -129,7 +127,6 @@
                   <td>the model</td>
                   <td>the subsystem</td>
                   <td>{{ item.compartment | capitalize }}</td>
-                  <td>link</td>
                 </tr>
               </tbody>
             </table>
@@ -143,7 +140,7 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>Organism</th><th>Model</th><th>Compartment</th><th>Link</th>
+                  <th>Organism</th><th>Model</th><th>Compartment</th>
                 </tr>
               </thead>
               <tbody>
@@ -151,7 +148,6 @@
                   <td>{{ item.organism | capitalize }}</td>
                   <td>the model</td>
                   <td>{{ item.compartment | capitalize }}</td>
-                  <td>link</td>
                 </tr>
               </tbody>
             </table>
@@ -170,6 +166,7 @@
 
 <script>
 import GlobalSearch from 'components/GlobalSearch';
+import router from '../router';
 import { default as compare } from '../helpers/compare';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 
@@ -357,6 +354,17 @@ export default {
     },
     showTab(elementType) {
       return this.showTabType === elementType;
+    },
+    viewComponentInfo: function viewMetaboliteInfo(id, tabIndex) {
+      router.push(
+        {
+          path: '/',
+          query: {
+            tab: tabIndex,
+            reaction_component_id: id,
+          },
+        },
+      );
     },
   },
   created() {
