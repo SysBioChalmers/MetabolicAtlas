@@ -2,12 +2,12 @@
   <div>
     <div>
       <div>
-        <span class="title">Tools</span>
+        <h2 class="title fc is-2">Tools</h2>
         <div v-for="tool_data in tools">
           <div class="columns">
             <div class="column is-1">
               <a v-if="tool_data.img" :href="tool_data.link" target="_blank">
-                <img :src="'tool_data.img'" width="150">
+                <img :src="tool_data.img" width="150">
               </a>
               <a v-else :href="tool_data.link" target="_blank">
                 <div class="name">
@@ -27,21 +27,24 @@
       </div>
       <br>
       <div>
-        <span class="title">Databases</span>
+        <h2 class="title is-2">Databases</h2>
         <div v-for="db_data in databases">
           <div class="columns">
             <div class="column is-1">
-              <a :href="db_data.link" target="_blank"><img :src="db_data.img"></a>
+              <a :href="db_data.link" target="_blank"><img :src="imgUrl(db_data.img)" height="75"></a>
             </div>
             <div class="column">
-              {{ db_data.description }}
+            <div class="dsc">
+              <span>
+                {{ db_data.description }}
+              </span>
             </div>
           </div>
         </div>
       </div>
       <br>
       <div>
-        <span class="title">Api</span>
+        <h2 class="title is-2">Api</h2>
           <a href="swagger">Swagger API</a>
       </div>
     </div>
@@ -75,24 +78,31 @@ export default {
       databases: [
         { name: 'YSeq Browser',
           link: 'http://www.sysbio.se/Yseq/',
-          img: '../assets/YseqLogo.png',
+          img: './YseqLogo.png',
           description: 'Genome and trascriptome (RNAseq and Microarray) browser of Saccharomyces cerevisiae.' },
         { name: 'yApoptosis',
           link: 'http://www.ycelldeath.com/yapoptosis/',
-          img: '../assets/YAp_logo.gif',
+          img: './YAp_logo.gif',
           description: 'yApoptosis is an extensively-curated database dedicated for researchers working on yeast apoptosis. It is an open platform established to facilitate the organization and sharing of knowledge.' },
         { name: 'yStreX',
           link: 'http://www.ystrexdb.com/',
-          img: '../assets/logo_ystrex.png',
+          img: './logo_ystrex.png',
           description: 'yStreX is an online database that collects, stores and distributes genome-wide expression data generated in the studies of stress responses using east Saccharomyces cerevisiae as the model organism.' },
         { name: 'HCSD',
           link: 'http://cancersecretome.org/',
-          img: '../assets/HCSD_logo.png',
+          img: './HCSD_logo.png',
           description: 'The human cancer secretome database (HCSD) is a comprehensive database for human cancer secretome data.' },
       ],
+      dBImageSources: null,
     };
   },
   methods: {
+    imgUrl(path) {
+      return this.dBImageSources(path);
+    },
+  },
+  beforeMount() {
+    this.dBImageSources = require.context('../assets', false, /\.(png|gif)$/);
   },
 };
 
@@ -102,7 +112,12 @@ export default {
 
 .title {
   display: block;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.title.fc{
+  margin-top: 0;
 }
 
 .dsc, .name {
