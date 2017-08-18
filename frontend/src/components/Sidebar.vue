@@ -100,7 +100,8 @@ export default {
   },
   methods: {
     viewMetaboliteInfo: function viewMetaboliteInfo() {
-      EventBus.$emit('updateSelTab', 4, this.selectedElm.id);
+      EventBus.$emit('updateSelTab', 4,
+       this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
   },
 };
