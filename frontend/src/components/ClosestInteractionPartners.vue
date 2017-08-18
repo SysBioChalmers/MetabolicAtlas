@@ -322,6 +322,7 @@ export default {
           this.reactionCount = response.data.reactions.length;
           if (this.reactionCount > this.warnReactionCount) {
             this.showNetworkGraph = false;
+            this.errorMessage = '';
             return;
           }
           this.showNetworkGraph = true;

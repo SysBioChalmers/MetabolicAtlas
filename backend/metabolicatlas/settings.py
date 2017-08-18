@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     'icsb.chalmers.se',
+    # '192.168.99.100', 'http://localhost', 'http://192.168.99.100'
 ]
 
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'api',
     'corsheaders',
+    #'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -112,7 +114,7 @@ DATABASES = {
 # Database routers
 
 DATABASE_ROUTERS = [
-    'api.routers.GemRouter',
+    'api.routers.GemodelRouter',
     'api.routers.TileRouter',
     'api.routers.ApiRouter'
 ]
@@ -123,6 +125,8 @@ DATABASE_ROUTERS = [
 CORS_ORIGIN_WHITELIST = (
     'localhost',
     'icsb.chalmers.se',
+    # '192.168.99.100:8080',
+    # 'localhost:8080',
 )
 
 

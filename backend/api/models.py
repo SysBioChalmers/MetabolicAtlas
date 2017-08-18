@@ -73,22 +73,6 @@ class GEModel(models.Model):
         db_table = "gemodel"
 
 
-'''
-class Gem(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
-    name = models.CharField(max_length=200, null=True)
-    organism = models.CharField(max_length=200, null=True)
-    tissue = models.CharField(max_length=200, null=True)
-    celltype = models.CharField(max_length=200, null=True)
-    cellline = models.CharField(max_length=200, null=True)
-    path = models.CharField(max_length=200, null=True)
-    maintained = models.CharField(max_length=200, null=True)
-    pubmed = models.CharField(max_length=200, null=True)
-
-    class Meta:
-        db_table = "gems"
-'''
-
 ##########################################################################################################################
 ##########################################################################################################################
 #
@@ -122,24 +106,26 @@ class TissueOntology(models.Model):
 # Models
 #
 
-class MetabolicModel(models.Model):
+class GEM(models.Model):
     short_name = models.CharField(max_length=255, blank=False)
     name = models.CharField(max_length=255, blank=False)
+    pmid = models.CharField(max_length=11, blank=False)
+    article_title = models.CharField(max_length=255, blank=False)
     ensembl_version = models.CharField(max_length=50, null=True) # keep track of this... for HMR2 make an educated guess!
     ensembl_archive_path = models.CharField(max_length=50, null=True)
 
     def __str__(self):
-        return "<MetabolicModel: {0}>".format(self.short_name)
+        return "<GEM: {0}>".format(self.short_name)
 
     class Meta:
-        db_table = "metabolic_model"
+        db_table = "gems"
 
 class Author(models.Model):
     given_name = models.CharField(max_length=255, blank=False)
     family_name = models.CharField(max_length=255, blank=False)
     email = models.CharField(max_length=255, blank=False)
     organization = models.CharField(max_length=255, blank=False)
-    models = models.ManyToManyField(MetabolicModel, related_name='authors', through='ModelAuthor')
+    models = models.ManyToManyField(GEM, related_name='authors', through='GemAuthor')
 
     def __str__(self):
         return "<Author: {0} {1}>".format(self.given_name, self.family_name)
@@ -149,22 +135,35 @@ class Author(models.Model):
 
 class Reaction(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
-    name = models.CharField(max_length=255)
-    sbo_id = models.CharField(max_length=255)
+    name = models.CharField(max_length=50)
+    sbo_id = models.CharField(max_length=50)
     equation = models.TextField(blank=False)
     ec = models.CharField(max_length=255, null=True)
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
-    objective_coefficient = models.FloatField()
-    subsystem = models.CharField(max_length=70)
+    objective_coefficient = models.FloatField(null=True)
+    #subsystem = models.CharField(max_length=600)
+    compartment = models.CharField(max_length=125)
+    is_transport = models.BooleanField(default=False)
 
-    models = models.ManyToManyField(MetabolicModel, related_name='reactions', through='ModelReaction')
+    models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
 
     def __str__(self):
         return "<Reaction: {0} {1}>".format(self.id, self.modifiers)
 
     class Meta:
         db_table = "reaction"
+
+class ReactionReference(models.Model):
+    reaction = models.ForeignKey('Reaction', db_column='reaction_id', on_delete=models.CASCADE)
+    pmid = models.CharField(max_length=25, blank=False)
+
+    def __str__(self):
+        return "<ReactionReference: {0}={1}>".format(self.reaction.id, self.pmid)
+
+    class Meta:
+        db_table = "reaction_reference"
+        unique_together = (('reaction', 'pmid'),)
 
 class ReactionComponent(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
@@ -265,6 +264,16 @@ class Enzyme(models.Model):
         db_table = "enzymes"
 
 
+class Subsystem(models.Model):
+    name = models.CharField(max_length=100, null=False)
+    system = models.CharField(max_length=100, null=False)
+    external_id = models.CharField(max_length=25, null=True)
+    description = models.CharField(max_length=255, null=True)
+
+    class Meta:
+        db_table = "subsystems"
+
+
 # "Meta-information" tables
 class NumberOfInteractionPartners(models.Model):
     reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
@@ -284,10 +293,9 @@ class MetaboliteReaction(object):
     def __init__(self, reaction, role):
         self.reaction_id = reaction.id
         self.enzyme_role = role
-        self.reaction_subsystem = reaction.subsystem
-        self.reactants = reaction.reactants.filter(component_type='metabolite')
-        self.products = reaction.products.filter(component_type='metabolite')
-        self.modifiers = reaction.modifiers.filter(component_type='metabolite')
+        self.reactants = reaction.reactants
+        self.products = reaction.products
+        self.modifiers = reaction.modifiers
 
 class ConnectedMetabolites(object):
     def __init__(self, enzyme, compartment, reactions, expressions):
@@ -304,19 +312,19 @@ class ConnectedMetabolites(object):
 # Relationships
 #
 
-class ModelAuthor(models.Model):
-    model = models.ForeignKey(MetabolicModel, on_delete=models.CASCADE)
+class GEMAuthor(models.Model):
+    model = models.ForeignKey(GEM, on_delete=models.CASCADE)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "model_authors"
+        db_table = "gem_authors"
 
-class ModelReaction(models.Model):
-    model = models.ForeignKey(MetabolicModel, on_delete=models.CASCADE)
+class GEMReaction(models.Model):
+    model = models.ForeignKey(GEM, on_delete=models.CASCADE)
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "model_reactions"
+        db_table = "gem_reactions"
 
 class ReactionReactant(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
@@ -346,3 +354,11 @@ class CurrencyMetabolite(models.Model):
     class Meta:
         db_table = "currency_metabolites"
         unique_together = (('component', 'reaction'),)
+
+class ReactionSubsystem(models.Model):
+    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "reaction_subsystem"
+        unique_together = (('reaction', 'subsystem'),)

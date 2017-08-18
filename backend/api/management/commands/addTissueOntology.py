@@ -5,6 +5,16 @@ from api.models import TissueOntology
 
 from django.core.management.base import BaseCommand
 
+def addTissueOntology(bto_file):
+    """ Read the BRENDA Tissue Ontology from file """
+    toToAdd = []
+    with open(bto_file, 'r') as f:
+        reader = csv.reader(f, delimiter='\t')
+        next(f) # skip header
+        for bto in reader:
+            ontology = TissueOntology(id=bto[0], name=bto[1], definition=bto[2])
+            toToAdd.append(ontology)
+    TissueOntology.objects.bulk_create(toToAdd)
 
 class Command(BaseCommand):
     args = '<foo bar ...>'
@@ -13,12 +23,4 @@ class Command(BaseCommand):
     bto_file=folder+"BTO.tab"
 
     def handle(self, *args, **options):
-        """ Read the BRENDA Tissue Ontology from file """
-        toToAdd = []
-        with open(self.bto_file, 'r') as f:
-            reader = csv.reader(f, delimiter='\t')
-            next(f) # skip header
-            for bto in reader:
-                ontology = TissueOntology(id=bto[0], name=bto[1], definition=bto[2])
-                toToAdd.append(ontology)
-        TissueOntology.objects.bulk_create(toToAdd)
+        addTissueOntology(self.bto_file)

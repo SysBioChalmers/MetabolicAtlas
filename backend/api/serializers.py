@@ -1,11 +1,11 @@
 from rest_framework import serializers
 from api.models import *
 
-class MetabolicModelSerializer(serializers.ModelSerializer):
+class GEMSerializer(serializers.ModelSerializer):
     authors = serializers.StringRelatedField(many=True)
 
     class Meta:
-        model = MetabolicModel
+        model = GEM
         fields = ('id', 'short_name', 'name', 'authors')
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -39,7 +39,7 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
     metabolite = MetaboliteSerializer(read_only=True)
     enzyme = EnzymeSerializer(read_only=True)
-    
+
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
@@ -48,19 +48,31 @@ class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
     metabolite = MetaboliteSearchSerializer(read_only=True)
     enzyme = EnzymeSearchSerializer(read_only=True)
-    
+
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
+
+class ReactionSubsystemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ReactionSubsystem
+        fields = ('reaction', 'subsystem')
 
 class ReactionSerializer(serializers.ModelSerializer):
     reactants = ReactionComponentSerializer(many=True)
     products = ReactionComponentSerializer(many=True)
     modifiers = ReactionComponentSerializer(many=True)
+    subsystem = serializers.SerializerMethodField('get_subsystems')
+
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers', 'subsystem')
+            'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
+
+    def get_subsystems(self, model):
+        ss_ids = ReactionSubsystem.objects.filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
 
 # This is a helper class to determine if a component is a currency metabolite
@@ -82,7 +94,7 @@ class CurrencyMetaboliteReactionComponentSerializer(serializers.Serializer):
 
 class CurrencyMetaboliteSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
-    
+
     class Meta:
         model = CurrencyMetabolite
         fields = ('reaction_id', 'compartment')
@@ -105,10 +117,11 @@ class InteractionPartnerSerializer(serializers.ModelSerializer):
 class MetaboliteReactionSerializer(serializers.Serializer):
     reaction_id = serializers.CharField()
     enzyme_role = serializers.CharField()
-    reaction_subsystem = serializers.CharField()
+    # reaction_subsystem = serializers.SerializerMethodField('get_subsystems')
     reactants = ReactionComponentSerializer(many=True, read_only=True)
     products = ReactionComponentSerializer(many=True, read_only=True)
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
+
 
 
 class ConnectedMetabolitesSerializer(serializers.Serializer):
