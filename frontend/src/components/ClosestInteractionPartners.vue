@@ -359,7 +359,6 @@ export default {
 
           [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
           this.selectedElm = this.rawElms[component.id];
-          // this.rawElms = this.loadHPAData(this.rawElms);
           this.selectedElm.name = this.componentName;
 
           this.expandedIds = [];
