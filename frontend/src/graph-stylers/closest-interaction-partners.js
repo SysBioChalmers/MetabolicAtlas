@@ -77,6 +77,8 @@ export default function (elms, rels, nodeDisplayParams) {
       'font-size': '20px',
       'text-valign': 'top',
       'text-halign': 'center',
+      'border-width': '1px',
+      'border-color': 'black',
     })
     .selector('node[type="metabolite"]')
     .css({

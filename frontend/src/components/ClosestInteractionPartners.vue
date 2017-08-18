@@ -376,7 +376,6 @@ export default {
       this.hpaTissues = {};
       this.hpaCellLines = {};
       for (const gene of genes) {
-        console.log(`gene JSON.stringyfy(${gene})`);
         const genename = gene.getElementsByTagName('name')[0].textContent;
         hpaGeneEx[genename] = [];
         const samples = gene.getElementsByTagName('rnaExpression')[0].getElementsByTagName('data');
@@ -452,8 +451,6 @@ export default {
           }
         }
       }
-      console.log('|||||');
-      console.log(rawElms2);
       return rawElms2;
     },
     loadExpansion() {
@@ -539,7 +536,6 @@ export default {
         }
       }
       const stylesheet = graph(this.rawElms, this.rawRels, this.nodeDisplayParams)[1];
-      console.log(`stylesheet ${stylesheet}`);
       const cyzoom = this.cy.zoom();
       const cypan = this.cy.pan();
       this.cy.style(stylesheet);
@@ -733,7 +729,6 @@ export default {
     fixSelectOption() {
       const option = document.getElementById('enz-select')
       .getElementsByTagName('optgroup')[0].childNodes[0];
-      console.log(option);
       option.selected = 'selected';
       this.nodeDisplayParams.enzymeExpSample = option.label;
     },
@@ -782,6 +777,7 @@ export default {
         }
       } else if (this.toggleMetaboliteExpLevel) {
         console.log(expSample);
+        // load expression data for metabolite
       } else if (componentType === 'enzyme') {
         this.nodeDisplayParams.enzymeExpSource = false;
         this.nodeDisplayParams.enzymeExpType = false;
