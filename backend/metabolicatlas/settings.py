@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     'icsb.chalmers.se',
-    '192.168.99.100', 'http://localhost', 'http://192.168.99.100'
+    # '192.168.99.100', 'http://localhost', 'http://192.168.99.100'
 ]
 
 
@@ -125,8 +125,8 @@ DATABASE_ROUTERS = [
 CORS_ORIGIN_WHITELIST = (
     'localhost',
     'icsb.chalmers.se',
-    '192.168.99.100:8080',
-    'localhost:8080',
+    # '192.168.99.100:8080',
+    # 'localhost:8080',
 )
 
 
