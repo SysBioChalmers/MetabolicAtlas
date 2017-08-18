@@ -480,6 +480,18 @@ def convert_to_reaction_component_ids(request, compartmentID):
 
     return JSONResponse(reactionComponents);
 
+@api_view()
+def get_subsystems(request):
+    try:
+        subsystems = Subsystem.objects.all()
+    except Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = SubsystemSerializer(subsystems, many=True)
+    return JSONResponse(serializer.data);
+
+
+#=========================================================================================================
 
 @api_view()
 def get_gemodel(request, id):

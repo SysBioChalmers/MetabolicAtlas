@@ -141,3 +141,7 @@ export function reformatChemicalReaction(equation, reaction) {
 
   return `${reactants} &#8680; ${products}`;
 }
+
+export function getCompartmentCount() {
+  return Object.keys(d).length;
+}
