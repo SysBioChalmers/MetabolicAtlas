@@ -15,7 +15,7 @@
           <td>
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
-          <td>{{ r.subsystem }}</td>
+          <td>{{ r.subsystem.join('; ') }}</td>
           <td v-html="getCompartment(r)"></td>
         </tr>
       </tbody>
@@ -34,7 +34,7 @@ export default {
   props: ['reactions'],
   data() {
     return {
-      fields: ['Reaction ID', 'Equation', 'Modifiers', 'Sub-system', 'Compartment'],
+      fields: ['Reaction ID', 'Equation', 'Modifiers', 'Subsystem', 'Compartment'],
       sortedReactions: [],
       sortAsc: true,
     };

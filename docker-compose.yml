@@ -11,6 +11,14 @@ services:
     networks:
       - net-tier
 
+  db2:
+    image: postgres
+    env_file: db2_postgres.env
+    ports:
+      - "5433:5432"
+    networks:
+      - net-tier
+
   nginx:
     build:
       context: ./nginx
@@ -20,6 +28,7 @@ services:
       - frontend
     volumes:
       - ./backend/static:/static
+      - ./nginx/svgs:/svgs
     ports:
       - "80:80"
     networks:
@@ -28,7 +37,10 @@ services:
   backend:
     depends_on:
       - db
-    env_file: postgres.env
+      - db2
+    env_file:
+      - postgres.env
+      - db2_postgres.env
     build: ./backend
     command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -46,6 +58,7 @@ services:
     volumes:
       - ./frontend/src:/project/src
       - ./frontend/build:/project/build
+      - ./frontend/config:/project/config
       - ./frontend/dist:/project/dist
       - ./frontend/test:/project/test
     ports:

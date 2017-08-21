@@ -10,6 +10,15 @@ services:
     networks:
       - net-tier
 
+  db2:
+    restart: always
+    image: postgres
+    env_file: db2_postgres.env
+    ports:
+      - "5433:5432"
+    networks:
+      - net-tier
+
   nginx:
     restart: always
     build:
@@ -21,6 +30,7 @@ services:
       - backend:backend
     volumes:
       - ./nginx/static:/static
+      - ./nginx/svgs:/svgs
       - ./nginx/static:/usr/share/nginx/html:ro
       - ./backend/media:/media
     ports:
@@ -32,7 +42,10 @@ services:
     restart: always
     depends_on:
       - db
-    env_file: postgres.env
+      - db2
+    env_file:
+      - postgres.env
+      - db2_postgres.env
     build: ./backend
     command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:

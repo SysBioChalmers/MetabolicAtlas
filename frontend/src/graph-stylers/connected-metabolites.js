@@ -4,7 +4,7 @@ export default function (elms, rels) {
   const elmsjson = [];
 
   for (const elm of elms) {
-    if (elm.type === 'enzyme') {
+    if (elm.substance_type === 'modifier') {
       elmsjson.push({
         group: 'nodes',
         data: {
@@ -18,7 +18,7 @@ export default function (elms, rels) {
           details: elm.details,
         },
       });
-    } else if (elm.type === 'reactant') {
+    } else if (elm.substance_type === 'reactant') {
       elmsjson.push({
         group: 'nodes',
         data: {
@@ -32,7 +32,7 @@ export default function (elms, rels) {
           details: elm.details,
         },
       });
-    } else if (elm.type === 'product') {
+    } else if (elm.substance_type === 'product') {
       elmsjson.push({
         group: 'nodes',
         data: {
@@ -51,9 +51,11 @@ export default function (elms, rels) {
         group: 'nodes',
         data: {
           id: elm.id,
+          name: elm.short,
           parent: elm.parentid,
           reactionid: elm.reactionid,
           type: elm.type,
+          pathway: elm.pathway,
         },
       });
     } else if (elm.type === 'reactant_box') {

@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     'icsb.chalmers.se',
+    # '192.168.99.100', 'http://localhost', 'http://192.168.99.100'
 ]
 
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'api',
     'corsheaders',
+    #'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -89,8 +91,33 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
         'PORT': 5432,
+    },
+    'gems': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB2_GEMS_DB'),
+        'USER': os.getenv('POSTGRES_DB2_USER'),
+        'PASSWORD': os.getenv('POSTGRES_DB2_PASSWORD'),
+        'HOST': 'db2',
+        'PORT': 5432,
+    },
+    'tiles': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB2_TILES_DB'),
+        'USER': os.getenv('POSTGRES_DB2_USER'),
+        'PASSWORD': os.getenv('POSTGRES_DB2_PASSWORD'),
+        'HOST': 'db2',
+        'PORT': 5432,
     }
 }
+
+
+# Database routers
+
+DATABASE_ROUTERS = [
+    'api.routers.GemodelRouter',
+    'api.routers.TileRouter',
+    'api.routers.ApiRouter'
+]
 
 
 # CORS
@@ -98,6 +125,8 @@ DATABASES = {
 CORS_ORIGIN_WHITELIST = (
     'localhost',
     'icsb.chalmers.se',
+    # '192.168.99.100:8080',
+    # 'localhost:8080',
 )
 
 

@@ -4,7 +4,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from itertools import chain
-from api.models import MetabolicModel, Author
+from api.models import GEM, Author
 from api.serializers import *
 
 import logging
@@ -17,18 +17,18 @@ class JSONResponse(HttpResponse):
 
 @api_view()
 def model_list(request):
-    models = MetabolicModel.objects.all()
-    serializer = MetabolicModelSerializer(models, many=True)
+    models = GEM.objects.all()
+    serializer = GEMSerializer(models, many=True)
     return JSONResponse(serializer.data)
 
 @api_view()
 def get_model(request, id):
     try:
-        model = MetabolicModel.objects.get(id=id)
-    except MetabolicModel.DoesNotExist:
+        model = GEM.objects.get(id=id)
+    except GEM.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = MetabolicModelSerializer(model)
+    serializer = GEM(model)
     return JSONResponse(serializer.data)
 
 @api_view()
@@ -136,8 +136,8 @@ def component_list(request):
     name = request.query_params.get('name', None)
     if name:
         components = ReactionComponent.objects.filter(
-                Q(id__icontains=name) | 
-                Q(long_name__icontains=name) | 
+                Q(id__icontains=name) |
+                Q(long_name__icontains=name) |
                 Q(short_name__icontains=name)
             )[offset:(offset+limit)]
     else:
@@ -173,7 +173,7 @@ def component_expression_list(request, id):
     expression_type = request.query_params.get('expression_type', '')
     expressions = ExpressionData.objects.filter(
             Q(reaction_component=id) &
-            Q(tissue__icontains=tissue) & 
+            Q(tissue__icontains=tissue) &
             Q(expression_type__icontains=expression_type)
         )
 
@@ -235,10 +235,9 @@ def enzyme_list(request):
 def connected_metabolites(request, id):
     tissue = request.query_params.get('tissue', '')
     expression_type = request.query_params.get('expression_type', '')
-    include_expressions = request.query_params.get('include_expression', '') == 'true' 
-    
+    include_expressions = request.query_params.get('include_expression', '') == 'true'
+
     try:
-        logging.warn(id)
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
                 (Q(id=id) | Q(long_name=id))
@@ -380,3 +379,94 @@ def search(request, term, truncated):
     serializer = ReactionComponentSearchSerializer(components, many=True)
 
     return JSONResponse(serializer.data)
+
+@api_view(['POST'])
+def convert_to_reaction_component_ids(request, compartmentID):
+    arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
+    query = Q()
+    for term in arrayTerms:
+        query |= Q(id__iexact=term)
+        query |= Q(short_name__iexact=term)
+        query |= Q(long_name__iexact=term)
+
+    if str(compartmentID) != '0':
+        reactionComponents = ReactionComponent.objects.filter(query & Q(compartment=compartmentID)).values_list('compartment_id', 'id')
+    else:
+        reactionComponents = ReactionComponent.objects.filter(query).values_list('compartment_id', 'id').distinct()
+
+    if reactionComponents.count() == 0:
+        return HttpResponse(status=404)
+
+    return JSONResponse(reactionComponents);
+
+
+@api_view()
+def get_gemodel(request, id):
+    try:
+        model = GEModel.objects.get(id=id)
+    except GEModel.DoesNotExist:
+        return HttpResponse(status=404)
+
+    logging.warn(model)
+    serializer = GEModelSerializer(model)
+    logging.warn(serializer.data)
+    return JSONResponse(serializer.data)
+
+
+@api_view()
+def get_gemodels(request):
+    import urllib
+    import json
+    import base64
+    # get models from database
+    serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
+    # serializer = None
+    # get models from git
+    list_repo = []
+    try:
+        URL = 'https://api.github.com/orgs/SysBioChalmers/repos'
+        result = urllib.request.urlopen(URL)
+        list_repo = json.loads(result.read().decode('UTF-8'))
+    except Exception as e:
+        logging.warn(e)
+        pass
+        # return HttpResponse(status=400)
+
+    for repo in list_repo:
+        logging.warn(repo['name'])
+        if repo['name'].startswith('GEM_') or False:
+            try:
+                result = urllib.request.urlopen(repo['url'] + '/contents/README.md?ref=master')
+                readme = json.loads(result.read().decode('UTF-8'))['content']
+            except Exception as e:
+                logging.warn(e)
+                continue
+
+            readme_content = base64.b64decode(readme)
+            logging.warn(readme)
+            d = parse_readme_file(readme_content)
+            # TODO make GEM objects and json to current serializer
+
+            break
+
+    return JSONResponse(serializer.data)
+
+
+def parse_readme_file(content):
+    d = {}
+    key_entry = {
+        'name': 'label',
+    }
+    parse_entries = False
+    for line in content.decode('UTF-8'):
+        if line.startswith("| Name |"):
+            if not parse_entries:
+                parse_entries = True
+            else:
+                break
+
+        if parse_entries:
+            entry, value = line.split('\t')
+            d[key_entry[entry]] = value.strip()
+
+    return d

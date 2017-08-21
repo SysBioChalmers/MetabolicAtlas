@@ -17,20 +17,11 @@
               <span class="button is-dark" v-on:click="exportPNG">PNG</span>
             </div>
           </div>
-          <div v-show="showNetworkGraph" class="column" v-on:mouseleave="showMenuExpression = false">
-            <a class="button is-primary" v-on:click="showMenuExpression= !showMenuExpression">Expression levels</a>
-            <div v-show="showMenuExpression" id="contextMenuExpression" ref="contextMenuExpression">
-              <span class="button is-dark" v-on:click="showHPATissues= !showHPATissues">HPA</span>
-            </div>
-            <div v-for="tissue in hpaTissues" v-show="showHPATissues" id="contextHPAExpression" ref="contextHPAExpression">
-              <span class="button is-primary is-small is-outlined" v-on:click="switchHPAExpression(tissue)">{{ tissue }}</span>
-            </div>
-          </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-          <span v-show="selectedElmId !==reactionComponentId" 
+          <span v-show="selectedElmId !==reactionComponentId"
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
-          <span v-show="!expandedIds.includes(selectedElmId)" 
+          <span v-show="!expandedIds.includes(selectedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
           <span v-show="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
@@ -47,7 +38,7 @@
           <div class="column is-8">
             <div id="graphOption">
               <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
-              v-on:click="toggleGraphLegend">Legend</span>
+              v-on:click="toggleGraphLegend">Options</span>
               <span class="button" v-on:click="zoomGraph(true)">+</span>
               <span class="button" v-on:click="zoomGraph(false)">-</span>
               <span class="button" v-on:click="fitGraph()">fit</span>
@@ -55,126 +46,71 @@
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="toggleGraphLegend"></button>
               <span class="label">Enzyme</span>
-              <br>
-              <span>Shape:</span>
               <div>
-                <select v-model="nodeDisplayParams.enzymeNodeShape" v-on:change="redrawGraph()">
-                  <option>rectangle</option>
-                  <option>roundrectangle</option>
-                  <option>cutrectangle</option>
-                  <option>ellipse</option>
-                  <option>rectangle</option>
-                  <option>triangle</option>
-                  <option>pentagon</option>
-                  <option>hexagon</option>
-                  <option>heptagon</option>
-                  <option>octagon</option>
-                  <option>star</option>
-                  <option>diamond</option>
-                  <option>vee</option>
-                  <option>rhomboid</option>
+                <span>Shape:</span>
+                <select v-model="nodeDisplayParams.enzymeNodeShape" 
+                v-on:change="redrawGraph()">
+                  <option v-for="shape in availableNodeShape">
+                  {{ shape }}
+                  </option>
                 </select>
+                <span>Color:</span>
+                <span class="color-span"
+                  v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
+                  v-on:click="showColorPickerEnz = !showColorPickerEnz">
+                  <compact-picker v-show="showColorPickerEnz"
+                  v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph(false, 'enzyme')"></compact-picker>
+                </span>
               </div>
-              <span>Color:</span>
-              <span class=color-span 
-                v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex}"
-                v-on:click="showColorPickerEnz = !showColorPickerEnz">
-                <compact-picker v-show="showColorPickerEnz" 
-                v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph()"></compact-picker>
-              </span>
+              <div>
+                <label class="checkbox">
+                  <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                  <span>Show expression levels</span>
+                </label>
+                <div>
+                  <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
+                  @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                    <optgroup label="HPA RNA levels - Tissues">
+                      <option v-for="tissue in hpaTissues" :value="tissue">
+                        {{ tissue }}
+                      </option>
+                    </optgroup>
+                    <optgroup label="HPA RNA levels - Cell-type">
+                      <option v-for="cellType in hpaCellLines" :value="cellType">
+                        {{ cellType }}
+                      </option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
               <hr>
               <span class="label">Metabolite</span>
-              <br>
-              <span>Shape:</span>
               <div>
-                <select v-model="nodeDisplayParams.metaboliteNodeShape" v-on:change="redrawGraph()">
-                  <option>rectangle</option>
-                  <option>roundrectangle</option>
-                  <option>cutrectangle</option>
-                  <option>ellipse</option>
-                  <option>rectangle</option>
-                  <option>triangle</option>
-                  <option>pentagon</option>
-                  <option>hexagon</option>
-                  <option>heptagon</option>
-                  <option>octagon</option>
-                  <option>star</option>
-                  <option>diamond</option>
-                  <option>vee</option>
-                  <option>rhomboid</option>
+                <span>Shape:</span>
+                <select v-model="nodeDisplayParams.metaboliteNodeShape" 
+                v-on:change="redrawGraph()">
+                  <option v-for="shape in availableNodeShape">
+                  {{ shape }}
+                  </option>
                 </select>
+                <span>Color:</span>
+                 <span class="color-span"
+                  v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
+                  v-on:click="showColorPickerMeta = !showColorPickerMeta">
+                  <compact-picker v-show="showColorPickerMeta"
+                  v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph(false, 'metabolite')"></compact-picker>
+                </span>
               </div>
-              <span>Color:</span>
-               <span class=color-span 
-                v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
-                v-on:click="showColorPickerMeta = !showColorPickerMeta">
-                <compact-picker v-show="showColorPickerMeta" 
-                v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph()"></compact-picker>
-              </span>
             </div>
             <div id="cy" ref="cy">
             </div>
           </div>
-          <div id="sidebar" class="column content">
-            <div v-if="selectedElm" class="card">
-              <div v-if="selectedElm.details" class="card">
-                <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-                  <div v-if="selectedElm.details.function">
-                    <p class="label">Function</p>
-                    <p>{{ selectedElm.details.function }}</p>
-                    <br>
-                  </div>
-                  <div v-if="selectedElm.details.catalytic_activity">
-                    <p class="label">Catalytic Activity</p>
-                    {{ selectedElm.details.catalytic_activity }}
-                  </div>
-                  <div v-if="!selectedElm.details.function &&
-                             !selectedElm.details.catalytic_activity">
-                    {{ $t('noInfoAvailable') }}
-                  </div>
-                </div>
-                <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
-                  <div v-if="selectedElm.details.hmdb_description">
-                    <p class="label">Description</p>
-                    <p>{{ selectedElm.details.hmdb_description }}</p>
-                    <br>
-                  </div>
-                  <div v-if="selectedElm.details.mass">
-                    <p class="label">Mass</p>
-                    <p>{{ selectedElm.details.mass }}</p>
-                    <br>
-                  </div>
-                  <div v-if="selectedElm.details.kegg">
-                    <p class="label">Kegg</p>
-                    <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
-                  </div>
-                  <div v-if="!selectedElm.details.hmdb_description &&
-                             !selectedElm.details.mass &&
-                             !selectedElm.details.kegg">
-                    {{ $t('noInfoAvailable') }}
-                  </div>
-                  <div v-else>
-                    <br>
-                    <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <div class="card-content">
-                  {{ $t('noInfoAvailable') }}
-                </div>
-              </div>
-            </div>
-            <br>
-            <a href="/about#closestpartners" target="_blank">
-              {{ $t('moreInformation') }}
-            </a>
-          </div>
+          <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
             <div>{{ $t('tooManyReactionsWarn') }}</div>
-            <span v-show="reactionsCount <= maxReactionCount" 
+            <span v-show="reactionsCount <= maxReactionCount"
             class="button" v-on:click="constructGraph(rawElms, rawRels);">{{ $t('tooManyReactionsBut') }}</span>
           </div>
         </div>
@@ -199,20 +135,20 @@ import graphml from 'cytoscape-graphml/src/index';
 import viewUtilities from 'cytoscape-view-utilities';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
-// import C2S from 'canvas2svg';
+import Sidebar from 'components/Sidebar';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { fetchXML, parseXML } from '../helpers/xml-tools';
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
-// FIXME remove this line and its helper file, its a HPA demo XML return function
-import { default as hpaResponse } from '../helpers/hparesponse';
 
 export default {
   name: 'closest-interaction-partners',
   components: {
+    Sidebar,
     CytoscapeTable,
     Loader,
     'compact-picker': Compact,
@@ -220,7 +156,7 @@ export default {
   data() {
     return {
       loading: true,
-      errorMessage: null,
+      errorMessage: this.$t('unknownError'),
       title: '',
 
       reactionsCount: 0,
@@ -235,11 +171,19 @@ export default {
       selectedElmId: '',
 
       selectedElm: null,
+      selectedSample: '',
 
       componentName: '',
       expandedIds: [],
 
       hpaTissues: [],
+      hpaCellLines: [],
+
+      // keep track of exp lvl source already loaded
+      expSourceLoaded: {
+        enzyme: {},
+        metabolite: {},
+      },
 
       cy: null,
       tableStructure: [
@@ -252,15 +196,35 @@ export default {
 
       showMenuExport: false,
       showMenuExpression: false,
-      showHPATissues: false,
-      showHPATissueExpression: false,
+      toggleEnzymeExpLevel: false,
+      toggleMetaboliteExpLevel: false,
+
       showGraphLegend: false,
       showGraphContextMenu: false,
       showColorPickerEnz: false,
       showColorPickerMeta: false,
 
+      availableNodeShape: [
+        'rectangle',
+        'roundrectangle',
+        'cutrectangle',
+        'ellipse',
+        'rectangle',
+        'triangle',
+        'pentagon',
+        'hexagon',
+        'heptagon',
+        'octagon',
+        'star',
+        'diamond',
+        'vee',
+        'rhomboid',
+      ],
+
       nodeDisplayParams: {
-        activeTissue: false,
+        enzymeExpSource: false,
+        enzymeExpType: false,
+        enzymeExpSample: false,
         enzymeNodeShape: 'rectangle',
         enzymeNodeColor: {
           hex: '#C92F63',
@@ -275,6 +239,9 @@ export default {
           },
           a: 1,
         },
+        metaboliteExpSource: false,
+        metaboliteExpType: false,
+        metaboliteExpSample: false,
         metaboliteNodeShape: 'ellipse',
         metaboliteNodeColor: {
           hex: '#259F64',
@@ -303,16 +270,6 @@ export default {
     },
   },
   computed: {
-    keggLink() {
-      if (this.selectedElm
-        && this.selectedElm.type === 'metabolite'
-        && this.selectedElm.details
-        && this.selectedElm.details.kegg
-      ) {
-        return `http://www.genome.jp/dbget-bin/www_bget?cpd:${this.selectedElm.details.kegg}`;
-      }
-      return '';
-    },
     filename() {
       return `ma_interaction_partners_${this.componentName}`;
     },
@@ -354,8 +311,6 @@ export default {
       axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
-          this.errorMessage = null;
-
           const component = response.data.component;
           const reactions = response.data.reactions;
 
@@ -372,16 +327,19 @@ export default {
 
           [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
           this.selectedElm = this.rawElms[component.id];
-          this.rawElms = this.loadHPAData(this.rawElms);
+          this.selectedElm.name = this.componentName;
+
           this.expandedIds = [];
           this.expandedIds.push(component.id);
 
           this.reactionCount = response.data.reactions.length;
           if (this.reactionCount > this.warnReactionCount) {
             this.showNetworkGraph = false;
+            this.errorMessage = '';
             return;
           }
           this.showNetworkGraph = true;
+          this.errorMessage = null;
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
@@ -389,9 +347,8 @@ export default {
           }, 0);
         })
         .catch((error) => {
-          // console.log('error:');
-          // console.log(error);
           this.loading = false;
+          console.log(error);
           switch (error.response.status) {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
@@ -402,21 +359,23 @@ export default {
         });
     },
     loadHPAData(rawElms) {
-      // TODO fetch XML from proteinatlas, is gzipped file :(
-      // const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
-      // const proteins = 'ENSG00000121410,ENSG00000091831?format=xml';
-      // const url = baseUrl + proteins;
-      // const out = fs.createWriteStream('./feed.xml');
-      // axios.get(url).pipe(zlib.createGunzip()).pipe(out);
-      // FIXME hpaResponse is now a function that reutrns a string in helper dir!
-      const hpaXML = hpaResponse();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(hpaXML, 'text/xml');
+      // get the list of enzyme ids
+      const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
+      const enzymeIDs = enzymes.map(k => rawElms[k].long);
+
+      const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
+      const proteins = `${enzymeIDs.join(',')}?format=xml`;
+      const url = baseUrl + proteins;
+
+      const xmlContent = fetchXML(url);
+      if (xmlContent === '') {
+        return [];
+      }
+      const xmlDoc = parseXML(xmlContent);
       const genes = xmlDoc.getElementsByTagName('entry');
       const hpaGeneEx = {};
-      const hpaTissues = {};
-      this.hpaTissues = [];
-      // Loop through XML, gene by gene
+      this.hpaTissues = {};
+      this.hpaCellLines = {};
       for (const gene of genes) {
         const genename = gene.getElementsByTagName('name')[0].textContent;
         hpaGeneEx[genename] = [];
@@ -430,8 +389,12 @@ export default {
           for (const sampleEl of samples[i].children) {
             if (sampleEl.tagName === 'level') {
               if (sampleEl.textContent !== 'Not detected') {
-                hpaTissues[sampleName] = 1;
-                replicates.push(Math.log2(sampleEl.getAttribute('tpm')));
+                if (sampleType === 'cellLine') {
+                  this.hpaCellLines[sampleName] = null;
+                } else if (sampleType === 'tissue') {
+                  this.hpaTissues[sampleName] = null;
+                }
+                replicates.push(Math.log2(sampleEl.getAttribute('tpm') + 1));
               }
             } else {
               sampleName = sampleEl.textContent;
@@ -445,32 +408,51 @@ export default {
           const geneExpression = { name: sampleName, type: sampleType };
           if (!replicates.length) {
             geneExpression.value = null;
+            geneExpression.color = 'whitesmoke';
           } else if (replicates.length % 2 === 0) {
             geneExpression.value = (replicates[middle] + replicates[middle - 1]) / 2;
           } else {
             geneExpression.value = replicates[middle];
           }
+          if (geneExpression.value) {
+            if (geneExpression.value <= 1) {
+              geneExpression.color = 'lightgray';
+            } else if (geneExpression.value <= 4) {
+              geneExpression.color = 'lightyellow';
+            } else if (geneExpression.value <= 5.5) {
+              geneExpression.color = 'orange';
+            } else if (geneExpression.value <= 6.6) {
+              geneExpression.color = 'red';
+            } else {
+              geneExpression.color = 'darkred';
+            }
+          }
           hpaGeneEx[genename].push(geneExpression);
         }
       }
-      // Make available all tissues with values to browser menu
-      for (const tissue of Object.keys(hpaTissues).sort()) {
-        this.hpaTissues.push(tissue);
-      }
-      // TODO make color scale of expression values
 
-      // Map colors to DOM elements of genes
-      const expressionElms = {};
-      for (const elid of Object.keys(rawElms)) {
-        expressionElms[elid] = rawElms[elid];
-        expressionElms[elid].tissue_expression = {};
+      this.hpaTissues = Object.keys(this.hpaTissues).sort();
+      this.hpaCellLines = Object.keys(this.hpaCellLines).sort();
+
+      const rawElms2 = rawElms;
+
+      for (const elid of Object.keys(rawElms2)) {
+        // expressionElms[elid] = rawElms[elid];
+        if (!rawElms2[elid].expressionLvl) {
+          rawElms2[elid].expressionLvl = {};
+        }
+        if (!rawElms2[elid].expressionLvl.HPA) {
+          rawElms2[elid].expressionLvl.HPA = {};
+        }
+        rawElms2[elid].expressionLvl.HPA.RNA = {};
+        const HPARNAexp = rawElms2[elid].expressionLvl.HPA.RNA;
         if (hpaGeneEx[rawElms[elid].short]) {
           for (const tissue of hpaGeneEx[rawElms[elid].short]) {
-            expressionElms[elid].tissue_expression[tissue.name] = tissue.value ? 'green' : null;
+            HPARNAexp[tissue.name] = tissue.color;
           }
         }
       }
-      return expressionElms;
+      return rawElms2;
     },
     loadExpansion() {
       axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
@@ -484,7 +466,7 @@ export default {
 
           Object.assign(this.rawElms, newElms);
           Object.assign(this.rawRels, newRels);
-          this.rawElms = this.loadHPAData(this.rawElms);
+          // this.rawElms = this.loadHPAData(this.rawElms);
 
           this.expandedIds.push(component.id);
 
@@ -547,8 +529,14 @@ export default {
       this.showColorPickerEnz = false;
       this.showColorPickerMeta = false;
     },
-    redrawGraph() {
-      const stylesheet = graph(this.elms, this.rels, this.nodeDisplayParams)[1];
+    redrawGraph(usingExpressionLevel, nodeType) {
+      if (!usingExpressionLevel) {
+        if ((nodeType === 'enzyme' && this.toggleEnzymeExpLevel) ||
+          (nodeType === 'metabolite' && this.toggleMetaboliteExpLevel)) {
+          return;
+        }
+      }
+      const stylesheet = graph(this.rawElms, this.rawRels, this.nodeDisplayParams)[1];
       const cyzoom = this.cy.zoom();
       const cypan = this.cy.pan();
       this.cy.style(stylesheet);
@@ -556,6 +544,10 @@ export default {
         zoom: cyzoom,
         pan: cypan,
       });
+    },
+    refreshGraph() {
+      // this.cy.elements().remove();
+      // this.cy.add(this.rawElms);
     },
     fitGraph() {
       setTimeout(() => {
@@ -735,15 +727,77 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    switchHPAExpression: function switchHPAExpression(tissueName) {
-      if (this.showHPATissueExpression === tissueName) {
-        this.showHPATissueExpression = false;
-        this.nodeDisplayParams.activeTissue = false;
+    fixSelectOption() {
+      const option = document.getElementById('enz-select')
+      .getElementsByTagName('optgroup')[0].childNodes[0];
+      option.selected = 'selected';
+      this.nodeDisplayParams.enzymeExpSample = option.label;
+    },
+    switchToExpressionLevel: function switchToExpressionLevel(
+      componentType, expSource, expType, expSample) {
+      // console.log(expSource);
+      // console.log(expType);
+      // console.log(expSample);
+      let redraw = false;
+      if (componentType === 'enzyme') {
+        if (this.toggleEnzymeExpLevel) {
+          if (this.nodeDisplayParams.enzymeExpSource !== expSource) {
+            this.nodeDisplayParams.enzymeExpSource = expSource;
+            this.nodeDisplayParams.enzymeExpType = expType;
+            // check if this source for ths type of component have been already loaded
+            if (!Object.keys(this.expSourceLoaded[componentType]).length === 0 ||
+              !this.expSourceLoaded[componentType][expSource]) {
+              // sources that load all exp type
+              if (expSource === 'HPA') {
+                this.rawElms = this.loadHPAData(this.rawElms);
+                this.expSourceLoaded[componentType].HPA = {};
+                this.expSourceLoaded[componentType].HPA.RNA = true;
+              } else {
+                // load expression data from another source here
+                console.log(expSample);
+              }
+              redraw = true;
+            } else {
+              redraw = true;
+            }
+          } else if (this.nodeDisplayParams.enzymeExpType !== expType) {
+            this.nodeDisplayParams.enzymeExpType = expType;
+            if (!this.expSourceLoaded.componentType.expSource.expType) {
+              // sources that load only one specific exp type
+              redraw = true;
+            }
+          } else if (this.nodeDisplayParams.enzymeExpSample !== expSample) {
+            redraw = true;
+          }
+          this.nodeDisplayParams.enzymeExpSample = expSample;
+        } else if (this.nodeDisplayParams.enzymeExpSource) {
+          this.nodeDisplayParams.enzymeExpSource = false;
+          this.nodeDisplayParams.enzymeExpType = false;
+          this.nodeDisplayParams.enzymeExpSample = false;
+          redraw = true;
+        }
+      } else if (this.toggleMetaboliteExpLevel) {
+        console.log(expSample);
+        // load expression data for metabolite
+      } else if (componentType === 'enzyme') {
+        this.nodeDisplayParams.enzymeExpSource = false;
+        this.nodeDisplayParams.enzymeExpType = false;
+        this.nodeDisplayParams.enzymeExpSample = false;
       } else {
-        this.showHPATissueExpression = tissueName;
-        this.nodeDisplayParams.activeTissue = tissueName;
+        this.nodeDisplayParams.metaboliteExpSource = false;
+        this.nodeDisplayParams.metaboliteExpType = false;
+        this.nodeDisplayParams.metaboliteExpSample = false;
       }
-      this.redrawGraph();
+      if (redraw) {
+        console.log('redraw');
+        setTimeout(() => {
+          if (!expSample) {
+            // fix option selection
+            this.fixSelectOption();
+          }
+          this.redrawGraph(true);
+        }, 0);
+      }
     },
     zoomGraph: function zoomGraph(zoomIn) {
       let factor = this.factorZoom;
@@ -771,13 +825,12 @@ export default {
         level: lvl,
       });
     },
-    viewMetaboliteInfo: function viewMetaboliteInfo() {
-      this.$emit('updateSelTab', 4, this.selectedElmId);
-    },
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
     visitLink,
+    fetchXML,
+    parseXML,
   },
 };
 </script>
@@ -834,34 +887,55 @@ h1, h2 {
   background: white;
   top: 32px;
   left: 0;
-  width: 370px;
+  width: auto;
   height: auto;
   padding: 15px;
   border: 1px solid black;
   border-radius: 2px;
   z-index: 999;
 
-  span, div {
+  span, select, compact-picker {
     display: inline-block;
-    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
   }
+
+  div {
+    margin-left: 20px;
+    display: block;
+  }
+
+  span.label {
+    display: block;
+    margin-left: 0;
+  }
+
   .delete {
     position : absolute;
     right: 10px;
     top: 10px;
   }
-  span.label {
-    margin: 0;
-  }
+
   span.color-span {
     height: 20px;
     width: 25px;
     border: 1px solid black;
     vertical-align: middle;
+    margin-right: 15px;
+    margin-bottom: 5px;
   }
+
   span.color-span:hover {
     cursor: pointer;
   }
+}
+
+#t-select {
+  margin-top: 0.75rem;
+}
+
+#enz-select {
+  min-width: 240px;
 }
 
 </style>
