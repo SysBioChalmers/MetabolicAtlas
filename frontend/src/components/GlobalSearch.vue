@@ -13,31 +13,59 @@
         v-on:focus="showResults = true"
         ref="searchInput">
       <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
-        <div v-if="searchResults.length > 0" v-for="r in searchResults" class="searchResultSection">
-          <label class="title is-5" v-html="formatSearchResultLabel(r, searchTermString)"></label>
-          <div>
-            <span
-              class="tag is-primary is-medium"
-              @click="selectSearchResult(3, r.id)">
-              Closest interaction partners
-            </span>
-            <span
-              class="tag is-primary is-medium"
-              v-show="r.component_type == 'enzyme'"
-              @click="selectSearchResult(4, r.id)">
-              Catalysed reactions
-            </span>
-            <span
-              class="tag is-primary is-medium"
-              v-show="r.component_type == 'metabolite'"
-              @click="selectSearchResult(5, r.id)">
-              Metabolite
-            </span>
+        <div v-if="searchResults" v-for="v, k in searchResults" class="searchGroupResultSection">
+          <div v-for="r in v" class="searchResultSection">
+            <div v-if="k === 'reactionComponent'">
+              <div v-show="r.component_type == 'enzyme'">
+                <strong>Enzyme: </strong> {{ r.name }}
+                <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
+                <div>
+                   <span
+                    class="tag is-primary is-medium"
+                    @click="goToTab(3, r.id)">
+                    Closest interaction partners
+                  </span>
+                  <span class="tag is-primary is-medium"
+                    @click="goToTab(4, r.id)">
+                    Catalysed reactions
+                  </span>
+                </div>
+              </div>
+              <div v-show="r.component_type == 'metabolite'">
+                <strong>Metabolite: </strong> {{ r.name }}
+                <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
+                <div>
+                  <span
+                    class="tag is-primary is-medium"
+                    @click="goToTab(3, r.id)">
+                    Closest interaction partners
+                  </span>
+                  <span class="tag is-primary is-medium"
+                    @click="goToTab(5, r.id)">
+                    Metabolite
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div v-else-if="k === 'reaction'">
+              <strong>Reaction: </strong> {{ r.name }} ‒ {{ r.equation }}
+            </div>
+            <div v-else-if="k === 'subsystem'">
+              <strong>Subsystem: </strong> {{ r.name }} ‒ {{ r.system }} 
+            </div>
+            <div v-else-if="k === 'compartment'">
+              <strong>Compartment: </strong> {{ r.name }}
+            </div>
+            <hr>
           </div>
-          <hr>
         </div>
-        <div v-if="searchResults.length == 0">
+        <div v-if="!searchResults">
           <label class="title is-6">{{ $t('searchNoResult') }}</label>
+        </div>
+        <div v-else>
+          <div class="searchResultSection has-text-centered">
+            <a @click="goToSearchPage()">Show more</a>
+          </div>
         </div>
       </div>
     </div>
@@ -96,7 +124,7 @@ export default {
         // console.log(error);
       });
     },
-    selectSearchResult(tabIndex, reactionComponentId) {
+    goToTab(tabIndex, reactionComponentId) {
       this.searchTerm = '';
       this.searchTermString = '';
       this.searchResults = [];
@@ -132,14 +160,17 @@ export default {
       }
       return s;
     },
+    goToSearchPage() {
+      this.$router.push({
+        name: 'search',
+        query: {
+          term: this.searchTermString,
+        },
+      });
+    },
     validateSearch() {
       if (this.quickSearch) {
-        this.$router.push({
-          name: 'search',
-          query: {
-            term: this.searchTermString,
-          },
-        });
+        this.goToSearchPage();
       } else {
         this.search(this.searchTermString);
       }
@@ -167,12 +198,13 @@ export default {
   margin-top: -2px;
   z-index: 10;
 
-  .resultSeparator:last-child {
-    display: none;
+  .searchGroupResultSection:first-child {
+    padding-top: 10px;
   }
 
   .searchResultSection {
     margin-bottom: 10px;
+    padding: 0 10px;
     background: white;
 
     label {
@@ -184,8 +216,12 @@ export default {
     }
   }
 
-  .searchResultSection:last-child hr {
-    display: none;
+  .searchGroupResultSection:last-child {
+    .searchResultSection:last-child {
+      hr {
+        display: none;
+      }
+    }
   }
 }
 
