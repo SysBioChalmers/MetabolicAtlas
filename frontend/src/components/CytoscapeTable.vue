@@ -13,6 +13,17 @@
         >{{ $t('export') }}</a>
       </div>
     </div>
+    <div>
+      <span>
+        # Metabolite(s): {{ metaboliteCount }}
+      </span>
+      <span v-show="enzymeCount">
+         - # Enzyme(s): {{ enzymeCount }}
+      </span>
+      <span v-show="reactionCount">
+         - # Reaction(s): {{ reactionCount }}
+      </span>
+    </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">
       <thead>
         <tr>
@@ -78,6 +89,21 @@ export default {
     filteredElms: function f() {
       return this.elms.filter(
         el => el.type !== 'reactant_box' && el.type !== 'product_box');
+    },
+    enzymeCount() {
+      return this.elms.filter(el => el.type === 'enzyme').length;
+    },
+    metaboliteCount() {
+      return this.elms.filter(el => el.type === 'metabolite').length;
+    },
+    reactionCount() {
+      const countReation = {};
+      for (const el of this.filteredElms) {
+        if (el.reactionid) {
+          countReation[el.reactionid] = 1;
+        }
+      }
+      return Object.keys(countReation).length;
     },
   },
   methods: {

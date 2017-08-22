@@ -180,7 +180,6 @@ export default {
 
               this.selectedElmId = ele.data().id;
               this.selectedElm = ele.data();
-              console.log(this.selectedElm);
               this.showGraphContextMenu = true;
               updatePosition(node);
             });
