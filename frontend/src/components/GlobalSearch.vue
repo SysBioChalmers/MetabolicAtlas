@@ -51,7 +51,7 @@
               <strong>Reaction: </strong> {{ r.name }} ‒ {{ r.equation }}
             </div>
             <div v-else-if="k === 'subsystem'">
-              <strong>Subsystem: </strong> {{ r.name }} ‒ {{ r.system }} 
+              <strong>Subsystem: </strong> {{ r.name }} ‒ {{ r.system }}
             </div>
             <div v-else-if="k === 'compartment'">
               <strong>Compartment: </strong> {{ r.name }}
@@ -59,10 +59,10 @@
             <hr>
           </div>
         </div>
-        <div v-if="!searchResults">
-          <label class="title is-6">{{ $t('searchNoResult') }}</label>
+        <div v-show="noResult" class="has-text-centered">
+          {{ $t('searchNoResult') }}
         </div>
-        <div v-else>
+        <div v-show="!noResult">
           <div class="searchResultSection has-text-centered">
             <a @click="goToSearchPage()">Show more</a>
           </div>
@@ -92,6 +92,7 @@ export default {
       searchResults: [],
       searchTermString: this.searchTerm,
       showResults: true,
+      noResult: false,
     };
   },
   watch: {
@@ -118,10 +119,17 @@ export default {
       axios.get(url)
       .then((response) => {
         this.searchResults = response.data;
+        this.noResult = true;
+        for (const k of Object.keys(this.searchResults)) {
+          if (this.searchResults[k].length) {
+            this.noResult = false;
+            break;
+          }
+        }
       })
       .catch(() => {
         this.searchResults = [];
-        // console.log(error);
+        this.noResult = true;
       });
     },
     goToTab(tabIndex, reactionComponentId) {
