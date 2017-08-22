@@ -15,7 +15,13 @@
           <li :disabled="resultsCount[tab] === 0" 
           :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
           v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
-            <a>{{ tab | capitalize }} ({{ resultsCount[tab] }})</a>
+            <a v-show="!searchResultsSplittedFiltered[tab] || searchResultsSplittedFiltered[tab].length === resultsCount[tab]">
+              {{ tab | capitalize }} ({{ resultsCount[tab] }})
+            </a>
+            <a v-show="searchResultsSplittedFiltered[tab] && searchResultsSplittedFiltered[tab].length !== resultsCount[tab]">
+              {{ tab | capitalize }} ({{ resultsCount[tab] }})
+              ({{ searchResultsSplittedFiltered[tab] ? searchResultsSplittedFiltered[tab].length : 0 }})
+            </a>
           </li>
         </ul>
       </div>
@@ -118,15 +124,15 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
+                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>System</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in searchResultsSplitted['subsystem']">
                   <td>{{ item.organism | capitalize }}</td>
                   <td>the model</td>
-                  <td>the subsystem</td>
-                  <td>{{ item.compartment | capitalize }}</td>
+                  <td>{{ item.name | capitalize }}</td>
+                  <td>{{ item.system | capitalize }}</td>
                 </tr>
               </tbody>
             </table>
@@ -147,7 +153,7 @@
                 <tr v-for="item in searchResultsSplitted['compartment']">
                   <td>{{ item.organism | capitalize }}</td>
                   <td>the model</td>
-                  <td>{{ item.compartment | capitalize }}</td>
+                  <td>{{ item.name | capitalize }}</td>
                 </tr>
               </tbody>
             </table>
@@ -166,8 +172,8 @@
 
 <script>
 import GlobalSearch from 'components/GlobalSearch';
+import $ from 'jquery';
 import router from '../router';
-import { default as compare } from '../helpers/compare';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
@@ -192,56 +198,33 @@ export default {
         'compartment',
       ],
       resultsCount: {},
-      filters: {
-        metabolite: {
-          organism: {},
-          model: {},
-          compartment: {},
-          subsystem: {},
-        },
-        enzyme: {
-          organism: {},
-          model: {},
-          compartment: {},
-          subsystem: {},
-        },
-        reaction: {
-          organism: {},
-          model: {},
-          compartment: {},
-          subsystem: {},
-        },
-        subsystem: {
-          organism: {},
-          model: {},
-          compartment: {},
-        },
-        compartment: {
-          organism: {},
-          model: {},
-        },
-      },
+      filters: {},
       searchTerm: 'metabolite',
-      searchResults: [],
+      searchResults: {},
       showTabType: '',
     };
   },
   computed: {
-    searchResultsOrdered() {
-      // copy to avoid to mutate the origin array (watched)
-      let res = Array.prototype.slice.call(this.searchResults);
-      res = res.sort(compare('component_type', 'asc'));
-      return res;
-    },
     searchResultsSplitted() {
-      return this.searchResultsOrdered.reduce((subarray, el) => {
+      if (!this.searchResults.reactionComponent) {
+        return {};
+      }
+      const r = this.searchResults.reactionComponent.reduce((subarray, el) => {
         const arr = subarray;
         if (!arr[el.component_type]) { arr[el.component_type] = []; }
         arr[el.component_type].push(el);
         return arr;
       }, {});
+
+      r.reaction = this.searchResults.reaction;
+      r.subsystem = this.searchResults.subsystem;
+      r.compartment = this.searchResults.compartment;
+      return r;
     },
     searchResultsSplittedFiltered() {
+      if (!this.searchResultsSplitted) {
+        return {};
+      }
       const arr = JSON.parse(JSON.stringify(this.searchResultsSplitted));
       for (const key of Object.keys(this.activeFilters)) {
         for (const compo of Object.keys(this.activeFilters[key])) {
@@ -275,42 +258,65 @@ export default {
       for (const key of this.tabs) {
         this.resultsCount[key] = 0;
       }
-      for (const el of this.searchResults) {
-        if (el.component_type in this.resultsCount) {
-          this.resultsCount[el.component_type] += 1;
-        } else {
-          this.resultsCount.metabolite += 1;
+      for (const el of Object.keys(this.searchResultsSplitted)) {
+        if (el in this.resultsCount) {
+          this.resultsCount[el] = this.searchResultsSplitted[el].length;
         }
       }
     },
     fillFilterFields() {
       // get the otion values of the <select> in the filter panels
       // reset filter
-      for (const type of Object.keys(this.filters)) {
-        for (const field of Object.keys(this.filters[type])) {
-          this.filters[type][field] = {};
-        }
-      }
+      const newFilter = {
+        metabolite: {
+          organism: {},
+          model: {},
+          compartment: {},
+          subsystem: {},
+        },
+        enzyme: {
+          organism: {},
+          model: {},
+          compartment: {},
+          subsystem: {},
+        },
+        reaction: {
+          organism: {},
+          model: {},
+          compartment: {},
+          subsystem: {},
+        },
+        subsystem: {
+          organism: {},
+          model: {},
+          compartment: {},
+        },
+        compartment: {
+          organism: {},
+          model: {},
+        },
+      };
 
       // store choice only once in a dict
-      for (const el of this.searchResults) {
-        const componentType = el.component_type;
-        for (const field of Object.keys(this.filters[componentType])) {
-          this.filters[componentType][field][el[field]] = 1;
+      for (const componentType of Object.keys(this.searchResultsSplitted)) {
+        const compoList = this.searchResultsSplitted[componentType];
+        for (const el of compoList) {
+          for (const field of Object.keys(newFilter[componentType])) {
+            newFilter[componentType][field][el[field]] = 1;
+          }
         }
       }
 
       // convert dict in array ad add 'None' if more than one choice
-      for (const kType of Object.keys(this.filters)) {
+      for (const kType of Object.keys(newFilter)) {
         let validFilter = false;
-        const fields = this.filters[kType];
+        const fields = newFilter[kType];
         for (const kComp of Object.keys(fields)) {
-          // console.log(`kComp ${kComp}`);
           const values = fields[kComp];
           if (Object.keys(values).length === 1) {
-            this.filters[kType][kComp] = Object.keys(values);
+            newFilter[kType][kComp] = Object.keys(values);
           } else {
-            this.filters[kType][kComp] = ['None'].concat(Object.keys(values).sort());
+            newFilter[kType][kComp] = ['None'].concat(Object.keys(values).sort());
             validFilter = true;
           }
         }
@@ -321,10 +327,15 @@ export default {
           this.toggleFilters[kType] = false;
         }
       }
+      this.filters = newFilter;
+      this.resetFilters();
     },
     updateResults(term, val) {
       this.searchTerm = term;
+      this.searchResultsSplitted = {};
+      this.searchResultsSplittedFiltered = {};
       this.searchResults = val;
+
       // count types
       this.countResults();
       // get filters
@@ -343,14 +354,14 @@ export default {
       const value = select.options[select.selectedIndex].innerHTML.trim().toLowerCase();
 
       // copy the dict of filter to trigger the change
-      const test = JSON.parse(JSON.stringify(this.activeFilters));
+      const newActiveFilters = JSON.parse(JSON.stringify(this.activeFilters));
       if (value === 'none') {
-        delete test[type][compo];
+        delete newActiveFilters[type][compo];
       } else {
-        test[type][compo] = value;
+        newActiveFilters[type][compo] = value;
       }
       // trigger changes in the computed property 'searchResultsSplittedFiltered'
-      this.activeFilters = test;
+      this.activeFilters = newActiveFilters;
     },
     showTab(elementType) {
       return this.showTabType === elementType;
@@ -366,14 +377,22 @@ export default {
         },
       );
     },
+    resetFilters() {
+      for (const tabname of this.tabs) {
+        this.toggleFilters[tabname] = false;
+        this.activeFilters[tabname] = {};
+        this.disabledFilters[tabname] = false;
+      }
+
+      // reset <select>
+      $('div.box select').each(function f() {
+        $(this).find('option').first().prop('selected', true);
+      });
+    },
   },
   created() {
     // init filter booleans
-    for (const tabname of this.tabs) {
-      this.toggleFilters[tabname] = false;
-      this.activeFilters[tabname] = {};
-      this.disabledFilters[tabname] = false;
-    }
+    this.resetFilters();
   },
   beforeMount() {
     this.searchTerm = this.$route.query.term;

@@ -7,6 +7,7 @@ from itertools import chain
 from api.models import GEM, Author
 from api.serializers import *
 
+import re
 import logging
 
 class JSONResponse(HttpResponse):
@@ -347,23 +348,91 @@ def get_metabolite_reactome(request, reaction_component_id, reaction_id):
 
     return JSONResponse(result)
 
+
+def rewriteEquation(term):
+    # TODO there is probably something better to do here
+    term = term.replace("+", " + ")
+    term = term.replace("=>", " => ")
+    term = re.sub("\\s{2,}", " ", term)
+    term = term.strip()
+    term = re.sub("(NA|NADP|H)\s\+\s\[", "\g<1>+[", term, flags=re.IGNORECASE)
+    term = re.sub("(NA|NADP|H)\s\+(\s=>|$)", "\g<1>+\g<2>", term, flags=re.IGNORECASE)
+    rp = term.split('=>')
+    if len(rp) > 1:
+        reactants = rp[0].split(' + ')
+        for i in range(len(reactants)):
+            reactants[i] = reactants[i].strip()
+            if reactants[i] and not re.match(".+\[.\]$", reactants[i]):
+                reactants[i] = reactants[i] + "[_]"
+        products = rp[1].split(' + ')
+        for i in range(len(products)):
+            products[i] = products[i].strip()
+            if products[i] and not re.match(".+\[.\]$", products[i]):
+                products[i] = products[i] + "[_]"
+        reactants = " + ".join(reactants)
+        products = " + ".join(products)
+        return "%%%s => %s%%" % (reactants, products)
+    else:
+        elements = rp[0].split(' + ')
+        for i in range(len(elements)):
+            elements[i] = elements[i].strip()
+            if elements[i] and not re.match(".+\[.\]$", elements[i]):
+                elements[i] = elements[i] + "[_]"
+
+        elements = " + ".join(elements)
+        return "%%%s%%" % elements
+
+
 @api_view()
 def search(request, term, truncated):
-    metabolites = Metabolite.objects.filter(
-        Q(kegg__icontains=term) |
-        Q(hmdb__icontains=term) |
-        Q(hmdb_name__icontains=term)
-    )
 
-    enzymes = Enzyme.objects.filter(
-        Q(uniprot_acc__icontains=term)
-    )
+    if len(term.strip()) < 2:
+        return HttpResponse(status=404)
 
     if truncated:
         limit = 50
     else:
         # limit the size anyway
         limit = 1000
+
+    metabolites = Metabolite.objects.filter(
+        Q(kegg__iexact=term) |
+        Q(hmdb__iexact=term) |
+        Q(hmdb_name__icontains=term)
+    )
+
+    enzymes = Enzyme.objects.filter(
+        Q(uniprot_acc__iexact=term)
+    )
+
+    compartments = Compartment.objects.filter(name__icontains=term)
+
+    subsystems = Subsystem.objects.filter(
+        Q(name__icontains=term) |
+        Q(external_id__iexact=term)
+    )
+
+    reactions = []
+    term = term.replace("→", "=>")
+    if term.strip() not in ['+', '=>']:
+        termEq = re.sub("[\(\[\{]\s?(.)\s?[\)\]\}]", "[\g<1>]", term)
+
+        reactions = Reaction.objects.filter(
+            Q(name__icontains=term) |
+            Q(equation__icontains=termEq) |
+            Q(ec__iexact=term) |
+            Q(sbo_id__iexact=term)
+        )[:limit]
+
+        termEq = None
+        reactions2 = []
+        if '+' in term or '=>' in term:
+            termEq = rewriteEquation(term)
+            reactions2 = Reaction.objects.extra(
+                where=["reaction::text ILIKE %s"], params=[termEq]
+            )[:limit]
+
+        reactions = list(chain(reactions, reactions2))
 
     components = ReactionComponent.objects.filter(
             Q(id__icontains=term) |
@@ -373,12 +442,23 @@ def search(request, term, truncated):
             Q(metabolite__in=metabolites) |
             Q(enzyme__in=enzymes)
         ).order_by('short_name')[:limit]
-    if components.count() == 0:
+
+    if (components.count() + compartments.count() + subsystems.count() + len(reactions))== 0:
         return HttpResponse(status=404)
 
-    serializer = ReactionComponentSearchSerializer(components, many=True)
+    RCserializer = ReactionComponentSearchSerializer(components, many=True)
+    compartmentSerializer = CompartmentSerializer(compartments, many=True)
+    subsystemSerializer = SubsystemSerializer(subsystems, many=True)
+    reactionSerializer = ReactionSearchSerializer(reactions, many=True)
 
-    return JSONResponse(serializer.data)
+    results = {
+        'reactionComponent': RCserializer.data,
+        'compartment': compartmentSerializer.data,
+        'subsystem': subsystemSerializer.data,
+        'reaction': reactionSerializer.data
+    }
+
+    return JSONResponse(results)
 
 @api_view(['POST'])
 def convert_to_reaction_component_ids(request, compartmentID):

@@ -74,6 +74,18 @@ class ReactionSerializer(serializers.ModelSerializer):
         ss_ids = ReactionSubsystem.objects.filter(reaction=model.id).values_list('subsystem')
         return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
+class ReactionSearchSerializer(serializers.ModelSerializer):
+    subsystem = serializers.SerializerMethodField('get_subsystems')
+
+    class Meta:
+        model = Reaction
+        fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
+            'compartment', 'subsystem')
+
+    def get_subsystems(self, model):
+        ss_ids = ReactionSubsystem.objects.filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+
 
 # This is a helper class to determine if a component is a currency metabolite
 class CurrencyMetaboliteReactionComponent(object):
@@ -133,6 +145,19 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     expressions = ExpressionDataSerializer(many=True)
     uniprot_link = serializers.CharField()
     ensembl_link = serializers.CharField()
+
+
+class SubsystemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subsystem
+        fields = ('name', 'system', 'external_id', 'description')
+
+class CompartmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Compartment
+        fields = ('name',)
 
 # =======================================================================================
 
