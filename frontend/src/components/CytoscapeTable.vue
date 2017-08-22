@@ -15,10 +15,13 @@
     </div>
     <div>
       <span>
-        # Metabolite: {{ metaboliteCount }}
+        # Metabolite(s): {{ metaboliteCount }}
       </span>
-      <span>
-         - # Enzyme: {{ enzymeCount }}
+      <span v-show="enzymeCount">
+         - # Enzyme(s): {{ enzymeCount }}
+      </span>
+      <span v-show="reactionCount">
+         - # Reaction(s): {{ reactionCount }}
       </span>
     </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">
@@ -92,6 +95,15 @@ export default {
     },
     metaboliteCount() {
       return this.elms.filter(el => el.type === 'metabolite').length;
+    },
+    reactionCount() {
+      const countReation = {};
+      for (const el of this.filteredElms) {
+        if (el.reactionid) {
+          countReation[el.reactionid] = 1;
+        }
+      }
+      return Object.keys(countReation).length;
     },
   },
   methods: {
