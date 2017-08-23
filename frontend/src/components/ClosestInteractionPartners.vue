@@ -577,10 +577,6 @@ export default {
         pan: cypan,
       });
     },
-    refreshGraph() {
-      // this.cy.elements().remove();
-      // this.cy.add(this.rawElms);
-    },
     fitGraph() {
       setTimeout(() => {
         this.cy.fit();
