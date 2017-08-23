@@ -64,7 +64,7 @@ export default function (xmlText) {
                 if (isWantedCssAttribute(key)) {
                     var renamedAttribute = renameWantedCssAttribute(key);
                     $(this).attr({ key: renamedAttribute });
-                    if (hasPxAttribute(key)) {}
+                    if (hasPxAttribute(key)) {
                         // remove px from numerical vallue
                         $(this).text($(this).text().replace('px', ''));
                     }
