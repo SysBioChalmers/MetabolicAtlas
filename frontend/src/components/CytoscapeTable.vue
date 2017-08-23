@@ -182,25 +182,27 @@ export default {
 
 <style lang="scss">
 
-th {
-  cursor: pointer;
-  user-select: none;
-}
+.cytoscape-table {
+  th {
+    cursor: pointer;
+    user-select: none;
+  }
 
-tr.highlight {
-  background-color: #C5F4DD !important;
-}
+  tr.highlight {
+    background-color: #C5F4DD !important;
+  }
 
-#unmachingTableBody {
-  opacity: 0.3;
-}
+  #unmachingTableBody {
+    opacity: 0.3;
+  }
 
-sup {
-  vertical-align: bottom;
-  font-size: 0.7em;
+  sup {
+    vertical-align: bottom;
+    font-size: 0.7em;
 
-  &.top {
-    vertical-align: top;
+    &.top {
+      vertical-align: top;
+    }
   }
 }
 

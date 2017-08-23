@@ -21,7 +21,7 @@ export default {
     human: 'Human',
     yeast: 'Yeast',
     reset: 'Reset',
-    export: 'Export',
+    exportButton: 'Export to Excel',
     tab1title: 'The whole metabolic network',
     tab2title: 'Reporter metabolites',
     tab3title: 'Closest interaction partners',

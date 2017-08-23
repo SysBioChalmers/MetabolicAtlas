@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="search-table">
     <div class="container columns">
       <div class="column is-offset-3">
         <global-search
@@ -409,22 +409,23 @@ export default {
 </script>
 
 <style lang="scss">
+#search-table {
+  .red {
+    color: #ff1a1a;
+  }
 
-.red {
-  color: #ff1a1a;
-}
+  .green {
+    color: #33cc33;
+  }
 
-.green {
-  color: #33cc33;
-}
-
-.tabs li.is-disabled {
-  cursor: not-allowed;
-  color: gray;
-  opacity: 0.75;
-
-  a {
+  .tabs li.is-disabled {
     cursor: not-allowed;
+    color: gray;
+    opacity: 0.75;
+
+    a {
+      cursor: not-allowed;
+    }
   }
 }
 

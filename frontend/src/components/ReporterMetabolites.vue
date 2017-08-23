@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="reporter-metabolites">
     <div class="columns">
       <div class="column is-2">
         <div class="field">
@@ -318,70 +318,71 @@ export default {
 </script>
 
 <style lang="scss">
+#reporter-metabolites {
+  #idarea {
+    width: 100px;
+    height: 200px;
+  }
 
-#idarea {
-  width: 100px;
-  height: 200px;
-}
-
-#svg-wrapper {
-  margin: auto;
-  width: 100%;
-  img {
-    padding: 20px;
-    width: 600px;
+  #svg-wrapper {
     margin: auto;
+    width: 100%;
+    img {
+      padding: 20px;
+      width: 600px;
+      margin: auto;
+    }
   }
-}
 
-#svgbox {
-  position: relative;
-  margin: auto;
-  width:1200px;
-  height:700px;
-  border: 1px solid black;
-}
-
-#svgOption {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 50px;
-  height: 30px;
-  z-index: 10;
-
-  span {
-    display: inline-block;
-    margin-right: 5px;
+  #svgbox {
+    position: relative;
+    margin: auto;
+    width:1200px;
+    height:700px;
+    border: 1px solid black;
   }
-}
 
-#svgMissing {
-  position: absolute;
-  top: 10rem;
-  left: 28rem;
-  z-index: 10;
-}
+  #svgOption {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 50px;
+    height: 30px;
+    z-index: 10;
 
-#table-res {
-  margin-top: 1rem;
-}
-
-
-tr.m-tr {
-  cursor: pointer;
-  td {
-      padding: 0.3em 0.5em;
+    span {
+      display: inline-block;
+      margin-right: 5px;
+    }
   }
-}
 
-tr.sel-tr {
-  background: #eee;
-}
+  #svgMissing {
+    position: absolute;
+    top: 10rem;
+    left: 28rem;
+    z-index: 10;
+  }
+
+  #table-res {
+    margin-top: 1rem;
+  }
 
 
-svg .hl {
-  fill: #22FFFF;
+  tr.m-tr {
+    cursor: pointer;
+    td {
+        padding: 0.3em 0.5em;
+    }
+  }
+
+  tr.sel-tr {
+    background: #eee;
+  }
+
+
+  svg .hl {
+    fill: #22FFFF;
+  }
 }
 
 </style>

@@ -8,31 +8,56 @@
       <div v-show="!errorMessage">
         <div class="container columns">
           <div class="column is-8">
-            <h3 class="title is-3" v-html="title"></h3>
+            <h3 class="title is-3 is-marginless" v-html="title"></h3>
           </div>
-          <div v-show="showNetworkGraph" class="column" v-on:mouseleave="showMenuExport = false">
-            <a class="button is-primary" v-on:click="showMenuExport = !showMenuExport">Export graph</a>
-            <div v-show="showMenuExport" id="contextMenuExport" ref="contextMenuExport">
-              <span class="button is-dark" v-on:click="exportGraphml">Graphml</span>
-              <span class="button is-dark" v-on:click="exportPNG">PNG</span>
+          <div class="column">
+            <div class="dropdown" id="dropdownMenuExport">
+              <div class="dropdown-trigger">
+                <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
+                @click="showMenuExport=!showMenuExport">
+                  <span>Export graph</span>
+                  <span class="icon is-small">
+                    &#9663;
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu" v-show="showMenuExport"
+              v-on:mouseleave="showMenuExport = false">
+                <div class="dropdown-content">
+                  <a class="dropdown-item" v-on:click="exportGraphml">
+                    Graphml
+                  </a>
+                  <a class="dropdown-item" v-on:click="exportPNG">
+                    PNG
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-          <span v-show="selectedElmId !==reactionComponentId"
+          <span v-show="selectedElmId !== reactionComponentId"
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span v-show="!expandedIds.includes(selectedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
-          <span v-show="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
-           v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
-          </span>
-          <span v-show="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot
-          </span>
-          <span v-show="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB
-          </span>
+          <div v-show="selectedElm && selectedElm.type === 'enzyme'">
+            <span class="is-black sep is-paddingless"></span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(3)">Show enzyme</span>
+            <span class="is-black sep is-paddingless"></span>
+            <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
+            <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span>
+          </div>
+          <div v-show="selectedElm && selectedElm.type === 'metabolite'">
+            <span class="is-black sep is-paddingless"></span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(4)">Show metabolite</span>
+            <span class="is-black sep is-paddingless"></span>
+            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
+            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span>
+          </div>
         </div>
         <div v-show="showNetworkGraph" class="container columns">
           <div class="column is-8">
@@ -46,14 +71,16 @@
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="toggleGraphLegend"></button>
               <span class="label">Enzyme</span>
-              <div>
+              <div class="comp">
                 <span>Shape:</span>
-                <select v-model="nodeDisplayParams.enzymeNodeShape" 
-                v-on:change="redrawGraph()">
-                  <option v-for="shape in availableNodeShape">
-                  {{ shape }}
-                  </option>
-                </select>
+                <div class="select">
+                  <select v-model="nodeDisplayParams.enzymeNodeShape" 
+                  v-on:change="redrawGraph()">
+                    <option v-for="shape in availableNodeShape">
+                    {{ shape }}
+                    </option>
+                  </select>
+                </div>
                 <span>Color:</span>
                 <span class="color-span"
                   v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
@@ -62,37 +89,41 @@
                   v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph(false, 'enzyme')"></compact-picker>
                 </span>
               </div>
-              <div>
+              <div class="comp">
                 <label class="checkbox">
                   <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
                   <span>Show expression levels</span>
                 </label>
-                <div>
-                  <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
-                  @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                    <optgroup label="HPA RNA levels - Tissues">
-                      <option v-for="tissue in hpaTissues" :value="tissue">
-                        {{ tissue }}
-                      </option>
-                    </optgroup>
-                    <optgroup label="HPA RNA levels - Cell-type">
-                      <option v-for="cellType in hpaCellLines" :value="cellType">
-                        {{ cellType }}
-                      </option>
-                    </optgroup>
-                  </select>
+                <div class="comp">
+                  <div class="select">
+                    <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
+                    @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                      <optgroup label="HPA - RNA levels - Tissues">
+                        <option v-for="tissue in hpaTissues" :value="tissue">
+                          {{ tissue }}
+                        </option>
+                      </optgroup>
+                      <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
+                        <option v-for="cellType in hpaCellLines" :value="cellType">
+                          {{ cellType }}
+                        </option>
+                      </optgroup>
+                    </select>
+                  </div>
                 </div>
               </div>
               <hr>
               <span class="label">Metabolite</span>
-              <div>
+              <div class="comp">
                 <span>Shape:</span>
-                <select v-model="nodeDisplayParams.metaboliteNodeShape" 
-                v-on:change="redrawGraph()">
-                  <option v-for="shape in availableNodeShape">
-                  {{ shape }}
-                  </option>
-                </select>
+                <div class="select">
+                  <select v-model="nodeDisplayParams.metaboliteNodeShape" 
+                  v-on:change="redrawGraph()">
+                    <option v-for="shape in availableNodeShape">
+                    {{ shape }}
+                    </option>
+                  </select>
+                </div>
                 <span>Color:</span>
                  <span class="color-span"
                   v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
@@ -138,6 +169,7 @@ import { default as FileSaver } from 'file-saver';
 import Sidebar from 'components/Sidebar';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
+import { default as EventBus } from '../event-bus';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
 import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
@@ -545,10 +577,6 @@ export default {
         pan: cypan,
       });
     },
-    refreshGraph() {
-      // this.cy.elements().remove();
-      // this.cy.add(this.rawElms);
-    },
     fitGraph() {
       setTimeout(() => {
         this.cy.fit();
@@ -727,7 +755,7 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    fixSelectOption() {
+    fixEnzSelectOption() {
       const option = document.getElementById('enz-select')
       .getElementsByTagName('optgroup')[0].childNodes[0];
       option.selected = 'selected';
@@ -770,7 +798,7 @@ export default {
             redraw = true;
           }
           this.nodeDisplayParams.enzymeExpSample = expSample;
-        } else if (this.nodeDisplayParams.enzymeExpSource) {
+        } else {
           this.nodeDisplayParams.enzymeExpSource = false;
           this.nodeDisplayParams.enzymeExpType = false;
           this.nodeDisplayParams.enzymeExpSample = false;
@@ -789,11 +817,12 @@ export default {
         this.nodeDisplayParams.metaboliteExpSample = false;
       }
       if (redraw) {
-        console.log('redraw');
         setTimeout(() => {
-          if (!expSample) {
-            // fix option selection
-            this.fixSelectOption();
+          if ((expSource && expType) && !expSample) {
+            // fix option selection! because of optgroup?
+            if (this.toggleEnzymeExpLevel) {
+              this.fixEnzSelectOption();
+            }
           }
           this.redrawGraph(true);
         }, 0);
@@ -825,6 +854,10 @@ export default {
         level: lvl,
       });
     },
+    viewReactionComponent: function viewReactionComponent(tabIndex) {
+      EventBus.$emit('updateSelTab', tabIndex,
+       this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
+    },
     chemicalFormula,
     chemicalName,
     chemicalNameLink,
@@ -852,6 +885,12 @@ h1, h2 {
   overflow-y: auto;
 }
 
+#dropdownMenuExport {
+  .dropdown-menu {
+    display: block;
+  }
+}
+
 #contextMenuGraph, #contextMenuExport, #contextMenuExpression {
   position: absolute;
   z-index: 20;
@@ -861,10 +900,15 @@ h1, h2 {
     padding: 5px 10px;
     text-align: left;
     border-radius: 0;
-
     a {
       color: white;
     }
+  }
+
+  span.sep.is-black {
+    background: #363636;
+    border-bottom: 1px solid black;
+    height: 1px;
   }
 }
 
@@ -880,6 +924,10 @@ h1, h2 {
     display: inline-block;
     margin-right: 5px;
   }
+
+  select {
+    padding: 3px;
+  }
 }
 
 #contextGraphLegend {
@@ -894,13 +942,13 @@ h1, h2 {
   border-radius: 2px;
   z-index: 999;
 
-  span, select, compact-picker {
+  span, div.select, compact-picker {
     display: inline-block;
     margin-right: 20px;
     margin-bottom: 10px;
   }
 
-  div {
+  div.comp {
     margin-left: 20px;
     display: block;
   }

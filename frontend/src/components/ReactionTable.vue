@@ -86,15 +86,17 @@ export default {
 
 <style lang="scss">
 
-span.tag {
-  cursor: pointer;
-}
+.reaction-table {
+  span.tag {
+    cursor: pointer;
+  }
 
-span.sc {
-  border-radius: 10px;
-  background: lightgray;
-  padding-right: 4px;
-  padding-left: 3px;
+  span.sc {
+    border-radius: 10px;
+    background: lightgray;
+    padding-right: 4px;
+    padding-left: 3px;
+  }
 }
 
 </style>

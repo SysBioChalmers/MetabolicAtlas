@@ -2,7 +2,7 @@
    <div v-if="errorMessage">
     {{ errorMessage }}
    </div>
-  <div v-else>
+  <div v-else id="models">
     <span class="title">Models</span>
     <br>
     <span id="show-m-but" class="button is-primary" :class="{'is-active': showMaintained }"
@@ -202,38 +202,40 @@ export default {
 
 <style lang="scss">
 
-.title {
-  display: block;
-  margin-bottom: 1rem;
-}
-
-#show-m-but {
-  margin-bottom: 1rem;
-}
-
-.dsc, .name {
-  height: 75px;
-  line-height: 75px;
-
-  span {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: normal;
+#models {
+  .title {
+    display: block;
+    margin-bottom: 1rem;
   }
-}
 
-.m-row {
-  cursor: pointer;
-}
+  #show-m-but {
+    margin-bottom: 1rem;
+  }
 
-.name {
-  font-size: 1.5rem;
-}
+  .dsc, .name {
+    height: 75px;
+    line-height: 75px;
 
-.modal-content {
-  width: 1024px;
-  padding: 1rem;
-  background: white;
+    span {
+      display: inline-block;
+      vertical-align: middle;
+      line-height: normal;
+    }
+  }
+
+  .m-row {
+    cursor: pointer;
+  }
+
+  .name {
+    font-size: 1.5rem;
+  }
+
+  .modal-content {
+    width: 1024px;
+    padding: 1rem;
+    background: white;
+  }
 }
 
 </style>
