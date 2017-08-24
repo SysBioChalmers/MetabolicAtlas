@@ -6,12 +6,14 @@
       <div v-show="errorMessage" class="notification is-danger">{{ errorMessage }}</div>
       <div v-show="!errorMessage">
         <div v-show="reactions.length > 0">
-          <div class="notification is-warning">{{ $t('tooManyReactions') }}</div>
+          <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
           <reaction-table :reactions="reactions"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
-          <div class="container columns">
-            <figure id="cy" ref="cy" class="column is-8"></figure>
+          <div class="columns">
+            <div class="column is-8">
+              <div id="cy" ref="cy" class="is-8 card is-paddingless"></div>
+            </div>
             <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
             <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
               <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
@@ -48,7 +50,7 @@ import ReactionTable from 'components/ReactionTable';
 import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
-import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
 
 export default {
@@ -72,9 +74,9 @@ export default {
 
       enzymeName: '',
       tableStructure: [
-        { field: 'type', colName: 'Type', modifier: null },
-        { field: 'reactionid', colName: 'Reaction ID', modifier: null },
-        { field: 'short', link: true, colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'type', colName: 'Type', modifier: false },
+        { field: 'reactionid', colName: 'Reaction ID', modifier: false },
+        { field: 'short', link: true, colName: 'Short name', modifier: false, rc: 'metabolite' },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
         {
@@ -246,7 +248,7 @@ export default {
     },
     chemicalFormula,
     chemicalName,
-    chemicalNameLink,
+    chemicalNameExternalLink,
     visitLink,
   },
   beforeMount() {
@@ -263,29 +265,31 @@ h1, h2 {
   font-weight: normal;
 }
 
-#cy {
-  position: static;
-  margin: auto;
-  height: 820px;
-}
+.connected-metabolites {
+  #cy {
+    position: static;
+    margin: auto;
+    height: 720px;
+  }
 
-#sidebar {
-  max-height: 820px;
-  overflow-y: auto;
-}
+  #sidebar {
+    max-height: 720px;
+    overflow-y: auto;
+  }
 
-#contextMenuGraph {
-  position: absolute;
-  z-index: 999;
+  #contextMenuGraph {
+    position: absolute;
+    z-index: 999;
 
-  span {
-    display: block;
-    padding: 5px 10px;
-    text-align: left;
-    border-radius: 0;
+    span {
+      display: block;
+      padding: 5px 10px;
+      text-align: left;
+      border-radius: 0;
 
-    a {
-      color: white;
+      a {
+        color: white;
+      }
     }
   }
 }

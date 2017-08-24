@@ -1,6 +1,6 @@
 <template>
-  <div class="columns table-search">
-    <div class="column field">
+  <div class="columns table-search" style="margin-bottom: 0; padding-bottom: 0">
+    <div class="column">
       <p class="control">
         <input
           v-model="term"
@@ -13,6 +13,7 @@
     </div>
     <div class="column is-1">
       <a
+        :disabled="!isSearching"
         class="button is-pulled-right"
         @click="clearSearch()"
       >{{ $t('reset') }}</a>
@@ -28,15 +29,22 @@ export default {
   data() {
     return {
       term: '',
+      isSearching: false,
     };
   },
   methods: {
     clearSearch() {
       this.term = '';
       this.reset();
+      this.isSearching = false;
     },
     search() {
       this.$emit('search', this.term);
+      if (this.term) {
+        this.isSearching = true;
+      } else {
+        this.isSearching = false;
+      }
     },
   },
 };
@@ -44,4 +52,5 @@ export default {
 </script>
 
 <style lang="sass">
+
 </style>

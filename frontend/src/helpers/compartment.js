@@ -115,23 +115,29 @@ export function getCompartmentFromCID(compartmentID) {
   return null;
 }
 
-function formatSpan(x) {
+function formatSpan(currentVal, index, array, elements) {
   const regex = /(.+)\[(.)\]/g;
-  const match = regex.exec(x);
-  return `${match[1]}<span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
+  const match = regex.exec(currentVal);
+  return `<rc id="${elements[index].id}">${match[1]}</rc><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
 }
 
-export function reformatChemicalReaction(value) {
-  if (value === null) {
+export function reformatChemicalReaction(equation, reaction) {
+  console.log(reaction);
+  if (reaction === null || equation === null) {
     return '';
   }
-  const arr = value.split(' &#8680; ');
+  const arr = equation.split(' &#8680; ');
+
+  // assumes the order in reaction.reactants (reps. reaction.products)
+  // are identique to the order or the reactants (resp. products) of the equation
 
   let reactants = arr[0].split(' + ');
-  reactants = reactants.map(formatSpan).join(' + ');
+  reactants = reactants.map(
+    (x, i, a) => formatSpan(x, i, a, reaction.reactants)).join(' + ');
 
   let products = arr[1].split(' + ');
-  products = products.map(formatSpan).join(' + ');
+  products = products.map(
+    (x, i, a) => formatSpan(x, i, a, reaction.products)).join(' + ');
 
   return `${reactants} &#8680; ${products}`;
 }

@@ -133,7 +133,7 @@
                 </span>
               </div>
             </div>
-            <div id="cy" ref="cy">
+            <div id="cy" ref="cy" class="card is-paddingless">
             </div>
           </div>
           <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
@@ -172,7 +172,7 @@ import Loader from 'components/Loader';
 import { default as EventBus } from '../event-bus';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
-import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { fetchXML, parseXML } from '../helpers/xml-tools';
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
@@ -219,11 +219,11 @@ export default {
 
       cy: null,
       tableStructure: [
-        { field: 'type', colName: 'Type', modifier: null },
-        { field: 'short', link: true, colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'type', colName: 'Type', modifier: false },
+        { field: 'short', colName: 'Short name', modifier: false, rc: 'type' },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
-        { field: 'compartment', colName: 'Compartment', modifier: null },
+        { field: 'compartment', colName: 'Compartment', modifier: false },
       ],
 
       showMenuExport: false,
@@ -860,7 +860,7 @@ export default {
     },
     chemicalFormula,
     chemicalName,
-    chemicalNameLink,
+    chemicalNameExternalLink,
     visitLink,
     fetchXML,
     parseXML,
@@ -869,121 +869,123 @@ export default {
 </script>
 
 <style lang='scss'>
+.closest-interaction-partners {
 
-h1, h2 {
-  font-weight: normal;
-}
-
-#cy {
-  position: absolute;
-  margin: auto;
-  height: 820px;
-}
-
-#sidebar {
-  max-height: 820px;
-  overflow-y: auto;
-}
-
-#dropdownMenuExport {
-  .dropdown-menu {
-    display: block;
+  h1, h2 {
+    font-weight: normal;
   }
-}
 
-#contextMenuGraph, #contextMenuExport, #contextMenuExpression {
-  position: absolute;
-  z-index: 20;
+  #cy {
+    position: static;
+    margin: auto;
+    height: 820px;
+  }
 
-  span {
-    display: block;
-    padding: 5px 10px;
-    text-align: left;
-    border-radius: 0;
-    a {
-      color: white;
+  #sidebar {
+    max-height: 820px;
+    overflow-y: auto;
+  }
+
+  #dropdownMenuExport {
+    .dropdown-menu {
+      display: block;
     }
   }
 
-  span.sep.is-black {
-    background: #363636;
-    border-bottom: 1px solid black;
-    height: 1px;
-  }
-}
+  #contextMenuGraph, #contextMenuExport, #contextMenuExpression {
+    position: absolute;
+    z-index: 20;
 
-#graphOption {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 220px;
-  height: 30px;
-  z-index: 10;
+    span {
+      display: block;
+      padding: 5px 10px;
+      text-align: left;
+      border-radius: 0;
+      a {
+        color: white;
+      }
+    }
 
-  span {
-    display: inline-block;
-    margin-right: 5px;
-  }
-
-  select {
-    padding: 3px;
-  }
-}
-
-#contextGraphLegend {
-  position: absolute;
-  background: white;
-  top: 32px;
-  left: 0;
-  width: auto;
-  height: auto;
-  padding: 15px;
-  border: 1px solid black;
-  border-radius: 2px;
-  z-index: 999;
-
-  span, div.select, compact-picker {
-    display: inline-block;
-    margin-right: 20px;
-    margin-bottom: 10px;
+    span.sep.is-black {
+      background: #363636;
+      border-bottom: 1px solid black;
+      height: 1px;
+    }
   }
 
-  div.comp {
-    margin-left: 20px;
-    display: block;
+  #graphOption {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 220px;
+    height: 30px;
+    z-index: 10;
+
+    span {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    select {
+      padding: 3px;
+    }
   }
 
-  span.label {
-    display: block;
-    margin-left: 0;
-  }
-
-  .delete {
-    position : absolute;
-    right: 10px;
-    top: 10px;
-  }
-
-  span.color-span {
-    height: 20px;
-    width: 25px;
+  #contextGraphLegend {
+    position: absolute;
+    background: white;
+    top: 44px;
+    left: 12px;
+    width: auto;
+    height: auto;
+    padding: 15px;
     border: 1px solid black;
-    vertical-align: middle;
-    margin-right: 15px;
-    margin-bottom: 5px;
+    border-radius: 2px;
+    z-index: 999;
+
+    span, div.select, compact-picker {
+      display: inline-block;
+      margin-right: 20px;
+      margin-bottom: 10px;
+    }
+
+    div.comp {
+      margin-left: 20px;
+      display: block;
+    }
+
+    span.label {
+      display: block;
+      margin-left: 0;
+    }
+
+    .delete {
+      position : absolute;
+      right: 10px;
+      top: 10px;
+    }
+
+    span.color-span {
+      height: 20px;
+      width: 25px;
+      border: 1px solid black;
+      vertical-align: middle;
+      margin-right: 15px;
+      margin-bottom: 5px;
+    }
+
+    span.color-span:hover {
+      cursor: pointer;
+    }
   }
 
-  span.color-span:hover {
-    cursor: pointer;
+  #t-select {
+    margin-top: 0.75rem;
   }
-}
 
-#t-select {
-  margin-top: 0.75rem;
-}
-
-#enz-select {
-  min-width: 240px;
+  #enz-select {
+    min-width: 240px;
+  }
 }
 
 </style>

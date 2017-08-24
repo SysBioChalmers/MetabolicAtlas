@@ -129,11 +129,14 @@ class InteractionPartnerSerializer(serializers.ModelSerializer):
 class MetaboliteReactionSerializer(serializers.Serializer):
     reaction_id = serializers.CharField()
     enzyme_role = serializers.CharField()
-    # reaction_subsystem = serializers.SerializerMethodField('get_subsystems')
+    subsystem = serializers.SerializerMethodField('get_subsystems')
     reactants = ReactionComponentSerializer(many=True, read_only=True)
     products = ReactionComponentSerializer(many=True, read_only=True)
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
 
+    def get_subsystems(self, model):
+        ss_ids = ReactionSubsystem.objects.filter(reaction=model.reaction_id).values_list('subsystem')
+        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
 
 class ConnectedMetabolitesSerializer(serializers.Serializer):

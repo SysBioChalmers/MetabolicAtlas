@@ -13,7 +13,7 @@ export function chemicalName(value) {
   return value.replace(/([^\s])(\+)([^\s]?)/g, '$1<sup class="top">$2</sup>$3').replace(/H2O/, 'H<sub>2</sub>O');
 }
 
-export function chemicalNameLink(value, link) {
+export function chemicalNameExternalLink(value, link) {
   if (value === null) {
     return '';
   }

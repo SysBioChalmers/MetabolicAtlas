@@ -3,7 +3,8 @@
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
       <div v-show="false" id="diagram"></div>
-      <reaction-table :reactions="reactions"></reaction-table>
+      <reaction-table v-show="!showLoader" :reactions="reactions"></reaction-table>
+      <loader v-show="showLoader"></loader>
     </div>
   </div>
 </template>
@@ -14,23 +15,32 @@ import axios from 'axios';
 import SVG from 'svg.js';
 import 'svg.connectable.js';
 import 'svg.draggy.js';
+import Loader from 'components/Loader';
 import ReactionTable from 'components/ReactionTable';
 
 export default {
   name: 'reactome',
   components: {
     ReactionTable,
+    Loader,
   },
   data() {
     return {
       errorMessage: '',
       reactions: [],
       reactome: null,
+      showLoader: true,
     };
+  },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      this.loadReactions();
+    },
   },
   mounted() {
     this.loadReactions();
-    this.drawDiagram();
+    // this.drawDiagram();
   },
   methods: {
     drawDiagram() {
@@ -64,6 +74,7 @@ export default {
       }, g3).setLineColor('#5D4037');
     },
     loadReactions() {
+      this.showLoader = true;
       const id = this.$route.params.reaction_component_id ||
        this.$route.query.reaction_component_id;
       axios.get(`metabolite_reactions/${id}`)
@@ -71,9 +82,10 @@ export default {
           this.errorMessage = '';
           this.reactions = response.data;
           if (this.reactions.length > 0) {
-            const r = this.reactions[0];
-            this.loadReactome(r.id);
+            // const r = this.reactions[0];
+            // this.loadReactome(r.id);
           }
+          this.showLoader = false;
         });
     },
     // TODO: call loadReactome when selecting a row from the table of reactions
@@ -84,6 +96,7 @@ export default {
         .then((response) => {
           this.errorMessage = '';
           this.reactome = response.data;
+          this.showLoader = false;
         });
     },
   },
