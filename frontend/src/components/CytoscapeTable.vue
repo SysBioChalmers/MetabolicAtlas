@@ -205,7 +205,6 @@ export default {
 .cytoscape-table {
   th {
     cursor: pointer;
-    user-select: none;
   }
 
   tr.highlight {
