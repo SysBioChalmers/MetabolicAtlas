@@ -11,18 +11,18 @@
         </div>
         <div v-show="reactions.length === 0">
           <div class="columns">
-            <div class="column is-8">
+            <div id="cygraph-wrapper" class="column is-8">
               <div id="cy" ref="cy" class="is-8 card is-paddingless"></div>
+              <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
+                <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
+                 v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
+                </span>
+                <span v-if="selectedElm && selectedElm.link && selectedElm.type === 'enzyme'" class="button is-dark"
+                  v-on:click='visitLink(selectedElm.link, true)'>View in Uniprot
+                </span>
+              </div>
             </div>
             <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
-            <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
-              <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
-               v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
-              </span>
-              <span v-if="selectedElm && selectedElm.link && selectedElm.type === 'enzyme'" class="button is-dark"
-                v-on:click='visitLink(selectedElm.link, true)'>View in Uniprot
-              </span>
-            </div>
           </div>
           <div class="container">
             <cytoscape-table
@@ -266,6 +266,10 @@ h1, h2 {
 }
 
 .connected-metabolites {
+  #cygraph-wrapper {
+    position: relative;
+  }
+
   #cy {
     position: static;
     margin: auto;
