@@ -56,7 +56,7 @@
 <script>
 import axios from 'axios';
 import Reactome from 'components/Reactome';
-import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 
 
 export default {
@@ -92,10 +92,14 @@ export default {
   watch: {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
-      this.load();
+      this.setup();
     },
   },
   methods: {
+    setup() {
+      this.mId = this.$route.query.reaction_component_id;
+      this.load();
+    },
     load() {
       axios.get(`metabolite/${this.mId}/`)
       .then((response) => {
@@ -124,20 +128,22 @@ export default {
     },
   },
   beforeMount() {
-    this.load();
+    this.setup();
   },
   chemicalFormula,
   chemicalName,
-  chemicalNameLink,
+  chemicalNameExternalLink,
 };
 </script>
 
 <style lang="scss">
 
-#main-table tr td.td-key, #hmdb-table tr td.td-key {
-  background: #64CC9A;
-  width: 150px;
-  color: white;
+.metabolite-table {
+  #main-table tr td.td-key, #hmdb-table tr td.td-key {
+    background: #64CC9A;
+    width: 150px;
+    color: white;
+  }
 }
 
 </style>

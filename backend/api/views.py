@@ -414,6 +414,7 @@ def search(request, term, truncated):
 
     reactions = []
     term = term.replace("→", "=>")
+    term = term.replace("⇨", "=>")
     if term.strip() not in ['+', '=>']:
         termEq = re.sub("[\(\[\{]\s?(.)\s?[\)\]\}]", "[\g<1>]", term)
 

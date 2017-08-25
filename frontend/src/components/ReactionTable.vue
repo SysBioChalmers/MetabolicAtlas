@@ -1,9 +1,15 @@
 <template>
   <div class="container reaction-table">
+    <div class="field">
+      <span class="tag">
+        # Reaction(s): {{ reactions.length }}
+      </span>
+    </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">
       <thead>
-        <tr>
-          <th v-for="f in fields"
+        <tr style="background: #F8F4F4">
+          <th class="is-unselectable"
+          v-for="f in fields"
             @click="sortBy(f)">{{ f }}
             </th>
         </tr>
@@ -11,12 +17,12 @@
       <tbody>
         <tr v-for="(r, index) in sortedReactions">
           <td>{{ r.id }}</td>
-          <td v-html="reformatChemicalReactionHTML(r.equation)"></td>
+          <td v-html="reformatChemicalReactionHTML(r.equation, r)"></td>
           <td>
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td>{{ r.subsystem.join('; ') }}</td>
-          <td v-html="getCompartment(r)"></td>
+          <td v-html="displayCompartment(r)"></td>
         </tr>
       </tbody>
     </table>
@@ -24,6 +30,7 @@
 </template>
 
 <script>
+import $ from 'jquery';
 import { default as EventBus } from '../event-bus';
 import { default as compare } from '../helpers/compare';
 import { chemicalReaction } from '../helpers/chemical-formatters';
@@ -48,15 +55,16 @@ export default {
     formatChemicalReaction(v) {
       return chemicalReaction(v);
     },
-    reformatChemicalReactionHTML(v) {
-      return reformatChemicalReaction(this.formatChemicalReaction(v));
+    reformatChemicalReactionHTML(v, r) {
+      return reformatChemicalReaction(this.formatChemicalReaction(v), r);
     },
     viewEnzyneReactions: function viewEnzyneReactions(modifier) {
       if (modifier) {
         EventBus.$emit('updateSelTab', 3, modifier.id);
       }
     },
-    getCompartment(r) {
+    displayCompartment(r) {
+      console.log(r);
       const comp = {};
       for (const el of r.reactants) {
         comp[el.compartment] = null;
@@ -80,21 +88,33 @@ export default {
       this.sortAsc = !this.sortAsc;
     },
   },
+  beforeMount() {
+    $('body').on('click', 'td rc', function f() {
+      EventBus.$emit('updateSelTab', 4, $(this).attr('id'));
+    });
+  },
 };
 
 </script>
 
 <style lang="scss">
 
-span.tag {
-  cursor: pointer;
-}
+.reaction-table {
 
-span.sc {
-  border-radius: 10px;
-  background: lightgray;
-  padding-right: 4px;
-  padding-left: 3px;
+  rc {
+    color: #64CC9A;
+  }
+
+  th, rc, span.tag {
+    cursor: pointer;
+  }
+
+  span.sc {
+    border-radius: 10px;
+    background: lightgray;
+    padding-right: 4px;
+    padding-left: 3px;
+  }
 }
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="about">
     <div class="container">
       <h2 class="title is-2">About us</h2>
       <p class="box">
@@ -53,9 +53,10 @@ export default {
 </script>
 
 <style lang="scss">
-
-.text {
-  padding-left: 0.75em;
+#about {
+  p.text, div.text {
+    padding-left: 0.75em;
+  }
 }
 
 </style>

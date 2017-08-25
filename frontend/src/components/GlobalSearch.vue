@@ -1,17 +1,20 @@
 <template>
   <div class="column" v-bind:class="quickSearch ? 'is-7' : 'is-8'">
     <div class="control">
-      <input
-        id="search"
-        class="input"
-        v-model="searchTermString"
-        @input="searchDebounce"
-        type="text"
-        :placeholder="$t('searchPlaceholder')"
-        v-on:keyup.enter="validateSearch()"
-        v-on:keyup.esc="showResults = false"
-        v-on:focus="showResults = true"
-        ref="searchInput">
+      <div id="input-wrapper">
+        <input
+          id="search"
+          class="input"
+          v-model="searchTermString"
+          @input="searchDebounce"
+          type="text"
+          :placeholder="$t('searchPlaceholder')"
+          v-on:keyup.enter="validateSearch()"
+          v-on:keyup.esc="showResults = false"
+          v-on:focus="showResults = true"
+          ref="searchInput">
+          <div id="text-input-alert" v-show="showSearchCharAlert">Type at least 2 char</div>
+      </div>
       <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
         <div v-if="searchResults" v-for="v, k in searchResults" class="searchGroupResultSection">
           <div v-for="r in v" class="searchResultSection">
@@ -59,10 +62,13 @@
             <hr>
           </div>
         </div>
-        <div v-show="noResult" class="has-text-centered">
+        <div v-show="showLoader" class="has-text-centered">
+          <a class="button is-primary is-inverted is-outlined is-large is-loading"></a>
+        </div>
+        <div v-show="!showLoader && noResult" class="has-text-centered">
           {{ $t('searchNoResult') }}
         </div>
-        <div v-show="!noResult">
+        <div v-show="!showLoader && !noResult">
           <div class="searchResultSection has-text-centered">
             <a @click="goToSearchPage()">Show more</a>
           </div>
@@ -74,7 +80,9 @@
 
 <script>
 import axios from 'axios';
+import Loader from 'components/Loader';
 import { chemicalFormula } from '../helpers/chemical-formatters';
+
 
 export default {
   name: 'global-search',
@@ -86,12 +94,17 @@ export default {
       default: '',
     },
   },
+  components: {
+    Loader,
+  },
   data() {
     return {
       errorMessage: '',
       searchResults: [],
       searchTermString: this.searchTerm,
+      showSearchCharAlert: false,
       showResults: true,
+      showLoader: false,
       noResult: false,
     };
   },
@@ -104,10 +117,14 @@ export default {
   },
   methods: {
     searchDebounce() {
+      this.noResult = false;
+      this.showSearchCharAlert = this.searchTermString.length === 1;
+
       if (!this.quickSearch) {
         return;
       }
 
+      this.showLoader = true;
       this._.debounce(() => {
         if (this.searchTermString.length >= 2) {
           this.search(this.searchTermString);
@@ -122,14 +139,17 @@ export default {
         this.noResult = true;
         for (const k of Object.keys(this.searchResults)) {
           if (this.searchResults[k].length) {
+            this.showSearchCharAlert = false;
             this.noResult = false;
             break;
           }
         }
+        this.showLoader = false;
       })
       .catch(() => {
         this.searchResults = [];
         this.noResult = true;
+        this.showLoader = false;
       });
     },
     goToTab(tabIndex, reactionComponentId) {
@@ -179,7 +199,7 @@ export default {
     validateSearch() {
       if (this.quickSearch) {
         this.goToSearchPage();
-      } else {
+      } else if (this.searchTermString.length >= 2) {
         this.search(this.searchTermString);
       }
     },
@@ -192,6 +212,19 @@ export default {
 
 #search {
   height: 38px;
+}
+
+#input-wrapper {
+  position: relative; /* for absolute child element */
+}
+
+#text-input-alert {
+  width: 150px;
+  height: 38px;
+  position: absolute; /* to align it to right and positon it over the input */
+  top: 10px;
+  right: 0;
+  color: lightgrey;
 }
 
 #searchResults {

@@ -23,16 +23,17 @@ export default function (e) {
   elms.push(enzyme);
 
   for (const r of e.reactions) {
+    console.log(r);
     const reaction = {
       id: r.reaction_id,
       reactionid: r.reaction_id,
       parentid: null,
       type: 'reaction',
-      short: `${r.reaction_id}\n(${r.reaction_subsystem})`,
+      short: `${r.reaction_id}\n(${r.subsystem})`,
       long: r.reaction_id,
       // description: r.reaction_id,
       // formula: r.formla,
-      pathway: r.reaction_subsystem,
+      subsystem: r.subsystem,
       link: getLink(r),
       // details: r.metabolite || r.enzyme,
     };
