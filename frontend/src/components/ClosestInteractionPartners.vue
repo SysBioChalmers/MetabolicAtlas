@@ -140,9 +140,9 @@
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-            <div>{{ $t('tooManyReactionsWarn') }}</div>
+            <div v-html="$t('tooManyReactionsWarn')"></div>
             <span v-show="reactionsCount <= maxReactionCount"
-            class="button" v-on:click="constructGraph(rawElms, rawRels);">{{ $t('tooManyReactionsBut') }}</span>
+            class="button" v-on:click="constructGraph(rawElms, rawRels, fitGraph)">{{ $t('tooManyReactionsBut') }}</span>
           </div>
         </div>
         <cytoscape-table
@@ -580,8 +580,8 @@ export default {
     fitGraph() {
       setTimeout(() => {
         this.cy.fit();
-      }, 500);
-      this.minZoom = this.cy.zoom() / 2.0;
+        this.minZoom = this.cy.zoom() / 2.0;
+      }, 300);
     },
     highlightNode(elmId) {
       if (!this.showNetworkGraph) {
@@ -592,7 +592,8 @@ export default {
       node.json({ selected: true });
       node.trigger('tap');
     },
-    constructGraph: function constructGraph(elms, rels) {
+    // this.switchSVG(compartmentID,
+    constructGraph: function constructGraph(elms, rels, callback) {
       /* eslint-disable no-param-reassign */
       const [elements, stylesheet] = graph(elms, rels, this.nodeDisplayParams);
       const reactionComponentId = this.reactionComponentId;
@@ -618,12 +619,9 @@ export default {
           },
           fit: true,
         },
-        // fit: true,
       });
-      this.cy.ready = this.cy.fit();
-
+      // this.cy.ready = this.cy.fit();
       this.cy.userZoomingEnabled(false);
-      // this.fitGraph();
 
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
@@ -647,17 +645,6 @@ export default {
           'overlay-padding': edgeWidth * 2,
         });
       });
-
-      // const c = document.getElementsByTagName('canvas')[0];
-      // const svgCxt = new C2S(c);
-      // const scope = this;
-      // const draw = function draw(ctx) {
-      //   const r = scope.cy.renderer();
-      //   r.drawElements(ctx, scope.cy.elements());
-      // };
-
-      // draw(svgCxt);
-      // console.log(svgCxt.getSvg());
 
       const contextMenuGraph = this.$refs.contextMenuGraph;
       this.showGraphContextMenu = false;
@@ -717,6 +704,11 @@ export default {
           updatePosition(node);
         }
       });
+      console.log(callback);
+      if (callback) {
+        console.log('callback');
+        callback();
+      }
       /* eslint-enable no-param-reassign */
     },
     // TODO: refactor
