@@ -10,6 +10,7 @@
       Maintained only
     </span>
     <div class="container">
+      <loader v-show="showLoader"></loader>
       <table v-show="filteredOldGEMS.length != 0" 
       class="table is-bordered is-striped is-narrow">
         <thead>
@@ -89,10 +90,14 @@
 <script>
 import axios from 'axios';
 import $ from 'jquery';
+import Loader from 'components/Loader';
 import { default as compare } from '../helpers/compare';
 
 export default {
   name: 'resources',
+  components: {
+    Loader,
+  },
   data() {
     return {
       fields: [
@@ -127,6 +132,7 @@ export default {
       sortedGEMS: [],
       showMaintained: false,
       showModelTable: false,
+      showLoader: false,
     };
   },
   computed: {
@@ -142,6 +148,7 @@ export default {
       .then((response) => {
         console.log(response);
         let model = response.data;
+        // reformat the dictionnary
         delete model.id;
         model = $.extend(model, model.sample);
         delete model.sample;
@@ -159,7 +166,6 @@ export default {
         }
 
         this.selectedModel = model;
-        console.log(this.selectedModel);
         this.showModelTable = true;
       })
       .catch(() => {
@@ -167,10 +173,10 @@ export default {
       });
     },
     getModels() {
+      this.showLoader = true;
       axios.get('gemodels/')
       .then((response) => {
         this.GEMS = [];
-        console.log(response.data);
         for (let i = 0; i < response.data.length; i += 1) {
           const gem = response.data[i];
           const sample = gem.sample;
@@ -179,10 +185,12 @@ export default {
         }
         this.sortedGEMS = this.GEMS;
         this.errorMessage = '';
+        this.showLoader = false;
       })
       .catch((error) => {
         console.log(error);
         this.errorMessage = this.$t('notFoundError');
+        this.showLoader = false;
       });
     },
     sortBy(field) {
