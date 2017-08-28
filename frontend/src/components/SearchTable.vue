@@ -56,7 +56,7 @@
               <td>the subsystem</td>
               <td>{{ item.compartment | capitalize }}</td>
               <td>
-                <a @click="viewComponentInfo(item.id, 5)">{{ item.id.slice(2) }}</a>
+                <a @click="viewComponentInfo(item.id, 4)">{{ item.id.slice(2) }}</a>
               </td>
               <td>{{ item.short_name }}</td>
               <td v-html="formulaFormater(item.formula)"></td>
@@ -82,7 +82,9 @@
                   <td>the model</td>
                   <td>the subsystem</td>
                   <td>{{ item.compartment | capitalize }}</td>
-                  <td>{{ item.id.slice(2) }}</td>
+                  <td>
+                    <a @click="viewComponentInfo(item.id, 3)">{{ item.id.slice(2) }}</a>
+                  </td>
                   <td>{{ item.short_name }}</td>
                   <td v-html="formulaFormater(item.formula)"></td>
                   <td>length</td>

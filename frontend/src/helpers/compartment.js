@@ -11,7 +11,7 @@ const data = {
     name: 'Peroxisome',
     letter: 'p',
     color: '',
-    svgName: '',
+    svgName: 'peroxisome',
     compartmentID: 2,
   },
   mitochondria: {
@@ -46,14 +46,14 @@ const data = {
     name: 'Golgi apparatus',
     letter: 'g',
     color: '',
-    svgName: '',
+    svgName: 'golgi',
     compartmentID: 7,
   },
   nucleus: {
     name: 'Nucleus',
     letter: 'n',
     color: '',
-    svgName: 'nucleus_no_min',
+    svgName: 'nucleosome',
     compartmentID: 8,
   },
   boundary: {

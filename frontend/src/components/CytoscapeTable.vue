@@ -117,16 +117,16 @@ export default {
       let tabIndex = 0;
       switch (type) {
         case 'metabolite':
-          tabIndex = 4;
+          tabIndex = 3;
           break;
         case 'enzyme':
-          tabIndex = 3;
+          tabIndex = 2;
           break;
         case 'reaction':
           tabIndex = -1;
           break;
         default:
-          tabIndex = 2;
+          tabIndex = 1;
       }
       EventBus.$emit('updateSelTab', tabIndex, id);
     },

@@ -244,7 +244,7 @@ export default {
         });
     },
     viewMetaboliteInfo: function viewMetaboliteInfo(id) {
-      this.$emit('updateSelTab', 4, id);
+      this.$emit('updateSelTab', 3, id);
     },
     chemicalFormula,
     chemicalName,

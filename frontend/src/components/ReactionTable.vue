@@ -60,7 +60,7 @@ export default {
     },
     viewEnzyneReactions: function viewEnzyneReactions(modifier) {
       if (modifier) {
-        EventBus.$emit('updateSelTab', 3, modifier.id);
+        EventBus.$emit('updateSelTab', 2, modifier.id);
       }
     },
     displayCompartment(r) {
@@ -90,7 +90,7 @@ export default {
   },
   beforeMount() {
     $('body').on('click', 'td rc', function f() {
-      EventBus.$emit('updateSelTab', 4, $(this).attr('id'));
+      EventBus.$emit('updateSelTab', 3, $(this).attr('id'));
     });
   },
 };

@@ -43,7 +43,7 @@
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
           <div v-show="selectedElm && selectedElm.type === 'enzyme'">
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent(3)">Show enzyme</span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(2)">Show enzyme</span>
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
             <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
@@ -51,7 +51,7 @@
           </div>
           <div v-show="selectedElm && selectedElm.type === 'metabolite'">
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent(4)">Show metabolite</span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(3)">Show metabolite</span>
             <span class="is-black sep is-paddingless"></span>
             <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>

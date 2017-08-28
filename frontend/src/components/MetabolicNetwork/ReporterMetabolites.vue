@@ -4,6 +4,7 @@
       <div class="">
         <label class="label">IDs: </label>
       </div>
+      <br>
       <p class="control">
         <textarea id="idarea" class="textarea" ref="textarea" placeholder="udp, h2o2, sam, m_m01784n">udp, h2o2, sam, m_m01784n</textarea>
       </p>
@@ -22,7 +23,7 @@
         </thead>
         <tbody>
           <tr class="m-tr" v-for="v, k in results"
-            @click="hlElements($event, k, v)">
+            @click="hlElements(k, v)">
             <td>{{ getCompartmentFromCID(k).name }}</td>
             <td>{{ v.length  }}</td>
           </tr>
@@ -33,32 +34,64 @@
 </template>
 
 <script>
-/* eslint-disable global-require, no-dynamic-require */
+
+import axios from 'axios';
+import { getCompartmentFromCID } from '../../helpers/compartment';
+import { default as EventBus } from '../../event-bus';
+
 export default {
   name: 'reporter-metabolites',
   data() {
     return {
       errorMessage: '',
       showResults: false,
-      showMissingSVGString: true,
-      showLoader: true,
-      svgContent: null,
-      svgName: '',
       compartmentID: 0,
       results: {},
-      HLelms: [],
-      switched: true,
-      panZoom: null,
-      snap: null,
-      zoomBox: {
-        minX: 99999,
-        maxX: 0,
-        minY: 99999,
-        maxY: 0,
-      },
     };
   },
   methods: {
+    searchElements() {
+      const termsString = this.$refs.textarea.value;
+      const arrayTerms = termsString.trim().split(',');
+      const filterArray = [];
+      for (let i = 0; i < arrayTerms.length; i += 1) {
+        const trimTerm = arrayTerms[i].trim();
+        if (trimTerm.length !== 0) {
+          filterArray.push(trimTerm);
+        }
+      }
+      this.getReactionComponentIDs(filterArray);
+    },
+    getReactionComponentIDs(array) {
+      // get the correct IDs from the backend
+      axios.post(`convert_to_reaction_component_ids/${this.compartmentID}`, { data: array })
+      .then((response) => {
+        const res = response.data;
+        const d = {};
+        for (let i = 0; i < res.length; i += 1) {
+          const compartmentID = res[i][0];
+          const id = res[i][1];
+          if (!d[compartmentID.toString()]) {
+            d[compartmentID.toString()] = [];
+          }
+          d[compartmentID.toString()].push(id);
+        }
+        this.results = d;
+        this.showResults = this.results.length !== 0;
+      })
+      .catch(() => {});
+    },
+    hlRow(tr) {
+      const currentRow = tr;
+      for (const row of tr.parentElement.getElementsByTagName('tr')) {
+        row.classList.remove('sel-tr');
+      }
+      currentRow.classList.add('sel-tr');
+    },
+    hlElements(compartmentID, ids) {
+      EventBus.$emit('showSVGmap', compartmentID, ids);
+    },
+    getCompartmentFromCID,
   },
 };
 </script>

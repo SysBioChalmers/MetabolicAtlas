@@ -42,7 +42,7 @@ export default {
       ],
     };
   },
-  mounted() {
+  beforeMount() {
     this.loadSubsystem();
   },
   methods: {
@@ -63,6 +63,7 @@ export default {
             this.showSubsystem[k] = false;
             this.subsystemCount += systems[k].length;
           }
+          this.$emit('sendSubSysCount', this.subsystemCount);
         })
         .catch((error) => {
           console.log(error);
