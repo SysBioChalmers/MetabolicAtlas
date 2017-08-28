@@ -35,7 +35,6 @@
      <connected-metabolites v-if="selectedTab===4"
       @updateSelTab="goToTab"></connected-metabolites>
      <metabolite v-if="selectedTab===5"></metabolite>
-     <subsystem v-if="selectedTab===6"></subsystem>
    </div>
   </div>
 </template>
@@ -49,7 +48,6 @@ import ReporterMetabolites from 'components/ReporterMetabolites';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import ConnectedMetabolites from 'components/ConnectedMetabolites';
 import Metabolite from 'components/Metabolite';
-import Subsystem from 'components/Subsystem';
 import { default as EventBus } from '../event-bus';
 
 export default {
@@ -60,7 +58,6 @@ export default {
     ClosestInteractionPartners,
     ConnectedMetabolites,
     Metabolite,
-    Subsystem,
     GlobalSearch,
   },
   data() {
