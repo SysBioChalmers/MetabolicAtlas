@@ -25,11 +25,11 @@
                 <div>
                    <span
                     class="tag is-primary is-medium"
-                    @click="goToTab(3, r.id)">
+                    @click="goToTab(2, r.id)">
                     Closest interaction partners
                   </span>
                   <span class="tag is-primary is-medium"
-                    @click="goToTab(4, r.id)">
+                    @click="goToTab(3, r.id)">
                     Catalysed reactions
                   </span>
                 </div>
@@ -40,11 +40,11 @@
                 <div>
                   <span
                     class="tag is-primary is-medium"
-                    @click="goToTab(3, r.id)">
+                    @click="goToTab(2, r.id)">
                     Closest interaction partners
                   </span>
                   <span class="tag is-primary is-medium"
-                    @click="goToTab(5, r.id)">
+                    @click="goToTab(4, r.id)">
                     Metabolite
                   </span>
                 </div>
