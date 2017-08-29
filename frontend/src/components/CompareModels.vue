@@ -100,39 +100,51 @@
   </br>
         <font color='orange'>The below table should show all (?) affected reactions,
         so it has to be possible to filter the table!</font>
-      <table class="table is-narrow">
-        <thead>
-          <tr><th colspan="6">All {{ amountReactions }} affected reactions</th></tr>
-          <tr>
-            <th>ID</th>
-            <th>Subsystem</th>
-            <th>Compartment</th>
-            <th>A</th>
-            <th>B</th>
-            <th>Draw</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="rxn in comparison.AffectedReactions.VariousModifiers">
-            <td>{{ rxn.ReactionId }}</td>
-            <td>{{ rxn.Subsystem }}</td>
-            <td>{{ rxn.Compartments.join(', ') }}</td>
-            <td>
-              <a href="" v-for="mod in rxn.ModifierDiferenceses.ModifiersInANotInB">
-                {{ mod }}
-              </a>
-            </td>
-            <td>
-              <a href="" v-for="mod in rxn.ModifierDiferenceses.ModifiersInBNotInA">
-                {{ mod }}
-              </a>
-            </td>
-            <td><input type="checkbox"></td>
-          </tr>
-        </tbody>
-      </table>
-        <font color='orange'>Do we want to do some sort of GO overrepresentation analysis of the
-          enzymes that are found in A but not B (and vice verse)?</font>
+    <section class="section">
+      <div class="container">
+        <h4 class="title is-4">All {{ amountReactions }} affected reactions</h4>
+        <table class="table is-narrow">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subsystem</th>
+              <th>Compartment</th>
+              <th>A</th>
+              <th>B</th>
+              <th>Draw</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="rxn in allAffectedReactions">
+              <td>{{ rxn.ReactionId }}</td>
+              <td>{{ rxn.Subsystem }}</td>
+              <td>{{ rxn.Compartments.join(', ') }}</td>
+              <td>
+                <template v-if="rxn.ModifierDiferenceses !== null">
+                  <a href=""  v-for="mod in rxn.ModifierDiferenceses.ModifiersInANotInB">
+                    {{ mod }}
+                  </a>
+                </template>
+                <a href="" v-if="rxn.ModifierDiferenceses === null">
+                  {{ rxn.FoundInA }}
+                </a>
+              </td>
+              <td>
+                <template v-if="rxn.ModifierDiferenceses !== null">
+                   <a href="" v-for="mod in rxn.ModifierDiferenceses.ModifiersInBNotInA">
+                     {{ mod }}
+                   </a>
+                </template>
+                <a href="" v-if="rxn.ModifierDiferenceses === null">
+                  {{ rxn.FoundInB }}
+                </a>
+              </td>
+              <td><input type="checkbox"></td>
+            </tr>
+          </tbody>
+        </table>
+          <font color='orange'>Do we want to do some sort of GO overrepresentation analysis of the
+            enzymes that are found in A but not B (and vice verse)?</font>
       </div>
     </section>
   </div>
@@ -172,6 +184,10 @@ export default {
         affectedCompartments.push(entry);
       }
       return affectedCompartments;
+    },
+    allAffectedReactions() {
+      return this.comparison.AffectedReactions.VariousModifiers.concat(
+        this.comparison.AffectedReactions.LostReactions);
     },
     topAffectedSysMis() {
       function comparer(a, b) {
