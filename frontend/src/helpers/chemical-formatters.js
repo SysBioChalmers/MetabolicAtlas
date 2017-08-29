@@ -2,7 +2,7 @@ export function chemicalFormula(value) {
   if (value === null) {
     return '';
   }
-  return value.replace(/([0-9])/g, '<sup>$1</sup>');
+  return value.replace(/([0-9])/g, '<sub>$1</sub>');
 }
 
 export function chemicalName(value) {
