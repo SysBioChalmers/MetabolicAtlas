@@ -6,6 +6,7 @@ const data = {
     color: '',
     svgName: 'fakesvg',
     compartmentID: 1,
+    maxZoomLvl: 10,
   },
   peroxisome: {
     name: 'Peroxisome',
@@ -13,6 +14,7 @@ const data = {
     color: '',
     svgName: 'peroxisome',
     compartmentID: 2,
+    maxZoomLvl: 10,
   },
   mitochondria: {
     name: 'Mitochondria',
@@ -20,6 +22,7 @@ const data = {
     color: '',
     svgName: '',
     compartmentID: 3,
+    maxZoomLvl: 10,
   },
   cytosol: {
     name: 'Cytosol',
@@ -27,6 +30,7 @@ const data = {
     color: '',
     svgName: '',
     compartmentID: 4,
+    maxZoomLvl: 10,
   },
   lysosome: {
     name: 'Lysosome',
@@ -34,6 +38,7 @@ const data = {
     color: '',
     svgName: '',
     compartmentID: 5,
+    maxZoomLvl: 10,
   },
   'endoplasmic reticulum': {
     name: 'Endoplasmic reticulum',
@@ -41,6 +46,7 @@ const data = {
     color: '',
     svgName: 'ERtestwithid',
     compartmentID: 6,
+    maxZoomLvl: 10,
   },
   'golgi apparatus': {
     name: 'Golgi apparatus',
@@ -48,6 +54,7 @@ const data = {
     color: '',
     svgName: 'golgi',
     compartmentID: 7,
+    maxZoomLvl: 10,
   },
   nucleus: {
     name: 'Nucleus',
@@ -55,13 +62,15 @@ const data = {
     color: '',
     svgName: 'nucleosome',
     compartmentID: 8,
+    maxZoomLvl: 10,
   },
   boundary: {
     name: 'Boundary',
     letter: 'x',
     color: '',
-    svgName: '',
+    svgName: 'golgi2',
     compartmentID: 9,
+    maxZoomLvl: 10,
   },
 };
 

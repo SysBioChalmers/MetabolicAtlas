@@ -33,6 +33,7 @@ export default {
   data() {
     return {
       errorMessage: '',
+      compartment: null,
       showResults: false,
       showMissingSVGString: true,
       showLoader: false,
@@ -46,6 +47,10 @@ export default {
         maxX: 0,
         minY: 99999,
         maxY: 0,
+        centerX: 0,
+        centerY: 0,
+        h: 0,
+        w: 0,
       },
     };
   },
@@ -70,7 +75,7 @@ export default {
           controlIconsEnabled: false,
           minZoom: 0.0001,
           maxZoom: 100,
-          zoomScaleSensitivity: 0.6,
+          zoomScaleSensitivity: 0.5,
           fit: true,
           onZoom() {
             console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
@@ -78,7 +83,7 @@ export default {
         });
         this.svgfit();
         this.unHighlight();
-        if (callback && this.ids) {
+        if (callback && this.ids.length) {
           // call getElements
           callback();
         }
@@ -142,21 +147,18 @@ export default {
       console.log(this.ids);
       const a = [];
       const debug = false;
-      // const ids2 = ['E_2778', 'M_m03106s', 'M_m02041p'];
+      if (debug) {
+        // this.ids = ['E_2778', 'M_m03106s', 'M_m02041p', 'fake1', 'fake3', 'fake5'];
+        // this.ids = ['fake5', 'fake4'];
+        this.ids = ['fake1', 'fake4'];
+      }
       for (const type of ['Metabolite', 'Enzyme']) {
         for (let i = 0; i < this.ids.length; i += 1) {
           const id = this.ids[i].trim();
           let idname = `#${type}\\$${id}`;
-          console.log(idname);
           let elm = $(idname);
-          console.log(idname);
           if (elm.length) {
-            console.log(elm);
-            idname = `#${type}\\$${id} path`;
-            elm = $(idname);
-            if (debug) {
-              console.log(elm[0].getBBox());
-            }
+            // console.log(idname);
             a.push(elm);
           } else {
             console.log(`${idname} elem not found`);
@@ -164,20 +166,10 @@ export default {
           for (let j = 1; j < 30; j += 1) {
             idname = `#${type}\\$${id}\\$${j}`;
             elm = $(idname);
-            if (debug) {
-              console.log(`${type}$${id}$${j}`);
-            }
             if (elm.length) {
-              idname = `#${type}\\$${id}\\$${j} path`;
-              elm = $(idname);
-              if (debug) {
-                console.log(elm[0].getBBox());
-                elm.click(function f() {
-                  console.log(this);
-                });
-              }
-              console.log(elm);
+              // console.log(idname);
               a.push(elm);
+              // break;
             } else {
               console.log(`${idname} elem not found`);
               break;
@@ -185,7 +177,38 @@ export default {
           }
         }
       }
-      this.highlightSVGelements(a);
+      if (a.length) {
+        this.highlightSVGelements(a);
+      }
+    },
+    updateZoomBox(el) {
+      const x = el.getBBox().x;
+      const y = el.getBBox().y;
+      const w = el.getBBox().width;
+      const h = el.getBBox().height;
+      if (x < this.zoomBox.minX) {
+        this.zoomBox.minX = x;
+      }
+      if (x + w > this.zoomBox.maxX) {
+        this.zoomBox.maxX = x + w;
+      }
+      if (y < this.zoomBox.minY) {
+        this.zoomBox.minY = y;
+      }
+      if (y + h > this.zoomBox.maxY) {
+        this.zoomBox.maxY = y + h;
+      }
+
+      this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
+      this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
+      console.log(this.zoomBox);
+    },
+    getCenterZoombox() {
+      this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
+      this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
+      this.zoomBox.centerX = this.zoomBox.minX + (this.zoomBox.w / 2.0);
+      this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
+      console.log(this.zoomBox);
     },
     getTransform(el) {
       let transform = el.attr('transform');
@@ -195,21 +218,48 @@ export default {
     },
     highlightSVGelements(els) {
       console.log('call hl');
+      const debug = false;
       for (const el of els) {
-        console.log(el);
-        el.addClass('hl');
-        const transform = this.getTransform(el);
+        console.log('-------------------------');
+        const id = el.attr('id').replace(/[$]/g, '\\$');
+        console.log(`id ${id}`);
+        const path = $(`#${id} path`);
+        if (debug) {
+          console.log(el[0].getBBox());
+          console.log(path);
+          console.log(path[0].getBBox());
+        }
+        path.addClass('hl');
+        // const transform = this.getTransform(path);
         // const zptransform = this.getTransform($('.svg-pan-zoom_viewport'));
 
-        const rx = parseInt(transform[4], 10);
-        const ry = parseInt(transform[5], 10);
-        const realZoom = this.panZoom.getSizes().realZoom;
-        this.panZoom.pan({
-          x: -(rx * realZoom) + (this.panZoom.getSizes().width / 2),
-          y: -(ry * realZoom) + (this.panZoom.getSizes().height / 2),
-        });
-        this.panZoom.zoom(5);
+        // const rx = el[0].getBBox().x + (el[0].getBBox().width / 2);
+        // const ry = el[0].getBBox().y + (el[0].getBBox().height / 2);
+        // const rx = parseInt(transform[4], 10);
+        // const ry = parseInt(transform[5], 10);
+
+        this.updateZoomBox(el[0]); // dom element
       }
+      this.getCenterZoombox();
+      const realZoom = this.panZoom.getSizes().realZoom;
+      this.panZoom.pan({
+        x: -(this.zoomBox.centerX * realZoom) + (this.panZoom.getSizes().width / 2),
+        y: -(this.zoomBox.centerY * realZoom) + (this.panZoom.getSizes().height / 2),
+      });
+
+      const viewBox = this.panZoom.getSizes().viewBox;
+
+      if (debug) {
+        console.log(this.zoomBox.w);
+        console.log(viewBox.width);
+        console.log(this.zoomBox.h);
+        console.log(viewBox.height);
+      }
+      let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
+      if (newScale > this.compartment.maxZoomLvl) {
+        newScale = this.compartment.maxZoomLvl;
+      }
+      this.panZoom.zoom(newScale);
       this.HLelms = els;
     },
     unHighlight() {
@@ -222,9 +272,9 @@ export default {
     },
     hlElements(compartmentID, ids) {
       if (compartmentID) {
-        const svgName = getCompartmentFromCID(compartmentID).svgName;
+        this.compartment = getCompartmentFromCID(compartmentID);
         this.ids = ids;
-        this.loadSVG(svgName, this.swapSVG, this.getElement);
+        this.loadSVG(this.compartment.svgName, this.swapSVG, this.getElement);
         // const a = this.getElement(ids);
       }
     },
