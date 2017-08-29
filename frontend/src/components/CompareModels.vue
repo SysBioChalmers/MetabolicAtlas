@@ -25,73 +25,75 @@
             </tbody>
           </table>
           In addition another {{ amountRxnDifMod  }} reactions are the same, but different modifiers are 'indicated' in the two models.</br>
-    </div>
-  </section>
+      </div>
+    </section>
   
     <section class="section">
       <div class="container">
-  <h4 class="title is-4">Ranked affected parts</h4>
-  <div class="columns">
-    <div class="column">
-      <h6 class="subtitle is-6">Subsystems by missing reactions</h6>
-      <table class="table is-narrow">
-        <thead>
-          <tr>
-            <th>Subsystem</th>
-            <th>reactions</th>
-            <th>A</th>
-            <th>B</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="subsys in topAffectedSysMis">
-            <td>{{ subsys.name }}</td>
-            <td>{{ subsys.totalMissing }}</td>
-            <td>{{ subsys.MissingReactionsFromA }}</td>
-            <td>{{ subsys.MissingReactionsFromB }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="column">
-      <h6 class="subtitle is-6">Subsystems by gene expression</h6>
-      <table class="table is-narrow">
-        <thead>
-          <tr>
-            <th>Subsystem</th>
-            <th>reactions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="subsys in topAffectedSysGenEx">
-            <td>{{ subsys.name }}</td>
-            <td>{{ subsys.DifferentModifiers }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="column">
-      <h6 class="subtitle is-6">Compartments by missing reactions</h6>
-      <table class="table is-narrow">
-        <thead>
-          <tr>
-            <th>Compartment</th>
-            <th>reactions</th>
-            <th>A</th>
-            <th>B</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="subsys in topAffectedCompMis">
-            <td>{{ subsys.name }}</td>
-            <td>{{ subsys.totalMissing }}</td>
-            <td>{{ subsys.MissingReactionsFromA }}</td>
-            <td>{{ subsys.MissingReactionsFromB }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+        <h4 class="title is-4">Ranked affected parts</h4>
+        <div class="columns">
+          <div class="column">
+            <h6 class="subtitle is-6">Subsystems by missing reactions</h6>
+            <table class="table is-narrow">
+              <thead>
+                <tr>
+                  <th>Subsystem</th>
+                  <th>reactions</th>
+                  <th>A</th>
+                  <th>B</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="subsys in topAffectedSysMis">
+                  <td>{{ subsys.name }}</td>
+                  <td>{{ subsys.totalMissing }}</td>
+                  <td>{{ subsys.MissingReactionsFromA }}</td>
+                  <td>{{ subsys.MissingReactionsFromB }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="column">
+            <h6 class="subtitle is-6">Subsystems by gene expression</h6>
+            <table class="table is-narrow">
+              <thead>
+                <tr>
+                  <th>Subsystem</th>
+                  <th>reactions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="subsys in topAffectedSysGenEx">
+                  <td>{{ subsys.name }}</td>
+                  <td>{{ subsys.DifferentModifiers }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="column">
+            <h6 class="subtitle is-6">Compartments by missing reactions</h6>
+            <table class="table is-narrow">
+              <thead>
+                <tr>
+                  <th>Compartment</th>
+                  <th>reactions</th>
+                  <th>A</th>
+                  <th>B</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="subsys in topAffectedCompMis">
+                  <td>{{ subsys.name }}</td>
+                  <td>{{ subsys.totalMissing }}</td>
+                  <td>{{ subsys.MissingReactionsFromA }}</td>
+                  <td>{{ subsys.MissingReactionsFromB }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
   <font color="orange">See more needs implementing and 
   Each of the names should be a link -> show on the SVG</font>
   </br>
