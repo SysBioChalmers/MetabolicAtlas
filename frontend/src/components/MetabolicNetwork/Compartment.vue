@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="compartment-panel">
     <p class="menu-label">Compartment:</p>
     <ul class="menu-list">
       <li class="m-li" v-for="comp in compartments"
@@ -43,11 +43,13 @@ export default {
 
 <style lang="scss">
 
-li.m-li {
-  cursor: pointer;
-}
+#compartment-panel {
+  li.m-li {
+    cursor: pointer;
+  }
 
-.li-selected {
-  color: #64CC9A;
+  .li-selected {
+    color: #64CC9A;
+  }
 }
 </style>
