@@ -415,10 +415,12 @@ def search(request, term, truncated):
     reactions = []
     term = term.replace("→", "=>")
     term = term.replace("⇨", "=>")
+    term = term.replace("->", "=>")
     if term.strip() not in ['+', '=>']:
         termEq = re.sub("[\(\[\{]\s?(.)\s?[\)\]\}]", "[\g<1>]", term)
 
         reactions = Reaction.objects.filter(
+            Q(id__iexact=term) |
             Q(name__icontains=term) |
             Q(equation__icontains=termEq) |
             Q(ec__iexact=term) |
@@ -436,7 +438,7 @@ def search(request, term, truncated):
         reactions = list(chain(reactions, reactions2))
 
     components = ReactionComponent.objects.filter(
-            Q(id__icontains=term) |
+            Q(id__iexact=term) |
             Q(short_name__icontains=term) |
             Q(long_name__icontains=term) |
             Q(formula__icontains=term) |
