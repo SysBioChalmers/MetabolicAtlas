@@ -4,6 +4,9 @@
       <span class="tag">
         # Reaction(s): {{ reactions.length }}
       </span>
+      <span class="tag primary">
+        # Transport reaction(s): {{ transportReactionCount }}
+      </span>
     </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">
       <thead>
@@ -22,7 +25,7 @@
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td>{{ r.subsystem.join('; ') }}</td>
-          <td v-html="displayCompartment(r)"></td>
+          <td v-html="">{{ r.compartment }}</td>
         </tr>
       </tbody>
     </table>
@@ -49,6 +52,11 @@ export default {
   watch: {
     reactions() {
       this.sortedReactions = this.reactions;
+    },
+  },
+  computed: {
+    transportReactionCount() {
+      return this.reactions.filter(r => r.compartment.includes('=>')).length;
     },
   },
   methods: {
