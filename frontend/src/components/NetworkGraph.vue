@@ -12,7 +12,7 @@
       ></global-search>
     </div>
     <br>
-    <div class="tabs is-boxed">
+    <div class="tabs is-boxed is-centered">
       <ul>
         <li
          v-for="(tab, index) in tabs"
@@ -93,6 +93,7 @@ export default {
         { title: this.$t('tab2title'), isDisabled: false },
         { title: this.$t('tab3title'), isDisabled: disabledTab3 },
         { title: this.$t('tab4title'), isDisabled: disabledTab4 },
+        { title: this.$t('tab5title'), isDisabled: false },
       ];
     },
   },
