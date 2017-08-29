@@ -45,48 +45,45 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
+              <th>Organism</th><th>Model</th><th>Compartment</th>
               <th>ID</th><th>Name</th><th>Formula</th><th>Mass</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="item in searchResultsSplittedFiltered['metabolite']">
               <td>{{ item.organism | capitalize }}</td>
-              <td>the model</td>
-              <td>the subsystem</td>
+              <td>HMR2.00</td>
               <td>{{ item.compartment | capitalize }}</td>
               <td>
                 <a @click="viewComponentInfo(item.id, 4)">{{ item.id.slice(2) }}</a>
               </td>
               <td>{{ item.short_name }}</td>
               <td v-html="formulaFormater(item.formula)"></td>
-              <td>{{ item.mass }}</td>
+              <td v-html="item.metabolite && item.metabolite.mass ? item.metabolite.mass + '&nbsp;g/mol' : ''"></td>
             </tr>
           </tbody>
         </table>
       </div>
       <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
-        Enzyme results
         <div class="columns">
           <div class="column">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th><th>ID</th>
-                  <th>Name</th><th>Formula</th><th>Uniprot ID</th><th>Length</th>
+                  <th>Organism</th><th>Model</th><th>Compartment</th><th>ID</th>
+                  <th>Name</th><th>Uniprot ID</th><th>Length</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in searchResultsSplitted['enzyme']">
                   <td>{{ item.organism | capitalize }}</td>
-                  <td>the model</td>
-                  <td>the subsystem</td>
+                  <td>HMR2.00</td>
                   <td>{{ item.compartment | capitalize }}</td>
                   <td>
-                    <a @click="viewComponentInfo(item.id, 3)">{{ item.id.slice(2) }}</a>
+                    <a @click="viewComponentInfo(item.id, 3)">{{ item.id }}</a>
                   </td>
                   <td>{{ item.short_name }}</td>
-                  <td v-html="formulaFormater(item.formula)"></td>
+                  <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
                   <td>length</td>
                 </tr>
               </tbody>
@@ -95,7 +92,6 @@
         </div>
       </div>
       <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
-        Reaction results
         <div class="columns">
           <div class="column">
             <table class="table">
@@ -107,9 +103,9 @@
               </thead>
               <tbody>
                 <tr v-for="item in searchResultsSplitted['reaction']">
-                  <td>{{ item.organism | capitalize }}</td>
-                  <td>the model</td>
-                  <td>the subsystem</td>
+                  <td>{{ item.organism ? item.organism : 'Human' | capitalize}}</td>
+                  <td>HMR2.00</td>
+                  <td>{{ item.subsystem.join('; ')}}</td>
                   <td>{{ item.compartment | capitalize }}</td>
                   <td>{{ item.id }}</td>
                   <td>{{ item.equation }}</td>
@@ -120,7 +116,6 @@
         </div>
       </div>
       <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
-        Subsystem results
         <div class="columns">
           <div class="column">
             <table class="table">
@@ -131,8 +126,8 @@
               </thead>
               <tbody>
                 <tr v-for="item in searchResultsSplitted['subsystem']">
-                  <td>{{ item.organism | capitalize }}</td>
-                  <td>the model</td>
+                  <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
+                  <td>HMR2.00</td>
                   <td>{{ item.name | capitalize }}</td>
                   <td>{{ item.system | capitalize }}</td>
                 </tr>
@@ -142,7 +137,6 @@
         </div>
       </div>
       <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
-        Compartement results
         <div class="columns">
           <div class="column">
             <table class="table">
@@ -153,8 +147,8 @@
               </thead>
               <tbody>
                 <tr v-for="item in searchResultsSplitted['compartment']">
-                  <td>{{ item.organism | capitalize }}</td>
-                  <td>the model</td>
+                  <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
+                  <td>HMR2.00</td>
                   <td>{{ item.name | capitalize }}</td>
                 </tr>
               </tbody>

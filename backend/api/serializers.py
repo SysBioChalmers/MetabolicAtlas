@@ -23,7 +23,7 @@ class MetaboliteSerializer(serializers.ModelSerializer):
 class MetaboliteSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metabolite
-        fields = ('kegg', 'hmdb', 'hmdb_name')
+        fields = ('kegg', 'hmdb', 'hmdb_name', 'mass')
 
 class EnzymeSerializer(serializers.ModelSerializer):
     class Meta:
