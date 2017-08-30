@@ -3,6 +3,7 @@
     <p class="menu-label">Compartment:</p>
     <ul class="menu-list">
       <li class="m-li" v-for="comp in compartments"
+      :class="{ 'selected' : selectedCompartmentID==comp.compartmentID }"
       @click="showCompartment(comp.compartmentID)">
         {{ comp.name }}
       </li>
@@ -21,6 +22,7 @@ export default {
     return {
       compartmentCount: 0,
       compartments: {},
+      selectedCompartmentID: 0,
     };
   },
   created() {
@@ -34,6 +36,7 @@ export default {
     },
     showCompartment(compartmentID) {
       console.log('Emit from compartment');
+      this.selectedCompartmentID = compartmentID;
       EventBus.$emit('showSVGmap', compartmentID, []);
     },
     getCompartments,
@@ -48,7 +51,7 @@ export default {
     cursor: pointer;
   }
 
-  .li-selected {
+  .m-li.selected {
     color: #64CC9A;
   }
 }

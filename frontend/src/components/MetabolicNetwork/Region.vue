@@ -6,7 +6,7 @@
       </div>
       <br>
       <p class="control">
-        <textarea id="idarea" class="textarea" ref="textarea" placeholder="udp, h2o2, sam, m_m01784n">udp, h2o2, sam, m_m01784n</textarea>
+        <textarea id="idarea" class="textarea" ref="textarea" placeholder="M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g">M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g</textarea>
       </p>
     </div>
     <div>
@@ -40,7 +40,7 @@ import { getCompartmentFromCID } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
-  name: 'reporter-metabolites',
+  name: 'region',
   data() {
     return {
       errorMessage: '',

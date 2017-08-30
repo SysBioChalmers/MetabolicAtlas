@@ -3,14 +3,17 @@
     <div class="container">
       <div id="region-level-button" class="has-text-centered">
         <button class="button" 
-          @click="levelSelected='compartment'">
+          @click="levelSelected='compartment'"
+          :class="{ 'is-active' : levelSelected==='compartment'}">
           Compartments ({{ compartmentCount }})</button>
         <button class="button"
-         @click="levelSelected='subsystem'">
+         @click="levelSelected='subsystem'"
+         :class="{ 'is-active' : levelSelected==='subsystem'}">
          Subsystems ({{ subsystemCount }})</button>
         <button class="button"
-         @click="levelSelected='reporter'">
-         Reporter Metabolite</button>
+         @click="levelSelected='region'"
+         :class="{ 'is-active' : levelSelected==='region'}">
+         Show Region</button>
       </div>
     </div>
     <br>
@@ -20,7 +23,7 @@
           <compartment v-show="levelSelected==='compartment'"></compartment>
           <subsystem v-show="levelSelected==='subsystem'"
             @sendSubSysCount="showSubsystemCount"></subsystem>
-          <reporter-metabolites v-show="levelSelected==='reporter'"></reporter-metabolites>
+          <region v-show="levelSelected==='region'"></region>
         </div>
       </div>
       <div id="svgframe" class="column"
@@ -38,7 +41,7 @@
 
 import Compartment from 'components/MetabolicNetwork/Compartment';
 import Subsystem from 'components/MetabolicNetwork/Subsystem';
-import ReporterMetabolites from 'components/MetabolicNetwork/ReporterMetabolites';
+import Region from 'components/MetabolicNetwork/Region';
 import Svgmap from 'components/MetabolicNetwork/Svgmap';
 import { getCompartments } from '../helpers/compartment';
 
@@ -47,7 +50,7 @@ export default {
   components: {
     Compartment,
     Subsystem,
-    ReporterMetabolites,
+    Region,
     Svgmap,
   },
   data() {
