@@ -1,14 +1,14 @@
 <template>
   <div class="connected-metabolites">
-    <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
-    <loader v-show="loading"></loader>
-    <div v-show="!loading">
-      <div v-if="errorMessage" class="columns">
-        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-          {{ errorMessage }}
-        </div>
+    <div v-if="errorMessage" class="columns">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
       </div>
-      <div v-show="!errorMessage">
+    </div>
+    <div v-show="!errorMessage">
+      <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+      <loader v-show="loading"></loader>
+      <div v-show="!loading">
         <div v-show="reactions.length > 0">
           <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
           <reaction-table :reactions="reactions"></reaction-table>
@@ -79,7 +79,7 @@ export default {
       enzymeName: '',
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: false },
-        { field: 'reactionid', colName: 'Reaction ID', modifier: false },
+        { field: 'reactionid', colName: 'Reaction ID', modifier: false, rc: 'reaction', id: 'self' },
         { field: 'short', link: true, colName: 'Short name', modifier: false, rc: 'metabolite' },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },

@@ -107,7 +107,9 @@
                   <td>HMR2.00</td>
                   <td>{{ item.subsystem.join('; ')}}</td>
                   <td>{{ item.compartment | capitalize }}</td>
-                  <td>{{ item.id }}</td>
+                  <td>
+                    <a @click="viewComponentInfo(item.id, 5)">{{ item.id }}</a>
+                  </td>
                   <td>{{ item.equation }}</td>
                 </tr>
               </tbody>

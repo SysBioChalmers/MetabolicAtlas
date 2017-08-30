@@ -51,7 +51,14 @@
               </div>
             </div>
             <div v-else-if="k === 'reaction'">
-              <strong>Reaction: </strong> {{ r.name }} ‒ {{ r.equation }}
+              <strong>Reaction: </strong> {{ r.id }} ‒ {{ r.equation }}
+              <div>
+                <span
+                  class="tag is-primary is-medium"
+                  @click="goToTab(5, r.id)">
+                  Reaction
+                </span>
+              </div>
             </div>
             <div v-else-if="k === 'subsystem'">
               <strong>Subsystem: </strong> {{ r.name }} ‒ {{ r.system }}

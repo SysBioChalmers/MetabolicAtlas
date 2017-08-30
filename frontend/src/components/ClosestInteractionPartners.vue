@@ -387,6 +387,9 @@ export default {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
               break;
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
+              break;
             default:
               this.errorMessage = this.$t('unknownError');
           }

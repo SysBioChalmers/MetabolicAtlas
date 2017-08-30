@@ -32,6 +32,7 @@
       <closest-interaction-partners v-if="selectedTab===2"></closest-interaction-partners>
       <enzyme v-if="selectedTab===3"></enzyme>
       <metabolite v-if="selectedTab===4"></metabolite>
+      <reaction v-if="selectedTab===5"></reaction>
     </div>
   </div>
 </template>
@@ -45,6 +46,7 @@ import ReporterMetabolites from 'components/ReporterMetabolites';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
+import Reaction from 'components/Reaction';
 import { default as EventBus } from '../event-bus';
 
 export default {
@@ -55,6 +57,7 @@ export default {
     ClosestInteractionPartners,
     Enzyme,
     Metabolite,
+    Reaction,
     GlobalSearch,
   },
   data() {
@@ -83,9 +86,11 @@ export default {
     tabs() {
       let disabledTab3 = true;
       let disabledTab4 = true;
+      let disabledTab5 = true;
       if (this.reactionComponentID) {
-        disabledTab3 = this.reactionComponentID[0] === 'M';
-        disabledTab4 = this.reactionComponentID[0] === 'E';
+        disabledTab3 = this.reactionComponentID[0] !== 'E';
+        disabledTab4 = this.reactionComponentID[0] !== 'M';
+        disabledTab5 = this.reactionComponentID[0] !== 'R';
       }
 
       return [
@@ -93,7 +98,7 @@ export default {
         { title: this.$t('tab2title'), isDisabled: false },
         { title: this.$t('tab3title'), isDisabled: disabledTab3 },
         { title: this.$t('tab4title'), isDisabled: disabledTab4 },
-        { title: this.$t('tab5title'), isDisabled: false },
+        { title: this.$t('tab5title'), isDisabled: disabledTab5 },
       ];
     },
   },

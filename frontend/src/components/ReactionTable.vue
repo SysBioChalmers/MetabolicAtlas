@@ -19,7 +19,9 @@
       </thead>
       <tbody>
         <tr v-for="(r, index) in sortedReactions">
-          <td>{{ r.id }}</td>
+          <td>
+            <a @click="viewReaction(r.id)">{{ r.id }}</a>
+          </td>
           <td v-html="reformatChemicalReactionHTML(r.equation, r)"></td>
           <td>
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
@@ -70,6 +72,9 @@ export default {
       if (modifier) {
         EventBus.$emit('updateSelTab', 2, modifier.id);
       }
+    },
+    viewReaction: function viewReaction(id) {
+      EventBus.$emit('updateSelTab', 4, id);
     },
     displayCompartment(r) {
       const comp = {};
