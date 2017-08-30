@@ -10,6 +10,11 @@
       <global-search
       :quickSearch=true
       ></global-search>
+      <div class="column">
+        <div class="is-pulled-right">
+          <a @click="viewRelaseNotes">Release 1.0</a>
+        </div>
+      </div>
     </div>
     <br>
     <div class="tabs is-boxed is-centered">
@@ -47,6 +52,7 @@ import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
 import Reaction from 'components/Reaction';
+import router from '../router';
 import { default as EventBus } from '../event-bus';
 
 export default {
@@ -155,6 +161,12 @@ export default {
       this.searchTerm = '';
       this.searchResults = [];
       this.goToTab(tabIndex, reactionComponentID);
+    },
+    viewRelaseNotes() {
+      router.push({
+        path: '/About#releaseNotes',
+        query: {},
+      });
     },
   },
 };

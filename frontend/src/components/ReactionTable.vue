@@ -7,7 +7,7 @@
       <span class="tag">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
-      <span v-show="reactions.length=200" class="tag is-danger is-pulled-right">
+      <span v-show="reactions.length==200" class="tag is-danger is-pulled-right">
         {{ $t('tooManyReactionsTable') }}
       </span>
     </div>

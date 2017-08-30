@@ -15,7 +15,7 @@
       </div>
       <br>
       <div class="text">
-        <h4 class="subtitle is-4">Release notes</h4>
+        <h4 id="releaseNotes" class="subtitle is-4">Release notes</h4>
         <p class="text">
           what changed - what's new
         </p>
