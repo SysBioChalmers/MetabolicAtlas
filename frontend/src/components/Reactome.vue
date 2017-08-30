@@ -9,8 +9,10 @@
         @click="toggleExpandAllCompartment">Expand to all compartment</button>
       </p>
       <reaction-table v-show="!showLoader" :reactions="reactions"></reaction-table>
-      <div v-show="errorMessage">
-        {{ errorMessage }}
+      <div v-if="errorMessage" class="columns">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
+        </div>
       </div>
       <div v-show="!errorMessage">
         <loader v-show="showLoader"></loader>

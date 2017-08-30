@@ -2,8 +2,10 @@
   <div class="closest-interaction-partners">
     <loader v-show="loading"></loader>
     <div v-show="!loading">
-      <div v-show="errorMessage" class="notification is-danger">
-        {{ errorMessage }}
+      <div v-if="errorMessage" class="columns">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
+        </div>
       </div>
       <div v-show="!errorMessage">
         <div class="container columns">
@@ -519,6 +521,9 @@ export default {
           switch (error.response.status) {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
+              break;
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
               break;
             default:
               this.errorMessage = this.$t('unknownError');
