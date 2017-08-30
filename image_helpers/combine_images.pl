@@ -1,27 +1,31 @@
 use strict;
 
-my $baseDir="/Users/halena/Documents/Sys2Bio/hma-prototype/frontend/src/assets/maps/";
+my $baseDir="/Users/halena/Documents/Sys2Bio/hma-prototype/frontend/src/assets/maps/compartment_level/without_details/";
 
 if($ARGV[0] && $ARGV[0] eq "combine"){
-  open OUT, ">".$baseDir."whole_metabolic_network.svg";
+  open OUT, ">".$baseDir."../../whole_metabolic_network_without_details.svg";
   print OUT addTitle();
-  adjustPositions($baseDir."compartment_level/cytosol_5.svg", 7000, 6000);
-  adjustPositions($baseDir."compartment_level/lysosome.svg", 28700, 0);
-  adjustPositions($baseDir."compartment_level/golgi.svg", 43000, 0);
-  adjustPositions($baseDir."compartment_level/cytosol_2.svg", 55000, 0);
-  adjustPositions($baseDir."compartment_level/nucleus.svg", 20000, 20000);
-  adjustPositions($baseDir."compartment_level/cytosol_4.svg", 37000, 17000);
-  adjustPositions($baseDir."compartment_level/ER.svg", 55000, 21000);
-  adjustPositions($baseDir."compartment_level/cytosol_6.svg", 0, 25000);
-  adjustPositions($baseDir."compartment_level/cytosol_3.svg", 75000, 24000);
-  adjustPositions($baseDir."compartment_level/mitochondrion.svg",3000, 57000);
-  adjustPositions($baseDir."compartment_level/cytosol_1.svg", 46000, 55000);
-  adjustPositions($baseDir."compartment_level/perixome.svg", 58000, 60000);
+  # "line 1"
+  adjustPositions($baseDir."cytosol_5.svg", 7000, 6000);
+  adjustPositions($baseDir."lysosome.svg", 29000, 0);
+  adjustPositions($baseDir."golgi.svg", 43500, 0);
+  adjustPositions($baseDir."cytosol_2.svg", 56500, 0);
+  # "line 2"
+  adjustPositions($baseDir."nucleosome.svg", 20000, 20500);
+  adjustPositions($baseDir."cytosol_4.svg", 37000, 17000);
+  adjustPositions($baseDir."ER.svg", 55500, 21000);
+  # "line 2.5"
+  adjustPositions($baseDir."cytosol_6.svg", 0, 25000);
+  adjustPositions($baseDir."cytosol_3.svg", 76000, 24000);
+  # "line 3"
+  adjustPositions($baseDir."mitochondrion.svg",3000, 50000);
+  adjustPositions($baseDir."cytosol_1.svg", 46000, 52000);
+  adjustPositions($baseDir."perixome.svg", 59000, 58000);
   print OUT "\n</svg>\n";
 }else{
   open OUT, ">testingtesting.svg";
   print OUT addTitle();
-  adjustPositions($baseDir."compartment_level/golgi.svg")
+  adjustPositions($baseDir."golgi.svg");
   print OUT "\n</svg>\n";
 }
 
@@ -40,7 +44,14 @@ sub addTitle{
 sub adjustPositions{
   my ($file, $addX, $addY) = @_;
   open FILE, "<" . $file or die "not possible to open file '$file'\n";
-  while(my $line = <FILE>){
+  # remove the header parts
+  my $line;
+  while($line = <FILE>){
+    if($line=~m/<\Wdefs>/){
+      last;
+    }
+  }
+  while($line = <FILE>){
     if($line =~ m/stroke.*transform/){
       chomp($line);
       my $pos = $line;
@@ -66,7 +77,7 @@ sub adjustPositions{
       my $y2 = $y + $addY;
       $line =~ s/x=.$x. y=.$y/x=\"$x2\" y=\"$y2/;
       print OUT $line . "\n";
-    }elsif($line =~ m/^<(.xml|svg|title|desc|defs|.defs|.svg)/){
+    }elsif($line =~ m/^\s*<(.xml|svg|title|desc|defs|.defs|.svg)/){
       # do nothing for the title
     }else{
       print OUT $line;
