@@ -7,6 +7,7 @@
           <table class="table is-narrow is-bordered">
             <thead>
               <tr>
+                <th></th>
                 <th>Model</td>
                 <th>Description</td>
                 <th># of reactions</td>
@@ -15,12 +16,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="model in comparison.Models">
+              <tr v-for="(model, key) in comparison.Models">
+                <td>{{ key }}</td>
                 <td>{{ model.ModelId }}</td>
                 <td>{{ model.ModelName }}</td>
                 <td>{{ model.TotalReactions }} reactions</td>
                 <td>{{ Math.round(comparison.Summary.SharedReactions / model.TotalReactions * 100) }}%</td>
-                <td>{{ comparison.Models.A.ModelId === model.ModelId ? comparison.Summary.ReactionsOnlyInA : comparison.Summary.ReactionsOnlyInB }} reactions</td>
+                <td>{{ key === 'A' ? comparison.Summary.ReactionsOnlyInA : comparison.Summary.ReactionsOnlyInB }} reactions</td>
               </tr>
             </tbody>
           </table>
@@ -39,8 +41,8 @@
                 <tr>
                   <th>Subsystem</th>
                   <th>reactions</th>
-                  <th>A</th>
-                  <th>B</th>
+                  <th><div v-bind:title="comparison.Models.A.ModelId">A</div></th>
+                  <th><div v-bind:title="comparison.Models.B.ModelId">B</div></th>
                 </tr>
               </thead>
               <tbody>
@@ -77,8 +79,8 @@
                 <tr>
                   <th>Compartment</th>
                   <th>reactions</th>
-                  <th>A</th>
-                  <th>B</th>
+                  <th><div v-bind:title="comparison.Models.A.ModelId">A</div></th>
+                  <th><div v-bind:title="comparison.Models.B.ModelId">B</div></th>
                 </tr>
               </thead>
               <tbody>
