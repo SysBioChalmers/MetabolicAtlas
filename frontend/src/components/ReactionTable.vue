@@ -4,8 +4,11 @@
       <span class="tag">
         # Reaction(s): {{ reactions.length }}
       </span>
-      <span class="tag primary">
+      <span class="tag">
         # Transport reaction(s): {{ transportReactionCount }}
+      </span>
+      <span v-show="reactions.length=200" class="tag is-danger is-pulled-right">
+        {{ $t('tooManyReactionsTable') }}
       </span>
     </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">
