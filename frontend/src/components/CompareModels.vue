@@ -77,7 +77,7 @@
             <table class="table is-narrow">
               <thead>
                 <tr>
-                  <th>Compartment</th>
+                  <th>Compartments</th>
                   <th>reactions</th>
                   <th><div v-bind:title="comparison.Models.A.ModelId">A</div></th>
                   <th><div v-bind:title="comparison.Models.B.ModelId">B</div></th>
@@ -123,8 +123,8 @@
               </th>
               <th>
                 <div class="select">
-                  <select class="select" v-model="filters.subsys">
-                    <option disabled>Filter...</option>
+                  <select class="select" v-model="filters.subsystem">
+                    <option value="">No filter</option>
                     <option :value="subsys" v-for="subsys in allSubsystems">{{ subsys }}</option>
                   </select>
                 </div>
@@ -132,7 +132,7 @@
               <th>
                 <div class="select">
                   <select class="select" v-model="filters.compartment">
-                    <option disabled>Filter...</option>
+                    <option value="">No filter</option>
                     <option :value="comp" v-for="comp in allCompartments">{{ comp }}</option>
                   </select>
                 </div>
@@ -142,8 +142,8 @@
                 <div class="select">
                   <select class="select" v-model="filters.tfA" v-if="showAffected !== 'various'">
                     <option value="all">Show all</option>
-                    <option value="true">Only true</option>
-                    <option value="false">Only false</option>
+                    <option :value="true">Only true</option>
+                    <option :value="false">Only false</option>
                   </select>
                 </div>
               </th>
@@ -152,8 +152,8 @@
                 <div class="select">
                   <select class="select" v-model="filters.tfB" v-if="showAffected !== 'various'">
                     <option value="all">Show all</option>
-                    <option value="true">Only true</option>
-                    <option value="false">Only false</option>
+                    <option :value="true">Only true</option>
+                    <option :value="false">Only false</option>
                   </select>
                 </div>
               </th>
@@ -213,7 +213,7 @@ export default {
       comparison: {},
       filters: {
         modelID: '',
-        subsys: '',
+        subsystem: '',
         compartment: '',
         tfA: 'all',
         tfB: 'all',
@@ -267,7 +267,6 @@ export default {
       return affectedCompartments;
     },
     filterableReactions() {
-      console.log('big filter');
       let filterable = [];
       if (this.showAffected === 'lost') {
         filterable = this.comparison.AffectedReactions.LostReactions;
@@ -282,7 +281,7 @@ export default {
     },
     showAffectedReactions() {
       // possibly slice this list if too many
-      return this.filteredAffectedReactions.slice(0, 100);
+      return this.filteredAffectedReactions.slice(0, 10);
     },
     topAffectedSysMis() {
       function comparer(a, b) {
@@ -315,15 +314,14 @@ export default {
       this.comparison = JSON.parse(compareResponse());
     },
     filterAffectedReactions(filters) {
-      console.log('small filter');
       const filteredReactions = [];
       for (const rxn of this.filterableReactions) {
         let show = true;
-        if (show && rxn.FoundInA !== 'all' && rxn.ModifierDiferenceses === null &&
+        if (show && filters.tfA !== 'all' && rxn.ModifierDiferenceses === null &&
             rxn.FoundInA !== filters.tfA) {
           show = false;
         }
-        if (show && rxn.FoundInB !== 'all' && rxn.ModifierDiferenceses === null &&
+        if (show && filters.tfB !== 'all' && rxn.ModifierDiferenceses === null &&
             rxn.FoundInB !== filters.tfB) {
           show = false;
         }
@@ -335,6 +333,16 @@ export default {
         if (show && filters.filterB &&
             rxn.ModifierDiferenceses !== null &&
             rxn.ModifierDiferenceses.ModifiersInBNotInA.join().indexOf(filters.filterB) === -1) {
+          show = false;
+        }
+        if (show && filters.modelID !== '' && rxn.ReactionId.indexOf(filters.modelID) === -1) {
+          show = false;
+        }
+        if (show && filters.compartment !== '' &&
+            rxn.Compartments.indexOf(filters.compartment) === -1) {
+          show = false;
+        }
+        if (show && filters.subsystem !== '' && rxn.Subsystem !== filters.subsystem) {
           show = false;
         }
         if (show) {
