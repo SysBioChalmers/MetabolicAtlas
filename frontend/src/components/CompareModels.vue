@@ -157,7 +157,7 @@
                   </select>
                 </div>
               </th>
-              <th><button class="button" v-on:click="filterAffectedReactions(filters)">Filter</button></th>
+              <th><button class="button is-primary" v-on:click="filterAffectedReactions(filters)">Filter</button></th>
             </tr>
             <tr>
               <th>ID</th>
@@ -165,7 +165,7 @@
               <th>Compartment</th>
               <th>A</th>
               <th>B</th>
-              <th><button class="button">Draw</button></th>
+              <th><button class="button is-primary" v-on:click="drawReactions">Draw</button></th>
             </tr>
           </thead>
           <tbody>
@@ -189,7 +189,7 @@
                 </template>
                 <div v-if="rxn.ModifierDiferenceses === null">{{ rxn.FoundInB }}</div>
               </td>
-              <td><input type="checkbox"></td>
+              <td><input type="checkbox" v-model="reactionsForDraw" v-bind:value="rxn.ReactionId"></td>
             </tr>
           </tbody>
         </table>
@@ -221,6 +221,7 @@ export default {
         filterB: '',
       },
       filteredAffectedReactions: [],
+      reactionsForDraw: [],
     };
   },
   beforeMount() {
@@ -350,6 +351,9 @@ export default {
         }
       }
       this.filteredAffectedReactions = filteredReactions;
+    },
+    drawReactions() {
+      console.log(this.reactionsForDraw);
     },
   },
 };
