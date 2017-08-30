@@ -18,7 +18,7 @@
         <thead>
           <tr>
             <th>Compartment</th>
-             <th>Elements<br>found</th>
+             <th>Metabolites<br>found</th>
           </tr>
         </thead>
         <tbody>
@@ -47,6 +47,7 @@ export default {
       showResults: false,
       compartmentID: 0,
       results: {},
+      enzymeIDs: [],
     };
   },
   methods: {
@@ -68,13 +69,18 @@ export default {
       .then((response) => {
         const res = response.data;
         const d = {};
+        this.enzymeIDs = [];
         for (let i = 0; i < res.length; i += 1) {
           const compartmentID = res[i][0];
           const id = res[i][1];
-          if (!d[compartmentID.toString()]) {
-            d[compartmentID.toString()] = [];
+          if (id[0] === 'M') {
+            if (!d[compartmentID.toString()]) {
+              d[compartmentID.toString()] = [];
+            }
+            d[compartmentID.toString()].push(id);
+          } else {
+            this.enzymeIDs.push(id);
           }
-          d[compartmentID.toString()].push(id);
         }
         this.results = d;
         this.showResults = this.results.length !== 0;
@@ -89,7 +95,7 @@ export default {
       currentRow.classList.add('sel-tr');
     },
     hlElements(compartmentID, ids) {
-      EventBus.$emit('showSVGmap', compartmentID, ids);
+      EventBus.$emit('showSVGmap', compartmentID, ids.concat(this.enzymeIDs));
     },
     getCompartmentFromCID,
   },
