@@ -1,29 +1,41 @@
 <template>
-  <div id="about">
+  <div>
     <div class="container">
-      <h2 class="title is-2">About us</h2>
       <p class="box">
-         tell more about the group
+        The systems biology group is lead by
+        <a href="http://sysbio.se/Lab_Nielsen/lab_nielsen.html" target="_new">Professor Jens Nielsen</a>,
+        and is part of the Department of Biology and Biological Engineering at the
+        <a href="www.chalmers.se" target="_new">Chalmers University of Technology</a>.
+        <br/><br/>
+        The research focus is on <b>systems biology of metabolism</b> and the goal is to
+        collect all our curated Genome-Scale Metabolic Models, resources
+        (like the possibility to compare models), algorithms (like the reporter metabolites),
+        other type of databases (like HSCD), and more general software applications 
+        (like RAVEN and PIANO) available here.
       </p>
       <br>
-      <h2 class="title is-2">The metabolic Atlas project</h2>
+      <h2 class="title is-2">The Metabolic Atlas</h2>
       <div class="text">
-        <h4 class="subtitle is-4">Motivation</h4>
         <p class="text">
-          nice motivation text here
+          The Metabolic Atlas is a freely available electronic database containing detailed information about all reactions that could take place within the human body.
+        </p>
+        <p class="text"
+          It is intended to be used for applications in metabolomics, clinical chemistry, biomarker discovery and general education.
         </p>
       </div>
       <br>
       <div class="text">
         <h4 class="subtitle is-4">Release notes</h4>
         <p class="text">
-          what changed - what's new
+          Version 1.0 - a complete overhaul 2017-10-01<br/>
+          A completely new version of the site was launched,
+          complete with manually drawn map of HMR2.0.
         </p>
       </div>
-      <br>
+      <br/><br/>
       <h2 class="title is-2">External resources</h2>
       <div class="text">
-        <p>Metabolic Atlas would not be possible without the following excellent sources of open data.</p>
+        <p>Metabolic Atlas would not be possible without the following excellent sources of information.</p>
         <br>
         <ul>
           <li><h5 class="title is-5"><a href="http://proteinatlas.org" target="_blank">The Human Protein Atlas</h5></li>
@@ -32,8 +44,8 @@
           <li><h5 class="title is-5"><a href="http://www.hmdb.ca/" target="_blank">The Human Metabolome Database</h5></li>
         </ul>
       </div>
-      <br>
-      <h2 class="subtitle is-2">Citing Metabolic Atlas</h2>
+      <br/><br/>
+      <h2 class="subtitle is-2">Citing the Metabolic Atlas</h2>
       <p class="text">
         Please use the following paper for citation: <a href="http://database.oxfordjournals.org/content/2015/bav068.full" target="_blank">Human metabolic atlas: an online resource for human metabolism</a>
         <br><br>
@@ -53,10 +65,9 @@ export default {
 </script>
 
 <style lang="scss">
-#about {
-  p.text, div.text {
-    padding-left: 0.75em;
-  }
+
+.text {
+  padding-left: 0.75em;
 }
 
 </style>
