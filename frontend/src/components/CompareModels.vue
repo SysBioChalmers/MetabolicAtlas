@@ -160,18 +160,16 @@
           </thead>
           <tbody>
             <tr v-for="rxn in showAffectedReactions">
-              <td>{{ rxn.ReactionId }}</td>
-              <td>{{ rxn.Subsystem }}</td>
-              <td>{{ rxn.Compartments.join(', ') }}</td>
+              <td><a href="">{{ rxn.ReactionId }}</a></td>
+              <td><a href="">{{ rxn.Subsystem }}</a></td>
+              <td><a href="">{{ rxn.Compartments.join(', ') }}</a></td>
               <td>
                 <template v-if="rxn.ModifierDiferenceses !== null">
                   <a href=""  v-for="mod in rxn.ModifierDiferenceses.ModifiersInANotInB">
                     {{ mod }}
                   </a>
                 </template>
-                <a href="" v-if="rxn.ModifierDiferenceses === null">
-                  {{ rxn.FoundInA }}
-                </a>
+                <div v-if="rxn.ModifierDiferenceses === null">{{ rxn.FoundInA }}</div>
               </td>
               <td>
                 <template v-if="rxn.ModifierDiferenceses !== null">
@@ -179,9 +177,7 @@
                      {{ mod }}
                    </a>
                 </template>
-                <a href="" v-if="rxn.ModifierDiferenceses === null">
-                  {{ rxn.FoundInB }}
-                </a>
+                <div v-if="rxn.ModifierDiferenceses === null">{{ rxn.FoundInB }}</div>
               </td>
               <td><input type="checkbox"></td>
             </tr>
