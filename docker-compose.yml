@@ -28,6 +28,7 @@ services:
       - frontend
     volumes:
       - ./backend/static:/static
+      - ./nginx/svgs:/svgs
     ports:
       - "80:80"
     networks:

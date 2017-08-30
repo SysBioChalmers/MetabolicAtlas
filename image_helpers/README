@@ -2,6 +2,8 @@
 ### How to fix the SVG files that comes out from Omix... ###
 ############################################################
 
+# STEP 1 no longer needed Peter/Omix fixed this!
+
 1) compact the SVG format (eg make the g elements pretty, remove duplicated rows)
    will create a new file ER.svg.fixed.svg.unique.svg in the src/assets/maps/compartment_level folder
    (one compartment at the time...)
