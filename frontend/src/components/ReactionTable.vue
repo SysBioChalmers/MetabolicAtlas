@@ -4,6 +4,12 @@
       <span class="tag">
         # Reaction(s): {{ reactions.length }}
       </span>
+      <span class="tag">
+        # Transport reaction(s): {{ transportReactionCount }}
+      </span>
+      <span v-show="reactions.length==200" class="tag is-danger is-pulled-right">
+        {{ $t('tooManyReactionsTable') }}
+      </span>
     </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">
       <thead>
@@ -16,13 +22,15 @@
       </thead>
       <tbody>
         <tr v-for="(r, index) in sortedReactions">
-          <td>{{ r.id }}</td>
+          <td>
+            <a @click="viewReaction(r.id)">{{ r.id }}</a>
+          </td>
           <td v-html="reformatChemicalReactionHTML(r.equation, r)"></td>
           <td>
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td>{{ r.subsystem.join('; ') }}</td>
-          <td v-html="displayCompartment(r)"></td>
+          <td v-html="">{{ r.compartment }}</td>
         </tr>
       </tbody>
     </table>
@@ -51,6 +59,11 @@ export default {
       this.sortedReactions = this.reactions;
     },
   },
+  computed: {
+    transportReactionCount() {
+      return this.reactions.filter(r => r.compartment.includes('=>')).length;
+    },
+  },
   methods: {
     formatChemicalReaction(v) {
       return chemicalReaction(v);
@@ -60,11 +73,13 @@ export default {
     },
     viewEnzyneReactions: function viewEnzyneReactions(modifier) {
       if (modifier) {
-        EventBus.$emit('updateSelTab', 3, modifier.id);
+        EventBus.$emit('updateSelTab', 2, modifier.id);
       }
     },
+    viewReaction: function viewReaction(id) {
+      EventBus.$emit('updateSelTab', 4, id);
+    },
     displayCompartment(r) {
-      console.log(r);
       const comp = {};
       for (const el of r.reactants) {
         comp[el.compartment] = null;
@@ -90,7 +105,7 @@ export default {
   },
   beforeMount() {
     $('body').on('click', 'td rc', function f() {
-      EventBus.$emit('updateSelTab', 4, $(this).attr('id'));
+      EventBus.$emit('updateSelTab', 3, $(this).attr('id'));
     });
   },
 };
@@ -105,7 +120,7 @@ export default {
     color: #64CC9A;
   }
 
-  th, rc, span.tag {
+  th, rc, span.sc {
     cursor: pointer;
   }
 

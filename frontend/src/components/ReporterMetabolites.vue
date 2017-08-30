@@ -33,12 +33,15 @@
         </div>
       </div>
       <div class="column is-10">
+        <button id="swap" style="padding: 5px 20px; background: red; border: 1px solid #ff0404;"
+        @click="swapSVG">swap</button>
         <loader v-show="showLoader"></loader>
         <div v-show="!showLoader" id="svgbox">
-          <div id="svg-wrapper" v-html="svgContent">
+          <div id="svg-wrapper2" v-html="svgContent">
           </div>
           <div id="svgOption">
             <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom.reset()">RESET</span>
+            <span class="button" v-show="!showMissingSVGString" v-on:click="svgfit">FIT</span>
           </div>
           <div id="svgMissing" v-show="showMissingSVGString">
             The SVG file is not yet available for this compartment
@@ -51,7 +54,8 @@
 
 <script>
 
-import { default as snap } from 'snapsvg';
+// import { default as snap } from 'snapsvg';
+import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
@@ -76,59 +80,83 @@ export default {
       HLelms: [],
       switched: true,
       panZoom: null,
-      snap: null,
+      ids: [],
       zoomBox: {
         minX: 99999,
         maxX: 0,
         minY: 99999,
         maxY: 0,
       },
+      lastEmbed: null,
+      lastEmbedSrc: null,
+      lastEventListener: null,
     };
   },
   mounted() {
-    this.switchSVG(1, null);
+    this.loadSVG(1, this.swapSVG);
+    $('#svgbox').attr('width', '100%');
+    $('#svgbox').attr('height', `${$(window).height() - 300}`);
   },
   methods: {
-    superchargeSVG(callback) {
-      // Example for modifying network SVG
+    swapSVG(callback) {
+      console.log('call swapSVG');
       setTimeout(() => {
-        // console.log('load snap');
-        this.snap = snap('#svg-wrapper svg');
-        // this.snap.attr({ width: '1200px' });
-        // this.snap.attr({ height: '700px' });
-        // console.log('load snap finished');
-
-        // Example to allow panning and zooming
-        // svgPanZoom('#svg-wrapper svg').destroy();
+        console.log('svgPanZoom start');
+        this.panZoom = svgPanZoom('#svg-wrapper svg', {
+          zoomEnabled: true,
+          controlIconsEnabled: false,
+          minZoom: 0.0001,
+          maxZoom: 100,
+          zoomScaleSensitivity: 0.6,
+          fit: true,
+          onZoom() {
+            console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
+          },
+        });
+        this.svgfit();
         if (callback) {
+          console.log('call back swapsvg');
           callback();
         }
       }, 0);
     },
-    switchSVG(compartmentID, callback) {
+    svgfit() {
+      console.log('call svg fit');
+      $('#svg-wrapper svg').attr('width', '100%');
+      $('#svg-wrapper svg').attr('height', `${$('#svgbox').attr('height')}`);
+      this.panZoom.resize(); // update SVG cached size and controls positions
+      this.panZoom.fit();
+      this.panZoom.center();
+      console.log(this.panZoom);
+      console.log('end svg fit');
+    },
+    loadSVG(compartmentID, callback, callback2) {
+      console.log('call loadsvg');
       const newSvgName = getCompartmentFromCID(compartmentID).svgName;
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
       if (!newSvgName) {
         // TODO remove this when all svg files available
         this.showMissingSVGString = true;
-        this.svgContent = '';
+        // this.svgContent = '';
         this.showLoader = false;
         return;
       }
       this.showMissingSVGString = false;
       if (newSvgName !== this.svgName) {
+        console.log('new svg');
         axios.get(svgLink)
           .then((response) => {
+            console.log('get response ');
+            console.log('get the svg');
             this.svgContent = response.data;
             this.showLoader = true;
             this.svgName = newSvgName;
-            // TODO pass width, height
-            this.superchargeSVG(() => {
-              if (callback) {
-                callback();
-              }
+            setTimeout(() => {
               this.showLoader = false;
-            });
+              if (callback) {
+                callback(callback2);
+              }
+            }, 0);
           })
           .catch((error) => {
             // TODO: handle error
@@ -136,8 +164,130 @@ export default {
             this.showLoader = false;
           });
       } else {
-        callback();
+        console.log('not new svg');
+        if (callback2) {
+          callback2();
+        }
         this.showLoader = false;
+      }
+      console.log('en load svg');
+    },
+    getElement() {
+      console.log('call getelements');
+      console.log(this.panZoom.getSizes());
+      const debug = true;
+      console.log(this.ids);
+      const a = [];
+      const ids2 = ['E_2778', 'M_m03106s', 'M_m02041p'];
+      for (const type of ['Metabolite', 'Enzyme']) {
+        for (let i = 0; i < ids2.length; i += 1) {
+          const id = ids2[i].trim();
+          let elm = $(`#${type}_${id}`);
+          console.log(`#${type}_${id}`);
+          if (elm.length) {
+            console.log(elm);
+            // console.log(elm[0].getBBox());
+            elm = $(`#${type}_${id} path`);
+            if (debug) {
+              console.log(elm[0].getBBox());
+            }
+            // this.updateZoomBox(elm.getBBox());
+            a.push(elm);
+          } else {
+            console.log(`${id} elem not found`);
+            // break;
+          }
+          for (let j = 2; j < 3; j += 1) {
+            elm = $(`#${type}_${id}_${j}`);
+            if (debug) {
+              console.log(`${type}_${id}_${j}`);
+            }
+            if (elm.length) {
+              elm = $(`#${type}_${id}_${j} path`);
+              if (debug) {
+                // console.log(`${type}_${id}_${j} box : ${elm.getBBox()}`);
+                elm.click(function f() {
+                  console.log(this);
+                });
+              }
+              // this.updateZoomBox(elm.getBBox());
+              console.log(elm);
+              a.push(elm);
+            } else {
+              break;
+            }
+          }
+        }
+      }
+      this.highlightSVGelements(a);
+    },
+    highlightSVGelements(els) {
+      for (const el of els) {
+        el.attr('fill', '#22FFFF');
+        console.log(el[0].getBBox());
+        console.log(el.attr('transform'));
+        let transform = el.attr('transform');
+        if (transform) {
+          transform = transform.substring(0, transform.length - 1);
+          transform = transform.substring(7, transform.length);
+          transform = transform.split(',');
+          console.log(transform);
+        }
+        console.log($('.svg-pan-zoom_viewport').attr('transform'));
+        let zptransform = $('.svg-pan-zoom_viewport').attr('transform');
+        zptransform = zptransform.substring(0, zptransform.length - 1);
+        zptransform = zptransform.substring(7, zptransform.length);
+        zptransform = zptransform.split(',');
+        console.log(zptransform);
+        // const zpmsx = parseFloat(zptransform[0], 10);
+        // const zpmsy = parseFloat(zptransform[3], 10);
+        // const zpmx = parseInt(zptransform[4], 10);
+        // const zpmy = parseInt(zptransform[5], 10);
+
+        let emx;
+        let emy;
+        if (transform) {
+          emx = parseInt(transform[4], 10);
+          emy = parseInt(transform[5], 10);
+        }
+        // const emx = parseInt(transform[4], 10);
+        // const emy = parseInt(transform[5], 10);
+
+        let rx = emx;
+        let ry = emy;
+        // rx += (emx + 30) * zpmsx;
+        // ry += (emy + 20) * zpmsy;
+        if (transform) {
+          const realZoom = this.panZoom.getSizes().realZoom;
+          this.panZoom.pan({
+            x: -(rx * realZoom) + (this.panZoom.getSizes().width / 2),
+            y: -(ry * realZoom) + (this.panZoom.getSizes().height / 2),
+          });
+          this.panZoom.zoom(10);
+          return;
+        }
+        rx += 100;
+        ry += 100;
+        // https://jsfiddle.net/Loymkgx8/2/
+
+        // rx += 195;
+        // ry += 210;
+        rx -= 0;
+        ry -= 0;
+        setTimeout(() => {
+          console.log(`doing zoom on ${rx} ${ry}`);
+          this.panZoom.zoomAtPoint(20, {
+            x: rx,
+            y: ry,
+          });
+        }, 0);
+      }
+    },
+    hlElements(event, compartmentID, ids) {
+      if (ids && event) {
+        this.ids = ids;
+        this.loadSVG(compartmentID, this.swapSVG, this.getElement);
+        // const a = this.getElement(ids);
       }
     },
     hlRow(tr) {
@@ -146,134 +296,6 @@ export default {
         row.classList.remove('sel-tr');
       }
       currentRow.classList.add('sel-tr');
-    },
-    updateZoomBox(elBox) {
-      if (elBox.x < this.zoomBox.minX) {
-        this.zoomBox.minX = elBox.x;
-      }
-      if (elBox.x > this.zoomBox.maxX) {
-        this.zoomBox.maxX = elBox.x;
-      }
-      if (elBox.y < this.zoomBox.minY) {
-        this.zoomBox.minY = elBox.y;
-      }
-      if (elBox.y > this.zoomBox.maxY) {
-        this.zoomBox.maxY = elBox.y;
-      }
-
-      const debug = false;
-      if (debug) {
-        this.zoomBox.minX = 77.9296875;
-        this.zoomBox.maxX = 77.9296875;
-        this.zoomBox.minY = 17412.85586262676;
-        this.zoomBox.maxY = 17412.85586262676;
-      }
-
-      // console.log('new zoomBox');
-      // console.log(this.zoomBox);
-    },
-    zoomInBox() {
-      // const realZoom = this.panZoom.getSizes().realZoom;
-      const nx = this.zoomBox.minX + ((this.zoomBox.maxX - this.zoomBox.minX) / 2);
-      const ny = this.zoomBox.minY + ((this.zoomBox.maxY - this.zoomBox.minY) / 2);
-      // nx = 100;
-      // ny = 100;
-      // console.log(this.panZoom.getSizes());
-      // console.log(`zoomto nx: ${nx} | ny: ${ny}`);
-      // this.panZoom.pan({ x: 500, y: 500 });
-      // this.panZoom.fit();
-      this.panZoom.zoomAtPoint(1, {
-        x: nx,
-        y: ny,
-      });
-    },
-    hlElements(event, compartmentID, ids) {
-      const tr = event.srcElement.parentElement;
-
-      this.hlRow(tr);
-      this.switchSVG(compartmentID, () => {
-        setTimeout(() => {
-          // console.log('load pan zoom');
-          this.panZoom = svgPanZoom('#svg-wrapper svg', {
-            minZoom: 0.01,
-            maxZoom: 50,
-            zoomScaleSensitivity: 0.6,
-            onZoom: function f() {
-              console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
-            },
-          });
-          // this.panZoom.fit();
-          // console.log('load pan zoom finished');
-          const a = [];
-          // select using class
-          /*
-          for (let i = 0; i < ids.length; i += 1) {
-            const id = ids[i].trim();
-            const elms = this.snap.selectAll(`.${id}`);  // rcID should be assign to class attribut
-            for (let j = 0; j < elms.length; j += 1) {
-              a.push(elms[j]);
-            }
-          }
-          */
-          // select by id: <g class="Metabolite" id="Metabolite$E_3131$0" name="E_3131">
-          // not $ have been replaced by _
-
-          // debug
-          const debug = false;
-          if (ids) {
-            console.log('debug');
-          }
-          let ids2 = ['M_m03052r'];
-          ids2 = ids;
-
-          for (const type of ['Metabolite', 'Enzyme']) {
-            for (let i = 0; i < ids2.length; i += 1) {
-              const id = ids2[i].trim();
-              let elm = this.snap.select(`#${type}_${id}`);
-              if (elm) {
-                elm = elm.select('path');
-                if (debug) {
-                  console.log(`${type}_${id} box : ${elm.getBBox()}`);
-                }
-                this.updateZoomBox(elm.getBBox());
-                a.push(elm);
-              }
-              for (let j = 2; j < 3; j += 1) {
-                elm = this.snap.select(`#${type}_${id}_${j}`);
-                if (debug) {
-                  console.log(`${type}_${id}_${j}`);
-                }
-                if (elm) {
-                  elm = elm.select('path');
-                  if (debug) {
-                    console.log(`${type}_${id}_${j} box : ${elm.getBBox()}`);
-                    elm.click(function f() {
-                      console.log(this);
-                      console.log(this.element.getTransformToElement(this.svgContent));
-                    });
-                  }
-                  this.updateZoomBox(elm.getBBox());
-                  // console.log(elm.matrix);
-                  a.push(elm);
-                } else {
-                  break;
-                }
-              }
-            }
-          }
-          // console.log(this.zoomBox);
-          this.HLelms = a;
-          if (this.HLelms) {
-            // console.log('elms found');
-            // console.log(this.HLelms.length);
-            for (let i = 0; i < this.HLelms.length; i += 1) {
-              this.HLelms[i].addClass('hl');
-            }
-            this.zoomInBox();
-          }
-        }, 0);
-        // this.panZoom.fit(); //do not worj with snap
-      });
     },
     searchElements() {
       const termsString = this.$refs.textarea.value;
@@ -320,25 +342,17 @@ export default {
 <style lang="scss">
 #reporter-metabolites {
   #idarea {
-    width: 100px;
-    height: 200px;
+    height: 2.5em;
   }
 
   #svg-wrapper {
     margin: auto;
     width: 100%;
-    img {
-      padding: 20px;
-      width: 600px;
-      margin: auto;
-    }
   }
 
   #svgbox {
     position: relative;
     margin: auto;
-    width:1200px;
-    height:700px;
     border: 1px solid black;
   }
 
@@ -346,7 +360,7 @@ export default {
     position: absolute;
     top: 10px;
     left: 10px;
-    width: 50px;
+    width: 80px;
     height: 30px;
     z-index: 10;
 

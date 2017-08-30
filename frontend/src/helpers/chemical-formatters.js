@@ -2,7 +2,7 @@ export function chemicalFormula(value) {
   if (value === null) {
     return '';
   }
-  return value.replace(/([0-9])/g, '<sup>$1</sup>');
+  return value.replace(/([0-9])/g, '<sub>$1</sub>');
 }
 
 export function chemicalName(value) {
@@ -10,7 +10,7 @@ export function chemicalName(value) {
     return '';
   }
   // TODO: Add logic to format formulas
-  return value.replace(/([^\s])(\+)([^\s]?)/g, '$1<sup class="top">$2</sup>$3').replace(/H2O/, 'H<sub>2</sub>O');
+  return value.replace(/([^\s])(\+)([^\s]?)/g, '$1<sup class="top">$2</sup>$3').replace(/H2O/g, 'H<sub>2</sub>O').replace(/O2/g, 'O<sub>2</sub>');
 }
 
 export function chemicalNameExternalLink(value, link) {

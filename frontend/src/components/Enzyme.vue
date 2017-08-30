@@ -1,10 +1,14 @@
 <template>
   <div class="connected-metabolites">
-    <h3 class="title is-3">Catalyzed reactions</h3>
-    <loader v-show="loading"></loader>
-    <div v-show="!loading">
-      <div v-show="errorMessage" class="notification is-danger">{{ errorMessage }}</div>
-      <div v-show="!errorMessage">
+    <div v-if="errorMessage" class="columns">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
+      </div>
+    </div>
+    <div v-show="!errorMessage">
+      <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+      <loader v-show="loading"></loader>
+      <div v-show="!loading">
         <div v-show="reactions.length > 0">
           <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
           <reaction-table :reactions="reactions"></reaction-table>
@@ -54,7 +58,7 @@ import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../help
 import { default as visitLink } from '../helpers/visit-link';
 
 export default {
-  name: 'connected-metabolites',
+  name: 'enzyme',
   components: {
     Sidebar,
     CytoscapeTable,
@@ -75,7 +79,7 @@ export default {
       enzymeName: '',
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: false },
-        { field: 'reactionid', colName: 'Reaction ID', modifier: false },
+        { field: 'reactionid', colName: 'Reaction ID', modifier: false, rc: 'reaction', id: 'self' },
         { field: 'short', link: true, colName: 'Short name', modifier: false, rc: 'metabolite' },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
@@ -133,12 +137,12 @@ export default {
           this.errorMessage = null;
 
           // If the response has only reacionts, it doesn't have an id in root object.
-          if (response.data.id !== undefined) {
+          if (response.data.enzyme !== undefined) {
             this.reactions = [];
 
             const [elms, rels] = transform(response.data);
 
-            this.enzymeName = response.data.short_name || response.data.long_name;
+            this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
             this.selectedElm = elms[enzymeId];
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);
@@ -244,7 +248,7 @@ export default {
         });
     },
     viewMetaboliteInfo: function viewMetaboliteInfo(id) {
-      this.$emit('updateSelTab', 4, id);
+      this.$emit('updateSelTab', 3, id);
     },
     chemicalFormula,
     chemicalName,

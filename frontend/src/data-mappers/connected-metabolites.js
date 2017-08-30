@@ -1,29 +1,26 @@
 import { default as getLink } from '../helpers/component-link';
 
-export default function (e) {
+export default function (data) {
   const elms = [];
   const rels = [];
   const occ = {};
 
-  console.log(e);
   const enzyme = {
-    id: e.id,
+    id: data.enzyme.id,
     reactionid: '-',
     parentid: null,
     type: 'enzyme',
     substance_type: 'modifier',
-    short: e.short_name || e.long_name,
-    long: e.long_name,
+    short: data.enzyme.short_name || data.enzyme.long_name,
+    long: data.enzyme.long_name,
     formula: 'formula',
-    // description: 'description',
-    compartment: e.compartment,
-    link: e.uniprot_link || e.ensembl_link,
-    details: e.metabolite || e.enzyme,
+    compartment: data.enzyme.compartment,
+    link: data.enzyme.enzyme.uniprot_link || data.enzyme.enzyme.ensembl_link,
+    details: data.enzyme.metabolite || data.enzyme.enzyme,
   };
   elms.push(enzyme);
 
-  for (const r of e.reactions) {
-    console.log(r);
+  for (const r of data.reactions) {
     const reaction = {
       id: r.reaction_id,
       reactionid: r.reaction_id,

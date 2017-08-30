@@ -2,8 +2,10 @@
   <div class="closest-interaction-partners">
     <loader v-show="loading"></loader>
     <div v-show="!loading">
-      <div v-show="errorMessage" class="notification is-danger">
-        {{ errorMessage }}
+      <div v-if="errorMessage" class="columns">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
+        </div>
       </div>
       <div v-show="!errorMessage">
         <div class="container columns">
@@ -14,7 +16,7 @@
             <div class="dropdown" id="dropdownMenuExport">
               <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
-                @click="showMenuExport=!showMenuExport">
+                @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
                   <span>Export graph</span>
                   <span class="icon is-small">
                     &#9663;
@@ -43,7 +45,7 @@
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
           <div v-show="selectedElm && selectedElm.type === 'enzyme'">
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent(3)">Show enzyme</span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(2)">Show enzyme</span>
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
             <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
@@ -51,7 +53,7 @@
           </div>
           <div v-show="selectedElm && selectedElm.type === 'metabolite'">
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent(4)">Show metabolite</span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(3)">Show metabolite</span>
             <span class="is-black sep is-paddingless"></span>
             <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
@@ -385,6 +387,9 @@ export default {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
               break;
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
+              break;
             default:
               this.errorMessage = this.$t('unknownError');
           }
@@ -519,6 +524,9 @@ export default {
           switch (error.response.status) {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
+              break;
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
               break;
             default:
               this.errorMessage = this.$t('unknownError');
@@ -737,7 +745,9 @@ export default {
     },
     exportPNG: function exportPNG() {
       const a = document.createElement('a');
-      const output = this.cy.png();
+      const output = this.cy.png({
+        bg: 'white',
+      });
 
       a.href = output;
       a.download = `${this.reactionComponentId}_interaction_partners.png`;
