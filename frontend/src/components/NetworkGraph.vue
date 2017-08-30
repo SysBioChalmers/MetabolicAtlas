@@ -158,45 +158,6 @@ export default {
 
 <style lang="scss">
 
-#search {
-  height: 38px;
-}
-
-#searchResults {
-  background: white;
-  position: absolute;
-  top: 50px;
-  max-height: 300px;
-  overflow-y: auto;
-  width: inherit;
-  border: 1px solid #64CC9A;
-  border-top: 0;
-  margin-top: -2px;
-  padding: 10px;
-  z-index: 10;
-
-  .resultSeparator:last-child {
-    display: none;
-  }
-
-  .searchResultSection {
-    margin-bottom: 10px;
-    background: white;
-
-    label {
-      font-style: italic;
-    }
-
-    span {
-      cursor: pointer;
-    }
-  }
-
-  .searchResultSection:last-child hr {
-    display: none;
-  }
-}
-
 a.disabled {
   cursor: default;
   color: lightgray;

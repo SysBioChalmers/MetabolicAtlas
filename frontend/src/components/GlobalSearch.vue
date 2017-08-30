@@ -240,7 +240,7 @@ export default {
   z-index: 10;
 
   .searchGroupResultSection:first-child {
-    padding-top: 10px;
+    padding-top: 15px;
   }
 
   .searchResultSection {
