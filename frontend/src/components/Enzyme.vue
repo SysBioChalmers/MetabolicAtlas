@@ -3,7 +3,11 @@
     <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
     <loader v-show="loading"></loader>
     <div v-show="!loading">
-      <div v-show="errorMessage" class="notification is-danger">{{ errorMessage }}</div>
+      <div v-if="errorMessage" class="columns">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
+        </div>
+      </div>
       <div v-show="!errorMessage">
         <div v-show="reactions.length > 0">
           <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
@@ -54,7 +58,7 @@ import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../help
 import { default as visitLink } from '../helpers/visit-link';
 
 export default {
-  name: 'connected-metabolites',
+  name: 'enzyme',
   components: {
     Sidebar,
     CytoscapeTable,

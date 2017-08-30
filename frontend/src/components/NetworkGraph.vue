@@ -30,7 +30,7 @@
     <div v-else>
       <metabolic-network v-if="selectedTab===1"></metabolic-network>
       <closest-interaction-partners v-if="selectedTab===2"></closest-interaction-partners>
-      <connected-metabolites v-if="selectedTab===3"></connected-metabolites>
+      <enzyme v-if="selectedTab===3"></enzyme>
       <metabolite v-if="selectedTab===4"></metabolite>
     </div>
   </div>
@@ -43,7 +43,7 @@ import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ReporterMetabolites from 'components/ReporterMetabolites';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
-import ConnectedMetabolites from 'components/ConnectedMetabolites';
+import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
 import { default as EventBus } from '../event-bus';
 
@@ -53,7 +53,7 @@ export default {
     MetabolicNetwork,
     ReporterMetabolites,
     ClosestInteractionPartners,
-    ConnectedMetabolites,
+    Enzyme,
     Metabolite,
     GlobalSearch,
   },
