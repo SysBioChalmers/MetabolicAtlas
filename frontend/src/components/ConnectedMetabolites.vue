@@ -1,6 +1,6 @@
 <template>
   <div class="connected-metabolites">
-    <h3 class="title is-3">Catalyzed reactions</h3>
+    <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
     <loader v-show="loading"></loader>
     <div v-show="!loading">
       <div v-show="errorMessage" class="notification is-danger">{{ errorMessage }}</div>
@@ -133,12 +133,12 @@ export default {
           this.errorMessage = null;
 
           // If the response has only reacionts, it doesn't have an id in root object.
-          if (response.data.id !== undefined) {
+          if (response.data.enzyme !== undefined) {
             this.reactions = [];
 
             const [elms, rels] = transform(response.data);
 
-            this.enzymeName = response.data.short_name || response.data.long_name;
+            this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
             this.selectedElm = elms[enzymeId];
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);

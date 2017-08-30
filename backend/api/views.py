@@ -234,10 +234,6 @@ def enzyme_list(request):
 
 @api_view()
 def connected_metabolites(request, id):
-    tissue = request.query_params.get('tissue', '')
-    expression_type = request.query_params.get('expression_type', '')
-    include_expressions = request.query_params.get('include_expression', '') == 'true'
-
     try:
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
@@ -266,13 +262,7 @@ def connected_metabolites(request, id):
     as_modifier = [MetaboliteReaction(r, 'modifier') for r in enzyme.reactions_as_modifier.all()]
     reactions = as_reactant + as_product + as_modifier
 
-    expressions = ExpressionData.objects.filter(
-            Q(gene_id=enzyme.id) &
-            Q(tissue__icontains=tissue) &
-            Q(expression_type__icontains=expression_type)
-        )
-
-    connected_metabolites = ConnectedMetabolites(enzyme, enzyme.compartment, reactions, expressions)
+    connected_metabolites = ConnectedMetabolites(enzyme, enzyme.compartment, reactions)
     serializer = ConnectedMetabolitesSerializer(connected_metabolites)
     return JSONResponse(serializer.data)
 

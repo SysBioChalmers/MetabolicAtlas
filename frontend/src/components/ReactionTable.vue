@@ -72,7 +72,6 @@ export default {
       }
     },
     displayCompartment(r) {
-      console.log(r);
       const comp = {};
       for (const el of r.reactants) {
         comp[el.compartment] = null;
@@ -113,7 +112,7 @@ export default {
     color: #64CC9A;
   }
 
-  th, rc, span.tag {
+  th, rc, span.sc {
     cursor: pointer;
   }
 
