@@ -742,7 +742,9 @@ export default {
     },
     exportPNG: function exportPNG() {
       const a = document.createElement('a');
-      const output = this.cy.png();
+      const output = this.cy.png({
+        bg: 'white',
+      });
 
       a.href = output;
       a.download = `${this.reactionComponentId}_interaction_partners.png`;
