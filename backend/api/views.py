@@ -282,17 +282,30 @@ def expressions_list(request, enzyme_id):
 
 @api_view()
 def get_metabolite_reactions(request, reaction_component_id):
+    expandAllCompartment = False
     try:
         component = ReactionComponent.objects.get(Q(id=reaction_component_id) |
                                                   Q(long_name=reaction_component_id))
-
     except ReactionComponent.DoesNotExist:
-        return HttpResponse(status=404)
+        try:
+            component = ReactionComponent.objects.filter(
+                                                      (Q(id__icontains=reaction_component_id) |
+                                                      Q(long_name=reaction_component_id)) &
+                                                      Q(component_type='metabolite')
+                                                  )
+            expandAllCompartment = True
+            logging.warn(component);
+        except ReactionComponent.DoesNotExist:
+            return HttpResponse(status=404)
 
-    if component.component_type != 'metabolite':
-        return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
+    if expandAllCompartment:
+        reactions = Reaction.objects.filter(Q(reactionproduct__product_id__in=component) |
+                                        Q(reactionreactant__reactant_id__in=component))
+    else:
+        if component.component_type != 'metabolite':
+            return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
 
-    reactions = Reaction.objects.filter(Q(reactionproduct__product_id=reaction_component_id) |
+        reactions = Reaction.objects.filter(Q(reactionproduct__product_id=reaction_component_id) |
                                         Q(reactionreactant__reactant_id=reaction_component_id))
 
     serializer = ReactionSerializer(reactions, many=True)
