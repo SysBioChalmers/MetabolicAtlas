@@ -14,7 +14,7 @@
       <table v-show="filteredOldGEMS.length != 0" 
       class="table is-bordered is-striped is-narrow">
         <thead>
-          <tr>
+          <tr style="background: #F8F4F4">
             <th v-for="f in fields"
               @click="sortBy(f.name)">{{ f.display }}
               </th>
@@ -214,6 +214,10 @@ export default {
   .title {
     display: block;
     margin-bottom: 1rem;
+  }
+
+  th {
+    cursor: pointer;
   }
 
   #show-m-but {

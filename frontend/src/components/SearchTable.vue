@@ -55,7 +55,7 @@
               <td>HMR2.00</td>
               <td>{{ item.compartment | capitalize }}</td>
               <td>
-                <a @click="viewComponentInfo(item.id, 4)">{{ item.id.slice(2) }}</a>
+                <a @click="viewComponentInfo(item.id, 4)">{{ item.id }}</a>
               </td>
               <td>{{ item.short_name }}</td>
               <td v-html="formulaFormater(item.formula)"></td>
@@ -71,7 +71,7 @@
               <thead>
                 <tr>
                   <th>Organism</th><th>Model</th><th>Compartment</th><th>ID</th>
-                  <th>Name</th><th>Uniprot ID</th><th>Length</th>
+                  <th>Name</th><th>Uniprot ID</th>
                 </tr>
               </thead>
               <tbody>
@@ -84,7 +84,6 @@
                   </td>
                   <td>{{ item.short_name }}</td>
                   <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
-                  <td>length</td>
                 </tr>
               </tbody>
             </table>

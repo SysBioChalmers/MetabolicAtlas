@@ -68,7 +68,7 @@ export default {
     return {
       mId: this.$route.query.reaction_component_id,
       mainTableKey: [
-        { name: 'id', display: 'Identifier', modifier: this.reformatID },
+        { name: 'id', display: 'Identifier' },
         { name: 'long_name', display: 'Name', modifier: chemicalName },
         { name: 'compartment' },
         { name: 'organism' },

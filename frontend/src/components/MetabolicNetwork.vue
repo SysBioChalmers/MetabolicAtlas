@@ -13,7 +13,7 @@
         <button class="button"
          @click="levelSelected='region'"
          :class="{ 'is-active' : levelSelected==='region'}">
-         Show Region</button>
+         Show region</button>
       </div>
     </div>
     <br>

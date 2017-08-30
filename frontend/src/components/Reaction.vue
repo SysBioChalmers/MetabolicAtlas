@@ -36,7 +36,7 @@ export default {
         { name: 'name', display: 'Name', modifier: chemicalName },
         { name: 'compartment' },
         { name: 'subsystem', modifier: this.reformatList },
-        { name: 'equation', modifier: chemicalFormula },
+        { name: 'equation', modifier: chemicalName },
         { name: 'lower_bound' },
         { name: 'upper_bound' },
         { name: 'objective_coefficient', modifier: this.reformatMass },
