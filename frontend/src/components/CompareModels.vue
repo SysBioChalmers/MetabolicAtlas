@@ -122,10 +122,20 @@
                 <input class="input" v-model="filters.modelID" type="text" placeholder="Filter...">
               </th>
               <th>
-                <input class="input" v-model="filters.subsys" type="text" placeholder="Filter...">
+                <div class="select">
+                  <select class="select" v-model="filters.subsys">
+                    <option disabled>Filter...</option>
+                    <option :value="subsys" v-for="subsys in allSubsystems">{{ subsys }}</option>
+                  </select>
+                </div>
               </th>
               <th>
-                <input class="input" v-model="filters.compartment" type="text" placeholder="Filter...">
+                <div class="select">
+                  <select class="select" v-model="filters.compartment">
+                    <option disabled>Filter...</option>
+                    <option :value="comp" v-for="comp in allCompartments">{{ comp }}</option>
+                  </select>
+                </div>
               </th>
               <th>
                 <input class="input" v-if="showAffected !== 'lost'" v-model="filters.filterA" type="text" placeholder="Filter...">
@@ -220,6 +230,22 @@ export default {
     this.filteredAffectedReactions = this.filterableReactions;
   },
   computed: {
+    allSubsystems() {
+      const all = new Set();
+      for (const rxn of this.filterableReactions) {
+        all.add(rxn.Subsystem);
+      }
+      return Array.from(all);
+    },
+    allCompartments() {
+      const all = new Set();
+      for (const rxn of this.filterableReactions) {
+        for (const comp of rxn.Compartments) {
+          all.add(comp);
+        }
+      }
+      return Array.from(all);
+    },
     affectedSubsystems() {
       const affectedSubsystems = [];
       for (const subsys of Object.entries(this.comparison.Summary.AffectedSubsystems)) {
