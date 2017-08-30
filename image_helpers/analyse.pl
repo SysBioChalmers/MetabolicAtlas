@@ -10,9 +10,11 @@ if($ARGV[0] && $ARGV[0] eq "test"){
 }elsif($ARGV[0]){
   readFile("input file - ".$ARGV[0], $baseDir.$ARGV[0].".svg");
 }else{
-  readFile("L", $baseDir."lysosome.svg.lena");
-  readFile("P", $baseDir."perixome.svg");
+  readFile("Lysosome", $baseDir."lysosome.svg");
+  readFile("perixome", $baseDir."perixome.svg");
   readFile("ER", $baseDir."ER.svg");
+  readFile("Nucleosome", $baseDir."nucleosome.svg");
+  readFile("Mitochondria", $baseDir."mitochondrion.svg");
   readFile("Golgi", $baseDir."golgi.svg");
   readFile("C1", $baseDir."cytosol_1.svg");
   readFile("C2", $baseDir."cytosol_2.svg");
