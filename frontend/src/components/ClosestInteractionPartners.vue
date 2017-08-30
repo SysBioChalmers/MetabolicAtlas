@@ -16,7 +16,7 @@
             <div class="dropdown" id="dropdownMenuExport">
               <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
-                @click="showMenuExport=!showMenuExport">
+                @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
                   <span>Export graph</span>
                   <span class="icon is-small">
                     &#9663;
