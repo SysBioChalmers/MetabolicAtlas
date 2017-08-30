@@ -59,6 +59,7 @@ export default {
       console.log(`emit ${compartmentID} ${ids}`);
       this.hlElements(compartmentID, ids);
     });
+    this.loadSVG('whole_metabolic_network_without_details', this.swapSVG, null);
   },
   mounted() {
     console.log('svgmap mounted');
