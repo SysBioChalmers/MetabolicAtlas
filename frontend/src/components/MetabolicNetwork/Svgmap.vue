@@ -6,7 +6,7 @@
         <div id="svg-wrapper" v-html="svgContent">
         </div>
         <div id="svgOption">
-          <span class="button" v-show="!showMissingSVGString" v-on:click="svgfit()">RESET</span>
+          <span class="button" v-show="!showMissingSVGString" v-on:click="svgfit()">Reset view</span>
         </div>
       </div>
       <div class="svgbox has-text-centered" v-show="showMissingSVGString">
@@ -98,10 +98,12 @@ export default {
       this.panZoom.resize(); // update SVG cached size and controls positions
       this.panZoom.fit();
       this.panZoom.center();
+      this.showLoader = false;
     },
     loadSVG(svgName, callback, callback2) {
       const newSvgName = svgName;
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
+      this.showLoader = true;
       if (!newSvgName) {
         // TODO remove this when all svg files available
         this.showMissingSVGString = true;
@@ -115,7 +117,6 @@ export default {
           .then((response) => {
             console.log('get the svg');
             this.svgContent = response.data;
-            this.showLoader = true;
             this.svgName = newSvgName;
             setTimeout(() => {
               this.showLoader = false;
@@ -140,7 +141,6 @@ export default {
         } else {
           this.svgfit();
         }
-        this.showLoader = false;
       }
     },
     getElement() {
