@@ -119,7 +119,7 @@
                 <div class="select">
                   <select class="select" v-model="filters.subsystem">
                     <option value="">No filter</option>
-                    <option :value="subsys" v-for="subsys in allSubsystems">{{ subsys }}</option>
+                    <option :value="subsys.name" v-for="subsys in allSubsystems">{{ subsys.name }} -- N={{ subsys.nr }}</option>
                   </select>
                 </div>
               </th>
@@ -224,11 +224,26 @@ export default {
   },
   computed: {
     allSubsystems() {
-      const all = new Set();
+      const all = {};
       for (const rxn of this.filterableReactions) {
-        all.add(rxn.Subsystem);
+        if (!(rxn.Subsystem in all)) {
+          all[rxn.Subsystem] = 0;
+        }
+        all[rxn.Subsystem] += 1;
+        // all.add(rxn.Subsystem);
       }
-      return Array.from(all);
+      const subsysList = [];
+      for (const subsys of Object.entries(all)) {
+        const entry = {};
+        entry.name = subsys[0];
+        entry.nr = subsys[1];
+        subsysList.push(entry);
+      }
+      function comparer(a, b) {
+        return b.nr - a.nr;
+      }
+      subsysList.sort(comparer);
+      return subsysList;
     },
     allCompartments() {
       const all = new Set();
