@@ -39,6 +39,7 @@ export default {
       showLoader: false,
       svgContent: null,
       svgName: '',
+      svgBigMapName: 'whole_metabolic_network_without_details',
       panZoom: null,
       ids: [],
       HLelms: [],
@@ -59,11 +60,10 @@ export default {
       console.log(`emit ${compartmentID} ${ids}`);
       this.hlElements(compartmentID, ids);
     });
-    this.loadSVG('whole_metabolic_network_without_details', this.swapSVG, null);
+    this.loadSVG(this.svgBigMapName, this.swapSVG, null);
   },
   mounted() {
     console.log('svgmap mounted');
-    // this.loadSVG(1, this.swapSVG);
     $('#svgbox').attr('width', '100%');
     $('#svgbox').attr('height', `${$(window).height() - 300}`);
     $('#svg-wrapper').on('mouseover', '.Metabolite, .Reaction', function f() {
@@ -76,11 +76,9 @@ export default {
       rect.setAttribute('height', SVGRect.height + 2);
       rect.setAttribute('fill', 'white');
       $(this)[0].children[1].insertBefore(rect, text);
-      // $(this).parent().find('.label text').attr('fill', 'red');
     });
     $('#svg-wrapper').on('mouseout', '.Metabolite, .Reaction', function f() {
       $(this)[0].children[1].removeChild($(this)[0].children[1].children[0]);
-      // $(this).parent().find('.label text').attr('fill', 'red');
     });
   },
   methods: {
@@ -218,14 +216,13 @@ export default {
 
       this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
       this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
-      console.log(this.zoomBox);
     },
     getCenterZoombox() {
       this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
       this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
       this.zoomBox.centerX = this.zoomBox.minX + (this.zoomBox.w / 2.0);
       this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
-      console.log(this.zoomBox);
+      // console.log(this.zoomBox);
     },
     getTransform(el) {
       let transform = el.attr('transform');
@@ -237,9 +234,7 @@ export default {
       console.log('call hl');
       const debug = false;
       for (const el of els) {
-        console.log('-------------------------');
         const id = el.attr('id').replace(/[$]/g, '\\$');
-        console.log(`id ${id}`);
         const path = $(`#${id} path`);
         if (debug) {
           console.log(el[0].getBBox());
@@ -255,7 +250,6 @@ export default {
         // const ry = el[0].getBBox().y + (el[0].getBBox().height / 2);
         // const rx = parseInt(transform[4], 10);
         // const ry = parseInt(transform[5], 10);
-
         this.updateZoomBox(el[0]); // dom element
       }
       this.getCenterZoombox();
@@ -266,7 +260,6 @@ export default {
       });
 
       const viewBox = this.panZoom.getSizes().viewBox;
-
       if (debug) {
         console.log(this.zoomBox.w);
         console.log(viewBox.width);
@@ -294,7 +287,6 @@ export default {
         this.compartment = getCompartmentFromCID(compartmentID);
         this.ids = ids;
         this.loadSVG(this.compartment.svgName, this.swapSVG, this.getElement);
-        // const a = this.getElement(ids);
       }
     },
     getCompartmentFromCID,
