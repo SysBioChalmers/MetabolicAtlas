@@ -43,7 +43,6 @@
 </template>
 
 <script>
-
 import axios from 'axios';
 import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';

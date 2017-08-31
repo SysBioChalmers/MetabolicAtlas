@@ -231,6 +231,7 @@ export default {
           console.log(path[0].getBBox());
         }
         path.addClass('hl');
+        this.HLelms.push(path);
         // const transform = this.getTransform(path);
         // const zptransform = this.getTransform($('.svg-pan-zoom_viewport'));
 
@@ -261,7 +262,7 @@ export default {
         newScale = this.compartment.maxZoomLvl;
       }
       this.panZoom.zoom(newScale);
-      this.HLelms = els;
+      this.showLoader = false;
     },
     unHighlight() {
       if (this.HLelms) {
@@ -269,6 +270,7 @@ export default {
         for (let i = 0; i < this.HLelms.length; i += 1) {
           this.HLelms[i].removeClass('hl');
         }
+        this.HLelms = [];
       }
     },
     hlElements(compartmentID, ids) {
