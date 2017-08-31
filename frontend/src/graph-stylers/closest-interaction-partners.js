@@ -4,14 +4,13 @@ export default function (elms, rels, nodeDisplayParams) {
   const elmsjson = [];
   const enzExpSource = nodeDisplayParams.enzymeExpSource;
   const enzExpType = nodeDisplayParams.enzymeExpType;
-  let enzSample = nodeDisplayParams.enzymeExpSample;
+  const enzSample = nodeDisplayParams.enzymeExpSample;
 
   // console.log(enzExpSource);
   // nconsole.log(enzExpType);
   // console.log(enzSample);
   // console.log(nodeDisplayParams.enzymeNodeColor.hex);
 
-  // console.log(elms);
   for (const id of Object.keys(elms)) {
     const elm = elms[id];
 
@@ -93,10 +92,8 @@ export default function (elms, rels, nodeDisplayParams) {
     .css({
       shape: nodeDisplayParams.enzymeNodeShape,
       'background-color': function f(ele) {
+        // console.log(`${enzExpSource}, ${enzExpType}, ${enzSample}`);
         if (ele.data('color')) {
-          if (!enzSample) {
-            enzSample = false;
-          }
           return ele.data('color')[enzExpSource][enzExpType][enzSample];
         }
         return 'whitesmoke';

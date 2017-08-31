@@ -298,15 +298,10 @@ class MetaboliteReaction(object):
         self.modifiers = reaction.modifiers
 
 class ConnectedMetabolites(object):
-    def __init__(self, enzyme, compartment, reactions, expressions):
-        self.id = enzyme.id
-        self.short_name = enzyme.short_name
-        self.long_name = enzyme.long_name
+    def __init__(self, enzyme, compartment, reactions):
+        self.enzyme = enzyme
         self.compartment = compartment
         self.reactions = reactions
-        self.expressions = expressions
-        self.uniprot_link = enzyme.enzyme.uniprot_link
-        self.ensembl_link = enzyme.enzyme.ensembl_link
 
 #
 # Relationships

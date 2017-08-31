@@ -7,6 +7,7 @@ from itertools import chain
 from api.models import GEM, Author
 from api.serializers import *
 
+import re
 import logging
 
 class JSONResponse(HttpResponse):
@@ -233,10 +234,6 @@ def enzyme_list(request):
 
 @api_view()
 def connected_metabolites(request, id):
-    tissue = request.query_params.get('tissue', '')
-    expression_type = request.query_params.get('expression_type', '')
-    include_expressions = request.query_params.get('include_expression', '') == 'true'
-
     try:
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
@@ -265,13 +262,7 @@ def connected_metabolites(request, id):
     as_modifier = [MetaboliteReaction(r, 'modifier') for r in enzyme.reactions_as_modifier.all()]
     reactions = as_reactant + as_product + as_modifier
 
-    expressions = ExpressionData.objects.filter(
-            Q(gene_id=enzyme.id) &
-            Q(tissue__icontains=tissue) &
-            Q(expression_type__icontains=expression_type)
-        )
-
-    connected_metabolites = ConnectedMetabolites(enzyme, enzyme.compartment, reactions, expressions)
+    connected_metabolites = ConnectedMetabolites(enzyme, enzyme.compartment, reactions)
     serializer = ConnectedMetabolitesSerializer(connected_metabolites)
     return JSONResponse(serializer.data)
 
@@ -291,18 +282,31 @@ def expressions_list(request, enzyme_id):
 
 @api_view()
 def get_metabolite_reactions(request, reaction_component_id):
+    expandAllCompartment = False
     try:
         component = ReactionComponent.objects.get(Q(id=reaction_component_id) |
                                                   Q(long_name=reaction_component_id))
-
     except ReactionComponent.DoesNotExist:
-        return HttpResponse(status=404)
+        try:
+            component = ReactionComponent.objects.filter(
+                                                      (Q(id__icontains=reaction_component_id) |
+                                                      Q(long_name=reaction_component_id)) &
+                                                      Q(component_type='metabolite')
+                                                  )
+            expandAllCompartment = True
+            logging.warn(component);
+        except ReactionComponent.DoesNotExist:
+            return HttpResponse(status=404)
 
-    if component.component_type != 'metabolite':
-        return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
+    if expandAllCompartment:
+        reactions = Reaction.objects.filter(Q(reactionproduct__product_id__in=component) |
+                                        Q(reactionreactant__reactant_id__in=component))[:200]
+    else:
+        if component.component_type != 'metabolite':
+            return HttpResponseBadRequest('The provided reaction component is not a metabolite.')
 
-    reactions = Reaction.objects.filter(Q(reactionproduct__product_id=reaction_component_id) |
-                                        Q(reactionreactant__reactant_id=reaction_component_id))
+        reactions = Reaction.objects.filter(Q(reactionproduct__product_id=reaction_component_id) |
+                                        Q(reactionreactant__reactant_id=reaction_component_id))[:200]
 
     serializer = ReactionSerializer(reactions, many=True)
     result = serializer.data
@@ -347,17 +351,46 @@ def get_metabolite_reactome(request, reaction_component_id, reaction_id):
 
     return JSONResponse(result)
 
+
+def rewriteEquation(term):
+    # TODO there is probably something better to do here
+    term = term.replace("+", " + ")
+    term = term.replace("=>", " => ")
+    term = re.sub("\\s{2,}", " ", term)
+    term = term.strip()
+    term = re.sub("(NA|NADP|H)\s\+\s\[", "\g<1>+[", term, flags=re.IGNORECASE)
+    term = re.sub("(NA|NADP|H)\s\+(\s=>|$)", "\g<1>+\g<2>", term, flags=re.IGNORECASE)
+    rp = term.split('=>')
+    if len(rp) > 1:
+        reactants = rp[0].split(' + ')
+        for i in range(len(reactants)):
+            reactants[i] = reactants[i].strip()
+            if reactants[i] and not re.match(".+\[.\]$", reactants[i]):
+                reactants[i] = reactants[i] + "[_]"
+        products = rp[1].split(' + ')
+        for i in range(len(products)):
+            products[i] = products[i].strip()
+            if products[i] and not re.match(".+\[.\]$", products[i]):
+                products[i] = products[i] + "[_]"
+        reactants = " + ".join(reactants)
+        products = " + ".join(products)
+        return "%%%s => %s%%" % (reactants, products)
+    else:
+        elements = rp[0].split(' + ')
+        for i in range(len(elements)):
+            elements[i] = elements[i].strip()
+            if elements[i] and not re.match(".+\[.\]$", elements[i]):
+                elements[i] = elements[i] + "[_]"
+
+        elements = " + ".join(elements)
+        return "%%%s%%" % elements
+
+
 @api_view()
 def search(request, term, truncated):
-    metabolites = Metabolite.objects.filter(
-        Q(kegg__icontains=term) |
-        Q(hmdb__icontains=term) |
-        Q(hmdb_name__icontains=term)
-    )
 
-    enzymes = Enzyme.objects.filter(
-        Q(uniprot_acc__icontains=term)
-    )
+    if len(term.strip()) < 2:
+        return HttpResponse(status=404)
 
     if truncated:
         limit = 50
@@ -365,20 +398,73 @@ def search(request, term, truncated):
         # limit the size anyway
         limit = 1000
 
+    metabolites = Metabolite.objects.filter(
+        Q(kegg__iexact=term) |
+        Q(hmdb__iexact=term) |
+        Q(hmdb_name__icontains=term)
+    )
+
+    enzymes = Enzyme.objects.filter(
+        Q(uniprot_acc__iexact=term)
+    )
+
+    compartments = Compartment.objects.filter(name__icontains=term)
+
+    subsystems = Subsystem.objects.filter(
+        Q(name__icontains=term) |
+        Q(external_id__iexact=term)
+    )
+
+    reactions = []
+    term = term.replace("→", "=>")
+    term = term.replace("⇨", "=>")
+    term = term.replace("->", "=>")
+    if term.strip() not in ['+', '=>']:
+        termEq = re.sub("[\(\[\{]\s?(.)\s?[\)\]\}]", "[\g<1>]", term)
+
+        reactions = Reaction.objects.filter(
+            Q(id__iexact=term) |
+            Q(name__icontains=term) |
+            Q(equation__icontains=termEq) |
+            Q(ec__iexact=term) |
+            Q(sbo_id__iexact=term)
+        )[:limit]
+
+        termEq = None
+        reactions2 = []
+        if '+' in term or '=>' in term:
+            termEq = rewriteEquation(term)
+            reactions2 = Reaction.objects.extra(
+                where=["reaction::text ILIKE %s"], params=[termEq]
+            )[:limit]
+
+        reactions = list(chain(reactions, reactions2))
+
     components = ReactionComponent.objects.filter(
-            Q(id__icontains=term) |
+            Q(id__iexact=term) |
             Q(short_name__icontains=term) |
             Q(long_name__icontains=term) |
             Q(formula__icontains=term) |
             Q(metabolite__in=metabolites) |
             Q(enzyme__in=enzymes)
         ).order_by('short_name')[:limit]
-    if components.count() == 0:
+
+    if (components.count() + compartments.count() + subsystems.count() + len(reactions))== 0:
         return HttpResponse(status=404)
 
-    serializer = ReactionComponentSearchSerializer(components, many=True)
+    RCserializer = ReactionComponentSearchSerializer(components, many=True)
+    compartmentSerializer = CompartmentSerializer(compartments, many=True)
+    subsystemSerializer = SubsystemSerializer(subsystems, many=True)
+    reactionSerializer = ReactionSearchSerializer(reactions, many=True)
 
-    return JSONResponse(serializer.data)
+    results = {
+        'reactionComponent': RCserializer.data,
+        'compartment': compartmentSerializer.data,
+        'subsystem': subsystemSerializer.data,
+        'reaction': reactionSerializer.data
+    }
+
+    return JSONResponse(results)
 
 @api_view(['POST'])
 def convert_to_reaction_component_ids(request, compartmentID):
@@ -399,6 +485,18 @@ def convert_to_reaction_component_ids(request, compartmentID):
 
     return JSONResponse(reactionComponents);
 
+@api_view()
+def get_subsystems(request):
+    try:
+        subsystems = Subsystem.objects.all()
+    except Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = SubsystemSerializer(subsystems, many=True)
+    return JSONResponse(serializer.data);
+
+
+#=========================================================================================================
 
 @api_view()
 def get_gemodel(request, id):

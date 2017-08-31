@@ -34,13 +34,13 @@
             <br>
           </div>
           <div v-if="selectedElm.details.mass">
-            <p class="label">Mass</p>
-            <p>{{ selectedElm.details.mass }}</p>
+            <p class="label il">Molecular mass: </p>
+            {{ selectedElm.details.mass }} g/mol
             <br>
           </div>
           <div v-if="selectedElm.details.kegg">
-            <p class="label">Kegg</p>
-            <p><a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a></p>
+            <p class="label il">Kegg: </p>
+            <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
             <br>
           </div>
           <div v-if="!selectedElm.details.hmdb_description &&
@@ -100,7 +100,7 @@ export default {
   },
   methods: {
     viewMetaboliteInfo: function viewMetaboliteInfo() {
-      EventBus.$emit('updateSelTab', 4,
+      EventBus.$emit('updateSelTab', 3,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
   },
@@ -109,8 +109,15 @@ export default {
 
 <style lang="scss">
 
-#sidebar .label:last-child {
-  margin-bottom: 0.5em;
+#sidebar {
+
+  .label.il {
+    display: inline-block;
+  }
+
+  .label:last-child {
+    margin-bottom: 0.5em;
+  }
 }
 
 </style>

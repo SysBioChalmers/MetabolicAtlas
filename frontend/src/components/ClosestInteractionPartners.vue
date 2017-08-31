@@ -2,37 +2,64 @@
   <div class="closest-interaction-partners">
     <loader v-show="loading"></loader>
     <div v-show="!loading">
-      <div v-show="errorMessage" class="notification is-danger">
-        {{ errorMessage }}
+      <div v-if="errorMessage" class="columns">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
+        </div>
       </div>
       <div v-show="!errorMessage">
         <div class="container columns">
           <div class="column is-8">
-            <h3 class="title is-3" v-html="title"></h3>
+            <h3 class="title is-3 is-marginless" v-html="title"></h3>
           </div>
-          <div v-show="showNetworkGraph" class="column" v-on:mouseleave="showMenuExport = false">
-            <a class="button is-primary" v-on:click="showMenuExport = !showMenuExport">Export graph</a>
-            <div v-show="showMenuExport" id="contextMenuExport" ref="contextMenuExport">
-              <span class="button is-dark" v-on:click="exportGraphml">Graphml</span>
-              <span class="button is-dark" v-on:click="exportPNG">PNG</span>
+          <div class="column">
+            <div class="dropdown" id="dropdownMenuExport">
+              <div class="dropdown-trigger">
+                <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
+                @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
+                  <span>Export graph</span>
+                  <span class="icon is-small">
+                    &#9663;
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu" v-show="showMenuExport"
+              v-on:mouseleave="showMenuExport = false">
+                <div class="dropdown-content">
+                  <a class="dropdown-item" v-on:click="exportGraphml">
+                    Graphml
+                  </a>
+                  <a class="dropdown-item" v-on:click="exportPNG">
+                    PNG
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-          <span v-show="selectedElmId !==reactionComponentId"
+          <span v-show="selectedElmId !== reactionComponentId"
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span v-show="!expandedIds.includes(selectedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
-          <span v-show="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
-           v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
-          </span>
-          <span v-show="selectedElm && selectedElm.details && selectedElm.type === 'enzyme'" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot
-          </span>
-          <span v-show="selectedElm && selectedElm.details && selectedElm.type === 'metabolite'" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB
-          </span>
+          <div v-show="selectedElm && selectedElm.type === 'enzyme'">
+            <span class="is-black sep is-paddingless"></span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(2)">Show enzyme</span>
+            <span class="is-black sep is-paddingless"></span>
+            <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
+            <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span>
+          </div>
+          <div v-show="selectedElm && selectedElm.type === 'metabolite'">
+            <span class="is-black sep is-paddingless"></span>
+            <span class="button is-dark" v-on:click="viewReactionComponent(3)">Show metabolite</span>
+            <span class="is-black sep is-paddingless"></span>
+            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
+            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
+            v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span>
+          </div>
         </div>
         <div v-show="showNetworkGraph" class="container columns">
           <div class="column is-8">
@@ -46,14 +73,16 @@
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="toggleGraphLegend"></button>
               <span class="label">Enzyme</span>
-              <div>
+              <div class="comp">
                 <span>Shape:</span>
-                <select v-model="nodeDisplayParams.enzymeNodeShape" 
-                v-on:change="redrawGraph()">
-                  <option v-for="shape in availableNodeShape">
-                  {{ shape }}
-                  </option>
-                </select>
+                <div class="select">
+                  <select v-model="nodeDisplayParams.enzymeNodeShape" 
+                  v-on:change="redrawGraph()">
+                    <option v-for="shape in availableNodeShape">
+                    {{ shape }}
+                    </option>
+                  </select>
+                </div>
                 <span>Color:</span>
                 <span class="color-span"
                   v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
@@ -62,37 +91,41 @@
                   v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph(false, 'enzyme')"></compact-picker>
                 </span>
               </div>
-              <div>
+              <div class="comp">
                 <label class="checkbox">
                   <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
                   <span>Show expression levels</span>
                 </label>
-                <div>
-                  <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
-                  @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                    <optgroup label="HPA RNA levels - Tissues">
-                      <option v-for="tissue in hpaTissues" :value="tissue">
-                        {{ tissue }}
-                      </option>
-                    </optgroup>
-                    <optgroup label="HPA RNA levels - Cell-type">
-                      <option v-for="cellType in hpaCellLines" :value="cellType">
-                        {{ cellType }}
-                      </option>
-                    </optgroup>
-                  </select>
+                <div class="comp">
+                  <div class="select">
+                    <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
+                    @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                      <optgroup label="HPA - RNA levels - Tissues">
+                        <option v-for="tissue in hpaTissues" :value="tissue">
+                          {{ tissue }}
+                        </option>
+                      </optgroup>
+                      <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
+                        <option v-for="cellType in hpaCellLines" :value="cellType">
+                          {{ cellType }}
+                        </option>
+                      </optgroup>
+                    </select>
+                  </div>
                 </div>
               </div>
               <hr>
               <span class="label">Metabolite</span>
-              <div>
+              <div class="comp">
                 <span>Shape:</span>
-                <select v-model="nodeDisplayParams.metaboliteNodeShape" 
-                v-on:change="redrawGraph()">
-                  <option v-for="shape in availableNodeShape">
-                  {{ shape }}
-                  </option>
-                </select>
+                <div class="select">
+                  <select v-model="nodeDisplayParams.metaboliteNodeShape" 
+                  v-on:change="redrawGraph()">
+                    <option v-for="shape in availableNodeShape">
+                    {{ shape }}
+                    </option>
+                  </select>
+                </div>
                 <span>Color:</span>
                  <span class="color-span"
                   v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
@@ -102,16 +135,16 @@
                 </span>
               </div>
             </div>
-            <div id="cy" ref="cy">
+            <div id="cy" ref="cy" class="card is-paddingless">
             </div>
           </div>
           <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-            <div>{{ $t('tooManyReactionsWarn') }}</div>
+            <div v-html="$t('tooManyReactionsWarn')"></div>
             <span v-show="reactionsCount <= maxReactionCount"
-            class="button" v-on:click="constructGraph(rawElms, rawRels);">{{ $t('tooManyReactionsBut') }}</span>
+            class="button" v-on:click="constructGraph(rawElms, rawRels, fitGraph)">{{ $t('tooManyReactionsBut') }}</span>
           </div>
         </div>
         <cytoscape-table
@@ -138,9 +171,10 @@ import { default as FileSaver } from 'file-saver';
 import Sidebar from 'components/Sidebar';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
+import { default as EventBus } from '../event-bus';
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
-import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { fetchXML, parseXML } from '../helpers/xml-tools';
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
@@ -187,11 +221,11 @@ export default {
 
       cy: null,
       tableStructure: [
-        { field: 'type', colName: 'Type', modifier: null },
-        { field: 'short', link: true, colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'type', colName: 'Type', modifier: false },
+        { field: 'short', colName: 'Short name', modifier: false, rc: 'type' },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
-        { field: 'compartment', colName: 'Compartment', modifier: null },
+        { field: 'compartment', colName: 'Compartment', modifier: false },
       ],
 
       showMenuExport: false,
@@ -353,6 +387,9 @@ export default {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
               break;
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
+              break;
             default:
               this.errorMessage = this.$t('unknownError');
           }
@@ -488,6 +525,9 @@ export default {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartners');
               break;
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
+              break;
             default:
               this.errorMessage = this.$t('unknownError');
           }
@@ -545,15 +585,11 @@ export default {
         pan: cypan,
       });
     },
-    refreshGraph() {
-      // this.cy.elements().remove();
-      // this.cy.add(this.rawElms);
-    },
     fitGraph() {
       setTimeout(() => {
         this.cy.fit();
-      }, 500);
-      this.minZoom = this.cy.zoom() / 2.0;
+        this.minZoom = this.cy.zoom() / 2.0;
+      }, 300);
     },
     highlightNode(elmId) {
       if (!this.showNetworkGraph) {
@@ -564,7 +600,8 @@ export default {
       node.json({ selected: true });
       node.trigger('tap');
     },
-    constructGraph: function constructGraph(elms, rels) {
+    // this.switchSVG(compartmentID,
+    constructGraph: function constructGraph(elms, rels, callback) {
       /* eslint-disable no-param-reassign */
       const [elements, stylesheet] = graph(elms, rels, this.nodeDisplayParams);
       const reactionComponentId = this.reactionComponentId;
@@ -590,12 +627,9 @@ export default {
           },
           fit: true,
         },
-        // fit: true,
       });
-      this.cy.ready = this.cy.fit();
-
+      // this.cy.ready = this.cy.fit();
       this.cy.userZoomingEnabled(false);
-      // this.fitGraph();
 
       window.pageYOffset = 0;
       document.documentElement.scrollTop = 0;
@@ -619,17 +653,6 @@ export default {
           'overlay-padding': edgeWidth * 2,
         });
       });
-
-      // const c = document.getElementsByTagName('canvas')[0];
-      // const svgCxt = new C2S(c);
-      // const scope = this;
-      // const draw = function draw(ctx) {
-      //   const r = scope.cy.renderer();
-      //   r.drawElements(ctx, scope.cy.elements());
-      // };
-
-      // draw(svgCxt);
-      // console.log(svgCxt.getSvg());
 
       const contextMenuGraph = this.$refs.contextMenuGraph;
       this.showGraphContextMenu = false;
@@ -689,6 +712,11 @@ export default {
           updatePosition(node);
         }
       });
+      console.log(callback);
+      if (callback) {
+        console.log('callback');
+        callback();
+      }
       /* eslint-enable no-param-reassign */
     },
     // TODO: refactor
@@ -717,7 +745,9 @@ export default {
     },
     exportPNG: function exportPNG() {
       const a = document.createElement('a');
-      const output = this.cy.png();
+      const output = this.cy.png({
+        bg: 'white',
+      });
 
       a.href = output;
       a.download = `${this.reactionComponentId}_interaction_partners.png`;
@@ -727,7 +757,7 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    fixSelectOption() {
+    fixEnzSelectOption() {
       const option = document.getElementById('enz-select')
       .getElementsByTagName('optgroup')[0].childNodes[0];
       option.selected = 'selected';
@@ -770,7 +800,7 @@ export default {
             redraw = true;
           }
           this.nodeDisplayParams.enzymeExpSample = expSample;
-        } else if (this.nodeDisplayParams.enzymeExpSource) {
+        } else {
           this.nodeDisplayParams.enzymeExpSource = false;
           this.nodeDisplayParams.enzymeExpType = false;
           this.nodeDisplayParams.enzymeExpSample = false;
@@ -789,11 +819,12 @@ export default {
         this.nodeDisplayParams.metaboliteExpSample = false;
       }
       if (redraw) {
-        console.log('redraw');
         setTimeout(() => {
-          if (!expSample) {
-            // fix option selection
-            this.fixSelectOption();
+          if ((expSource && expType) && !expSample) {
+            // fix option selection! because of optgroup?
+            if (this.toggleEnzymeExpLevel) {
+              this.fixEnzSelectOption();
+            }
           }
           this.redrawGraph(true);
         }, 0);
@@ -825,9 +856,13 @@ export default {
         level: lvl,
       });
     },
+    viewReactionComponent: function viewReactionComponent(tabIndex) {
+      EventBus.$emit('updateSelTab', tabIndex,
+       this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
+    },
     chemicalFormula,
     chemicalName,
-    chemicalNameLink,
+    chemicalNameExternalLink,
     visitLink,
     fetchXML,
     parseXML,
@@ -836,106 +871,123 @@ export default {
 </script>
 
 <style lang='scss'>
+.closest-interaction-partners {
 
-h1, h2 {
-  font-weight: normal;
-}
+  h1, h2 {
+    font-weight: normal;
+  }
 
-#cy {
-  position: absolute;
-  margin: auto;
-  height: 820px;
-}
+  #cy {
+    position: static;
+    margin: auto;
+    height: 820px;
+  }
 
-#sidebar {
-  max-height: 820px;
-  overflow-y: auto;
-}
+  #sidebar {
+    max-height: 820px;
+    overflow-y: auto;
+  }
 
-#contextMenuGraph, #contextMenuExport, #contextMenuExpression {
-  position: absolute;
-  z-index: 20;
-
-  span {
-    display: block;
-    padding: 5px 10px;
-    text-align: left;
-    border-radius: 0;
-
-    a {
-      color: white;
+  #dropdownMenuExport {
+    .dropdown-menu {
+      display: block;
     }
   }
-}
 
-#graphOption {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 220px;
-  height: 30px;
-  z-index: 10;
+  #contextMenuGraph, #contextMenuExport, #contextMenuExpression {
+    position: absolute;
+    z-index: 20;
 
-  span {
-    display: inline-block;
-    margin-right: 5px;
-  }
-}
+    span {
+      display: block;
+      padding: 5px 10px;
+      text-align: left;
+      border-radius: 0;
+      a {
+        color: white;
+      }
+    }
 
-#contextGraphLegend {
-  position: absolute;
-  background: white;
-  top: 32px;
-  left: 0;
-  width: auto;
-  height: auto;
-  padding: 15px;
-  border: 1px solid black;
-  border-radius: 2px;
-  z-index: 999;
-
-  span, select, compact-picker {
-    display: inline-block;
-    margin-right: 20px;
-    margin-bottom: 10px;
+    span.sep.is-black {
+      background: #363636;
+      border-bottom: 1px solid black;
+      height: 1px;
+    }
   }
 
-  div {
-    margin-left: 20px;
-    display: block;
+  #graphOption {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 220px;
+    height: 30px;
+    z-index: 10;
+
+    span {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    select {
+      padding: 3px;
+    }
   }
 
-  span.label {
-    display: block;
-    margin-left: 0;
-  }
-
-  .delete {
-    position : absolute;
-    right: 10px;
-    top: 10px;
-  }
-
-  span.color-span {
-    height: 20px;
-    width: 25px;
+  #contextGraphLegend {
+    position: absolute;
+    background: white;
+    top: 44px;
+    left: 12px;
+    width: auto;
+    height: auto;
+    padding: 15px;
     border: 1px solid black;
-    vertical-align: middle;
-    margin-right: 15px;
-    margin-bottom: 5px;
+    border-radius: 2px;
+    z-index: 999;
+
+    span, div.select, compact-picker {
+      display: inline-block;
+      margin-right: 20px;
+      margin-bottom: 10px;
+    }
+
+    div.comp {
+      margin-left: 20px;
+      display: block;
+    }
+
+    span.label {
+      display: block;
+      margin-left: 0;
+    }
+
+    .delete {
+      position : absolute;
+      right: 10px;
+      top: 10px;
+    }
+
+    span.color-span {
+      height: 20px;
+      width: 25px;
+      border: 1px solid black;
+      vertical-align: middle;
+      margin-right: 15px;
+      margin-bottom: 5px;
+    }
+
+    span.color-span:hover {
+      cursor: pointer;
+    }
   }
 
-  span.color-span:hover {
-    cursor: pointer;
+  #t-select {
+    margin-top: 0.75rem;
   }
-}
 
-#t-select {
-  margin-top: 0.75rem;
-}
-
-#enz-select {
-  min-width: 240px;
+  #enz-select {
+    min-width: 240px;
+  }
 }
 
 </style>

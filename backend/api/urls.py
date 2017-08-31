@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^gemodels/?$', views.get_gemodels),
     url(r'^gemodel/(?P<id>[^/]+)/?$', views.get_gemodel),
     url(r'^convert_to_reaction_component_ids/(?P<compartmentID>[^/]+)/?$', views.convert_to_reaction_component_ids),
+    url(r'^subsystems/?$', views.get_subsystems),
 ]

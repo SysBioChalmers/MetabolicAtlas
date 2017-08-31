@@ -1,26 +1,32 @@
 <template>
   <div class="connected-metabolites">
-    <h3 class="title is-3">Catalyzed reactions</h3>
-    <loader v-show="loading"></loader>
-    <div v-show="!loading">
-      <div v-show="errorMessage" class="notification is-danger">{{ errorMessage }}</div>
-      <div v-show="!errorMessage">
+    <div v-if="errorMessage" class="columns">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
+      </div>
+    </div>
+    <div v-show="!errorMessage">
+      <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+      <loader v-show="loading"></loader>
+      <div v-show="!loading">
         <div v-show="reactions.length > 0">
-          <div class="notification is-warning">{{ $t('tooManyReactions') }}</div>
+          <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
           <reaction-table :reactions="reactions"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
-          <div class="container columns">
-            <figure id="cy" ref="cy" class="column is-8"></figure>
-            <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
-            <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
-              <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
-               v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
-              </span>
-              <span v-if="selectedElm && selectedElm.link && selectedElm.type === 'enzyme'" class="button is-dark"
-                v-on:click='visitLink(selectedElm.link, true)'>View in Uniprot
-              </span>
+          <div class="columns">
+            <div id="cygraph-wrapper" class="column is-8">
+              <div id="cy" ref="cy" class="is-8 card is-paddingless"></div>
+              <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
+                <span v-if="selectedElm && selectedElm.type === 'enzyme'" class="button is-dark"
+                 v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA
+                </span>
+                <span v-if="selectedElm && selectedElm.link && selectedElm.type === 'enzyme'" class="button is-dark"
+                  v-on:click='visitLink(selectedElm.link, true)'>View in Uniprot
+                </span>
+              </div>
             </div>
+            <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
           </div>
           <div class="container">
             <cytoscape-table
@@ -48,11 +54,11 @@ import ReactionTable from 'components/ReactionTable';
 import Loader from 'components/Loader';
 import { default as transform } from '../data-mappers/connected-metabolites';
 import { default as graph } from '../graph-stylers/connected-metabolites';
-import { chemicalFormula, chemicalName, chemicalNameLink } from '../helpers/chemical-formatters';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
 
 export default {
-  name: 'connected-metabolites',
+  name: 'enzyme',
   components: {
     Sidebar,
     CytoscapeTable,
@@ -72,9 +78,9 @@ export default {
 
       enzymeName: '',
       tableStructure: [
-        { field: 'type', colName: 'Type', modifier: null },
-        { field: 'reactionid', colName: 'Reaction ID', modifier: null },
-        { field: 'short', link: true, colName: 'Short name', modifier: chemicalNameLink },
+        { field: 'type', colName: 'Type', modifier: false },
+        { field: 'reactionid', colName: 'Reaction ID', modifier: false, rc: 'reaction', id: 'self' },
+        { field: 'short', link: true, colName: 'Short name', modifier: false, rc: 'metabolite' },
         { field: 'long', colName: 'Long name', modifier: chemicalName },
         { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
         {
@@ -131,12 +137,12 @@ export default {
           this.errorMessage = null;
 
           // If the response has only reacionts, it doesn't have an id in root object.
-          if (response.data.id !== undefined) {
+          if (response.data.enzyme !== undefined) {
             this.reactions = [];
 
             const [elms, rels] = transform(response.data);
 
-            this.enzymeName = response.data.short_name || response.data.long_name;
+            this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
             this.selectedElm = elms[enzymeId];
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);
@@ -180,7 +186,6 @@ export default {
 
               this.selectedElmId = ele.data().id;
               this.selectedElm = ele.data();
-              console.log(this.selectedElm);
               this.showGraphContextMenu = true;
               updatePosition(node);
             });
@@ -243,11 +248,11 @@ export default {
         });
     },
     viewMetaboliteInfo: function viewMetaboliteInfo(id) {
-      this.$emit('updateSelTab', 4, id);
+      this.$emit('updateSelTab', 3, id);
     },
     chemicalFormula,
     chemicalName,
-    chemicalNameLink,
+    chemicalNameExternalLink,
     visitLink,
   },
   beforeMount() {
@@ -264,29 +269,35 @@ h1, h2 {
   font-weight: normal;
 }
 
-#cy {
-  position: static;
-  margin: auto;
-  height: 820px;
-}
+.connected-metabolites {
+  #cygraph-wrapper {
+    position: relative;
+  }
 
-#sidebar {
-  max-height: 820px;
-  overflow-y: auto;
-}
+  #cy {
+    position: static;
+    margin: auto;
+    height: 720px;
+  }
 
-#contextMenuGraph {
-  position: absolute;
-  z-index: 999;
+  #sidebar {
+    max-height: 720px;
+    overflow-y: auto;
+  }
 
-  span {
-    display: block;
-    padding: 5px 10px;
-    text-align: left;
-    border-radius: 0;
+  #contextMenuGraph {
+    position: absolute;
+    z-index: 999;
 
-    a {
-      color: white;
+    span {
+      display: block;
+      padding: 5px 10px;
+      text-align: left;
+      border-radius: 0;
+
+      a {
+        color: white;
+      }
     }
   }
 }

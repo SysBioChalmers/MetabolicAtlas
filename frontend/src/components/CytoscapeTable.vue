@@ -10,13 +10,24 @@
         <a
           @click="exportToExcel"
           class="button is-primary"
-        >{{ $t('export') }}</a>
+        >{{ $t('exportButton') }}</a>
       </div>
+    </div>
+    <div class="field">
+      <span class="tag">
+        # Metabolite(s): {{ metaboliteCount }}
+      </span>
+      <span class="tag" v-show="enzymeCount">
+         # Enzyme(s): {{ enzymeCount }}
+      </span>
+      <span class="tag" v-show="reactionCount">
+         # Reaction(s): {{ reactionCount }}
+      </span>
     </div>
     <table class="table is-bordered is-striped is-narrow" ref="table">
       <thead>
-        <tr>
-          <th
+        <tr style="background: #F8F4F4">
+          <th class="is-unselectable"
             v-for="s in structure"
             @click="sortBy(s.field)"
           >{{ s.colName }}</th>
@@ -29,6 +40,11 @@
           @click="highlight(elm.id)"
         >
           <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
+          <td v-else-if="s.rc">
+            <a @click="viewReactionComponent(
+              elm[s.rc] ? elm[s.rc] : s.rc, s.id ? s.id==='self' ? elm[s.field] : s.id : elm.id)">{{ elm[s.field] }}
+            </a>
+          </td>
           <td v-else>{{ elm[s.field] }}</td>
         </tr>
       </tbody>
@@ -39,6 +55,11 @@
           @click="highlight(elm.id)"
         >
           <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
+          <td v-else-if="s.rc">
+            <a @click="viewReactionComponent(
+              elm[s.rc] ? elm[s.rc] : s.rc, s.id ? s.id==='self' ? elm[s.field] : s.id : elm.id)">{{ elm[s.field] }}
+            </a>
+          </td>
           <td v-else>{{ elm[s.field] }}</td>
         </tr>
       </tbody>
@@ -51,6 +72,7 @@
 import TableSearch from 'components/TableSearch';
 import { default as compare } from '../helpers/compare';
 import { default as downloadFile } from '../helpers/excel-export';
+import { default as EventBus } from '../event-bus';
 
 export default {
   name: 'cytoscape-table',
@@ -79,10 +101,42 @@ export default {
       return this.elms.filter(
         el => el.type !== 'reactant_box' && el.type !== 'product_box');
     },
+    enzymeCount() {
+      return this.elms.filter(el => el.type === 'enzyme').length;
+    },
+    metaboliteCount() {
+      return this.elms.filter(el => el.type === 'metabolite').length;
+    },
+    reactionCount() {
+      const countReation = {};
+      for (const el of this.filteredElms) {
+        if (el.reactionid) {
+          countReation[el.reactionid] = 1;
+        }
+      }
+      return Object.keys(countReation).length;
+    },
   },
   methods: {
     applyModifier(s, elm) {
       return s.modifier(elm[s.field], elm.link);
+    },
+    viewReactionComponent: function viewReactionComponent(type, id) {
+      let tabIndex = 0;
+      switch (type) {
+        case 'metabolite':
+          tabIndex = 3;
+          break;
+        case 'enzyme':
+          tabIndex = 2;
+          break;
+        case 'reaction':
+          tabIndex = 4;
+          break;
+        default:
+          tabIndex = 1;
+      }
+      EventBus.$emit('updateSelTab', tabIndex, id);
     },
     isSelected(elmId) {
       return this.selectedElmId === elmId;
@@ -156,25 +210,26 @@ export default {
 
 <style lang="scss">
 
-th {
-  cursor: pointer;
-  user-select: none;
-}
+.cytoscape-table {
+  th {
+    cursor: pointer;
+  }
 
-tr.highlight {
-  background-color: #C5F4DD !important;
-}
+  tr.highlight {
+    background-color: #C5F4DD !important;
+  }
 
-#unmachingTableBody {
-  opacity: 0.3;
-}
+  #unmachingTableBody {
+    opacity: 0.3;
+  }
 
-sup {
-  vertical-align: bottom;
-  font-size: 0.7em;
+  sup {
+    vertical-align: bottom;
+    font-size: 0.7em;
 
-  &.top {
-    vertical-align: top;
+    &.top {
+      vertical-align: top;
+    }
   }
 }
 
