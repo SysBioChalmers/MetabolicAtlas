@@ -66,6 +66,22 @@ export default {
     // this.loadSVG(1, this.swapSVG);
     $('#svgbox').attr('width', '100%');
     $('#svgbox').attr('height', `${$(window).height() - 300}`);
+    $('#svg-wrapper').on('mouseover', '.Metabolite, .Reaction', function f() {
+      const text = $(this)[0].children[1].children[0];
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      const SVGRect = $(this)[0].children[1].getBBox();
+      rect.setAttribute('x', SVGRect.x - 2);
+      rect.setAttribute('y', SVGRect.y - 1);
+      rect.setAttribute('width', SVGRect.width + 4);
+      rect.setAttribute('height', SVGRect.height + 2);
+      rect.setAttribute('fill', 'white');
+      $(this)[0].children[1].insertBefore(rect, text);
+      // $(this).parent().find('.label text').attr('fill', 'red');
+    });
+    $('#svg-wrapper').on('mouseout', '.Metabolite, .Reaction', function f() {
+      $(this)[0].children[1].removeChild($(this)[0].children[1].children[0]);
+      // $(this).parent().find('.label text').attr('fill', 'red');
+    });
   },
   methods: {
     swapSVG(callback) {
@@ -297,6 +313,22 @@ export default {
       margin: auto;
     }
   }
+
+  .Metabolite, .Reaction {
+    .Shape, .Label {
+      cursor: pointer;
+    }
+
+    &:hover {
+      .Shape {
+        path {
+          fill: red;
+        }
+      }
+    }
+  }
+
+
 
   .svgbox {
     position: relative;
