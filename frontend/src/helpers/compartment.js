@@ -6,20 +6,23 @@ const data = {
     color: '',
     svgName: 'fakesvg',
     compartmentID: 1,
+    maxZoomLvl: 10,
   },
   peroxisome: {
     name: 'Peroxisome',
     letter: 'p',
     color: '',
-    svgName: '',
+    svgName: 'peroxisome',
     compartmentID: 2,
+    maxZoomLvl: 10,
   },
   mitochondria: {
     name: 'Mitochondria',
     letter: 'm',
     color: '',
-    svgName: '',
+    svgName: 'mitochondrion',
     compartmentID: 3,
+    maxZoomLvl: 10,
   },
   cytosol: {
     name: 'Cytosol',
@@ -27,41 +30,47 @@ const data = {
     color: '',
     svgName: '',
     compartmentID: 4,
+    maxZoomLvl: 10,
   },
   lysosome: {
     name: 'Lysosome',
     letter: 'l',
     color: '',
-    svgName: '',
+    svgName: 'lysosome',
     compartmentID: 5,
+    maxZoomLvl: 10,
   },
   'endoplasmic reticulum': {
     name: 'Endoplasmic reticulum',
     letter: 'r',
     color: '',
-    svgName: 'ERtestwithid',
+    svgName: 'ER',
     compartmentID: 6,
+    maxZoomLvl: 10,
   },
   'golgi apparatus': {
     name: 'Golgi apparatus',
     letter: 'g',
     color: '',
-    svgName: '',
+    svgName: 'golgi',
     compartmentID: 7,
+    maxZoomLvl: 10,
   },
   nucleus: {
     name: 'Nucleus',
     letter: 'n',
     color: '',
-    svgName: 'nucleus_no_min',
+    svgName: 'nucleosome',
     compartmentID: 8,
+    maxZoomLvl: 10,
   },
   boundary: {
     name: 'Boundary',
     letter: 'x',
     color: '',
-    svgName: '',
+    svgName: 'golgi2',
     compartmentID: 9,
+    maxZoomLvl: 10,
   },
 };
 
@@ -115,23 +124,41 @@ export function getCompartmentFromCID(compartmentID) {
   return null;
 }
 
-function formatSpan(x) {
+
+function formatSpan(currentVal, index, array, elements, addComp) {
   const regex = /(.+)\[(.)\]/g;
-  const match = regex.exec(x);
-  return `${match[1]}<span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
+  const match = regex.exec(currentVal);
+  if (!addComp) {
+    return `<rc id="${elements[index].id}">${match[1]}</rc>`;
+  }
+  return `<rc id="${elements[index].id}">${match[1]}</rc><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
 }
 
-export function reformatChemicalReaction(value) {
-  if (value === null) {
+export function reformatChemicalReaction(equation, reaction) {
+  if (reaction === null || equation === null) {
     return '';
   }
-  const arr = value.split(' &#8680; ');
+  const addComp = reaction.compartment.includes('=>');
+  const arr = equation.split(' &#8680; ');
+
+  // assumes the order in reaction.reactants (reps. reaction.products)
+  // are identique to the order or the reactants (resp. products) of the equation
 
   let reactants = arr[0].split(' + ');
-  reactants = reactants.map(formatSpan).join(' + ');
+  reactants = reactants.map(
+    (x, i, a) => formatSpan(x, i, a, reaction.reactants, addComp)).join(' + ');
 
   let products = arr[1].split(' + ');
-  products = products.map(formatSpan).join(' + ');
+  products = products.map(
+    (x, i, a) => formatSpan(x, i, a, reaction.products, addComp)).join(' + ');
 
   return `${reactants} &#8680; ${products}`;
+}
+
+export function getCompartmentCount() {
+  return Object.keys(d).length;
+}
+
+export function getCompartments() {
+  return data;
 }

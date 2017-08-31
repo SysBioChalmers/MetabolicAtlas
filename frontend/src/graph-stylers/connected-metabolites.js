@@ -55,7 +55,7 @@ export default function (elms, rels) {
           parent: elm.parentid,
           reactionid: elm.reactionid,
           type: elm.type,
-          pathway: elm.pathway,
+          subsystem: elm.subsystem,
         },
       });
     } else if (elm.type === 'reactant_box') {

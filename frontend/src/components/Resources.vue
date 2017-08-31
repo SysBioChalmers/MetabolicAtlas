@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <div>
+      <div id="resources">
         <h2 class="title fc is-2">Tools</h2>
         <div v-for="tool_data in tools">
           <div class="columns">
@@ -109,30 +109,31 @@ export default {
 </script>
 
 <style lang="scss">
-
-.title {
-  display: block;
-  margin-bottom: 1.5rem;
-  margin-top: 2rem;
-}
-
-.title.fc{
-  margin-top: 0;
-}
-
-.dsc, .name {
-  height: 75px;
-  line-height: 75px;
-
-  span {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: normal;
+#resources {
+  .title {
+    display: block;
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
   }
-}
 
-.name {
-  font-size: 1.5rem;
+  .title.fc{
+    margin-top: 0;
+  }
+
+  .dsc, .name {
+    height: 75px;
+    line-height: 75px;
+
+    span {
+      display: inline-block;
+      vertical-align: middle;
+      line-height: normal;
+    }
+  }
+
+  .name {
+    font-size: 1.5rem;
+  }
 }
 
 </style>

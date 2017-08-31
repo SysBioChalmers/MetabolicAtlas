@@ -23,7 +23,7 @@ class MetaboliteSerializer(serializers.ModelSerializer):
 class MetaboliteSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metabolite
-        fields = ('kegg', 'hmdb', 'hmdb_name')
+        fields = ('kegg', 'hmdb', 'hmdb_name', 'mass')
 
 class EnzymeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,6 +74,18 @@ class ReactionSerializer(serializers.ModelSerializer):
         ss_ids = ReactionSubsystem.objects.filter(reaction=model.id).values_list('subsystem')
         return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
+class ReactionSearchSerializer(serializers.ModelSerializer):
+    subsystem = serializers.SerializerMethodField('get_subsystems')
+
+    class Meta:
+        model = Reaction
+        fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
+            'compartment', 'subsystem')
+
+    def get_subsystems(self, model):
+        ss_ids = ReactionSubsystem.objects.filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+
 
 # This is a helper class to determine if a component is a currency metabolite
 class CurrencyMetaboliteReactionComponent(object):
@@ -117,22 +129,33 @@ class InteractionPartnerSerializer(serializers.ModelSerializer):
 class MetaboliteReactionSerializer(serializers.Serializer):
     reaction_id = serializers.CharField()
     enzyme_role = serializers.CharField()
-    # reaction_subsystem = serializers.SerializerMethodField('get_subsystems')
+    subsystem = serializers.SerializerMethodField('get_subsystems')
     reactants = ReactionComponentSerializer(many=True, read_only=True)
     products = ReactionComponentSerializer(many=True, read_only=True)
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
 
+    def get_subsystems(self, model):
+        ss_ids = ReactionSubsystem.objects.filter(reaction=model.reaction_id).values_list('subsystem')
+        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
 
 class ConnectedMetabolitesSerializer(serializers.Serializer):
-    id = serializers.CharField()
-    short_name = serializers.CharField()
-    long_name = serializers.CharField()
+    enzyme = ReactionComponentSerializer(read_only=True)
     compartment = serializers.CharField()
     reactions = MetaboliteReactionSerializer(many=True)
-    expressions = ExpressionDataSerializer(many=True)
-    uniprot_link = serializers.CharField()
-    ensembl_link = serializers.CharField()
+
+
+class SubsystemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subsystem
+        fields = ('name', 'system', 'external_id', 'description')
+
+class CompartmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Compartment
+        fields = ('name',)
 
 # =======================================================================================
 
