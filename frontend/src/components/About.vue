@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="container">
+  <div id="about">
+    <div class="container column is-10">
       <p class="box">
         The systems biology group is lead by
         <a href="http://sysbio.se/Lab_Nielsen/lab_nielsen.html" target="_new">Professor Jens Nielsen</a>,
@@ -16,7 +16,7 @@
       <br>
       <h2 class="title is-2">The Metabolic Atlas</h2>
       <div class="text">
-        <p class="text">
+        <p>
           The Metabolic Atlas is a freely available electronic database containing detailed information about all reactions that could take place within the human body.
         </p>
         <p class="text"
@@ -25,8 +25,8 @@
       </div>
       <br>
       <div class="text">
-        <h4 class="subtitle is-4">Release notes</h4>
-        <p class="text">
+        <h4 id="releaseNotes" class="subtitle is-4">Release notes</h4>
+        <p>
           Version 1.0 - a complete overhaul 2017-10-01<br/>
           A completely new version of the site was launched,
           complete with manually drawn map of HMR2.0.
@@ -65,9 +65,10 @@ export default {
 </script>
 
 <style lang="scss">
-
-.text {
-  padding-left: 0.75em;
+#about {
+  .text {
+    padding-left: 0.75em;
+  }
 }
 
 </style>
