@@ -40,8 +40,12 @@
           @click="highlight(elm.id)"
         >
           <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
-          <td v-else-if="s.rc"><a @click="viewReactionComponent(elm[s.rc] ? elm[s.rc] : s.rc, elm.id)">{{ elm[s.field] }}</a></td>
-          <td v-else>{{ elm[s.field] }} {{ s.rc }}</td>
+          <td v-else-if="s.rc">
+            <a @click="viewReactionComponent(
+              elm[s.rc] ? elm[s.rc] : s.rc, s.id ? s.id==='self' ? elm[s.field] : s.id : elm.id)">{{ elm[s.field] }}
+            </a>
+          </td>
+          <td v-else>{{ elm[s.field] }}</td>
         </tr>
       </tbody>
       <tbody id="unmachingTableBody" ref="unmachingTableBody">
@@ -51,8 +55,12 @@
           @click="highlight(elm.id)"
         >
           <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
-          <td v-else-if="s.rc"><a @click="viewReactionComponent(elm[s.rc] ? elm[s.rc] : s.rc, elm.id)">{{ elm[s.field] }}</a></td>
-          <td v-else>{{ elm[s.field] }} {{ s.rc }}</td>
+          <td v-else-if="s.rc">
+            <a @click="viewReactionComponent(
+              elm[s.rc] ? elm[s.rc] : s.rc, s.id ? s.id==='self' ? elm[s.field] : s.id : elm.id)">{{ elm[s.field] }}
+            </a>
+          </td>
+          <td v-else>{{ elm[s.field] }}</td>
         </tr>
       </tbody>
     </table>
@@ -117,16 +125,16 @@ export default {
       let tabIndex = 0;
       switch (type) {
         case 'metabolite':
-          tabIndex = 4;
-          break;
-        case 'enzyme':
           tabIndex = 3;
           break;
+        case 'enzyme':
+          tabIndex = 2;
+          break;
         case 'reaction':
-          tabIndex = -1;
+          tabIndex = 4;
           break;
         default:
-          tabIndex = 2;
+          tabIndex = 1;
       }
       EventBus.$emit('updateSelTab', tabIndex, id);
     },

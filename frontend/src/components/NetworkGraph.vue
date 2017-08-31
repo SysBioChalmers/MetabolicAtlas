@@ -9,33 +9,36 @@
       </div>
       <global-search
       :quickSearch=true
-      ><global-search>
+      ></global-search>
+      <div class="column">
+        <div class="is-pulled-right">
+          <a @click="viewRelaseNotes">Release 1.0</a>
+        </div>
+      </div>
     </div>
     <br>
-    <div class="tabs is-boxed">
-     <ul>
-       <li
+    <div class="tabs is-boxed is-centered">
+      <ul>
+        <li
          v-for="(tab, index) in tabs"
          :class="[{ 'is-active': isActive(index) }, { 'is-disabled': tab.isDisabled }]"
          :disabled="tab.isDisabled"
          @click="goToTab(index, reactionComponentID)"
-       >
-        <a :class="{ 'disabled': tab.isDisabled }"><span>{{ tab.title }}</span></a>
-       </li>
-     </ul>
-   </div>
-   <div v-if="errorMessage">
-    {{ errorMessage }}
-   </div>
-   <div v-else>
+        >
+         <a :class="{ 'disabled': tab.isDisabled }"><span>{{ tab.title }}</span></a>
+        </li>
+      </ul>
+    </div>
+    <div v-if="errorMessage">
+      {{ errorMessage }}
+    </div>
+    <div v-else>
       <metabolic-network v-if="selectedTab===1"></metabolic-network>
-      <reporter-metabolites v-if="selectedTab===2"></reporter-metabolites>
-     <closest-interaction-partners v-if="selectedTab===3"
-      @updateSelTab="goToTab"></closest-interaction-partners>
-     <connected-metabolites v-if="selectedTab===4"
-      @updateSelTab="goToTab"></connected-metabolites>
-     <metabolite v-if="selectedTab===5"></metabolite>
-   </div>
+      <closest-interaction-partners v-if="selectedTab===2"></closest-interaction-partners>
+      <enzyme v-if="selectedTab===3"></enzyme>
+      <metabolite v-if="selectedTab===4"></metabolite>
+      <reaction v-if="selectedTab===5"></reaction>
+    </div>
   </div>
 </template>
 
@@ -46,8 +49,10 @@ import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';
 import ReporterMetabolites from 'components/ReporterMetabolites';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
-import ConnectedMetabolites from 'components/ConnectedMetabolites';
+import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
+import Reaction from 'components/Reaction';
+import router from '../router';
 import { default as EventBus } from '../event-bus';
 
 export default {
@@ -56,8 +61,9 @@ export default {
     MetabolicNetwork,
     ReporterMetabolites,
     ClosestInteractionPartners,
-    ConnectedMetabolites,
+    Enzyme,
     Metabolite,
+    Reaction,
     GlobalSearch,
   },
   data() {
@@ -84,20 +90,21 @@ export default {
   },
   computed: {
     tabs() {
+      let disabledTab3 = true;
       let disabledTab4 = true;
       let disabledTab5 = true;
       if (this.reactionComponentID) {
-        disabledTab4 = this.reactionComponentID[0] === 'M';
-        disabledTab5 = this.reactionComponentID[0] === 'E';
+        disabledTab3 = this.reactionComponentID[0] !== 'E';
+        disabledTab4 = this.reactionComponentID[0] !== 'M';
+        disabledTab5 = this.reactionComponentID[0] !== 'R';
       }
 
       return [
         { title: this.$t('tab1title'), isDisabled: false },
         { title: this.$t('tab2title'), isDisabled: false },
-        { title: this.$t('tab3title'), isDisabled: false },
+        { title: this.$t('tab3title'), isDisabled: disabledTab3 },
         { title: this.$t('tab4title'), isDisabled: disabledTab4 },
         { title: this.$t('tab5title'), isDisabled: disabledTab5 },
-        { title: this.$t('tab6title'), isDisabled: false },
       ];
     },
   },
@@ -115,7 +122,7 @@ export default {
         return;
       }
 
-      if ([2, 3, 4].includes(this.tabIndex) && !reactionComponentID) {
+      if ([1, 2, 3].includes(this.tabIndex) && !reactionComponentID) {
         this.errorMessage = this.$t('noIDProvided');
       } else {
         this.errorMessage = '';
@@ -155,51 +162,18 @@ export default {
       this.searchResults = [];
       this.goToTab(tabIndex, reactionComponentID);
     },
+    viewRelaseNotes() {
+      router.push({
+        path: '/About#releaseNotes',
+        query: {},
+      });
+    },
   },
 };
 
 </script>
 
 <style lang="scss">
-
-#search {
-  height: 38px;
-}
-
-#searchResults {
-  background: white;
-  position: absolute;
-  top: 50px;
-  max-height: 300px;
-  overflow-y: auto;
-  width: inherit;
-  border: 1px solid #64CC9A;
-  border-top: 0;
-  margin-top: -2px;
-  padding: 10px;
-  z-index: 10;
-
-  .resultSeparator:last-child {
-    display: none;
-  }
-
-  .searchResultSection {
-    margin-bottom: 10px;
-    background: white;
-
-    label {
-      font-style: italic;
-    }
-
-    span {
-      cursor: pointer;
-    }
-  }
-
-  .searchResultSection:last-child hr {
-    display: none;
-  }
-}
 
 a.disabled {
   cursor: default;

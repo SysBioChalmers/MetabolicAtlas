@@ -23,7 +23,7 @@ class MetaboliteSerializer(serializers.ModelSerializer):
 class MetaboliteSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metabolite
-        fields = ('kegg', 'hmdb', 'hmdb_name')
+        fields = ('kegg', 'hmdb', 'hmdb_name', 'mass')
 
 class EnzymeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -140,14 +140,9 @@ class MetaboliteReactionSerializer(serializers.Serializer):
 
 
 class ConnectedMetabolitesSerializer(serializers.Serializer):
-    id = serializers.CharField()
-    short_name = serializers.CharField()
-    long_name = serializers.CharField()
+    enzyme = ReactionComponentSerializer(read_only=True)
     compartment = serializers.CharField()
     reactions = MetaboliteReactionSerializer(many=True)
-    expressions = ExpressionDataSerializer(many=True)
-    uniprot_link = serializers.CharField()
-    ensembl_link = serializers.CharField()
 
 
 class SubsystemSerializer(serializers.ModelSerializer):

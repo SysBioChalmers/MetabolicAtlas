@@ -3,8 +3,20 @@
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
       <div v-show="false" id="diagram"></div>
+      <p class="control field">
+        <button class="button"
+        :class="{ 'is-active' : expandAllCompartment }"
+        @click="toggleExpandAllCompartment">Expand to all compartment</button>
+      </p>
       <reaction-table v-show="!showLoader" :reactions="reactions"></reaction-table>
-      <loader v-show="showLoader"></loader>
+      <div v-if="errorMessage" class="columns">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
+        </div>
+      </div>
+      <div v-show="!errorMessage">
+        <loader v-show="showLoader"></loader>
+      </div>
     </div>
   </div>
 </template>
@@ -30,6 +42,7 @@ export default {
       reactions: [],
       reactome: null,
       showLoader: true,
+      expandAllCompartment: false,
     };
   },
   watch: {
@@ -75,8 +88,11 @@ export default {
     },
     loadReactions() {
       this.showLoader = true;
-      const id = this.$route.params.reaction_component_id ||
+      let id = this.$route.params.reaction_component_id ||
        this.$route.query.reaction_component_id;
+      if (this.expandAllCompartment) {
+        id = id.replace(/[a-z]$/, '');
+      }
       axios.get(`metabolite_reactions/${id}`)
         .then((response) => {
           this.errorMessage = '';
@@ -86,6 +102,16 @@ export default {
             // this.loadReactome(r.id);
           }
           this.showLoader = false;
+        })
+        .catch((error) => {
+          this.loading = false;
+          switch (error.response.status) {
+            case 404:
+              this.errorMessage = this.$t('notFoundError');
+              break;
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
         });
     },
     // TODO: call loadReactome when selecting a row from the table of reactions
@@ -98,6 +124,10 @@ export default {
           this.reactome = response.data;
           this.showLoader = false;
         });
+    },
+    toggleExpandAllCompartment() {
+      this.expandAllCompartment = !this.expandAllCompartment;
+      this.loadReactions();
     },
   },
 };

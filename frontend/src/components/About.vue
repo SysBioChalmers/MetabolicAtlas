@@ -6,7 +6,7 @@
         <a href="http://sysbio.se/Lab_Nielsen/lab_nielsen.html" target="_new">Professor Jens Nielsen</a>,
         and is part of the Department of Biology and Biological Engineering at the
         <a href="www.chalmers.se" target="_new">Chalmers University of Technology</a>.
-        <br/><br/>
+        <br><br>
         The research focus is on <b>systems biology of metabolism</b> and the goal is to
         collect all our curated Genome-Scale Metabolic Models, resources
         (like the possibility to compare models), algorithms (like the reporter metabolites),
@@ -27,7 +27,7 @@
       <div class="text">
         <h4 id="releaseNotes" class="subtitle is-4">Release notes</h4>
         <p>
-          Version 1.0 - a complete overhaul 2017-10-01<br/>
+          Version 1.0 - a complete overhaul 2017-10-01<br>
           A completely new version of the site was launched,
           complete with manually drawn map of HMR2.0.
         </p>

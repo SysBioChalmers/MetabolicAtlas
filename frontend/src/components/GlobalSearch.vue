@@ -25,11 +25,11 @@
                 <div>
                    <span
                     class="tag is-primary is-medium"
-                    @click="goToTab(3, r.id)">
+                    @click="goToTab(2, r.id)">
                     Closest interaction partners
                   </span>
                   <span class="tag is-primary is-medium"
-                    @click="goToTab(4, r.id)">
+                    @click="goToTab(3, r.id)">
                     Catalysed reactions
                   </span>
                 </div>
@@ -40,18 +40,25 @@
                 <div>
                   <span
                     class="tag is-primary is-medium"
-                    @click="goToTab(3, r.id)">
+                    @click="goToTab(2, r.id)">
                     Closest interaction partners
                   </span>
                   <span class="tag is-primary is-medium"
-                    @click="goToTab(5, r.id)">
+                    @click="goToTab(4, r.id)">
                     Metabolite
                   </span>
                 </div>
               </div>
             </div>
             <div v-else-if="k === 'reaction'">
-              <strong>Reaction: </strong> {{ r.name }} ‒ {{ r.equation }}
+              <strong>Reaction: </strong> {{ r.id }} ‒ {{ r.equation }}
+              <div>
+                <span
+                  class="tag is-primary is-medium"
+                  @click="goToTab(5, r.id)">
+                  Reaction
+                </span>
+              </div>
             </div>
             <div v-else-if="k === 'subsystem'">
               <strong>Subsystem: </strong> {{ r.name }} ‒ {{ r.system }}
@@ -240,7 +247,7 @@ export default {
   z-index: 10;
 
   .searchGroupResultSection:first-child {
-    padding-top: 10px;
+    padding-top: 15px;
   }
 
   .searchResultSection {
