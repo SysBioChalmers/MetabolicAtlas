@@ -44,7 +44,7 @@ const data = {
     name: 'Endoplasmic reticulum',
     letter: 'r',
     color: '',
-    svgName: 'ERtestwithid',
+    svgName: 'ER',
     compartmentID: 6,
     maxZoomLvl: 10,
   },
