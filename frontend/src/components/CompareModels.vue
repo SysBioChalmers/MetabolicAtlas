@@ -96,12 +96,6 @@
         </div>
       </div>
     </section>
-  <font color="orange">See more needs implementing and 
-  Each of the names should be a link -> show on the SVG</font>
-  </br>
-  </br>
-        <font color='orange'>The below table should show all (?) affected reactions,
-        so it has to be possible to filter the table!</font>
     <section class="section">
       <div class="container">
         <h4 class="title is-4" v-if="showAffected == 'all'">{{ filterableReactions.length }} reactions</h4>
@@ -193,8 +187,6 @@
             </tr>
           </tbody>
         </table>
-          <font color='orange'>Do we want to do some sort of GO overrepresentation analysis of the
-            enzymes that are found in A but not B (and vice verse)?</font>
       </div>
     </section>
   </div>
@@ -282,7 +274,7 @@ export default {
     },
     showAffectedReactions() {
       // possibly slice this list if too many
-      return this.filteredAffectedReactions.slice(0, 10);
+      return this.filteredAffectedReactions.slice(0, 50);
     },
     topAffectedSysMis() {
       function comparer(a, b) {
