@@ -68,8 +68,7 @@ export default {
           {
             path: '/',
             query: {
-              tab: 3,
-              reaction_component_id: 'E_3748',
+              tab: 1,
             },
           },
         );
