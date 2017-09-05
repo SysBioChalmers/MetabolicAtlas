@@ -122,8 +122,6 @@
         <h4 class="title is-4">Reaction component table</h4>
         <br>
 
-          <h5 class="title is-5">Export</h5>
-          <br>
 
       <h3 id="metabolites" class="title is-3">Metabolites</h3>
       <p>Show the description of the current selected metabolite</p>
@@ -158,7 +156,7 @@
         &nbsp;&nbsp;&nbsp;&nbsp;<a href="#graphcustomisations">Graph customisations</a><br/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#shapecolor">Shape and color</a><br/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#graphcustomisations">Zoom in/out</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#zoominout">Fit</a><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#zoominout">Fit the graph to the window</a><br/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#expressionlevels">Color by expression levels</a><br/>
         &nbsp;&nbsp;&nbsp;&nbsp;<a href="#propertybox">Property box</a><br/>
         &nbsp;&nbsp;&nbsp;&nbsp;<a href="#reactioncomponenttable">Reaction component table</a><br/>
