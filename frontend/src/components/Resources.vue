@@ -44,8 +44,23 @@
       </div>
       <br>
       <div>
-        <h2 class="title is-2">Api</h2>
-          <a href="swagger">Swagger API</a>
+        <h2 class="title is-2">API</h2>
+        <div class="columns">
+          <div class="column is-1">
+            <a href="swagger">API</a>
+          </div>
+          <div class="column">
+            <div class="dsc">
+              <span>
+                The set of URL requests for the <a href="metabolicatlas.org">metabolicatlas.org</a>
+                that will return different .json files
+                depending on the current request.
+                Gives you the possibility of trying it out to see what the
+                results would look like.
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
