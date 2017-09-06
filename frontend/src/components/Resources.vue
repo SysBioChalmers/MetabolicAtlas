@@ -2,7 +2,10 @@
   <div>
     <div>
       <div id="resources">
-        <h2 class="title fc is-2">Tools</h2>
+        <div>
+          <a href="#tools">Tools</a> <a href="#databases">Databases</a> <a href="#api">API</a>
+          </div>
+        <h2 id="tools" class="title fc is-2">Tools</h2>
         <div v-for="tool_data in tools">
           <div class="columns">
             <div class="column is-1">
@@ -27,7 +30,7 @@
       </div>
       <br>
       <div>
-        <h2 class="title is-2">Databases</h2>
+        <h2 id="databases" class="title is-2">Databases</h2>
         <div v-for="db_data in databases">
           <div class="columns">
             <div class="column is-1">
@@ -44,7 +47,7 @@
       </div>
       <br>
       <div>
-        <h2 class="title is-2">API</h2>
+        <h2 id="api" class="title is-2">API</h2>
         <div class="columns">
           <div class="column is-1">
             <a href="swagger">API</a>
@@ -89,6 +92,10 @@ export default {
           link: 'https://github.com/SysBioChalmers/Kiwi',
           img: 'https://pythonhosted.org/KiwiDist/_images/kiwi_logo.png',
           description: '<b>The Kiwi module combines geneset analyses with biological networks to visualize the interactions between genesets that are significant in a given biological system</b> such that the inherent connectivity between gene-sets becomes apparent, by visualize whether these entities or processes are isolated or connected by means of their biological interaction. <br>For more information please refer to <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-014-0408-9">V&auml;remo, L., Gatto, F., Nielsen, J. (2014). <i>Kiwi: a tool for integration and visualization of network topology and gene-set analysis</i> BMC Bioinformatics</a>.' },
+        { name: 'Piano',
+          link: 'https://varemo.github.io/piano/',
+          img: 'https://varemo.github.io/piano/loggo.png',
+          description: '<b>Platform for integrative analysis of omics data</b> (PIANO) is an An R/Bioconductor package for gene set analysis. <br> For more information refer to <a href="https://academic.oup.com/nar/article-lookup/doi/10.1093/nar/gkt111">V&auml;remo, L., Nielsen, J., Nookaew, I. (2013). <i>Enriching the gene set analysis of genome-wide data by incorporating directionality of gene expression and combining statistical hypotheses and methods</i> NAR</a>.' },
       ],
       databases: [
         { name: 'YSeq Browser',
