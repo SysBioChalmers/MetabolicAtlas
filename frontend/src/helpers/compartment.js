@@ -60,7 +60,7 @@ const data = {
     name: 'Nucleus',
     letter: 'n',
     color: '',
-    svgName: 'nucleosome',
+    svgName: 'nucleus',
     compartmentID: 8,
     maxZoomLvl: 10,
   },
