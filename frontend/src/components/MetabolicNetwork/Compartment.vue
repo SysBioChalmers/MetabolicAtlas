@@ -13,7 +13,7 @@
 
 <script>
 
-import { getCompartments } from '../../helpers/compartment';
+import { getCompartmentFromCID } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
@@ -21,8 +21,9 @@ export default {
   data() {
     return {
       compartmentCount: 0,
-      compartments: {},
+      compartments: [],
       selectedCompartmentID: 0,
+      compartmentIDOrder: [1, 2, 3, 4, 5, 6, 7, 9, 8],
     };
   },
   created() {
@@ -31,15 +32,16 @@ export default {
   },
   methods: {
     loadCompartment() {
-      this.compartments = this.getCompartments();
-      console.log(this.compartments);
+      this.compartments = [];
+      for (const CID of this.compartmentIDOrder) {
+        this.compartments.push(getCompartmentFromCID(CID));
+      }
     },
     showCompartment(compartmentID) {
-      console.log('Emit from compartment');
       this.selectedCompartmentID = compartmentID;
       EventBus.$emit('showSVGmap', compartmentID, []);
     },
-    getCompartments,
+    getCompartmentFromCID,
   },
 };
 </script>

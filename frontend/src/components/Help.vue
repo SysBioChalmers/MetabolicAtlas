@@ -1,7 +1,7 @@
 <template>
-  <div class="columns">
+  <div class="columns help-div">
     <div class="container column is-8">
-      <h2 class="title is-2">Network graph</h2>
+      <h2 class="title is-2">GEM visualisation</h2>
       <br>
 
       <a name="search" />
@@ -31,7 +31,7 @@
               <li><a href="">Reaction</a></li>
             </ul>
           </li>
-        By pressing one of these you go directly to that page...<br/>
+        By pressing one of these you go directly to that page...<br>
         <b>alternatively</b> you can press Enter and be take to a table of
         all possible <a href="#searchresults">search results</a> that fit your term.
       </p>
@@ -40,13 +40,13 @@
       <h4 class="title is-4">Search results</h4>
       <p>If you for instance searched for ATP and then pressed Enter you will see
         that there are 11 metabolites that match this search term because
-        ATP is found in 8 compartments, and dATP in 3.<br/>
+        ATP is found in 8 compartments, and dATP in 3.<br>
         In addition 11 enzymes match ATP, because there are whole families of
-        ATP-related proteins.<br/>
-        In addition 739 reactions use, or produce ATP.<br/>
+        ATP-related proteins.<br>
+        In addition 739 reactions use, or produce ATP.<br>
         Click on the ID in order to be taken to that page.
       </p>
-      <br/>
+      <br>
 
       <h3 id="reportermetabolites" class="title is-3">The whole metabolic network</h3>
       <p>Find and visualize metabolite networks in the context of reactions, pathways, compartments or for the whole model map</p>
@@ -63,8 +63,8 @@
 
           <h6 id="shapecolor">Shape and color</h6>
           <p>It is possible to change shape and color for the proteins and the metabolites shown in the graph.
-            This is done by pressing the <b>Options</b> button.<br/>
-            Here you are presented with a number of options for what to do with your Enzymes and Metabolite.<br/>
+            This is done by pressing the <b>Options</b> button.<br>
+            Here you are presented with a number of options for what to do with your Enzymes and Metabolite.<br>
             If you want to show Expression levels see the
             <a href="#expression levels">expression levels</a> section below.
           </p>
@@ -73,25 +73,25 @@
           <h6>Fit the graph to the window size</h6>
           <p>Press the <b>Fit</b> button will zoom in, or out depending, to fit
             all the edges and nodes of the graph to the window size.</p>
-          <br/>
+          <br>
 
           <h6 id="expressionlevels" class="title is-5">Expression levels</h6>
-          <p>To show expression levels:<br/>
+          <p>To show expression levels:<br>
             First click the <b>Options</b> button, then click in the "Show expression levels" tick box.
             This will at the moment, go to HPA and pull in the expression levels for all
             the proteins in the current graph, and then the drop-down box will be enabled,
             and here all the HPA tissue RNA-seq data is then available.
             The moment you select one tissue it will color the proteins according to that.
           </p>
-          <br/>
+          <br>
 
           <h6 class="title is-5">Export graph</h6>
           <p>Click the <b>Export graph</b> button, and you will be presented with
-            two options: Graphml or PNG.<br/>
+            two options: Graphml or PNG.<br>
             The first is a Cytoscape compatible graphml format, including a
             stylesheet in order to make it identical to the current view.
           </p>
-          <br />
+          <br>
 
         <h4 id="propertybox" class="title is-5">The property of the selected metabolite/enzyme box</h4>
         <p>Depending on whether you have selected (by clicking on the graph) a
@@ -99,11 +99,11 @@
           But generally this should display the most relevant information for
           the selected reaction component, such as function, activity, and mass.
         </p>
-        <br />
+        <br>
 
         <h4 id="reactioncomponenttable" class="title is-4">Reaction component table</h4>
         <p>All the reaction components, eg the nodes, of the above graph are shown in
-          this table, along with some basic information such as name and type. <br/>
+          this table, along with some basic information such as name and type. <br>
           Selecting a row will select it in the graph, and vice verse.
         </p>
         <br>
@@ -148,23 +148,39 @@
     </div>
     <div id="help-sidebar"class="column is-3">
       <div class="box">
-        GEM visualisation<br/>
-        &nbsp;&nbsp;<a href="#search">Search</a><br/>
-        &nbsp;&nbsp;<a href="#searchresults">Search results</a><br/>
-        &nbsp;&nbsp;<a href="#reportermetabolites">The whole metabolic network</a><br/>
-        &nbsp;&nbsp;<a href="#closestpartners">Closest interaction partners</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;<a href="#graphcustomisations">Graph customisations</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#shapecolor">Shape and color</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#graphcustomisations">Zoom in/out</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#zoominout">Fit the graph to the window</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#expressionlevels">Color by expression levels</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;<a href="#propertybox">Property box</a><br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;<a href="#reactioncomponenttable">Reaction component table</a><br/>
-        <a href="#models">Models</a><br/>
-        <a href="#resources">Resources</a><br/>
-        &nbsp;&nbsp;<a href="#tools">Tools</a><br/>
-        &nbsp;&nbsp;<a href="#tools">Databases</a><br/>
-        &nbsp;&nbsp;<a href="#api">API</a><br/>
+        <p class="menu-label">
+          GEM visualisation
+        </p>
+        <ul class="menu-list">
+          <li><a href="#search">Search</a></li>
+          <li><a href="#searchresults">Search results</a></li>
+          <li><a href="#reportermetabolites">The whole metabolic network</a></li>
+          <li>
+            <a href="#closestpartners">Closest interaction partners</a>
+            <ul class="menu-list">
+              <li>
+                <a href="#graphcustomisations">Graph customisations</a>
+                <ul class="menu-list">
+                  <li><a href="#shapecolor">Shape and color</a></li>
+                  <li><a href="#graphcustomisations">Zoom in/out</a></li>
+                  <li><a href="#zoominout">Fit the graph to the window</a></li>
+                  <li><a href="#expressionlevels">Color by expression levels</a></li>
+                </ul>
+              </li>
+              <li><a href="#propertybox">Property box</a></li>
+              <li><a href="#reactioncomponenttable">Reaction component table</a></li>
+            </ul>
+          </li>
+          <li><a href="#models">Models</a></li>
+          <li>
+            <a href="#resources">Resources</a>
+            <ul class="menu-list">
+              <li><a href="#tools">Tools</a></li>
+              <li><a href="#tools">Databases</a></li>
+              <li><a href="#api">API</a></li>
+            </ul>
+          </li>
+        </ul>
       <div>
     </div>
   </div>
@@ -178,4 +194,22 @@ export default {
 </script>
 
 <style lang="scss">
+
+.help-div {
+  .menu-list {
+    li {
+      a {
+        padding-top: 0;
+        padding-bottom: 0;
+        padding-left: 0.2em;
+      }
+      ul {
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 0.2em;
+      }
+    }
+  }
+}
+
 </style>
