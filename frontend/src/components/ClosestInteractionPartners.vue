@@ -38,14 +38,14 @@
           </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-          <span v-show="selectedElmId !== reactionComponentId"
+          <span v-show="selectedElmId !== id"
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span v-show="!expandedIds.includes(selectedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
           <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
           <div v-show="selectedElm && selectedElm.type === 'enzyme'">
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent(2)">Show enzyme</span>
+            <span class="button is-dark" v-on:click="viewReactionComponent('enzyme')">Show enzyme</span>
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
             <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
@@ -53,7 +53,7 @@
           </div>
           <div v-show="selectedElm && selectedElm.type === 'metabolite'">
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent(3)">Show metabolite</span>
+            <span class="button is-dark" v-on:click="viewReactionComponent('metabolite')">Show metabolite</span>
             <span class="is-black sep is-paddingless"></span>
             <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
@@ -201,7 +201,7 @@ export default {
       rawRels: {},
       rawElms: {},
 
-      reactionComponentId: '',
+      id: '',
       selectedElmId: '',
 
       selectedElm: null,
@@ -321,15 +321,14 @@ export default {
   },
   methods: {
     setup() {
-      this.reactionComponentId = this.$route.query.reaction_component_id
-                                  || this.$route.query.reaction_component_long_name;
+      this.id = this.$route.query.id;
       this.selectedElmId = '';
       this.selectedElm = null;
       this.load();
     },
     navigate() {
       this.$router.push(
-        { query: { ...this.$route.query, reaction_component_id: this.selectedElmId } },
+        { query: { ...this.$route.query, id: this.selectedElmId } },
         () => { // On complete.
           this.showMetaboliteTable = false;
           this.setup();
@@ -342,14 +341,14 @@ export default {
       );
     },
     load() {
-      axios.get(`reaction_components/${this.reactionComponentId}/with_interaction_partners`)
+      axios.get(`reaction_components/${this.id}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
           const component = response.data.component;
           const reactions = response.data.reactions;
 
           this.componentName = component.short_name || component.long_name;
-          this.reactionComponentId = component.id;
+          this.id = component.id;
           if (component.enzyme) {
             const uniprotLink = component.enzyme ? component.enzyme.uniprot_link : null;
             const uniprotId = uniprotLink.split('/').pop();
@@ -604,7 +603,7 @@ export default {
     constructGraph: function constructGraph(elms, rels, callback) {
       /* eslint-disable no-param-reassign */
       const [elements, stylesheet] = graph(elms, rels, this.nodeDisplayParams);
-      const reactionComponentId = this.reactionComponentId;
+      const id = this.id;
 
       this.cy = cytoscape({
         container: this.$refs.cy,
@@ -617,7 +616,7 @@ export default {
             if (node.degree() === 1) {
               return 1;
             }
-            if (node.data().id === reactionComponentId) {
+            if (node.data().id === id) {
               return 10000;
             }
             if (node.data().type === 'enzyme') {
@@ -740,7 +739,7 @@ export default {
       const converted = convertGraphML(output);
 
       const blob = new Blob([converted], { type: 'text/graphml' });
-      const filename = `${this.reactionComponentId}_interaction_partners.graphml`;
+      const filename = `${this.id}_interaction_partners.graphml`;
       FileSaver.saveAs(blob, filename);
     },
     exportPNG: function exportPNG() {
@@ -750,7 +749,7 @@ export default {
       });
 
       a.href = output;
-      a.download = `${this.reactionComponentId}_interaction_partners.png`;
+      a.download = `${this.id}_interaction_partners.png`;
       a.target = '_blank';
       a.style.display = 'none';
       document.body.appendChild(a);
@@ -856,8 +855,8 @@ export default {
         level: lvl,
       });
     },
-    viewReactionComponent: function viewReactionComponent(tabIndex) {
-      EventBus.$emit('updateSelTab', tabIndex,
+    viewReactionComponent: function viewReactionComponent(type) {
+      EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
     chemicalFormula,

@@ -73,11 +73,11 @@ export default {
     },
     viewEnzyneReactions: function viewEnzyneReactions(modifier) {
       if (modifier) {
-        EventBus.$emit('updateSelTab', 2, modifier.id);
+        EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
       }
     },
     viewReaction: function viewReaction(id) {
-      EventBus.$emit('updateSelTab', 4, id);
+      EventBus.$emit('updateSelTab', 'reaction', id);
     },
     displayCompartment(r) {
       const comp = {};

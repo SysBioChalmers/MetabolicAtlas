@@ -66,7 +66,7 @@ export default {
   },
   data() {
     return {
-      mId: this.$route.query.reaction_component_id,
+      mId: this.$route.query.id,
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'long_name', display: 'Name' },
@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     setup() {
-      this.mId = this.$route.query.reaction_component_id;
+      this.mId = this.$route.query.id;
       this.load();
     },
     load() {

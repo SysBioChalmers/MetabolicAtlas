@@ -23,7 +23,7 @@
          v-for="(tab, index) in tabs"
          :class="[{ 'is-active': isActive(index) }, { 'is-disabled': tab.isDisabled }]"
          :disabled="tab.isDisabled"
-         @click="goToTab(index, reactionComponentID)"
+         @click="goToTab(tab.type, componentID)"
         >
          <a :class="{ 'disabled': tab.isDisabled }"><span>{{ tab.title }}</span></a>
         </li>
@@ -46,7 +46,6 @@
 import axios from 'axios';
 import GlobalSearch from 'components/GlobalSearch';
 import MetabolicNetwork from 'components/MetabolicNetwork';
-import ReporterMetabolites from 'components/ReporterMetabolites';
 import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
@@ -58,7 +57,6 @@ export default {
   name: 'network-graph',
   components: {
     MetabolicNetwork,
-    ReporterMetabolites,
     ClosestInteractionPartners,
     Enzyme,
     Metabolite,
@@ -71,7 +69,7 @@ export default {
       searchTerm: '',
       searchResults: [],
       errorMessage: '',
-      reactionComponentID: '',
+      componentID: '',
     };
   },
   watch: {
@@ -82,8 +80,8 @@ export default {
   },
   beforeMount() {
     // init the global event
-    EventBus.$on('updateSelTab', (tabIndex, id) => {
-      this.goToTab(tabIndex, id);
+    EventBus.$on('updateSelTab', (type, id) => {
+      this.goToTab(type, id);
     });
     this.setup();
   },
@@ -92,36 +90,60 @@ export default {
       let disabledTab3 = true;
       let disabledTab4 = true;
       let disabledTab5 = true;
-      if (this.reactionComponentID) {
-        disabledTab3 = this.reactionComponentID[0] !== 'E';
-        disabledTab4 = this.reactionComponentID[0] !== 'M';
-        disabledTab5 = this.reactionComponentID[0] !== 'R';
+      if (this.componentID) {
+        disabledTab3 = this.componentID[0] !== 'E';
+        disabledTab4 = this.componentID[0] !== 'M';
+        disabledTab5 = this.componentID[0] !== 'R';
       }
 
       return [
-        { title: this.$t('tab1title'), isDisabled: false },
-        { title: this.$t('tab2title'), isDisabled: false },
-        { title: this.$t('tab3title'), isDisabled: disabledTab3 },
-        { title: this.$t('tab4title'), isDisabled: disabledTab4 },
-        { title: this.$t('tab5title'), isDisabled: disabledTab5 },
+        { title: this.$t('tab1title'), type: 'map', isDisabled: false },
+        { title: this.$t('tab2title'), type: 'interaction', isDisabled: false },
+        { title: this.$t('tab3title'), type: 'enzyme', isDisabled: disabledTab3 },
+        { title: this.$t('tab4title'), type: 'metabolite', isDisabled: disabledTab4 },
+        { title: this.$t('tab5title'), type: 'reaction', isDisabled: disabledTab5 },
       ];
     },
   },
   methods: {
     setup() {
       this.selectedTab = parseInt(this.$route.query.tab, 10) || 1;
-      this.reactionComponentID = this.$route.query.reaction_component_id;
+      this.componentID = this.$route.query.id;
     },
     isActive(tabIndex) {
       return tabIndex + 1 === this.selectedTab;
     },
-    goToTab(tabIndex, reactionComponentID) {
-      this.reactionComponentID = reactionComponentID;
+    goToTab(type, componentID) {
+      let tabIndex = 0;
+      // let queryName = 'id';
+      if (type) {
+        switch (type) {
+          case 'metabolite':
+            tabIndex = 3;
+            break;
+          case 'enzyme':
+            tabIndex = 2;
+            break;
+          case 'reaction':
+            tabIndex = 4;
+            break;
+          case 'interaction':
+            tabIndex = 1;
+            break;
+          case 'map':
+            tabIndex = 0;
+            break;
+          default:
+            tabIndex = 0;
+        }
+      }
+
+      this.componentID = componentID;
       if (this.tabs[tabIndex].isDisabled) {
         return;
       }
 
-      if ([1, 2, 3].includes(this.tabIndex) && !reactionComponentID) {
+      if ([1, 2, 3, 4].includes(this.tabIndex) && !componentID) {
         this.errorMessage = this.$t('noIDProvided');
       } else {
         this.errorMessage = '';
@@ -132,8 +154,9 @@ export default {
         ...this.$route.query,
         tab: this.selectedTab,
       };
-      if (reactionComponentID) {
-        fullQuery.reaction_component_id = reactionComponentID;
+      if (componentID) {
+        // remove the current key if other than 'id'
+        fullQuery.id = componentID;
       }
       this.$router.push({
         query: fullQuery,
@@ -143,7 +166,6 @@ export default {
       if (this.searchTerm.length < 2) {
         return;
       }
-      // make sure we serach a term of size 2
       const searchTerm = this.searchTerm;
       this._.debounce(() => {
         axios.get(`search/${searchTerm}`)
@@ -152,14 +174,13 @@ export default {
           })
           .catch(() => {
             this.searchResults = [];
-            // console.log(error);
           });
       }, 500)();
     },
-    selectSearchResult(tabIndex, reactionComponentID) {
+    selectSearchResult(tabIndex, componentID) {
       this.searchTerm = '';
       this.searchResults = [];
-      this.goToTab(tabIndex, reactionComponentID);
+      this.goToTab(tabIndex, componentID);
     },
     viewRelaseNotes() {
       router.push({

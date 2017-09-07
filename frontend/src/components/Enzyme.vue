@@ -73,7 +73,7 @@ export default {
       errorMessage: null,
       elms: [],
 
-      reactionComponentId: '',
+      id: '',
       selectedElmId: '',
       selectedElm: null,
 
@@ -113,8 +113,7 @@ export default {
   },
   methods: {
     setup() {
-      this.reactionComponentId = this.$route.query.reaction_component_id
-                                  || this.$route.query.reaction_component_long_name;
+      this.id = this.$route.query.id;
       this.selectedElmId = '';
       this.selectedElm = null;
       this.load();
@@ -128,7 +127,7 @@ export default {
     load() {
       this.loading = true;
       const startTime = Date.now();
-      const enzymeId = this.reactionComponentId;
+      const enzymeId = this.id;
 
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
@@ -249,9 +248,6 @@ export default {
               this.errorMessage = this.$t('unknownError');
           }
         });
-    },
-    viewMetaboliteInfo: function viewMetaboliteInfo(id) {
-      this.$emit('updateSelTab', 3, id);
     },
     chemicalFormula,
     chemicalName,

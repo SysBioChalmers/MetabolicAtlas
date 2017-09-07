@@ -33,7 +33,7 @@ export default {
   name: 'reaction',
   data() {
     return {
-      rId: this.$route.query.reaction_component_id,
+      rId: this.$route.query.id,
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'name', display: 'Name', modifier: chemicalName },
@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     setup() {
-      this.rId = this.$route.query.reaction_component_id;
+      this.rId = this.$route.query.id;
       this.load();
     },
     load() {

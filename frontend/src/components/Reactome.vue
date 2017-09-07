@@ -88,8 +88,7 @@ export default {
     },
     loadReactions() {
       this.showLoader = true;
-      let id = this.$route.params.reaction_component_id ||
-       this.$route.query.reaction_component_id;
+      let id = this.$route.params.id || this.$route.query.id;
       if (this.expandAllCompartment) {
         id = id.replace(/[a-z]$/, '');
       }
@@ -116,8 +115,7 @@ export default {
     },
     // TODO: call loadReactome when selecting a row from the table of reactions
     loadReactome(reactionId) {
-      const rcid = this.$route.params.reaction_component_id ||
-       this.$route.query.reaction_component_id;
+      const rcid = this.$route.params.id || this.$route.query.id;
       axios.get(`metabolite_reactions/${rcid}/reactome/${reactionId}`)
         .then((response) => {
           this.errorMessage = '';
