@@ -92,7 +92,7 @@ def _addPathway(name, eid):
     collections = dict([("Isolated", 1),("Miscellaneous",1),("Pool reactions",1),
         ("isolated",1),("Exchange reactions ",1),("Artificial reactions",1),
         ("ABC transporters",1),("Other amino acid",1)])
-    aa=dict([("Purine metabolism",1),("Pyrimidine metabolism",1),("Alanine, aspartate and glutamate metabolism",1),
+    aa=dict([("Pyrimidine metabolism",1),("Alanine, aspartate and glutamate metabolism",1),
         ("Arginine and proline metabolism",1),("Glycine, serine and threonine metabolism",1),
         ("Lysine metabolism",1),("Tyrosine metabolism",1),("Valine, leucine, and isoleucine metabolism",1),
         ("Cysteine and methionine metabolism",1),("Thiamine metabolism",1),
