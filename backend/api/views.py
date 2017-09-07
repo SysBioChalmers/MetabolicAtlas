@@ -259,7 +259,11 @@ def connected_metabolites(request, id):
                 Q(reactionmodifier__modifier_id=enzyme.id)
                 ).distinct()
         serializer = ReactionSerializer(reactions, many=True)
-        result = serializer.data
+        
+        result =  {
+            'enzyme' : ReactionComponentSerializer(enzyme).data,
+            'reactions': serializer.data
+        }
 
         return JSONResponse(result)
 

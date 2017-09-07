@@ -35,7 +35,7 @@
           </div>
           <div v-if="selectedElm.details.mass">
             <p class="label il">Molecular mass: </p>
-            {{ selectedElm.details.mass }} g/mol
+            {{ selectedElm.details.mass }}&nbps;g/mol
             <br>
           </div>
           <div v-if="selectedElm.details.kegg">

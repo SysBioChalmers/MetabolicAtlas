@@ -11,7 +11,8 @@
       <div v-show="!loading">
         <div v-show="reactions.length > 0">
           <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
-          <reaction-table :reactions="reactions"></reaction-table>
+          <loader v-show="loading"></loader>
+          <reaction-table v-show="!loading" :reactions="reactions"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
           <div class="columns">
@@ -125,6 +126,7 @@ export default {
       node.trigger('tap');
     },
     load() {
+      this.loading = true;
       const startTime = Date.now();
       const enzymeId = this.reactionComponentId;
 
@@ -137,7 +139,7 @@ export default {
           this.errorMessage = null;
 
           // If the response has only reacionts, it doesn't have an id in root object.
-          if (response.data.enzyme !== undefined) {
+          if (response.data.compartment !== undefined) {
             this.reactions = [];
 
             const [elms, rels] = transform(response.data);
@@ -232,7 +234,8 @@ export default {
               }
             });
           } else {
-            this.reactions = response.data;
+            this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
+            this.reactions = response.data.reactions;
           }
         })
         .catch((error) => {

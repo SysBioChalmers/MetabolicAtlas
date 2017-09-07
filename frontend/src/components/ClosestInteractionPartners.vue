@@ -919,7 +919,6 @@ export default {
     position: absolute;
     top: 12px;
     left: 12px;
-    width: 220px;
     height: 30px;
     z-index: 10;
 
