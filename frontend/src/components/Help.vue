@@ -66,7 +66,7 @@
             This is done by pressing the <b>Options</b> button.<br/>
             Here you are presented with a number of options for what to do with your Enzymes and Metabolite.<br/>
             If you want to show Expression levels see the
-            <a href="#expression levels">expression levels</a> section below.
+            <a href="#expressionlevels">expression levels</a> section below.
           </p>
           <h6 id="zoominout">Zoom in and out</h6>
           <p>Simply press either the <b>+</b> or <b>-</b> button to zoom in the graph.</p>
