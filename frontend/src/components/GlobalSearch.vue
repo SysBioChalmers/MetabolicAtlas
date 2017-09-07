@@ -244,7 +244,7 @@ export default {
   border: 1px solid #64CC9A;
   border-top: 0;
   margin-top: -2px;
-  z-index: 10;
+  z-index: 30;
 
   .searchGroupResultSection:first-child {
     padding-top: 15px;
