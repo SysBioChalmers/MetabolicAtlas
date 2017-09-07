@@ -68,7 +68,7 @@ const data = {
     name: 'Boundary',
     letter: 'x',
     color: '',
-    svgName: 'golgi2',
+    svgName: 'golgi',
     compartmentID: 9,
     maxZoomLvl: 10,
   },
