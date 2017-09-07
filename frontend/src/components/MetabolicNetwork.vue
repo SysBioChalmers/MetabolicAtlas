@@ -3,14 +3,13 @@
     <div class="container">
       <div id="region-level-button" class="has-text-centered">
         <button class="button"
-          @click="levelSelected='compartment'"
-          :class="{ 'is-active' : levelSelected==='compartment'}">
-          Compartments ({{ compartmentCount }})</button>
-        <button class="button"
          @click="levelSelected='subsystem'"
          :class="{ 'is-active' : levelSelected==='subsystem'}">
          Subsystems ({{ subsystemCount }})</button>
-        <br>
+        <button class="button" 
+          @click="levelSelected='compartment'"
+          :class="{ 'is-active' : levelSelected==='compartment'}">
+          Compartments ({{ compartmentCount }})</button>
         <button class="button"
          @click="levelSelected='region'"
          :class="{ 'is-active' : levelSelected==='region'}">
@@ -69,7 +68,7 @@ export default {
   data() {
     return {
       errorMessage: '',
-      levelSelected: 'compartment',
+      levelSelected: 'subsystem',
       hideSidebar: false,
       compartmentCount: 0,
       subsystemCount: 0,
