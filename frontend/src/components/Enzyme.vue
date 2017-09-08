@@ -144,7 +144,6 @@ export default {
             const [elms, rels] = transform(response.data);
 
             this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
-            this.selectedElm = elms[enzymeId];
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);
             this.cy = cytoscape({
@@ -158,6 +157,8 @@ export default {
               },
             });
             this.cy.userZoomingEnabled(false);
+
+            this.selectedElm = this.cy.filter('node[type = "enzyme"]').data();
 
             const contextMenuGraph = this.$refs.contextMenuGraph;
             this.showGraphContextMenu = false;
@@ -222,7 +223,7 @@ export default {
               this.showGraphContextMenu = false;
             });
 
-            this.cy.on('tapdragout, tapend', () => {
+            this.cy.on('tapdragout, tapend', 'node[type="enzyme"]', () => {
               if (this.selectedElmId !== '') {
                 const node = this.cy.getElementById(this.selectedElmId);
                 if (!nodeInViewport(node)) {
