@@ -3,7 +3,7 @@
     <nav id="main-nav" class="nav">
       <div class="container">
         <div>
-          <a id="logo" class="nav-item">
+          <a id="logo" class="nav-item" @click="goToPage('/')" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
         </div>
