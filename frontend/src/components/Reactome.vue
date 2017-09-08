@@ -5,8 +5,10 @@
       <div v-show="false" id="diagram"></div>
       <p class="control field">
         <button class="button"
-        :class="{ 'is-active' : expandAllCompartment }"
-        @click="toggleExpandAllCompartment">Expand to all compartment</button>
+        @click="toggleExpandAllCompartment">
+          <span v-show="!expandAllCompartment">Expand to all compartments</span>
+          <span v-show="expandAllCompartment">Restrict to current compartment</span>
+          </button>
       </p>
       <reaction-table v-show="!showLoader" :reactions="reactions"></reaction-table>
       <div v-if="errorMessage" class="columns">
