@@ -16,7 +16,7 @@
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
           v-for="f in fields"
-            @click="sortBy(f)">{{ f }}
+            @click="sortBy(f.name)">{{ f.display }}
             </th>
         </tr>
       </thead>
@@ -49,7 +49,22 @@ export default {
   props: ['reactions'],
   data() {
     return {
-      fields: ['Reaction ID', 'Equation', 'Modifiers', 'Subsystem', 'Compartment'],
+      fields: [{
+        display: 'Reaction ID',
+        name: 'id',
+      }, {
+        display: 'Equation',
+        name: 'equation',
+      }, {
+        display: 'Modifiers',
+        name: 'modifiers',
+      }, {
+        display: 'Subsystem',
+        name: 'subsystem',
+      }, {
+        display: 'Compartment',
+        name: 'compartment',
+      }],
       sortedReactions: [],
       sortAsc: true,
     };
