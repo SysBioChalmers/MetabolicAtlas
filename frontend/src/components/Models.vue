@@ -33,12 +33,12 @@
      <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
       <div class="modal-background" @click="showModelTable = false"></div>
       <div class="modal-content">
-        <div id="modal-info">
-        <span class="title is is-primary">Model {{ selectedModel.label }}</span>
-          <table class="table">
+        <div id="modal-info" class="model-table">
+          <span class="title is is-primary">Model {{ selectedModel.label }}</span>
+          <table class="table main-table">
             <tbody>
               <tr v-for="field in model_fields">
-                <td v-html="field.display "></td>
+                <td v-html="field.display" class="td-key"></td>
                 <td v-if="typeof(selectedModel[field.name]) === 'boolean'">
                   {{ selectedModel[field.name] ? 'yes' : 'No' }}
                 </td>
@@ -47,7 +47,7 @@
                 </td>
               </tr>
               <tr>
-                <td>Reference</td>
+                <td class="td-key">Reference</td>
                 <td v-if="selectedModel.link">
                   <a :href="selectedModel.link" target="_blank">
                     {{ selectedModel.title }}
@@ -58,7 +58,7 @@
                 </td>
               </tr>
               <tr>
-                <td>PUBMED ID</td>
+                <td class="td-key">PUBMED ID</td>
                 <td>
                   <a :href="'https://www.ncbi.nlm.nih.gov/pubmed/' + selectedModel.pubmed" 
                   target="_blank">

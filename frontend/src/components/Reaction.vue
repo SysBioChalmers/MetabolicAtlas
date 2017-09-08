@@ -5,7 +5,7 @@
     </div>
   </div>
   <div v-else class="reaction-table">
-    <table v-if="info && Object.keys(info).length != 0" id="main-table" class="table">
+    <table v-if="info && Object.keys(info).length != 0" class="table main-table">
       <tr v-for="el in mainTableKey">
         <td v-if="el.display" class="td-key">{{ el.display }}</td>
         <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
@@ -144,13 +144,5 @@ export default {
 </script>
 
 <style lang="scss">
-
-.reaction-table {
-  #main-table tr td.td-key {
-    background: #64CC9A;
-    width: 150px;
-    color: white;
-  }
-}
 
 </style>
