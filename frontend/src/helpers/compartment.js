@@ -41,7 +41,7 @@ const data = {
     maxZoomLvl: 10,
   },
   'endoplasmic reticulum': {
-    name: 'Endoplasmic reticulum',
+    name: 'ER',
     letter: 'r',
     color: '',
     svgName: 'er',
