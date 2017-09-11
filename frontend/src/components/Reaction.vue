@@ -44,8 +44,8 @@ export default {
         { name: 'modifiers', modifier: this.reformatModifiers },
         { name: 'reactants', modifier: this.reformatCount },
         { name: 'products', modifier: this.reformatCount },
-        { name: 'Ec', display: 'EC', modifier: this.reformatLink },
-        { name: 'sbo_id', display: 'SBO ID', modifier: this.reformatLink },
+        { name: 'ec', display: 'EC', modifier: this.reformatECLink },
+        { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
       info: {},
       errorMessage: '',
@@ -77,11 +77,23 @@ export default {
     reformatKey(k) {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
     },
-    reformatLink(s, link) {
+    reformatSBOLink(s, link) {
       if (link) {
         return `<a href="${link}" target="_blank">${s}</a>`;
       }
+      if (s.startsWith('SBO')) {
+        return `<a href="http://www.ebi.ac.uk/sbo/main/${s}" target="_blank">${s}</a>`;
+      }
       return `<a href="${s}" target="_blank">${s}</a>`;
+    },
+    reformatECLink(s) {
+      const ec = s.split(';');
+      let l = '';
+      for (let i = 0; i < ec.length; i += 1) {
+        const nr = ec[i].replace('EC:', '');
+        l = l.concat(`<a href="http://www.brenda-enzymes.org/enzyme.php?ecno=${nr}" target="_blank">${ec[i]}</a> `);
+      }
+      return l;
     },
     reformatMass(s) {
       return `${s} g/mol`;
@@ -90,8 +102,8 @@ export default {
       const html = [];
       html.push('<div class="field is-grouped is-grouped-multiline">');
       for (const mod of mods) {
-        html.push(`<div class="control"><div class="tags has-addons"><span class="tag">${mod.id}</span>
-         <span class="tag is-primary">${mod.short_name}</span></div></div>`);
+        html.push(`<div class="control"><div class="tags has-addons">
+          <span class="tag"><a href="/?tab=3&reaction_component_id=${mod.id}">${mod.short_name}</a></span></div></div>`);
       }
       html.push('</div>');
       return html.join(' ');
