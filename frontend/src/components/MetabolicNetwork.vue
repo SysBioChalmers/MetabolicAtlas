@@ -2,7 +2,7 @@
   <div id="metabolicNetwork">
     <div class="container">
       <div id="region-level-button" class="has-text-centered">
-        <button class="button" 
+        <button class="button"
           @click="levelSelected='compartment'"
           :class="{ 'is-active' : levelSelected==='compartment'}">
           Compartments ({{ compartmentCount }})</button>
@@ -10,10 +10,23 @@
          @click="levelSelected='subsystem'"
          :class="{ 'is-active' : levelSelected==='subsystem'}">
          Subsystems ({{ subsystemCount }})</button>
+        <br>
         <button class="button"
          @click="levelSelected='region'"
          :class="{ 'is-active' : levelSelected==='region'}">
-         Show region</button>
+         View reaction components</button>
+        <button class="button"
+          @click="levelSelected='reporterMet'"
+          :class="{ 'is-active' : levelSelected==='reporterMet'}">
+          Reporter metabolites</button>
+        <button class="button"
+          @click="levelSelected='expData'"
+          :class="{ 'is-active' : levelSelected==='expData'}">
+          Overlay expression</button>
+        <button class="button"
+          @click="levelSelected='compModels'"
+          :class="{ 'is-active' : levelSelected==='compModels'}">
+          Compare GEMs</button>
       </div>
     </div>
     <br>
