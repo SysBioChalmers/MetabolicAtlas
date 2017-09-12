@@ -50,14 +50,15 @@ export default {
       ],
     };
   },
-  beforeMount() {
+  created() {
+    /* eslint-disable no-param-reassign */
     EventBus.$on('showSubsystem', (id) => {
       if (!id) {
         console.log('test');
-        // this.selectedSystem = 'Other metabolism';
-        // this.selectedSubSystem = 'Tricarboxylic acid cycle and
-        //  glyoxylate/dicarboxylate metabolism';
-        // subID = 38;
+        this.selectedSystem = 'Other metabolism';
+        this.selectedSubSystem = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
+        id = 38;
+        this.loadSubsystemCoordinates(id);
       } else {
         this.loadSubsystemCoordinates(id);
       }
@@ -66,8 +67,12 @@ export default {
       this.selectedSystem = '';
       this.selectedSubSystem = '';
     });
+  },
+  beforeMount() {
     this.loadSubsystem();
-    // EventBus.$emit('showSubsystem', 0);
+  },
+  mounted() {
+    EventBus.$emit('showSubsystem', null);
   },
   methods: {
     loadSubsystem() {

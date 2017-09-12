@@ -70,7 +70,7 @@ export default {
         this.loadSVG(this.svgBigMapName, this.swapSVG, null);
       }
     });
-    this.loadSVG(this.svgBigMapName, this.swapSVG, null);
+    // this.loadSVG(this.svgBigMapName, this.swapSVG, null);
   },
   mounted() {
     console.log('svgmap mounted');
@@ -125,6 +125,7 @@ export default {
       this.showLoader = false;
     },
     loadSVG(svgName, callback, callback2) {
+      console.log('run load svg');
       const newSvgName = svgName;
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
       this.showLoader = true;
@@ -135,6 +136,7 @@ export default {
         return;
       }
       this.showMissingSVGString = false;
+      console.log(`newSvgName ${newSvgName}`);
       if (newSvgName !== this.svgName) {
         console.log('new svg');
         axios.get(svgLink)

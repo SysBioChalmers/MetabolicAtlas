@@ -78,11 +78,19 @@ export default {
       this.setup();
     },
   },
-  beforeMount() {
-    // init the global event
+  created() {
+    console.log('network_graph_crated');
+    // init the global events
+    EventBus.$on('resetView', () => {
+      this.levelSelected = 'subsystem';
+      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+    });
     EventBus.$on('updateSelTab', (type, id) => {
+      console.log('on updateSelTab');
       this.goToTab(type, id);
     });
+  },
+  beforeMount() {
     this.setup();
   },
   computed: {
@@ -170,6 +178,7 @@ export default {
       });
 
       if (tabIndex === 0) {
+        console.log('on tab 0 resetview ?');
         EventBus.$emit('resetView');
       }
     },

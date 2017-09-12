@@ -27,6 +27,10 @@ export default {
     };
   },
   beforeMount() {
+    this.loadCompartment();
+  },
+  created() {
+    console.log('compartment created');
     EventBus.$on('showCompartment', (id) => {
       this.selectedCompartmentID = id;
       this.showCompartment(id);
@@ -34,9 +38,6 @@ export default {
     EventBus.$on('resetView', () => {
       this.selectedCompartmentID = 0;
     });
-  },
-  created() {
-    console.log('compartment created');
     this.loadCompartment();
   },
   methods: {

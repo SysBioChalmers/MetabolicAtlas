@@ -51,7 +51,7 @@ export default {
       enzymeIDs: [],
     };
   },
-  beforeMount() {
+  created() {
     EventBus.$on('resetView', () => {
       this.compartmentID = 0;
     });
