@@ -11,6 +11,7 @@
     </div>
     <div>
       <button class="button is-primary" @click="searchElements">Search</button>
+      <button class="button is-primary" @click="">Highlight</button>
     </div>
     <div id="table-res" v-show="showResults">
       <span class="help is-small">Click on a row to highlight the corresponding components</span>
