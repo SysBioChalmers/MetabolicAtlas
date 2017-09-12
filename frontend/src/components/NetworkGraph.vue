@@ -87,10 +87,12 @@ export default {
   },
   computed: {
     tabs() {
+      let disabledTab2 = true;
       let disabledTab3 = true;
       let disabledTab4 = true;
       let disabledTab5 = true;
       if (this.componentID) {
+        disabledTab2 = this.componentID[0] === 'R';
         disabledTab3 = this.componentID[0] !== 'E';
         disabledTab4 = this.componentID[0] !== 'M';
         disabledTab5 = this.componentID[0] !== 'R';
@@ -98,7 +100,7 @@ export default {
 
       return [
         { title: this.$t('tab1title'), type: 'map', isDisabled: false },
-        { title: this.$t('tab2title'), type: 'interaction', isDisabled: false },
+        { title: this.$t('tab2title'), type: 'interaction', isDisabled: disabledTab2 },
         { title: this.$t('tab3title'), type: 'enzyme', isDisabled: disabledTab3 },
         { title: this.$t('tab4title'), type: 'metabolite', isDisabled: disabledTab4 },
         { title: this.$t('tab5title'), type: 'reaction', isDisabled: disabledTab5 },
