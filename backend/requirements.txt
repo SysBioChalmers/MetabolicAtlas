@@ -3,4 +3,5 @@ psycopg2
 djangorestframework>=3.6.1
 django-cors-headers
 django-rest-swagger>=2.1.2
-
+django-extensions
+pygraphviz

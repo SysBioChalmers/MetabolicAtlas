@@ -18,18 +18,24 @@ class JSONResponse(HttpResponse):
 
 @api_view()
 def model_list(request):
+    """
+    List all Genome-scale metabolic models (GEMs) that are in the database
+    """
     models = GEM.objects.all()
     serializer = GEMSerializer(models, many=True)
     return JSONResponse(serializer.data)
 
 @api_view()
 def get_model(request, id):
+    """
+    Return all known information for a given model, supply its id, for example 1
+    """
     try:
         model = GEM.objects.get(id=id)
     except GEM.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = GEM(model)
+    serializer = GEMSerializer(model)
     return JSONResponse(serializer.data)
 
 @api_view()
