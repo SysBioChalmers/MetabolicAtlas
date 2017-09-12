@@ -369,7 +369,7 @@ export default {
           path: '/',
           query: {
             tab: tabIndex,
-            reaction_component_id: id,
+            id,
           },
         },
       );

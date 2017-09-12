@@ -5,8 +5,10 @@
       <div v-show="false" id="diagram"></div>
       <p class="control field">
         <button class="button"
-        :class="{ 'is-active' : expandAllCompartment }"
-        @click="toggleExpandAllCompartment">Expand to all compartment</button>
+        @click="toggleExpandAllCompartment">
+          <span v-show="!expandAllCompartment">Expand to all compartments</span>
+          <span v-show="expandAllCompartment">Restrict to current compartment</span>
+          </button>
       </p>
       <reaction-table v-show="!showLoader" :reactions="reactions"></reaction-table>
       <div v-if="errorMessage" class="columns">
@@ -88,8 +90,7 @@ export default {
     },
     loadReactions() {
       this.showLoader = true;
-      let id = this.$route.params.reaction_component_id ||
-       this.$route.query.reaction_component_id;
+      let id = this.$route.params.id || this.$route.query.id;
       if (this.expandAllCompartment) {
         id = id.replace(/[a-z]$/, '');
       }
@@ -116,8 +117,7 @@ export default {
     },
     // TODO: call loadReactome when selecting a row from the table of reactions
     loadReactome(reactionId) {
-      const rcid = this.$route.params.reaction_component_id ||
-       this.$route.query.reaction_component_id;
+      const rcid = this.$route.params.id || this.$route.query.id;
       axios.get(`metabolite_reactions/${rcid}/reactome/${reactionId}`)
         .then((response) => {
           this.errorMessage = '';

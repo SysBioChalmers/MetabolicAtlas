@@ -207,3 +207,12 @@ class GEModelListSerializer(serializers.ModelSerializer):
     class Meta:
         model = GEModel
         fields = ('id','set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
+
+
+# =======================================================================================
+
+
+class TileSubsystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TileSubsystem
+        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)

@@ -3,14 +3,13 @@
     <div class="container">
       <div id="region-level-button" class="has-text-centered">
         <button class="button"
-          @click="levelSelected='compartment'"
-          :class="{ 'is-active' : levelSelected==='compartment'}">
-          Compartments ({{ compartmentCount }})</button>
-        <button class="button"
          @click="levelSelected='subsystem'"
          :class="{ 'is-active' : levelSelected==='subsystem'}">
          Subsystems ({{ subsystemCount }})</button>
-        <br>
+        <button class="button" 
+          @click="levelSelected='compartment'"
+          :class="{ 'is-active' : levelSelected==='compartment'}">
+          Compartments ({{ compartmentCount }})</button>
         <button class="button"
          @click="levelSelected='region'"
          :class="{ 'is-active' : levelSelected==='region'}">
@@ -57,6 +56,7 @@ import Subsystem from 'components/MetabolicNetwork/Subsystem';
 import Region from 'components/MetabolicNetwork/Region';
 import Svgmap from 'components/MetabolicNetwork/Svgmap';
 import { getCompartments } from '../helpers/compartment';
+import EventBus from '../event-bus';
 
 export default {
   name: 'metabolic-network',
@@ -69,14 +69,25 @@ export default {
   data() {
     return {
       errorMessage: '',
-      levelSelected: 'compartment',
+      levelSelected: 'subsystem',
       hideSidebar: false,
       compartmentCount: 0,
       subsystemCount: 0,
     };
   },
   beforeMount() {
+    EventBus.$on('resetView', () => {
+      this.levelSelected = 'subsystem';
+      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+    });
     this.compartmentCount = Object.keys(getCompartments(this.getCompartments())).length;
+  },
+  mounted() {
+    this.view = this.$route.query.view;
+    if (!this.view) {
+      // load subsystem view
+      this.levelSelected = 'subsystem';
+    }
   },
   methods: {
     showSubsystemCount(count) {

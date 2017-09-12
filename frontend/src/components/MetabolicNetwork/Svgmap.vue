@@ -22,7 +22,7 @@ import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
-import { getCompartmentFromCID } from '../../helpers/compartment';
+import { getCompartmentFromCID, getCompartmentFromLetter } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
@@ -56,9 +56,19 @@ export default {
     };
   },
   created() {
-    EventBus.$on('showSVGmap', (compartmentID, ids) => {
-      console.log(`emit ${compartmentID} ${ids}`);
-      this.hlElements(compartmentID, ids);
+    EventBus.$on('showSVGmap', (type, id, ids) => {
+      console.log('show svg map');
+      console.log(`emit ${type} ${id} ${ids}`);
+      if (type === 'compartment') {
+        this.hlElements(id, ids);
+      } else if (type === 'subsystem') {
+        console.log('run subsystem');
+      } else if (type === 'tiles') {
+        console.log('run tiles');
+        this.showTiles(id, ids);
+      } else if (type === 'wholemap') {
+        this.loadSVG(this.svgBigMapName, this.swapSVG, null);
+      }
     });
     this.loadSVG(this.svgBigMapName, this.swapSVG, null);
   },
@@ -98,7 +108,7 @@ export default {
         });
         this.svgfit();
         this.unHighlight();
-        if (callback && this.ids.length) {
+        if (callback) {
           // call getElements
           callback();
         }
@@ -148,8 +158,7 @@ export default {
       } else {
         console.log('not new svg');
         this.unHighlight();
-        console.log(this.ids.length);
-        if (callback2 && this.ids.length) {
+        if (callback2) {
           // call getElements
           callback2();
         } else {
@@ -162,6 +171,9 @@ export default {
       console.log(this.ids);
       const a = [];
       const debug = false;
+      if (!this.ids) {
+        return;
+      }
       if (debug) {
         // this.ids = ['E_2778', 'M_m03106s', 'M_m02041p', 'fake1', 'fake3', 'fake5'];
         // this.ids = ['fake5', 'fake4'];
@@ -195,6 +207,12 @@ export default {
       if (a.length) {
         this.highlightSVGelements(a);
       }
+    },
+    updateZoomBoxCoor(coordinate) {
+      this.zoomBox.minX = coordinate.minX;
+      this.zoomBox.maxX = coordinate.maxX;
+      this.zoomBox.minY = coordinate.minY;
+      this.zoomBox.maxY = coordinate.maxY;
     },
     updateZoomBox(el) {
       const x = el.getBBox().x;
@@ -252,14 +270,18 @@ export default {
         // const ry = parseInt(transform[5], 10);
         this.updateZoomBox(el[0]); // dom element
       }
+      this.showTiles();
+    },
+    zoomOnTiles() {
+      console.log('zoom tiles');
       this.getCenterZoombox();
       const realZoom = this.panZoom.getSizes().realZoom;
       this.panZoom.pan({
         x: -(this.zoomBox.centerX * realZoom) + (this.panZoom.getSizes().width / 2),
         y: -(this.zoomBox.centerY * realZoom) + (this.panZoom.getSizes().height / 2),
       });
-
       const viewBox = this.panZoom.getSizes().viewBox;
+      const debug = true;
       if (debug) {
         console.log(this.zoomBox.w);
         console.log(viewBox.width);
@@ -287,6 +309,15 @@ export default {
         this.compartment = getCompartmentFromCID(compartmentID);
         this.ids = ids;
         this.loadSVG(this.compartment.svgName, this.swapSVG, this.getElement);
+      }
+    },
+    showTiles(compartmentL, coordinate) {
+      console.log('showTiles');
+      if (compartmentL) {
+        this.compartment = getCompartmentFromLetter(compartmentL);
+        this.updateZoomBoxCoor(coordinate);
+        console.log(this.zoomBox);
+        this.loadSVG(this.compartment.svgName, this.swapSVG, this.zoomOnTiles);
       }
     },
     getCompartmentFromCID,
