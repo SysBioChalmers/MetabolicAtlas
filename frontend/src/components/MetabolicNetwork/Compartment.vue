@@ -26,6 +26,15 @@ export default {
       compartmentIDOrder: [1, 2, 3, 4, 5, 6, 7, 9, 8],
     };
   },
+  beforeMount() {
+    EventBus.$on('showCompartment', (id) => {
+      this.selectedCompartmentID = id;
+      this.showCompartment(id);
+    });
+    EventBus.$on('resetView', () => {
+      this.selectedCompartmentID = 0;
+    });
+  },
   created() {
     console.log('compartment created');
     this.loadCompartment();
@@ -39,7 +48,7 @@ export default {
     },
     showCompartment(compartmentID) {
       this.selectedCompartmentID = compartmentID;
-      EventBus.$emit('showSVGmap', compartmentID, []);
+      EventBus.$emit('showSVGmap', 'compartment', compartmentID, []);
     },
     getCompartmentFromCID,
   },

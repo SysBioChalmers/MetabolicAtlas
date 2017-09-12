@@ -51,6 +51,11 @@ export default {
       enzymeIDs: [],
     };
   },
+  beforeMount() {
+    EventBus.$on('resetView', () => {
+      this.compartmentID = 0;
+    });
+  },
   methods: {
     searchElements() {
       const termsString = this.$refs.textarea.value;

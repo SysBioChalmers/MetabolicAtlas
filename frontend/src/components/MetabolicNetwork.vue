@@ -56,6 +56,7 @@ import Subsystem from 'components/MetabolicNetwork/Subsystem';
 import Region from 'components/MetabolicNetwork/Region';
 import Svgmap from 'components/MetabolicNetwork/Svgmap';
 import { getCompartments } from '../helpers/compartment';
+import EventBus from '../event-bus';
 
 export default {
   name: 'metabolic-network',
@@ -75,7 +76,18 @@ export default {
     };
   },
   beforeMount() {
+    EventBus.$on('resetView', () => {
+      this.levelSelected = 'subsystem';
+      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+    });
     this.compartmentCount = Object.keys(getCompartments(this.getCompartments())).length;
+  },
+  mounted() {
+    this.view = this.$route.query.view;
+    if (!this.view) {
+      // load subsystem view
+      this.levelSelected = 'subsystem';
+    }
   },
   methods: {
     showSubsystemCount(count) {

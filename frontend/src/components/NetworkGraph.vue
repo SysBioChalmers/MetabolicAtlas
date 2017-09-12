@@ -156,13 +156,22 @@ export default {
         ...this.$route.query,
         tab: this.selectedTab,
       };
-      if (componentID) {
+      if (tabIndex === 0) {
+        delete fullQuery.id;
+      } else if (componentID) {
         // remove the current key if other than 'id'
         fullQuery.id = componentID;
       }
+
+      console.log(fullQuery);
+
       this.$router.push({
         query: fullQuery,
       });
+
+      if (tabIndex === 0) {
+        EventBus.$emit('resetView');
+      }
     },
     search() {
       if (this.searchTerm.length < 2) {

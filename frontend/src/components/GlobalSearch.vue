@@ -176,7 +176,7 @@ export default {
     viewCompartment(id) {
       console.log('test');
       this.goToTab('map', null);
-      EventBus.$emit('showSVGmap', id, []);
+      EventBus.$emit('showCompartment', id, []);
     },
     formatSearchResultLabel(c, searchTerm) {
       let s = `${c.short_name || c.long_name} (${c.compartment}`;

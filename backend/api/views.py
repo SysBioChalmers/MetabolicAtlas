@@ -505,6 +505,17 @@ def get_subsystems(request):
     serializer = SubsystemSerializer(subsystems, many=True)
     return JSONResponse(serializer.data);
 
+@api_view()
+def get_subsystem_coordinates(request, subsystem_id):
+    try:
+        tileSubsystem = TileSubsystem.objects.get(subsystem_id=subsystem_id)
+    except TileSubsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = TileSubsystemSerializer(tileSubsystem)
+
+    return JSONResponse(serializer.data)
+
 
 #=========================================================================================================
 
