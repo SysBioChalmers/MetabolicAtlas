@@ -65,6 +65,12 @@
             </div>
             <div v-else-if="k === 'compartment'">
               <strong>Compartment: </strong> {{ r.name }}
+              <div>
+                <span class="tag is-primary is-medium"
+                  @click="viewCompartment(getCompartmentFromName(r.name.toLowerCase()).compartmentID)">
+                  View
+                </span>
+              </div>
             </div>
             <hr>
           </div>
@@ -90,6 +96,7 @@ import axios from 'axios';
 import Loader from 'components/Loader';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 import { default as EventBus } from '../event-bus';
+import { getCompartmentFromName } from '../helpers/compartment';
 
 
 export default {
@@ -160,12 +167,16 @@ export default {
         this.showLoader = false;
       });
     },
-
     goToTab(type, id) {
       this.searchTerm = '';
       this.searchTermString = '';
       this.searchResults = [];
       EventBus.$emit('updateSelTab', type, id);
+    },
+    viewCompartment(id) {
+      console.log('test');
+      this.goToTab('map', null);
+      EventBus.$emit('showSVGmap', id, []);
     },
     formatSearchResultLabel(c, searchTerm) {
       let s = `${c.short_name || c.long_name} (${c.compartment}`;
@@ -207,6 +218,7 @@ export default {
       }
     },
     chemicalFormula,
+    getCompartmentFromName,
   },
 };
 </script>
