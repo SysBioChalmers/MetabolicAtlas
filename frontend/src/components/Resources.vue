@@ -3,7 +3,7 @@
     <div>
       <div id="resources">
         <div>
-          <a href="#tools">Tools</a> <a href="#databases">Databases</a> <a href="#api">API</a>
+          <a href="#tools">Tools</a> <a href="#databases">Databases</a> <a href="#api">API</a> <a href="#additional">Additional Resources</a>
           </div>
         <h2 id="tools" class="title fc is-2">Tools</h2>
         <div v-for="tool_data in tools">
@@ -39,7 +39,7 @@
             <div class="column">
             <div class="dsc">
               <span>
-                {{ db_data.description }}
+                <div v-html="db_data.description"></div>
               </span>
             </div>
           </div>
@@ -50,7 +50,7 @@
         <h2 id="api" class="title is-2">API</h2>
         <div class="columns">
           <div class="column is-1">
-            <a href="swagger">API</a>
+            <a href="swagger">GEM API</a>
           </div>
           <div class="column">
             <div class="dsc">
@@ -60,7 +60,40 @@
                 depending on the current request.
                 Gives you the possibility of trying it out to see what the
                 results would look like.
+                Main focus on the data available in the GEMs.
               </span>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div>
+          <h2 id="additional" class="title is-2">Additional resources</h2>
+          <div class="columns">
+            <div class="column is-1">
+              <a href="hreed">Hreed</a>
+            </div>
+            <div class="column">
+              <div class="dsc">
+                <span>
+                  Hreed (Human REaction Entities Database) facilitates an access
+                  to the Hreed reaction data, which can be easily retrieved by
+                  using specific keywords or names of related genes, proteins, compounds and cross-references.
+                </span>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="columns">
+            <div class="column is-1">
+              <a href="atlas">Atlas</a>
+            </div>
+            <div class="column">
+              <div class="dsc">
+                <span>
+                  Atlas web interface can be used for visualization of the GEMs
+                  collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -76,44 +109,49 @@ export default {
   data() {
     return {
       tools: [
-        { name: 'RAVEN',
-          link: 'https://github.com/SysBioChalmers/RAVEN/',
-          img: 'http://biomet-toolbox.chalmers.se/img/ravenLogo.png',
-          description: '<b>RAVEN (Reconstruction, Analysis and Visualization of Metabolic Networks) Toolbox is a software suite that allows for semi-automated reconstruction of genome-scale models</b>. It makes use of published models and/or the KEGG database, coupled with extensive gap-filling and quality control features. <br>For more information please refer to <a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002980">Agren, R., Liu, L., Shoaie, S., Vongsangnak, W., Nookaew, I., Nielsen, J. (2013). <i>The RAVEN Toolbox and Its Use for Generating a Genome-scale Metabolic Model for Penicillium chrysogenum</i> PLOS Computational Biology</a>.' },
-        { name: 'Gecko',
-          link: 'https://github.com/SysBioChalmers/GECKO',
-          img: 'https://github.com/SysBioChalmers/GECKO/raw/master/GECKO.png?raw=true',
-          description: '<b>The GECKO toolbox is a Matlab/Python package for enhancing a Genome-scale model to account for Enzyme Constraints, using Kinetics and Omics</b>.' },
         { name: 'STIG-met',
           link: 'https://github.com/SysBioChalmers/STIG-met',
           img: '',
-          description: '<b>Simulation Toolbox for Infant Growth with focus on Metabolism (STIG-met) is an integrated platform for simulation of human growth</b>. <br> We combine the experience from traditional growth models with GEMs to provide predictions of metabolic fluxes with enzyme level resolution on a day-to-day basis.<br>For using STIG-met, please refer to <a href="http://www.nature.com/articles/s41540-017-0004-5">Nilsson, A., Mardinoglu, A., and Nielsen, J. (2017).<i>Predicting growth of the healthy infant using a genome scale metabolic model.</i>Npj Systems Biology and Applications, 3(1), 3</a>' },
+          year: '2017',
+          description: '<b>Simulation Toolbox for Infant Growth with focus on Metabolism (STIG-met) is an integrated platform for simulation of human growth</b>. <br> We combine the experience from traditional growth models with GEMs to provide predictions of metabolic fluxes with enzyme level resolution on a day-to-day basis.<br>For more information please refer to <a href="http://www.nature.com/articles/s41540-017-0004-5">Nilsson, A., Mardinoglu, A., and Nielsen, J. (2017).<i>Predicting growth of the healthy infant using a genome scale metabolic model.</i> Npj Systems Biology and Applications, 3(1), 3</a>' },
+        { name: 'Gecko',
+          link: 'https://github.com/SysBioChalmers/GECKO',
+          img: 'https://github.com/SysBioChalmers/GECKO/raw/master/GECKO.png?raw=true',
+          year: '-',
+          description: '<b>GECKO is a Matlab/Python package for enhancing Genome-scale metabolic models (GEMs) with Enzyme Constraints, using Kinetics and Omics</b>. With it we can improve simulation performance of GEMs, reduce flux variability and get insight into enzyme usage.<br> Additional information about GECKO can be found in the following publication: <a href="">Sánchez, B., Zhang, C., Nilsson, A., Lahtvee, P., Kerkhoven, E., Nielsen, J. (2017). <i>Improving the phenotype predictions of a yeast genome-scale metabolic model by incorporating enzymatic constraints</i>. Molecular Systems Biology, 13(8): 935</a>' },
         { name: 'Kiwi',
           link: 'https://github.com/SysBioChalmers/Kiwi',
           img: 'https://pythonhosted.org/KiwiDist/_images/kiwi_logo.png',
+          year: '2014',
           description: '<b>The Kiwi module combines geneset analyses with biological networks to visualize the interactions between genesets that are significant in a given biological system</b> such that the inherent connectivity between gene-sets becomes apparent, by visualize whether these entities or processes are isolated or connected by means of their biological interaction. <br>For more information please refer to <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-014-0408-9">V&auml;remo, L., Gatto, F., Nielsen, J. (2014). <i>Kiwi: a tool for integration and visualization of network topology and gene-set analysis</i> BMC Bioinformatics</a>.' },
         { name: 'Piano',
           link: 'https://varemo.github.io/piano/',
           img: 'https://varemo.github.io/piano/loggo.png',
-          description: '<b>Platform for integrative analysis of omics data</b> (PIANO) is an An R/Bioconductor package for gene set analysis. <br> For more information refer to <a href="https://academic.oup.com/nar/article-lookup/doi/10.1093/nar/gkt111">V&auml;remo, L., Nielsen, J., Nookaew, I. (2013). <i>Enriching the gene set analysis of genome-wide data by incorporating directionality of gene expression and combining statistical hypotheses and methods</i> NAR</a>.' },
+          year: '2013',
+          description: '<b>Platform for integrative analysis of omics data</b> (PIANO) is an An R/Bioconductor package for gene set analysis. <br> For more information please refer to <a href="https://academic.oup.com/nar/article-lookup/doi/10.1093/nar/gkt111">V&auml;remo, L., Nielsen, J., Nookaew, I. (2013). <i>Enriching the gene set analysis of genome-wide data by incorporating directionality of gene expression and combining statistical hypotheses and methods</i> NAR</a>.' },
+        { name: 'RAVEN',
+          link: 'https://github.com/SysBioChalmers/RAVEN/',
+          img: 'http://biomet-toolbox.chalmers.se/img/ravenLogo.png',
+          year: '2013',
+          description: '<b>RAVEN (Reconstruction, Analysis and Visualization of Metabolic Networks) Toolbox is a software suite that allows for semi-automated reconstruction of genome-scale models</b>. It makes use of published models and/or the KEGG database, coupled with extensive gap-filling and quality control features. <br>For more information please refer to <a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002980">Agren, R., Liu, L., Shoaie, S., Vongsangnak, W., Nookaew, I., Nielsen, J. (2013). <i>The RAVEN Toolbox and Its Use for Generating a Genome-scale Metabolic Model for Penicillium chrysogenum</i>. PLOS Computational Biology</a>.' },
       ],
       databases: [
         { name: 'YSeq Browser',
           link: 'http://www.sysbio.se/Yseq/',
           img: './YseqLogo.png',
-          description: 'Genome and trascriptome (RNAseq and Microarray) browser of Saccharomyces cerevisiae.' },
+          description: '<b>Genome and trascriptome (RNAseq and Microarray) browser of <i>Saccharomyces cerevisiae</i></b>.' },
         { name: 'yApoptosis',
           link: 'http://www.ycelldeath.com/yapoptosis/',
           img: './YAp_logo.gif',
-          description: 'yApoptosis is an extensively-curated database dedicated for researchers working on yeast apoptosis. It is an open platform established to facilitate the organization and sharing of knowledge.' },
+          description: '<b>yApoptosis is an extensively-curated database dedicated for researchers working on yeast apoptosis</b>. It is an open platform established to facilitate the organization and sharing of knowledge.' },
         { name: 'yStreX',
           link: 'http://www.ystrexdb.com/',
           img: './logo_ystrex.png',
-          description: 'yStreX is an online database that collects, stores and distributes genome-wide expression data generated in the studies of stress responses using east Saccharomyces cerevisiae as the model organism.' },
+          description: '<b>yStreX is an online database that collects, stores and distributes genome-wide expression data generated in the studies of stress responses using yeast <i>Saccharomyces cerevisiae</i> as the model organism</b>.' },
         { name: 'HCSD',
           link: 'http://cancersecretome.org/',
           img: './HCSD_logo.png',
-          description: 'The human cancer secretome database (HCSD) is a comprehensive database for human cancer secretome data.' },
+          description: '<b>The human cancer secretome database (HCSD) is a comprehensive database for human cancer secretome data</b>. Query, and compare, publicly available proteomics data published in the field of cancer secretome and tumor microenviroment, and visualize the predicted secretory features and post-translational modification sites (PTMs) for each protein. <br>For more information please refer to <a href="">Feizi, A., Banaei-Esfahani, A., Nielsen, J. (2015) <i>HCSD: the human cancer secretome database</i>. Database 2015 ' },
       ],
       dBImageSources: null,
     };

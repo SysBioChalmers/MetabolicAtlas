@@ -5,15 +5,19 @@
         The systems biology group is lead by
         <a href="http://sysbio.se/Lab_Nielsen/lab_nielsen.html" target="_new">Professor Jens Nielsen</a>,
         and is part of the Department of Biology and Biological Engineering at the
-        <a href="www.chalmers.se" target="_new">Chalmers University of Technology</a>.
+        <a href="http://www.chalmers.se" target="_new">Chalmers University of Technology</a>.
         <br><br>
         The research focus, of the content of this site,
         is on <b>systems biology of metabolism</b> and the goal is to
-        collect all our curated Genome-Scale Metabolic Models, resources
+        collect all our curated Genome-Scale Metabolic
+        <a href="models">Models</a>,
+        <a href="http://www.metabolicatlas.org">visualisations</a> of the same, resources
         (like the possibility to compare models), algorithms (like the reporter metabolites),
-        other type of databases (like HSCD), and more general software applications
+        other types of <a href="resources#databases">databases</a>
+        (like HSCD), and more general <a href="resources#tools">software applications</a>
         (like RAVEN and PIANO) here. In short, this should be your one-stop-shop for
-        everything metabolism related that we have published.
+        everything metabolism related that we have
+        <a href="http://www.sysbio.se/Lab_Nielsen/publications.html">published</a>.
         <br/>
         <center><img src="http://sysbio.se/pics/group/group17_1_450.jpg"><br/>The group</center>
       </p>

@@ -78,13 +78,26 @@ class GEModel(models.Model):
 #
 # From tiles db
 #
-class Tile(models.Model):
-    reaction_component_id = models.CharField(max_length=50, primary_key=True)
+class TileReactionComponent(models.Model):
+    reaction_component_id = models.CharField(max_length=20, primary_key=True)
     tile_name = models.CharField(max_length=200, null=True)
 
     class Meta:
         db_table = "tiles"
 
+class TileSubsystem(models.Model):
+    subsystem_id = models.FloatField()
+    subsystem_name = models.CharField(max_length=200, null=False)
+    compartment_name = models.CharField(max_length=50, null=False)
+    x_top_left = models.FloatField(null=False)
+    y_top_left = models.FloatField(null=False)
+    x_bottom_right = models.FloatField(null=False)
+    y_bottom_right = models.FloatField(null=False)
+
+    class Meta:
+        db_table = "tile_subsystems"
+#create table tile_subsystems(subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(50), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer)
+#insert into tile_subsystems values(38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12000, 7000, 13000, 8000);
 
 ##########################################################################################################################
 ##########################################################################################################################

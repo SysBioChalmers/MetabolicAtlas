@@ -29,6 +29,7 @@
           <p>
             <a><img src="./assets/chalmers.png" /></a>
             <a><img src="./assets/wallenberg.gif" /></a>
+            <a><img src="https://www.kth.se/polopoly_fs/1.654259!/image/Front.gif" /></a>
           </p>
         </div>
       </div>

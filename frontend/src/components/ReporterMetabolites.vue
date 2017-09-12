@@ -146,7 +146,6 @@ export default {
         console.log('new svg');
         axios.get(svgLink)
           .then((response) => {
-            console.log('get response ');
             console.log('get the svg');
             this.svgContent = response.data;
             this.showLoader = true;
