@@ -90,6 +90,18 @@ export default {
     $('#svg-wrapper').on('mouseout', '.Metabolite, .Reaction', function f() {
       $(this)[0].children[1].removeChild($(this)[0].children[1].children[0]);
     });
+    $('#svg-wrapper').on('click', '.Metabolite', function f() {
+      const id = $(this).attr('id').split('_in_')[0].substring(11, 20);
+      if (id[0] === 'E') {
+        EventBus.$emit('updateSelTab', 'enzyme', id);
+      } else {
+        EventBus.$emit('updateSelTab', 'metabolite', id);
+      }
+    });
+    $('#svg-wrapper').on('click', '.Reaction', function f() {
+      const id = $(this).attr('id').split('_in_')[0].substring(9, 20);
+      EventBus.$emit('updateSelTab', 'reaction', id);
+    });
   },
   methods: {
     swapSVG(callback) {
