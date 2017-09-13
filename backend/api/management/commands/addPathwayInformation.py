@@ -69,12 +69,19 @@ def compartmentByCompartment(fileName, compName, pathways):
 
 
 class Command(BaseCommand):
-    args = '<foo bar ...>'
-    help = 'our help string comes here'
 
     def handle(self, *args, **options):
         pathways = Subsystem.objects.exclude(system='Collection of reactions')
-        #pathways = Subsystem.objects.filter(id = 38)
 
-        svg = "/Users/halena/Documents/Sys2Bio/hma-prototype/nginx/svgs/mitochondrion_old.svg"
+        svg = "../nginx/svgs/mitochondrion_old.svg"
         compartmentByCompartment(svg, "Mitochondria", pathways)
+        svg = "../nginx/svgs/golgi.svg"
+        compartmentByCompartment(svg, "Golgi", pathways)
+        svg = "../nginx/svgs/ER.svg"
+        compartmentByCompartment(svg, "ER", pathways)
+        svg = "../nginx/svgs/lysosome.svg"
+        compartmentByCompartment(svg, "Lysosome", pathways)
+        svg = "../nginx/svgs/nucleus.svg"
+        compartmentByCompartment(svg, "Nucleus", pathways)
+        svg = "../nginx/svgs/peroxisome.svg"
+        compartmentByCompartment(svg, "Peroxisome", pathways)
