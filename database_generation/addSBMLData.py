@@ -269,7 +269,7 @@ def get_reaction(sbml_model, index):
 
     reaction_to_add.save() # FIXME would be nicer with a bulk save
     for p in pathways:
-        rs = ReactionSubsystem(reaction=reaction_to_add, subsystem=p)
+        rs = SubsystemReaction(reaction=reaction_to_add, subsystem=p)
         rs.save()
 
     # populate all the associated tables

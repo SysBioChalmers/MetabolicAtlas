@@ -93,14 +93,12 @@ class TileSubsystem(models.Model):
     y_top_left = models.IntegerField(null=False)
     x_bottom_right = models.IntegerField(null=False)
     y_bottom_right = models.IntegerField(null=False)
+    #reaction_count = models.IntegerField(null=False)
+    #is_main = models.BooleanField(default=False)
 
     class Meta:
         db_table = "tile_subsystems"
-#create table tile_subsystems(id integer, subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(50), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer)
-#insert into tile_subsystems values(1, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12000, 7000, 13000, 8000);
-#insert into tile_subsystems values(2, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 9000, 7000, 16000, 12000);
-#insert into tile_subsystems values(3, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 10000, 5000, 17000, 10000);
-#insert into tile_subsystems values(4, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 10500, 4700, 16500, 10500);
+#create table tile_subsystems(id integer, subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(125), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer, );
 #insert into tile_subsystems values(4, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12800, 4600, 16800, 9000);
 
 ##########################################################################################################################
@@ -367,10 +365,26 @@ class CurrencyMetabolite(models.Model):
         db_table = "currency_metabolites"
         unique_together = (('component', 'reaction'),)
 
-class ReactionSubsystem(models.Model):
+class SubsystemReaction(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
     subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "reaction_subsystem"
         unique_together = (('reaction', 'subsystem'),)
+
+class SubsystemMetabolite(models.Model):
+    reaction_component = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subsystem_metabolite"
+        unique_together = (('reaction_component','subsystem'),)
+
+class SubsystemEnzyme(models.Model):
+    reaction_component = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subsystem_enzyme"
+        unique_together = (('reaction_component','subsystem'),)
