@@ -91,7 +91,7 @@ export default {
       $(this)[0].children[1].removeChild($(this)[0].children[1].children[0]);
     });
     $('#svg-wrapper').on('click', '.Metabolite', function f() {
-      const id = $(this).attr('id').split('_in_')[0].substring(11, 20);
+      const id = $(this).attr('id').split('_in_')[0].substring(11, 20).trim();
       if (id[0] === 'E') {
         EventBus.$emit('updateSelTab', 'enzyme', id);
       } else {
@@ -284,7 +284,7 @@ export default {
         // const ry = parseInt(transform[5], 10);
         this.updateZoomBox(el[0]); // dom element
       }
-      this.showTiles();
+      // this.showTiles();
     },
     zoomOnTiles() {
       console.log('zoom tiles');
