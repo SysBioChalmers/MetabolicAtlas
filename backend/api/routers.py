@@ -31,12 +31,12 @@ class TileRouter(object):
         return None
 
     def db_for_write(self, model, **hints):
-        if hasattr(model, 'name') and model.__name__ == ['Tile', 'TileSubsystem']:
+        if hasattr(model, 'name') and model.__name__ in ['Tile', 'TileSubsystem']:
             return 'tiles'
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
-        if hasattr(obj1, '__name__') and obj1.__name__ == ['Tile', 'TileSubsystem']:
+        if obj1.__class__.__name__ in ['Tile', 'TileSubsystem']:
             return True
         return None
 
