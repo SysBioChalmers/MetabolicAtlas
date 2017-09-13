@@ -15,8 +15,8 @@
       class="table is-bordered is-striped is-narrow">
         <thead>
           <tr style="background: #F8F4F4">
-            <th v-for="f in fields"
-              @click="sortBy(f.name)">{{ f.display }}
+            <th v-for="f in fields" v-html="f.display"
+              @click="sortBy(f.name)">
               </th>
           </tr>
         </thead>
@@ -107,9 +107,9 @@ export default {
         { name: 'organ_system', display: 'System' },
         { name: 'tissue', display: 'Tissue' },
         { name: 'cell_type', display: 'Cell type' },
-        { name: 'reaction_count', display: '# reactions' },
-        { name: 'metabolite_count', display: '# metabolites' },
-        { name: 'enzyme_count', display: '# enzymes' },
+        { name: 'reaction_count', display: '#&nbsp;reactions' },
+        { name: 'metabolite_count', display: '#&nbsp;met' },
+        { name: 'enzyme_count', display: '#&nbsp;prot' },
         { name: 'year', display: 'Year' },
       ],
       model_fields: [
