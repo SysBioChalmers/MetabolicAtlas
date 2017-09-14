@@ -101,7 +101,7 @@ export default {
       currentRow.classList.add('sel-tr');
     },
     hlElements(compartmentID, ids) {
-      EventBus.$emit('showSVGmap', compartmentID, ids.concat(this.enzymeIDs));
+      EventBus.$emit('showSVGmap', 'compartment', compartmentID, ids.concat(this.enzymeIDs));
     },
     getCompartmentFromCID,
   },
