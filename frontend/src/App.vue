@@ -27,9 +27,9 @@
         <div class="content has-text-centered">
           <p v-html="$t('footerText')"><p>
           <p>
-            <a><img src="./assets/chalmers.png" /></a>
-            <a><img src="./assets/wallenberg.gif" /></a>
-            <a><img src="https://www.kth.se/polopoly_fs/1.654259!/image/Front.gif" /></a>
+            <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
+            <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
+            <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
           </p>
         </div>
       </div>
