@@ -18,6 +18,7 @@ logger.setLevel(logging.INFO)
 verbose=False;  # dont print the error messages from the addReactionComponentAnnotation
 annotationsToAdd = {}
 
+print("SysPath is "+sys.path[0])
 exec(open(os.path.join(sys.path[0], "../", "database_generation", "addSBMLData.py")).read())
 exec(open(os.path.join(sys.path[0], "../", "database_generation", "addCurrencyMetabolites.py")).read())
 exec(open(os.path.join(sys.path[0], "../", "database_generation", "addMetabolites.py")).read())
@@ -33,7 +34,7 @@ exec(open(os.path.join(sys.path[0], "../", "database_generation", "addEnzymes.py
 # 5) addEnzymes
 
 # where are the data located?
-baseFolder="/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/"
+baseFolder=os.path.join(sys.path[0], "../", "database_generation", "data/")
 
 # the human files and the yeast files are obviously different :)
 # so wrap up all the files for the given species

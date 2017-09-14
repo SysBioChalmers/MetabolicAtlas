@@ -64,24 +64,48 @@ def compartmentByCompartment(fileName, compName, pathways):
             t = TileSubsystem(subsystem_id = p.id, subsystem_name=p.name,
                 compartment_name = compName, x_top_left = box[0]-padding,
                 y_top_left = box[1]-padding, x_bottom_right = box[2]+padding,
-                y_bottom_right = box[3]+padding )
+                y_bottom_right = box[3]+padding,
+                reaction_count = len(reactions) )
             t.save()
+
+def goThroughTheSVGFilesAndAddBoxInformation():
+    pathways = Subsystem.objects.exclude(system='Collection of reactions')
+
+    svg = "../nginx/svgs/ER.svg"
+    compartmentByCompartment(svg, "ER", pathways)
+    svg = "../nginx/svgs/golgi.svg"
+    compartmentByCompartment(svg, "Golgi", pathways)
+    svg = "../nginx/svgs/lysosome.svg"
+    compartmentByCompartment(svg, "Lysosome", pathways)
+    svg = "../nginx/svgs/mitochondrion_old.svg"
+    compartmentByCompartment(svg, "Mitochondria", pathways)
+    svg = "../nginx/svgs/nucleus.svg"
+    compartmentByCompartment(svg, "Nucleus", pathways)
+    svg = "../nginx/svgs/peroxisome.svg"
+    compartmentByCompartment(svg, "Peroxisome", pathways)
+    # then do the cytosol groups
+    svg = "../nginx/svgs/cytosol_1.svg"
+    compartmentByCompartment(svg, "Cytosol_1", pathways)
+    svg = "../nginx/svgs/cytosol_2.svg"
+    compartmentByCompartment(svg, "Cytosol_2", pathways)
+    svg = "../nginx/svgs/cytosol_3.svg"
+    compartmentByCompartment(svg, "Cytosol_3", pathways)
+    svg = "../nginx/svgs/cytosol_4.svg"
+    compartmentByCompartment(svg, "Cytosol_4", pathways)
+    svg = "../nginx/svgs/cytosol_5.svg"
+    compartmentByCompartment(svg, "Cytosol_5", pathways)
+    svg = "../nginx/svgs/cytosol_6.svg"
+    compartmentByCompartment(svg, "Cytosol_6", pathways)
+
+
+def manuallySetSomeAsMain():
+    t = TileSubsystem.objects.filter(
+        subsystem_name="Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism",
+        compartment_name="Mitochondria").update(is_main=True)
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        pathways = Subsystem.objects.exclude(system='Collection of reactions')
-
-        svg = "../nginx/svgs/mitochondrion_old.svg"
-        compartmentByCompartment(svg, "Mitochondria", pathways)
-        svg = "../nginx/svgs/golgi.svg"
-        compartmentByCompartment(svg, "Golgi", pathways)
-        svg = "../nginx/svgs/ER.svg"
-        compartmentByCompartment(svg, "ER", pathways)
-        svg = "../nginx/svgs/lysosome.svg"
-        compartmentByCompartment(svg, "Lysosome", pathways)
-        svg = "../nginx/svgs/nucleus.svg"
-        compartmentByCompartment(svg, "Nucleus", pathways)
-        svg = "../nginx/svgs/peroxisome.svg"
-        compartmentByCompartment(svg, "Peroxisome", pathways)
+        goThroughTheSVGFilesAndAddBoxInformation()
+        manuallySetSomeAsMain()
