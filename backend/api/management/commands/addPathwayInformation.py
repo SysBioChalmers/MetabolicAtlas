@@ -77,7 +77,7 @@ def goThroughTheSVGFilesAndAddBoxInformation():
     compartmentByCompartment(svg, "Golgi", pathways)
     svg = "../nginx/svgs/lysosome.svg"
     compartmentByCompartment(svg, "Lysosome", pathways)
-    svg = "../nginx/svgs/mitochondrion_old.svg"
+    svg = "../nginx/svgs/mitochondrion.svg"
     compartmentByCompartment(svg, "Mitochondria", pathways)
     svg = "../nginx/svgs/nucleus.svg"
     compartmentByCompartment(svg, "Nucleus", pathways)
