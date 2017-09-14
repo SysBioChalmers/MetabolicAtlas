@@ -77,7 +77,7 @@ export default {
         router.push(name);
       }
 
-      location.reload();
+      // location.reload();
     },
     isActive(name) {
       return name.toLowerCase() === this.$route.name.toLowerCase();
