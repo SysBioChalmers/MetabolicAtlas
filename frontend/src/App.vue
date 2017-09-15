@@ -58,6 +58,9 @@ export default {
         this.$t('navBut4Title'),
         this.$t('navBut5Title'),
         this.$t('navBut6Title'),
+        this.$t('navBut7Title'),
+        this.$t('navBut8Title'),
+
       ],
     };
   },
@@ -73,6 +76,8 @@ export default {
             },
           },
         );
+      } else if (['tools', 'databases', 'api'].includes(name.toLowerCase())) {
+        router.push(`Resources#${name.toLowerCase()}`);
       } else {
         router.push(name);
       }
