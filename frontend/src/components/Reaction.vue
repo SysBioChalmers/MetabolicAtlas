@@ -38,12 +38,12 @@ export default {
         { name: 'id', display: 'Identifier' },
         { name: 'name', display: 'Name', modifier: chemicalName },
         { name: 'compartment' },
-        { name: 'subsystem', modifier: this.reformatList },
+        { name: 'subsystem', modifier: this.reformatSubsystemList },
         { name: 'equation', modifier: chemicalName },
         { name: 'quantitative_stuff', isComposite: true, modifier: this.reformatQuant },
         { name: 'modifiers', modifier: this.reformatModifiers },
-        { name: 'reactants', modifier: this.reformatCount },
-        { name: 'products', modifier: this.reformatCount },
+        { name: 'reactants', modifier: this.reformatMetaboliteList },
+        { name: 'products', modifier: this.reformatMetaboliteList },
         { name: 'ec', display: 'EC', modifier: this.reformatECLink },
         { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
@@ -103,16 +103,28 @@ export default {
       html.push('<div class="field is-grouped is-grouped-multiline">');
       for (const mod of mods) {
         html.push(`<div class="control"><div class="tags has-addons">
-          <span class="tag"><a href="/?tab=3&reaction_component_id=${mod.id}">${mod.short_name}</a></span></div></div>`);
+          <span class="tag"><a href="/?tab=3&id=${mod.id}">${mod.short_name}</a></span></div></div>`);
       }
       html.push('</div>');
       return html.join(' ');
     },
-    reformatList(l) {
-      return l.join('; ');
+    reformatSubsystemList(l) {
+      // return l.join('; ');
+      let str = '';
+      for (const a of l) {
+        str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
+      }
+      return str;
     },
-    reformatCount(e) {
-      return e.length;
+    reformatMetaboliteList(e) {
+      const html = [];
+      html.push('<div class="field is-grouped is-grouped-multiline">');
+      for (const met of e) {
+        html.push(`<div class="control"><div class="tags has-addons">
+          <span class="tag"><a href="/?tab=4&id=${met.id}">${met.short_name}</a></span></div></div>`);
+      }
+      html.push('</div>');
+      return html.join(' ');
     },
     formatQuantFieldName(name) {
       return `<span class="tag is-info">${name}</span>`;
