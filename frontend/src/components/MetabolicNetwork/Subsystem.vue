@@ -3,7 +3,7 @@
     <p class="menu-label">Subsystem:</p>
     <ul class="menu-list">
       <li class="m-li" v-for="system in systemOrder">
-        <span v-if="selectedSystem==system" 
+        <span v-if="selectedSystem==system"
         class="li-selected"@click="selectedSystem=system">
          &#9662; {{ system }}</span>
         <span v-else @click="selectedSystem=system"
@@ -11,7 +11,7 @@
         <ul v-show="selectedSystem==system">
           <li v-for="subsystem in subsystems[system]"
           @click="showSubsystem(subsystem.id)">
-              <span v-if="selectedSubSystem==subsystem.name" 
+              <span v-if="selectedSubSystem==subsystem.name"
               class="li-selected"@click="selectedSubSystem=subsystem.name">
                &#9642; {{ subsystem.name }}</span>
               <span v-else @click="selectedSubSystem=subsystem.name">

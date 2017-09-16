@@ -259,7 +259,7 @@ def connected_metabolites(request, id):
                 Q(reactionmodifier__modifier_id=enzyme.id)
                 ).distinct()
         serializer = ReactionSerializer(reactions, many=True)
-        
+
         result =  {
             'enzyme' : ReactionComponentSerializer(enzyme).data,
             'reactions': serializer.data
@@ -508,7 +508,7 @@ def get_subsystems(request):
 @api_view()
 def get_subsystem_coordinates(request, subsystem_id):
     try:
-        tileSubsystem = TileSubsystem.objects.get(subsystem_id=subsystem_id)
+        tileSubsystem = TileSubsystem.objects.get(subsystem_id=subsystem_id, is_main=True)
     except TileSubsystem.DoesNotExist:
         return HttpResponse(status=404)
 
