@@ -16,15 +16,15 @@
          View reaction components</button>
         <button class="button"
           @click="levelSelected='reporterMet'"
-          :class="{ 'is-active' : levelSelected==='reporterMet'}">
+          :class="{ 'is-active' : levelSelected==='reporterMet'}" disabled>
           Reporter metabolites</button>
         <button class="button"
           @click="levelSelected='expData'"
-          :class="{ 'is-active' : levelSelected==='expData'}">
+          :class="{ 'is-active' : levelSelected==='expData'}" disabled>
           Overlay expression</button>
         <button class="button"
           @click="levelSelected='compModels'"
-          :class="{ 'is-active' : levelSelected==='compModels'}">
+          :class="{ 'is-active' : levelSelected==='compModels'}" disabled>
           Compare GEMs</button>
       </div>
     </div>

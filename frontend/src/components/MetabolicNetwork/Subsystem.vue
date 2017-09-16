@@ -10,7 +10,7 @@
         > &#9656; {{ system }}</span>
         <ul v-show="selectedSystem==system">
           <li v-for="subsystem in subsystems[system]"
-          @click="showSubsystem(subsystem.id)">
+          @click="showSubsystem(system, subsystem.id)">
               <span v-if="selectedSubSystem==subsystem.name"
               class="li-selected"@click="selectedSubSystem=subsystem.name">
                &#9642; {{ subsystem.name }}</span>
@@ -123,11 +123,13 @@ export default {
         }
       );
     },
-    showSubsystem(id) {
-      if (!id) {
-        this.loadSubsystemCoordinates(38);
-      } else {
-        this.loadSubsystemCoordinates(id);
+    showSubsystem(system, id) {
+      if (system !== 'Collection of reactions') {
+        if (!id) {
+          this.loadSubsystemCoordinates(38);
+        } else {
+          this.loadSubsystemCoordinates(id);
+        }
       }
     },
   },
