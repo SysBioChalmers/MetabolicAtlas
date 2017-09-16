@@ -111,8 +111,8 @@ export function getCompartmentFromID(id) {
 }
 
 export function getCompartmentFromName(name) {
-  if (data[name]) {
-    return data[name];
+  if (data[name.toLowerCase()]) {
+    return data[name.toLowerCase()];
   }
   return null;
 }

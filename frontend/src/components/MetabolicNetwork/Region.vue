@@ -6,7 +6,7 @@
       </div>
       <br>
       <p class="control">
-        <textarea id="idarea" class="textarea" ref="textarea" placeholder="M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g">M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g</textarea>
+        <textarea id="idarea" class="textarea" ref="textarea" placeholder="M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g, R_HMR_4410">M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g, R_HMR_4410</textarea>
       </p>
     </div>
     <div>
@@ -79,7 +79,7 @@ export default {
         for (let i = 0; i < res.length; i += 1) {
           const compartmentID = res[i][0];
           const id = res[i][1];
-          if (id[0] === 'M') {
+          if (id[0] === 'M' || id[0] === 'R') {
             if (!d[compartmentID.toString()]) {
               d[compartmentID.toString()] = [];
             }

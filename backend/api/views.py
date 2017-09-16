@@ -480,17 +480,46 @@ def search(request, term, truncated):
 def convert_to_reaction_component_ids(request, compartmentID):
     arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
     query = Q()
+    reaction_query = Q()
     for term in arrayTerms:
         query |= Q(id__iexact=term)
+        reaction_query |= Q(id__iexact=term)
         query |= Q(short_name__iexact=term)
         query |= Q(long_name__iexact=term)
+
+    if str(compartmentID) != '0':
+        try:
+            compartment = Compartment.objects.get(id=compartmentID)
+            compartment = compartment.name
+            logging.warn(compartment);
+        except Compartment.DoesNotExist:
+            return HttpResponse(status=404)
 
     if str(compartmentID) != '0':
         reactionComponents = ReactionComponent.objects.filter(query & Q(compartment=compartmentID)).values_list('compartment_id', 'id')
     else:
         reactionComponents = ReactionComponent.objects.filter(query).values_list('compartment_id', 'id').distinct()
 
-    if reactionComponents.count() == 0:
+    if str(compartmentID) != '0':
+        reactions = Reaction.objects.filter(reaction_query & Q(compartment=compartment)).values_list('compartment', 'id')
+    else:
+        reactions = Reaction.objects.filter(reaction_query).values_list('compartment', 'id').distinct()
+    
+    logging.warn(reactions);
+    # remove this part when Reaction has a foreigh key on compartment
+    if reactions.count():
+        newReaction = []
+        for i, (compartment, rcid) in enumerate(reactions):
+            newReaction.append((Compartment.objects.get(name=compartment).id, rcid))
+        reactions = newReaction
+        logging.warn(newReaction);
+
+    if reactions:
+        reactionComponents = list(chain(reactionComponents, reactions))
+    else:
+        reactionComponents = reactions
+
+    if not reactionComponents or len(reactionComponents) == 0:
         return HttpResponse(status=404)
 
     return JSONResponse(reactionComponents);
