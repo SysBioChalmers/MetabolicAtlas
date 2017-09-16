@@ -120,7 +120,7 @@ export default {
   },
   beforeMount() {
     $('body').on('click', 'td rc', function f() {
-      EventBus.$emit('updateSelTab', 3, $(this).attr('id'));
+      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
     });
   },
 };
