@@ -3,15 +3,15 @@
     <p class="menu-label">Subsystem:</p>
     <ul class="menu-list">
       <li class="m-li" v-for="system in systemOrder">
-        <span v-if="selectedSystem==system" 
+        <span v-if="selectedSystem==system"
         class="li-selected"@click="selectedSystem=system">
          &#9662; {{ system }}</span>
         <span v-else @click="selectedSystem=system"
         > &#9656; {{ system }}</span>
         <ul v-show="selectedSystem==system">
           <li v-for="subsystem in subsystems[system]"
-          @click="showSubsystem(subsystem.id)">
-              <span v-if="selectedSubSystem==subsystem.name" 
+          @click="showSubsystem(system, subsystem.id)">
+              <span v-if="selectedSubSystem==subsystem.name"
               class="li-selected"@click="selectedSubSystem=subsystem.name">
                &#9642; {{ subsystem.name }}</span>
               <span v-else @click="selectedSubSystem=subsystem.name">
@@ -50,14 +50,14 @@ export default {
       ],
     };
   },
-  beforeMount() {
+  created() {
+    /* eslint-disable no-param-reassign */
     EventBus.$on('showSubsystem', (id) => {
       if (!id) {
-        console.log('test');
-        // this.selectedSystem = 'Other metabolism';
-        // this.selectedSubSystem = 'Tricarboxylic acid cycle and
-        //  glyoxylate/dicarboxylate metabolism';
-        // subID = 38;
+        this.selectedSystem = 'Other metabolism';
+        this.selectedSubSystem = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
+        id = 38;
+        this.loadSubsystemCoordinates(id);
       } else {
         this.loadSubsystemCoordinates(id);
       }
@@ -66,14 +66,17 @@ export default {
       this.selectedSystem = '';
       this.selectedSubSystem = '';
     });
+  },
+  beforeMount() {
     this.loadSubsystem();
-    // EventBus.$emit('showSubsystem', 0);
+  },
+  mounted() {
+    EventBus.$emit('showSubsystem', null);
   },
   methods: {
     loadSubsystem() {
       axios.get('subsystems')
         .then((response) => {
-          console.log(response);
           const systems = response.data.reduce((subarray, el) => {
             const arr = subarray;
             if (!arr[el.system]) { arr[el.system] = []; }
@@ -103,7 +106,6 @@ export default {
     loadSubsystemCoordinates(id) {
       axios.get(`subsystem/${id}`)
         .then((response) => {
-          console.log(response);
           const subCoors = response.data;
           const coors = {
             minX: subCoors.x_top_left,
@@ -118,11 +120,13 @@ export default {
         }
       );
     },
-    showSubsystem(id) {
-      if (!id) {
-        this.loadSubsystemCoordinates(38);
-      } else {
-        this.loadSubsystemCoordinates(id);
+    showSubsystem(system, id) {
+      if (system !== 'Collection of reactions') {
+        if (!id) {
+          this.loadSubsystemCoordinates(38);
+        } else {
+          this.loadSubsystemCoordinates(id);
+        }
       }
     },
   },

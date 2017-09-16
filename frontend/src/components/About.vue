@@ -11,7 +11,8 @@
         is on <b>systems biology of metabolism</b> and the goal is to
         collect all our curated Genome-Scale Metabolic
         <a href="models">Models</a>,
-        <a href="http://www.metabolicatlas.org">visualisations</a> of the same, resources
+        <a href="http://www.metabolicatlas.org">visualisations</a> of the same,
+        <a href="resources">resources</a>
         (like the possibility to compare models), algorithms (like the reporter metabolites),
         other types of <a href="resources#databases">databases</a>
         (like HSCD), and more general <a href="resources#tools">software applications</a>
@@ -31,14 +32,14 @@
           yeast 8.0. These are two "reference" models containing all possible
           reactions that could occur in human, and yeast, respectively.
         </p>
-        <p class="text">
+        <p>
           With special focus on how reactions are connected into sub-systems
           and trying to link in external relevant information so that it should
           become easier to understand what your current model is capable or, and
           especially if you "zoom in" on a particular pathway, what would be the
           biological interpretation of this?
         </p>
-        <p class="text">
+        <p>
           It is intended to be used for applications in metabolomics, clinical chemistry, biomarker discovery and general education.
         </p>
       </div>

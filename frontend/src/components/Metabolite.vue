@@ -75,8 +75,8 @@ export default {
         { name: 'formula', modifier: chemicalFormula },
         { name: 'charge' },
         { name: 'mass', modifier: this.reformatMass },
-        { name: 'kegg', modifier: this.reformatLink },
-        { name: 'chebi' },
+        { name: 'kegg', modifier: this.reformatKeggLink },
+        { name: 'chebi', modifier: this.reformatChebiLink },
         { name: 'inchi' },
         { name: 'pubchem_link', modifier: this.reformatLink },
       ],
@@ -119,6 +119,12 @@ export default {
     },
     reformatKey(k) {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
+    },
+    reformatKeggLink(s) {
+      return `<a href="http://www.genome.jp/dbget-bin/www_bget?${s}" target="_blank">${s}</a>`;
+    },
+    reformatChebiLink(s) {
+      return `<a href="http://www.ebi.ac.uk/chebi/searchId.do?chebiId=${s}" target="_blank">${s}</a>`;
     },
     reformatLink(s) {
       return `<a href="${s}" target="_blank">${s}</a>`;
