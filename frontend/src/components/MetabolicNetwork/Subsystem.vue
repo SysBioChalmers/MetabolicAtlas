@@ -54,7 +54,6 @@ export default {
     /* eslint-disable no-param-reassign */
     EventBus.$on('showSubsystem', (id) => {
       if (!id) {
-        console.log('test');
         this.selectedSystem = 'Other metabolism';
         this.selectedSubSystem = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
         id = 38;
@@ -78,7 +77,6 @@ export default {
     loadSubsystem() {
       axios.get('subsystems')
         .then((response) => {
-          console.log(response);
           const systems = response.data.reduce((subarray, el) => {
             const arr = subarray;
             if (!arr[el.system]) { arr[el.system] = []; }
@@ -108,7 +106,6 @@ export default {
     loadSubsystemCoordinates(id) {
       axios.get(`subsystem/${id}`)
         .then((response) => {
-          console.log(response);
           const subCoors = response.data;
           const coors = {
             minX: subCoors.x_top_left,
