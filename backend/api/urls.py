@@ -33,4 +33,5 @@ urlpatterns = [
     url(r'^convert_to_reaction_component_ids/(?P<compartmentID>[^/]+)/?$', views.convert_to_reaction_component_ids),
     url(r'^subsystems/?$', views.get_subsystems),
     url(r'^subsystem/(?P<subsystem_id>[^/]+)/?$', views.get_subsystem_coordinates),
+    url(r'^hpa/?$', views.get_HPA_xml_content),
 ]

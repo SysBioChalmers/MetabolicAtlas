@@ -7,6 +7,7 @@ from itertools import chain
 from api.models import GEM, Author
 from api.serializers import *
 
+import urllib.request
 import re
 import logging
 
@@ -618,3 +619,14 @@ def parse_readme_file(content):
             d[key_entry[entry]] = value.strip()
 
     return d
+
+
+#####################################################################################
+
+@api_view(['POST'])
+def get_HPA_xml_content(request):
+    url = request.data['url']
+    logging.warn(url);
+    with urllib.request.urlopen(url) as response:
+        data = response.read()
+    return HttpResponse(data, content_type='application/octet-stream')

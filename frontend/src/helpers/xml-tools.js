@@ -2,13 +2,23 @@
 
 import pako from 'pako';
 
+export function unzipXML(filestream) {
+  console.log('unzip')
+  const blocks = inflateConcatenatedGzip(filestream);
+  const xmlContent = mergeBlocks(blocks);
+  console.log(xmlConent);
+  return xmlContent;
+}
+
 export function fetchXML(url) {
   const filestream = loadBinaryResource(url);
-  const blocks = inflateConcatenatedGzip(filestream);
-  return mergeBlocks(blocks);
+  const xmlContent = unzipXML(filestream);
+  console.log(xmlConent);
+  return xmlContent;
 }
 
 export function parseXML(s) {
+  console.log(s);
   if (typeof window.DOMParser !== 'undefined') {
     const parser = new window.DOMParser();
     return parser.parseFromString(s, 'text/xml');
