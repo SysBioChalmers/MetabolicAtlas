@@ -96,6 +96,19 @@
               </div>
             </div>
           </div>
+          <br>
+          <div class="columns">
+            <div class="column is-1">
+              <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
+            </div>
+            <div class="column">
+              <div class="dsc">
+                <span>
+                  All the online tools powered by the RAVEN toolbox
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
