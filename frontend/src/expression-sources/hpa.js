@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import axios from 'axios';
 import { parseXML, unzipXML } from '../helpers/xml-tools';
 
@@ -110,19 +112,25 @@ function parseHpaRnaExpressionLvl(rawElms, xmlContent) {
   };
 }
 
-function getHPAxml(rawElms, url) {
-  axios.post('hpa/', { url })
-    .then((response) => {
-      console.log('getHPAxml response');
-      const xmlContent = unzipXML(response.data);
-      console.log(xmlContent);
-      return parseHpaRnaExpressionLvl(rawElms, xmlContent);
-    })
-    .catch(() => []);
+async function getHPAxml(rawElms, url) {
+  console.log('call getHPAxml');
+  const d = await axios.post('hpa/', { url });
+  return d;
+}
+
+async function getHPAxmlResult(rawElms, url) {
+  console.log('call getHPAxmlResult');
+  await axios.all([getHPAxml(rawElms, url)])
+    .then(axios.spread(function (res) {
+      console.log('in spread (getHPAxmlResult)');
+      console.log(res);
+    }));
+  console.log('end getHPAxmlResult');
 }
 
 export default function (rawElms) {
   // get the list of enzyme ids
+  console.log('call export function');
   const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
   const enzymeIDs = enzymes.map(k => rawElms[k].long);
 
@@ -130,5 +138,6 @@ export default function (rawElms) {
   const proteins = `${enzymeIDs.join(',')}?format=xml`;
   const url = baseUrl + proteins;
 
-  return getHPAxml(rawElms, url);
+  console.log('end export function');
+  return getHPAxmlResult(rawElms, url);
 }

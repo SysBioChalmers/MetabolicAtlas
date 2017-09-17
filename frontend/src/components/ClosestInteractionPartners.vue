@@ -687,7 +687,7 @@ export default {
               !this.expSourceLoaded[componentType][expSource]) {
               // sources that load all exp type
               if (expSource === 'HPA') {
-                const hpaRnadata = this.loadHpaRnaData(this.rawElms);
+                const hpaRnadata = this.getHPAexpression();
                 console.log('get hpaRnadata');
                 this.rawElms = hpaRnadata.graphElements;
                 this.tissues.HPA = hpaRnadata.tissues;
@@ -771,6 +771,9 @@ export default {
     viewReactionComponent: function viewReactionComponent(type) {
       EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
+    },
+    async getHPAexpression() {
+      return this.loadHpaRnaData(this.rawElms);
     },
     chemicalFormula,
     chemicalName,
