@@ -42,7 +42,8 @@
           <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
           <td v-else-if="s.rc">
             <a @click="viewReactionComponent(
-              elm[s.rc] ? elm[s.rc] : s.rc, s.id ? s.id==='self' ? elm[s.field] : s.id : elm.id)">{{ elm[s.field] }}
+              elm[s.rc] ? elm[s.rc] : s.rc, 
+              getRCID(s, elm))">{{ elm[s.field] }}
             </a>
           </td>
           <td v-else>{{ elm[s.field] }}</td>
@@ -57,7 +58,8 @@
           <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
           <td v-else-if="s.rc">
             <a @click="viewReactionComponent(
-              elm[s.rc] ? elm[s.rc] : s.rc, s.id ? s.id==='self' ? elm[s.field] : s.id : elm.id)">{{ elm[s.field] }}
+              elm[s.rc] ? elm[s.rc] : s.rc, 
+              getRCID(s, elm))">{{ elm[s.field] }}
             </a>
           </td>
           <td v-else>{{ elm[s.field] }}</td>
@@ -121,22 +123,20 @@ export default {
     applyModifier(s, elm) {
       return s.modifier(elm[s.field], elm.link);
     },
-    viewReactionComponent: function viewReactionComponent(type, id) {
-      let tabIndex = 0;
-      switch (type) {
-        case 'metabolite':
-          tabIndex = 3;
-          break;
-        case 'enzyme':
-          tabIndex = 2;
-          break;
-        case 'reaction':
-          tabIndex = 4;
-          break;
-        default:
-          tabIndex = 1;
+    getRCID(s, elm) {
+      let id;
+      if (s.id) {
+        id = s.id;
+        if (s.id === 'self') {
+          id = elm[s.field];
+        }
+      } else {
+        id = elm.real_id;
       }
-      EventBus.$emit('updateSelTab', tabIndex, id);
+      return id;
+    },
+    viewReactionComponent(type, id) {
+      EventBus.$emit('updateSelTab', type, id);
     },
     isSelected(elmId) {
       return this.selectedElmId === elmId;
