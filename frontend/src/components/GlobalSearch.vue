@@ -25,12 +25,12 @@
                 <div>
                    <span
                     class="tag is-primary is-medium"
-                    @click="goToTab(2, r.id)">
+                    @click="goToTab('interaction', r.id)">
                     Closest interaction partners
                   </span>
                   <span class="tag is-primary is-medium"
-                    @click="goToTab(3, r.id)">
-                    Catalysed reactions
+                    @click="goToTab('enzyme', r.id)">
+                    Enzyme
                   </span>
                 </div>
               </div>
@@ -40,11 +40,11 @@
                 <div>
                   <span
                     class="tag is-primary is-medium"
-                    @click="goToTab(2, r.id)">
+                    @click="goToTab('interaction', r.id)">
                     Closest interaction partners
                   </span>
                   <span class="tag is-primary is-medium"
-                    @click="goToTab(4, r.id)">
+                    @click="goToTab('metabolite', r.id)">
                     Metabolite
                   </span>
                 </div>
@@ -55,7 +55,7 @@
               <div>
                 <span
                   class="tag is-primary is-medium"
-                  @click="goToTab(5, r.id)">
+                  @click="goToTab('reaction', r.id)">
                   Reaction
                 </span>
               </div>
@@ -65,6 +65,12 @@
             </div>
             <div v-else-if="k === 'compartment'">
               <strong>Compartment: </strong> {{ r.name }}
+              <div>
+                <span class="tag is-primary is-medium"
+                  @click="viewCompartment(getCompartmentFromName(r.name.toLowerCase()).compartmentID)">
+                  View
+                </span>
+              </div>
             </div>
             <hr>
           </div>
@@ -89,6 +95,8 @@
 import axios from 'axios';
 import Loader from 'components/Loader';
 import { chemicalFormula } from '../helpers/chemical-formatters';
+import { default as EventBus } from '../event-bus';
+import { getCompartmentFromName } from '../helpers/compartment';
 
 
 export default {
@@ -159,17 +167,16 @@ export default {
         this.showLoader = false;
       });
     },
-    goToTab(tabIndex, reactionComponentId) {
+    goToTab(type, id) {
       this.searchTerm = '';
       this.searchTermString = '';
       this.searchResults = [];
-      this.$router.push({
-        query: {
-          ...this.$route.query,
-          reaction_component_id: reactionComponentId,
-          tab: tabIndex,
-        },
-      });
+      EventBus.$emit('updateSelTab', type, id);
+    },
+    viewCompartment(id) {
+      console.log('test');
+      this.goToTab('map', null);
+      EventBus.$emit('showCompartment', id, []);
     },
     formatSearchResultLabel(c, searchTerm) {
       let s = `${c.short_name || c.long_name} (${c.compartment}`;
@@ -211,6 +218,7 @@ export default {
       }
     },
     chemicalFormula,
+    getCompartmentFromName,
   },
 };
 </script>
@@ -244,7 +252,7 @@ export default {
   border: 1px solid #64CC9A;
   border-top: 0;
   margin-top: -2px;
-  z-index: 10;
+  z-index: 30;
 
   .searchGroupResultSection:first-child {
     padding-top: 15px;

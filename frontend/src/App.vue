@@ -3,7 +3,7 @@
     <nav id="main-nav" class="nav">
       <div class="container">
         <div>
-          <a id="logo" class="nav-item">
+          <a id="logo" class="nav-item" @click="goToPage('/')" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
         </div>
@@ -27,8 +27,9 @@
         <div class="content has-text-centered">
           <p v-html="$t('footerText')"><p>
           <p>
-            <a><img src="./assets/chalmers.png" /></a>
-            <a><img src="./assets/wallenberg.gif" /></a>
+            <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
+            <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
+            <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
           </p>
         </div>
       </div>
@@ -68,8 +69,7 @@ export default {
           {
             path: '/',
             query: {
-              tab: 3,
-              reaction_component_id: 'E_3748',
+              tab: 1,
             },
           },
         );
@@ -77,7 +77,7 @@ export default {
         router.push(name);
       }
 
-      location.reload();
+      // location.reload();
     },
     isActive(name) {
       return name.toLowerCase() === this.$route.name.toLowerCase();

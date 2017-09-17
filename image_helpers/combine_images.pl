@@ -7,20 +7,20 @@ if($ARGV[0] && $ARGV[0] eq "combine"){
   print OUT addTitle();
   # "line 1"
   adjustPositions($baseDir."cytosol_5.svg", 7000, 6000);
-  adjustPositions($baseDir."lysosome.svg", 29000, 0);
+  adjustPositions($baseDir."lysosome.svg", 32000, 0);
   adjustPositions($baseDir."golgi.svg", 50000, 5000);
-  adjustPositions($baseDir."cytosol_2.svg", 65000, 10000);
+  adjustPositions($baseDir."cytosol_2.svg", 67000, 10000);
   # "line 2"
-  adjustPositions($baseDir."nucleosome.svg", 25000, 21500);
+  adjustPositions($baseDir."nucleosome.svg", 24000, 29000);
   adjustPositions($baseDir."cytosol_4.svg", 37000, 17000);
-  adjustPositions($baseDir."ER.svg", 55500, 21000);
+  adjustPositions($baseDir."ER.svg", 56000, 21000);
   # "line 2.5"
   adjustPositions($baseDir."cytosol_6.svg", 0, 25000);
   adjustPositions($baseDir."cytosol_3.svg", 78000, 24000);
   # "line 3"
-  adjustPositions($baseDir."mitochondrion.svg", 3000, 50000);
-  adjustPositions($baseDir."cytosol_1.svg", 46000, 52000);
-  adjustPositions($baseDir."perixome.svg", 61000, 55000);
+  adjustPositions($baseDir."mitochondrion.svg", 3000, 45000);
+  adjustPositions($baseDir."cytosol_1.svg", 46000, 47000);
+  adjustPositions($baseDir."perixome.svg", 61000, 50000);
   print OUT "\n</svg>\n";
 }else{
   open OUT, ">testingtesting.svg";

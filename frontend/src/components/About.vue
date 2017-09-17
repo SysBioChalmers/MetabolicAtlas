@@ -5,21 +5,41 @@
         The systems biology group is lead by
         <a href="http://sysbio.se/Lab_Nielsen/lab_nielsen.html" target="_new">Professor Jens Nielsen</a>,
         and is part of the Department of Biology and Biological Engineering at the
-        <a href="www.chalmers.se" target="_new">Chalmers University of Technology</a>.
+        <a href="http://www.chalmers.se" target="_new">Chalmers University of Technology</a>.
         <br><br>
-        The research focus is on <b>systems biology of metabolism</b> and the goal is to
-        collect all our curated Genome-Scale Metabolic Models, resources
+        The research focus, of the content of this site,
+        is on <b>systems biology of metabolism</b> and the goal is to
+        collect all our curated Genome-Scale Metabolic
+        <a href="models">Models</a>,
+        <a href="http://www.metabolicatlas.org">visualisations</a> of the same,
+        <a href="resources">resources</a>
         (like the possibility to compare models), algorithms (like the reporter metabolites),
-        other type of databases (like HSCD), and more general software applications 
-        (like RAVEN and PIANO) available here.
+        other types of <a href="resources#databases">databases</a>
+        (like HSCD), and more general <a href="resources#tools">software applications</a>
+        (like RAVEN and PIANO) here. In short, this should be your one-stop-shop for
+        everything metabolism related that we have
+        <a href="http://www.sysbio.se/Lab_Nielsen/publications.html">published</a>.
+        <br/>
+        <center><img src="http://sysbio.se/pics/group/group17_1_450.jpg"><br/>The group</center>
       </p>
       <br>
+
       <h2 class="title is-2">The Metabolic Atlas</h2>
       <div class="text">
         <p>
-          The Metabolic Atlas is a freely available electronic database containing detailed information about all reactions that could take place within the human body.
+          The Metabolic Atlas is a freely available electronic database containing
+          detailed information about a set of GEMs, especially the HMR2.0 and the
+          yeast 8.0. These are two "reference" models containing all possible
+          reactions that could occur in human, and yeast, respectively.
         </p>
-        <p class="text"
+        <p>
+          With special focus on how reactions are connected into sub-systems
+          and trying to link in external relevant information so that it should
+          become easier to understand what your current model is capable or, and
+          especially if you "zoom in" on a particular pathway, what would be the
+          biological interpretation of this?
+        </p>
+        <p>
           It is intended to be used for applications in metabolomics, clinical chemistry, biomarker discovery and general education.
         </p>
       </div>
@@ -27,12 +47,12 @@
       <div class="text">
         <h4 id="releaseNotes" class="subtitle is-4">Release notes</h4>
         <p>
-          Version 1.0 - a complete overhaul 2017-10-01<br>
-          A completely new version of the site was launched,
-          complete with manually drawn map of HMR2.0.
+          <b>Version 1.0</b> - a complete overhaul 2017-10-01; A completely new
+          version of the site was launched, complete with manually drawn map of HMR2.0.
         </p>
       </div>
       <br/><br/>
+
       <h2 class="title is-2">External resources</h2>
       <div class="text">
         <p>Metabolic Atlas would not be possible without the following excellent sources of information.</p>
@@ -45,6 +65,7 @@
         </ul>
       </div>
       <br/><br/>
+
       <h2 class="subtitle is-2">Citing the Metabolic Atlas</h2>
       <p class="text">
         Please use the following paper for citation: <a href="http://database.oxfordjournals.org/content/2015/bav068.full" target="_blank">Human metabolic atlas: an online resource for human metabolism</a>
@@ -53,6 +74,8 @@
         <br>
         Human tissue-specific genome-scale metabolic models (GEMs) provide comprehensive understanding of human metabolism, which is of great value to the biomedical research community. To make this kind of data easily accessible to the public, we have designed and deployed the human metabolic atlas (HMA) website (http://www.metabolicatlas.org). This online resource provides comprehensive information about human metabolism, including the results of metabolic network analyses. We hope that it can also serve as an information exchange interface for human metabolism knowledge within the research community. The HMA consists of three major components: Repository, Hreed (Human REaction Entities Database) and Atlas. Repository is a collection of GEMs for specific human cell types and human-related microorganisms in SBML (System Biology Markup Language) format. The current release consists of several types of GEMs: a generic human GEM, 82 GEMs for normal cell types, 16 GEMs for different cancer cell types, 2 curated GEMs and 5 GEMs for human gut bacteria. Hreed contains detailed information about biochemical reactions. A web interface for Hreed facilitates an access to the Hreed reaction data, which can be easily retrieved by using specific keywords or names of related genes, proteins, compounds and cross-references. Atlas web interface can be used for visualization of the GEMs collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface. The HMA is a unique tool for studying human metabolism, ranging in scope from an individual cell, to a specific organ, to the overall human body. This resource is freely available under a Creative Commons Attribution-NonCommercial 4.0 International License.
       </p>
+      <br/><br/>
+
     </div>
   </div>
 </template>

@@ -5,11 +5,14 @@
     </div>
   </div>
   <div v-else class="reaction-table">
-    <table v-if="info && Object.keys(info).length != 0" id="main-table" class="table">
+    <table v-if="info && Object.keys(info).length != 0" class="table main-table">
       <tr v-for="el in mainTableKey">
         <td v-if="el.display" class="td-key">{{ el.display }}</td>
         <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-        <td v-if="info[el.name]">
+        <td v-if="el.isComposite">
+          <span v-html="el.modifier()"></span>
+        </td>
+        <td v-else-if="info[el.name]">
           <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
           </span>
           <span v-else>
@@ -30,20 +33,19 @@ export default {
   name: 'reaction',
   data() {
     return {
-      rId: this.$route.query.reaction_component_id,
+      rId: this.$route.query.id,
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'name', display: 'Name', modifier: chemicalName },
         { name: 'compartment' },
-        { name: 'subsystem', modifier: this.reformatList },
+        { name: 'subsystem', modifier: this.reformatSubsystemList },
         { name: 'equation', modifier: chemicalName },
-        { name: 'lower_bound' },
-        { name: 'upper_bound' },
-        { name: 'objective_coefficient', modifier: this.reformatMass },
-        { name: 'reactants', modifier: this.reformatCount },
-        { name: 'products', modifier: this.reformatCount },
-        { name: 'Ec', display: 'EC', modifier: this.reformatLink },
-        { name: 'sbo_id', display: 'SBO ID', modifier: this.reformatLink },
+        { name: 'quantitative_stuff', isComposite: true, modifier: this.reformatQuant },
+        { name: 'modifiers', modifier: this.reformatModifiers },
+        { name: 'reactants', modifier: this.reformatMetaboliteList },
+        { name: 'products', modifier: this.reformatMetaboliteList },
+        { name: 'ec', display: 'EC', modifier: this.reformatECLink },
+        { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
       info: {},
       errorMessage: '',
@@ -57,7 +59,7 @@ export default {
   },
   methods: {
     setup() {
-      this.rId = this.$route.query.reaction_component_id;
+      this.rId = this.$route.query.id;
       this.load();
     },
     load() {
@@ -75,20 +77,73 @@ export default {
     reformatKey(k) {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
     },
-    reformatLink(s, link) {
+    reformatSBOLink(s, link) {
       if (link) {
         return `<a href="${link}" target="_blank">${s}</a>`;
       }
+      if (s.startsWith('SBO')) {
+        return `<a href="http://www.ebi.ac.uk/sbo/main/${s}" target="_blank">${s}</a>`;
+      }
       return `<a href="${s}" target="_blank">${s}</a>`;
+    },
+    reformatECLink(s) {
+      const ec = s.split(';');
+      let l = '';
+      for (let i = 0; i < ec.length; i += 1) {
+        const nr = ec[i].replace('EC:', '');
+        l = l.concat(`<a href="http://www.brenda-enzymes.org/enzyme.php?ecno=${nr}" target="_blank">${ec[i]}</a> `);
+      }
+      return l;
     },
     reformatMass(s) {
       return `${s} g/mol`;
     },
-    reformatList(l) {
-      return l.join('; ');
+    reformatModifiers(mods) {
+      const html = [];
+      html.push('<div class="field is-grouped is-grouped-multiline">');
+      for (const mod of mods) {
+        html.push(`<div class="control"><div class="tags has-addons">
+          <span class="tag"><a href="/?tab=3&id=${mod.id}">${mod.short_name}</a></span></div></div>`);
+      }
+      html.push('</div>');
+      return html.join(' ');
     },
-    reformatCount(e) {
-      return e.length;
+    reformatSubsystemList(l) {
+      // return l.join('; ');
+      let str = '';
+      for (const a of l) {
+        str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
+      }
+      return str;
+    },
+    reformatMetaboliteList(e) {
+      const html = [];
+      html.push('<div class="field is-grouped is-grouped-multiline">');
+      for (const met of e) {
+        html.push(`<div class="control"><div class="tags has-addons">
+          <span class="tag"><a href="/?tab=4&id=${met.id}">${met.short_name}</a></span></div></div>`);
+      }
+      html.push('</div>');
+      return html.join(' ');
+    },
+    formatQuantFieldName(name) {
+      return `<span class="tag is-info">${name}</span>`;
+    },
+    reformatQuant() {
+      const data = [];
+      for (const key of ['upper_bound', 'lower_bound', 'objective_coefficient']) {
+        data.push(this.formatQuantFieldName(this.reformatKey(key)));
+        if (this.info[key]) {
+          if (key === 'objective_coefficient') {
+            data.push(this.reformatMass(this.info[key]));
+          }
+          data.push(this.info[key]);
+        } else {
+          data.push('-');
+        }
+        data.push('<span>&nbsp;&nbsp;</span>');
+      }
+      return data.join(' ');
     },
   },
   beforeMount() {
@@ -101,13 +156,5 @@ export default {
 </script>
 
 <style lang="scss">
-
-.metabolite-table {
-  #main-table tr td.td-key {
-    background: #64CC9A;
-    width: 150px;
-    color: white;
-  }
-}
 
 </style>

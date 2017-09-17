@@ -13,7 +13,7 @@ export default {
     tooManyReactionsWarn: 'Warning: The query has returned too many reactions.<br>The graph has not been generated.',
     tooManyReactionsBut: 'Show it anyway!',
     tooManyInteractionPartners: 'There are too many interaction partners to be displayed in a graph.',
-    navBut1Title: 'Network graph',
+    navBut1Title: 'GEM visualisation',
     navBut2Title: 'Models',
     navBut3Title: 'Resources',
     navBut4Title: 'Help',

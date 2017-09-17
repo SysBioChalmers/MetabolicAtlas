@@ -26,23 +26,26 @@ class GemodelRouter(object):
 
 class TileRouter(object):
     def db_for_read(self, model, **hints):
-        if hasattr(model, 'name') and model.__name__ == 'Tile':
-            return 'tiles'
+        if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
+            return 'default'
+            #return 'tiles'
         return None
 
     def db_for_write(self, model, **hints):
-        if hasattr(model, 'name') and model.__name__ == 'Tile':
-            return 'tiles'
+        if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
+            return 'default'
+            #return 'tiles'
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
-        if hasattr(obj1, '__name__') and obj1.__name__ == 'Tile':
+        if obj1.__class__.__name__ in ['TileReactionComponent', 'TileSubsystem']:
             return True
         return None
 
     def allow_migrate(self, db, app_label, model_name, **hints):
-        if model_name == 'tile':
-            return db == 'tiles'
+        if model_name in ['tilereactioncomponent', 'tilesubsystem']:
+            #return db == 'tiles'
+            return db == 'default'
         return None
 
 

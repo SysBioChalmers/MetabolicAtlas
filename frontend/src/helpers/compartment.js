@@ -41,10 +41,10 @@ const data = {
     maxZoomLvl: 10,
   },
   'endoplasmic reticulum': {
-    name: 'Endoplasmic reticulum',
+    name: 'ER',
     letter: 'r',
     color: '',
-    svgName: 'ER',
+    svgName: 'er',
     compartmentID: 6,
     maxZoomLvl: 10,
   },
@@ -60,7 +60,7 @@ const data = {
     name: 'Nucleus',
     letter: 'n',
     color: '',
-    svgName: 'nucleosome',
+    svgName: 'nucleus',
     compartmentID: 8,
     maxZoomLvl: 10,
   },
@@ -68,7 +68,7 @@ const data = {
     name: 'Boundary',
     letter: 'x',
     color: '',
-    svgName: 'golgi2',
+    svgName: 'golgi',
     compartmentID: 9,
     maxZoomLvl: 10,
   },
@@ -111,8 +111,8 @@ export function getCompartmentFromID(id) {
 }
 
 export function getCompartmentFromName(name) {
-  if (data[name]) {
-    return data[name];
+  if (data[name.toLowerCase()]) {
+    return data[name.toLowerCase()];
   }
   return null;
 }

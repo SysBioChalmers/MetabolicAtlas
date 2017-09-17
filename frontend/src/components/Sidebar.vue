@@ -35,7 +35,7 @@
           </div>
           <div v-if="selectedElm.details.mass">
             <p class="label il">Molecular mass: </p>
-            {{ selectedElm.details.mass }} g/mol
+            <span>{{ selectedElm.details.mass  }} g/mol</span>
             <br>
           </div>
           <div v-if="selectedElm.details.kegg">
@@ -100,7 +100,7 @@ export default {
   },
   methods: {
     viewMetaboliteInfo: function viewMetaboliteInfo() {
-      EventBus.$emit('updateSelTab', 3,
+      EventBus.$emit('updateSelTab', 'metabolite',
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
   },

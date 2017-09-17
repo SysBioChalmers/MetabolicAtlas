@@ -3,14 +3,19 @@
     <p class="menu-label">Subsystem:</p>
     <ul class="menu-list">
       <li class="m-li" v-for="system in systemOrder">
-        <span v-if="showSubsystem[system]" 
-        class="li-selected"@click="toggleShowSubSystem(system)">
+        <span v-if="selectedSystem==system"
+        class="li-selected"@click="selectedSystem=system">
          &#9662; {{ system }}</span>
-        <span v-else @click="toggleShowSubSystem(system)"
+        <span v-else @click="selectedSystem=system"
         > &#9656; {{ system }}</span>
-        <ul v-show="showSubsystem[system]">
-          <li  v-for="subsystem in subsystems[system]">
-            &#9642; {{ subsystem.name }}
+        <ul v-show="selectedSystem==system">
+          <li v-for="subsystem in subsystems[system]"
+          @click="showSubsystem(system, subsystem.id)">
+              <span v-if="selectedSubSystem==subsystem.name"
+              class="li-selected"@click="selectedSubSystem=subsystem.name">
+               &#9642; {{ subsystem.name }}</span>
+              <span v-else @click="selectedSubSystem=subsystem.name">
+                &#9642; {{ subsystem.name }}
           </li>
         </ul>
       </li>
@@ -21,13 +26,16 @@
 <script>
 
 import axios from 'axios';
+import EventBus from '../../event-bus';
 
 export default {
   name: 'subsystem',
   data() {
     return {
       subsystems: {},
-      showSubsystem: {},
+      subsystemsSystem: {}, // to get the system from the subsystem
+      selectedSystem: '',
+      selectedSubSystem: '',
       subsystemCount: 0,
       systemOrder: [
         'Amino Acid metabolism',
@@ -42,26 +50,47 @@ export default {
       ],
     };
   },
+  created() {
+    /* eslint-disable no-param-reassign */
+    EventBus.$on('showSubsystem', (id) => {
+      if (!id) {
+        this.selectedSystem = 'Other metabolism';
+        this.selectedSubSystem = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
+        id = 38;
+        this.loadSubsystemCoordinates(id);
+      } else {
+        this.loadSubsystemCoordinates(id);
+      }
+    });
+    EventBus.$on('resetView', () => {
+      this.selectedSystem = '';
+      this.selectedSubSystem = '';
+    });
+  },
   beforeMount() {
     this.loadSubsystem();
+  },
+  mounted() {
+    EventBus.$emit('showSubsystem', null);
   },
   methods: {
     loadSubsystem() {
       axios.get('subsystems')
         .then((response) => {
-          console.log(response);
           const systems = response.data.reduce((subarray, el) => {
             const arr = subarray;
             if (!arr[el.system]) { arr[el.system] = []; }
             arr[el.system].push(el);
             return arr;
           }, {});
-          console.log(systems);
           this.subsystems = systems;
+          this.subsystemsSystem = {};
           this.subsystemCount = 0;
           for (const k of Object.keys(systems)) {
-            this.showSubsystem[k] = false;
             this.subsystemCount += systems[k].length;
+            for (const s of systems[k]) {
+              this.subsystemsSystem[k] = s;
+            }
           }
           this.$emit('sendSubSysCount', this.subsystemCount);
         })
@@ -74,16 +103,31 @@ export default {
           }
         });
     },
-    toggleShowSubSystem(system) {
-      const newShowSubsystem = {};
-      for (const k of Object.keys(this.subsystems)) {
-        newShowSubsystem[k] = false;
+    loadSubsystemCoordinates(id) {
+      axios.get(`subsystem/${id}`)
+        .then((response) => {
+          const subCoors = response.data;
+          const coors = {
+            minX: subCoors.x_top_left,
+            maxX: subCoors.x_bottom_right,
+            minY: subCoors.y_top_left,
+            maxY: subCoors.y_bottom_right,
+          };
+          EventBus.$emit('showSVGmap', 'tiles', subCoors.compartment_name, coors);
+        })
+        .catch((error) => {
+          console.log(error);
+        }
+      );
+    },
+    showSubsystem(system, id) {
+      if (system !== 'Collection of reactions') {
+        if (!id) {
+          this.loadSubsystemCoordinates(38);
+        } else {
+          this.loadSubsystemCoordinates(id);
+        }
       }
-
-      if (!this.showSubsystem[system]) {
-        newShowSubsystem[system] = true;
-      }
-      this.showSubsystem = newShowSubsystem;
     },
   },
 };

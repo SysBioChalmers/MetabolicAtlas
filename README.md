@@ -90,6 +90,10 @@ pg_dump -h localhost -p 5432 -U postgres -d hma > ../database_generation/hma_v5.
 
 (takes about 15 minutes + 15 to prepare the expression data)
 
+### The GEMs database
+```bash
+$ docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres gems < PATH_TO_DB_FILE
+```
 
 ### All helper commands
 

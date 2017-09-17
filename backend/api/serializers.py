@@ -53,10 +53,10 @@ class ReactionComponentSearchSerializer(serializers.ModelSerializer):
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
 
-class ReactionSubsystemSerializer(serializers.ModelSerializer):
+class SubsystemReactionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ReactionSubsystem
+        model = SubsystemReaction
         fields = ('reaction', 'subsystem')
 
 class ReactionSerializer(serializers.ModelSerializer):
@@ -71,7 +71,7 @@ class ReactionSerializer(serializers.ModelSerializer):
             'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = ReactionSubsystem.objects.filter(reaction=model.id).values_list('subsystem')
+        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
         return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
 class ReactionSearchSerializer(serializers.ModelSerializer):
@@ -83,7 +83,7 @@ class ReactionSearchSerializer(serializers.ModelSerializer):
             'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = ReactionSubsystem.objects.filter(reaction=model.id).values_list('subsystem')
+        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
         return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
 
@@ -135,7 +135,7 @@ class MetaboliteReactionSerializer(serializers.Serializer):
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
 
     def get_subsystems(self, model):
-        ss_ids = ReactionSubsystem.objects.filter(reaction=model.reaction_id).values_list('subsystem')
+        ss_ids = SubsystemReaction.objects.filter(reaction=model.reaction_id).values_list('subsystem')
         return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
 
 
@@ -207,3 +207,12 @@ class GEModelListSerializer(serializers.ModelSerializer):
     class Meta:
         model = GEModel
         fields = ('id','set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
+
+
+# =======================================================================================
+
+
+class TileSubsystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TileSubsystem
+        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)

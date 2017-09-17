@@ -16,7 +16,7 @@
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
           v-for="f in fields"
-            @click="sortBy(f)">{{ f }}
+            @click="sortBy(f.name)">{{ f.display }}
             </th>
         </tr>
       </thead>
@@ -49,7 +49,22 @@ export default {
   props: ['reactions'],
   data() {
     return {
-      fields: ['Reaction ID', 'Equation', 'Modifiers', 'Subsystem', 'Compartment'],
+      fields: [{
+        display: 'Reaction ID',
+        name: 'id',
+      }, {
+        display: 'Equation',
+        name: 'equation',
+      }, {
+        display: 'Modifiers',
+        name: 'modifiers',
+      }, {
+        display: 'Subsystem',
+        name: 'subsystem',
+      }, {
+        display: 'Compartment',
+        name: 'compartment',
+      }],
       sortedReactions: [],
       sortAsc: true,
     };
@@ -73,11 +88,11 @@ export default {
     },
     viewEnzyneReactions: function viewEnzyneReactions(modifier) {
       if (modifier) {
-        EventBus.$emit('updateSelTab', 2, modifier.id);
+        EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
       }
     },
     viewReaction: function viewReaction(id) {
-      EventBus.$emit('updateSelTab', 4, id);
+      EventBus.$emit('updateSelTab', 'reaction', id);
     },
     displayCompartment(r) {
       const comp = {};
@@ -105,7 +120,7 @@ export default {
   },
   beforeMount() {
     $('body').on('click', 'td rc', function f() {
-      EventBus.$emit('updateSelTab', 3, $(this).attr('id'));
+      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
     });
   },
 };

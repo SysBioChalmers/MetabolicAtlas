@@ -6,11 +6,12 @@
       </div>
       <br>
       <p class="control">
-        <textarea id="idarea" class="textarea" ref="textarea" placeholder="M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g">M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g</textarea>
+        <textarea id="idarea" class="textarea" ref="textarea" placeholder="M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g, R_HMR_4410">M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g, R_HMR_4410</textarea>
       </p>
     </div>
     <div>
       <button class="button is-primary" @click="searchElements">Search</button>
+      <button class="button is-primary" @click="" disabled>Highlight</button>
     </div>
     <div id="table-res" v-show="showResults">
       <span class="help is-small">Click on a row to highlight the corresponding components</span>
@@ -50,6 +51,11 @@ export default {
       enzymeIDs: [],
     };
   },
+  created() {
+    EventBus.$on('resetView', () => {
+      this.compartmentID = 0;
+    });
+  },
   methods: {
     searchElements() {
       const termsString = this.$refs.textarea.value;
@@ -73,7 +79,7 @@ export default {
         for (let i = 0; i < res.length; i += 1) {
           const compartmentID = res[i][0];
           const id = res[i][1];
-          if (id[0] === 'M') {
+          if (id[0] === 'M' || id[0] === 'R') {
             if (!d[compartmentID.toString()]) {
               d[compartmentID.toString()] = [];
             }
@@ -95,7 +101,7 @@ export default {
       currentRow.classList.add('sel-tr');
     },
     hlElements(compartmentID, ids) {
-      EventBus.$emit('showSVGmap', compartmentID, ids.concat(this.enzymeIDs));
+      EventBus.$emit('showSVGmap', 'compartment', compartmentID, ids.concat(this.enzymeIDs));
     },
     getCompartmentFromCID,
   },

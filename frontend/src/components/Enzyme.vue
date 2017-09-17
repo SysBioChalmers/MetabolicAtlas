@@ -11,7 +11,8 @@
       <div v-show="!loading">
         <div v-show="reactions.length > 0">
           <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
-          <reaction-table :reactions="reactions"></reaction-table>
+          <loader v-show="loading"></loader>
+          <reaction-table v-show="!loading" :reactions="reactions"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
           <div class="columns">
@@ -72,7 +73,7 @@ export default {
       errorMessage: null,
       elms: [],
 
-      reactionComponentId: '',
+      id: '',
       selectedElmId: '',
       selectedElm: null,
 
@@ -112,8 +113,7 @@ export default {
   },
   methods: {
     setup() {
-      this.reactionComponentId = this.$route.query.reaction_component_id
-                                  || this.$route.query.reaction_component_long_name;
+      this.id = this.$route.query.id;
       this.selectedElmId = '';
       this.selectedElm = null;
       this.load();
@@ -125,8 +125,9 @@ export default {
       node.trigger('tap');
     },
     load() {
+      this.loading = true;
       const startTime = Date.now();
-      const enzymeId = this.reactionComponentId;
+      const enzymeId = this.id;
 
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
@@ -137,13 +138,12 @@ export default {
           this.errorMessage = null;
 
           // If the response has only reacionts, it doesn't have an id in root object.
-          if (response.data.enzyme !== undefined) {
+          if (response.data.compartment !== undefined) {
             this.reactions = [];
 
             const [elms, rels] = transform(response.data);
 
             this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
-            this.selectedElm = elms[enzymeId];
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);
             this.cy = cytoscape({
@@ -157,6 +157,8 @@ export default {
               },
             });
             this.cy.userZoomingEnabled(false);
+
+            this.selectedElm = this.cy.filter('node[type = "enzyme"]').data();
 
             const contextMenuGraph = this.$refs.contextMenuGraph;
             this.showGraphContextMenu = false;
@@ -221,7 +223,7 @@ export default {
               this.showGraphContextMenu = false;
             });
 
-            this.cy.on('tapdragout, tapend', () => {
+            this.cy.on('tapdragout, tapend', 'node[type="enzyme"]', () => {
               if (this.selectedElmId !== '') {
                 const node = this.cy.getElementById(this.selectedElmId);
                 if (!nodeInViewport(node)) {
@@ -232,7 +234,8 @@ export default {
               }
             });
           } else {
-            this.reactions = response.data;
+            this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
+            this.reactions = response.data.reactions;
           }
         })
         .catch((error) => {
@@ -246,9 +249,6 @@ export default {
               this.errorMessage = this.$t('unknownError');
           }
         });
-    },
-    viewMetaboliteInfo: function viewMetaboliteInfo(id) {
-      this.$emit('updateSelTab', 3, id);
     },
     chemicalFormula,
     chemicalName,

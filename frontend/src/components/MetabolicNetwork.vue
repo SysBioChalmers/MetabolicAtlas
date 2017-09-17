@@ -2,18 +2,30 @@
   <div id="metabolicNetwork">
     <div class="container">
       <div id="region-level-button" class="has-text-centered">
+        <button class="button"
+         @click="levelSelected='subsystem'"
+         :class="{ 'is-active' : levelSelected==='subsystem'}">
+         Subsystems ({{ subsystemCount }})</button>
         <button class="button" 
           @click="levelSelected='compartment'"
           :class="{ 'is-active' : levelSelected==='compartment'}">
           Compartments ({{ compartmentCount }})</button>
         <button class="button"
-         @click="levelSelected='subsystem'"
-         :class="{ 'is-active' : levelSelected==='subsystem'}">
-         Subsystems ({{ subsystemCount }})</button>
-        <button class="button"
          @click="levelSelected='region'"
          :class="{ 'is-active' : levelSelected==='region'}">
-         Show region</button>
+         View reaction components</button>
+        <button class="button"
+          @click="levelSelected='reporterMet'"
+          :class="{ 'is-active' : levelSelected==='reporterMet'}" disabled>
+          Reporter metabolites</button>
+        <button class="button"
+          @click="levelSelected='expData'"
+          :class="{ 'is-active' : levelSelected==='expData'}" disabled>
+          Overlay expression</button>
+        <button class="button"
+          @click="levelSelected='compModels'"
+          :class="{ 'is-active' : levelSelected==='compModels'}" disabled>
+          Compare GEMs</button>
       </div>
     </div>
     <br>
@@ -56,7 +68,7 @@ export default {
   data() {
     return {
       errorMessage: '',
-      levelSelected: 'compartment',
+      levelSelected: 'subsystem',
       hideSidebar: false,
       compartmentCount: 0,
       subsystemCount: 0,
@@ -64,6 +76,13 @@ export default {
   },
   beforeMount() {
     this.compartmentCount = Object.keys(getCompartments(this.getCompartments())).length;
+  },
+  mounted() {
+    this.view = this.$route.query.view;
+    if (!this.view) {
+      // load subsystem view
+      this.levelSelected = 'subsystem';
+    }
   },
   methods: {
     showSubsystemCount(count) {

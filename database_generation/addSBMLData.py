@@ -92,7 +92,7 @@ def _addPathway(name, eid):
     collections = dict([("Isolated", 1),("Miscellaneous",1),("Pool reactions",1),
         ("isolated",1),("Exchange reactions ",1),("Artificial reactions",1),
         ("ABC transporters",1),("Other amino acid",1)])
-    aa=dict([("Purine metabolism",1),("Pyrimidine metabolism",1),("Alanine, aspartate and glutamate metabolism",1),
+    aa=dict([("Pyrimidine metabolism",1),("Alanine, aspartate and glutamate metabolism",1),
         ("Arginine and proline metabolism",1),("Glycine, serine and threonine metabolism",1),
         ("Lysine metabolism",1),("Tyrosine metabolism",1),("Valine, leucine, and isoleucine metabolism",1),
         ("Cysteine and methionine metabolism",1),("Thiamine metabolism",1),
@@ -269,25 +269,45 @@ def get_reaction(sbml_model, index):
 
     reaction_to_add.save() # FIXME would be nicer with a bulk save
     for p in pathways:
-        rs = ReactionSubsystem(reaction=reaction_to_add, subsystem=p)
+        rs = SubsystemReaction(reaction=reaction_to_add, subsystem=p)
         rs.save()
 
-    # populate all the associated tables
-    rr_to_add = []
+    # populate all the associated REACTION, and SUBSYSTEM tables
+    rr_to_add = []; rr_to_add_sm = []
     for currentReactant_reactioncomponent in reactants_list:
         rr = ReactionReactant(reaction=reaction_to_add, reactant=currentReactant_reactioncomponent)
         rr_to_add.append(rr)
+        for p in pathways: # for yeast we currently have more than one...
+            sm = SubsystemMetabolite.objects.filter(reaction_component=currentReactant_reactioncomponent, subsystem=p)
+            if(len(sm)<1):
+                sm = SubsystemMetabolite(reaction_component = currentReactant_reactioncomponent, subsystem=p)
+                #rr_to_add_sm.append(sm)
+                sm.save()
     ReactionReactant.objects.bulk_create(rr_to_add)
-    rp_to_add = []
+    #SubsystemMetabolite.objects.bulk_create(rr_to_add_sm)
+    rp_to_add = []; rp_to_add_sm = []
     for currentProduct_reactioncomponent in products_list:
         rp = ReactionProduct(reaction=reaction_to_add, product=currentProduct_reactioncomponent)
         rp_to_add.append(rp)
+        for p in pathways: # for yeast we currently have more than one...
+            sm = SubsystemMetabolite.objects.filter(reaction_component=currentProduct_reactioncomponent, subsystem=p)
+            print(str(len(sm)))
+            if(len(sm)<1):
+                sm = SubsystemMetabolite(reaction_component = currentProduct_reactioncomponent, subsystem=p)
+                sm.save()
     ReactionProduct.objects.bulk_create(rp_to_add)
-    rm_to_add = []
+    #SubsystemMetabolite.objects.bulk_create(rp_to_add_sm)
+    rm_to_add = []; rm_to_add_sm = []
     for currentModifier_reactioncomponent in modifiers_list:
         rm = ReactionModifier(reaction=reaction_to_add, modifier=currentModifier_reactioncomponent)
         rm_to_add.append(rm)
+        for p in pathways: # for yeast we currently have more than one...
+            se = SubsystemEnzyme.objects.filter(reaction_component=currentProduct_reactioncomponent, subsystem=p)
+            if(len(se)<1):
+                se = SubsystemEnzyme(reaction_component = currentProduct_reactioncomponent, subsystem=p)
+                se.save()
     ReactionModifier.objects.bulk_create(rm_to_add)
+    #SubsystemEnzyme.objects.bulk_create(rm_to_add_sm)
 
     return reaction_to_add
 

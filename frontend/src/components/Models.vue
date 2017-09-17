@@ -15,8 +15,8 @@
       class="table is-bordered is-striped is-narrow">
         <thead>
           <tr style="background: #F8F4F4">
-            <th v-for="f in fields"
-              @click="sortBy(f.name)">{{ f.display }}
+            <th v-for="f in fields" v-html="f.display"
+              @click="sortBy(f.name)">
               </th>
           </tr>
         </thead>
@@ -33,12 +33,12 @@
      <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
       <div class="modal-background" @click="showModelTable = false"></div>
       <div class="modal-content">
-        <div id="modal-info">
-        <span class="title is is-primary">Model {{ selectedModel.label }}</span>
-          <table class="table">
+        <div id="modal-info" class="model-table">
+          <span class="title is is-primary">Model {{ selectedModel.label }}</span>
+          <table class="table main-table">
             <tbody>
               <tr v-for="field in model_fields">
-                <td v-html="field.display "></td>
+                <td v-html="field.display" class="td-key"></td>
                 <td v-if="typeof(selectedModel[field.name]) === 'boolean'">
                   {{ selectedModel[field.name] ? 'yes' : 'No' }}
                 </td>
@@ -47,7 +47,7 @@
                 </td>
               </tr>
               <tr>
-                <td>Reference</td>
+                <td class="td-key">Reference</td>
                 <td v-if="selectedModel.link">
                   <a :href="selectedModel.link" target="_blank">
                     {{ selectedModel.title }}
@@ -58,7 +58,7 @@
                 </td>
               </tr>
               <tr>
-                <td>PUBMED ID</td>
+                <td class="td-key">PUBMED ID</td>
                 <td>
                   <a :href="'https://www.ncbi.nlm.nih.gov/pubmed/' + selectedModel.pubmed" 
                   target="_blank">
@@ -107,9 +107,9 @@ export default {
         { name: 'organ_system', display: 'System' },
         { name: 'tissue', display: 'Tissue' },
         { name: 'cell_type', display: 'Cell type' },
-        { name: 'reaction_count', display: '# reactions' },
-        { name: 'metabolite_count', display: '# metabolites' },
-        { name: 'enzyme_count', display: '# enzymes' },
+        { name: 'reaction_count', display: '#&nbsp;reactions' },
+        { name: 'metabolite_count', display: '#&nbsp;met' },
+        { name: 'enzyme_count', display: '#&nbsp;prot' },
         { name: 'year', display: 'Year' },
       ],
       model_fields: [
@@ -120,8 +120,8 @@ export default {
         { name: 'tissue', display: 'Tissue' },
         { name: 'cell_type', display: 'Cell type' },
         { name: 'reaction_count', display: '#&nbsp;reactions' },
-        { name: 'metabolite_count', display: '#&nbsp;metabolites' },
-        { name: 'enzyme_count', display: '#&nbsp;enzymes' },
+        { name: 'metabolite_count', display: '#&nbsp;met' },
+        { name: 'enzyme_count', display: '#&nbsp;prot' },
         { name: 'year', display: 'Year' },
         { name: 'maintained', display: 'Maintained' },
       ],

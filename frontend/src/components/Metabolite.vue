@@ -5,7 +5,7 @@
     </div>
   </div>
   <div v-else class="metabolite-table">
-    <table v-if="info && Object.keys(info).length != 0" id="main-table" class="table">
+    <table v-if="info && Object.keys(info).length != 0" class="table main-table">
       <tr v-for="el in mainTableKey">
         <td v-if="el.display" class="td-key">{{ el.display }}</td>
         <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
@@ -66,7 +66,7 @@ export default {
   },
   data() {
     return {
-      mId: this.$route.query.reaction_component_id,
+      mId: this.$route.query.id,
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'long_name', display: 'Name' },
@@ -75,8 +75,8 @@ export default {
         { name: 'formula', modifier: chemicalFormula },
         { name: 'charge' },
         { name: 'mass', modifier: this.reformatMass },
-        { name: 'kegg', modifier: this.reformatLink },
-        { name: 'chebi' },
+        { name: 'kegg', modifier: this.reformatKeggLink },
+        { name: 'chebi', modifier: this.reformatChebiLink },
         { name: 'inchi' },
         { name: 'pubchem_link', modifier: this.reformatLink },
       ],
@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     setup() {
-      this.mId = this.$route.query.reaction_component_id;
+      this.mId = this.$route.query.id;
       this.load();
     },
     load() {
@@ -120,6 +120,12 @@ export default {
     reformatKey(k) {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
     },
+    reformatKeggLink(s) {
+      return `<a href="http://www.genome.jp/dbget-bin/www_bget?${s}" target="_blank">${s}</a>`;
+    },
+    reformatChebiLink(s) {
+      return `<a href="http://www.ebi.ac.uk/chebi/searchId.do?chebiId=${s}" target="_blank">${s}</a>`;
+    },
     reformatLink(s) {
       return `<a href="${s}" target="_blank">${s}</a>`;
     },
@@ -138,8 +144,8 @@ export default {
 
 <style lang="scss">
 
-.metabolite-table {
-  #main-table tr td.td-key, #hmdb-table tr td.td-key {
+.metabolite-table, .model-table, .reaction-table {
+  .main-table tr td.td-key, #hmdb-table tr td.td-key {
     background: #64CC9A;
     width: 150px;
     color: white;
