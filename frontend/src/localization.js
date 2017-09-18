@@ -29,7 +29,7 @@ export default {
     tab3title: 'Enzymes',
     tab4title: 'Metabolites',
     tab5title: 'Reactions',
-    notFoundError: 'No matching records found, please check the parameters and try again.',
+    notFoundError: 'No matching record(s) found, please check the parameters and try again.',
     unknownError: 'Something went wrong, please try again or contact the system admin.',
     noInfoAvailable: 'No information available',
     noIDProvided: 'No ID provided',
