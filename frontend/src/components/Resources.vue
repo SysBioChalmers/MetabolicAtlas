@@ -1,43 +1,44 @@
 <template>
-  <div>
+  <div id="resources">
     <div>
-      <div id="resources">
-        <div>
-          <a href="#tools">Tools</a> <a href="#databases">Databases</a> <a href="#api">API</a> <a href="#additional">Additional Resources</a>
-          </div>
-        <h2 id="tools" class="title fc is-2">Tools</h2>
-        <div v-for="tool_data in tools">
-          <div class="columns">
-            <div class="column is-1">
-              <a v-if="tool_data.img" :href="tool_data.link" target="_blank">
-                <img :src="tool_data.img" width="160">
-              </a>
-              <a v-else :href="tool_data.link" target="_blank">
-                <div class="name">
-                  <span>{{ tool_data.name }}</span>
-                </div>
-              </a>
-            </div>
-            <div class="column">
-              <div class="dsc">
-                <span>
-                  <div v-html="tool_data.description"></div>
-                </span>
+      <a href="#tools">Tools</a> 
+      <a href="#databases">Databases</a> 
+      <a href="#api">API</a> 
+      <a href="#additional">Additional Resources</a>
+    </div>
+    <div class="rsection">
+      <h2 id="tools" class="title is-2">Tools</h2>
+      <div v-for="tool_data in tools">
+        <div class="columns">
+          <div class="column is-1">
+            <a v-if="tool_data.img" :href="tool_data.link" target="_blank">
+              <img :src="tool_data.img" width="160">
+            </a>
+            <a v-else :href="tool_data.link" target="_blank">
+              <div class="name">
+                <span>{{ tool_data.name }}</span>
               </div>
+            </a>
+          </div>
+          <div class="column">
+            <div class="dsc">
+              <span>
+                <div v-html="tool_data.description"></div>
+              </span>
             </div>
           </div>
         </div>
       </div>
-      <br>
-      <div>
-        <h2 id="databases" class="title is-2">Databases</h2>
-        <div v-for="db_data in databases">
-          <div class="columns">
-            <div class="column is-1">
-              <a :href="db_data.link" target="_blank"><img :src="imgUrl(db_data.img)" height="75"></a>
-            </div>
-            <div class="column">
-            <div class="dsc">
+    </div>
+    <div class="rsection">
+      <h2 id="databases" class="title is-2">Databases</h2>
+      <div v-for="db_data in databases">
+        <div class="columns">
+          <div class="column is-1">
+            <a :href="db_data.link" target="_blank"><img :src="imgUrl(db_data.img)" height="75"></a>
+          </div>
+          <div class="column">
+            <div class="">
               <span>
                 <div v-html="db_data.description"></div>
               </span>
@@ -45,56 +46,53 @@
           </div>
         </div>
       </div>
-      <br>
-      <div>
-        <h2 id="api" class="title is-2">API</h2>
-        <div class="columns">
-          <div class="column is-1">
-            <a href="swagger">GEM API</a>
-          </div>
-          <div class="column">
-            <div class="dsc">
-              <span>
-                The set of URL requests for the <a href="metabolicatlas.org">metabolicatlas.org</a>
-                that will return different .json files
-                depending on the current request.
-                Gives you the possibility of trying it out to see what the
-                results would look like.
-                Main focus on the data available in the GEMs.
-              </span>
-            </div>
+    </div>
+    <div class="rsection">
+      <h2 id="api" class="title is-2">API</h2>
+      <div class="columns">
+        <div class="column is-1">
+          <a href="swagger">GEM API</a>
+        </div>
+        <div class="column">
+          <div class="">
+            <span>
+              The set of URL requests for the <a href="metabolicatlas.org">metabolicatlas.org</a>
+              that will return different .json files
+              depending on the current request.
+              Gives you the possibility of trying it out to see what the
+              results would look like.
+              Main focus on the data available in the GEMs.
+            </span>
           </div>
         </div>
-        <br>
-        <div>
-          <h2 id="additional" class="title is-2">Additional resources</h2>
-          <div class="columns">
-            <div class="column is-1">
-              <a href="hreed">Hreed</a>
-            </div>
-            <div class="column">
-              <div class="dsc">
-                <span>
-                  Hreed (Human REaction Entities Database) facilitates an access
-                  to the Hreed reaction data, which can be easily retrieved by
-                  using specific keywords or names of related genes, proteins, compounds and cross-references.
-                </span>
-              </div>
-            </div>
+      </div>
+    </div>
+    <div class="rsection">
+      <h2 id="additional" class="title is-2">Additional resources</h2>
+      <div class="columns">
+        <div class="column is-1">
+          <a href="hreed">Hreed</a>
+        </div>
+        <div class="column">
+          <div class="">
+            <span>
+              Hreed (Human REaction Entities Database) facilitates an access
+              to the Hreed reaction data, which can be easily retrieved by
+              using specific keywords or names of related genes, proteins, compounds and cross-references.
+            </span>
           </div>
-          <br>
-          <div class="columns">
-            <div class="column is-1">
-              <a href="atlas">Atlas</a>
-            </div>
-            <div class="column">
-              <div class="dsc">
-                <span>
-                  Atlas web interface can be used for visualization of the GEMs
-                  collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
-                </span>
-              </div>
-            </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-1">
+          <a href="atlas">Atlas</a>
+        </div>
+        <div class="column">
+          <div class="">
+            <span>
+              Atlas web interface can be used for visualization of the GEMs
+              collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
+            </span>
           </div>
         </div>
       </div>
@@ -103,6 +101,8 @@
 </template>
 
 <script>
+
+import $ from 'jquery';
 
 export default {
   name: 'resources',
@@ -160,13 +160,29 @@ export default {
       dBImageSources: null,
     };
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.hash) {
+        this.scrollToHash(this.$route.hash);
+      }
+    },
+  },
   methods: {
     imgUrl(path) {
       return this.dBImageSources(path);
     },
+    scrollToHash(hash) {
+      $(window).scrollTop($(hash).offset().top);
+    },
   },
   beforeMount() {
     this.dBImageSources = require.context('../assets', false, /\.(png|gif)$/);
+  },
+  mounted() {
+    if (this.$route.hash) {
+      this.scrollToHash(this.$route.hash);
+    }
   },
 };
 
@@ -174,14 +190,10 @@ export default {
 
 <style lang="scss">
 #resources {
-  .title {
+  .rsection {
     display: block;
     margin-bottom: 1.5rem;
     margin-top: 2rem;
-  }
-
-  .title.fc{
-    margin-top: 0;
   }
 
   .dsc, .name {
