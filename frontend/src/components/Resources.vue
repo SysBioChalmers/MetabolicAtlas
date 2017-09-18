@@ -163,12 +163,17 @@ export default {
   watch: {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
-      console.log(this.$route);
+      if (this.$route.hash) {
+        this.scrollToHash(this.$route.hash);
+      }
     },
   },
   methods: {
     imgUrl(path) {
       return this.dBImageSources(path);
+    },
+    scrollToHash(hash) {
+      $(window).scrollTop($(hash).offset().top);
     },
   },
   beforeMount() {
@@ -176,7 +181,7 @@ export default {
   },
   mounted() {
     if (this.$route.hash) {
-      $(window).scrollTop($(this.$route.hash).offset().top);
+      this.scrollToHash(this.$route.hash);
     }
   },
 };
