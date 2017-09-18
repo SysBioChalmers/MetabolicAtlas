@@ -69,8 +69,12 @@ def get_reaction(request, id):
     except Reaction.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = ReactionSerializer(reaction)
-    return JSONResponse(serializer.data)
+    result = {
+             'reaction': ReactionSerializer(reaction).data,
+             'pmid': ReactionReference.objects.filter(reaction=reaction.id).values_list('pmid')
+             }
+
+    return JSONResponse(result)
 
 @api_view()
 def reaction_reactant_list(request, id):
