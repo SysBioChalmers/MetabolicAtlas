@@ -21,6 +21,10 @@
         </td>
         <td v-else> - </td>
       </tr>
+      <tr>
+        <td class="td-key">PMID</td>
+        <td v-html="reformatPmid(pmid)"></td>
+      </tr>
     </table>
   </div>
 </template>
@@ -48,6 +52,7 @@ export default {
         { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
       info: {},
+      pmid: [],
       errorMessage: '',
     };
   },
@@ -65,7 +70,8 @@ export default {
     load() {
       axios.get(`reactions/${this.rId}/`)
       .then((response) => {
-        this.info = response.data;
+        this.info = response.data.reaction;
+        this.pmid = response.data.pmid;
       })
       .catch(() => {
         this.errorMessage = this.$t('notFoundError');
@@ -128,6 +134,15 @@ export default {
     },
     formatQuantFieldName(name) {
       return `<span class="tag is-info">${name}</span>`;
+    },
+    reformatPmid(pmid) {
+      const pmidi = pmid.map((x, i, ar) => {
+        let v = ar[i];
+        v = v[0].substring(5);
+        v = `<a href="https://www.ncbi.nlm.nih.gov/pubmed/${v}" target="_blank">${v}</a>`;
+        return v;
+      });
+      return pmidi.join(', ');
     },
     reformatQuant() {
       const data = [];
