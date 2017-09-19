@@ -241,18 +241,18 @@ def currency_metabolite_list(request, id):
     serializer = CurrencyMetaboliteSerializer(component.currency_metabolites, many=True)
     return JSONResponse(serializer.data)
 
-@api_view()
-def component_expression_list(request, id):
-    tissue = request.query_params.get('tissue', '')
-    expression_type = request.query_params.get('expression_type', '')
-    expressions = ExpressionData.objects.filter(
-            Q(reaction_component=id) &
-            Q(tissue__icontains=tissue) &
-            Q(expression_type__icontains=expression_type)
-        )
+#@api_view()
+#def component_expression_list(request, id):
+#    tissue = request.query_params.get('tissue', '')
+#    expression_type = request.query_params.get('expression_type', '')
+#    expressions = ExpressionData.objects.filter(
+#            Q(reaction_component=id) &
+#            Q(tissue__icontains=tissue) &
+#            Q(expression_type__icontains=expression_type)
+#        )
 
-    serializer = ExpressionDataSerializer(expressions, many=True)
-    return JSONResponse(serializer.data)
+#    serializer = ExpressionDataSerializer(expressions, many=True)
+#    return JSONResponse(serializer.data)
 
 @api_view()
 def interaction_partner_list(request, id):
@@ -272,6 +272,10 @@ def interaction_partner_list(request, id):
 
 @api_view()
 def get_component_with_interaction_partners(request, id):
+    """
+    Get the annotation + interaction partners for a given reaction component,
+    supply an id (for example M_m01954g or E_3640)
+    """
     try:
         component = ReactionComponent.objects.get(Q(id=id) | Q(long_name=id))
     except ReactionComponent.DoesNotExist:
@@ -358,19 +362,19 @@ def connected_metabolites(request, id):
     serializer = ConnectedMetabolitesSerializer(connected_metabolites)
     return JSONResponse(serializer.data)
 
-@api_view()
-def expressions_list(request, enzyme_id):
-    tissue = request.query_params.get('tissue', '')
-    expression_type = request.query_params.get('expression_type', '')
+#@api_view()
+#def expressions_list(request, enzyme_id):
+#    tissue = request.query_params.get('tissue', '')
+#    expression_type = request.query_params.get('expression_type', '')
 
-    expressions = ExpressionData.objects.filter(
-            Q(gene_id__icontains=enzyme_id) &
-            Q(tissue__icontains=tissue) &
-            Q(expression_type__icontains=expression_type)
-        )
+#    expressions = ExpressionData.objects.filter(
+#            Q(gene_id__icontains=enzyme_id) &
+#            Q(tissue__icontains=tissue) &
+#            Q(expression_type__icontains=expression_type)
+#        )
 
-    serializer = ExpressionDataSerializer(expressions, many=True)
-    return JSONResponse(serializer.data)
+#    serializer = ExpressionDataSerializer(expressions, many=True)
+#    return JSONResponse(serializer.data)
 
 @api_view()
 def get_metabolite_reactions(request, reaction_component_id):
