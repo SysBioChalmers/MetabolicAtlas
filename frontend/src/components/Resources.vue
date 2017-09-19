@@ -128,7 +128,7 @@ export default {
           year: '2017',
           description: '<b>Simulation Toolbox for Infant Growth with focus on Metabolism (STIG-met) is an integrated platform for simulation of human growth</b>. <br> We combine the experience from traditional growth models with GEMs to provide predictions of metabolic fluxes with enzyme level resolution on a day-to-day basis.<br>For more information please refer to <a href="http://www.nature.com/articles/s41540-017-0004-5">Nilsson, A., Mardinoglu, A., and Nielsen, J. (2017).<i>Predicting growth of the healthy infant using a genome scale metabolic model.</i> Npj Systems Biology and Applications, 3(1), 3</a>' },
         { name: 'Gecko',
-          link: 'https://github.com/SysBioChalmers/GECKO',
+          link: 'https://sysbiochalmers.github.io/GECKO/',
           img: 'https://github.com/SysBioChalmers/GECKO/raw/master/GECKO.png?raw=true',
           year: '-',
           description: '<b>GECKO is a Matlab/Python package for enhancing Genome-scale metabolic models (GEMs) with Enzyme Constraints, using Kinetics and Omics</b>. With it we can improve simulation performance of GEMs, reduce flux variability and get insight into enzyme usage.<br> Additional information about GECKO can be found in the following publication: <a href="">Sánchez, B., Zhang, C., Nilsson, A., Lahtvee, P., Kerkhoven, E., Nielsen, J. (2017). <i>Improving the phenotype predictions of a yeast genome-scale metabolic model by incorporating enzymatic constraints</i>. Molecular Systems Biology, 13(8): 935</a>' },
