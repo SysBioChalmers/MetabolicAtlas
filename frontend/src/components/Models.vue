@@ -195,9 +195,9 @@ export default {
     },
     buildHeader() {
       if (this.selectedModel.label) {
-        return `Model <i>${this.selectedModel.organism}</i>: ${this.selectedModel.set_name} - ${this.selectedModel.label}`;
+        return ` <i>${this.selectedModel.organism}</i>: ${this.selectedModel.set_name} - ${this.selectedModel.label}`;
       }
-      return `Model <i>${this.selectedModel.organism}</i>: ${this.selectedModel.set_name}`;
+      return ` <i>${this.selectedModel.organism}</i>: ${this.selectedModel.set_name} - ${this.selectedModel.tissue}`;
     },
     sortBy(field) {
       const gemsList = Array.prototype.slice.call(
