@@ -121,6 +121,7 @@ export default {
       );
     },
     showSubsystem(system, id) {
+      // forbid the display of this system
       if (system !== 'Collection of reactions') {
         if (!id) {
           this.loadSubsystemCoordinates(38);

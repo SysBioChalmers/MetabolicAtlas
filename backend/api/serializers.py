@@ -149,7 +149,7 @@ class SubsystemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subsystem
-        fields = ('name', 'system', 'external_id', 'description')
+        fields = ('id', 'name', 'system', 'external_id', 'description')
 
 class CompartmentSerializer(serializers.ModelSerializer):
 

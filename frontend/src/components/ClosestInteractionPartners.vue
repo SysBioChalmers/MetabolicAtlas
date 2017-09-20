@@ -70,6 +70,8 @@
               <span class="button" v-on:click="zoomGraph(false)">-</span>
               <span class="button" v-on:click="fitGraph()">fit</span>
             </div>
+            <div id="graphLegend" v-show="toggleMetaboliteExpLevel || toggleEnzymeExpLevel" v-html="legend">
+            </div>
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="toggleGraphLegend"></button>
               <span class="label">Enzyme</span>
@@ -94,19 +96,19 @@
               <div class="comp">
                 <label class="checkbox">
                   <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                  <span>Show expression levels</span>
+                  <span>HPA expression levels</span>
                 </label>
                 <div class="comp">
                   <div class="select">
-                    <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
+                    <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel || !expSourceLoaded.enzyme.HPA" 
                     @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
                       <optgroup label="HPA - RNA levels - Tissues">
-                        <option v-for="tissue in hpaTissues" :value="tissue">
+                        <option v-for="tissue in tissues['HPA']" :value="tissue">
                           {{ tissue }}
                         </option>
                       </optgroup>
                       <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
-                        <option v-for="cellType in hpaCellLines" :value="cellType">
+                        <option v-for="cellType in cellLines['HPA']" :value="cellType">
                           {{ cellType }}
                         </option>
                       </optgroup>
@@ -128,10 +130,10 @@
                 </div>
                 <span>Color:</span>
                  <span class="color-span"
-                  v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex}"
+                  v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
                   v-on:click="showColorPickerMeta = !showColorPickerMeta">
                   <compact-picker v-show="showColorPickerMeta"
-                  v-model="nodeDisplayParams.metaboliteNodeColor" @input="redrawGraph(false, 'metabolite')"></compact-picker>
+                  v-model="nodeDisplayParams.metaboliteNodeColor" @input="updateExpAndredrawGraph(false, 'metabolite')"></compact-picker>
                 </span>
               </div>
             </div>
@@ -161,6 +163,7 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
@@ -168,16 +171,21 @@ import graphml from 'cytoscape-graphml/src/index';
 import viewUtilities from 'cytoscape-view-utilities';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
+
 import Sidebar from 'components/Sidebar';
 import CytoscapeTable from 'components/CytoscapeTable';
 import Loader from 'components/Loader';
+
 import { default as EventBus } from '../event-bus';
+
 import { default as transform } from '../data-mappers/closest-interaction-partners';
 import { default as graph } from '../graph-stylers/closest-interaction-partners';
+
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
-import { fetchXML, parseXML } from '../helpers/xml-tools';
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
+
+import { default as parseHpaRnaExpressionLvl, getExpLvlLegend } from '../expression-sources/hpa';
 
 export default {
   name: 'closest-interaction-partners',
@@ -210,8 +218,9 @@ export default {
       componentName: '',
       expandedIds: [],
 
-      hpaTissues: [],
-      hpaCellLines: [],
+      tissues: {},
+      cellLines: {},
+      legend: '',
 
       // keep track of exp lvl source already loaded
       expSourceLoaded: {
@@ -394,102 +403,6 @@ export default {
           }
         });
     },
-    loadHPAData(rawElms) {
-      // get the list of enzyme ids
-      const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
-      const enzymeIDs = enzymes.map(k => rawElms[k].long);
-
-      const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
-      const proteins = `${enzymeIDs.join(',')}?format=xml`;
-      const url = baseUrl + proteins;
-
-      const xmlContent = fetchXML(url);
-      if (xmlContent === '') {
-        return [];
-      }
-      const xmlDoc = parseXML(xmlContent);
-      const genes = xmlDoc.getElementsByTagName('entry');
-      const hpaGeneEx = {};
-      this.hpaTissues = {};
-      this.hpaCellLines = {};
-      for (const gene of genes) {
-        const genename = gene.getElementsByTagName('name')[0].textContent;
-        hpaGeneEx[genename] = [];
-        const samples = gene.getElementsByTagName('rnaExpression')[0].getElementsByTagName('data');
-        // Loop through rnaExpression children 'samples'
-        for (let i = 0; i < samples.length; i += 1) {
-          let sampleType;
-          let sampleName;
-          let replicates = [];
-          // Collect log2(tpm) expression values and sample name of one sample
-          for (const sampleEl of samples[i].children) {
-            if (sampleEl.tagName === 'level') {
-              if (sampleEl.textContent !== 'Not detected') {
-                if (sampleType === 'cellLine') {
-                  this.hpaCellLines[sampleName] = null;
-                } else if (sampleType === 'tissue') {
-                  this.hpaTissues[sampleName] = null;
-                }
-                replicates.push(Math.log2(sampleEl.getAttribute('tpm') + 1));
-              }
-            } else {
-              sampleName = sampleEl.textContent;
-              // sampleType is cell line or tissue AFAIK
-              sampleType = sampleEl.tagName;
-            }
-          }
-          // Now take median in case of replicates
-          replicates = replicates.sort((a, b) => a - b);
-          const middle = Math.floor(replicates.length / 2);
-          const geneExpression = { name: sampleName, type: sampleType };
-          if (!replicates.length) {
-            geneExpression.value = null;
-            geneExpression.color = 'whitesmoke';
-          } else if (replicates.length % 2 === 0) {
-            geneExpression.value = (replicates[middle] + replicates[middle - 1]) / 2;
-          } else {
-            geneExpression.value = replicates[middle];
-          }
-          if (geneExpression.value) {
-            if (geneExpression.value <= 1) {
-              geneExpression.color = 'lightgray';
-            } else if (geneExpression.value <= 4) {
-              geneExpression.color = 'lightyellow';
-            } else if (geneExpression.value <= 5.5) {
-              geneExpression.color = 'orange';
-            } else if (geneExpression.value <= 6.6) {
-              geneExpression.color = 'red';
-            } else {
-              geneExpression.color = 'darkred';
-            }
-          }
-          hpaGeneEx[genename].push(geneExpression);
-        }
-      }
-
-      this.hpaTissues = Object.keys(this.hpaTissues).sort();
-      this.hpaCellLines = Object.keys(this.hpaCellLines).sort();
-
-      const rawElms2 = rawElms;
-
-      for (const elid of Object.keys(rawElms2)) {
-        // expressionElms[elid] = rawElms[elid];
-        if (!rawElms2[elid].expressionLvl) {
-          rawElms2[elid].expressionLvl = {};
-        }
-        if (!rawElms2[elid].expressionLvl.HPA) {
-          rawElms2[elid].expressionLvl.HPA = {};
-        }
-        rawElms2[elid].expressionLvl.HPA.RNA = {};
-        const HPARNAexp = rawElms2[elid].expressionLvl.HPA.RNA;
-        if (hpaGeneEx[rawElms[elid].short]) {
-          for (const tissue of hpaGeneEx[rawElms[elid].short]) {
-            HPARNAexp[tissue.name] = tissue.color;
-          }
-        }
-      }
-      return rawElms2;
-    },
     loadExpansion() {
       axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
         .then((response) => {
@@ -568,13 +481,30 @@ export default {
       this.showColorPickerEnz = false;
       this.showColorPickerMeta = false;
     },
-    redrawGraph(usingExpressionLevel, nodeType) {
-      if (!usingExpressionLevel) {
-        if ((nodeType === 'enzyme' && this.toggleEnzymeExpLevel) ||
-          (nodeType === 'metabolite' && this.toggleMetaboliteExpLevel)) {
-          return;
+    fixEnzSelectOption() {
+      const option = document.getElementById('enz-select')
+      .getElementsByTagName('optgroup')[0].childNodes[0];
+      option.selected = 'selected';
+      this.nodeDisplayParams.enzymeExpSample = option.label;
+    },
+    updateExpAndredrawGraph(usingExpressionLevel, nodeType, expSource, expType, expSample) {
+      setTimeout(() => {
+        if ((expSource && expType) && !expSample) {
+          // fix option selection! because of optgroup?
+          if (this.toggleEnzymeExpLevel) {
+            this.fixEnzSelectOption();
+          }
         }
-      }
+        if (!usingExpressionLevel) {
+          if ((nodeType === 'enzyme' && this.toggleEnzymeExpLevel) ||
+            (nodeType === 'metabolite' && this.toggleMetaboliteExpLevel)) {
+            return;
+          }
+        }
+        this.redrawGraph();
+      }, 0);
+    },
+    redrawGraph() {
       const stylesheet = graph(this.rawElms, this.rawRels, this.nodeDisplayParams)[1];
       const cyzoom = this.cy.zoom();
       const cypan = this.cy.pan();
@@ -756,18 +686,11 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    fixEnzSelectOption() {
-      const option = document.getElementById('enz-select')
-      .getElementsByTagName('optgroup')[0].childNodes[0];
-      option.selected = 'selected';
-      this.nodeDisplayParams.enzymeExpSample = option.label;
-    },
     switchToExpressionLevel: function switchToExpressionLevel(
       componentType, expSource, expType, expSample) {
       // console.log(expSource);
       // console.log(expType);
       // console.log(expSample);
-      let redraw = false;
       if (componentType === 'enzyme') {
         if (this.toggleEnzymeExpLevel) {
           if (this.nodeDisplayParams.enzymeExpSource !== expSource) {
@@ -778,55 +701,39 @@ export default {
               !this.expSourceLoaded[componentType][expSource]) {
               // sources that load all exp type
               if (expSource === 'HPA') {
-                this.rawElms = this.loadHPAData(this.rawElms);
-                this.expSourceLoaded[componentType].HPA = {};
-                this.expSourceLoaded[componentType].HPA.RNA = true;
+                this.getHPAexpression(this.rawElms, expSource, expType, expSample);
               } else {
                 // load expression data from another source here
                 console.log(expSample);
               }
-              redraw = true;
             } else {
-              redraw = true;
+              this.updateExpAndredrawGraph(true, componentType, expSource, expType, expSample);
             }
           } else if (this.nodeDisplayParams.enzymeExpType !== expType) {
             this.nodeDisplayParams.enzymeExpType = expType;
             if (!this.expSourceLoaded.componentType.expSource.expType) {
               // sources that load only one specific exp type
-              redraw = true;
+              this.updateExpAndredrawGraph(true, componentType, expSource, expType, expSample);
             }
           } else if (this.nodeDisplayParams.enzymeExpSample !== expSample) {
-            redraw = true;
+            this.updateExpAndredrawGraph(true, componentType, expSource, expType, expSample);
           }
           this.nodeDisplayParams.enzymeExpSample = expSample;
         } else {
+          // disable expression lvl for enzyme
           this.nodeDisplayParams.enzymeExpSource = false;
           this.nodeDisplayParams.enzymeExpType = false;
           this.nodeDisplayParams.enzymeExpSample = false;
-          redraw = true;
+          this.updateExpAndredrawGraph(true, componentType, expSource, expType, expSample);
         }
       } else if (this.toggleMetaboliteExpLevel) {
         console.log(expSample);
         // load expression data for metabolite
-      } else if (componentType === 'enzyme') {
-        this.nodeDisplayParams.enzymeExpSource = false;
-        this.nodeDisplayParams.enzymeExpType = false;
-        this.nodeDisplayParams.enzymeExpSample = false;
       } else {
+        // disable expression lvl for metabolite
         this.nodeDisplayParams.metaboliteExpSource = false;
         this.nodeDisplayParams.metaboliteExpType = false;
         this.nodeDisplayParams.metaboliteExpSample = false;
-      }
-      if (redraw) {
-        setTimeout(() => {
-          if ((expSource && expType) && !expSample) {
-            // fix option selection! because of optgroup?
-            if (this.toggleEnzymeExpLevel) {
-              this.fixEnzSelectOption();
-            }
-          }
-          this.redrawGraph(true);
-        }, 0);
       }
     },
     zoomGraph: function zoomGraph(zoomIn) {
@@ -859,12 +766,42 @@ export default {
       EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
+    getHPAexpression(rawElms, expSource, expType, expSample) {
+      const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
+      const enzymeIDs = enzymes.map(k => rawElms[k].long);
+
+      const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
+      const proteins = `${enzymeIDs.join(',')}?format=xml`;
+      const url = baseUrl + proteins;
+
+      axios.post('hpa/', { url })
+      .then((response) => {
+        const hpaRnadata = parseHpaRnaExpressionLvl(rawElms, response.data, false); // = true unzip
+        this.rawElms = hpaRnadata.graphElements;
+        Vue.set(this.tissues, 'HPA', hpaRnadata.tissues);
+        Vue.set(this.cellLines, 'HPA', hpaRnadata.cellLines);
+        this.expSourceLoaded.enzyme.HPA = {};
+        this.expSourceLoaded.enzyme.HPA.RNA = true;
+        this.legend = getExpLvlLegend();
+        setTimeout(() => {
+          if ((expSource && expType) && !expSample) {
+            // fix option selection! because of optgroup?
+            if (this.toggleEnzymeExpLevel) {
+              this.fixEnzSelectOption();
+            }
+          }
+          this.redrawGraph(true);
+        }, 0);
+      })
+      .catch((error) => {
+        console.log(error);
+        this.switchToExpressionLevel = false;
+      });
+    },
     chemicalFormula,
     chemicalName,
     chemicalNameExternalLink,
     visitLink,
-    fetchXML,
-    parseXML,
   },
 };
 </script>
@@ -928,6 +865,39 @@ export default {
 
     select {
       padding: 3px;
+    }
+  }
+
+  #graphLegend {
+    position: absolute;
+    top: 12px;
+    left: 650px;
+    height: 40px;
+    z-index: 10;
+
+    .title {
+      margin-bottom: 0.3em;
+    }
+
+    .exp-lvl-legend {
+      list-style: none;
+      li {
+        display: inline-block;
+        margin-left: 7px;
+        line-height: 15px;
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    span {
+      float: left;
+      margin: 0 2px 2px 2px;
+      width: 15px;
+      height: 15px;
+      display: block;
+      border: 1px solid black;
     }
   }
 

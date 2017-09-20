@@ -152,6 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 SWAGGER_SETTINGS = {
     'LOGIN_URL': 'admin:login',
     'LOGOUT_URL': 'admin:logout',
+    "exclude_namespaces": ["internal_apis"],
 }
 
 
