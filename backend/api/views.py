@@ -40,12 +40,19 @@ def get_model(request, id):
 
 @api_view()
 def author_list(request):
+    """
+    List all authors for all the GEMs in the database
+    """
     authors = Author.objects.all()
     serializer = AuthorSerializer(authors, many=True)
     return JSONResponse(serializer.data)
 
 @api_view()
 def get_author(request, id):
+    """
+    Return all the information we have about a specific author,
+    supply an id (for example 1)
+    """
     try:
         author = Author.objects.get(id=id)
     except Author.DoesNotExist:
@@ -56,6 +63,10 @@ def get_author(request, id):
 
 @api_view()
 def reaction_list(request):
+    """
+    Returns ALL reactions
+    (well actually only the first 20)
+    """
     limit = int(request.query_params.get('limit', 20))
     offset = int(request.query_params.get('offset', 0))
     reactions = Reaction.objects.all()[offset:(offset+limit)]
@@ -64,6 +75,13 @@ def reaction_list(request):
 
 @api_view()
 def get_reaction(request, id):
+    """
+    Return all the information we have about a reaction,
+    supply an id (for example R_HMR_3905).
+    Please note that this also pulls out the associated annotations
+    that we have for the individual metabolites that is part of
+    the reaction, and the proteins that are modifying the reaction
+    """
     try:
         reaction = Reaction.objects.get(id=id)
     except Reaction.DoesNotExist:
@@ -78,6 +96,12 @@ def get_reaction(request, id):
 
 @api_view()
 def reaction_reactant_list(request, id):
+    """
+    For a given reaction show ALL the metabolites that are consumed,
+    supply a reaction id (for example R_HMR_6414).
+    Please note also pulls out the annotations we have for these
+    metabolites.
+    """
     try:
         reaction = Reaction.objects.get(id=id)
     except Reaction.DoesNotExist:
@@ -88,6 +112,11 @@ def reaction_reactant_list(request, id):
 
 @api_view()
 def get_reaction_reactant(request, reaction_id, reactant_id):
+    """
+    For a given reaction, show the annotations for a specific reactant,
+    supply a reaction id (for example R_HMR_3907) AND
+    a metabolite id (for example M_m01796c).
+    """
     try:
         reaction = Reaction.objects.get(id=reaction_id)
         reactant = reaction.reactants.get(id=reactant_id)
@@ -99,6 +128,12 @@ def get_reaction_reactant(request, reaction_id, reactant_id):
 
 @api_view()
 def reaction_product_list(request, id):
+    """
+    For a given reaction show the metabolites that are produced,
+    supply a reaction id (for example R_HMR_6414).
+    Please note also pulls out the annotations we have for these
+    metabolites.
+    """
     try:
         reaction = Reaction.objects.get(id=id)
     except Reaction.DoesNotExist:
@@ -109,6 +144,11 @@ def reaction_product_list(request, id):
 
 @api_view()
 def get_reaction_product(request, reaction_id, product_id):
+    """
+    For a given reaction, show the annotations for a specific product,
+    supply a reaction id (for example R_HMR_3907) AND
+    a metabolite id (for example M_m01796c).
+    """
     try:
         reaction = Reaction.objects.get(id=reaction_id)
         product = reaction.products.get(id=product_id)
@@ -120,6 +160,12 @@ def get_reaction_product(request, reaction_id, product_id):
 
 @api_view()
 def reaction_modifier_list(request, id):
+    """
+    For a given reaction show the proteins that are modifying it,
+    supply a reaction id (for example R_HMR_6414).
+    Please note also pulls out the annotations we have for these
+    enzymes.
+    """
     try:
         reaction = Reaction.objects.get(id=id)
     except Reaction.DoesNotExist:
@@ -130,6 +176,11 @@ def reaction_modifier_list(request, id):
 
 @api_view()
 def get_reaction_modifier(request, reaction_id, modifier_id):
+    """
+    For a given reaction, show the annotations for a specific product,
+    supply a reaction id (for example R_HMR_3907) AND
+    a enzyme id (for example E_1209).
+    """
     try:
         reaction = Reaction.objects.get(id=reaction_id)
         modifier = reaction.modifiers.get(id=modifier_id)
@@ -141,6 +192,11 @@ def get_reaction_modifier(request, reaction_id, modifier_id):
 
 @api_view()
 def component_list(request):
+    """
+    Return the first 30 reaction components in the database,
+    eg this could technically be either a reactant (metabolite),
+    a product (metabolite), or the modifying enzyme.
+    """
     limit = int(request.query_params.get('limit', 20))
     offset = int(request.query_params.get('offset', 0))
 
@@ -159,6 +215,13 @@ def component_list(request):
 
 @api_view()
 def get_component(request, id):
+    """
+    Return all information for a given reaction component,
+    eg this could technically be either
+    a reactant (metabolite, for example M_m01796c),
+    a product (metabolite, for example M_m01249c),
+    or the modifying enzyme (for example E_3328).
+    """
     try:
         component = ReactionComponent.objects.get(Q(id=id) |
                                                   Q(long_name=id))
@@ -170,6 +233,10 @@ def get_component(request, id):
 
 @api_view()
 def currency_metabolite_list(request, id):
+    """
+    For a given reaction component, list all reactions in which its a currency metabolite,
+    supply an id (for example M_m00003c)
+    """
     try:
         component = ReactionComponent.objects.get(id=id)
     except ReactionComponent.DoesNotExist:
@@ -178,21 +245,26 @@ def currency_metabolite_list(request, id):
     serializer = CurrencyMetaboliteSerializer(component.currency_metabolites, many=True)
     return JSONResponse(serializer.data)
 
-@api_view()
-def component_expression_list(request, id):
-    tissue = request.query_params.get('tissue', '')
-    expression_type = request.query_params.get('expression_type', '')
-    expressions = ExpressionData.objects.filter(
-            Q(reaction_component=id) &
-            Q(tissue__icontains=tissue) &
-            Q(expression_type__icontains=expression_type)
-        )
+#@api_view()
+#def component_expression_list(request, id):
+#    tissue = request.query_params.get('tissue', '')
+#    expression_type = request.query_params.get('expression_type', '')
+#    expressions = ExpressionData.objects.filter(
+#            Q(reaction_component=id) &
+#            Q(tissue__icontains=tissue) &
+#            Q(expression_type__icontains=expression_type)
+#        )
 
-    serializer = ExpressionDataSerializer(expressions, many=True)
-    return JSONResponse(serializer.data)
+#    serializer = ExpressionDataSerializer(expressions, many=True)
+#    return JSONResponse(serializer.data)
 
 @api_view()
 def interaction_partner_list(request, id):
+    """
+    For a given reaction component, pull out all first order interaction partners,
+    supply a reaction component id (eg either metabolite or enzyme id,
+    for example E_1008).
+    """
     try:
         component = ReactionComponent.objects.get(id=id)
     except ReactionComponent.DoesNotExist:
@@ -204,6 +276,10 @@ def interaction_partner_list(request, id):
 
 @api_view()
 def get_component_with_interaction_partners(request, id):
+    """
+    Get the annotation + interaction partners for a given reaction component,
+    supply an id (for example M_m01954g or E_3640)
+    """
     try:
         component = ReactionComponent.objects.get(Q(id=id) | Q(long_name=id))
     except ReactionComponent.DoesNotExist:
@@ -234,6 +310,9 @@ def get_component_with_interaction_partners(request, id):
 
 @api_view()
 def enzyme_list(request):
+    """
+    List the first 20 enzymes in the database
+    """
     limit = int(request.query_params.get('limit', 20))
     offset = int(request.query_params.get('offset', 0))
 
@@ -244,6 +323,13 @@ def enzyme_list(request):
 
 @api_view()
 def connected_metabolites(request, id):
+    """
+    For a given enzyme pull out the metabolites that are in any of the modified reactions,
+    supply an enzyme id (for example E_3328) or an ensembl gene identifier
+    (for example ENSG00000180011).
+    If more than 10 reactions, then it will return only the actual reactions,
+    otherwise it will pull out the metabolites and their annotations as well.
+    """
     try:
         enzyme = ReactionComponent.objects.get(
                 Q(component_type='enzyme') &
@@ -280,22 +366,29 @@ def connected_metabolites(request, id):
     serializer = ConnectedMetabolitesSerializer(connected_metabolites)
     return JSONResponse(serializer.data)
 
-@api_view()
-def expressions_list(request, enzyme_id):
-    tissue = request.query_params.get('tissue', '')
-    expression_type = request.query_params.get('expression_type', '')
+#@api_view()
+#def expressions_list(request, enzyme_id):
+#    tissue = request.query_params.get('tissue', '')
+#    expression_type = request.query_params.get('expression_type', '')
 
-    expressions = ExpressionData.objects.filter(
-            Q(gene_id__icontains=enzyme_id) &
-            Q(tissue__icontains=tissue) &
-            Q(expression_type__icontains=expression_type)
-        )
+#    expressions = ExpressionData.objects.filter(
+#            Q(gene_id__icontains=enzyme_id) &
+#            Q(tissue__icontains=tissue) &
+#            Q(expression_type__icontains=expression_type)
+#        )
 
-    serializer = ExpressionDataSerializer(expressions, many=True)
-    return JSONResponse(serializer.data)
+#    serializer = ExpressionDataSerializer(expressions, many=True)
+#    return JSONResponse(serializer.data)
 
 @api_view()
 def get_metabolite_reactions(request, reaction_component_id):
+    """
+    In which reactions does a given metabolite occur,
+    supply a metabolite id (for example M_m00003c).
+    Here there are two possibilities,
+    only return the list of reactions for the given compartment (!),
+    or alternatively in all compartments.
+    """
     expandAllCompartment = False
     try:
         component = ReactionComponent.objects.get(Q(id=reaction_component_id) |
@@ -329,6 +422,10 @@ def get_metabolite_reactions(request, reaction_component_id):
 
 @api_view()
 def get_metabolite_reactome(request, reaction_component_id, reaction_id):
+    """
+    For a given reaction component, pull out all reactions in which it occurs,
+    and then for these pull out all metabolites, supply an id, for example M_m00674c.
+    """
     try:
         component = ReactionComponent.objects.get(id=reaction_component_id)
         reaction = Reaction.objects.get(id=reaction_id)
@@ -402,7 +499,14 @@ def rewriteEquation(term):
 
 @api_view()
 def search(request, term, truncated):
-
+    """
+    Searches for the term in metabolites, enzymes, subsystems, reactions, and reaction_components.
+    Metabolites: kegg_id, hmdb_id, hmdb_name contains
+    Enzymes (uniprot_acc)
+    Subsystems (name contains)
+    Reactions (equation contains)
+    ReactionComponent (id, short name contains, long name contains, formula contains)
+    """
     if len(term.strip()) < 2:
         return HttpResponse(status=404)
 
@@ -508,7 +612,7 @@ def convert_to_reaction_component_ids(request, compartmentID):
         reactions = Reaction.objects.filter(reaction_query & Q(compartment=compartment)).values_list('compartment', 'id')
     else:
         reactions = Reaction.objects.filter(reaction_query).values_list('compartment', 'id').distinct()
-    
+
     logging.warn(reactions);
     # remove this part when Reaction has a foreigh key on compartment
     if reactions.count():
@@ -530,6 +634,9 @@ def convert_to_reaction_component_ids(request, compartmentID):
 
 @api_view()
 def get_subsystems(request):
+    """
+    List all subsystems/pathways/collection of reactions for the given model
+    """
     try:
         subsystems = Subsystem.objects.all()
     except Subsystem.DoesNotExist:
@@ -540,6 +647,9 @@ def get_subsystems(request):
 
 @api_view()
 def get_subsystem_coordinates(request, subsystem_id):
+    """
+    For a given subsystem (id), get the compartment name and X,Y locations in the corresponding SVG map
+    """
     try:
         tileSubsystem = TileSubsystem.objects.get(subsystem_id=subsystem_id, is_main=True)
     except TileSubsystem.DoesNotExist:
@@ -551,9 +661,15 @@ def get_subsystem_coordinates(request, subsystem_id):
 
 
 #=========================================================================================================
+# For the Models database
+
 
 @api_view()
 def get_gemodel(request, id):
+    """
+    For a given model id, pull out everything we know about the GEM,
+    supply an id, for example 630.
+    """
     try:
         model = GEModel.objects.get(id=id)
     except GEModel.DoesNotExist:
@@ -567,6 +683,9 @@ def get_gemodel(request, id):
 
 @api_view()
 def get_gemodels(request):
+    """
+    List all GEMs that the group have made
+    """
     import urllib
     import json
     import base64
