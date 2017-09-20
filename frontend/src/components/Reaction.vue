@@ -21,7 +21,7 @@
         </td>
         <td v-else> - </td>
       </tr>
-      <tr>
+      <tr v-if="pmid.length">
         <td class="td-key">PMID</td>
         <td v-html="reformatPmid(pmid)"></td>
       </tr>
