@@ -58,6 +58,7 @@ export default {
         this.$t('navBut4Title'),
         this.$t('navBut5Title'),
         this.$t('navBut6Title'),
+        this.$t('navBut7Title'),
       ],
     };
   },
@@ -73,11 +74,11 @@ export default {
             },
           },
         );
+      } else if (['tools', 'databases'].includes(name.toLowerCase())) {
+        router.push(`Resources#${name.toLowerCase()}`);
       } else {
         router.push(name);
       }
-
-      // location.reload();
     },
     isActive(name) {
       return name.toLowerCase() === this.$route.name.toLowerCase();

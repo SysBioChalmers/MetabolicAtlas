@@ -34,10 +34,11 @@
       <div class="modal-background" @click="showModelTable = false"></div>
       <div class="modal-content">
         <div id="modal-info" class="model-table">
-          <span class="title is is-primary">Model {{ selectedModel.label }}</span>
+          <span class="title is is-primary" v-html="buildHeader()"></span>
+          {{ selectedModel.description }}<br><br>
           <table class="table main-table">
             <tbody>
-              <tr v-for="field in model_fields">
+              <tr v-for="field in model_fields" v-if="selectedModel[field.name]">
                 <td v-html="field.display" class="td-key"></td>
                 <td v-if="typeof(selectedModel[field.name]) === 'boolean'">
                   {{ selectedModel[field.name] ? 'yes' : 'No' }}
@@ -57,7 +58,7 @@
                     {{ selectedModel.title }}
                 </td>
               </tr>
-              <tr>
+              <tr v-if="selectedModel.pubmed">
                 <td class="td-key">PUBMED ID</td>
                 <td>
                   <a :href="'https://www.ncbi.nlm.nih.gov/pubmed/' + selectedModel.pubmed" 
@@ -113,7 +114,6 @@ export default {
         { name: 'year', display: 'Year' },
       ],
       model_fields: [
-        { name: 'description', display: 'Description' },
         { name: 'organism', display: 'Organism' },
         { name: 'set_name', display: 'Set' },
         { name: 'organ_system', display: 'System' },
@@ -192,6 +192,12 @@ export default {
         this.errorMessage = this.$t('notFoundError');
         this.showLoader = false;
       });
+    },
+    buildHeader() {
+      if (this.selectedModel.label) {
+        return ` <i>${this.selectedModel.organism}</i>: ${this.selectedModel.set_name} - ${this.selectedModel.label}`;
+      }
+      return ` <i>${this.selectedModel.organism}</i>: ${this.selectedModel.set_name} - ${this.selectedModel.tissue}`;
     },
     sortBy(field) {
       const gemsList = Array.prototype.slice.call(
