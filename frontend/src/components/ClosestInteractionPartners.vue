@@ -70,7 +70,7 @@
               <span class="button" v-on:click="zoomGraph(false)">-</span>
               <span class="button" v-on:click="fitGraph()">fit</span>
             </div>
-            <div id="graphLegend" v-html="legend">
+            <div id="graphLegend" v-show="toggleMetaboliteExpLevel || toggleEnzymeExpLevel" v-html="legend">
             </div>
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="toggleGraphLegend"></button>
