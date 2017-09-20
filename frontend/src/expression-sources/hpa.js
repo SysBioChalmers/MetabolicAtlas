@@ -22,6 +22,25 @@ function getExpressionColor(value) {
 }
 getExpressionColor(0);
 
+export function getExpLvlLegend() {
+  let l = '<div class="box"><div><h5 class="title is-6 has-text-centered">HPA RNA expression level - tpm </h5></div>';
+  const w = 150.0/(rnaExpressionLvl.length + (overExpressedColor ? 1 : 0));
+  l += '<div class="has-text-centered">';
+  l += '<ul class="exp-lvl-legend">'
+  if (notDetectedColor) {
+    l += `<li><span style="background: ${notDetectedColor}"></span> NA</li>`;
+  }
+  let lv;
+  for (const el of rnaExpressionLvl) {
+    lv = el[0];
+    l += `<li><span style="background: ${el[1]}"></span> <=${el[0]}</li>`;
+  }
+  if (overExpressedColor) {
+    l += `<li><span style="background: ${overExpressedColor}"></span> >=${lv}</li>`;
+  }
+  l += '</ul></div></div>';
+  return l;
+}
 
 export default function(rawElms, xmlContent, unzip) {
   if (unzip) {

@@ -70,6 +70,8 @@
               <span class="button" v-on:click="zoomGraph(false)">-</span>
               <span class="button" v-on:click="fitGraph()">fit</span>
             </div>
+            <div id="graphLegend" v-html="legend">
+            </div>
             <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
               <button class="delete" v-on:click="toggleGraphLegend"></button>
               <span class="label">Enzyme</span>
@@ -183,7 +185,7 @@ import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../help
 import { default as visitLink } from '../helpers/visit-link';
 import { default as convertGraphML } from '../helpers/graph-ml-converter';
 
-import { default as parseHpaRnaExpressionLvl } from '../expression-sources/hpa';
+import { default as parseHpaRnaExpressionLvl, getExpLvlLegend } from '../expression-sources/hpa';
 
 export default {
   name: 'closest-interaction-partners',
@@ -218,6 +220,7 @@ export default {
 
       tissues: {},
       cellLines: {},
+      legend: '',
 
       // keep track of exp lvl source already loaded
       expSourceLoaded: {
@@ -779,6 +782,7 @@ export default {
         Vue.set(this.cellLines, 'HPA', hpaRnadata.cellLines);
         this.expSourceLoaded.enzyme.HPA = {};
         this.expSourceLoaded.enzyme.HPA.RNA = true;
+        this.legend = getExpLvlLegend();
         setTimeout(() => {
           if ((expSource && expType) && !expSample) {
             // fix option selection! because of optgroup?
@@ -861,6 +865,39 @@ export default {
 
     select {
       padding: 3px;
+    }
+  }
+
+  #graphLegend {
+    position: absolute;
+    top: 12px;
+    left: 650px;
+    height: 40px;
+    z-index: 10;
+
+    .title {
+      margin-bottom: 0.3em;
+    }
+
+    .exp-lvl-legend {
+      list-style: none;
+      li {
+        display: inline-block;
+        margin-left: 7px;
+        line-height: 15px;
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    span {
+      float: left;
+      margin: 0 2px 2px 2px;
+      width: 15px;
+      height: 15px;
+      display: block;
+      border: 1px solid black;
     }
   }
 
