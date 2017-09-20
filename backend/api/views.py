@@ -629,4 +629,10 @@ def get_HPA_xml_content(request):
     logging.warn(url);
     with urllib.request.urlopen(url) as response:
         data = response.read()
-    return HttpResponse(data, content_type='application/octet-stream')
+
+    import gzip
+    ddata = gzip.decompress(data)
+
+    # logging.warn(ddata)
+
+    return HttpResponse(ddata)

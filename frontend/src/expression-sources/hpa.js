@@ -3,7 +3,6 @@
 import axios from 'axios';
 import { parseXML, unzipXML } from '../helpers/xml-tools';
 
-
 const notDetectedColor = 'whitesmoke';
 const overExpressedColor = 'darkred';
 const rnaExpressionLvl = [
@@ -12,7 +11,6 @@ const rnaExpressionLvl = [
   [5.5, 'orange'],
   [6.6, 'red'],
 ];
-
 
 function getExpressionColor(value) {
   for (const el of rnaExpressionLvl) {
@@ -25,9 +23,13 @@ function getExpressionColor(value) {
 getExpressionColor(0);
 
 
-function parseHpaRnaExpressionLvl(rawElms, xmlContent) {
-  console.log('parseHpaRnaExpressionLvl');
-  // console.log(xmlContent);
+export default function(rawElms, xmlContent, unzip) {
+  if (unzip) {
+    // TODO fix the unzip in the front end, now its done in the backend
+    // commit 0514b007c945534db6168a4dc731e282ce97f545 contains a working code
+    // but without backend request
+    xmlContent = unzipXML(xmlContent)
+  }
 
   if (xmlContent === '') {
     return [];
@@ -110,34 +112,4 @@ function parseHpaRnaExpressionLvl(rawElms, xmlContent) {
     tissues: hpaRnaTissues,
     cellLines: hpaRnaCellLines,
   };
-}
-
-async function getHPAxml(rawElms, url) {
-  console.log('call getHPAxml');
-  const d = await axios.post('hpa/', { url });
-  return d;
-}
-
-async function getHPAxmlResult(rawElms, url) {
-  console.log('call getHPAxmlResult');
-  await axios.all([getHPAxml(rawElms, url)])
-    .then(axios.spread(function (res) {
-      console.log('in spread (getHPAxmlResult)');
-      console.log(res);
-    }));
-  console.log('end getHPAxmlResult');
-}
-
-export default function (rawElms) {
-  // get the list of enzyme ids
-  console.log('call export function');
-  const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
-  const enzymeIDs = enzymes.map(k => rawElms[k].long);
-
-  const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
-  const proteins = `${enzymeIDs.join(',')}?format=xml`;
-  const url = baseUrl + proteins;
-
-  console.log('end export function');
-  return getHPAxmlResult(rawElms, url);
 }
