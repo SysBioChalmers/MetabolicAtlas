@@ -9,6 +9,7 @@ import SearchTable from 'components/SearchTable';
 import Models from 'components/Models';
 import CompareModels from 'components/CompareModels';
 import Atlas from 'components/Atlas';
+import Hreed from 'components/Hreed';
 
 Vue.use(VueRouter);
 
@@ -22,6 +23,7 @@ const routes = [
   { path: '/help', name: 'help', component: Help },
   { path: '/contact', name: 'contact', component: Contact },
   { path: '/Atlas', name: 'atlas', component: Atlas },
+  { path: '/hreed', name: 'contact', component: Hreed },
 ];
 
 const router = new VueRouter({

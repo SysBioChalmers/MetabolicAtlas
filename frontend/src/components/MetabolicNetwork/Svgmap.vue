@@ -342,11 +342,15 @@ export default {
       }
     },
     showTiles(compartmentL, coordinate) {
-      // console.log('showTiles');
       if (compartmentL) {
+        console.log('inside showTiles');
         console.log(compartmentL);
         this.compartment = getCompartmentFromName(compartmentL);
+        console.log('here I am ');
+        console.log(this.compartment);
         this.updateZoomBoxCoor(coordinate);
+        console.log('after update');
+        console.log(coordinate);
         console.log(this.zoomBox);
         this.loadSVG(this.compartment.svgName, this.swapSVG, this.zoomOnTiles);
       }
