@@ -165,6 +165,7 @@ class CompartmentInformationSerializer(serializers.ModelSerializer):
         fields = ('id', 'compartment', 'display_name', 'filename', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')
 
 # =======================================================================================
+# models database
 
 class GEModelFileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -217,7 +218,7 @@ class GEModelListSerializer(serializers.ModelSerializer):
 
 
 # =======================================================================================
-
+# tile database
 
 class TileSubsystemSerializer(serializers.ModelSerializer):
     class Meta:
