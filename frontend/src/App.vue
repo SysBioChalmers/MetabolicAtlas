@@ -81,7 +81,10 @@ export default {
       }
     },
     isActive(name) {
-      return name.toLowerCase() === this.$route.name.toLowerCase();
+      if (this.$route.name) {
+        return name.toLowerCase() === this.$route.name.toLowerCase();
+      }
+      return false;
     },
   },
 };
