@@ -23,7 +23,7 @@ const routes = [
   { path: '/help', name: 'help', component: Help },
   { path: '/contact', name: 'contact', component: Contact },
   { path: '/Atlas', name: 'atlas', component: Atlas },
-  { path: '/hreed', name: 'contact', component: Hreed },
+  { path: '/hreed', name: 'hreed', component: Hreed },
 ];
 
 const router = new VueRouter({
