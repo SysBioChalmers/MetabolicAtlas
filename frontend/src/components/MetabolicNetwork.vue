@@ -6,10 +6,10 @@
          @click="levelSelected='subsystem'"
          :class="{ 'is-active' : levelSelected==='subsystem'}">
          Subsystems ({{ subsystemCount }})</button>
-        <button class="button" 
+        <button class="button"
           @click="levelSelected='compartment'"
           :class="{ 'is-active' : levelSelected==='compartment'}">
-          Compartments ({{ compartmentCount }})</button>
+          Compartments</button>
         <button class="button"
          @click="levelSelected='region'"
          :class="{ 'is-active' : levelSelected==='region'}">
