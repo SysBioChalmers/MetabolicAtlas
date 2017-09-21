@@ -157,7 +157,9 @@ class CompartmentSerializer(serializers.ModelSerializer):
         model = Compartment
         fields = ('name',)
 
+
 # =======================================================================================
+# models database
 
 class GEModelFileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -210,7 +212,7 @@ class GEModelListSerializer(serializers.ModelSerializer):
 
 
 # =======================================================================================
-
+# tile database
 
 class TileSubsystemSerializer(serializers.ModelSerializer):
     class Meta:
