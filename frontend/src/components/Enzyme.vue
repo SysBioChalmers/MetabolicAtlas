@@ -27,7 +27,7 @@
                 </span>
               </div>
             </div>
-            <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
+            <sidebar id="sidebar" :selectedElm="selectedElm" :view="'enzyme'"></sidebar>
           </div>
           <div class="container">
             <cytoscape-table

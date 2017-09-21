@@ -20,11 +20,15 @@
           </div>
           <div v-if="selectedElm.details.catalytic_activity">
             <p class="label">Catalytic Activity</p>
-            {{ selectedElm.details.catalytic_activity }}
+            <p>{{ selectedElm.details.catalytic_activity }}</p>
+            <br>
           </div>
           <div v-if="!selectedElm.details.function &&
                      !selectedElm.details.catalytic_activity">
             {{ $t('noInfoAvailable') }}
+          </div>
+          <div v-else-if="view === 'interaction'">
+            <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
           </div>
         </div>
         <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
@@ -49,21 +53,21 @@
             {{ $t('noInfoAvailable') }}
           </div>
           <div v-else>
-            <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
+            <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
           </div>
         </div>
       </div>
       <div v-else-if="selectedElm.type === 'reaction'" class="card-content">
-        <div v-if="selectedElm.pathway">
-          <p class="label">Pathway</p>
-          <p>{{ selectedElm.pathway }}</p>
+        <div v-if="selectedElm.subsystem">
+          <p class="label">Subsystem</p>
+          <p>{{ selectedElm.subsystem.join(', ') }}</p>
           <br>
         </div>
-        <div v-else>
+        <div v-if="!selectedElm.subsystem">
           {{ $t('noInfoAvailable') }}
         </div>
         <div v-else>
-          <button class="button" v-on:click="viewMetaboliteInfo()">More</button>
+          <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
         </div>
       </div>
       <div v-else>
@@ -81,7 +85,7 @@ import { default as EventBus } from '../event-bus';
 
 export default {
   name: 'sidebar',
-  props: ['selectedElm'],
+  props: ['selectedElm', 'view'],
   data() {
     return {
     };
@@ -99,8 +103,8 @@ export default {
     },
   },
   methods: {
-    viewMetaboliteInfo: function viewMetaboliteInfo() {
-      EventBus.$emit('updateSelTab', 'metabolite',
+    viewReactionComponent(type) {
+      EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
   },
