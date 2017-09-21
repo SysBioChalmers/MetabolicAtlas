@@ -8,27 +8,31 @@
       <h3 id="reportermetabolites" class="title is-3">Search</h3>
 
       <h4 class="title is-4">Search bar</h4>
-      <p><b>Search</b> for either metabolite, enzyme, or reaction by any number of 'attributes'.</p>
-      <p>Search for metabolite by identifier, name, or synonym, for example M_m01249c or uracil.</p>
+      <b>Searches</b> for the term in metabolites, enzymes, subsystems, reactions, and reaction_components. </br>
+        <u>Metabolites</u>: kegg_id, hmdb_id, hmdb_name contains </br>
+        <u>Enzymes</u>: (uniprot_acc) </br>
+        <u>Subsystems</u>: (name contains) </br>
+        <u>Reactions</u>: (equation contains) </br>
+        <u>ReactionComponent</u>: (id, short name contains, long name contains, formula contains) </br>
       <p>Once you start typing it will pull out all possible matches from the database and show these in the drop-down.</p>
-      <p>Depending on what type of 'hit' your requests results in (metabolite, enzyme, or reaction)
+      Depending on what type of 'hit' your requests results in (metabolite, enzyme, or reaction)
         a number of different green buttons are shown:
         <ul>
           <li>For a metabolite:
             <ul>
-              <li><a href="">Closest interaction partners</a></li>
-              <li><a href="">Metabolite</a></li>
+              <li><a href="#closestpartners">Closest interaction partners</a></li>
+              <li><a href="#metabolitepage">Metabolite</a></li>
             </ul>
           </li>
           <li>For an enzyme:
             <ul>
-              <li><a href="">Closest interaction partners</a></li>
-              <li><a href="">Enzyme</a></li>
+              <li><a href="#closestpartners">Closest interaction partners</a></li>
+              <li><a href="#enzymepage">Enzyme</a></li>
             </ul>
           </li>
           <li>For a reaction:
             <ul>
-              <li><a href="">Reaction</a></li>
+              <li><a href="#reactionpage">Reaction</a></li>
             </ul>
           </li>
         By pressing one of these you go directly to that page...<br>
@@ -109,8 +113,11 @@
         <br>
 
 
-      <h3 id="connectedmetabolites" class="title is-3">Catalysed reactions</h3>
-      <p>Take an enzyme, in the form of an Ensembl Gene Identifier (for example ENSG00000164303 or ENSG00000180011) then it will find all reactions that this enzyme modifies, and for each of these reactions pull out the reactants (shape=heptagon) and the products (shape=octagon), i.e. the metabolites)</p>
+      <h3 id="enzymepage" class="title is-3">Enzyme page</h3>
+      <p>Take an enzyme, in the form of an Ensembl Gene Identifier
+      (for example ENSG00000164303 or ENSG00000180011) then it will find all reactions
+      that this enzyme modifies, and for each of these reactions pull out the reactants
+      (shape=heptagon) and the products (shape=octagon), i.e. the metabolites)</p>
       <br>
 
         <h4 class="title is-4">Network graph</h4>
@@ -123,7 +130,14 @@
         <br>
 
 
-      <h3 id="metabolites" class="title is-3">Metabolites</h3>
+      <h3 id="metabolitepage" class="title is-3">Metabolite page</h3>
+      <p>Show the description of the current selected metabolite</p>
+      <br>
+
+        <h4 class="title is-4">Reactome table</h4>
+        <br>
+
+      <h3 id="reactionpage" class="title is-3">Reaction page</h3>
       <p>Show the description of the current selected metabolite</p>
       <br>
 
@@ -154,21 +168,26 @@
         <ul class="menu-list">
           <li><a href="#search">Search</a></li>
           <li><a href="#searchresults">Search results</a></li>
-          <li><a href="#reportermetabolites">The whole metabolic network</a></li>
-          <li>
-            <a href="#closestpartners">Closest interaction partners</a>
-            <ul class="menu-list">
-              <li>
-                <a href="#graphcustomisations">Graph customisations</a>
+          <li><a href="#GEMvis">GEM visualisation</a>
+            <ul>
+              <li><a href="#SVGs">The whole metabolic network</a></li>
+              <li><a href="#closestpartners">Closest interaction partners</a>
                 <ul class="menu-list">
-                  <li><a href="#shapecolor">Shape and color</a></li>
-                  <li><a href="#graphcustomisations">Zoom in/out</a></li>
-                  <li><a href="#zoominout">Fit the graph to the window</a></li>
-                  <li><a href="#expressionlevels">Color by expression levels</a></li>
+                  <li><a href="#graphcustomisations">Graph customisations</a>
+                    <ul class="menu-list">
+                      <li><a href="#shapecolor">Shape and color</a></li>
+                      <li><a href="#graphcustomisations">Zoom in/out</a></li>
+                      <li><a href="#zoominout">Fit the graph to the window</a></li>
+                      <li><a href="#expressionlevels">Color by expression levels</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#propertybox">Property box</a></li>
+                  <li><a href="#reactioncomponenttable">Reaction component table</a></li>
                 </ul>
               </li>
-              <li><a href="#propertybox">Property box</a></li>
-              <li><a href="#reactioncomponenttable">Reaction component table</a></li>
+              <li><a href="#enzymepage">Enzyme page</a></li>
+              <li><a href="#metabolitepage">Metabolite page</a></li>
+              <li><a href="#reactionpage">Reaction page</a></li>
             </ul>
           </li>
           <li><a href="#models">Models</a></li>
