@@ -23,7 +23,8 @@ export default {
       compartmentCount: 0,
       compartments: [],
       selectedCompartmentID: 0,
-      compartmentIDOrder: [1, 2, 3, 4, 5, 6, 7, 9, 8],
+      // compartmentIDOrder: [6, 7, 5, 3, 8, 2, 20, 21, 22, 23, 24, 25],
+      compartmentIDOrder: [6, 7, 5, 3, 8, 2],
     };
   },
   beforeMount() {
