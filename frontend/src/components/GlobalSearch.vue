@@ -1,6 +1,7 @@
 <template>
   <div class="column" v-bind:class="quickSearch ? 'is-7' : 'is-8'">
     <div class="control">
+      <div v-if="!quickSearch">Search across all GEMs</div>
       <div id="input-wrapper">
         <input
           id="search"
@@ -16,6 +17,11 @@
           <div id="text-input-alert" v-show="showSearchCharAlert">Type at least 2 char</div>
       </div>
       <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
+        <div class="has-text-centered">
+          <div class="tag">
+            Note: Results are restricted to the active GEM and limited to 50 per component - Hit Enter to get full results
+          </div>
+        </div>
         <div v-if="searchResults" v-for="v, k in searchResults" class="searchGroupResultSection">
           <div v-for="r in v" class="searchResultSection">
             <div v-if="k === 'reactionComponent'">
@@ -174,7 +180,6 @@ export default {
       EventBus.$emit('updateSelTab', type, id);
     },
     viewCompartment(id) {
-      console.log('test');
       this.goToTab('map', null);
       EventBus.$emit('showCompartment', id, []);
     },
@@ -214,6 +219,7 @@ export default {
       if (this.quickSearch) {
         this.goToSearchPage();
       } else if (this.searchTermString.length >= 2) {
+        this.$emit('searchResults');
         this.search(this.searchTermString);
       }
     },
