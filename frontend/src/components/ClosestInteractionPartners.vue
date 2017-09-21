@@ -140,7 +140,7 @@
             <div id="cy" ref="cy" class="card is-paddingless">
             </div>
           </div>
-          <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
+          <sidebar id="sidebar" :selectedElm="selectedElm" :view="'interaction'"></sidebar>
         </div>
         <div v-show="!showNetworkGraph" class="container columns">
           <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
