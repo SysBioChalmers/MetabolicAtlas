@@ -29,6 +29,7 @@
           <td>
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
+          <td>{{ r.cp }}</td>
           <td>{{ r.subsystem.join('; ') }}</td>
           <td v-html="">{{ r.compartment }}</td>
         </tr>
@@ -46,7 +47,7 @@ import { reformatChemicalReaction } from '../helpers/compartment';
 
 export default {
   name: 'reaction-table',
-  props: ['reactions'],
+  props: ['reactions', 'selectedElmId'],
   data() {
     return {
       fields: [{
@@ -58,6 +59,9 @@ export default {
       }, {
         display: 'Modifiers',
         name: 'modifiers',
+      }, {
+        display: 'C/P',
+        name: 'cp',
       }, {
         display: 'Subsystem',
         name: 'subsystem',
@@ -71,6 +75,23 @@ export default {
   },
   watch: {
     reactions() {
+      // create consume/produce column
+      // TODO do this at the dababase level
+      if (this.selectedElmId) {
+        for (const reaction of this.reactions) {
+          const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
+          const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
+          reaction.cp = '';
+          if (boolC) {
+            reaction.cp = 'consume';
+            if (boolP) {
+              reaction.cp += '/produce';
+            }
+          } else if (boolP) {
+            reaction.cp = 'produce';
+          }
+        }
+      }
       this.sortedReactions = this.reactions;
     },
   },
