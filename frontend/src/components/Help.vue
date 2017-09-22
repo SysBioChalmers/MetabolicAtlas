@@ -1,6 +1,6 @@
 <template>
   <div class="columns help-div">
-    <div class="container column is-8">
+    <div class="container column is-10">
       <h2 class="title is-2">GEM visualisation</h2>
       <br>
 
@@ -148,14 +148,17 @@
       <br>
 
     </div>
-    <div id="help-sidebar"class="column is-3">
+    <div class="column is-2"></div>
+    <div id="help-sidebar"class="column is-2">
       <div class="box">
-        <p class="menu-label">
-          GEM visualisation
-        </p>
         <ul class="menu-list">
-          <li><a href="#search">Search</a></li>
-          <li><a href="#searchresults">Search results</a></li>
+          <li><a href="#reportermetabolites">GEM visualisation</a></li>
+          <li>
+            <a href="#search">Search</a>
+            <ul class="menu-list">
+              <li><a href="#searchresults">Search results</a></li>
+            </ul>
+          </li>
           <li><a href="#reportermetabolites">The whole metabolic network</a></li>
           <li>
             <a href="#closestpartners">Closest interaction partners</a>
@@ -216,6 +219,12 @@ export default {
         margin-left: 0.2em;
       }
     }
+  }
+
+  #help-sidebar {
+    position: fixed;
+    right: 30px;
+    top: 110px;
   }
 
   #graphLegend {
