@@ -31,7 +31,7 @@
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td>{{ r.subsystem.join('; ') }}</td>
-          <td v-html="">{{ r.compartment }}</td>
+          <td v-html="">{{ r.compartment.replace('=>','⇨') }}</td>
         </tr>
       </tbody>
     </table>
