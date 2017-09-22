@@ -187,7 +187,10 @@ export function reformatChemicalReaction(equation, reaction) {
     return '';
   }
   const addComp = reaction.compartment.includes('=>');
-  const arr = equation.split(' &#8680; ');
+  let arr = equation.split(' &#8680; ');
+  if (arr.length === 1) {
+    arr = equation.split(' => ');
+  }
 
   // assumes the order in reaction.reactants (reps. reaction.products)
   // are identique to the order or the reactants (resp. products) of the equation
