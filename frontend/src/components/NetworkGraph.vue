@@ -86,7 +86,7 @@ export default {
       EventBus.$emit('showSVGmap', 'wholemap', null, []);
     });
     EventBus.$on('updateSelTab', (type, id) => {
-      console.log('on updateSelTab');
+      console.log(`on updateSelTab ${type} ${id}`);
       this.goToTab(type, id);
     });
   },
