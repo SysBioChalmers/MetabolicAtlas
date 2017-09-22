@@ -15,7 +15,7 @@
       <thead>
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
-          v-for="f in fields"
+          v-for="f in fields" v-show="f.name !== 'cp' || showCP"
             @click="sortBy(f.name)">{{ f.display }}
             </th>
         </tr>
@@ -29,7 +29,7 @@
           <td>
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
-          <td>{{ r.cp }}</td>
+          <td v-show="showCP">{{ r.cp }}</td>
           <td>{{ r.subsystem.join('; ') }}</td>
           <td v-html="">{{ r.compartment }}</td>
         </tr>
@@ -50,6 +50,7 @@ export default {
   props: ['reactions', 'selectedElmId'],
   data() {
     return {
+      showCP: false,
       fields: [{
         display: 'Reaction ID',
         name: 'id',
@@ -78,6 +79,7 @@ export default {
       // create consume/produce column
       // TODO do this at the dababase level
       if (this.selectedElmId) {
+        this.showCP = true;
         for (const reaction of this.reactions) {
           const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
           const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
