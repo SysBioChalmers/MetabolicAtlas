@@ -1,9 +1,9 @@
 <template>
   <div id="resources">
     <div>
-      <a href="#tools">Tools</a> 
-      <a href="#databases">Databases</a> 
-      <a href="#api">API</a> 
+      <a href="#tools">Tools</a>
+      <a href="#databases">Databases</a>
+      <a href="#api">API</a>
       <a href="#additional">Additional Resources</a>
     </div>
     <div class="rsection">
@@ -94,18 +94,17 @@
               collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
             </span>
           </div>
-          <br>
-          <div class="columns">
-            <div class="column is-1">
-              <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
-            </div>
-            <div class="column">
-              <div class="dsc">
-                <span>
-                  All the online tools powered by the RAVEN toolbox
-                </span>
-              </div>
-            </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-1">
+          <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
+        </div>
+        <div class="column">
+          <div class="dsc">
+            <span>
+              All the online tools powered by the RAVEN toolbox
+            </span>
           </div>
         </div>
       </div>
