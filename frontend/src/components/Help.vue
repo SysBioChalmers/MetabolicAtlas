@@ -109,6 +109,9 @@
             The moment you select one tissue it will color the proteins according to that.
           </p>
           <br>
+          <div id="graphLegend" v-html="getExpLvlLegend()"></div>
+          <br><br>
+
           <h6 class="title is-5">Export graph</h6>
           <p>Click the <b>Export graph</b> button, and you will be presented with
             two options: Graphml or PNG.<br>
@@ -295,8 +298,13 @@
 
 <script>
 
+import { getExpLvlLegend } from '../expression-sources/hpa';
+
 export default {
   name: 'help',
+  methods: {
+    getExpLvlLegend,
+  },
 };
 </script>
 
@@ -315,6 +323,34 @@ export default {
         margin-bottom: 0;
         margin-left: 0.2em;
       }
+    }
+  }
+
+  #graphLegend {
+    display: inline-block;
+    .title {
+      margin-bottom: 0.3em;
+    }
+
+    .exp-lvl-legend {
+      list-style: none;
+      li {
+        display: inline-block;
+        margin-left: 7px;
+        line-height: 15px;
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    span {
+      float: left;
+      margin: 0 2px 2px 2px;
+      width: 15px;
+      height: 15px;
+      display: block;
+      border: 1px solid black;
     }
   }
 }

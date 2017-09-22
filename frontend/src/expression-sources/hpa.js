@@ -7,7 +7,7 @@ const notDetectedColor = 'whitesmoke';
 const overExpressedColor = 'darkred';
 const rnaExpressionLvl = [
   [1, 'lightgray'],
-  [4, 'lightyellow'],
+  [4, 'yellow'],
   [5.5, 'orange'],
   [6.6, 'red'],
 ];
@@ -23,7 +23,7 @@ function getExpressionColor(value) {
 getExpressionColor(0);
 
 export function getExpLvlLegend() {
-  let l = '<div class="box"><div><h5 class="title is-6 has-text-centered">HPA RNA expression level - tpm </h5></div>';
+  let l = '<div class="box"><div><h5 class="title is-6 has-text-centered">HPA RNA expression level - log2(tpm) </h5></div>';
   const w = 150.0/(rnaExpressionLvl.length + (overExpressedColor ? 1 : 0));
   l += '<div class="has-text-centered">';
   l += '<ul class="exp-lvl-legend">'
