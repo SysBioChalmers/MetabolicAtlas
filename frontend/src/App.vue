@@ -77,7 +77,7 @@ export default {
       } else if (['tools', 'databases'].includes(name.toLowerCase())) {
         router.push(`Resources#${name.toLowerCase()}`);
       } else {
-        router.push(name);
+        router.push(`/${name}`);
       }
     },
     isActive(name) {

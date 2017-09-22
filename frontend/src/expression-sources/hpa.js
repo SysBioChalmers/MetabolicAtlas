@@ -36,7 +36,7 @@ export function getExpLvlLegend() {
     l += `<li><span style="background: ${el[1]}"></span> <=${el[0]}</li>`;
   }
   if (overExpressedColor) {
-    l += `<li><span style="background: ${overExpressedColor}"></span> >=${lv}</li>`;
+    l += `<li><span style="background: ${overExpressedColor}"></span> >${lv}</li>`;
   }
   l += '</ul></div></div>';
   return l;
