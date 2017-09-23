@@ -10,8 +10,8 @@
       </p>
     </div>
     <div>
-      <button class="button is-primary" @click="searchElements">Search</button>
-      <button class="button is-primary" @click="" disabled>Highlight</button>
+      <button class="button is-primary" @click="searchElements(false)">Search</button>
+      <button class="button is-primary" @click="searchElements(true)">Highlight</button>
     </div>
     <div id="table-res" v-show="showResults">
       <span class="help is-small">Click on a row to highlight the corresponding components</span>
@@ -24,7 +24,7 @@
         </thead>
         <tbody>
           <tr class="m-tr" v-for="v, k in results"
-            @click="hlElements(k, v)">
+            @click="hlCompartmentElements(k, v)">
             <td>{{ getCompartmentFromCID(k).name }}</td>
             <td>{{ v.length  }}</td>
           </tr>
@@ -49,6 +49,7 @@ export default {
       compartmentID: 0,
       results: {},
       enzymeIDs: [],
+      HLIDs: [],
     };
   },
   created() {
@@ -57,7 +58,7 @@ export default {
     });
   },
   methods: {
-    searchElements() {
+    searchElements(HLonly) {
       const termsString = this.$refs.textarea.value;
       const arrayTerms = termsString.trim().split(',');
       const filterArray = [];
@@ -67,15 +68,15 @@ export default {
           filterArray.push(trimTerm);
         }
       }
-      this.getReactionComponentIDs(filterArray);
+      this.getReactionComponentIDs(filterArray, HLonly);
     },
-    getReactionComponentIDs(array) {
+    getReactionComponentIDs(array, HLonly) {
       // get the correct IDs from the backend
       axios.post(`convert_to_reaction_component_ids/${this.compartmentID}`, { data: array })
       .then((response) => {
         const res = response.data;
         const d = {};
-        this.enzymeIDs = [];
+        const enzymeIDs = [];
         for (let i = 0; i < res.length; i += 1) {
           const compartmentID = res[i][0];
           const id = res[i][1];
@@ -85,11 +86,23 @@ export default {
             }
             d[compartmentID.toString()].push(id);
           } else {
-            this.enzymeIDs.push(id);
+            enzymeIDs.push(id);
           }
         }
-        this.results = d;
-        this.showResults = this.results.length !== 0;
+        // NOTE d is empty when only enzymes are found..
+
+        if (!HLonly) {
+          this.results = d;
+          this.enzymeIDs = enzymeIDs;
+          this.showResults = Object.keys(this.results).length !== 0;
+        } else {
+          let idlist = [];
+          for (const key of Object.keys(d)) {
+            idlist = idlist.concat(d[key]);
+          }
+          this.HLIDs = idlist.concat(enzymeIDs);
+          EventBus.$emit('showSVGmap', 'highlight', null, this.HLIDs);
+        }
       })
       .catch(() => {});
     },
@@ -100,7 +113,7 @@ export default {
       }
       currentRow.classList.add('sel-tr');
     },
-    hlElements(compartmentID, ids) {
+    hlCompartmentElements(compartmentID, ids) {
       EventBus.$emit('showSVGmap', 'compartment', compartmentID, ids.concat(this.enzymeIDs));
     },
     getCompartmentFromCID,
