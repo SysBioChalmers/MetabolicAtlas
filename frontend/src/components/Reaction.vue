@@ -44,7 +44,7 @@ export default {
         { name: 'compartment' },
         { name: 'subsystem', modifier: this.reformatSubsystemList },
         { name: 'equation', modifier: chemicalName },
-        { name: 'quantitative_stuff', isComposite: true, modifier: this.reformatQuant },
+        { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
         { name: 'modifiers', modifier: this.reformatModifiers },
         { name: 'reactants', modifier: this.reformatMetaboliteList },
         { name: 'products', modifier: this.reformatMetaboliteList },
@@ -118,7 +118,8 @@ export default {
       // return l.join('; ');
       let str = '';
       for (const a of l) {
-        str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
+        // str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
+        str = str.concat('<a href="#">', a, '</a>');
       }
       return str;
     },
@@ -147,14 +148,12 @@ export default {
     reformatQuant() {
       const data = [];
       for (const key of ['upper_bound', 'lower_bound', 'objective_coefficient']) {
-        data.push(this.formatQuantFieldName(this.reformatKey(key)));
         if (this.info[key]) {
+          data.push(this.formatQuantFieldName(this.reformatKey(key)));
           if (key === 'objective_coefficient') {
             data.push(this.reformatMass(this.info[key]));
           }
           data.push(this.info[key]);
-        } else {
-          data.push('-');
         }
         data.push('<span>&nbsp;&nbsp;</span>');
       }

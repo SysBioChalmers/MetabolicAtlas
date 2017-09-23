@@ -1,38 +1,42 @@
 <template>
   <div class="columns help-div">
     <div class="container column is-8">
-      <h2 class="title is-2">GEM visualisation</h2>
-      <br>
 
-      <a name="search" />
-      <h3 id="reportermetabolites" class="title is-3">Search</h3>
+      <h2 class="title is-2">GEM visualisation</h2>
+      <hr>
+      <h3 id="search" class="title is-3">Search</h3>
 
       <h4 class="title is-4">Search bar</h4>
-      <p><b>Search</b> for either metabolite, enzyme, or reaction by any number of 'attributes'.</p>
-      <p>Search for metabolite by identifier, name, or synonym, for example M_m01249c or uracil.</p>
-      <p>Once you start typing it will pull out all possible matches from the database and show these in the drop-down.</p>
-      <p>Depending on what type of 'hit' your requests results in (metabolite, enzyme, or reaction)
+      <b>Searches</b> for the term in metabolites, enzymes, subsystems, reactions, and reaction_components. </br>
+        &nbsp;<u>Metabolites</u>: kegg_id, hmdb_id, hmdb_name contains </br>
+        &nbsp;<u>Enzymes</u>: (uniprot_acc) </br>
+        &nbsp;<u>Subsystems</u>: (name contains) </br>
+        &nbsp;<u>Reactions</u>: (equation contains) </br>
+        &nbsp;<u>ReactionComponent</u>: (id, short name contains, long name contains, formula contains) </br>
+      Once you start typing it will pull out all possible matches from the database,
+      <i>for this given model (!)</i>, and show these in the drop-down.
+      Depending on what type of 'hit' your requests results in (metabolite, enzyme, or reaction)
         a number of different green buttons are shown:
         <ul>
           <li>For a metabolite:
             <ul>
-              <li><a href="">Closest interaction partners</a></li>
-              <li><a href="">Metabolite</a></li>
+              <li><a href="#closestpartners">Closest interaction partners</a></li>
+              <li><a href="#metabolitepage">Metabolite</a></li>
             </ul>
           </li>
           <li>For an enzyme:
             <ul>
-              <li><a href="">Closest interaction partners</a></li>
-              <li><a href="">Enzyme</a></li>
+              <li><a href="#closestpartners">Closest interaction partners</a></li>
+              <li><a href="#enzymepage">Enzyme</a></li>
             </ul>
           </li>
           <li>For a reaction:
             <ul>
-              <li><a href="">Reaction</a></li>
+              <li><a href="#reactionpage">Reaction</a></li>
             </ul>
           </li>
         By pressing one of these you go directly to that page...<br>
-        <b>alternatively</b> you can press Enter and be take to a table of
+        <i>alternatively</i> you can press Enter and be take to a table of
         all possible <a href="#searchresults">search results</a> that fit your term.
       </p>
       <br>
@@ -44,17 +48,39 @@
         In addition 11 enzymes match ATP, because there are whole families of
         ATP-related proteins.<br>
         In addition 739 reactions use, or produce ATP.<br>
-        Click on the ID in order to be taken to that page.
+        Click on the ID in order to be taken to the corresponding page.
       </p>
-      <br>
+      <p>
+        On this page you also have the option of searching, but here it will
+        instead search in the entire data, eg <i>across GEMs</i>.
+      </p>
 
-      <h3 id="reportermetabolites" class="title is-3">The whole metabolic network</h3>
-      <p>Find and visualize metabolite networks in the context of reactions, pathways, compartments or for the whole model map</p>
+      <hr>
+
+      <h3 id="wholenetwork" class="title is-3">The whole metabolic network</h3>
+      <p>Find, and visualize, reactions, metabolites, enzymes, in the context of
+        compartment and pathways, on the background of the for the whole map
+        for the chosen GEM </p>
       <br>
 
       <h3 id="closestpartners" class="title is-3">Closest interaction partners</h3>
-      <p>We treat all chemical equations (eg reactions) form HMR2.0 as binary "interactions". This gives us the option of "zooming in" around a given ReactionComponent (species in SBML) (for example an enzyme from HPA).</p>
-      <p>This could be used to "determine" how important a given ReactionComponent is, and how a set of ReactionComponents interact and how their expression levels change between tissues.</p>
+      <p>
+        We treat all chemical equations (eg reactions) form HMR2.0 as binary "interactions".
+        This gives us the option of "zooming in" around a given ReactionComponent
+        (species in SBML) (for example an enzyme from HPA). <br>
+        Take for example the reaction R_HRM_3905
+        <i>ethanol[c] + NAD+[c] => acetaldehyde[c] + H+[c] + NADH[c]</i>,
+        modified by 9 ADH proteins, this would give a 'neighbourhood' of
+        ethanol, NAD+, acetaldehyde, H+, NADH, ADH1B, ADH1C, ADH1A, ADHFE1,
+        ADH7, ADH6, ADH4, ZADH2, and ADH5.<br>
+        But these metabolites also participates in other reactions, so you
+        would include that information as well.
+      </p>
+      <p>
+        This could be used to "determine" how important a given ReactionComponent is,
+        and how a set of ReactionComponents interact and how their expression
+        levels change between tissues.
+      </p>
       <br>
 
         <h4 class="title is-4">The cytoscape graph</h4>
@@ -74,7 +100,6 @@
           <p>Press the <b>Fit</b> button will zoom in, or out depending, to fit
             all the edges and nodes of the graph to the window size.</p>
           <br>
-
           <h6 id="expressionlevels" class="title is-5">Expression levels</h6>
           <p>To show expression levels:<br>
             First click the <b>Options</b> button, then click in the "Show expression levels" tick box.
@@ -84,7 +109,6 @@
             The moment you select one tissue it will color the proteins according to that.
           </p>
           <br>
-
           <h6 class="title is-5">Export graph</h6>
           <p>Click the <b>Export graph</b> button, and you will be presented with
             two options: Graphml or PNG.<br>
@@ -92,15 +116,13 @@
             stylesheet in order to make it identical to the current view.
           </p>
           <br>
-
-        <h4 id="propertybox" class="title is-5">The property of the selected metabolite/enzyme box</h4>
+        <h4 id="propertybox_closest" class="title is-5">The property of the selected metabolite/enzyme box</h4>
         <p>Depending on whether you have selected (by clicking on the graph) a
           metabolite or an enzyme different fields will be shown here.
           But generally this should display the most relevant information for
           the selected reaction component, such as function, activity, and mass.
         </p>
         <br>
-
         <h4 id="reactioncomponenttable" class="title is-4">Reaction component table</h4>
         <p>All the reaction components, eg the nodes, of the above graph are shown in
           this table, along with some basic information such as name and type. <br>
@@ -108,67 +130,150 @@
         </p>
         <br>
 
+      <hr>
 
-      <h3 id="connectedmetabolites" class="title is-3">Catalysed reactions</h3>
-      <p>Take an enzyme, in the form of an Ensembl Gene Identifier (for example ENSG00000164303 or ENSG00000180011) then it will find all reactions that this enzyme modifies, and for each of these reactions pull out the reactants (shape=heptagon) and the products (shape=octagon), i.e. the metabolites)</p>
+      <h3 id="enzymepage" class="title is-3">Enzyme page</h3>
+      <p>
+        Take an enzyme, in the form of an Ensembl Gene Identifier
+        (for example ENSG00000164303 or ENSG00000180011) then it will find all reactions
+        that this enzyme modifies, and for each of these reactions pull out the reactants
+        (shape=heptagon) and the products (shape=octagon), i.e. the metabolites)
+      </p>
       <br>
-
-        <h4 class="title is-4">Network graph</h4>
+        <h5 class="title is-4">Network graph</h5>
+        <p>
+          The graph shows all the reactions that this protein is modifying as
+          large green boxes. On <u>top</u> of each box the name of the reaction,
+          for example R_HMR_7688, and the subsystem that it participates in,
+          for example Tyrosine metabolism, is shown.
+        </p>
+        <p>
+          Inside the green box <i>products</i> are circled by a <i>red</i> border,
+          whereas the <i>consumed</i> metabolites are circled by a <i>blue</i> border.
+        </p>
         <br>
-
-          <h5 class="title is-5">Side bar information</h5>
-          <br>
-
-        <h4 class="title is-4">Reaction component table</h4>
+        <h5 id="propertybox_enzyme" class="title is-5">The property of the selected metabolite/enzyme box</h5>
+        <p>
+          See the text for the closest interaction partners
+          <a href="#propertybox_closest">property of selected</a>.
+        </p>
         <br>
+        <h5 class="title is-4">Reaction component table</h5>
+        <p>
+          Lists all the reaction components, eg metabolites, that occurs in
+          these reactions. <i>Please note</i> that this means that the same
+          metabolite can, and often will, participate multiple times in this
+          table as it, for example, will be produced by one reaction and then
+          consumed by another.
+        </p>
 
+      <hr>
 
-      <h3 id="metabolites" class="title is-3">Metabolites</h3>
-      <p>Show the description of the current selected metabolite</p>
+      <h3 id="metabolitepage" class="title is-3">Metabolite page</h3>
+      <p>
+        Show the description of the current selected metabolite.<br>
+        This is a combination of annotations from the model, in-house
+        annotations, and relevant information from external sources
+        (eg HMDB for human data).
+      </p>
       <br>
+        <h5 class="title is-4">Reactome table</h5>
+        <p>
+          Here all the reactions that the current metabolite participates in,
+          either as a reactant or a product, are listed. <br>
+          Please note that a metabolite is identified by the compartment in
+          which it is found in (the last letter of the id), therefore
+          you will only see reactions that occur in the current compartment,
+          <u>unless</u> you press the <i>Expand to all compartments</i> button.<br>
+          <i>Please note</i> that the number of reactions will be limited to
+          200, no matter what.
+        </p>
 
-        <h4 class="title is-4">Reactome table</h4>
-        <br>
+      <hr>
+
+      <h3 id="reactionpage" class="title is-3">Reaction page</h3>
+      <p>
+        Show the description of the current selected reaction. <br>
+        For example list the articles that is associated to the reaction.
+      </p>
+
+      <hr>
 
       <h2 id="models" class="title is-2">Models</h2>
-      <p>List all models that the group have made</p>
-      <br>
+      <p>
+        List all models that the group have made, note that this include
+        both older models that might no longer be maintained (for example HMR
+        have been replaced with HMR2), but also those just published.
+      </p>
+
+      <hr>
 
       <h2 id="resources" class="title is-2">Resources</h2>
+        <h5 id="tools" class="title is-4">Tools and Software</h5>
+        <p>
+          Some of the most relevant software tools and algorithms that the group
+          have published could be found here, for example STIG-met, Kiwi, and Raven.
+        </p>
+        <br>
+        <h5 id="databases" class="title is-4">Databases</h5>
+        <p>
+          Some of the databases that the group have generated are linked from here,
+          for example human cancer secretome database (HCSD)
+          and stress response in yeast (yStreX).
+        </p>
+        <br>
+        <h5 id="api" class="title is-4">API</h5>
+        <p>
+          Link to the API for the GEM visualisation database part of this website,
+          as hosted by Swagger.
+        </p>
+        <br>
+        <h5 id="hreed_atlas" class="title is-4">Hreed and Atlas</h5>
+        <p>
+          List of all the legacy tools that were available on the old metabolicatlas.org
+          site, such as Hreed and Atlas.
+        </p>
       <br>
 
-      <h3 id="tools" class="title is-3">Tools</h3>
-      <p>List the tools...</p>
-      <br>
+      <hr>
 
-      <h3 id="api" class="title is-3">API</h3>
-      <p>The API allows to retrieve...</p>
-      <br>
+      <h2 id="gem_data" class="title is-2">GEM data</h2>
+      <p>
+        For information about the genome-scale metabolic models that are loaded
+        into the database, please refer to the <a href="/About">About</a> page.
+      </p>
+
+      <hr>
 
     </div>
     <div id="help-sidebar"class="column is-3">
       <div class="box">
         <p class="menu-label">
-          GEM visualisation
+          Table of Content
         </p>
         <ul class="menu-list">
-          <li><a href="#search">Search</a></li>
-          <li><a href="#searchresults">Search results</a></li>
-          <li><a href="#reportermetabolites">The whole metabolic network</a></li>
-          <li>
-            <a href="#closestpartners">Closest interaction partners</a>
-            <ul class="menu-list">
-              <li>
-                <a href="#graphcustomisations">Graph customisations</a>
+          <li><a href="#GEMvis">GEM visualisation</a>
+            <ul>
+              <li><a href="#search">Search</a></li>
+              <li><a href="#searchresults">Search results</a></li>
+              <li><a href="#SVGs">The whole metabolic network</a></li>
+              <li><a href="#closestpartners">Closest interaction partners</a>
                 <ul class="menu-list">
-                  <li><a href="#shapecolor">Shape and color</a></li>
-                  <li><a href="#graphcustomisations">Zoom in/out</a></li>
-                  <li><a href="#zoominout">Fit the graph to the window</a></li>
-                  <li><a href="#expressionlevels">Color by expression levels</a></li>
+                  <li><a href="#graphcustomisations">Graph customisations</a>
+                    <ul class="menu-list">
+                      <li><a href="#shapecolor">Shape and color</a></li>
+                      <li><a href="#graphcustomisations">Zoom in/out</a></li>
+                      <li><a href="#zoominout">Fit the graph to the window</a></li>
+                      <li><a href="#expressionlevels">Color by expression levels</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#propertybox">Property box</a></li>
+                  <li><a href="#reactioncomponenttable">Reaction component table</a></li>
                 </ul>
               </li>
-              <li><a href="#propertybox">Property box</a></li>
-              <li><a href="#reactioncomponenttable">Reaction component table</a></li>
+              <li><a href="#enzymepage">Enzyme page</a></li>
+              <li><a href="#metabolitepage">Metabolite page</a></li>
+              <li><a href="#reactionpage">Reaction page</a></li>
             </ul>
           </li>
           <li><a href="#models">Models</a></li>
@@ -176,10 +281,12 @@
             <a href="#resources">Resources</a>
             <ul class="menu-list">
               <li><a href="#tools">Tools</a></li>
-              <li><a href="#tools">Databases</a></li>
+              <li><a href="#databases">Databases</a></li>
               <li><a href="#api">API</a></li>
+              <li><a href="#hreed_atlas">Hreed and Atlas</a></li>
             </ul>
           </li>
+          <li><a href="#gem_data">GEM data</a></li>
         </ul>
       <div>
     </div>
