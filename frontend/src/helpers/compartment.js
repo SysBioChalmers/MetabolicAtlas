@@ -132,6 +132,12 @@ const l = {
   g: data['golgi apparatus'],
   n: data.nucleus,
   x: data.boundary,
+  c1: data.cytosol1,
+  c2: data.cytosol2,
+  c3: data.cytosol3,
+  c4: data.cytosol4,
+  c5: data.cytosol5,
+  c6: data.cytosol6,
 };
 
 const d = {
@@ -144,6 +150,12 @@ const d = {
   7: data['golgi apparatus'],
   8: data.nucleus,
   9: data.boundary,
+  20: data.cytosol1,
+  21: data.cytosol2,
+  22: data.cytosol3,
+  23: data.cytosol4,
+  24: data.cytosol5,
+  25: data.cytosol6,
 };
 
 export function getCompartmentFromLetter(letter) {

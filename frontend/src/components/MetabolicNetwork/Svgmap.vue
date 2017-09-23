@@ -391,7 +391,7 @@ export default {
   .svgbox {
     position: relative;
     margin: auto;
-    width:1200px;
+    width: auto;
     height:700px;
     border: 1px solid black;
   }

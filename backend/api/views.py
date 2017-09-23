@@ -600,7 +600,6 @@ def convert_to_reaction_component_ids(request, compartmentID):
         try:
             compartment = Compartment.objects.get(id=compartmentID)
             compartment = compartment.name
-            logging.warn(compartment);
         except Compartment.DoesNotExist:
             return HttpResponse(status=404)
 
@@ -659,6 +658,35 @@ def get_subsystem_coordinates(request, subsystem_id):
     serializer = TileSubsystemSerializer(tileSubsystem)
 
     return JSONResponse(serializer.data)
+
+@api_view()
+def get_compartment(request, compartmentID):
+    logging.warn('test')
+    try:
+        compartment = Compartment.objects.get(id=compartmentID)
+        compartment = compartment.name
+    except Compartment.DoesNotExist:
+        return HttpResponse(status=404)
+
+    # TODO add theses stats in the compartment table
+    metabolites_unique = ReactionComponent.objects.filter(Q(compartment=compartmentID) & Q(component_type='metabolite')).count()
+    enzymes_unique = ReactionComponent.objects.filter(Q(compartment=compartmentID) & Q(component_type='enzyme')).count()
+    reaction_count = Reaction.objects.filter(Q(compartment=compartment)).count()
+    subsystem_count = TileSubsystem.objects.filter(Q(compartment_name=compartment) & Q(is_main=True)).count() # TODO add is_main Q
+
+    logging.warn(metabolites_unique)
+    logging.warn(enzymes_unique)
+    logging.warn(reaction_count)
+    logging.warn(subsystem_count)
+
+    result = {
+        'metabolite_count': metabolites_unique,
+        'enzyme_count': enzymes_unique,
+        'reaction_count': reaction_count,
+        'subsystem_count': subsystem_count
+    }
+
+    return JSONResponse(result)
 
 
 #=========================================================================================================
@@ -755,7 +783,5 @@ def get_HPA_xml_content(request):
 
     import gzip
     ddata = gzip.decompress(data)
-
-    # logging.warn(ddata)
 
     return HttpResponse(ddata)
