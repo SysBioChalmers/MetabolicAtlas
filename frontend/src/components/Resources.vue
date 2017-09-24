@@ -74,13 +74,11 @@
           <a href="hreed">Hreed</a>
         </div>
         <div class="column">
-          <div class="">
-            <span>
-              Hreed (Human REaction Entities Database) facilitates an access
-              to the Hreed reaction data, which can be easily retrieved by
-              using specific keywords or names of related genes, proteins, compounds and cross-references.
-            </span>
-          </div>
+          <span>
+            Hreed (Human REaction Entities Database) facilitates an access
+            to the Hreed reaction data, which can be easily retrieved by
+            using specific keywords or names of related genes, proteins, compounds and cross-references.
+          </span>
         </div>
       </div>
       <div class="columns">
@@ -88,12 +86,10 @@
           <a href="atlas">Atlas</a>
         </div>
         <div class="column">
-          <div class="">
-            <span>
-              Atlas web interface can be used for visualization of the GEMs
-              collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
-            </span>
-          </div>
+          <span>
+            Atlas web interface can be used for visualization of the GEMs
+            collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
+          </span>
         </div>
       </div>
       <div class="columns">
@@ -101,11 +97,9 @@
           <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
         </div>
         <div class="column">
-          <div class="dsc">
-            <span>
-              All the online tools powered by the RAVEN toolbox
-            </span>
-          </div>
+          <span>
+            All the online tools powered by the RAVEN toolbox
+          </span>
         </div>
       </div>
     </div>
