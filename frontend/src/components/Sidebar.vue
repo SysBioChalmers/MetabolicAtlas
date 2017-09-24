@@ -45,14 +45,14 @@
           <div v-if="selectedElm.details.kegg">
             <p class="label il">Kegg: </p>
             <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
-            <br>
           </div>
           <div v-if="!selectedElm.details.hmdb_description &&
                      !selectedElm.details.mass &&
                      !selectedElm.details.kegg">
             {{ $t('noInfoAvailable') }}
           </div>
-          <div v-else>
+          <div>
+            <br>
             <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
           </div>
         </div>
@@ -61,12 +61,12 @@
         <div v-if="selectedElm.subsystem">
           <p class="label">Subsystem</p>
           <p>{{ selectedElm.subsystem.join(', ') }}</p>
-          <br>
         </div>
         <div v-if="!selectedElm.subsystem">
           {{ $t('noInfoAvailable') }}
         </div>
         <div v-else>
+          <br>
           <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
         </div>
       </div>

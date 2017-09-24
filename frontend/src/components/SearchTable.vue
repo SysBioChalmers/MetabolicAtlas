@@ -16,12 +16,12 @@
           <li :disabled="resultsCount[tab] === 0" 
           :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
           v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
-            <a v-show="!searchResultsSplittedFiltered[tab] || searchResultsSplittedFiltered[tab].length === resultsCount[tab]">
+            <a v-show="!searchResultsFiltered[tab] || searchResultsFiltered[tab].length === resultsCount[tab]">
               {{ tab | capitalize }} ({{ resultsCount[tab] }})
             </a>
-            <a v-show="searchResultsSplittedFiltered[tab] && searchResultsSplittedFiltered[tab].length !== resultsCount[tab]">
+            <a v-show="searchResultsFiltered[tab] && searchResultsFiltered[tab].length !== resultsCount[tab]">
               {{ tab | capitalize }} ({{ resultsCount[tab] }})
-              ({{ searchResultsSplittedFiltered[tab] ? searchResultsSplittedFiltered[tab].length : 0 }})
+              ({{ searchResultsFiltered[tab] ? searchResultsFiltered[tab].length : 0 }})
             </a>
           </li>
         </ul>
@@ -45,7 +45,7 @@
               </select>
             </div>
           </div>
-          <table class="table">
+          <table class="table is-fullwidth">
             <thead>
               <tr>
                 <th>Organism</th><th>Model</th><th>Compartment</th>
@@ -53,7 +53,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in searchResultsSplittedFiltered['metabolite']">
+              <tr v-for="item in searchResultsFiltered['metabolite']">
                 <td>{{ item.organism | capitalize }}</td>
                 <td>HMR2.00</td>
                 <td>{{ item.compartment | capitalize }}</td>
@@ -70,7 +70,7 @@
         <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
           <div class="columns">
             <div class="column">
-              <table class="table">
+              <table class="table is-fullwidth">
                 <thead>
                   <tr>
                     <th>Organism</th><th>Model</th><th>Compartment</th><th>ID</th>
@@ -78,7 +78,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in searchResultsSplitted['enzyme']">
+                  <tr v-for="item in searchResults['enzyme']">
                     <td>{{ item.organism | capitalize }}</td>
                     <td>HMR2.00</td>
                     <td>{{ item.compartment | capitalize }}</td>
@@ -96,7 +96,7 @@
         <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
           <div class="columns">
             <div class="column">
-              <table class="table">
+              <table class="table is-fullwidth">
                 <thead>
                   <tr>
                     <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
@@ -104,7 +104,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in searchResultsSplitted['reaction']">
+                  <tr v-for="item in searchResults['reaction']">
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize}}</td>
                     <td>HMR2.00</td>
                     <td>{{ item.subsystem.join('; ')}}</td>
@@ -122,14 +122,14 @@
         <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
           <div class="columns">
             <div class="column">
-              <table class="table">
+              <table class="table is-fullwidth">
                 <thead>
                   <tr>
                     <th>Organism</th><th>Model</th><th>Subsystem</th><th>System</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in searchResultsSplitted['subsystem']">
+                  <tr v-for="item in searchResults['subsystem']">
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
                     <td>{{ item.name | capitalize }}</td>
@@ -143,14 +143,14 @@
         <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
           <div class="columns">
             <div class="column">
-              <table class="table">
+              <table class="table is-fullwidth">
                 <thead>
                   <tr>
                     <th>Organism</th><th>Model</th><th>Compartment</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in searchResultsSplitted['compartment']">
+                  <tr v-for="item in searchResults['compartment']">
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
                     <td>{{ item.name | capitalize }}</td>
@@ -209,27 +209,11 @@ export default {
     };
   },
   computed: {
-    searchResultsSplitted() {
-      if (!this.searchResults.reactionComponent) {
+    searchResultsFiltered() {
+      if (!this.searchResults) {
         return {};
       }
-      const r = this.searchResults.reactionComponent.reduce((subarray, el) => {
-        const arr = subarray;
-        if (!arr[el.component_type]) { arr[el.component_type] = []; }
-        arr[el.component_type].push(el);
-        return arr;
-      }, {});
-
-      r.reaction = this.searchResults.reaction;
-      r.subsystem = this.searchResults.subsystem;
-      r.compartment = this.searchResults.compartment;
-      return r;
-    },
-    searchResultsSplittedFiltered() {
-      if (!this.searchResultsSplitted) {
-        return {};
-      }
-      const arr = JSON.parse(JSON.stringify(this.searchResultsSplitted));
+      const arr = JSON.parse(JSON.stringify(this.searchResults));
       for (const key of Object.keys(this.activeFilters)) {
         for (const compo of Object.keys(this.activeFilters[key])) {
           const val = this.activeFilters[key][compo];
@@ -262,9 +246,9 @@ export default {
       for (const key of this.tabs) {
         this.resultsCount[key] = 0;
       }
-      for (const el of Object.keys(this.searchResultsSplitted)) {
+      for (const el of Object.keys(this.searchResults)) {
         if (el in this.resultsCount) {
-          this.resultsCount[el] = this.searchResultsSplitted[el].length;
+          this.resultsCount[el] = this.searchResults[el].length;
         }
       }
     },
@@ -302,8 +286,8 @@ export default {
       };
 
       // store choice only once in a dict
-      for (const componentType of Object.keys(this.searchResultsSplitted)) {
-        const compoList = this.searchResultsSplitted[componentType];
+      for (const componentType of Object.keys(this.searchResults)) {
+        const compoList = this.searchResults[componentType];
         for (const el of compoList) {
           for (const field of Object.keys(newFilter[componentType])) {
             newFilter[componentType][field][el[field]] = 1;
@@ -337,8 +321,7 @@ export default {
     updateResults(term, val) {
       this.loading = false;
       this.searchTerm = term;
-      this.searchResultsSplitted = {};
-      this.searchResultsSplittedFiltered = {};
+      this.searchResultsFiltered = {};
       this.searchResults = val;
 
       // count types
@@ -365,7 +348,7 @@ export default {
       } else {
         newActiveFilters[type][compo] = value;
       }
-      // trigger changes in the computed property 'searchResultsSplittedFiltered'
+      // trigger changes in the computed property 'searchResultsFiltered'
       this.activeFilters = newActiveFilters;
     },
     showTab(elementType) {

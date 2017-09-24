@@ -10,7 +10,7 @@
           <span v-show="expandAllCompartment">Restrict to current compartment</span>
           </button>
       </p>
-      <reaction-table v-show="!showLoader" :reactions="reactions"></reaction-table>
+      <reaction-table v-show="!showLoader" :reactions="reactions" :selectedElmId="elementID"></reaction-table>
       <div v-if="errorMessage" class="columns">
         <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
           {{ errorMessage }}
@@ -45,6 +45,7 @@ export default {
       reactome: null,
       showLoader: true,
       expandAllCompartment: false,
+      elementID: '',
     };
   },
   watch: {
@@ -90,7 +91,8 @@ export default {
     },
     loadReactions() {
       this.showLoader = true;
-      let id = this.$route.params.id || this.$route.query.id;
+      this.elementID = this.$route.params.id || this.$route.query.id;
+      let id = this.elementID;
       if (this.expandAllCompartment) {
         id = id.replace(/[a-z]$/, '');
       }

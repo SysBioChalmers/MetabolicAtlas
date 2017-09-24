@@ -1,7 +1,6 @@
 <template>
   <div class="columns help-div">
-    <div class="container column is-8">
-
+    <div class="container column is-10">
       <h2 class="title is-2">GEM visualisation</h2>
       <hr>
       <h3 id="search" class="title is-3">Search</h3>
@@ -109,6 +108,9 @@
             The moment you select one tissue it will color the proteins according to that.
           </p>
           <br>
+          <div id="graphLegend" v-html="getExpLvlLegend()"></div>
+          <br><br>
+
           <h6 class="title is-5">Export graph</h6>
           <p>Click the <b>Export graph</b> button, and you will be presented with
             two options: Graphml or PNG.<br>
@@ -246,18 +248,24 @@
       <hr>
 
     </div>
-    <div id="help-sidebar"class="column is-3">
+    <div class="column is-2"></div>
+    <div id="help-sidebar"class="column is-2">
       <div class="box">
         <p class="menu-label">
           Table of Content
         </p>
         <ul class="menu-list">
           <li><a href="#GEMvis">GEM visualisation</a>
-            <ul>
-              <li><a href="#search">Search</a></li>
-              <li><a href="#searchresults">Search results</a></li>
-              <li><a href="#SVGs">The whole metabolic network</a></li>
-              <li><a href="#closestpartners">Closest interaction partners</a>
+          <ul>
+            <li>
+              <a href="#search">Search</a>
+              <ul class="menu-list">
+                <li><a href="#searchresults">Search results</a></li>
+              </ul>
+            </li>
+            <li><a href="#SVGs">The whole metabolic network</a></li>
+            <li>
+              <a href="#closestpartners">Closest interaction partners</a>
                 <ul class="menu-list">
                   <li><a href="#graphcustomisations">Graph customisations</a>
                     <ul class="menu-list">
@@ -295,8 +303,13 @@
 
 <script>
 
+import { getExpLvlLegend } from '../expression-sources/hpa';
+
 export default {
   name: 'help',
+  methods: {
+    getExpLvlLegend,
+  },
 };
 </script>
 
@@ -315,6 +328,40 @@ export default {
         margin-bottom: 0;
         margin-left: 0.2em;
       }
+    }
+  }
+
+  #help-sidebar {
+    position: fixed;
+    right: 30px;
+    top: 110px;
+  }
+
+  #graphLegend {
+    display: inline-block;
+    .title {
+      margin-bottom: 0.3em;
+    }
+
+    .exp-lvl-legend {
+      list-style: none;
+      li {
+        display: inline-block;
+        margin-left: 7px;
+        line-height: 15px;
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    span {
+      float: left;
+      margin: 0 2px 2px 2px;
+      width: 15px;
+      height: 15px;
+      display: block;
+      border: 1px solid black;
     }
   }
 }

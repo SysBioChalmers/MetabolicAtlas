@@ -588,6 +588,9 @@ def search(request, term, truncated):
 @api_view(['POST'])
 def convert_to_reaction_component_ids(request, compartmentID):
     arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
+    if not arrayTerms:
+        return JSONResponse({})
+
     query = Q()
     reaction_query = Q()
     for term in arrayTerms:
@@ -600,7 +603,6 @@ def convert_to_reaction_component_ids(request, compartmentID):
         try:
             compartment = Compartment.objects.get(id=compartmentID)
             compartment = compartment.name
-            logging.warn(compartment);
         except Compartment.DoesNotExist:
             return HttpResponse(status=404)
 
@@ -610,28 +612,29 @@ def convert_to_reaction_component_ids(request, compartmentID):
         reactionComponents = ReactionComponent.objects.filter(query).values_list('compartment_id', 'id').distinct()
 
     if str(compartmentID) != '0':
+        # TODO field 'compartment' is a name or an equation ... equation will not work here 
         reactions = Reaction.objects.filter(reaction_query & Q(compartment=compartment)).values_list('compartment', 'id')
     else:
         reactions = Reaction.objects.filter(reaction_query).values_list('compartment', 'id').distinct()
 
     logging.warn(reactions);
-    # remove this part when Reaction has a foreigh key on compartment
+    logging.warn(reactionComponents);
+
+    # TODO remove this part when Reaction has a foreigh key on compartment
     if reactions.count():
         newReaction = []
         for i, (compartment, rcid) in enumerate(reactions):
-            newReaction.append((Compartment.objects.get(name=compartment).id, rcid))
+            newReaction.append((Compartment.objects.get(name=compartment).id, rcid)) # ERROR 500 on equation-compartment (transport reaction)
         reactions = newReaction
         logging.warn(newReaction);
 
     if reactions:
         reactionComponents = list(chain(reactionComponents, reactions))
-    else:
-        reactionComponents = reactions
 
     if not reactionComponents or len(reactionComponents) == 0:
         return HttpResponse(status=404)
 
-    return JSONResponse(reactionComponents);
+    return JSONResponse(reactionComponents)
 
 @api_view()
 def get_subsystems(request):
@@ -659,6 +662,31 @@ def get_subsystem_coordinates(request, subsystem_id):
     serializer = TileSubsystemSerializer(tileSubsystem)
 
     return JSONResponse(serializer.data)
+
+@api_view()
+def get_compartment(request, compartmentID):
+    logging.warn('test')
+    try:
+        compartment = Compartment.objects.get(id=compartmentID)
+        compartment = compartment.name
+    except Compartment.DoesNotExist:
+        return HttpResponse(status=404)
+
+    # TODO add theses stats in the compartment table
+    metabolites_unique = ReactionComponent.objects.filter(Q(compartment=compartmentID) & Q(component_type='metabolite')).count()
+    enzymes_unique = ReactionComponent.objects.filter(Q(compartment=compartmentID) & Q(component_type='enzyme')).count()
+    reaction_count = Reaction.objects.filter(Q(compartment=compartment)).count()
+    subsystem_count = TileSubsystem.objects.filter(Q(compartment_name=compartment) & Q(is_main=True)).count() # TODO remove is_main?
+    # TODO fix enzymes_unique is almost always 0, the compartment id is always '4' is the table reaction_component for type 'enzyme'
+
+    result = {
+        'metabolite_count': metabolites_unique,
+        'enzyme_count': enzymes_unique,
+        'reaction_count': reaction_count,
+        'subsystem_count': subsystem_count
+    }
+
+    return JSONResponse(result)
 
 
 #=========================================================================================================
@@ -755,7 +783,5 @@ def get_HPA_xml_content(request):
 
     import gzip
     ddata = gzip.decompress(data)
-
-    # logging.warn(ddata)
 
     return HttpResponse(ddata)

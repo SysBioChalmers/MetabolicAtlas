@@ -4,7 +4,7 @@
       <div class="column is-3">
         <div class="tabs is-pulled-left is-toggle">
           <li class="is-active"><a><span>{{ $t('human') }}</span></a></li>
-          <li><a><span>{{ $t('yeast') }}</span></a></li>
+          <li v-if="false"><a><span>{{ $t('yeast') }}</span></a></li>
         </div>
       </div>
       <global-search
@@ -86,7 +86,7 @@ export default {
       EventBus.$emit('showSVGmap', 'wholemap', null, []);
     });
     EventBus.$on('updateSelTab', (type, id) => {
-      console.log('on updateSelTab');
+      console.log(`on updateSelTab ${type} ${id}`);
       this.goToTab(type, id);
     });
   },

@@ -879,6 +879,7 @@ export default {
       margin-bottom: 0.3em;
     }
 
+    /* if modified, change the css in the help page as well*/
     .exp-lvl-legend {
       list-style: none;
       li {
@@ -890,7 +891,7 @@ export default {
         }
       }
     }
-
+    /* if modified, change the css in the help page as well*/
     span {
       float: left;
       margin: 0 2px 2px 2px;

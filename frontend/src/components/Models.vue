@@ -209,6 +209,9 @@ export default {
   },
   beforeMount() {
     this.getModels();
+    if (this.$route.params && this.$route.params.id) {
+      this.getModel(this.$route.params.id);
+    }
   },
 };
 

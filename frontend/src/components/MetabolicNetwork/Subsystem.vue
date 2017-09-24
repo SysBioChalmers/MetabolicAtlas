@@ -92,6 +92,7 @@ export default {
               this.subsystemsSystem[k] = s;
             }
           }
+          // update the parent component
           this.$emit('sendSubSysCount', this.subsystemCount);
         })
         .catch((error) => {
@@ -113,7 +114,7 @@ export default {
             minY: subCoors.y_top_left,
             maxY: subCoors.y_bottom_right,
           };
-          EventBus.$emit('showSVGmap', 'tiles', subCoors.compartment_name, coors);
+          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartment_name, coors);
         })
         .catch((error) => {
           console.log(error);

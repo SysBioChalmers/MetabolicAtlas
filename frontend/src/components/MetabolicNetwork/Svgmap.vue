@@ -9,8 +9,9 @@
           <span class="button" v-show="!showMissingSVGString" v-on:click="svgfit()">Reset view</span>
         </div>
       </div>
-      <div class="svgbox has-text-centered" v-show="showMissingSVGString">
-        Sorry, the SVG file is not available for this compartment
+      <div class="svgbox has-text-centered" v-show="showMissingSVGString"
+        style="line-height: 200px">
+        Sorry, the SVG file is not yet available for this compartment
       </div>
     </div>
   </div>
@@ -43,6 +44,7 @@ export default {
       panZoom: null,
       ids: [],
       HLelms: [],
+      HLonly: false,
       zoomBox: {
         minX: 99999,
         maxX: 0,
@@ -60,22 +62,28 @@ export default {
       // console.log('show svg map');
       // console.log(`emit ${type} ${id} ${ids}`);
       if (type === 'compartment') {
+        this.HLonly = false;
         this.hlElements(id, ids);
       } else if (type === 'subsystem') {
-        console.log('run subsystem');
-      } else if (type === 'tiles') {
-        console.log('run tiles');
+        this.HLonly = false;
         this.showTiles(id, ids);
+      } else if (type === 'tiles') {
+        this.HLonly = false;
+        this.showTiles(id, ids);
+      } else if (type === 'highlight') {
+        this.HLonly = true;
+        this.hlElements(null, ids);
       } else if (type === 'wholemap') {
-        this.loadSVG(this.svgBigMapName, this.swapSVG, null);
+        this.loadSVG(this.svgBigMapName, this.loadSvgPanZoom, null);
       }
     });
-    // this.loadSVG(this.svgBigMapName, this.swapSVG, null);
+    // this.loadSVG(this.svgBigMapName, this.loadSvgPanZoom, null);
   },
   mounted() {
-    // console.log('svgmap mounted');
     $('#svgbox').attr('width', '100%');
     $('#svgbox').attr('height', `${$(window).height() - 300}`);
+
+    // add a white reactange behind the name
     $('#svg-wrapper').on('mouseover', '.Metabolite, .Reaction', function f() {
       const text = $(this)[0].children[1].children[0];
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -87,10 +95,13 @@ export default {
       rect.setAttribute('fill', 'white');
       $(this)[0].children[1].insertBefore(rect, text);
     });
+    // remove the white rectangle
     $('#svg-wrapper').on('mouseout', '.Metabolite, .Reaction', function f() {
       $(this)[0].children[1].removeChild($(this)[0].children[1].children[0]);
     });
+    //  enzymes are also .Metabolite
     $('#svg-wrapper').on('click', '.Metabolite', function f() {
+      // exact the real id from the id
       const id = $(this).attr('id').substring(11).split('$')[0].trim();
       if (id[0] === 'E') {
         EventBus.$emit('updateSelTab', 'enzyme', id);
@@ -99,13 +110,14 @@ export default {
       }
     });
     $('#svg-wrapper').on('click', '.Reaction', function f() {
+      // exact the real id from the id
       const id = $(this).attr('id').substring(9).split('$')[0];
       EventBus.$emit('updateSelTab', 'reaction', id);
     });
   },
   methods: {
-    swapSVG(callback) {
-      // console.log('swap svg');
+    loadSvgPanZoom(callback) {
+      // load the lib svgPanZoom on the SVG loaded
       setTimeout(() => {
         this.panZoom = svgPanZoom('#svg-wrapper svg', {
           zoomEnabled: true,
@@ -121,28 +133,28 @@ export default {
         this.svgfit();
         this.unHighlight();
         if (callback) {
-          // call getElements
+          // call findElementsOnSVG
           callback();
         }
       }, 0);
     },
     svgfit() {
-      // console.log('fit svg');
       $('#svg-wrapper svg').attr('width', '100%');
       const h = $('.svgbox').first().css('height');
       $('#svg-wrapper svg').attr('height', h);
-      this.panZoom.resize(); // update SVG cached size and controls positions
+      this.panZoom.resize(); // update SVG cached size
       this.panZoom.fit();
       this.panZoom.center();
       this.showLoader = false;
     },
     loadSVG(svgName, callback, callback2) {
-      // console.log('run load svg');
+      // load the svg file from the server
+      // if aleady loaded, just call the callback funtion
       const newSvgName = svgName;
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
       this.showLoader = true;
       if (!newSvgName) {
-        // TODO remove this when all svg files available
+        // TODO remove this when all svg files are available
         this.showMissingSVGString = true;
         this.showLoader = false;
         return;
@@ -169,19 +181,15 @@ export default {
             this.showLoader = false;
             this.showMissingSVGString = true;
           });
+      } else if (callback2) {
+        // call findElementsOnSVG
+        callback2();
       } else {
-        // console.log('not new svg');
-        this.unHighlight();
-        if (callback2) {
-          // call getElements
-          callback2();
-        } else {
-          this.svgfit();
-        }
+        this.svgfit();
       }
     },
-    getElement() {
-      // console.log('call getelements');
+    findElementsOnSVG() {
+      // console.log('call findElementsOnSVGs');
       // console.log(this.ids);
       const a = [];
       const debug = false;
@@ -269,15 +277,14 @@ export default {
       // console.log(this.zoomBox);
     },
     getTransform(el) {
+      // read and parse the transform attribut, no used anmore
       let transform = el.attr('transform');
       transform = transform.substring(0, transform.length - 1);
       transform = transform.substring(7, transform.length);
       return transform.split(',').map(parseFloat);
     },
     highlightSVGelements(els) {
-      // console.log('call hl');
-      // console.log('els');
-      // console.log(els);
+      this.unHighlight();
       const debug = false;
       this.resetZoombox();
       for (const el of els) {
@@ -289,18 +296,16 @@ export default {
           console.log(path);
           console.log(path[0].getBBox());
         }
+        // change the box color only
         path.addClass('hl');
         this.HLelms.push(path);
-        // const transform = this.getTransform(path);
-        // const zptransform = this.getTransform($('.svg-pan-zoom_viewport'));
-
-        // const rx = el[0].getBBox().x + (el[0].getBBox().width / 2);
-        // const ry = el[0].getBBox().y + (el[0].getBBox().height / 2);
-        // const rx = parseInt(transform[4], 10);
-        // const ry = parseInt(transform[5], 10);
-        this.updateZoomBox(el[0]); // dom element
+        if (!this.HLonly) {
+          this.updateZoomBox(el[0]); // the DOM element
+        }
       }
-      this.zoomOnTiles();
+      if (!this.HLonly) {
+        this.zoomOnTiles();
+      }
     },
     zoomOnTiles() {
       // console.log('zoom tiles');
@@ -327,7 +332,7 @@ export default {
     },
     unHighlight() {
       if (this.HLelms) {
-        // un-highligh elements
+        // un-highlight elements
         for (let i = 0; i < this.HLelms.length; i += 1) {
           this.HLelms[i].removeClass('hl');
         }
@@ -338,21 +343,20 @@ export default {
       if (compartmentID) {
         this.compartment = getCompartmentFromCID(compartmentID);
         this.ids = ids;
-        this.loadSVG(this.compartment.svgName, this.swapSVG, this.getElement);
+        this.loadSVG(this.compartment.svgName, this.loadSvgPanZoom, this.findElementsOnSVG);
+      } else {
+        this.unHighlight();
+        this.ids = ids;
+        if (ids) {
+          this.findElementsOnSVG();
+        }
       }
     },
-    showTiles(compartmentL, coordinate) {
-      if (compartmentL) {
-        console.log('inside showTiles');
-        console.log(compartmentL);
-        this.compartment = getCompartmentFromName(compartmentL);
-        console.log('here I am ');
-        console.log(this.compartment);
+    showTiles(compartment, coordinate) {
+      if (compartment) {
+        this.compartment = getCompartmentFromName(compartment);
         this.updateZoomBoxCoor(coordinate);
-        console.log('after update');
-        console.log(coordinate);
-        console.log(this.zoomBox);
-        this.loadSVG(this.compartment.svgName, this.swapSVG, this.zoomOnTiles);
+        this.loadSVG(this.compartment.svgName, this.loadSvgPanZoom, this.zoomOnTiles);
       }
     },
     getCompartmentFromCID,
@@ -391,7 +395,7 @@ export default {
   .svgbox {
     position: relative;
     margin: auto;
-    width:1200px;
+    width: auto;
     height:700px;
     border: 1px solid black;
   }

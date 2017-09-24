@@ -19,6 +19,7 @@ const routes = [
   { path: '/comparemodels', name: 'compare models', component: CompareModels },
   { path: '/search', name: 'search', component: SearchTable },
   { path: '/models', name: 'models', component: Models },
+  { path: '/models/:id', name: 'model', component: Models },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/help', name: 'help', component: Help },
   { path: '/contact', name: 'contact', component: Contact },

@@ -15,7 +15,7 @@
       <thead>
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
-          v-for="f in fields"
+          v-for="f in fields" v-show="f.name !== 'cp' || showCP"
             @click="sortBy(f.name)">{{ f.display }}
             </th>
         </tr>
@@ -29,8 +29,9 @@
           <td>
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
+          <td v-show="showCP">{{ r.cp }}</td>
           <td>{{ r.subsystem.join('; ') }}</td>
-          <td v-html="">{{ r.compartment }}</td>
+          <td v-html="">{{ r.compartment.replace('=>','⇨') }}</td>
         </tr>
       </tbody>
     </table>
@@ -46,9 +47,10 @@ import { reformatChemicalReaction } from '../helpers/compartment';
 
 export default {
   name: 'reaction-table',
-  props: ['reactions'],
+  props: ['reactions', 'selectedElmId'],
   data() {
     return {
+      showCP: false,
       fields: [{
         display: 'Reaction ID',
         name: 'id',
@@ -58,6 +60,9 @@ export default {
       }, {
         display: 'Modifiers',
         name: 'modifiers',
+      }, {
+        display: 'C/P',
+        name: 'cp',
       }, {
         display: 'Subsystem',
         name: 'subsystem',
@@ -71,6 +76,24 @@ export default {
   },
   watch: {
     reactions() {
+      // create consume/produce column
+      // TODO do this at the dababase level
+      if (this.selectedElmId) {
+        this.showCP = true;
+        for (const reaction of this.reactions) {
+          const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
+          const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
+          reaction.cp = '';
+          if (boolC) {
+            reaction.cp = 'consume';
+            if (boolP) {
+              reaction.cp += '/produce';
+            }
+          } else if (boolP) {
+            reaction.cp = 'produce';
+          }
+        }
+      }
       this.sortedReactions = this.reactions;
     },
   },
