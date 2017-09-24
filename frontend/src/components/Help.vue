@@ -256,15 +256,16 @@
         </p>
         <ul class="menu-list">
           <li><a href="#GEMvis">GEM visualisation</a>
-          <li>
-            <a href="#search">Search</a>
-            <ul class="menu-list">
-              <li><a href="#searchresults">Search results</a></li>
-            </ul>
-          </li>
-              <li><a href="#SVGs">The whole metabolic network</a></li>
-          <li>
-            <a href="#closestpartners">Closest interaction partners</a>
+          <ul>
+            <li>
+              <a href="#search">Search</a>
+              <ul class="menu-list">
+                <li><a href="#searchresults">Search results</a></li>
+              </ul>
+            </li>
+            <li><a href="#SVGs">The whole metabolic network</a></li>
+            <li>
+              <a href="#closestpartners">Closest interaction partners</a>
                 <ul class="menu-list">
                   <li><a href="#graphcustomisations">Graph customisations</a>
                     <ul class="menu-list">

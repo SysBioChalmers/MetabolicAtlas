@@ -131,6 +131,7 @@ $fullhd: 1576px !default;
 }
 
 .footer {
+  padding-bottom: 2em;
   img {
     max-height: 75px;
   }
