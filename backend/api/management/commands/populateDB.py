@@ -57,7 +57,6 @@ def populate_human_db():
 
     # then add the data to the database in the RIGHT order
     addSBMLData(baseFolder+"HMRdatabase2_00.xml", 67, None)                 # addSBMLData
-    exit()
     logger.info("Currency Metabolites")
     addCurrencyMetabolites(baseFolder+"human_currencyMets.csv")         # addCurrencyMetabolites
     # addMetabolites
