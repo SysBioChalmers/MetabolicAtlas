@@ -18,7 +18,6 @@ logger.setLevel(logging.INFO)
 verbose=False;  # dont print the error messages from the addReactionComponentAnnotation
 annotationsToAdd = {}
 
-print("SysPath is "+sys.path[0])
 exec(open(os.path.join(sys.path[0], "../", "database_generation", "addSBMLData.py")).read())
 exec(open(os.path.join(sys.path[0], "../", "database_generation", "addCurrencyMetabolites.py")).read())
 exec(open(os.path.join(sys.path[0], "../", "database_generation", "addMetabolites.py")).read())

@@ -390,3 +390,19 @@ class SubsystemEnzyme(models.Model):
     class Meta:
         db_table = "subsystem_enzyme"
         unique_together = (('reaction_component','subsystem'),)
+
+class ReactionCompartment(models.Model):
+    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
+    compartment = models.ForeignKey(Compartment, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "reaction_compartment"
+        unique_together = (('reaction', 'compartment'),)
+
+class ReactionComponentCompartment(models.Model):
+    component = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    compartment = models.ForeignKey(Compartment, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "reactioncomponent_compartment"
+        unique_together = (('component', 'compartment'),)
