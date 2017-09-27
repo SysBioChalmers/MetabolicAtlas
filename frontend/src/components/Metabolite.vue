@@ -5,32 +5,19 @@
     </div>
   </div>
   <div v-else class="metabolite-table">
-    <table v-if="info && Object.keys(info).length != 0" class="table main-table">
-      <tr v-for="el in mainTableKey">
-        <td v-if="el.display" class="td-key">{{ el.display }}</td>
-        <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-        <td v-if="info.metabolite[el.name]">
-          <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
-          </span>
-          <span v-else>
-            {{ info.metabolite[el.name] }}
-          </span>
-        </td>
-        <td v-else-if="info[el.name]">
-          <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
-          </span>
-          <span v-else>
-            {{ info[el.name] }}
-          </span>
-        </td>
-        <td v-else> - </td>
-      </tr>
-    </table>
-    <div v-show="showHMDB">
-      <br>
-      <span class="subtitle">HMDB</span>
-      <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
-        <tr v-for="el in HMDBRAbleKey">
+    <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs">
+      <ul>
+        <li :class="{'is-active' : activePanel==='table' }">
+          <a @click="activePanel='table'">Table</a>
+          </li>
+        <li :class="{'is-active' : activePanel==='reactome' }">
+          <a @click="activePanel='reactome'">Reactome</a>
+          </li>
+      </ul>
+    </nav>
+    <div v-show="activePanel==='table'">
+      <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+        <tr v-for="el in mainTableKey">
           <td v-if="el.display" class="td-key">{{ el.display }}</td>
           <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
           <td v-if="info.metabolite[el.name]">
@@ -50,8 +37,33 @@
           <td v-else> - </td>
         </tr>
       </table>
+      <div v-show="showHMDB">
+        <br>
+        <span class="subtitle">HMDB</span>
+        <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
+          <tr v-for="el in HMDBRAbleKey">
+            <td v-if="el.display" class="td-key">{{ el.display }}</td>
+            <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+            <td v-if="info.metabolite[el.name]">
+              <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
+              </span>
+              <span v-else>
+                {{ info.metabolite[el.name] }}
+              </span>
+            </td>
+            <td v-else-if="info[el.name]">
+              <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+              </span>
+              <span v-else>
+                {{ info[el.name] }}
+              </span>
+            </td>
+            <td v-else> - </td>
+          </tr>
+        </table>
+      </div>
     </div>
-    <reactome></reactome>
+    <reactome v-show="activePanel==='reactome'"></reactome>
   </div>
 </template>
 
@@ -89,6 +101,7 @@ export default {
       ],
       info: {},
       errorMessage: '',
+      activePanel: 'table',
       showHMDB: false,
     };
   },
