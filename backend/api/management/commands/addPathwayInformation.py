@@ -11,6 +11,7 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 padding = 500
+svgFolder = "../nginx/svgs/"
 
 
 def getMinAndMax(reactions, allPos):
@@ -42,7 +43,7 @@ def getMinAndMax(reactions, allPos):
 
 def readCompartment(fileName):
     ret = {}
-    with open (fileName, "r") as myfile:
+    with open (svgFolder+fileName, "r") as myfile:
         data=myfile.readlines()
         for idx, l in enumerate(data):
             if( re.search("Shape_of_Reaction", l) ):
@@ -56,47 +57,19 @@ def readCompartment(fileName):
                 ret[rid] = (x, y)
     return(ret)
 
-def compartmentByCompartment(fileName, compName, pathways):
-    m = readCompartment(fileName)
+def compartmentByCompartment(ci, pathways):
+    m = readCompartment(ci.filename)
     for p in pathways:
         reactions = SubsystemReaction.objects.filter(subsystem_id=p.id)
         box = getMinAndMax(reactions, m)
         if( not box is None ):
             t = TileSubsystem(subsystem_id = p.id, subsystem_name=p.name,
-                compartment_name = compName, x_top_left = box[0]-padding,
-                y_top_left = box[1]-padding, x_bottom_right = box[2]+padding,
-                y_bottom_right = box[3]+padding,
+                compartmentinformation_id = ci.id,
+                compartment_name = ci.display_name,
+                x_top_left = box[0]-padding, y_top_left = box[1]-padding,
+                x_bottom_right = box[2]+padding, y_bottom_right = box[3]+padding,
                 reaction_count = len(reactions) )
             t.save()
-
-def goThroughTheSVGFilesAndAddBoxInformation():
-    pathways = Subsystem.objects.exclude(system='Collection of reactions')
-
-    svg = "../nginx/svgs/ER.svg"
-    compartmentByCompartment(svg, "ER", pathways)
-    svg = "../nginx/svgs/golgi.svg"
-    compartmentByCompartment(svg, "Golgi", pathways)
-    svg = "../nginx/svgs/lysosome.svg"
-    compartmentByCompartment(svg, "Lysosome", pathways)
-    svg = "../nginx/svgs/mitochondrion.svg"
-    compartmentByCompartment(svg, "Mitochondria", pathways)
-    svg = "../nginx/svgs/nucleus.svg"
-    compartmentByCompartment(svg, "Nucleus", pathways)
-    svg = "../nginx/svgs/peroxisome.svg"
-    compartmentByCompartment(svg, "Peroxisome", pathways)
-    # then do the cytosol groups
-    svg = "../nginx/svgs/cytosol_1.svg"
-    compartmentByCompartment(svg, "Cytosol_1", pathways)
-    svg = "../nginx/svgs/cytosol_2.svg"
-    compartmentByCompartment(svg, "Cytosol_2", pathways)
-    svg = "../nginx/svgs/cytosol_3.svg"
-    compartmentByCompartment(svg, "Cytosol_3", pathways)
-    svg = "../nginx/svgs/cytosol_4.svg"
-    compartmentByCompartment(svg, "Cytosol_4", pathways)
-    svg = "../nginx/svgs/cytosol_5.svg"
-    compartmentByCompartment(svg, "Cytosol_5", pathways)
-    svg = "../nginx/svgs/cytosol_6.svg"
-    compartmentByCompartment(svg, "Cytosol_6", pathways)
 
 def setAsMainIfInOnlyOneCompartment():
     sql = "update tile_subsystems set is_main=true where subsystem_id in (select subsystem_id from tile_subsystems group by subsystem_id having count(*)<2);"
@@ -232,6 +205,9 @@ def manuallySetSomeAsMain():
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        goThroughTheSVGFilesAndAddBoxInformation()
+        pathways = Subsystem.objects.exclude(system='Collection of reactions')
+        cis = CompartmentInformation.objects.all()
+        for ci in cis:
+            compartmentByCompartment(ci, pathways)
         setAsMainIfInOnlyOneCompartment()
         manuallySetSomeAsMain()
