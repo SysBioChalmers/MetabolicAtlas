@@ -8,12 +8,22 @@
         </div>
       </div>
       <div v-show="!errorMessage">
+        <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs">
+          <ul>
+            <li :class="{'is-active' : activePanel==='graph' }">
+              <a @click="activePanel='graph'">Graph</a>
+              </li>
+            <li :class="{'is-active' : activePanel==='table' }">
+              <a @click="activePanel='table'">Table</a>
+              </li>
+          </ul>
+        </nav>
         <div class="container columns">
           <div class="column is-8">
             <h3 class="title is-3 is-marginless" v-html="title"></h3>
           </div>
           <div class="column">
-            <div class="dropdown" id="dropdownMenuExport">
+            <div class="dropdown" id="dropdownMenuExport" v-show="activePanel==='graph'">
               <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
                 @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
@@ -61,102 +71,106 @@
             v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span>
           </div>
         </div>
-        <div v-show="showNetworkGraph" class="container columns">
-          <div class="column is-8">
-            <div id="graphOption">
-              <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
-              v-on:click="toggleGraphLegend">Options</span>
-              <span class="button" v-on:click="zoomGraph(true)">+</span>
-              <span class="button" v-on:click="zoomGraph(false)">-</span>
-              <span class="button" v-on:click="fitGraph()">fit</span>
-            </div>
-            <div id="graphLegend" v-show="toggleMetaboliteExpLevel || toggleEnzymeExpLevel" v-html="legend">
-            </div>
-            <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
-              <button class="delete" v-on:click="toggleGraphLegend"></button>
-              <span class="label">Enzyme</span>
-              <div class="comp">
-                <span>Shape:</span>
-                <div class="select">
-                  <select v-model="nodeDisplayParams.enzymeNodeShape" 
-                  v-on:change="redrawGraph()">
-                    <option v-for="shape in availableNodeShape">
-                    {{ shape }}
-                    </option>
-                  </select>
-                </div>
-                <span>Color:</span>
-                <span class="color-span"
-                  v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
-                  v-on:click="showColorPickerEnz = !showColorPickerEnz">
-                  <compact-picker v-show="showColorPickerEnz"
-                  v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph(false, 'enzyme')"></compact-picker>
-                </span>
+        <div v-show="activePanel==='graph'">
+          <div v-show="showNetworkGraph" class="container columns">
+            <div class="column is-8">
+              <div id="graphOption">
+                <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
+                v-on:click="toggleGraphLegend">Options</span>
+                <span class="button" v-on:click="zoomGraph(true)">+</span>
+                <span class="button" v-on:click="zoomGraph(false)">-</span>
+                <span class="button" v-on:click="fitGraph()">fit</span>
               </div>
-              <div class="comp">
-                <label class="checkbox">
-                  <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                  <span>HPA expression levels</span>
-                </label>
+              <div id="graphLegend" v-show="toggleMetaboliteExpLevel || toggleEnzymeExpLevel" v-html="legend">
+              </div>
+              <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
+                <button class="delete" v-on:click="toggleGraphLegend"></button>
+                <span class="label">Enzyme</span>
                 <div class="comp">
+                  <span>Shape:</span>
                   <div class="select">
-                    <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel || !expSourceLoaded.enzyme.HPA" 
-                    @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                      <optgroup label="HPA - RNA levels - Tissues">
-                        <option v-for="tissue in tissues['HPA']" :value="tissue">
-                          {{ tissue }}
-                        </option>
-                      </optgroup>
-                      <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
-                        <option v-for="cellType in cellLines['HPA']" :value="cellType">
-                          {{ cellType }}
-                        </option>
-                      </optgroup>
+                    <select v-model="nodeDisplayParams.enzymeNodeShape" 
+                    v-on:change="redrawGraph()">
+                      <option v-for="shape in availableNodeShape">
+                      {{ shape }}
+                      </option>
                     </select>
                   </div>
+                  <span>Color:</span>
+                  <span class="color-span"
+                    v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
+                    v-on:click="showColorPickerEnz = !showColorPickerEnz">
+                    <compact-picker v-show="showColorPickerEnz"
+                    v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph(false, 'enzyme')"></compact-picker>
+                  </span>
+                </div>
+                <div class="comp">
+                  <label class="checkbox">
+                    <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                    <span>HPA expression levels</span>
+                  </label>
+                  <div class="comp">
+                    <div class="select">
+                      <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel || !expSourceLoaded.enzyme.HPA" 
+                      @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                        <optgroup label="HPA - RNA levels - Tissues">
+                          <option v-for="tissue in tissues['HPA']" :value="tissue">
+                            {{ tissue }}
+                          </option>
+                        </optgroup>
+                        <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
+                          <option v-for="cellType in cellLines['HPA']" :value="cellType">
+                            {{ cellType }}
+                          </option>
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <hr>
+                <span class="label">Metabolite</span>
+                <div class="comp">
+                  <span>Shape:</span>
+                  <div class="select">
+                    <select v-model="nodeDisplayParams.metaboliteNodeShape" 
+                    v-on:change="redrawGraph()">
+                      <option v-for="shape in availableNodeShape">
+                      {{ shape }}
+                      </option>
+                    </select>
+                  </div>
+                  <span>Color:</span>
+                   <span class="color-span"
+                    v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
+                    v-on:click="showColorPickerMeta = !showColorPickerMeta">
+                    <compact-picker v-show="showColorPickerMeta"
+                    v-model="nodeDisplayParams.metaboliteNodeColor" @input="updateExpAndredrawGraph(false, 'metabolite')"></compact-picker>
+                  </span>
                 </div>
               </div>
-              <hr>
-              <span class="label">Metabolite</span>
-              <div class="comp">
-                <span>Shape:</span>
-                <div class="select">
-                  <select v-model="nodeDisplayParams.metaboliteNodeShape" 
-                  v-on:change="redrawGraph()">
-                    <option v-for="shape in availableNodeShape">
-                    {{ shape }}
-                    </option>
-                  </select>
-                </div>
-                <span>Color:</span>
-                 <span class="color-span"
-                  v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
-                  v-on:click="showColorPickerMeta = !showColorPickerMeta">
-                  <compact-picker v-show="showColorPickerMeta"
-                  v-model="nodeDisplayParams.metaboliteNodeColor" @input="updateExpAndredrawGraph(false, 'metabolite')"></compact-picker>
-                </span>
+              <div id="cy" ref="cy" class="card is-paddingless">
               </div>
             </div>
-            <div id="cy" ref="cy" class="card is-paddingless">
+            <sidebar id="sidebar" :selectedElm="selectedElm" :view="'interaction'"></sidebar>
+          </div>
+          <div v-show="!showNetworkGraph" class="container columns">
+            <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
+              <div v-html="$t('tooManyReactionsWarn')"></div>
+              <span v-show="reactionsCount <= maxReactionCount"
+              class="button" v-on:click="constructGraph(rawElms, rawRels, fitGraph)">{{ $t('tooManyReactionsBut') }}</span>
             </div>
           </div>
-          <sidebar id="sidebar" :selectedElm="selectedElm" :view="'interaction'"></sidebar>
         </div>
-        <div v-show="!showNetworkGraph" class="container columns">
-          <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-            <div v-html="$t('tooManyReactionsWarn')"></div>
-            <span v-show="reactionsCount <= maxReactionCount"
-            class="button" v-on:click="constructGraph(rawElms, rawRels, fitGraph)">{{ $t('tooManyReactionsBut') }}</span>
-          </div>
+        <div v-show="activePanel==='table'">
+          <cytoscape-table
+            :structure="tableStructure"
+            :elms="elms"
+            :selected-elm-id="selectedElmId"
+            :filename="filename"
+            :sheetname="componentName"
+            @highlight="highlightNode($event)"
+          ></cytoscape-table>
         </div>
-        <cytoscape-table
-          :structure="tableStructure"
-          :elms="elms"
-          :selected-elm-id="selectedElmId"
-          :filename="filename"
-          :sheetname="componentName"
-          @highlight="highlightNode($event)"
-        ></cytoscape-table>
       </div>
     </div>
   </div>
@@ -200,6 +214,7 @@ export default {
       loading: true,
       errorMessage: this.$t('unknownError'),
       title: '',
+      activePanel: 'graph',
 
       reactionsCount: 0,
       warnReactionCount: 10,
@@ -588,8 +603,8 @@ export default {
       this.showNetworkGraph = true;
 
       const updatePosition = (node) => {
-        contextMenuGraph.style.left = `${node.renderedPosition().x - 8}px`;
-        contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenuGraph.style.left = `${node.renderedPosition().x + 15}px`;
+        contextMenuGraph.style.top = `${node.renderedPosition().y + 260}px`;
       };
 
       const nodeInViewport = (node) => {

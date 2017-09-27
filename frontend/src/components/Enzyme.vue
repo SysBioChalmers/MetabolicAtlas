@@ -6,6 +6,16 @@
       </div>
     </div>
     <div v-show="!errorMessage">
+      <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs" v-show="reactions.length === 0">
+        <ul>
+          <li :class="{'is-active' : activePanel==='graph' }">
+            <a @click="activePanel='graph'">Graph</a>
+            </li>
+          <li :class="{'is-active' : activePanel==='table' }">
+            <a @click="activePanel='table'">Table</a>
+            </li>
+        </ul>
+      </nav>
       <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
       <loader v-show="loading"></loader>
       <div v-show="!loading">
@@ -15,7 +25,7 @@
           <reaction-table v-show="!loading" :reactions="reactions"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
-          <div class="columns">
+          <div class="columns" v-show="activePanel==='graph'">
             <div id="cygraph-wrapper" class="column is-8">
               <div id="cy" ref="cy" class="is-8 card is-paddingless"></div>
               <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
@@ -29,7 +39,7 @@
             </div>
             <sidebar id="sidebar" :selectedElm="selectedElm" :view="'enzyme'"></sidebar>
           </div>
-          <div class="container">
+          <div class="container" v-show="activePanel==='table'">
             <cytoscape-table
               :structure="tableStructure"
               :elms="elmsInTable"
@@ -69,6 +79,7 @@ export default {
   data() {
     return {
       loading: true,
+      activePanel: 'graph',
       cy: null,
       errorMessage: null,
       elms: [],
