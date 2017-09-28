@@ -231,7 +231,7 @@ class CompartmentInformation(models.Model):
     nr_reactions = models.IntegerField(default=0)
     nr_subsystems = models.IntegerField(default=0)
     nr_metabolites = models.IntegerField(default=0)
-    nr_enymes = models.IntegerField(default=0)
+    nr_enzymes = models.IntegerField(default=0)
 
     class Meta:
         db_table = "compartmentinformation"

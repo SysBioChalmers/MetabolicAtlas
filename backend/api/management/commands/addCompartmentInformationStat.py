@@ -39,20 +39,27 @@ class Command(BaseCommand):
             for r in rs:
                 rcis = ReactionCompartmentInformation.objects.filter(reaction=r, compartmentinfo=ci)
                 if(len(rcis)<1):
-                    add = ReactionCompartmentInformation(reaction=rc, compartmentinfo=ci)
+                    add = ReactionCompartmentInformation(reaction=r, compartmentinfo=ci)
                     add.save()
-            print(sql)
             nr_reactions = len(list(rs))
 
             # how many subsystems?
             sql6 = "SELECT * from subsystems WHERE id in ("
             sql = sql6 + sql4 + str(ci.id)+")"
             s = Subsystem.objects.raw(sql)
-            print(sql)
             nr_subsystems = len(list(s))
 
-            print("Trying to update id "+str(ci.id))
-            print(str(nr_reactions))
+            # how many enzymes?
+            sql7 = sql1 + "select modifier_id from reaction_modifiers where reaction_id in ("
+            sql7 = sql7 + sql3 + sql4 + str(ci.id)+")))"
+            rcs = ReactionComponent.objects.raw(sql7)
+            nr_enzymes = 0
+            for rc in rcs:
+                rccis = ReactionComponentCompartmentInformation.objects.filter(component=rc, compartmentinfo=ci)
+                if(len(rccis)<1):
+                    add = ReactionComponentCompartmentInformation(component=rc, compartmentinfo=ci)
+                    add.save()
+                nr_enzymes = nr_enzymes + 1
 
             # finally update the object
-            CompartmentInformation.objects.filter(id=ci.id).update(nr_reactions=nr_reactions, nr_subsystems=nr_subsystems, nr_metabolites=nr_metabolites)
+            CompartmentInformation.objects.filter(id=ci.id).update(nr_reactions=nr_reactions, nr_subsystems=nr_subsystems, nr_metabolites=nr_metabolites, nr_enzymes=nr_enzymes)
