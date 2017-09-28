@@ -11,10 +11,10 @@
         <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs">
           <ul>
             <li :class="{'is-active' : activePanel==='graph' }">
-              <a @click="activePanel='graph'">Graph</a>
+              <a @click="scrollTo('graph', 'cip-graph')">Graph</a>
               </li>
             <li :class="{'is-active' : activePanel==='table' }">
-              <a @click="activePanel='table'">Table</a>
+              <a @click="scrollTo('table', 'cip-table')">Table</a>
               </li>
           </ul>
         </nav>
@@ -23,7 +23,7 @@
             <h3 class="title is-3 is-marginless" v-html="title"></h3>
           </div>
           <div class="column">
-            <div class="dropdown" id="dropdownMenuExport" v-show="activePanel==='graph'">
+            <div class="dropdown" id="dropdownMenuExport">
               <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
                 @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
@@ -71,7 +71,7 @@
             v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span>
           </div>
         </div>
-        <div v-show="activePanel==='graph'">
+        <div id="cip-graph">
           <div v-show="showNetworkGraph" class="container columns">
             <div class="column is-8">
               <div id="graphOption">
@@ -161,7 +161,7 @@
             </div>
           </div>
         </div>
-        <div v-show="activePanel==='table'">
+        <div id="cip-table">
           <cytoscape-table
             :structure="tableStructure"
             :elms="elms"
@@ -780,6 +780,13 @@ export default {
     viewReactionComponent: function viewReactionComponent(type) {
       EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
+    },
+    scrollTo(panel, id) {
+      this.activePanel = panel;
+      const container = jquery('body, html');
+      container.scrollTop(
+        jquery(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
+      );
     },
     getHPAexpression(rawElms, expSource, expType, expSample) {
       const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
