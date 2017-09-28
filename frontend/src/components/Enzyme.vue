@@ -6,13 +6,13 @@
       </div>
     </div>
     <div v-show="!errorMessage">
-      <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs" v-show="reactions.length === 0">
+      <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs">
         <ul>
           <li :class="{'is-active' : activePanel==='graph' }">
-            <a @click="activePanel='graph'">Graph</a>
+            <a @click="scrollTo('graph', 'enzyme-graph')">Graph</a>
             </li>
           <li :class="{'is-active' : activePanel==='table' }">
-            <a @click="activePanel='table'">Table</a>
+            <a @click="scrollTo('table', 'enzyme-table')">Table</a>
             </li>
         </ul>
       </nav>
@@ -25,7 +25,7 @@
           <reaction-table v-show="!loading" :reactions="reactions"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
-          <div class="columns" v-show="activePanel==='graph'">
+          <div id="enzyme-graph" class="columns">
             <div id="cygraph-wrapper" class="column is-8">
               <div id="cy" ref="cy" class="is-8 card is-paddingless"></div>
               <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
@@ -39,7 +39,7 @@
             </div>
             <sidebar id="sidebar" :selectedElm="selectedElm" :view="'enzyme'"></sidebar>
           </div>
-          <div class="container" v-show="activePanel==='table'">
+          <div id="enzyme-table" class="container">
             <cytoscape-table
               :structure="tableStructure"
               :elms="elmsInTable"
@@ -57,6 +57,7 @@
 
 <script>
 import axios from 'axios';
+import $ from 'jquery';
 import cytoscape from 'cytoscape';
 import regCose from 'cytoscape-cose-bilkent';
 import Sidebar from 'components/Sidebar';
@@ -260,6 +261,13 @@ export default {
               this.errorMessage = this.$t('unknownError');
           }
         });
+    },
+    scrollTo(panel, id) {
+      this.activePanel = panel;
+      const container = $('body, html');
+      container.scrollTop(
+        $(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
+      );
     },
     chemicalFormula,
     chemicalName,
