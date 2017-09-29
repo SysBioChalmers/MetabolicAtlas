@@ -6,25 +6,25 @@
         <li class="m-li" v-for="comp in compartments"
         :class="{ 'selected' : selectedCompartmentID==comp.compartmentID }"
         @click="showCompartment(comp.compartmentID)">
-          {{ comp.name }}
+          {{ comp.name}}
         </li>
       </ul>
     </div>
-    <div v-show="selectedCompartmentID && selCompartmentStats">
+    <div v-if="currentCompartment && compartmentStats">
       <hr>
       <table class="table is-narrow is-fullwidth">
         <tbody>
           <tr>
-            <td># Metabolite</td><td>{{ selCompartmentStats.metabolite_count }}</td>
+            <td># Metabolites</td><td>{{ currentCompartment.nr_metabolites }}</td>
           </tr>
           <tr>
-            <td># Enzyme</td><td>{{ selCompartmentStats.enzyme_count }}</td>
+            <td># Enzymes</td><td>{{ currentCompartment.nr_enzymes }}</td>
           </tr>
           <tr>
-            <td># Reaction</td><td>{{ selCompartmentStats.reaction_count }}</td>
+            <td># Reactions</td><td>{{ currentCompartment.nr_reactions  }}</td>
           </tr>
           <tr>
-            <td># Subsystem</td><td>{{ selCompartmentStats.subsystem_count }}</td>
+            <td># Subsystems</td><td>{{ currentCompartment.nr_subsystems  }}</td>
           </tr>
         </tbody>
       </table>
@@ -42,15 +42,13 @@ export default {
   name: 'compartment',
   data() {
     return {
-      compartmentCount: 0,
       compartments: [],
+      compartmentStats: {},
+      currentCompartment: null,
       selectedCompartmentID: 0,
-      selCompartmentStats: {},
-      compartmentIDOrder: [6, 7, 5, 3, 8, 2, 20, 21, 22, 23, 24, 25],
+      // compartmentIDOrder2: [6, 7, 5, 3, 8, 2, 20, 21, 22, 23, 24, 25],
+      compartmentIDOrder: [4, 5, 3, 2, 6, 1, 7, 8, 9, 10, 11, 12],
     };
-  },
-  beforeMount() {
-    this.loadCompartments();
   },
   created() {
     EventBus.$on('showCompartment', (id) => {
@@ -63,25 +61,25 @@ export default {
   },
   methods: {
     loadCompartments() {
-      this.compartments = [];
       for (const CID of this.compartmentIDOrder) {
         this.compartments.push(getCompartmentFromCID(CID));
       }
-    },
-    loadCompartmentStats(compartmentID) {
-      console.log(compartmentID);
-      axios.get(`compartment/${compartmentID}`)
-        .then((response) => {
-          console.log(response);
-          this.selCompartmentStats = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      axios.get('compartment_information/')
+      .then((response) => {
+        // console.log(response);
+        this.compartmentStats = {};
+        for (const compInfo of response.data) {
+          this.compartmentStats[compInfo.id] = compInfo;
+        }
+        this.currentCompartment = this.compartmentStats[0];
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     },
     showCompartment(compartmentID) {
       this.selectedCompartmentID = compartmentID;
-      this.loadCompartmentStats(compartmentID);
+      this.currentCompartment = this.compartmentStats[compartmentID];
       EventBus.$emit('showSVGmap', 'compartment', compartmentID, []);
     },
     getCompartmentFromCID,

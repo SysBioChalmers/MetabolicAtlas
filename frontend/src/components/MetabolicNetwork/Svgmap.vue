@@ -23,7 +23,7 @@ import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
-import { getCompartmentFromCID, getCompartmentFromName } from '../../helpers/compartment';
+import { getCompartmentFromCID } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
@@ -139,6 +139,7 @@ export default {
       }, 0);
     },
     svgfit() {
+      console.log('fit svg');
       $('#svg-wrapper svg').attr('width', '100%');
       const h = $('.svgbox').first().css('height');
       $('#svg-wrapper svg').attr('height', h);
@@ -184,9 +185,8 @@ export default {
       } else if (callback2) {
         // call findElementsOnSVG
         callback2();
-      } else {
-        this.svgfit();
       }
+      this.svgfit();
     },
     findElementsOnSVG() {
       // console.log('call findElementsOnSVGs');
@@ -308,7 +308,7 @@ export default {
       }
     },
     zoomOnTiles() {
-      // console.log('zoom tiles');
+      console.log('zoom tiles');
       this.getCenterZoombox();
       const realZoom = this.panZoom.getSizes().realZoom;
       this.panZoom.pan({
@@ -352,9 +352,9 @@ export default {
         }
       }
     },
-    showTiles(compartment, coordinate) {
-      if (compartment) {
-        this.compartment = getCompartmentFromName(compartment);
+    showTiles(compartmentID, coordinate) {
+      if (compartmentID) {
+        this.compartment = getCompartmentFromCID(compartmentID);
         this.updateZoomBoxCoor(coordinate);
         this.loadSVG(this.compartment.svgName, this.loadSvgPanZoom, this.zoomOnTiles);
       }

@@ -5,7 +5,7 @@ const data = {
     letter: 's',
     color: '',
     svgName: 'fakesvg',
-    compartmentID: 1,
+    compartmentID: 13,
     maxZoomLvl: 10,
   },
   peroxisome: {
@@ -13,7 +13,7 @@ const data = {
     letter: 'p',
     color: '',
     svgName: 'peroxisome',
-    compartmentID: 2,
+    compartmentID: 1,
     maxZoomLvl: 10,
   },
   mitochondria: {
@@ -21,15 +21,7 @@ const data = {
     letter: 'm',
     color: '',
     svgName: 'mitochondrion',
-    compartmentID: 3,
-    maxZoomLvl: 10,
-  },
-  cytosol: {
-    name: 'Cytosol',
-    letter: 'c',
-    color: '',
-    svgName: '',
-    compartmentID: 4,
+    compartmentID: 2,
     maxZoomLvl: 10,
   },
   lysosome: {
@@ -37,15 +29,15 @@ const data = {
     letter: 'l',
     color: '',
     svgName: 'lysosome',
-    compartmentID: 5,
+    compartmentID: 3,
     maxZoomLvl: 10,
   },
   'endoplasmic reticulum': {
     name: 'ER',
     letter: 'r',
     color: '',
-    svgName: 'er',
-    compartmentID: 6,
+    svgName: 'ER',
+    compartmentID: 4,
     maxZoomLvl: 10,
   },
   'golgi apparatus': {
@@ -53,7 +45,7 @@ const data = {
     letter: 'g',
     color: '',
     svgName: 'golgi',
-    compartmentID: 7,
+    compartmentID: 5,
     maxZoomLvl: 10,
   },
   nucleus: {
@@ -61,7 +53,7 @@ const data = {
     letter: 'n',
     color: '',
     svgName: 'nucleus',
-    compartmentID: 8,
+    compartmentID: 6,
     maxZoomLvl: 10,
   },
   boundary: {
@@ -69,7 +61,7 @@ const data = {
     letter: 'x',
     color: '',
     svgName: '',
-    compartmentID: 9,
+    compartmentID: 14,
     maxZoomLvl: 10,
   },
   cytosol1: {
@@ -77,7 +69,7 @@ const data = {
     letter: 'c1',
     color: '',
     svgName: 'cytosol_1',
-    compartmentID: 20,
+    compartmentID: 7,
     maxZoomLvl: 10,
   },
   cytosol2: {
@@ -85,7 +77,7 @@ const data = {
     letter: 'c2',
     color: '',
     svgName: 'cytosol_2',
-    compartmentID: 21,
+    compartmentID: 8,
     maxZoomLvl: 10,
   },
   cytosol3: {
@@ -93,7 +85,7 @@ const data = {
     letter: 'c3',
     color: '',
     svgName: 'cytosol_3',
-    compartmentID: 22,
+    compartmentID: 9,
     maxZoomLvl: 10,
   },
   cytosol4: {
@@ -101,7 +93,7 @@ const data = {
     letter: 'c4',
     color: '',
     svgName: 'cytosol_4',
-    compartmentID: 23,
+    compartmentID: 10,
     maxZoomLvl: 10,
   },
   cytosol5: {
@@ -109,7 +101,7 @@ const data = {
     letter: 'c5',
     color: '',
     svgName: 'cytosol_5',
-    compartmentID: 24,
+    compartmentID: 11,
     maxZoomLvl: 10,
   },
   cytosol6: {
@@ -117,7 +109,7 @@ const data = {
     letter: 'c6',
     color: '',
     svgName: 'cytosol_6',
-    compartmentID: 25,
+    compartmentID: 12,
     maxZoomLvl: 10,
   },
 };
@@ -141,21 +133,20 @@ const l = {
 };
 
 const d = {
-  1: data.extracellular,
-  2: data.peroxisome,
-  3: data.mitochondria,
-  4: data.cytosol,
-  5: data.lysosome,
-  6: data['endoplasmic reticulum'],
-  7: data['golgi apparatus'],
-  8: data.nucleus,
-  9: data.boundary,
-  20: data.cytosol1,
-  21: data.cytosol2,
-  22: data.cytosol3,
-  23: data.cytosol4,
-  24: data.cytosol5,
-  25: data.cytosol6,
+  13: data.extracellular,
+  1: data.peroxisome,
+  2: data.mitochondria,
+  3: data.lysosome,
+  4: data['endoplasmic reticulum'],
+  5: data['golgi apparatus'],
+  6: data.nucleus,
+  14: data.boundary,
+  7: data.cytosol1,
+  8: data.cytosol2,
+  9: data.cytosol3,
+  10: data.cytosol4,
+  11: data.cytosol5,
+  12: data.cytosol6,
 };
 
 export function getCompartmentFromLetter(letter) {

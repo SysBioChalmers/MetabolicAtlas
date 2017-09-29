@@ -108,13 +108,14 @@ export default {
       axios.get(`subsystem/${id}`)
         .then((response) => {
           const subCoors = response.data;
+          console.log(subCoors);
           const coors = {
             minX: subCoors.x_top_left,
             maxX: subCoors.x_bottom_right,
             minY: subCoors.y_top_left,
             maxY: subCoors.y_bottom_right,
           };
-          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartment_name, coors);
+          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartmentinformation_id, coors);
         })
         .catch((error) => {
           console.log(error);

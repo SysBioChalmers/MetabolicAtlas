@@ -34,5 +34,6 @@ urlpatterns = [
     url(r'^subsystems/?$', views.get_subsystems),
     url(r'^subsystem/(?P<subsystem_id>[^/]+)/?$', views.get_subsystem_coordinates),
     url(r'^compartment/(?P<compartmentID>[^/]+)/?$', views.get_compartment),
+    url(r'^compartment_information/?$', views.get_compartment_information),
     url(r'^hpa/?$', views.get_HPA_xml_content),
 ]

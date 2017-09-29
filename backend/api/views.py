@@ -421,6 +421,7 @@ def get_metabolite_reactions(request, reaction_component_id):
 
     return JSONResponse(result)
 
+
 @api_view()
 def get_metabolite_reactome(request, reaction_component_id, reaction_id):
     """
@@ -585,6 +586,7 @@ def search(request, term, truncated):
 
     return JSONResponse(results)
 
+
 @api_view(['POST'])
 def convert_to_reaction_component_ids(request, compartmentID):
     arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
@@ -636,6 +638,7 @@ def convert_to_reaction_component_ids(request, compartmentID):
 
     return JSONResponse(reactionComponents)
 
+
 @api_view()
 def get_subsystems(request):
     """
@@ -648,6 +651,7 @@ def get_subsystems(request):
 
     serializer = SubsystemSerializer(subsystems, many=True)
     return JSONResponse(serializer.data);
+
 
 @api_view()
 def get_subsystem_coordinates(request, subsystem_id):
@@ -663,30 +667,28 @@ def get_subsystem_coordinates(request, subsystem_id):
 
     return JSONResponse(serializer.data)
 
+
 @api_view()
 def get_compartment(request, compartmentID):
-    logging.warn('test')
     try:
-        compartment = Compartment.objects.get(id=compartmentID)
-        compartment = compartment.name
-    except Compartment.DoesNotExist:
+        compartment = CompartmentInformation.objects.get(id=compartmentID)
+    except CompartmentInformation.DoesNotExist:
         return HttpResponse(status=404)
 
-    # TODO add theses stats in the compartment table
-    metabolites_unique = ReactionComponent.objects.filter(Q(compartment=compartmentID) & Q(component_type='metabolite')).count()
-    enzymes_unique = ReactionComponent.objects.filter(Q(compartment=compartmentID) & Q(component_type='enzyme')).count()
-    reaction_count = Reaction.objects.filter(Q(compartment=compartment)).count()
-    subsystem_count = TileSubsystem.objects.filter(Q(compartment_name=compartment) & Q(is_main=True)).count() # TODO remove is_main?
-    # TODO fix enzymes_unique is almost always 0, the compartment id is always '4' is the table reaction_component for type 'enzyme'
+    serializer = CompartmentInformationSerializer(compartment)
+    return JSONResponse(serializer.data)
 
-    result = {
-        'metabolite_count': metabolites_unique,
-        'enzyme_count': enzymes_unique,
-        'reaction_count': reaction_count,
-        'subsystem_count': subsystem_count
-    }
 
-    return JSONResponse(result)
+@api_view()
+def get_compartment_information(request):
+    logging.warn('test')
+    try:
+        compartment_info = CompartmentInformation.objects.all()
+    except CompartmentInformation.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = CompartmentInformationSerializer(compartment_info, many=True)
+    return JSONResponse(serializer.data)
 
 
 #=========================================================================================================
