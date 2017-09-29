@@ -20,18 +20,18 @@
           <li>For a metabolite:
             <ul>
               <li><a href="#closestpartners">Closest interaction partners</a></li>
-              <li><a href="#metabolitepage">Metabolite</a></li>
+              <li><a href="#metabolitepage">Metabolite</a> page</li>
             </ul>
           </li>
           <li>For an enzyme:
             <ul>
               <li><a href="#closestpartners">Closest interaction partners</a></li>
-              <li><a href="#enzymepage">Enzyme</a></li>
+              <li><a href="#enzymepage">Enzyme</a> page</li>
             </ul>
           </li>
           <li>For a reaction:
             <ul>
-              <li><a href="#reactionpage">Reaction</a></li>
+              <li><a href="#reactionpage">Reaction</a> page</li>
             </ul>
           </li>
         By pressing one of these you go directly to that page...<br>
@@ -82,24 +82,28 @@
       </p>
       <br>
 
-        <h4 class="title is-4">The cytoscape graph</h4>
+        <h4 id="closest_graph" class="title is-4">The cytoscape graph</h4>
 
           <h5 id="graphcustomisations" class="title is-5">Graph customization</h5>
 
           <h6 id="shapecolor">Shape and color</h6>
-          <p>It is possible to change shape and color for the proteins and the metabolites shown in the graph.
+          <p>
+            It is possible to change shape and color for the proteins and the metabolites shown in the graph.
             This is done by pressing the <b>Options</b> button.<br>
             Here you are presented with a number of options for what to do with your Enzymes and Metabolite.<br>
             If you want to show Expression levels see the
             <a href="#expressionlevels">expression levels</a> section below.
-          </p>
+          </p><br>
           <h6 id="zoominout">Zoom in and out</h6>
-          <p>Simply press either the <b>+</b> or <b>-</b> button to zoom in the graph.</p>
-          <h6>Fit the graph to the window size</h6>
+          <p>
+            Simply press either the <b>+</b> or <b>-</b> button to zoom in the graph.
+          </p><br>
+          <h6 id="fitgraph">Fit the graph to the window size</h6>
           <p>Press the <b>Fit</b> button will zoom in, or out depending, to fit
-            all the edges and nodes of the graph to the window size.</p>
+            all the edges and nodes of the graph to the window size.
+          </p>
           <br>
-          <h6 id="expressionlevels" class="title is-5">Expression levels</h6>
+          <h6 id="expressionlevels" class="title is-6">Expression levels</h6>
           <p>To show expression levels:<br>
             First click the <b>Options</b> button, then click in the "Show expression levels" tick box.
             This will at the moment, go to HPA and pull in the expression levels for all
@@ -111,22 +115,22 @@
           <div id="graphLegend" v-html="getExpLvlLegend()"></div>
           <br><br>
 
-          <h6 class="title is-5">Export graph</h6>
-          <p>Click the <b>Export graph</b> button, and you will be presented with
-            two options: Graphml or PNG.<br>
-            The first is a Cytoscape compatible graphml format, including a
-            stylesheet in order to make it identical to the current view.
-          </p>
-          <br>
-        <h4 id="propertybox_closest" class="title is-5">The property of the selected metabolite/enzyme box</h4>
+        <h5 id="export" class="title is-5">Export graph</h5>
+        <p>Click the <b>Export graph</b> button, and you will be presented with
+          two options: Graphml or PNG.<br>
+          The first is a Cytoscape compatible graphml format, including a
+          stylesheet in order to make it identical to the current view.
+        </p>
+        <br>
+        <h4 id="propertybox_closest" class="title is-4">The property of the selected metabolite/enzyme box</h4>
         <p>Depending on whether you have selected (by clicking on the graph) a
           metabolite or an enzyme different fields will be shown here.
           But generally this should display the most relevant information for
           the selected reaction component, such as function, activity, and mass.
         </p>
         <br>
-        <h4 id="reactioncomponenttable" class="title is-4">Reaction component table</h4>
-        <p>All the reaction components, eg the nodes, of the above graph are shown in
+        <h4 id="reactioncomponenttable" class="title is-4">Metabolite list</h4>
+        <p>All the metabolites, eg the nodes, of the above graph are shown in
           this table, along with some basic information such as name and type. <br>
           Selecting a row will select it in the graph, and vice verse.
         </p>
@@ -142,7 +146,7 @@
         (shape=heptagon) and the products (shape=octagon), i.e. the metabolites)
       </p>
       <br>
-        <h5 class="title is-4">Network graph</h5>
+        <h4 id="reaction_graph" class="title is-4">Reaction graph</h4>
         <p>
           The graph shows all the reactions that this protein is modifying as
           large green boxes. On <u>top</u> of each box the name of the reaction,
@@ -154,13 +158,13 @@
           whereas the <i>consumed</i> metabolites are circled by a <i>blue</i> border.
         </p>
         <br>
-        <h5 id="propertybox_enzyme" class="title is-5">The property of the selected metabolite/enzyme box</h5>
+        <h4 id="propertybox_enzyme" class="title is-4">The property of the selected metabolite/enzyme box</h4>
         <p>
           See the text for the closest interaction partners
           <a href="#propertybox_closest">property of selected</a>.
         </p>
         <br>
-        <h5 class="title is-4">Reaction component table</h5>
+        <h4 id="metabolitelist" class="title is-4">Reaction component table</h4>
         <p>
           Lists all the reaction components, eg metabolites, that occurs in
           these reactions. <i>Please note</i> that this means that the same
@@ -179,7 +183,7 @@
         (eg HMDB for human data).
       </p>
       <br>
-        <h5 class="title is-4">Reactome table</h5>
+        <h4 id="reactometable" class="title is-4">Reactome table</h4>
         <p>
           Here all the reactions that the current metabolite participates in,
           either as a reactant or a product, are listed. <br>
@@ -267,20 +271,34 @@
             <li>
               <a href="#closestpartners">Closest interaction partners</a>
                 <ul class="menu-list">
-                  <li><a href="#graphcustomisations">Graph customisations</a>
+                  <li><a href="#closest_graph">Network graph</a>
                     <ul class="menu-list">
-                      <li><a href="#shapecolor">Shape and color</a></li>
-                      <li><a href="#graphcustomisations">Zoom in/out</a></li>
-                      <li><a href="#zoominout">Fit the graph to the window</a></li>
-                      <li><a href="#expressionlevels">Color by expression levels</a></li>
+                      <li><a href="#graphcustomisations">Graph customisations</a>
+                        <ul class="menu-list">
+                          <li><a href="#shapecolor">Shape and color</a></li>
+                          <li><a href="#zoominout">Zoom in/out</a></li>
+                          <li><a href="#fitgraph">Fit the graph</a></li>
+                          <li><a href="#expressionlevels">Expression levels</a></li>
+                        </ul>
+                      </li>
+                      <li><a href="#export">Export Graph</a></li>
                     </ul>
                   </li>
-                  <li><a href="#propertybox">Property box</a></li>
-                  <li><a href="#reactioncomponenttable">Reaction component table</a></li>
+                  <li><a href="#propertybox_closest">Property box</a></li>
+                  <li><a href="#reactioncomponenttable">Reaction components</a></li>
                 </ul>
               </li>
               <li><a href="#enzymepage">Enzyme page</a></li>
-              <li><a href="#metabolitepage">Metabolite page</a></li>
+                <ul class="menu-list">
+                  <li><a href="#reaction_graph">Reaction graph</a></li>
+                  <li><a href="#propertybox_enzyme">Property box</a></li>
+                  <li><a href="#metabolitelist">Metabolite list</a></li>
+                </ul>
+              <li><a href="#metabolitepage">Metabolite page</a>
+                <ul class="menu-list">
+                  <li><a href="#reactometable">Reactome</a></li>
+                </ul>
+              </li>
               <li><a href="#reactionpage">Reaction page</a></li>
             </ul>
           </li>

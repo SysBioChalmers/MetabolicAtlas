@@ -89,6 +89,7 @@ class TileSubsystem(models.Model):
     id = models.AutoField(primary_key=True)
     subsystem_id = models.IntegerField()
     subsystem_name = models.CharField(max_length=200, null=False)
+    compartmentinformation_id = models.IntegerField(null=False)
     compartment_name = models.CharField(max_length=125, null=False)
     x_top_left = models.IntegerField(null=False)
     y_top_left = models.IntegerField(null=False)
@@ -222,6 +223,18 @@ class Compartment(models.Model):
 
     class Meta:
         db_table = "compartment"
+
+class CompartmentInformation(models.Model):
+    display_name = models.CharField(max_length=25, null=False)
+    compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
+    filename = models.CharField(max_length=35, null=False)
+    nr_reactions = models.IntegerField(default=0)
+    nr_subsystems = models.IntegerField(default=0)
+    nr_metabolites = models.IntegerField(default=0)
+    nr_enzymes = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = "compartmentinformation"
 
 class ExpressionData(models.Model):
     reaction_component = models.ForeignKey('ReactionComponent', db_column='reaction_component', on_delete=models.CASCADE)
@@ -372,7 +385,7 @@ class SubsystemReaction(models.Model):
     subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "reaction_subsystem"
+        db_table = "subsystem_reaction"
         unique_together = (('reaction', 'subsystem'),)
 
 class SubsystemMetabolite(models.Model):
@@ -406,3 +419,19 @@ class ReactionComponentCompartment(models.Model):
     class Meta:
         db_table = "reactioncomponent_compartment"
         unique_together = (('component', 'compartment'),)
+
+class ReactionCompartmentInformation(models.Model):
+    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
+    compartmentinfo = models.ForeignKey(CompartmentInformation, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "reaction_compartmentinformation"
+        unique_together = (('reaction','compartmentinfo'),)
+
+class ReactionComponentCompartmentInformation(models.Model):
+    component = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    compartmentinfo = models.ForeignKey(CompartmentInformation, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "reactioncomponent_compartmentinformation"
+        unique_together = (('component','compartmentinfo'),)

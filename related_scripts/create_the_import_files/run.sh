@@ -1,4 +1,4 @@
-# get the ensembl to uniprot mapping from EnsMart
+# get the ensembl to uniprot mapping directly from EnsMart, supply version number!
 python getEnsemblData.py -a "uniprot_swissprot -v 82"
 
 
