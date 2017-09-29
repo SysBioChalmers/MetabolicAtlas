@@ -37,6 +37,11 @@
             <p>{{ selectedElm.details.hmdb_description }}</p>
             <br>
           </div>
+          <div v-if="selectedElm.formula">
+            <p class="label il">Formula:</p>
+            <span v-html="chemicalFormula(selectedElm.formula)"></span>
+            <br>
+          </div>
           <div v-if="selectedElm.details.mass">
             <p class="label il">Molecular mass: </p>
             <span>{{ selectedElm.details.mass  }} g/mol</span>
@@ -45,14 +50,15 @@
           <div v-if="selectedElm.details.kegg">
             <p class="label il">Kegg: </p>
             <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+            <br>
           </div>
           <div v-if="!selectedElm.details.hmdb_description &&
+                     !selectedElm.formula &&
                      !selectedElm.details.mass &&
                      !selectedElm.details.kegg">
             {{ $t('noInfoAvailable') }}
           </div>
           <div>
-            <br>
             <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
           </div>
         </div>
@@ -82,6 +88,7 @@
 <script>
 
 import { default as EventBus } from '../event-bus';
+import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
   name: 'sidebar',
@@ -107,6 +114,7 @@ export default {
       EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
+    chemicalFormula,
   },
 };
 </script>
