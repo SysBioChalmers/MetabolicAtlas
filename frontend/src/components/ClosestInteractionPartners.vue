@@ -8,19 +8,21 @@
         </div>
       </div>
       <div v-show="!errorMessage">
-        <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs">
-          <ul>
-            <li :class="{'is-active' : activePanel==='graph' }">
-              <a @click="scrollTo('graph', 'cip-graph')">Graph</a>
-              </li>
-            <li :class="{'is-active' : activePanel==='table' }">
-              <a @click="scrollTo('table', 'cip-table')">Table</a>
-              </li>
-          </ul>
-        </nav>
         <div class="container columns">
-          <div class="column is-8">
+          <div class="column is-6">
             <h3 class="title is-3 is-marginless" v-html="title"></h3>
+          </div>
+          <div class="column is-2">
+            <nav class="breadcrumb is-small is-centered" aria-label="breadcrumbs">
+              <ul>
+                <li :class="{'is-active' : false }">
+                  <a @click="scrollTo('cip-graph')">Network graph</a>
+                  </li>
+                <li :class="{'is-active' : false }">
+                  <a @click="scrollTo('cip-table')">Component table</a>
+                  </li>
+              </ul>
+            </nav>
           </div>
           <div class="column">
             <div class="dropdown" id="dropdownMenuExport">
@@ -214,7 +216,6 @@ export default {
       loading: true,
       errorMessage: this.$t('unknownError'),
       title: '',
-      activePanel: 'graph',
 
       reactionsCount: 0,
       warnReactionCount: 10,
@@ -376,10 +377,10 @@ export default {
           if (component.enzyme) {
             const uniprotLink = component.enzyme ? component.enzyme.uniprot_link : null;
             const uniprotId = uniprotLink.split('/').pop();
-            this.title = `Closest interaction partners | ${this.chemicalName(this.componentName)}
+            this.title = `${this.chemicalName(this.componentName)}
               (<a href="${uniprotLink}" target="_blank">${uniprotId}</a>)`;
           } else {
-            this.title = `Closest interaction partners | ${this.chemicalName(this.componentName)}`;
+            this.title = `${this.chemicalName(this.componentName)}`;
           }
 
           [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
@@ -781,8 +782,7 @@ export default {
       EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
-    scrollTo(panel, id) {
-      this.activePanel = panel;
+    scrollTo(id) {
       const container = jquery('body, html');
       container.scrollTop(
         jquery(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
