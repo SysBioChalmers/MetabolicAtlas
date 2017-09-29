@@ -6,16 +6,6 @@
       </div>
     </div>
     <div v-else class="metabolite-table">
-      <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs">
-        <ul>
-          <li :class="{'is-active' : activePanel==='table' }">
-            <a @click="scrollTo('table', 'metabolite-table')">Table</a>
-            </li>
-          <li :class="{'is-active' : activePanel==='reactome' }">
-            <a @click="scrollTo('reactome', 'metabolite-reactome')">Reactome</a>
-            </li>
-        </ul>
-      </nav>
       <div id="metabolite-table">
         <table v-if="info && Object.keys(info).length != 0" class="table main-table">
           <tr v-for="el in mainTableKey">
@@ -71,7 +61,6 @@
 
 <script>
 import axios from 'axios';
-import $ from 'jquery';
 import Reactome from 'components/Reactome';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 
@@ -159,13 +148,6 @@ export default {
         }
       }
       return false;
-    },
-    scrollTo(panel, id) {
-      this.activePanel = panel;
-      const container = $('body, html');
-      container.scrollTop(
-        $(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
-      );
     },
   },
   beforeMount() {

@@ -6,17 +6,23 @@
       </div>
     </div>
     <div v-show="!errorMessage">
-      <nav class="breadcrumb is-medium is-centered" aria-label="breadcrumbs">
-        <ul>
-          <li :class="{'is-active' : activePanel==='graph' }">
-            <a @click="scrollTo('graph', 'enzyme-graph')">Graph</a>
-            </li>
-          <li :class="{'is-active' : activePanel==='table' }">
-            <a @click="scrollTo('table', 'enzyme-table')">Table</a>
-            </li>
-        </ul>
-      </nav>
-      <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+      <div class="container columns">
+        <div class="column is-6">
+          <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+        </div>
+        <div class="column is-2">
+          <nav class="breadcrumb is-small is-centered" aria-label="breadcrumbs">
+            <ul>
+              <li :class="{'is-active' : false }">
+                <a @click="scrollTo('graph', 'enzyme-graph')">Network graph</a>
+              </li>
+              <li :class="{'is-active' : false }">
+                <a @click="scrollTo('table', 'enzyme-table')">Component table</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
       <loader v-show="loading"></loader>
       <div v-show="!loading">
         <div v-show="reactions.length > 0">
@@ -80,7 +86,6 @@ export default {
   data() {
     return {
       loading: true,
-      activePanel: 'graph',
       cy: null,
       errorMessage: null,
       elms: [],
@@ -262,8 +267,7 @@ export default {
           }
         });
     },
-    scrollTo(panel, id) {
-      this.activePanel = panel;
+    scrollTo(id) {
       const container = $('body, html');
       container.scrollTop(
         $(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
