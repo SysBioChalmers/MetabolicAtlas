@@ -102,7 +102,7 @@ export default {
       let disabledTab3 = true;
       let disabledTab4 = true;
       let disabledTab5 = true;
-      let disabledTab6 = false;
+      let disabledTab6 = true;
       if (this.componentID) {
         disabledTab2 = this.componentID[0] === 'R';
         disabledTab3 = this.componentID[0] !== 'E';
@@ -150,7 +150,7 @@ export default {
             tabIndex = 0;
             break;
           case 'subsystem':
-            tabIndex = 6;
+            tabIndex = 5;
             break;
           default:
             tabIndex = 0;
@@ -162,7 +162,7 @@ export default {
         return;
       }
 
-      if ([1, 2, 3, 4].includes(this.tabIndex) && !componentID) {
+      if ([1, 2, 3, 4, 5].includes(this.tabIndex) && !componentID) {
         this.errorMessage = this.$t('noIDProvided');
       } else {
         this.errorMessage = '';

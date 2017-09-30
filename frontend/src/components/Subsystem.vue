@@ -6,7 +6,11 @@
     </div>
   </div>
   <div v-else class="subsystem-table">
-    <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+    {{ info }}
+    {{ metabolites }}
+    {{ enzymes }}
+    {{ reactions }}
+    <table v-if="false && info && Object.keys(info).length != 0" class="table main-table">
       <tr class="m-row" v-for="reaction in reactions">
         <td class="td-key">Reaction</td>
         <td v-html="reaction.id"></td>
@@ -23,7 +27,7 @@ export default {
   data() {
     return {
       sId: this.$route.query.id,
-      ann: {},
+      info: {},
       metabolites: [],
       enzymes: [],
       reactions: [],
@@ -44,7 +48,7 @@ export default {
     load() {
       axios.get(`showsubsystem/${this.sId}/`)
       .then((response) => {
-        this.ann = response.data.subsystemAnnotations;
+        this.info = response.data.subsystemAnnotations;
         this.metabolites = response.data.metabolites;
         this.enzymes = response.data.enzymes;
         this.reactions = response.data.reactions;
