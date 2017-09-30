@@ -1,39 +1,43 @@
 <template>
-  <div id="app">
-    <nav id="main-nav" class="nav">
-      <div class="container">
-        <div>
-          <a id="logo" class="nav-item" @click="goToPage('/')" >
-            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
-          </a>
+  <div id="app" class="hero is-fullheight">
+    <div class="hero-head">
+      <nav id="main-nav" class="nav" style="box-shadow: none">
+        <div class="container">
+          <div>
+            <a id="logo" class="nav-item" @click="goToPage('/')" >
+              <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
+            </a>
+          </div>
+          <div class="nav-right nav-menu">
+            <a
+               v-for="menuItem in menuItems"
+               class="nav-item"
+               :class="[{ 'is-active': isActive(menuItem) }, '']"
+               @click="goToPage(menuItem)"
+            >{{ menuItem }}</a>
+          </div>
         </div>
-        <div class="nav-right nav-menu">
-          <a
-             v-for="menuItem in menuItems"
-             class="nav-item"
-             :class="[{ 'is-active': isActive(menuItem) }, '']"
-             @click="goToPage(menuItem)"
-          >{{ menuItem }}</a>
-        </div>
-      </div>
-    </nav>
-    <section class="section">
+      </nav>
+    </div>
+    <div class="hero-body">
       <div class="container">
         <router-view></router-view>
       </div>
-    </section>
-    <footer class="footer">
-      <div class="container">
-        <div class="content has-text-centered">
-          <p v-html="$t('footerText')"><p>
-          <p>
-            <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
-            <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
-            <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
-          </p>
+    </div>
+    <div class="hero-foot">
+      <footer class="footer">
+        <div class="container">
+          <div class="content has-text-centered">
+            <p v-html="$t('footerText')"><p>
+            <p>
+              <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
+              <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
+              <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
+            </p>
+          </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+    </div>
   </div>
 </template>
 
@@ -138,6 +142,11 @@ $fullhd: 1576px !default;
   sup {
     vertical-align: top;
   }
+}
+
+.hero.is-fullheight .hero-body {
+  align-items: initial;
+  display: flex;
 }
 
 </style>
