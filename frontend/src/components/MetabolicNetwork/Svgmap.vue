@@ -78,6 +78,8 @@ export default {
         this.hlElements(id, ids);
       } else if (type === 'wholemap') {
         this.loadSVG(this.svgBigMapName, this.loadSvgPanZoom, null);
+      } else if (!this.svgName) {
+        this.loadSVG(this.svgBigMapName, this.loadSvgPanZoom, null);
       }
     });
   },
@@ -144,6 +146,11 @@ export default {
             } else {
               $('.FluxEdge .Shape').attr('display', 'none');
               $('.EffectorEdge').attr('display', 'none');
+            }
+            if (zc >= 2) {
+              $('.Metabolite, .Reaction').attr('display', 'inline');
+            } else {
+              $('.Metabolite, .Reaction').attr('display', 'none');
             }
           },
         });

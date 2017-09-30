@@ -11,7 +11,7 @@
           <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
         </div>
         <div class="column is-3">
-          <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs">
+          <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs" v-if="reactions.length === 0">
             <ul>
               <li :class="{'is-active' : false }">
                 <a @click="scrollTo('graph', 'enzyme-graph')">Reaction graph</a>

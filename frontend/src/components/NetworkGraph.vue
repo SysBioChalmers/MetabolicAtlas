@@ -180,7 +180,7 @@ export default {
 
       if (tabIndex === 0) {
         console.log('on tab 0 resetview ?');
-        // EventBus.$emit('resetView');
+        EventBus.$emit('showSVGmap');
       }
     },
     search() {
