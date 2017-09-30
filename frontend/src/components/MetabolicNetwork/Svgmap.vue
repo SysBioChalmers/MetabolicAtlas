@@ -59,11 +59,11 @@ export default {
   },
   created() {
     EventBus.$on('showSVGmap', (type, id, ids) => {
-      // console.log('show svg map');
-      // console.log(`emit ${type} ${id} ${ids}`);
+      console.log('show svg map');
+      console.log(`emit ${type} ${id} ${ids}`);
       if (type === 'compartment') {
         this.HLonly = false;
-        this.hlElements(id, ids);
+        this.showCompartment(id);
       } else if (type === 'subsystem') {
         this.HLonly = false;
         this.showTiles(id, ids);
@@ -73,17 +73,21 @@ export default {
       } else if (type === 'highlight') {
         this.HLonly = true;
         this.hlElements(null, ids);
+      } else if (type === 'find') {
+        this.HLonly = false;
+        this.hlElements(id, ids);
       } else if (type === 'wholemap') {
+        this.loadSVG(this.svgBigMapName, this.loadSvgPanZoom, null);
+      } else if (!this.svgName) {
         this.loadSVG(this.svgBigMapName, this.loadSvgPanZoom, null);
       }
     });
-    // this.loadSVG(this.svgBigMapName, this.loadSvgPanZoom, null);
   },
   mounted() {
     $('#svgbox').attr('width', '100%');
     $('#svgbox').attr('height', `${$(window).height() - 300}`);
 
-    // add a white reactange behind the name
+     // add a white reactange behind the name
     $('#svg-wrapper').on('mouseover', '.Metabolite, .Reaction', function f() {
       const text = $(this)[0].children[1].children[0];
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -103,6 +107,7 @@ export default {
     $('#svg-wrapper').on('click', '.Metabolite', function f() {
       // exact the real id from the id
       const id = $(this).attr('id').substring(11).split('$')[0].trim();
+      console.log(id);
       if (id[0] === 'E') {
         EventBus.$emit('updateSelTab', 'enzyme', id);
       } else {
@@ -119,15 +124,34 @@ export default {
     loadSvgPanZoom(callback) {
       // load the lib svgPanZoom on the SVG loaded
       setTimeout(() => {
+        // const ZL = this.zoomLevel;
         this.panZoom = svgPanZoom('#svg-wrapper svg', {
           zoomEnabled: true,
           controlIconsEnabled: false,
           minZoom: 0.5,
           maxZoom: 15,
-          zoomScaleSensitivity: 0.5,
+          zoomScaleSensitivity: 0.4,
           fit: true,
-          onZoom() {
-            console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
+          onZoom: (zc) => {
+            // console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
+            this.zoomLevel = zc;
+            if (zc >= 5) {
+              $('.Metabolite .Label, .Reaction .Label').attr('display', 'inline');
+            } else {
+              $('.Metabolite .Label, .Reaction .Label').attr('display', 'none');
+            }
+            if (zc >= 3) {
+              $('.FluxEdge .Shape').attr('display', 'inline');
+              $('.EffectorEdge').attr('display', 'inline');
+            } else {
+              $('.FluxEdge .Shape').attr('display', 'none');
+              $('.EffectorEdge').attr('display', 'none');
+            }
+            if (zc >= 2) {
+              $('.Metabolite, .Reaction').attr('display', 'inline');
+            } else {
+              $('.Metabolite, .Reaction').attr('display', 'none');
+            }
           },
         });
         this.svgfit();
@@ -143,12 +167,15 @@ export default {
       $('#svg-wrapper svg').attr('width', '100%');
       const h = $('.svgbox').first().css('height');
       $('#svg-wrapper svg').attr('height', h);
-      this.panZoom.resize(); // update SVG cached size
-      this.panZoom.fit();
-      this.panZoom.center();
-      this.showLoader = false;
+      if (this.panZoom) {
+        this.panZoom.resize(); // update SVG cached size
+        this.panZoom.fit();
+        this.panZoom.center();
+        this.showLoader = false;
+      }
     },
     loadSVG(svgName, callback, callback2) {
+      console.log('load svg');
       // load the svg file from the server
       // if aleady loaded, just call the callback funtion
       const newSvgName = svgName;
@@ -185,12 +212,14 @@ export default {
       } else if (callback2) {
         // call findElementsOnSVG
         callback2();
+      } else {
+        console.log('finish call svgfit');
+        this.svgfit();
       }
-      this.svgfit();
     },
     findElementsOnSVG() {
-      // console.log('call findElementsOnSVGs');
-      // console.log(this.ids);
+      console.log('call findElementsOnSVGs');
+      console.log(this.ids);
       const a = [];
       const debug = false;
       if (!this.ids) {
@@ -227,7 +256,10 @@ export default {
         }
       }
       if (a.length) {
+        console.log(a);
         this.highlightSVGelements(a);
+      } else {
+        this.showLoader = false;
       }
     },
     updateZoomBoxCoor(coordinate) {
@@ -359,6 +391,12 @@ export default {
         this.loadSVG(this.compartment.svgName, this.loadSvgPanZoom, this.zoomOnTiles);
       }
     },
+    showCompartment(compartmentID) {
+      if (compartmentID) {
+        this.compartment = getCompartmentFromCID(compartmentID);
+        this.loadSVG(this.compartment.svgName, this.loadSvgPanZoom);
+      }
+    },
     getCompartmentFromCID,
   },
 };
@@ -389,8 +427,6 @@ export default {
       }
     }
   }
-
-
 
   .svgbox {
     position: relative;

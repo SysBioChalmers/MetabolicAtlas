@@ -71,7 +71,7 @@ export default {
     this.loadSubsystem();
   },
   mounted() {
-    EventBus.$emit('showSubsystem', null);
+    // EventBus.$emit('showSubsystem', null);
   },
   methods: {
     loadSubsystem() {

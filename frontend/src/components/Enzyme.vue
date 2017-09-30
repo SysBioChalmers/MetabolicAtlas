@@ -7,17 +7,17 @@
     </div>
     <div v-show="!errorMessage">
       <div class="container columns">
-        <div class="column is-6">
+        <div class="column is-5">
           <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
         </div>
-        <div class="column is-2">
-          <nav class="breadcrumb is-small is-centered" aria-label="breadcrumbs">
+        <div class="column is-3">
+          <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs" v-if="reactions.length === 0">
             <ul>
               <li :class="{'is-active' : false }">
-                <a @click="scrollTo('graph', 'enzyme-graph')">Network graph</a>
+                <a @click="scrollTo('graph', 'enzyme-graph')">Reaction graph</a>
               </li>
               <li :class="{'is-active' : false }">
-                <a @click="scrollTo('table', 'enzyme-table')">Component table</a>
+                <a @click="scrollTo('table', 'enzyme-table')">Reaction component table</a>
               </li>
             </ul>
           </nav>
