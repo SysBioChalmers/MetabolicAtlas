@@ -605,7 +605,7 @@ export default {
 
       const updatePosition = (node) => {
         contextMenuGraph.style.left = `${node.renderedPosition().x + 15}px`;
-        contextMenuGraph.style.top = `${node.renderedPosition().y + 260}px`;
+        contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
       };
 
       const nodeInViewport = (node) => {
