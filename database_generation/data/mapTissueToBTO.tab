@@ -1,0 +1,109 @@
+### Tissue For RNASeq	BTO
+adipose tissue	BTO:0001487
+adrenal gland	BTO:0000047
+appendix	BTO:0000084
+bone marrow	BTO:0000141
+cerebral cortex	BTO:0000233
+colon	BTO:0000269
+duodenum	BTO:0000365
+endometrium	BTO:0001422
+esophagus	BTO:0000959
+fallopian tube	BTO:0000980
+gallbladder	BTO:0000493
+heart muscle	BTO:0000199
+kidney	BTO:0000671
+liver	BTO:0000759
+lung	BTO:0000763
+lymph node	BTO:0000784
+ovary	BTO:0000975
+pancreas	BTO:0000988
+placenta	BTO:0001078
+prostate	BTO:0001129
+rectum	BTO:0001158
+salivary gland	BTO:0001203
+skin	BTO:0001253
+small intestine	BTO:0000651
+smooth muscle	BTO:0001260
+spleen	BTO:0001281
+stomach	BTO:0001307
+testis	BTO:0001363
+thyroid gland	BTO:0001379
+tonsil	BTO:0001387
+urinary bladder	BTO:0001418
+### (additional) Tissue for antibody profiling	BTO
+adipocytes	BTO:0000443
+breast	BTO:0000149
+bronchus	BTO:0001340
+cerebellum	BTO:0000232
+cervix, uterine	BTO:0001421
+chondrocytes	BTO:0000249
+epididymis	BTO:0000408
+fibroblasts	BTO:0000452
+hippocampus	BTO:0000601
+lateral ventricle	BTO:0000879
+nasopharynx	BTO:0000662
+oral mucosa	BTO:0002860
+parathyroid gland	BTO:0000997
+peripheral nerve	BTO:0001027
+seminal vesicle	BTO:0001234
+skeletal muscle	BTO:0001103
+vagina	BTO:0000243
+### Cell types from antibody profiling	BTO
+appendix - lymphoid tissue	BTO:0000084
+bone marrow - hematopoietic cells	BTO:0000141 bone marrow
+breast - adipocytes	BTO:0000149 breast
+breast - myoepithelial cells	BTO:0000149 breast
+bronchial epithelial cell	BTO:0002922
+bronchus - respiratory epithelial cells	BTO:0002637
+cerebellar Purkinje cell	BTO:0001011
+cerebellum - Purkinje cells	BTO:0001011
+cerebellum - cells in granular layer	BTO:0000232 cerebellum
+cerebellum - cells in molecular layer	BTO:0000232 cerebellum
+cerebral cortex - endothelial cells	BTO:0000233 cerebral cortex
+cerebral cortex - glial cells	BTO:0000233 cerebral cortex
+cerebral cortical neuron	BTO:0004102
+cerebral cortex - neuronal cells	BTO:0004102
+cerebral cortex - neuropil	BTO:0000233 cerebral cortex
+cervix, uterine - squamous epithelial cells	BTO:0001421	cervix, uterine
+colon - endothelial cells	BTO:0000269 colon
+colon - peripheral nerve/ganglion	BTO:0000269 colon
+endometrium - cells in endometrial stroma	BTO:0000257	uterine cancer cell
+esophagus - squamous epithelial cells	BTO:0003635	esophageal squamous epitheliu
+myocytes  BTO:0002320 heart muscle	myocytes
+heart muscle - myocytes	BTO:0002320	cardiac muscle fiber
+hippocampus - glial cells	BTO:0002606	glial cell
+hippocampus - neuronal cells	BTO:0000938	neuron
+kidney - cells in glomeruli	BTO:0000671 kidney
+kidney - cells in tubules	BTO:0000671 kidney
+lateral ventricle - glial cells	BTO:0002606     glial cell
+lateral ventricle - neuronal cells	BTO:0000938	neuron
+liver - bile duct cells	BTO:0000122	bile duct
+hepatocytes	BTO:0000575	liver	hepatocytes
+lung - macrophages	BTO:0000763 lung
+lung - pneumocytes	BTO:0000763 lung
+lymph node - germinal center cells	BTO:0000784 lymph node
+lymph node - non-germinal center cells	BTO:0000784 lymph node
+nasopharynx - respiratory epithelial cells	BTO:0004480	nasopharynx epithelium
+oral mucosa - squamous epithelial cells	BTO:0002860	oral mucosa
+ovary - follicle cells	BTO:0000475	ovarian follicle
+ovary - ovarian stroma cells	BTO:0001023	ovary cancer cell
+pancreas - exocrine glandular cells	BTO:0000988	pancreas
+islets of Langerhans	BTO:0005813
+placenta - decidual cells	BTO:0001078	placenta
+placenta - trophoblastic cells	BTO:0001078	placenta
+skeletal muscle - myocytes	BTO:0002319	skeletal muscle fiber
+skin - Langerhans	BTO:0001253	skin
+skin - fibroblasts	BTO:0001253	skin
+skin - keratinocytes	BTO:0001253	skin
+skin - melanocytes	BTO:0001253	skin
+skin - epidermal cells	BTO:0001253	skin
+smooth muscle - smooth muscle cells	BTO:0004576
+spleen - cells in red pulp	BTO:0001281	spleen
+spleen - cells in white pulp	BTO:0001281	spleen
+testis - Leydig cells	BTO:0000755
+testis - cells in seminiferous ducts	BTO:0001363	testis
+tonsil - germinal center cells	BTO:0001387	tonsil
+tonsil - non-germinal center cells	BTO:0001387	tonsil
+tonsil - squamous epithelial cells	BTO:0001387	tonsil
+urinary bladder - urothelial cells	BTO:0005781	uroepithelial cell
+vagina - squamous epithelial cells	BTO:0000422	vaginal epithelium

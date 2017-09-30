@@ -131,7 +131,7 @@ export default {
           id = elm[s.field];
         }
       } else {
-        id = elm.real_id;
+        id = elm.id || elm.real_id;
       }
       return id;
     },

@@ -1,6 +1,7 @@
 <template>
   <div class="column" v-bind:class="quickSearch ? 'is-7' : 'is-8'">
     <div class="control">
+      <div v-if="!quickSearch">Search across all GEMs</div>
       <div id="input-wrapper">
         <input
           id="search"
@@ -16,38 +17,42 @@
           <div id="text-input-alert" v-show="showSearchCharAlert">Type at least 2 char</div>
       </div>
       <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
-        <div v-if="searchResults" v-for="v, k in searchResults" class="searchGroupResultSection">
-          <div v-for="r in v" class="searchResultSection">
-            <div v-if="k === 'reactionComponent'">
-              <div v-show="r.component_type == 'enzyme'">
-                <strong>Enzyme: </strong> {{ r.name }}
-                <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
-                <div>
-                   <span
-                    class="tag is-primary is-medium"
-                    @click="goToTab('interaction', r.id)">
-                    Closest interaction partners
-                  </span>
-                  <span class="tag is-primary is-medium"
-                    @click="goToTab('enzyme', r.id)">
-                    Enzyme
-                  </span>
-                </div>
+        <div class="has-text-centered">
+          <div class="tag">
+            Note: Results are restricted to the active GEM and limited to 50 per component - Hit Enter to get full results
+          </div>
+        </div>
+        <div v-if="searchResults" class="searchGroupResultSection"
+          v-for="k in resultsOrder" >
+          <div v-for="r in searchResults[k]" class="searchResultSection">
+            <div v-if="k === 'enzyme'">
+              <strong>Enzyme: </strong> {{ r.name }}
+              <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
+              <div>
+                 <span
+                  class="tag is-primary is-medium"
+                  @click="goToTab('interaction', r.id)">
+                  Closest interaction partners
+                </span>
+                <span class="tag is-primary is-medium"
+                  @click="goToTab('enzyme', r.id)">
+                  Enzyme
+                </span>
               </div>
-              <div v-show="r.component_type == 'metabolite'">
-                <strong>Metabolite: </strong> {{ r.name }}
-                <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
-                <div>
-                  <span
-                    class="tag is-primary is-medium"
-                    @click="goToTab('interaction', r.id)">
-                    Closest interaction partners
-                  </span>
-                  <span class="tag is-primary is-medium"
-                    @click="goToTab('metabolite', r.id)">
-                    Metabolite
-                  </span>
-                </div>
+            </div>
+            <div v-else-if="k === 'metabolite'">
+              <strong>Metabolite: </strong> {{ r.name }}
+              <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
+              <div>
+                <span
+                  class="tag is-primary is-medium"
+                  @click="goToTab('interaction', r.id)">
+                  Closest interaction partners
+                </span>
+                <span class="tag is-primary is-medium"
+                  @click="goToTab('metabolite', r.id)">
+                  Metabolite
+                </span>
               </div>
             </div>
             <div v-else-if="k === 'reaction'">
@@ -115,6 +120,7 @@ export default {
   data() {
     return {
       errorMessage: '',
+      resultsOrder: ['metabolite', 'enzyme', 'reaction', 'subsystem', 'compartment'],
       searchResults: [],
       searchTermString: this.searchTerm,
       showSearchCharAlert: false,
@@ -150,15 +156,31 @@ export default {
       const url = this.quickSearch ? `search/quick/${searchTerm}` : `search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
-        this.searchResults = response.data;
+        const searchResults = response.data.reactionComponent.reduce((subarray, el) => {
+          const arr = subarray;
+          if (!arr[el.component_type]) { arr[el.component_type] = []; }
+          arr[el.component_type].push(el);
+          return arr;
+        }, {});
+
+        searchResults.reaction = response.data.reaction;
+        searchResults.subsystem = response.data.subsystem;
+        searchResults.compartment = response.data.compartment;
+
+        // searchResults.metabolite = searchResults.reactionComponent.filter(
+        // o => o.component_type === 'metabolite');
+        // searchResults.enzyme = searchResults.reactionComponent.filter(
+        // o => o.component_type === 'enzyme');
+        // delete searchResults.reactionComponent;
         this.noResult = true;
-        for (const k of Object.keys(this.searchResults)) {
-          if (this.searchResults[k].length) {
+        for (const k of Object.keys(searchResults)) {
+          if (searchResults[k].length) {
             this.showSearchCharAlert = false;
             this.noResult = false;
             break;
           }
         }
+        this.searchResults = searchResults;
         this.showLoader = false;
       })
       .catch(() => {
@@ -174,7 +196,6 @@ export default {
       EventBus.$emit('updateSelTab', type, id);
     },
     viewCompartment(id) {
-      console.log('test');
       this.goToTab('map', null);
       EventBus.$emit('showCompartment', id, []);
     },
@@ -214,6 +235,7 @@ export default {
       if (this.quickSearch) {
         this.goToSearchPage();
       } else if (this.searchTermString.length >= 2) {
+        this.$emit('searchResults');
         this.search(this.searchTermString);
       }
     },

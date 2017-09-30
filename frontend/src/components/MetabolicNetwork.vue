@@ -6,25 +6,25 @@
          @click="levelSelected='subsystem'"
          :class="{ 'is-active' : levelSelected==='subsystem'}">
          Subsystems ({{ subsystemCount }})</button>
-        <button class="button" 
+        <button class="button"
           @click="levelSelected='compartment'"
           :class="{ 'is-active' : levelSelected==='compartment'}">
-          Compartments ({{ compartmentCount }})</button>
+          Compartments</button>
         <button class="button"
          @click="levelSelected='region'"
          :class="{ 'is-active' : levelSelected==='region'}">
          View reaction components</button>
         <button class="button"
           @click="levelSelected='reporterMet'"
-          :class="{ 'is-active' : levelSelected==='reporterMet'}" disabled>
+          :class="{ 'is-active' : levelSelected==='reporterMet'}" v-if="false">
           Reporter metabolites</button>
         <button class="button"
           @click="levelSelected='expData'"
-          :class="{ 'is-active' : levelSelected==='expData'}" disabled>
+          :class="{ 'is-active' : levelSelected==='expData'}" v-if="false">
           Overlay expression</button>
         <button class="button"
           @click="levelSelected='compModels'"
-          :class="{ 'is-active' : levelSelected==='compModels'}" disabled>
+          :class="{ 'is-active' : levelSelected==='compModels'}" v-if="false">
           Compare GEMs</button>
       </div>
     </div>
@@ -55,6 +55,7 @@ import Compartment from 'components/MetabolicNetwork/Compartment';
 import Subsystem from 'components/MetabolicNetwork/Subsystem';
 import Region from 'components/MetabolicNetwork/Region';
 import Svgmap from 'components/MetabolicNetwork/Svgmap';
+import { default as EventBus } from '../event-bus';
 import { getCompartments } from '../helpers/compartment';
 
 export default {
@@ -72,8 +73,10 @@ export default {
       hideSidebar: false,
       compartmentCount: 0,
       subsystemCount: 0,
+      initialEmit: false,
     };
   },
+
   beforeMount() {
     this.compartmentCount = Object.keys(getCompartments(this.getCompartments())).length;
   },
@@ -82,6 +85,12 @@ export default {
     if (!this.view) {
       // load subsystem view
       this.levelSelected = 'subsystem';
+    }
+    console.log(this.$route.query);
+    if (this.$route.query.tab && this.$route.query.tab === '1' && !this.initialEmit) {
+      console.log('initial emit whole map');
+      EventBus.$emit('showSVGmap', 'wholemap', null);
+      this.initialEmit = true;
     }
   },
   methods: {

@@ -29,6 +29,7 @@ export default function (elms, rels) {
           name: elm.short,
           link: elm.link,
           type: elm.type,
+          formula: elm.formula,
           details: elm.details,
         },
       });
@@ -43,6 +44,7 @@ export default function (elms, rels) {
           name: elm.short,
           link: elm.link,
           type: elm.type,
+          formula: elm.formula,
           details: elm.details,
         },
       });
@@ -63,6 +65,7 @@ export default function (elms, rels) {
         group: 'nodes',
         data: {
           id: elm.id,
+          name: 'Reactants',
           parent: elm.parentid,
           type: elm.type,
         },
@@ -72,6 +75,7 @@ export default function (elms, rels) {
         group: 'nodes',
         data: {
           id: elm.id,
+          name: 'Products',
           parent: elm.parentid,
           type: elm.type,
         },

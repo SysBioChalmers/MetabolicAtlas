@@ -149,13 +149,20 @@ class SubsystemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subsystem
-        fields = ('name', 'system', 'external_id', 'description')
+        fields = ('id', 'name', 'system', 'external_id', 'description')
 
 class CompartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Compartment
         fields = ('name',)
+
+
+class CompartmentInformationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CompartmentInformation
+        fields = ('id', 'compartment', 'display_name', 'filename', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')
 
 # =======================================================================================
 
@@ -215,4 +222,4 @@ class GEModelListSerializer(serializers.ModelSerializer):
 class TileSubsystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = TileSubsystem
-        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)
+        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'compartmentinformation_id', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)

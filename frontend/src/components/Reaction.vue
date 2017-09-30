@@ -21,13 +21,20 @@
         </td>
         <td v-else> - </td>
       </tr>
+      <tr v-if="pmid.length">
+        <td class="td-key">PMID</td>
+        <td v-html="reformatPmid(pmid)"></td>
+      </tr>
     </table>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import $ from 'jquery';
+import { default as EventBus } from '../event-bus';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
+import { reformatChemicalReaction } from '../helpers/compartment';
 
 export default {
   name: 'reaction',
@@ -39,15 +46,14 @@ export default {
         { name: 'name', display: 'Name', modifier: chemicalName },
         { name: 'compartment' },
         { name: 'subsystem', modifier: this.reformatSubsystemList },
-        { name: 'equation', modifier: chemicalName },
-        { name: 'quantitative_stuff', isComposite: true, modifier: this.reformatQuant },
+        { name: 'equation', modifier: this.reformatEquation },
+        { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
         { name: 'modifiers', modifier: this.reformatModifiers },
-        { name: 'reactants', modifier: this.reformatMetaboliteList },
-        { name: 'products', modifier: this.reformatMetaboliteList },
         { name: 'ec', display: 'EC', modifier: this.reformatECLink },
         { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
       info: {},
+      pmid: [],
       errorMessage: '',
     };
   },
@@ -65,7 +71,8 @@ export default {
     load() {
       axios.get(`reactions/${this.rId}/`)
       .then((response) => {
-        this.info = response.data;
+        this.info = response.data.reaction;
+        this.pmid = response.data.pmid;
       })
       .catch(() => {
         this.errorMessage = this.$t('notFoundError');
@@ -76,6 +83,11 @@ export default {
     },
     reformatKey(k) {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
+    },
+    reformatEquation(equation) {
+      console.log(equation);
+      console.log(this.info);
+      return this.reformatChemicalReaction(equation, this.info);
     },
     reformatSBOLink(s, link) {
       if (link) {
@@ -100,58 +112,60 @@ export default {
     },
     reformatModifiers(mods) {
       const html = [];
-      html.push('<div class="field is-grouped is-grouped-multiline">');
+      html.push('<div class="tags">');
       for (const mod of mods) {
-        html.push(`<div class="control"><div class="tags has-addons">
-          <span class="tag"><a href="/?tab=3&id=${mod.id}">${mod.short_name}</a></span></div></div>`);
+        html.push(`<span class="tag"><a href="/?tab=3&id=${mod.id}">${mod.short_name}</a></span>`);
       }
       html.push('</div>');
       return html.join(' ');
     },
     reformatSubsystemList(l) {
       // return l.join('; ');
+      // TODO add route logic on url 'subsystem' query
       let str = '';
       for (const a of l) {
-        str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
+        // str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
+        str = str.concat('<a href="#">', a, '</a>');
       }
       return str;
-    },
-    reformatMetaboliteList(e) {
-      const html = [];
-      html.push('<div class="field is-grouped is-grouped-multiline">');
-      for (const met of e) {
-        html.push(`<div class="control"><div class="tags has-addons">
-          <span class="tag"><a href="/?tab=4&id=${met.id}">${met.short_name}</a></span></div></div>`);
-      }
-      html.push('</div>');
-      return html.join(' ');
     },
     formatQuantFieldName(name) {
       return `<span class="tag is-info">${name}</span>`;
     },
+    reformatPmid(pmid) {
+      const pmidi = pmid.map((x, i, ar) => {
+        let v = ar[i];
+        v = v[0].substring(5);
+        v = `<a href="https://www.ncbi.nlm.nih.gov/pubmed/${v}" target="_blank">${v}</a>`;
+        return v;
+      });
+      return pmidi.join(', ');
+    },
     reformatQuant() {
       const data = [];
       for (const key of ['upper_bound', 'lower_bound', 'objective_coefficient']) {
-        data.push(this.formatQuantFieldName(this.reformatKey(key)));
         if (this.info[key]) {
+          data.push(this.formatQuantFieldName(this.reformatKey(key)));
           if (key === 'objective_coefficient') {
             data.push(this.reformatMass(this.info[key]));
           }
           data.push(this.info[key]);
-        } else {
-          data.push('-');
         }
         data.push('<span>&nbsp;&nbsp;</span>');
       }
       return data.join(' ');
     },
+    chemicalFormula,
+    chemicalName,
+    chemicalNameExternalLink,
+    reformatChemicalReaction,
   },
   beforeMount() {
+    $('body').on('click', 'td rc', function f() {
+      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
+    });
     this.setup();
   },
-  chemicalFormula,
-  chemicalName,
-  chemicalNameExternalLink,
 };
 </script>
 

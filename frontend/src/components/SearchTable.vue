@@ -5,7 +5,8 @@
         <global-search
         :quickSearch=false
         :searchTerm=searchTerm
-        @updateResults="updateResults">
+        @updateResults="updateResults"
+        @searchResults="loading=true">
         </global-search>
       </div>
     </div>
@@ -15,152 +16,155 @@
           <li :disabled="resultsCount[tab] === 0" 
           :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
           v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
-            <a v-show="!searchResultsSplittedFiltered[tab] || searchResultsSplittedFiltered[tab].length === resultsCount[tab]">
+            <a v-show="!searchResultsFiltered[tab] || searchResultsFiltered[tab].length === resultsCount[tab]">
               {{ tab | capitalize }} ({{ resultsCount[tab] }})
             </a>
-            <a v-show="searchResultsSplittedFiltered[tab] && searchResultsSplittedFiltered[tab].length !== resultsCount[tab]">
+            <a v-show="searchResultsFiltered[tab] && searchResultsFiltered[tab].length !== resultsCount[tab]">
               {{ tab | capitalize }} ({{ resultsCount[tab] }})
-              ({{ searchResultsSplittedFiltered[tab] ? searchResultsSplittedFiltered[tab].length : 0 }})
+              ({{ searchResultsFiltered[tab] ? searchResultsFiltered[tab].length : 0 }})
             </a>
           </li>
         </ul>
       </div>
-      <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
-        <div class="button" 
-        v-on:click="toggleFilter('metabolite')" 
-        :disabled="disabledFilters['metabolite']"
-        :class="{'is-active': toggleFilters['metabolite'], 'is-primary': Object.keys(activeFilters['metabolite']).length !== 0}"
-        >Filters</div>
-        <div class="box columns" v-show="toggleFilters['metabolite']">
-          <div class="column" v-for="(types, key) in filters['metabolite']">
-            {{ key | capitalize }}
-            <select :disabled="types.length === 1"
-            @change="doFilterResults('metabolite', key, $event)">
-              <option v-for="el in types">
-                {{ el }}
-              </option>
-            </select>
+      <loader v-show="loading"></loader>
+      <div v-show="!loading">
+        <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
+          <div class="button" 
+          v-on:click="toggleFilter('metabolite')" 
+          :disabled="disabledFilters['metabolite']"
+          :class="{'is-active': toggleFilters['metabolite'], 'is-primary': Object.keys(activeFilters['metabolite']).length !== 0}"
+          >Filters</div>
+          <div class="box columns" v-show="toggleFilters['metabolite']">
+            <div class="column" v-for="(types, key) in filters['metabolite']">
+              {{ key | capitalize }}
+              <select :disabled="types.length === 1"
+              @change="doFilterResults('metabolite', key, $event)">
+                <option v-for="el in types">
+                  {{ el }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <table class="table is-fullwidth">
+            <thead>
+              <tr>
+                <th>Organism</th><th>Model</th><th>Compartment</th>
+                <th>ID</th><th>Name</th><th>Formula</th><th>Mass</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in searchResultsFiltered['metabolite']">
+                <td>{{ item.organism | capitalize }}</td>
+                <td>HMR2.00</td>
+                <td>{{ item.compartment | capitalize }}</td>
+                <td>
+                  <a @click="viewComponentInfo(item.id, 4)">{{ item.id }}</a>
+                </td>
+                <td>{{ item.short_name }}</td>
+                <td v-html="formulaFormater(item.formula)"></td>
+                <td v-html="item.metabolite && item.metabolite.mass ? item.metabolite.mass + '&nbsp;g/mol' : ''"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
+          <div class="columns">
+            <div class="column">
+              <table class="table is-fullwidth">
+                <thead>
+                  <tr>
+                    <th>Organism</th><th>Model</th><th>Compartment</th><th>ID</th>
+                    <th>Name</th><th>Uniprot ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in searchResults['enzyme']">
+                    <td>{{ item.organism | capitalize }}</td>
+                    <td>HMR2.00</td>
+                    <td>{{ item.compartment | capitalize }}</td>
+                    <td>
+                      <a @click="viewComponentInfo(item.id, 3)">{{ item.id }}</a>
+                    </td>
+                    <td>{{ item.short_name }}</td>
+                    <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Organism</th><th>Model</th><th>Compartment</th>
-              <th>ID</th><th>Name</th><th>Formula</th><th>Mass</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in searchResultsSplittedFiltered['metabolite']">
-              <td>{{ item.organism | capitalize }}</td>
-              <td>HMR2.00</td>
-              <td>{{ item.compartment | capitalize }}</td>
-              <td>
-                <a @click="viewComponentInfo(item.id, 4)">{{ item.id }}</a>
-              </td>
-              <td>{{ item.short_name }}</td>
-              <td v-html="formulaFormater(item.formula)"></td>
-              <td v-html="item.metabolite && item.metabolite.mass ? item.metabolite.mass + '&nbsp;g/mol' : ''"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
-        <div class="columns">
-          <div class="column">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Organism</th><th>Model</th><th>Compartment</th><th>ID</th>
-                  <th>Name</th><th>Uniprot ID</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in searchResultsSplitted['enzyme']">
-                  <td>{{ item.organism | capitalize }}</td>
-                  <td>HMR2.00</td>
-                  <td>{{ item.compartment | capitalize }}</td>
-                  <td>
-                    <a @click="viewComponentInfo(item.id, 3)">{{ item.id }}</a>
-                  </td>
-                  <td>{{ item.short_name }}</td>
-                  <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
+          <div class="columns">
+            <div class="column">
+              <table class="table is-fullwidth">
+                <thead>
+                  <tr>
+                    <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
+                    <th>ID</th><th>Equation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in searchResults['reaction']">
+                    <td>{{ item.organism ? item.organism : 'Human' | capitalize}}</td>
+                    <td>HMR2.00</td>
+                    <td>{{ item.subsystem.join('; ')}}</td>
+                    <td>{{ item.compartment | capitalize }}</td>
+                    <td>
+                      <a @click="viewComponentInfo(item.id, 5)">{{ item.id }}</a>
+                    </td>
+                    <td>{{ item.equation }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
-        <div class="columns">
-          <div class="column">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
-                  <th>ID</th><th>Equation</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in searchResultsSplitted['reaction']">
-                  <td>{{ item.organism ? item.organism : 'Human' | capitalize}}</td>
-                  <td>HMR2.00</td>
-                  <td>{{ item.subsystem.join('; ')}}</td>
-                  <td>{{ item.compartment | capitalize }}</td>
-                  <td>
-                    <a @click="viewComponentInfo(item.id, 5)">{{ item.id }}</a>
-                  </td>
-                  <td>{{ item.equation }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
+          <div class="columns">
+            <div class="column">
+              <table class="table is-fullwidth">
+                <thead>
+                  <tr>
+                    <th>Organism</th><th>Model</th><th>Subsystem</th><th>System</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in searchResults['subsystem']">
+                    <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
+                    <td>HMR2.00</td>
+                    <td>{{ item.name | capitalize }}</td>
+                    <td>{{ item.system | capitalize }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
-        <div class="columns">
-          <div class="column">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Organism</th><th>Model</th><th>Subsystem</th><th>System</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in searchResultsSplitted['subsystem']">
-                  <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
-                  <td>HMR2.00</td>
-                  <td>{{ item.name | capitalize }}</td>
-                  <td>{{ item.system | capitalize }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
+          <div class="columns">
+            <div class="column">
+              <table class="table is-fullwidth">
+                <thead>
+                  <tr>
+                    <th>Organism</th><th>Model</th><th>Compartment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in searchResults['compartment']">
+                    <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
+                    <td>HMR2.00</td>
+                    <td>{{ item.name | capitalize }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
-        <div class="columns">
-          <div class="column">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Organism</th><th>Model</th><th>Compartment</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in searchResultsSplitted['compartment']">
-                  <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
-                  <td>HMR2.00</td>
-                  <td>{{ item.name | capitalize }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
-      </div>
-      </div>
-      <div v-show="!showTabType">
-        <div v-if="searchResults.length === 0" class="column is-8 is-offset-2 has-text-centered">
-          {{ $t('searchNoResult') }}
+        <div v-show="!showTabType">
+          <div v-if="searchResults.length === 0" class="column is-8 is-offset-2 has-text-centered">
+            {{ $t('searchNoResult') }}
+          </div>
         </div>
       </div>
     </div>
@@ -170,6 +174,7 @@
 <script>
 import GlobalSearch from 'components/GlobalSearch';
 import $ from 'jquery';
+import Loader from 'components/Loader';
 import router from '../router';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 
@@ -177,6 +182,7 @@ export default {
   name: 'search-table',
   components: {
     GlobalSearch,
+    Loader,
   },
   data() {
     return {
@@ -199,30 +205,15 @@ export default {
       searchTerm: 'metabolite',
       searchResults: {},
       showTabType: '',
+      loading: true,
     };
   },
   computed: {
-    searchResultsSplitted() {
-      if (!this.searchResults.reactionComponent) {
+    searchResultsFiltered() {
+      if (!this.searchResults) {
         return {};
       }
-      const r = this.searchResults.reactionComponent.reduce((subarray, el) => {
-        const arr = subarray;
-        if (!arr[el.component_type]) { arr[el.component_type] = []; }
-        arr[el.component_type].push(el);
-        return arr;
-      }, {});
-
-      r.reaction = this.searchResults.reaction;
-      r.subsystem = this.searchResults.subsystem;
-      r.compartment = this.searchResults.compartment;
-      return r;
-    },
-    searchResultsSplittedFiltered() {
-      if (!this.searchResultsSplitted) {
-        return {};
-      }
-      const arr = JSON.parse(JSON.stringify(this.searchResultsSplitted));
+      const arr = JSON.parse(JSON.stringify(this.searchResults));
       for (const key of Object.keys(this.activeFilters)) {
         for (const compo of Object.keys(this.activeFilters[key])) {
           const val = this.activeFilters[key][compo];
@@ -255,9 +246,9 @@ export default {
       for (const key of this.tabs) {
         this.resultsCount[key] = 0;
       }
-      for (const el of Object.keys(this.searchResultsSplitted)) {
+      for (const el of Object.keys(this.searchResults)) {
         if (el in this.resultsCount) {
-          this.resultsCount[el] = this.searchResultsSplitted[el].length;
+          this.resultsCount[el] = this.searchResults[el].length;
         }
       }
     },
@@ -295,8 +286,8 @@ export default {
       };
 
       // store choice only once in a dict
-      for (const componentType of Object.keys(this.searchResultsSplitted)) {
-        const compoList = this.searchResultsSplitted[componentType];
+      for (const componentType of Object.keys(this.searchResults)) {
+        const compoList = this.searchResults[componentType];
         for (const el of compoList) {
           for (const field of Object.keys(newFilter[componentType])) {
             newFilter[componentType][field][el[field]] = 1;
@@ -328,9 +319,9 @@ export default {
       this.resetFilters();
     },
     updateResults(term, val) {
+      this.loading = false;
       this.searchTerm = term;
-      this.searchResultsSplitted = {};
-      this.searchResultsSplittedFiltered = {};
+      this.searchResultsFiltered = {};
       this.searchResults = val;
 
       // count types
@@ -357,7 +348,7 @@ export default {
       } else {
         newActiveFilters[type][compo] = value;
       }
-      // trigger changes in the computed property 'searchResultsSplittedFiltered'
+      // trigger changes in the computed property 'searchResultsFiltered'
       this.activeFilters = newActiveFilters;
     },
     showTab(elementType) {

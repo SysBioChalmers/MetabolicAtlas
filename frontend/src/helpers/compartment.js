@@ -5,23 +5,7 @@ const data = {
     letter: 's',
     color: '',
     svgName: 'fakesvg',
-    compartmentID: 1,
-    maxZoomLvl: 10,
-  },
-  peroxisome: {
-    name: 'Peroxisome',
-    letter: 'p',
-    color: '',
-    svgName: 'peroxisome',
-    compartmentID: 2,
-    maxZoomLvl: 10,
-  },
-  mitochondria: {
-    name: 'Mitochondria',
-    letter: 'm',
-    color: '',
-    svgName: 'mitochondrion',
-    compartmentID: 3,
+    compartmentID: 13,
     maxZoomLvl: 10,
   },
   cytosol: {
@@ -29,7 +13,24 @@ const data = {
     letter: 'c',
     color: '',
     svgName: '',
-    compartmentID: 4,
+    compartmentID: 15,
+    maxZoomLvl: 0,
+  },
+  peroxisome: {
+    name: 'Peroxisome',
+    letter: 'p',
+    color: '',
+    svgName: 'peroxisome',
+    compartmentID: 1,
+    maxZoomLvl: 10,
+  },
+  mitochondria: {
+    name: 'Mitochondria',
+    letter: 'm',
+    color: '',
+    svgName: 'mitochondrion',
+    // svgName: 'fakesvg',
+    compartmentID: 2,
     maxZoomLvl: 10,
   },
   lysosome: {
@@ -37,15 +38,15 @@ const data = {
     letter: 'l',
     color: '',
     svgName: 'lysosome',
-    compartmentID: 5,
+    compartmentID: 3,
     maxZoomLvl: 10,
   },
   'endoplasmic reticulum': {
     name: 'ER',
     letter: 'r',
     color: '',
-    svgName: 'er',
-    compartmentID: 6,
+    svgName: 'ER',
+    compartmentID: 4,
     maxZoomLvl: 10,
   },
   'golgi apparatus': {
@@ -53,7 +54,7 @@ const data = {
     letter: 'g',
     color: '',
     svgName: 'golgi',
-    compartmentID: 7,
+    compartmentID: 5,
     maxZoomLvl: 10,
   },
   nucleus: {
@@ -61,15 +62,63 @@ const data = {
     letter: 'n',
     color: '',
     svgName: 'nucleus',
-    compartmentID: 8,
+    compartmentID: 6,
     maxZoomLvl: 10,
   },
   boundary: {
     name: 'Boundary',
     letter: 'x',
     color: '',
-    svgName: 'golgi',
+    svgName: '',
+    compartmentID: 14,
+    maxZoomLvl: 10,
+  },
+  cytosol1: {
+    name: 'Cytosol_1',
+    letter: 'c1',
+    color: '',
+    svgName: 'cytosol_1',
+    compartmentID: 7,
+    maxZoomLvl: 10,
+  },
+  cytosol2: {
+    name: 'Cytosol_2',
+    letter: 'c2',
+    color: '',
+    svgName: 'cytosol_2',
+    compartmentID: 8,
+    maxZoomLvl: 10,
+  },
+  cytosol3: {
+    name: 'Cytosol_3',
+    letter: 'c3',
+    color: '',
+    svgName: 'cytosol_3',
     compartmentID: 9,
+    maxZoomLvl: 10,
+  },
+  cytosol4: {
+    name: 'Cytosol_4',
+    letter: 'c4',
+    color: '',
+    svgName: 'cytosol_4',
+    compartmentID: 10,
+    maxZoomLvl: 10,
+  },
+  cytosol5: {
+    name: 'Cytosol_5',
+    letter: 'c5',
+    color: '',
+    svgName: 'cytosol_5',
+    compartmentID: 11,
+    maxZoomLvl: 10,
+  },
+  cytosol6: {
+    name: 'Cytosol_6',
+    letter: 'c6',
+    color: '',
+    svgName: 'cytosol_6',
+    compartmentID: 12,
     maxZoomLvl: 10,
   },
 };
@@ -84,18 +133,29 @@ const l = {
   g: data['golgi apparatus'],
   n: data.nucleus,
   x: data.boundary,
+  c1: data.cytosol1,
+  c2: data.cytosol2,
+  c3: data.cytosol3,
+  c4: data.cytosol4,
+  c5: data.cytosol5,
+  c6: data.cytosol6,
 };
 
 const d = {
-  1: data.extracellular,
-  2: data.peroxisome,
-  3: data.mitochondria,
-  4: data.cytosol,
-  5: data.lysosome,
-  6: data['endoplasmic reticulum'],
-  7: data['golgi apparatus'],
-  8: data.nucleus,
-  9: data.boundary,
+  13: data.extracellular,
+  1: data.peroxisome,
+  2: data.mitochondria,
+  3: data.lysosome,
+  4: data['endoplasmic reticulum'],
+  5: data['golgi apparatus'],
+  6: data.nucleus,
+  14: data.boundary,
+  7: data.cytosol1,
+  8: data.cytosol2,
+  9: data.cytosol3,
+  10: data.cytosol4,
+  11: data.cytosol5,
+  12: data.cytosol6,
 };
 
 export function getCompartmentFromLetter(letter) {
@@ -139,7 +199,10 @@ export function reformatChemicalReaction(equation, reaction) {
     return '';
   }
   const addComp = reaction.compartment.includes('=>');
-  const arr = equation.split(' &#8680; ');
+  let arr = equation.split(' &#8680; ');
+  if (arr.length === 1) {
+    arr = equation.split(' => ');
+  }
 
   // assumes the order in reaction.reactants (reps. reaction.products)
   // are identique to the order or the reactants (resp. products) of the equation

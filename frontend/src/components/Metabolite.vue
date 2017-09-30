@@ -1,55 +1,61 @@
 <template>
-  <div v-if="errorMessage" class="columns">
-    <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-      {{ errorMessage }}
+  <div id="metabolite-page">
+    <div v-if="errorMessage" class="columns">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
+      </div>
     </div>
-  </div>
-  <div v-else class="metabolite-table">
-    <table v-if="info && Object.keys(info).length != 0" class="table main-table">
-      <tr v-for="el in mainTableKey">
-        <td v-if="el.display" class="td-key">{{ el.display }}</td>
-        <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-        <td v-if="info.metabolite[el.name]">
-          <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
-          </span>
-          <span v-else>
-            {{ info.metabolite[el.name] }}
-          </span>
-        </td>
-        <td v-else-if="info[el.name]">
-          <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
-          </span>
-          <span v-else>
-            {{ info[el.name] }}
-          </span>
-        </td>
-        <td v-else> - </td>
-      </tr>
-    </table>
-    <br>
-    <span class="subtitle">HMDB</span>
-    <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
-      <tr v-for="el in HMDBRAbleKey">
-        <td v-if="el.display" class="td-key">{{ el.display }}</td>
-        <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-        <td v-if="info.metabolite[el.name]">
-          <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
-          </span>
-          <span v-else>
-            {{ info.metabolite[el.name] }}
-          </span>
-        </td>
-        <td v-else-if="info[el.name]">
-          <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
-          </span>
-          <span v-else>
-            {{ info[el.name] }}
-          </span>
-        </td>
-        <td v-else> - </td>
-      </tr>
-    </table>
-    <reactome></reactome>
+    <div v-else class="metabolite-table">
+      <div id="metabolite-table">
+        <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+          <tr v-for="el in mainTableKey">
+            <td v-if="el.display" class="td-key">{{ el.display }}</td>
+            <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+            <td v-if="info.metabolite[el.name]">
+              <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
+              </span>
+              <span v-else>
+                {{ info.metabolite[el.name] }}
+              </span>
+            </td>
+            <td v-else-if="info[el.name]">
+              <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+              </span>
+              <span v-else>
+                {{ info[el.name] }}
+              </span>
+            </td>
+            <td v-else> - </td>
+          </tr>
+        </table>
+        <div v-show="showHMDB">
+          <br>
+          <span class="subtitle">HMDB</span>
+          <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
+            <tr v-for="el in HMDBRAbleKey">
+              <td v-if="el.display" class="td-key">{{ el.display }}</td>
+              <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+              <td v-if="info.metabolite[el.name]">
+                <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
+                </span>
+                <span v-else>
+                  {{ info.metabolite[el.name] }}
+                </span>
+              </td>
+              <td v-else-if="info[el.name]">
+                <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+                </span>
+                <span v-else>
+                  {{ info[el.name] }}
+                </span>
+              </td>
+              <td v-else> - </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <reactome id="metabolite-reactome"></reactome>
+    </div>
   </div>
 </template>
 
@@ -87,6 +93,8 @@ export default {
       ],
       info: {},
       errorMessage: '',
+      activePanel: 'table',
+      showHMDB: false,
     };
   },
   watch: {
@@ -106,6 +114,7 @@ export default {
         if (response.data.component_type === 'metabolite' &&
           response.data.metabolite) {
           this.info = response.data;
+          this.showHMDB = this.hasHMDBInfo();
         } else {
           this.errorMessage = this.$t('notFoundError');
         }
@@ -131,6 +140,14 @@ export default {
     },
     reformatMass(s) {
       return `${s} g/mol`;
+    },
+    hasHMDBInfo() {
+      for (const key of ['hmdb_description', 'hmdb_function', 'hmdb_link']) {
+        if (this.info.metabolite[key]) {
+          return true;
+        }
+      }
+      return false;
     },
   },
   beforeMount() {

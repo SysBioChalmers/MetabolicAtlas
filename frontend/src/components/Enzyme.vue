@@ -6,7 +6,23 @@
       </div>
     </div>
     <div v-show="!errorMessage">
-      <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+      <div class="container columns">
+        <div class="column is-5">
+          <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+        </div>
+        <div class="column is-3">
+          <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs" v-if="reactions.length === 0">
+            <ul>
+              <li :class="{'is-active' : false }">
+                <a @click="scrollTo('graph', 'enzyme-graph')">Reaction graph</a>
+              </li>
+              <li :class="{'is-active' : false }">
+                <a @click="scrollTo('table', 'enzyme-table')">Reaction component table</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
       <loader v-show="loading"></loader>
       <div v-show="!loading">
         <div v-show="reactions.length > 0">
@@ -15,7 +31,7 @@
           <reaction-table v-show="!loading" :reactions="reactions"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
-          <div class="columns">
+          <div id="enzyme-graph" class="columns">
             <div id="cygraph-wrapper" class="column is-8">
               <div id="cy" ref="cy" class="is-8 card is-paddingless"></div>
               <div v-show="showGraphContextMenu" id="contextMenuGraph" ref="contextMenuGraph">
@@ -27,9 +43,9 @@
                 </span>
               </div>
             </div>
-            <sidebar id="sidebar" :selectedElm="selectedElm"></sidebar>
+            <sidebar id="sidebar" :selectedElm="selectedElm" :view="'enzyme'"></sidebar>
           </div>
-          <div class="container">
+          <div id="enzyme-table" class="container">
             <cytoscape-table
               :structure="tableStructure"
               :elms="elmsInTable"
@@ -47,6 +63,7 @@
 
 <script>
 import axios from 'axios';
+import $ from 'jquery';
 import cytoscape from 'cytoscape';
 import regCose from 'cytoscape-cose-bilkent';
 import Sidebar from 'components/Sidebar';
@@ -199,26 +216,6 @@ export default {
               }
             });
 
-            this.cy.on('mouseover', 'node', (evt) => {
-              const node = evt.cyTarget;
-              let s;
-              if (node.data().type === 'reactant_box') {
-                s = 'Reactants';
-              } else if (node.data().type === 'product_box') {
-                s = 'Products';
-              }
-              node.css({
-                content: s,
-              });
-            });
-
-            this.cy.on('mouseout', 'node', (evt) => {
-              const node = evt.cyTarget;
-              node.css({
-                content: '',
-              });
-            });
-
             this.cy.on('tapstart', () => {
               this.showGraphContextMenu = false;
             });
@@ -249,6 +246,12 @@ export default {
               this.errorMessage = this.$t('unknownError');
           }
         });
+    },
+    scrollTo(id) {
+      const container = $('body, html');
+      container.scrollTop(
+        $(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
+      );
     },
     chemicalFormula,
     chemicalName,

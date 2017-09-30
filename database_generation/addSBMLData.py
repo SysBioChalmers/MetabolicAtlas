@@ -272,6 +272,26 @@ def get_reaction(sbml_model, index):
         rs = SubsystemReaction(reaction=reaction_to_add, subsystem=p)
         rs.save()
 
+    # add the relationship between the reaction and the compartment
+    for c in reactant_compartment.keys():
+        t = ReactionCompartment.objects.filter(reaction = reaction_to_add, compartment=c)
+        if(len(t)<1):
+            rc = ReactionCompartment(reaction = reaction_to_add, compartment=c)
+            rc.save()
+    for c in product_compartment.keys():
+        t = ReactionCompartment.objects.filter(reaction = reaction_to_add, compartment=c)
+        if(len(t)<1):
+            rc = ReactionCompartment(reaction = reaction_to_add, compartment=c)
+            rc.save()
+    # add the relationship between enzymes and compartments as based on the compartment list the above uses...
+    rcs = ReactionCompartment.objects.filter(reaction=reaction_to_add) # unique list of compartments for this reaction...
+    for m in modifiers_list:
+        for rc in rcs:
+            t = ReactionComponentCompartment.objects.filter(component=m, compartment=rc.compartment)
+            if(len(t)<1):
+                rcc = ReactionComponentCompartment(component=m, compartment=rc.compartment)
+                rcc.save()
+
     # populate all the associated REACTION, and SUBSYSTEM tables
     rr_to_add = []; rr_to_add_sm = []
     for currentReactant_reactioncomponent in reactants_list:
@@ -291,7 +311,6 @@ def get_reaction(sbml_model, index):
         rp_to_add.append(rp)
         for p in pathways: # for yeast we currently have more than one...
             sm = SubsystemMetabolite.objects.filter(reaction_component=currentProduct_reactioncomponent, subsystem=p)
-            print(str(len(sm)))
             if(len(sm)<1):
                 sm = SubsystemMetabolite(reaction_component = currentProduct_reactioncomponent, subsystem=p)
                 sm.save()
@@ -362,6 +381,10 @@ def get_reaction_components(sbml_model, sbml_species):
                 component.short_name = component.long_name
             components_found.append(component)
             component.save() # FIXME would be nicer with a bulk create!
+            # add the relationship to the compartment as well, if a metabolite!
+            if(component.component_type == "metabolite"):
+                rcc = ReactionComponentCompartment(component=component, compartment=component.compartment)
+                rcc.save()
         else:
             components_found.append(components_in_db[0])
     return components_found
@@ -385,7 +408,7 @@ def _getEnsemblArchivePath(v):
 
 def addSBMLData(gem_file, db_version, db_path):
     doc = libsbml.readSBML(gem_file)
-    print("read file"+gem_file)
+    print("read file: "+gem_file)
     errors = doc.getNumErrors()
     if errors != 0:
         print("Encountered {0} errors. Exiting...".format(errors))
@@ -423,7 +446,7 @@ def addSBMLData(gem_file, db_version, db_path):
     Compartment.objects.bulk_create(compartments_to_add)
 
     # get reactions
-    logger.info("Importing reactions")
+    logger.info("Importing reactions, reaction_components, and all related relationships...")
     mr_to_add = []
     for i in range(sbml_model.getNumReactions()):
         reaction = get_reaction(sbml_model, i)

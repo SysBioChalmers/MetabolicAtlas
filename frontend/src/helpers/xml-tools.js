@@ -2,10 +2,16 @@
 
 import pako from 'pako';
 
+export function unzipXML(filestream) {
+  const blocks = inflateConcatenatedGzip(filestream);
+  const xmlContent = mergeBlocks(blocks);
+  return xmlContent;
+}
+
 export function fetchXML(url) {
   const filestream = loadBinaryResource(url);
-  const blocks = inflateConcatenatedGzip(filestream);
-  return mergeBlocks(blocks);
+  const xmlContent = unzipXML(filestream);
+  return xmlContent;
 }
 
 export function parseXML(s) {
@@ -20,7 +26,6 @@ export function parseXML(s) {
   }
   throw new Error('No XML parser found');
 }
-
 
 //
 // private functions
