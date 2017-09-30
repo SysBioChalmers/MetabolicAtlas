@@ -601,43 +601,46 @@ def convert_to_reaction_component_ids(request, compartmentID):
         query |= Q(short_name__iexact=term)
         query |= Q(long_name__iexact=term)
 
-    if str(compartmentID) != '0':
-        try:
-            compartment = Compartment.objects.get(id=compartmentID)
-            compartment = compartment.name
-        except Compartment.DoesNotExist:
-            return HttpResponse(status=404)
+    # get the list of component id
+    reaction_component_ids = ReactionComponent.objects.filter(query).values_list('id');
 
-    if str(compartmentID) != '0':
-        reactionComponents = ReactionComponent.objects.filter(query & Q(compartment=compartmentID)).values_list('compartment_id', 'id')
-    else:
-        reactionComponents = ReactionComponent.objects.filter(query).values_list('compartment_id', 'id').distinct()
+    # get the list of reaction id
+    reaction_ids = Reaction.objects.filter(reaction_query).values_list('id')
 
-    if str(compartmentID) != '0':
-        # TODO field 'compartment' is a name or an equation ... equation will not work here 
-        reactions = Reaction.objects.filter(reaction_query & Q(compartment=compartment)).values_list('compartment', 'id')
-    else:
-        reactions = Reaction.objects.filter(reaction_query).values_list('compartment', 'id').distinct()
-
-    logging.warn(reactions);
-    logging.warn(reactionComponents);
-
-    # TODO remove this part when Reaction has a foreigh key on compartment
-    if reactions.count():
-        newReaction = []
-        for i, (compartment, rcid) in enumerate(reactions):
-            newReaction.append((Compartment.objects.get(name=compartment).id, rcid)) # ERROR 500 on equation-compartment (transport reaction)
-        reactions = newReaction
-        logging.warn(newReaction);
-
-    if reactions:
-        reactionComponents = list(chain(reactionComponents, reactions))
-
-    if not reactionComponents or len(reactionComponents) == 0:
+    if not reaction_component_ids and not reaction_ids:
         return HttpResponse(status=404)
 
-    return JSONResponse(reactionComponents)
+    if str(compartmentID) == '0':
+        # get the compartment id for each component id
+        rcci = ReactionComponentCompartmentInformation.objects.filter(Q(component_id__in=reaction_component_ids)) \
+        .values_list('compartmentinfo_id', 'component_id')
 
+        # get the compartment id for each reaction id
+        rci = ReactionCompartmentInformation.objects.filter(Q(reaction_id__in=reaction_ids)) \
+        .values_list('compartmentinfo_id', 'reaction_id')
+
+        logging.warn(rcci)
+        logging.warn(rci)
+
+    else:
+        # get the component ids in the input compartment
+        rcci = ReactionComponentCompartmentInformation.objects.filter(
+                Q(component_id__in=reaction_component_ids) & Q(compartmentinfo_id=compartmentID)
+            ).values_list('compartmentinfo_id', 'component_id')
+
+        # get the reaction ids in the input compartment
+        rci = ReactionCompartmentInformation.objects.filter(
+            Q(reaction_id__in=reaction_ids) & Q(compartmentinfo_id=compartmentID)
+        ).values_list('compartmentinfo_id', 'reaction_id')
+
+        if not rcci.count() and not rci.count():
+            return HttpResponse(status=404)
+
+        logging.warn(rcci)
+        logging.warn(rci)
+
+    results = reactionComponents = list(chain(rcci, rci))
+    return JSONResponse(results)
 
 @api_view()
 def get_subsystems(request):

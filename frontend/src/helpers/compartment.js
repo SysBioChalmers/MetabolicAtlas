@@ -8,6 +8,14 @@ const data = {
     compartmentID: 13,
     maxZoomLvl: 10,
   },
+  cytosol: {
+    name: 'Cytosol',
+    letter: 'c',
+    color: '',
+    svgName: '',
+    compartmentID: 15,
+    maxZoomLvl: 0,
+  },
   peroxisome: {
     name: 'Peroxisome',
     letter: 'p',
@@ -21,6 +29,7 @@ const data = {
     letter: 'm',
     color: '',
     svgName: 'mitochondrion',
+    // svgName: 'fakesvg',
     compartmentID: 2,
     maxZoomLvl: 10,
   },

@@ -33,7 +33,7 @@
       {{ errorMessage }}
     </div>
     <div v-else>
-      <metabolic-network v-if="selectedTab===1"></metabolic-network>
+      <metabolic-network v-show="selectedTab===1"></metabolic-network>
       <closest-interaction-partners v-if="selectedTab===2"></closest-interaction-partners>
       <enzyme v-if="selectedTab===3"></enzyme>
       <metabolite v-if="selectedTab===4"></metabolite>
@@ -160,6 +160,7 @@ export default {
       }
 
       this.selectedTab = tabIndex + 1;
+
       const fullQuery = {
         ...this.$route.query,
         tab: this.selectedTab,
@@ -171,7 +172,7 @@ export default {
         fullQuery.id = componentID;
       }
 
-      console.log(fullQuery);
+      // console.log(fullQuery);
 
       this.$router.push({
         query: fullQuery,
@@ -179,7 +180,7 @@ export default {
 
       if (tabIndex === 0) {
         console.log('on tab 0 resetview ?');
-        EventBus.$emit('resetView');
+        // EventBus.$emit('resetView');
       }
     },
     search() {

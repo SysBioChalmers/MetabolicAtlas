@@ -9,17 +9,17 @@
       </div>
       <div v-show="!errorMessage">
         <div class="container columns">
-          <div class="column is-6">
+          <div class="column is-5">
             <h3 class="title is-3 is-marginless" v-html="title"></h3>
           </div>
-          <div class="column is-2">
-            <nav class="breadcrumb is-small is-centered" aria-label="breadcrumbs">
+          <div class="column is-3">
+            <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs">
               <ul>
                 <li :class="{'is-active' : false }">
-                  <a @click="scrollTo('cip-graph')">Network graph</a>
+                  <a @click="scrollTo('cip-graph')">Cytoscape graph</a>
                   </li>
                 <li :class="{'is-active' : false }">
-                  <a @click="scrollTo('cip-table')">Component table</a>
+                  <a @click="scrollTo('cip-table')">Metabolite list</a>
                   </li>
               </ul>
             </nav>
