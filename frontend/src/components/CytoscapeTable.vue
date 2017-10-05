@@ -24,7 +24,7 @@
          # Reaction(s): {{ reactionCount }}
       </span>
     </div>
-    <table class="table is-bordered is-striped is-narrow" ref="table">
+    <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
       <thead>
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
