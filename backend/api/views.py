@@ -416,10 +416,9 @@ def get_metabolite_reactions(request, reaction_component_id):
         reactions = Reaction.objects.filter(Q(reactionproduct__product_id=reaction_component_id) |
                                         Q(reactionreactant__reactant_id=reaction_component_id))[:200]
 
-    serializer = ReactionSerializer(reactions, many=True)
-    result = serializer.data
+    serializer = ReactionLiteSerializer(reactions, many=True)
 
-    return JSONResponse(result)
+    return JSONResponse(serializer.data)
 
 
 @api_view()
