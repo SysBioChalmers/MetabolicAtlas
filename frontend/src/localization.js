@@ -29,7 +29,7 @@ export default {
     tab3title: 'Enzyme page',
     tab4title: 'Metabolite page',
     tab5title: 'Reaction page',
-    tab6title: 'Subsystem',
+    tab6title: 'Subsystem page',
     notFoundError: 'No matching record(s) found, please check the parameters and try again.',
     unknownError: 'Something went wrong, please try again or contact the system admin.',
     noInfoAvailable: 'No information available',

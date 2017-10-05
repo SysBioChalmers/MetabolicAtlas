@@ -3,19 +3,28 @@
     <p class="menu-label">Subsystem:</p>
     <ul class="menu-list">
       <li class="m-li" v-for="system in systemOrder">
-        <span v-if="selectedSystem==system"
-        class="li-selected"@click="selectedSystem=system">
-         &#9662; {{ system }}</span>
-        <span v-else @click="selectedSystem=system"
-        > &#9656; {{ system }}</span>
-        <ul v-show="selectedSystem==system">
+        <span v-if="selectedSystem == system"
+        class="li-selected"
+        @click="selectSubsystem(system)">
+         &#9662;&nbsp;{{ system }}
+        </span>
+        <span v-else @click="selectSubsystem(system)">
+          &#9656;&nbsp;{{ system }}
+        </span>
+        <ul class="subs-ul" v-show="selectedSystem === system">
           <li v-for="subsystem in subsystems[system]"
+          v-if="system !== 'Collection of reactions'"
           @click="showSubsystem(system, subsystem.id)">
               <span v-if="selectedSubSystem==subsystem.name"
               class="li-selected"@click="selectedSubSystem=subsystem.name">
-               &#9642; {{ subsystem.name }}</span>
+               &#9642;&nbsp;{{ subsystem.name }}
+               </span>
               <span v-else @click="selectedSubSystem=subsystem.name">
-                &#9642; {{ subsystem.name }}
+                &#9642;&nbsp;{{ subsystem.name }}
+              </span>
+          </li>
+          <li v-else class="disable">
+              <span>&#9642;&nbsp;{{ subsystem.name }}</span>
           </li>
         </ul>
       </li>
@@ -86,12 +95,22 @@ export default {
           this.subsystems = systems;
           this.subsystemsSystem = {};
           this.subsystemCount = 0;
+          console.log(this.subsystems);
           for (const k of Object.keys(systems)) {
+            this.subsystems[k] = this.subsystems[k].sort(
+              (a, b) => {
+                if (a.name > b.name) {
+                  return 1;
+                }
+                return a.name < b.name ? -1 : 0;
+              }
+            );
             this.subsystemCount += systems[k].length;
             for (const s of systems[k]) {
               this.subsystemsSystem[k] = s;
             }
           }
+          console.log(this.subsystems);
           // update the parent component
           this.$emit('sendSubSysCount', this.subsystemCount);
         })
@@ -122,6 +141,13 @@ export default {
         }
       );
     },
+    selectSubsystem(system) {
+      if (this.selectedSystem === system) {
+        this.selectedSystem = '';
+      } else {
+        this.selectedSystem = system;
+      }
+    },
     showSubsystem(system, id) {
       // forbid the display of this system
       if (system !== 'Collection of reactions') {
@@ -140,6 +166,19 @@ export default {
 
 li.m-li {
   cursor: pointer;
+  .disable {
+    color: gray;
+  }
+}
+
+ul.subs-ul {
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 20rem;
+}
+
+.menu-list li ul {
+  margin: 0.75em 0;
 }
 
 .li-selected {

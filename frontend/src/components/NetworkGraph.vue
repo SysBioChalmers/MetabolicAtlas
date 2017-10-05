@@ -38,6 +38,7 @@
       <enzyme v-if="selectedTab===3"></enzyme>
       <metabolite v-if="selectedTab===4"></metabolite>
       <reaction v-if="selectedTab===5"></reaction>
+      <subsystem v-if="selectedTab===6"></subsystem>
     </div>
   </div>
 </template>
@@ -50,6 +51,7 @@ import ClosestInteractionPartners from 'components/ClosestInteractionPartners';
 import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
 import Reaction from 'components/Reaction';
+import Subsystem from 'components/Subsystem';
 import router from '../router';
 import { default as EventBus } from '../event-bus';
 
@@ -61,6 +63,7 @@ export default {
     Enzyme,
     Metabolite,
     Reaction,
+    Subsystem,
     GlobalSearch,
   },
   data() {
@@ -99,11 +102,13 @@ export default {
       let disabledTab3 = true;
       let disabledTab4 = true;
       let disabledTab5 = true;
+      let disabledTab6 = true;
       if (this.componentID) {
         disabledTab2 = this.componentID[0] === 'R';
         disabledTab3 = this.componentID[0] !== 'E';
         disabledTab4 = this.componentID[0] !== 'M';
         disabledTab5 = this.componentID[0] !== 'R';
+        disabledTab6 = this.componentID[0] !== '3';
       }
 
       return [
@@ -112,6 +117,7 @@ export default {
         { title: this.$t('tab3title'), type: 'enzyme', isDisabled: disabledTab3 },
         { title: this.$t('tab4title'), type: 'metabolite', isDisabled: disabledTab4 },
         { title: this.$t('tab5title'), type: 'reaction', isDisabled: disabledTab5 },
+        { title: this.$t('tab6title'), type: 'subsystem', isDisabled: disabledTab6 },
       ];
     },
   },
@@ -143,6 +149,9 @@ export default {
           case 'map':
             tabIndex = 0;
             break;
+          case 'subsystem':
+            tabIndex = 5;
+            break;
           default:
             tabIndex = 0;
         }
@@ -153,7 +162,7 @@ export default {
         return;
       }
 
-      if ([1, 2, 3, 4].includes(this.tabIndex) && !componentID) {
+      if ([1, 2, 3, 4, 5].includes(this.tabIndex) && !componentID) {
         this.errorMessage = this.$t('noIDProvided');
       } else {
         this.errorMessage = '';

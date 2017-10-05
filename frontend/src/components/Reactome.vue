@@ -10,7 +10,7 @@
           <span v-show="expandAllCompartment">Restrict to current compartment</span>
           </button>
       </p>
-      <reaction-table v-show="!showLoader" :reactions="reactions" :selectedElmId="elementID"></reaction-table>
+      <reaction-table v-show="!showLoader" :reactions="reactions" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
       <div v-if="errorMessage" class="columns">
         <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
           {{ errorMessage }}

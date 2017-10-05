@@ -53,6 +53,11 @@ class ReactionComponentSearchSerializer(serializers.ModelSerializer):
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
 
+class ReactionComponentLiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReactionComponent
+        fields = ('id', 'short_name', 'long_name')
+
 class SubsystemReactionSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -73,6 +78,22 @@ class ReactionSerializer(serializers.ModelSerializer):
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
         return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+
+class ReactionLiteSerializer(serializers.ModelSerializer):
+    reactants = ReactionComponentLiteSerializer(many=True)
+    products = ReactionComponentLiteSerializer(many=True)
+    modifiers = ReactionComponentLiteSerializer(many=True)
+    subsystem = serializers.SerializerMethodField('get_subsystems')
+
+    class Meta:
+        model = Reaction
+        fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
+            'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
+
+    def get_subsystems(self, model):
+        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+
 
 class ReactionSearchSerializer(serializers.ModelSerializer):
     subsystem = serializers.SerializerMethodField('get_subsystems')
@@ -165,6 +186,7 @@ class CompartmentInformationSerializer(serializers.ModelSerializer):
         fields = ('id', 'compartment', 'display_name', 'filename', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')
 
 # =======================================================================================
+# models database
 
 class GEModelFileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -217,7 +239,7 @@ class GEModelListSerializer(serializers.ModelSerializer):
 
 
 # =======================================================================================
-
+# tile database
 
 class TileSubsystemSerializer(serializers.ModelSerializer):
     class Meta:

@@ -11,11 +11,11 @@
         {{ $t('tooManyReactionsTable') }}
       </span>
     </div>
-    <table class="table is-bordered is-striped is-narrow" ref="table">
+    <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
       <thead>
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
-          v-for="f in fields" v-show="f.name !== 'cp' || showCP"
+          v-for="f in fields" v-show="showCol(f.name)"
             @click="sortBy(f.name)">{{ f.display }}
             </th>
         </tr>
@@ -30,8 +30,8 @@
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td v-show="showCP">{{ r.cp }}</td>
-          <td>{{ r.subsystem.join('; ') }}</td>
-          <td v-html="">{{ r.compartment.replace('=>','⇨') }}</td>
+          <td v-show="showSubsystem">{{ r.subsystem.join('; ') }}</td>
+          <td>{{ r.compartment.replace('=>','⇨') }}</td>
         </tr>
       </tbody>
     </table>
@@ -47,7 +47,7 @@ import { reformatChemicalReaction } from '../helpers/compartment';
 
 export default {
   name: 'reaction-table',
-  props: ['reactions', 'selectedElmId'],
+  props: ['reactions', 'selectedElmId', 'showSubsystem'],
   data() {
     return {
       showCP: false,
@@ -139,6 +139,14 @@ export default {
       this.sortedReactions = reactions.sort(
         compare(field, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
+    },
+    showCol(name) {
+      if (name === 'cp' && !this.showCP) {
+        return false;
+      } else if (name === 'subsystem' && !this.showSubsystem) {
+        return false;
+      }
+      return true;
     },
   },
   beforeMount() {
