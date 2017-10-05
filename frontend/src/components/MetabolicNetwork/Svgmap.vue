@@ -81,7 +81,7 @@ export default {
         const compartment = getCompartmentFromCID(id);
         this.loadSVG(compartment, this.loadSvgPanZoom, null);
       } else if (!this.svgName) {
-        const compartment = getCompartmentFromCID(id);
+        const compartment = getCompartmentFromCID(0);
         this.loadSVG(compartment, this.loadSvgPanZoom, null);
       }
     });
