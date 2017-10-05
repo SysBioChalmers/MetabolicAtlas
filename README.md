@@ -44,6 +44,24 @@ $ start-stack
 
 ### Import the database
 
+connect to the container:
+
+```
+docker exec -it $(docker ps -qf "name=metabolicatlas_db_1")  bash
+```
+
+create the database:
+```
+drop database hma;
+CREATE DATABASE "hma"
+    WITH OWNER "postgres"
+    ENCODING 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE template0;
+```
+Then exit the container and run:
+
 ```bash
 $ docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hma < PATH_TO_DB_FILE
 ```
