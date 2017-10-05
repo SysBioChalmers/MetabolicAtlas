@@ -1,5 +1,20 @@
 
 const data = {
+  wholemap: {
+    name: 'Whole map',
+    letter: '',
+    svgName: 'whole_metabolic_network_without_details',
+    compartmentID: 0,
+    maxZoomLvl: 10,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
+  },
   extracellular: {
     name: 'Extracellular',
     letter: 's',
@@ -7,6 +22,15 @@ const data = {
     svgName: 'fakesvg',
     compartmentID: 13,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   cytosol: {
     name: 'Cytosol',
@@ -14,7 +38,16 @@ const data = {
     color: '',
     svgName: '',
     compartmentID: 15,
-    maxZoomLvl: 0,
+    maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   peroxisome: {
     name: 'Peroxisome',
@@ -23,6 +56,15 @@ const data = {
     svgName: 'peroxisome',
     compartmentID: 1,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   mitochondria: {
     name: 'Mitochondria',
@@ -32,6 +74,15 @@ const data = {
     // svgName: 'fakesvg',
     compartmentID: 2,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   lysosome: {
     name: 'Lysosome',
@@ -40,6 +91,15 @@ const data = {
     svgName: 'lysosome',
     compartmentID: 3,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   'endoplasmic reticulum': {
     name: 'ER',
@@ -47,7 +107,16 @@ const data = {
     color: '',
     svgName: 'ER',
     compartmentID: 4,
-    maxZoomLvl: 10,
+    maxZoomLvl: 30,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 5,
+      metaboliteLabel: 10,
+      reaction: 5,
+      reactionLabel: 10,
+      'flux-edge': 8,
+      'effector-edge': 8,
+    },
   },
   'golgi apparatus': {
     name: 'Golgi apparatus',
@@ -56,6 +125,15 @@ const data = {
     svgName: 'golgi',
     compartmentID: 5,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   nucleus: {
     name: 'Nucleus',
@@ -64,6 +142,15 @@ const data = {
     svgName: 'nucleus',
     compartmentID: 6,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   boundary: {
     name: 'Boundary',
@@ -72,6 +159,15 @@ const data = {
     svgName: '',
     compartmentID: 14,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   cytosol1: {
     name: 'Cytosol_1',
@@ -80,6 +176,15 @@ const data = {
     svgName: 'cytosol_1',
     compartmentID: 7,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   cytosol2: {
     name: 'Cytosol_2',
@@ -88,6 +193,15 @@ const data = {
     svgName: 'cytosol_2',
     compartmentID: 8,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   cytosol3: {
     name: 'Cytosol_3',
@@ -96,6 +210,15 @@ const data = {
     svgName: 'cytosol_3',
     compartmentID: 9,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   cytosol4: {
     name: 'Cytosol_4',
@@ -104,6 +227,15 @@ const data = {
     svgName: 'cytosol_4',
     compartmentID: 10,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   cytosol5: {
     name: 'Cytosol_5',
@@ -112,6 +244,15 @@ const data = {
     svgName: 'cytosol_5',
     compartmentID: 11,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
   cytosol6: {
     name: 'Cytosol_6',
@@ -120,6 +261,15 @@ const data = {
     svgName: 'cytosol_6',
     compartmentID: 12,
     maxZoomLvl: 10,
+    minZoomLvl: 1,
+    RenderZoomLvl: {
+      metabolite: 2,
+      metaboliteLabel: 5,
+      reaction: 2,
+      reactionLabel: 5,
+      'flux-edge': 3,
+      'effector-edge': 3,
+    },
   },
 };
 
@@ -142,6 +292,7 @@ const l = {
 };
 
 const d = {
+  0: data.wholemap,
   13: data.extracellular,
   1: data.peroxisome,
   2: data.mitochondria,
