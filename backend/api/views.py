@@ -674,37 +674,6 @@ def get_subsystem(request, subsystem_id):
     return JSONResponse(results)
 
 @api_view()
-def get_subsystem(request, subsystem_id):
-    """
-    For a given subsystem, get all containing metabolites, enzymes, and reactions,
-    try it with for example 38 for the TCA cycle.
-    """
-    try:
-        s = Subsystem.objects.get(id=subsystem_id)
-    except Subsystem.DoesNotExist:
-        return HttpResponse(status=404)
-
-    smsQuerySet = SubsystemMetabolite.objects.filter(subsystem_id=subsystem_id)
-    sesQuerySet = SubsystemEnzyme.objects.filter(subsystem_id=subsystem_id)
-    srsQuerySet = SubsystemReaction.objects.filter(subsystem_id=subsystem_id)
-    sms = []; ses = []; srs = [];
-    for m in smsQuerySet:
-        sms.append(m.reaction_component)
-    for e in sesQuerySet:
-        ses.append(e.reaction_component)
-    for r in srsQuerySet:
-        srs.append(r.reaction)
-
-    results = {
-        'subsystemAnnotations': SubsystemSerializer(s).data,
-        'metabolites': ReactionComponentSerializer(sms, many=True).data,
-        'enzymes': ReactionComponentSerializer(ses, many=True).data,
-        'reactions': ReactionSerializer(srs, many=True).data
-    }
-
-    return JSONResponse(results)
-
-@api_view()
 def get_subsystems(request):
     """
     List all subsystems/pathways/collection of reactions for the given model
