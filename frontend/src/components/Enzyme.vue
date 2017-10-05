@@ -28,7 +28,7 @@
         <div v-show="reactions.length > 0">
           <div class="notification is-warning has-text-centered">{{ $t('tooManyReactions') }}</div>
           <loader v-show="loading"></loader>
-          <reaction-table v-show="!loading" :reactions="reactions"></reaction-table>
+          <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
         </div>
         <div v-show="reactions.length === 0">
           <div id="enzyme-graph" class="columns">

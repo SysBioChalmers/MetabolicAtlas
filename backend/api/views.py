@@ -654,7 +654,7 @@ def get_subsystem(request, subsystem_id):
         return HttpResponse(status=404)
 
     smsQuerySet = SubsystemMetabolite.objects.filter(subsystem_id=subsystem_id)
-    sesQuerySet = SubsystemEnzyme.objects.filter(subsystem_id=subsystem_id)
+    sesQuerySet = SubsystemEnzyme.objects.filter(subsystem_id=subsystem_id) # FIXME contains metabolite ids not enzyme
     srsQuerySet = SubsystemReaction.objects.filter(subsystem_id=subsystem_id)
     sms = []; ses = []; srs = [];
     for m in smsQuerySet:
@@ -666,9 +666,9 @@ def get_subsystem(request, subsystem_id):
 
     results = {
         'subsystemAnnotations': SubsystemSerializer(s).data,
-        'metabolites': ReactionComponentSerializer(sms, many=True).data,
-        'enzymes': ReactionComponentSerializer(ses, many=True).data,
-        'reactions': ReactionSerializer(srs, many=True).data
+        'metabolites': ReactionComponentLiteSerializer(sms, many=True).data,
+        'enzymes': ReactionComponentLiteSerializer(ses, many=True).data,
+        'reactions': ReactionLiteSerializer(srs, many=True).data
     }
 
     return JSONResponse(results)

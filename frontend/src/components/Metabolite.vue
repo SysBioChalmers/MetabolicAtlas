@@ -161,7 +161,7 @@ export default {
 
 <style lang="scss">
 
-.metabolite-table, .model-table, .reaction-table {
+.metabolite-table, .model-table, .reaction-table, .subsystem-table {
   .main-table tr td.td-key, #hmdb-table tr td.td-key {
     background: #64CC9A;
     width: 150px;
