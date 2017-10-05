@@ -654,7 +654,7 @@ export default {
           if (!nodeInViewport(node)) {
             return;
           }
-          this.showGraphContextMenu = true;
+          // this.showGraphContextMenu = true;
           updatePosition(node);
         }
       });
