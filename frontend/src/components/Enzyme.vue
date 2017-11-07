@@ -14,10 +14,10 @@
           <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs" v-if="reactions.length === 0">
             <ul>
               <li :class="{'is-active' : false }">
-                <a @click="scrollTo('graph', 'enzyme-graph')">Reaction graph</a>
+                <a @click="scrollTo('enzyme-graph')">Reaction graph</a>
               </li>
               <li :class="{'is-active' : false }">
-                <a @click="scrollTo('table', 'enzyme-table')">Reaction component table</a>
+                <a @click="scrollTo('enzyme-table')">Reaction component table</a>
               </li>
             </ul>
           </nav>
