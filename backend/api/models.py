@@ -5,22 +5,22 @@ from django.db import models
 #
 
 class GEModelReference(models.Model):
-    title = models.CharField(max_length=255)
-    link = models.CharField(max_length=255, unique=True, null=True)
+    title = models.TextField()
+    link = models.TextField()
     pubmed = models.CharField(max_length=20, unique=True, null=True)
     year = models.CharField(max_length=4)
 
     class Meta:
-        db_table = "gemodel_reference"
+        db_table = "gemodelreference"
 
 
 class GEModelSet(models.Model):
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(null=True)
-    reference = models.ManyToManyField(GEModelReference, related_name='gemodel_references')
+    reference = models.ManyToManyField(GEModelReference, related_name='gemodelset_references')
 
     class Meta:
-        db_table = "gemodel_set"
+        db_table = "gemodelset"
 
 
 class GEModelSample(models.Model):
@@ -33,7 +33,7 @@ class GEModelSample(models.Model):
     unique_together = (('organism', 'organ_system', 'tissue', 'cell_type', 'cell_line'),)
 
     class Meta:
-        db_table = "gemodel_sample"
+        db_table = "gemodelsample"
 
 
 class GEModelFile(models.Model):
@@ -41,7 +41,7 @@ class GEModelFile(models.Model):
     format = models.CharField(max_length=50)
 
     class Meta:
-        db_table = "gemodel_file"
+        db_table = "gemodelfile"
 
 
 class GEModel(models.Model):
@@ -54,19 +54,19 @@ class GEModel(models.Model):
     enzyme_count = models.IntegerField(default=0)
     files = models.ManyToManyField(GEModelFile, related_name='gemodel_files')
     maintained = models.BooleanField(default=False)
-    reference = models.ForeignKey(GEModelReference, null=True)
+    ref = models.ManyToManyField(GEModelReference, related_name='gemodels_refs', blank=True)
 
     def save(self, *args, **kwargs):
         if not self.gemodelset:
-            raise AttributError("Model set must me specify")
+            raise AttributeError("Model set must me specify")
         if not self.sample:
-            raise AttributError("Model sample must me specify")
-        if not self.reaction_count:
-            raise AttributError("reaction count cannot be 0")
-        if not self.metabolite_count:
-            raise AttributError("metabolite count cannot be 0")
-        if not self.enzyme_count:
-            raise AttributError("enzyme count cannot be 0")
+            raise AttributeError("Model sample must me specify")
+        # if not self.reaction_count:
+        #    raise AttributeError("reaction count cannot be 0")
+        # if not self.metabolite_count:
+        #    raise AttributeError("metabolite count cannot be 0")
+        # if not self.enzyme_count:
+        #    raise AttributeError("enzyme count cannot be 0")
         super(GEModel, self).save(*args, **kwargs)
 
     class Meta:
