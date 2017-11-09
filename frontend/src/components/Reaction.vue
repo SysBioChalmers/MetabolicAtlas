@@ -26,6 +26,15 @@
         <td v-html="reformatPmid(pmid)"></td>
       </tr>
     </table>
+    <span class="subtitle">References</span>
+    <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
+      <tr v-for="ref in reformatRefs(pmids)">
+        <a :href="ref.link">
+          <td v-if="ref.title" class="td-key">{{ ref.pmid }}</td>
+          <td v-if="ref.formatted">{{ ref.formatted }}</td>
+        </a>
+      </tr>
+    </table>
   </div>
 </template>
 
@@ -132,15 +141,6 @@ export default {
     formatQuantFieldName(name) {
       return `<span class="tag is-info">${name}</span>`;
     },
-    reformatPmid(pmid) {
-      const pmidi = pmid.map((x, i, ar) => {
-        let v = ar[i];
-        v = v[0].substring(5);
-        v = `<a href="https://www.ncbi.nlm.nih.gov/pubmed/${v}" target="_blank">${v}</a>`;
-        return v;
-      });
-      return pmidi.join(', ');
-    },
     reformatQuant() {
       const data = [];
       for (const key of ['upper_bound', 'lower_bound', 'objective_coefficient']) {
@@ -159,6 +159,28 @@ export default {
     chemicalName,
     chemicalNameExternalLink,
     reformatChemicalReaction,
+    reformatRefs(refs) {
+      const outrefs = [];
+      for (const key of Object.keys(refs)) {
+        const formattedref = {};
+        const ref = refs[key];
+        formattedref.pmid = key;
+        formattedref.link = `http://pubmed.com/${key}`;
+        const text = [];
+        if (ref.pubdate) {
+          ref.pubyear = ref.pubdate.substring(0, 4);
+        }
+        const fields = ['sortfirstauthor', 'lastauthor', 'pubyear', 'fulljournalname', 'title'];
+        for (const field of fields) {
+          if (ref[field]) {
+            text.push(ref[field]);
+          }
+        }
+        formattedref.formatted = text.join(', ');
+        outrefs.push(formattedref);
+      }
+      return outrefs;
+    },
   },
   beforeMount() {
     $('body').on('click', 'td rc', function f() {
