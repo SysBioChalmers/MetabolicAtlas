@@ -88,15 +88,19 @@ def get_reaction(request, id):
         reaction = Reaction.objects.get(id=id)
     except Reaction.DoesNotExist:
         return HttpResponse(status=404)
-    pmids = ReactionReference.objects.filter(reaction_id=id)
-    pmidserializer = ReactionReferenceSerializer(pmids, many=True)
     reactionserializer = ReactionSerializer(reaction)
-    url = ('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi'
-           '?db=pubmed&retmode=json&id={}'.format(
-               ','.join([x['pmid'].replace('PMID:', '')
-                         for x in pmidserializer.data])))
+    pmids = ReactionReference.objects.filter(reaction_id=id)
+    if pmids.count():
+        pmidserializer = ReactionReferenceSerializer(pmids, many=True)
+        url = ('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi'
+               '?db=pubmed&retmode=json&id={}'.format(
+                   ','.join([x['pmid'].replace('PMID:', '')
+                             for x in pmidserializer.data])))
+        pmidsresponse = requests.get(url).json()['result']
+    else:
+        pmidsresponse = {}
     return JSONResponse({'reaction': reactionserializer.data,
-                         'pmids': requests.get(url).json()['result']})
+                         'pmids': pmidsresponse})
 
 @api_view()
 def reaction_reactant_list(request, id):

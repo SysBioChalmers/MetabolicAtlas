@@ -31,6 +31,7 @@
         </a>
       </tr>
     </table>
+    <div v-else>No references found</div>
   </div>
 </template>
 
