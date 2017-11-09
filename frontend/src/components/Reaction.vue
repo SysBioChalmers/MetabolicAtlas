@@ -21,10 +21,6 @@
         </td>
         <td v-else> - </td>
       </tr>
-      <tr v-if="pmid.length">
-        <td class="td-key">PMID</td>
-        <td v-html="reformatPmid(pmid)"></td>
-      </tr>
     </table>
     <span class="subtitle">References</span>
     <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
@@ -62,7 +58,7 @@ export default {
         { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
       info: {},
-      pmid: [],
+      pmids: [],
       errorMessage: '',
     };
   },
@@ -81,7 +77,7 @@ export default {
       axios.get(`reactions/${this.rId}/`)
       .then((response) => {
         this.info = response.data.reaction;
-        this.pmid = response.data.pmid;
+        this.pmids = response.data.pmids;
       })
       .catch(() => {
         this.errorMessage = this.$t('notFoundError');
@@ -94,8 +90,6 @@ export default {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
     },
     reformatEquation(equation) {
-      console.log(equation);
-      console.log(this.info);
       return this.reformatChemicalReaction(equation, this.info);
     },
     reformatSBOLink(s, link) {

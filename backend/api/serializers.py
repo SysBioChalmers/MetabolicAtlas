@@ -58,6 +58,11 @@ class ReactionComponentLiteSerializer(serializers.ModelSerializer):
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name')
 
+class ReactionReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReactionReference
+        fields = ('pmid',)
+
 class SubsystemReactionSerializer(serializers.ModelSerializer):
 
     class Meta:
