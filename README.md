@@ -131,4 +131,4 @@ Then you will get access to the following commands:
 
 
 ## Collaboration
-For details on using github, please visit the [sysbio wiki](http://wiki.sysbio.chalmers.se/mediawiki/index.php/Development_guidelines#Github).
+For details on using github, please visit the [web development guide](https://github.com/SysBioChalmers/web-development-guide/).
