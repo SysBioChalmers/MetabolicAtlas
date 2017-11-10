@@ -8,6 +8,7 @@ from api.models import GEM, Author
 from api.serializers import *
 
 import urllib.request
+import requests
 import re
 import logging
 
@@ -87,13 +88,19 @@ def get_reaction(request, id):
         reaction = Reaction.objects.get(id=id)
     except Reaction.DoesNotExist:
         return HttpResponse(status=404)
-
-    result = {
-             'reaction': ReactionSerializer(reaction).data,
-             'pmid': ReactionReference.objects.filter(reaction=reaction.id).values_list('pmid')
-             }
-
-    return JSONResponse(result)
+    reactionserializer = ReactionSerializer(reaction)
+    pmids = ReactionReference.objects.filter(reaction_id=id)
+    if pmids.count():
+        pmidserializer = ReactionReferenceSerializer(pmids, many=True)
+        url = ('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi'
+               '?db=pubmed&retmode=json&id={}'.format(
+                   ','.join([x['pmid'].replace('PMID:', '')
+                             for x in pmidserializer.data])))
+        pmidsresponse = requests.get(url).json()['result']
+    else:
+        pmidsresponse = {}
+    return JSONResponse({'reaction': reactionserializer.data,
+                         'pmids': pmidsresponse})
 
 @api_view()
 def reaction_reactant_list(request, id):
