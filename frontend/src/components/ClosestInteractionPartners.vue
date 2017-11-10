@@ -13,7 +13,7 @@
             <h3 class="title is-3 is-marginless" v-html="title"></h3>
           </div>
           <div class="column is-3">
-            <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs">
+            <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs" v-show="showNetworkGraph">
               <ul>
                 <li :class="{'is-active' : false }">
                   <a @click="scrollTo('cip-graph')">Cytoscape graph</a>
@@ -161,6 +161,7 @@
               <span v-show="reactionsCount <= maxReactionCount"
               class="button" v-on:click="constructGraph(rawElms, rawRels, fitGraph)">{{ $t('tooManyReactionsBut') }}</span>
             </div>
+            <br>
           </div>
         </div>
         <div id="cip-table">
@@ -653,7 +654,7 @@ export default {
           if (!nodeInViewport(node)) {
             return;
           }
-          this.showGraphContextMenu = true;
+          // this.showGraphContextMenu = true;
           updatePosition(node);
         }
       });

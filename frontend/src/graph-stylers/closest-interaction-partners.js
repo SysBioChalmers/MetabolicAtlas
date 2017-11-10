@@ -7,7 +7,7 @@ export default function (elms, rels, nodeDisplayParams) {
   const enzSample = nodeDisplayParams.enzymeExpSample;
 
   // console.log(enzExpSource);
-  // nconsole.log(enzExpType);
+  // console.log(enzExpType);
   // console.log(enzSample);
   // console.log(nodeDisplayParams.enzymeNodeColor.hex);
 
@@ -92,8 +92,7 @@ export default function (elms, rels, nodeDisplayParams) {
     .css({
       shape: nodeDisplayParams.enzymeNodeShape,
       'background-color': function f(ele) {
-        // console.log(`${enzExpSource}, ${enzExpType}, ${enzSample}`);
-        if (ele.data('color')) {
+        if (ele.data('color')[enzExpSource][enzExpType][enzSample]) {
           return ele.data('color')[enzExpSource][enzExpType][enzSample];
         }
         return 'whitesmoke';

@@ -88,31 +88,30 @@ export default {
       .then((response) => {
         const res = response.data;
         const d = {};
-        const enzymeIDs = [];
+        // const enzymeIDs = [];
         for (let i = 0; i < res.length; i += 1) {
           const compartmentID = res[i][0];
           const id = res[i][1];
-          if (id[0] === 'M' || id[0] === 'R') {
-            if (!d[compartmentID.toString()]) {
-              d[compartmentID.toString()] = [];
-            }
-            d[compartmentID.toString()].push(id);
-          } else {
-            enzymeIDs.push(id);
+          // if (id[0] === 'M' || id[0] === 'R') {
+          if (!d[compartmentID.toString()]) {
+            d[compartmentID.toString()] = [];
           }
+          d[compartmentID.toString()].push(id);
+          // } else {
+          //  enzymeIDs.push(id);
+          // }
         }
         // NOTE d is empty when only enzymes are found..
 
         if (!HLonly) {
           this.results = d;
-          this.enzymeIDs = enzymeIDs;
           this.showResults = Object.keys(this.results).length !== 0;
         } else {
           let idlist = [];
           for (const key of Object.keys(d)) {
             idlist = idlist.concat(d[key]);
           }
-          this.HLIDs = idlist.concat(enzymeIDs);
+          // this.HLIDs = idlist.concat(enzymeIDs);
           EventBus.$emit('showSVGmap', 'highlight', null, this.HLIDs);
         }
       })

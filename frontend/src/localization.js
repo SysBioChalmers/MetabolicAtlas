@@ -11,7 +11,7 @@ export default {
     tooManyReactions: 'There are too many reactions to be displayed in a graph (> 10). Here is a list of all the reactions.',
     tooManyReactionsTable: 'The number of reactions displayed is limited to 200, some may have been discarded.',
     tooManyReactionsWarn: 'Warning: The query has returned too many reactions.<br>The graph has not been generated.',
-    tooManyReactionsBut: 'Show it anyway!',
+    tooManyReactionsBut: 'Generate',
     tooManyInteractionPartners: 'There are too many interaction partners to be displayed in a graph.',
     navBut1Title: 'GEM visualisation',
     navBut2Title: 'Models',
