@@ -19,6 +19,9 @@
               <li :class="{'is-active' : false }">
                 <a @click="scrollTo('enzyme-table')">Reaction component table</a>
               </li>
+              <li :class="{'is-active' : false }">
+                <a @click="scrollTo('enzyme-details')">Enzyme details</a>
+              </li>
             </ul>
           </nav>
         </div>
@@ -57,6 +60,21 @@
           </div>
         </div>
       </div>
+      <div id="enzyme-details" class="reaction-table">
+        <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table">
+          <tr v-for="el in detailTableKey">
+            <td v-if="el.display" class="td-key">{{ el.display }}</td>
+            <td v-if="enzyme[el.name]">
+              <span v-if="el.modifier" v-html="el.modifier(enzyme[el.name])">
+              </span>
+              <span v-else>
+                {{ enzyme[el.name] }}
+              </span>
+            </td>
+            <td v-else> - </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -94,6 +112,7 @@ export default {
       selectedElmId: '',
       selectedElm: null,
 
+      enzyme: {},
       enzymeName: '',
       tableStructure: [
         { field: 'type', colName: 'Type', modifier: false },
@@ -108,6 +127,16 @@ export default {
         },
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
+      detailTableKey: [
+        { name: 'id', display: 'Identifier' },
+        { name: 'enzymeName', display: 'Name' },
+        { name: 'compartment', display: 'Compartment' },
+        { name: 'currency_metabolites', display: 'Metabolites', modifier: this.reformatList },
+        { name: 'formula', display: 'Formula' },
+        { name: 'metabolite', display: 'Metabolite' },
+        { name: 'organism', display: 'Organism' },
+      ],
+
       tableSearchTerm: '',
       reactions: [],
       loadTime: 0,
@@ -141,11 +170,19 @@ export default {
       node.json({ selected: true });
       node.trigger('tap');
     },
+    reformatList(l) {
+      let output = '';
+      if (l.length) {
+        output = l.join('; ');
+      } else {
+        output = '-';
+      }
+      return output;
+    },
     load() {
       this.loading = true;
       const startTime = Date.now();
       const enzymeId = this.id;
-
       axios.get(`enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
           const endTime = Date.now();
@@ -161,6 +198,8 @@ export default {
             const [elms, rels] = transform(response.data);
 
             this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
+            this.enzyme = response.data.enzyme;
+            this.enzyme.enzymeName = this.enzymeName;
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);
             this.cy = cytoscape({
