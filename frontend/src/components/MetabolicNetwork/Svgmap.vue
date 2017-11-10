@@ -7,6 +7,8 @@
         </div>
         <div id="svgOption">
           <span class="button" v-show="!showMissingSVGString" v-on:click="svgfit()">Reset view</span>
+          <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom ? panZoom.zoomIn() : ''">+</span>
+          <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom ? panZoom.zoomOut(): ''">-</span>
         </div>
       </div>
       <div class="svgbox has-text-centered" v-show="showMissingSVGString"
@@ -440,7 +442,6 @@ export default {
     position: absolute;
     top: 10px;
     left: 10px;
-    width: 50px;
     height: 30px;
     z-index: 10;
 
