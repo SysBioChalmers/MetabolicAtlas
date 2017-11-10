@@ -19,6 +19,9 @@
               <li :class="{'is-active' : false }">
                 <a @click="scrollTo('enzyme-table')">Reaction component table</a>
               </li>
+              <li :class="{'is-active' : false }">
+                <a @click="scrollTo('enzyme-details')">Enzyme details</a>
+              </li>
             </ul>
           </nav>
         </div>
@@ -57,7 +60,7 @@
           </div>
         </div>
       </div>
-      <div class="reaction-table">
+      <div id="enzyme-details" class="reaction-table">
         <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table">
           <tr v-for="el in detailTableKey">
             <td v-if="el.display" class="td-key">{{ el.display }}</td>
