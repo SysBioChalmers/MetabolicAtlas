@@ -696,8 +696,22 @@ def get_subsystems(request, model):
         subsystems = Subsystem.objects.using(model).all()
     except Subsystem.DoesNotExist:
         return HttpResponse(status=404)
-
+    # here I want to also load Compartments/Reactions:
+    # This is still pretty inefficient, lots of DB hits
+    # subsys -> subsysreactions -> reactioncompartment, then count them
+    # would be nice to have this quicker (although SVG work in browser is
+    # probably more of a bottleneck anyway
+    # array of subsys objects {id, desc, ext_id, etc)
     serializer = SubsystemSerializer(subsystems, many=True)
+    for subsys in serializer.data:
+        subsysrxns = {x.reaction for x in SubsystemReaction.objects.filter(subsystem_id=subsys['id']).select_related('reaction')}
+        rxcs = {}
+        for rxc in ReactionCompartment.objects.filter(reaction_id__in=subsysrxns).select_related('compartment'):
+            try:
+                rxcs[rxc.compartment.id]['rxncount'] += 1
+            except KeyError:
+                rxcs[rxc.compartment.id] = {'rxncount': 1, 'name': rxc.compartment.name}
+        subsys['rxncompartments'] = rxcs
     return JSONResponse(serializer.data);
 
 
