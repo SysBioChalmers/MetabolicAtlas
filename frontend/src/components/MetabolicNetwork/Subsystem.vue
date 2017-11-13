@@ -1,34 +1,48 @@
 <template>
   <div>
-    <p class="menu-label">Subsystem:</p>
-    <ul class="menu-list">
-      <li class="m-li" v-for="system in systemOrder">
-        <span v-if="selectedSystem == system"
-        class="li-selected"
-        @click="selectSubsystem(system)">
-         &#9662;&nbsp;{{ system }}
-        </span>
-        <span v-else @click="selectSubsystem(system)">
-          &#9656;&nbsp;{{ system }}
-        </span>
-        <ul class="subs-ul" v-show="selectedSystem === system">
-          <li v-for="subsystem in subsystems[system]"
-          v-if="system !== 'Collection of reactions'"
-          @click="showSubsystem(system, subsystem.id)">
-              <span v-if="selectedSubSystem==subsystem.name"
-              class="li-selected"@click="selectedSubSystem=subsystem.name">
-               &#9642;&nbsp;{{ subsystem.name }}
-               </span>
-              <span v-else @click="selectedSubSystem=subsystem.name">
-                &#9642;&nbsp;{{ subsystem.name }}
-              </span>
-          </li>
-          <li v-else class="disable">
-              <span>&#9642;&nbsp;{{ subsystem.name }}</span>
-          </li>
-        </ul>
-      </li>
-    </ul>
+    <div>
+      <p class="menu-label">Subsystem:</p>
+      <ul class="menu-list">
+        <li class="m-li" v-for="system in systemOrder">
+          <span v-if="selectedSystem == system"
+          class="li-selected"
+          @click="selectSubsystem(system)">
+           &#9662;&nbsp;{{ system }}
+          </span>
+          <span v-else @click="selectSubsystem(system)">
+            &#9656;&nbsp;{{ system }}
+          </span>
+          <ul class="subs-ul" v-show="selectedSystem === system">
+            <li v-for="subsystem in subsystems[system]"
+            v-if="system !== 'Collection of reactions'"
+            @click="showSubsystem(system, subsystem.id)">
+                <span v-if="selectedSubSystem==subsystem.name"
+                class="li-selected"@click="selectedSubSystem=subsystem.name">
+                 &#9642;&nbsp;{{ subsystem.name }}
+                 </span>
+                <span v-else @click="selectedSubSystem=subsystem.name">
+                  &#9642;&nbsp;{{ subsystem.name }}
+                </span>
+            </li>
+            <li v-else class="disable">
+                <span>&#9642;&nbsp;{{ subsystem.name }}</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div v-if="selectSubsystem">
+      <hr>
+      # Reactions
+      <ul class="menu-list">
+        <li class="m-li" v-for="rxc in subsystemStats">
+          <!--
+          // Link to method that gets Tile compartment and subsystem id
+          // already clickable, use @click 
+          -->
+          {{ rxc.name }} - {{ rxc.rxncount }} 
+        </li>
+    </div>
   </div>
 </template>
 
@@ -45,6 +59,7 @@ export default {
       subsystemsSystem: {}, // to get the system from the subsystem
       selectedSystem: '',
       selectedSubSystem: '',
+      subsystemStats: [],
       subsystemCount: 0,
       systemOrder: [
         'Amino Acid metabolism',
@@ -151,6 +166,7 @@ export default {
     showSubsystem(system, id) {
       // forbid the display of this system
       if (system !== 'Collection of reactions') {
+        this.subsystemStats = this.subsystems[system].filter(x => x.id === id)[0].rxncompartments;
         if (!id) {
           this.loadSubsystemCoordinates(38);
         } else {
