@@ -684,40 +684,50 @@ def get_subsystems(request):
     """
     List all subsystems/pathways/collection of reactions for the given model
     """
-    try:
-        subsystems = Subsystem.objects.all()
-    except Subsystem.DoesNotExist:
-        return HttpResponse(status=404)
-    # here I want to also load Compartments/Reactions:
-    # This is still pretty inefficient, lots of DB hits
-    # subsys -> subsysreactions -> reactioncompartment, then count them
-    # would be nice to have this quicker (although SVG work in browser is
-    # probably more of a bottleneck anyway
-    # array of subsys objects {id, desc, ext_id, etc)
+    ssreactions = SubsystemReaction.objects.all().select_related('subsystem')
+    rxncinfo = {x.reaction_id: x.compartmentinfo for x in
+                ReactionCompartmentInformation.objects.select_related('compartmentinfo')}
+    subsystems = {x.subsystem for x in ssreactions}
     serializer = SubsystemSerializer(subsystems, many=True)
-    for subsys in serializer.data:
-        subsysrxns = {x.reaction for x in SubsystemReaction.objects.filter(subsystem_id=subsys['id']).select_related('reaction')}
-        rxcs = {}
-        for rxc in ReactionCompartment.objects.filter(reaction_id__in=subsysrxns).select_related('compartment'):
+    ss_comp_rxn = {}
+    for ssrxn in ssreactions:
+        try:
+            # FIXME this is temporary since there are errors in DB where certain
+            # reactions do not have a reactioncompartmentinfo
+            compinfo = rxncinfo[ssrxn.reaction_id]
+        except KeyError:
+            continue
+        try:
+            ss_comp_rxn[ssrxn.subsystem_id][compinfo.display_name]['rxncount'] += 1
+        except KeyError:
             try:
-                rxcs[rxc.compartment.id]['rxncount'] += 1
+                ss_comp_rxn[ssrxn.subsystem_id][compinfo.display_name] = {'rxncount': 1, 'sid': ssrxn.subsystem_id, 'cid': compinfo.compartment_id, 'name': compinfo.display_name}
             except KeyError:
-                rxcs[rxc.compartment.id] = {'rxncount': 1, 'name': rxc.compartment.name}
-        subsys['rxncompartments'] = rxcs
-    return JSONResponse(serializer.data);
+                ss_comp_rxn[ssrxn.subsystem_id] = {compinfo.display_name: {'rxncount': 1, 'sid': ssrxn.subsystem_id, 'cid': compinfo.compartment_id, 'name': compinfo.display_name}}
+    for subsys in serializer.data:
+        try:
+            # FIXME as above, this try/except block should be temporary and only
+            # serves to make the code work while the DB is not fully correct
+            subsys['rxncompartments'] = ss_comp_rxn[subsys['id']].values()
+        except KeyError:
+            subsys['rxncompartments'] = []
+    return JSONResponse(serializer.data)
 
 
 @api_view()
-def get_subsystem_coordinates(request, subsystem_id):
+def get_subsystem_coordinates(request, subsystem_id, compartment_name=False):
     """
     For a given subsystem, get the compartment name and X,Y locations in the corresponding SVG map,
     try it with for example 38 for the TCA cycle.
     """
+    print([x.name for x in Compartment.objects.all()])
     try:
-        tileSubsystem = TileSubsystem.objects.get(subsystem_id=subsystem_id, is_main=True)
+        if not compartment_name:
+            tileSubsystem = TileSubsystem.objects.get(subsystem_id=subsystem_id, is_main=True)
+        else:
+            tileSubsystem = TileSubsystem.objects.get(subsystem_id=subsystem_id, compartment_name=compartment_name)
     except TileSubsystem.DoesNotExist:
         return HttpResponse(status=404)
-
     serializer = TileSubsystemSerializer(tileSubsystem)
 
     return JSONResponse(serializer.data)
