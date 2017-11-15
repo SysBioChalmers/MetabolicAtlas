@@ -33,14 +33,12 @@
     </div>
     <div v-if="selectSubsystem">
       <hr>
-      # Reactions
+      <p class="menu-label"># Reactions</p>
       <ul class="menu-list">
         <li class="m-li" v-for="rxc in subsystemStats">
-          <!--
-          // Link to method that gets Tile compartment and subsystem id
-          // already clickable, use @click 
-          -->
+          <span @click="loadSubsystemCoordinates(rxc.sid, rxc.name)">
           {{ rxc.name }} - {{ rxc.rxncount }} 
+          </span>
         </li>
     </div>
   </div>
@@ -139,6 +137,10 @@ export default {
           }
         });
     },
+    loadSubsystemCoordinates(id, compName) {
+      const url = compName !== undefined ? `subsystem/${id}/${compName}` : `subsystem/${id}`;
+      console.log(url);
+      axios.get(url)
     loadSubsystemCoordinates(id) {
       axios.get(`${this.model}/subsystem/${id}`)
         .then((response) => {
