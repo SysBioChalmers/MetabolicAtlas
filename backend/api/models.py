@@ -76,37 +76,6 @@ class GEModel(models.Model):
 ##########################################################################################################################
 ##########################################################################################################################
 #
-# From tiles db
-#
-class TileReactionComponent(models.Model):
-    reaction_component_id = models.CharField(max_length=20, primary_key=True)
-    tile_name = models.CharField(max_length=200, null=True)
-
-    class Meta:
-        db_table = "tile_reactioncomponents"
-
-class TileSubsystem(models.Model):
-    id = models.AutoField(primary_key=True)
-    subsystem_id = models.IntegerField()
-    subsystem_name = models.CharField(max_length=200, null=False)
-    compartmentinformation_id = models.IntegerField(null=False)
-    compartment_name = models.CharField(max_length=125, null=False)
-    x_top_left = models.IntegerField(null=False)
-    y_top_left = models.IntegerField(null=False)
-    x_bottom_right = models.IntegerField(null=False)
-    y_bottom_right = models.IntegerField(null=False)
-    reaction_count = models.IntegerField(null=False)
-    is_main = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = "tile_subsystems"
-        unique_together = (('subsystem_id', 'compartment_name'),)
-#create table tile_subsystems(id bigserial primary key, subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(125), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer, reaction_count integer, is_main boolean);
-#insert into tile_subsystems values(4, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12800, 4600, 16800, 9000);
-
-##########################################################################################################################
-##########################################################################################################################
-#
 # Extra "annotation" models, such as BTO mappings
 #
 class TissueOntology(models.Model):
@@ -225,7 +194,7 @@ class Compartment(models.Model):
         db_table = "compartment"
 
 class CompartmentInformation(models.Model):
-    display_name = models.CharField(max_length=25, null=False)
+    display_name = models.CharField(max_length=25, null=False, unique=True)
     compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
     filename = models.CharField(max_length=35, null=False)
     nr_reactions = models.IntegerField(default=0)
@@ -435,3 +404,35 @@ class ReactionComponentCompartmentInformation(models.Model):
     class Meta:
         db_table = "reactioncomponent_compartmentinformation"
         unique_together = (('component','compartmentinfo'),)
+
+#
+# From tiles db
+#
+class TileReactionComponent(models.Model):
+    reaction_component_id = models.CharField(max_length=20, primary_key=True)
+    tile_name = models.CharField(max_length=200, null=True)
+
+    class Meta:
+        db_table = "tile_reactioncomponents"
+
+class TileSubsystem(models.Model):
+    id = models.AutoField(primary_key=True)
+    subsystem_id = models.ForeignKey(Subsystem)
+    subsystem_name = models.CharField(max_length=200, null=False)
+    compartmentinformation_id = models.ForeignKey(CompartmentInformation)
+    compartment_name = models.CharField(max_length=125, null=False)
+    x_top_left = models.IntegerField(null=False)
+    y_top_left = models.IntegerField(null=False)
+    x_bottom_right = models.IntegerField(null=False)
+    y_bottom_right = models.IntegerField(null=False)
+    reaction_count = models.IntegerField(null=False)
+    is_main = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "tile_subsystems"
+        unique_together = (('subsystem_id', 'compartment_name'),)
+#create table tile_subsystems(id bigserial primary key, subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(125), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer, reaction_count integer, is_main boolean);
+#insert into tile_subsystems values(4, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12800, 4600, 16800, 9000);
+
+##########################################################################################################################
+##########################################################################################################################
