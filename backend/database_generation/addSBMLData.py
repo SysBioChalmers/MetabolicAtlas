@@ -406,7 +406,7 @@ def _getEnsemblArchivePath(v):
 		sys.exit("\n*******************************\nError:\n\tNot a known version map\n*******************************\n");
 
 
-def addSBMLData(gem_file, db_version, db_path):
+def addSBMLData(gem_file, ensembl_version, db_path):
     doc = libsbml.readSBML(gem_file)
     print("read file: "+gem_file)
     errors = doc.getNumErrors()
@@ -424,10 +424,10 @@ def addSBMLData(gem_file, db_version, db_path):
         pmid="NA"
         title="NA"
     if not db_path:
-        db_path = _getEnsemblArchivePath(db_version)
+        db_path = _getEnsemblArchivePath(ensembl_version)
     model = GEM(short_name=sbml_model.id,
         name=sbml_model.name, pmid=pmid, article_title=title,
-        ensembl_version=db_version, ensembl_archive_path = db_path)
+        ensembl_version=ensembl_version, ensembl_archive_path = db_path)
     model.save()
     author = get_author(sbml_model)
     author.save()
