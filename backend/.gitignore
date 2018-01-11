@@ -97,5 +97,11 @@ related_scripts/create_the_import_files/*.tab
 related_scripts/create_the_import_files/*.dat
 related_scripts/create_the_import_files/*.dat.gz
 related_scripts/create_the_import_files/*.swp
+related_scripts/create_the_import_files/*.xml
+related_scripts/create_the_import_files/*.xlsx
+related_scripts/create_the_import_files/*.tsv
+related_scripts/create_the_import_files/*.sdf
+related_scripts/create_the_import_files/*.db
+related_scripts/create_the_import_files/CID*
 svgs/
-
+.~lock*

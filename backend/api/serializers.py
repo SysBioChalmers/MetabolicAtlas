@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from api.models import *
 
+import logging
+
 class GEMSerializer(serializers.ModelSerializer):
     authors = serializers.StringRelatedField(many=True)
 
@@ -28,7 +30,8 @@ class MetaboliteSearchSerializer(serializers.ModelSerializer):
 class EnzymeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enzyme
-        fields = ('function', 'catalytic_activity', 'uniprot_link', 'ensembl_link')
+        fields = ('function', 'catalytic_activity', 'ensembl_link')
+        # fields = ('function', 'catalytic_activity', 'uniprot_link', 'ensembl_link')
 
 class EnzymeSearchSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,11 +41,16 @@ class EnzymeSearchSerializer(serializers.ModelSerializer):
 class ReactionComponentSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
     metabolite = MetaboliteSerializer(read_only=True)
+    # metabolite = serializers.SerializerMethodField('test')
     enzyme = EnzymeSerializer(read_only=True)
 
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
+
+    def test(self, model):
+        database = self.context.get("database")
+        return Metabolite.objects.using(database).get(reaction_component_id=model.id)
 
 class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
@@ -184,10 +192,10 @@ class CompartmentSerializer(serializers.ModelSerializer):
         fields = ('name',)
 
 
-class CompartmentInformationSerializer(serializers.ModelSerializer):
+class CompartmentSvgSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CompartmentInformation
+        model = CompartmentSvg
         fields = ('id', 'compartment', 'display_name', 'filename', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')
 
 # =======================================================================================

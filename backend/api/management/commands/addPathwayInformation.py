@@ -66,12 +66,15 @@ def compartmentByCompartment(ci, pathways, dict_pathway):
     print ("Reactions found in the SVG file: %s" % len(m))
     for p in pathways:
         reactions = SubsystemReaction.objects.filter(subsystem_id=p.id)
+
+        # store stats
         if p.name not in dict_pathway:
             dict_pathway[p.name] = [len(reactions), {}]
+
         print ("Reactions found in '%s': %s" % (p.name, reactions.count()))
         r_overlap = [m[r.reaction_id] for r in reactions if r.reaction_id in m]
         print ("Overlap: %s (%s) " % (len(r_overlap), float(len(r_overlap))/len(reactions) * 100.0 ))
-        dict_pathway[p.name][1][ci.display_name] = len(r_overlap)
+        dict_pathway[p.name][1][ci.display_name] = len(r_overlap) # store the overlap with each compartement
 
         if r_overlap:
             # create tileSubtitle only if got coordinates

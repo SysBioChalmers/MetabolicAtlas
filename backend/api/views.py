@@ -618,26 +618,26 @@ def convert_to_reaction_component_ids(request, compartmentID):
 
     if str(compartmentID) == '0':
         # get the compartment id for each component id
-        rcci = ReactionComponentCompartmentInformation.objects.filter(Q(component_id__in=reaction_component_ids)) \
-        .values_list('compartmentinfo_id', 'component_id')
+        rcci = ReactionComponentCompartmentSvg.objects.filter(Q(component_id__in=reaction_component_ids)) \
+        .values_list('compartmentsvg_id', 'component_id')
 
         # get the compartment id for each reaction id
-        rci = ReactionCompartmentInformation.objects.filter(Q(reaction_id__in=reaction_ids)) \
-        .values_list('compartmentinfo_id', 'reaction_id')
+        rci = ReactionCompartmentSvg.objects.filter(Q(reaction_id__in=reaction_ids)) \
+        .values_list('compartmentsvg_id', 'reaction_id')
 
         logging.warn(rcci)
         logging.warn(rci)
 
     else:
         # get the component ids in the input compartment
-        rcci = ReactionComponentCompartmentInformation.objects.filter(
-                Q(component_id__in=reaction_component_ids) & Q(compartmentinfo_id=compartmentID)
-            ).values_list('compartmentinfo_id', 'component_id')
+        rcci = ReactionComponentCompartmentSvg.objects.filter(
+                Q(component_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
+            ).values_list('compartmentsvg_id', 'component_id')
 
         # get the reaction ids in the input compartment
-        rci = ReactionCompartmentInformation.objects.filter(
-            Q(reaction_id__in=reaction_ids) & Q(compartmentinfo_id=compartmentID)
-        ).values_list('compartmentinfo_id', 'reaction_id')
+        rci = ReactionCompartmentSvg.objects.filter(
+            Q(reaction_id__in=reaction_ids) & Q(Compartmentsvg_id=compartmentID)
+        ).values_list('compartmentsvg_id', 'reaction_id')
 
         if not rcci.count() and not rci.count():
             return HttpResponse(status=404)
@@ -712,11 +712,11 @@ def get_subsystem_coordinates(request, subsystem_id):
 @api_view()
 def get_compartment(request, compartmentID):
     try:
-        compartment = CompartmentInformation.objects.get(id=compartmentID)
-    except CompartmentInformation.DoesNotExist:
+        compartment = CompartmentSvg.objects.get(id=compartmentID)
+    except CompartmentSvg.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = CompartmentInformationSerializer(compartment)
+    serializer = CompartmentSvgSerializer(compartment)
     return JSONResponse(serializer.data)
 
 
@@ -724,11 +724,11 @@ def get_compartment(request, compartmentID):
 def get_compartment_information(request):
     logging.warn('test')
     try:
-        compartment_info = CompartmentInformation.objects.all()
-    except CompartmentInformation.DoesNotExist:
+        compartment_info = CompartmentSvg.objects.all()
+    except CompartmentSvg.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = CompartmentInformationSerializer(compartment_info, many=True)
+    serializer = CompartmentSvgSerializer(compartment_info, many=True)
     return JSONResponse(serializer.data)
 
 

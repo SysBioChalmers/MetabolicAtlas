@@ -14,21 +14,21 @@ from django.db import connection
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        cis = CompartmentInformation.objects.all()
+        cis = CompartmentSvg.objects.all()
         toAdd = []
         for ci in cis:
             # add the connection to the reactioncomponent
             sql1 = "SELECT * FROM reaction_component WHERE id in ("
             sql2 = "select reactant_id from reaction_reactants where reaction_id in ("
             sql3 = "select reaction_id from subsystem_reaction where subsystem_id in ("
-            sql4 = "select subsystem_id from tile_subsystems where compartmentinformation_id="
+            sql4 = "select subsystem_id from tile_subsystems where compartmentsvg_id="
             sql= sql1 + sql2 + sql3 + sql4 + str(ci.id)+")))"
             rcs = ReactionComponent.objects.raw(sql)
             nr_metabolites = 0
             for rc in rcs:
-                rccis = ReactionComponentCompartmentInformation.objects.filter(component=rc, compartmentinfo=ci)
+                rccis = ReactionComponentCompartmentSvg.objects.filter(component=rc, compartmentinfo=ci)
                 if(len(rccis)<1):
-                    add = ReactionComponentCompartmentInformation(component=rc, compartmentinfo=ci)
+                    add = ReactionComponentCompartmentSvg(component=rc, compartmentinfo=ci)
                     add.save()
                 nr_metabolites = nr_metabolites + 1
 
@@ -37,9 +37,9 @@ class Command(BaseCommand):
             sql = sql5 + sql3 + sql4 + str(ci.id)+"))"
             rs = Reaction.objects.raw(sql)
             for r in rs:
-                rcis = ReactionCompartmentInformation.objects.filter(reaction=r, compartmentinfo=ci)
+                rcis = ReactionCompartmentSvg.objects.filter(reaction=r, compartmentinfo=ci)
                 if(len(rcis)<1):
-                    add = ReactionCompartmentInformation(reaction=r, compartmentinfo=ci)
+                    add = ReactionCompartmentSvg(reaction=r, compartmentinfo=ci)
                     add.save()
             nr_reactions = len(list(rs))
 
@@ -55,11 +55,11 @@ class Command(BaseCommand):
             rcs = ReactionComponent.objects.raw(sql7)
             nr_enzymes = 0
             for rc in rcs:
-                rccis = ReactionComponentCompartmentInformation.objects.filter(component=rc, compartmentinfo=ci)
+                rccis = ReactionComponentCompartmentSvg.objects.filter(component=rc, compartmentinfo=ci)
                 if(len(rccis)<1):
-                    add = ReactionComponentCompartmentInformation(component=rc, compartmentinfo=ci)
+                    add = ReactionComponentCompartmentSvg(component=rc, compartmentinfo=ci)
                     add.save()
                 nr_enzymes = nr_enzymes + 1
 
             # finally update the object
-            CompartmentInformation.objects.filter(id=ci.id).update(nr_reactions=nr_reactions, nr_subsystems=nr_subsystems, nr_metabolites=nr_metabolites, nr_enzymes=nr_enzymes)
+            CompartmentSvg.objects.filter(id=ci.id).update(nr_reactions=nr_reactions, nr_subsystems=nr_subsystems, nr_metabolites=nr_metabolites, nr_enzymes=nr_enzymes)

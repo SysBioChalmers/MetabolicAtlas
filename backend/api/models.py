@@ -99,7 +99,7 @@ class GEM(models.Model):
     pmid = models.CharField(max_length=11, blank=False)
     article_title = models.CharField(max_length=255, blank=False)
     ensembl_version = models.CharField(max_length=50, null=True) # keep track of this... for HMR2 make an educated guess!
-    ensembl_archive_path = models.CharField(max_length=50, null=True)
+    ensembl_archive_url = models.CharField(max_length=50, null=True)
 
     def __str__(self):
         return "<GEM: {0}>".format(self.short_name)
@@ -130,7 +130,7 @@ class Reaction(models.Model):
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField(null=True)
     #subsystem = models.CharField(max_length=600)
-    compartment = models.CharField(max_length=125)
+    compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
 
     models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
@@ -186,6 +186,10 @@ class ReactionComponentAnnotation(models.Model):
 
 class Compartment(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    nr_reactions = models.IntegerField(default=0)
+    nr_subsystems = models.IntegerField(default=0)
+    nr_metabolites = models.IntegerField(default=0)
+    nr_enzymes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -193,17 +197,17 @@ class Compartment(models.Model):
     class Meta:
         db_table = "compartment"
 
-class CompartmentInformation(models.Model):
-    display_name = models.CharField(max_length=25, null=False, unique=True)
+class CompartmentSvg(models.Model):
+    display_name = models.CharField(max_length=25, unique=True)
     compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
-    filename = models.CharField(max_length=35, null=False)
+    filename = models.CharField(max_length=35)
     nr_reactions = models.IntegerField(default=0)
     nr_subsystems = models.IntegerField(default=0)
     nr_metabolites = models.IntegerField(default=0)
     nr_enzymes = models.IntegerField(default=0)
 
     class Meta:
-        db_table = "compartmentinformation"
+        db_table = "compartmentsvg"
 
 class ExpressionData(models.Model):
     reaction_component = models.ForeignKey('ReactionComponent', db_column='reaction_component', on_delete=models.CASCADE)
@@ -228,7 +232,7 @@ class Metabolite(models.Model):
             related_name='metabolite',
             db_column='reaction_component',
             on_delete=models.CASCADE)
-    hmdb = models.CharField(max_length=10, null=True)
+    hmdb = models.CharField(max_length=12, null=True)
     formula = models.CharField(max_length=50, null=True)
     charge = models.FloatField(null=True)
     mass = models.FloatField(null=True)
@@ -241,7 +245,7 @@ class Metabolite(models.Model):
     hmdb_link = models.CharField(max_length=255, null=True)
     pubchem_link = models.CharField(max_length=255, null=True)
     hmdb_name = models.CharField(max_length=255, null=True)
-    hmdb_function = models.CharField(max_length=255, null=True)
+    hmdb_function = models.CharField(max_length=2000, null=True)
 
     class Meta:
         db_table = "metabolites"
@@ -253,10 +257,10 @@ class Enzyme(models.Model):
     protein_name = models.CharField(max_length=150)
     short_name = models.CharField(max_length=75)
     ec = models.CharField(max_length=100, null=True)
-    kegg = models.CharField(max_length=125, null=True)
-    function = models.CharField(max_length=6000, null=True)
-    catalytic_activity = models.CharField(max_length=700, null=True)
-    uniprot_link = models.CharField(max_length=255, null=True) # if the UniProt link is not valid, then something is wrong!
+    ncbi = models.CharField(max_length=125, null=True)
+    function = models.CharField(max_length=20000, null=True)
+    catalytic_activity = models.CharField(max_length=2000, null=True)
+    # uniprot_link = models.CharField(max_length=255, null=True) # if the UniProt link is not valid, then something is wrong!
     ensembl_link = models.CharField(max_length=255, null=True) # should link to the RIGHT Ensembl version, otherwise leave as null...
 
     class Meta:
@@ -264,16 +268,31 @@ class Enzyme(models.Model):
 
 
 class Subsystem(models.Model):
-    name = models.CharField(max_length=100, null=False)
-    system = models.CharField(max_length=100, null=False)
+    name = models.CharField(max_length=100, unique=True)
+    system = models.CharField(max_length=100)
     external_id = models.CharField(max_length=25, null=True)
     description = models.CharField(max_length=255, null=True)
+    nr_reactions = models.IntegerField(default=0)
+    nr_metabolites = models.IntegerField(default=0)
+    nr_enzymes = models.IntegerField(default=0)
+    nr_compartment = models.IntegerField(default=0)
 
     class Meta:
         db_table = "subsystems"
 
+class SubsystemSvg(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    system = models.CharField(max_length=100)
+    nr_reactions = models.IntegerField(default=0)
+    nr_metabolites = models.IntegerField(default=0)
+    nr_enzymes = models.IntegerField(default=0)
+    nr_compartment = models.IntegerField(default=0)
 
-# "Meta-information" tables
+    class Meta:
+        db_table = "subsystemsvg"
+
+
+# "Meta-Svgrmation" tables
 class NumberOfInteractionPartners(models.Model):
     reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
     first_order = models.FloatField()
@@ -389,21 +408,21 @@ class ReactionComponentCompartment(models.Model):
         db_table = "reactioncomponent_compartment"
         unique_together = (('component', 'compartment'),)
 
-class ReactionCompartmentInformation(models.Model):
+class ReactionCompartmentSvg(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
-    compartmentinfo = models.ForeignKey(CompartmentInformation, on_delete=models.CASCADE)
+    compartmentsvg = models.ForeignKey(CompartmentSvg, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "reaction_compartmentinformation"
-        unique_together = (('reaction','compartmentinfo'),)
+        db_table = "reaction_compartmentsvg"
+        unique_together = (('reaction','compartmentsvg'),)
 
-class ReactionComponentCompartmentInformation(models.Model):
+class ReactionComponentCompartmentSvg(models.Model):
     component = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
-    compartmentinfo = models.ForeignKey(CompartmentInformation, on_delete=models.CASCADE)
+    compartmentsvg = models.ForeignKey(CompartmentSvg, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "reactioncomponent_compartmentinformation"
-        unique_together = (('component','compartmentinfo'),)
+        db_table = "reactioncomponent_compartmentsvg"
+        unique_together = (('component','compartmentsvg'),)
 
 #
 # From tiles db
@@ -416,21 +435,20 @@ class TileReactionComponent(models.Model):
         db_table = "tile_reactioncomponents"
 
 class TileSubsystem(models.Model):
-    id = models.AutoField(primary_key=True)
-    subsystem_id = models.ForeignKey(Subsystem)
-    subsystem_name = models.CharField(max_length=200, null=False)
-    compartmentinformation_id = models.ForeignKey(CompartmentInformation)
-    compartment_name = models.CharField(max_length=125, null=False)
-    x_top_left = models.IntegerField(null=False)
-    y_top_left = models.IntegerField(null=False)
-    x_bottom_right = models.IntegerField(null=False)
-    y_bottom_right = models.IntegerField(null=False)
-    reaction_count = models.IntegerField(null=False)
+    subsystem = models.ForeignKey(Subsystem)
+    subsystem_name = models.CharField(max_length=200)
+    compartmentsvg = models.ForeignKey(CompartmentSvg)
+    compartment_name = models.CharField(max_length=125)
+    x_top_left = models.IntegerField()
+    y_top_left = models.IntegerField()
+    x_bottom_right = models.IntegerField()
+    y_bottom_right = models.IntegerField()
+    reaction_count = models.IntegerField()
     is_main = models.BooleanField(default=False)
 
     class Meta:
         db_table = "tile_subsystems"
-        unique_together = (('subsystem_id', 'compartment_name'),)
+        unique_together = (('subsystem', 'compartment_name'),)
 #create table tile_subsystems(id bigserial primary key, subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(125), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer, reaction_count integer, is_main boolean);
 #insert into tile_subsystems values(4, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12800, 4600, 16800, 9000);
 
