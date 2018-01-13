@@ -302,14 +302,14 @@ if __name__ == "__main__":
     # parse_HMDB_tab(sys.argv[1])
 
     if 'acetate' in HMDB_name:
-        print HMDB_name['acetate']
+        print (HMDB_name['acetate'])
 
     if 'acetate' in HMDB_iupac_name:
-        print HMDB_iupac_name['acetate']
+        print (HMDB_iupac_name['acetate'])
 
     if 'acetate' in HMDB_synonyms:
-        print HMDB_synonyms['acetate']
+        print (HMDB_synonyms['acetate'])
 
-    print HMDB.values()[0]
+    print (HMDB.values()[0])
 
-    print HMDB_pubchem['5281780']
+    print (HMDB_pubchem['5281780'])

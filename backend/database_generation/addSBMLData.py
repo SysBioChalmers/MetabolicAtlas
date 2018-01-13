@@ -470,15 +470,13 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
 
     # get compartments
     logger.info("Importing compartments")
-    # compartments_to_add = []
+
     for i in range(sbml_model.getNumCompartments()):
         sbml_compartment = sbml_model.getCompartment(i)
         compartments_in_db = Compartment.objects.using(database).filter(name=sbml_compartment.name)
         if not compartments_in_db:     # only add the compartment if it does not already exists...
             compartment = Compartment(name=sbml_compartment.name)
             compartment.save(using=database)
-            # compartments_to_add.append(compartment)
-    # Compartment.objects.bulk_create(compartments_to_add)
 
     # get reactions
     logger.info("Importing reactions, reaction_components, and all related relationships...")
@@ -495,7 +493,6 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
         # mr.save(using=database)
         # mr_to_add.append(mr)
     # GEMReaction.objects.bulk_create(mr_to_add)
-
 
     if gene_no_ensembl_id:
         print ("gene w/o ensembl ID:")
