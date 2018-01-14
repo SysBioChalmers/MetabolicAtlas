@@ -49,8 +49,7 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
 
     def test(self, model):
-        database = self.context.get("database")
-        return Metabolite.objects.using(database).get(reaction_component_id=model.id)
+        return Metabolite.objects.using(self.context.get('model')).get(reaction_component_id=model.id)
 
 class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
@@ -89,8 +88,8 @@ class ReactionSerializer(serializers.ModelSerializer):
             'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 class ReactionLiteSerializer(serializers.ModelSerializer):
     reactants = ReactionComponentLiteSerializer(many=True)
@@ -104,8 +103,8 @@ class ReactionLiteSerializer(serializers.ModelSerializer):
             'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 
 class ReactionSearchSerializer(serializers.ModelSerializer):
@@ -117,8 +116,8 @@ class ReactionSearchSerializer(serializers.ModelSerializer):
             'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 
 # This is a helper class to determine if a component is a currency metabolite
@@ -169,8 +168,8 @@ class MetaboliteReactionSerializer(serializers.Serializer):
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.reaction_id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.reaction_id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 
 class ConnectedMetabolitesSerializer(serializers.Serializer):
@@ -180,16 +179,14 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
 
 
 class SubsystemSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Subsystem
         fields = ('id', 'name', 'system', 'external_id', 'description')
 
 class CompartmentSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Compartment
-        fields = ('name',)
+        fields = ('id', 'name', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')
 
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
@@ -227,11 +224,11 @@ class GEModelSerializer(serializers.ModelSerializer):
     gemodelset = GEModelSetSerializer()
     sample = GEModelSampleSerializer()
     files = GEModelFileSerializer(many=True, read_only=True)
-    reference = GEModelReferenceSerializer()
+    ref = GEModelReferenceSerializer(many=True)
 
     class Meta:
         model = GEModel
-        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained')
+        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'ref', 'maintained')
 
 
 class GEModelListSerializer(serializers.ModelSerializer):
@@ -244,7 +241,10 @@ class GEModelListSerializer(serializers.ModelSerializer):
         return gg.name
 
     def get_model_year(self, model):
-        return model.reference.year
+        # FIXME get reference from the set
+        refs = model.ref.all()
+        if refs:
+            return refs[0].year
 
     class Meta:
         model = GEModel

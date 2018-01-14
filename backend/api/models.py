@@ -112,7 +112,7 @@ class Author(models.Model):
     family_name = models.CharField(max_length=255, blank=False)
     email = models.CharField(max_length=255, blank=False)
     organization = models.CharField(max_length=255, blank=False)
-    models = models.ManyToManyField(GEM, related_name='authors', through='GemAuthor')
+    # models = models.ManyToManyField(GEM, related_name='authors', through='GemAuthor')
 
     def __str__(self):
         return "<Author: {0} {1}>".format(self.given_name, self.family_name)
@@ -133,7 +133,7 @@ class Reaction(models.Model):
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
 
-    models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
+    # models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
 
     def __str__(self):
         return "<Reaction: {0} {1}>".format(self.id, self.modifiers)

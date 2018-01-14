@@ -40,6 +40,7 @@ import { default as EventBus } from '../../event-bus';
 
 export default {
   name: 'compartment',
+  props: ['model'],
   data() {
     return {
       compartments: [],
@@ -64,7 +65,7 @@ export default {
       for (const CID of this.compartmentIDOrder) {
         this.compartments.push(getCompartmentFromCID(CID));
       }
-      axios.get('compartment_information/')
+      axios.get(`${this.model}/compartment_information/`)
       .then((response) => {
         // console.log(response);
         this.compartmentStats = {};

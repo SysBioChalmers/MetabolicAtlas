@@ -39,6 +39,7 @@ import EventBus from '../../event-bus';
 
 export default {
   name: 'subsystem',
+  props: ['model'],
   data() {
     return {
       subsystems: {},
@@ -84,7 +85,7 @@ export default {
   },
   methods: {
     loadSubsystem() {
-      axios.get('subsystems')
+      axios.get(`${this.model}/subsystems`)
         .then((response) => {
           const systems = response.data.reduce((subarray, el) => {
             const arr = subarray;

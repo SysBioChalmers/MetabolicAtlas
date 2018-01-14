@@ -113,6 +113,9 @@ export default {
     searchTerm: {
       default: '',
     },
+    model: {
+      default: '',
+    },
   },
   components: {
     Loader,
@@ -153,7 +156,7 @@ export default {
       }, 700)();
     },
     search(searchTerm) {
-      const url = this.quickSearch ? `search/quick/${searchTerm}` : `search/${searchTerm}`;
+      const url = this.quickSearch ? `${this.model}/search/${searchTerm}` : `all/search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
         const searchResults = response.data.reactionComponent.reduce((subarray, el) => {

@@ -54,7 +54,7 @@
           </table>
         </div>
       </div>
-      <reactome id="metabolite-reactome"></reactome>
+      <reactome id="metabolite-reactome" :model="this.model"></reactome>
     </div>
   </div>
 </template>
@@ -70,6 +70,7 @@ export default {
   components: {
     Reactome,
   },
+  props: ['model'],
   data() {
     return {
       mId: this.$route.query.id,
@@ -109,7 +110,7 @@ export default {
       this.load();
     },
     load() {
-      axios.get(`metabolite/${this.mId}/`)
+      axios.get(`${this.model}/metabolite/${this.mId}/`)
       .then((response) => {
         if (response.data.component_type === 'metabolite' &&
           response.data.metabolite) {

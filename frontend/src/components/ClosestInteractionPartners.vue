@@ -212,6 +212,7 @@ export default {
     Loader,
     'compact-picker': Compact,
   },
+  props: ['model'],
   data() {
     return {
       loading: true,
@@ -367,7 +368,7 @@ export default {
       );
     },
     load() {
-      axios.get(`reaction_components/${this.id}/with_interaction_partners`)
+      axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
           const component = response.data.component;
@@ -421,7 +422,7 @@ export default {
         });
     },
     loadExpansion() {
-      axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
+      axios.get(`${this.model}/reaction_components/${this.selectedElmId}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
           this.errorMessage = null;

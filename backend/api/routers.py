@@ -26,14 +26,14 @@ class GemodelRouter(object):
 
 class TileRouter(object):
     def db_for_read(self, model, **hints):
-        if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
+        '''if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
             return 'default'
-            #return 'tiles'
+            #return 'tiles'''
         return None
 
     def db_for_write(self, model, **hints):
-        if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
-            return 'default'
+        '''if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
+            return 'default'''
             #return 'tiles'
         return None
 
@@ -48,13 +48,12 @@ class TileRouter(object):
             return db == 'default'
         return None
 
-
 class ApiRouter(object):
     def db_for_read(self, model, **hints):
-        return 'default'
+        return None
 
     def db_for_write(self, model, **hints):
-        return 'default'
+        return None
 
     def allow_relation(self, obj1, obj2, **hints):
         return True

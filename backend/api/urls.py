@@ -2,7 +2,47 @@ from django.conf.urls import url
 from api import views
 
 urlpatterns = [
+
     url(r'^models/?$', views.model_list),
+    url(r'^models/(?P<id>[0-9]+)/?$', views.get_model),
+    url(r'^authors/?$', views.author_list),
+    url(r'^authors/(?P<id>[0-9]+)/?$', views.get_author),
+    url(r'^(?P<model>[^/]+)/reactions/?$', views.reaction_list),
+    url(r'^(?P<model>[^/]+)/reactions/(?P<id>[^/]+)/?$', views.get_reaction),
+    url(r'^(?P<model>[^/]+)/reactions/(?P<id>[^/]+)/reactants/?$', views.reaction_reactant_list),
+    url(r'^(?P<model>[^/]+)/reactions/(?P<reaction_id>[^/]+)/reactants/(?P<reactant_id>[^/]+)/?$', views.get_reaction_reactant),
+    url(r'^(?P<model>[^/]+)/reactions/(?P<id>[^/]+)/products/?$', views.reaction_product_list),
+    url(r'^(?P<model>[^/]+)/reactions/(?P<reaction_id>[^/]+)/products/(?P<product_id>[^/]+)/?$', views.get_reaction_product),
+    url(r'^(?P<model>[^/]+)/reactions/(?P<id>[^/]+)/modifiers/?$', views.reaction_modifier_list),
+    url(r'^(?P<model>[^/]+)/reactions/(?P<reaction_id>[^/]+)/modifiers/(?P<modifier_id>[^/]+)/?$', views.get_reaction_modifier),
+    url(r'^(?P<model>[^/]+)/reaction_components/?$', views.component_list),
+    url(r'^(?P<model>[^/]+)/reaction_components/(?P<id>[^/]+)/?$', views.get_component),
+    url(r'^(?P<model>[^/]+)/reaction_components/(?P<id>[^/]+)/currency_metabolites/?$', views.currency_metabolite_list),
+#    url(r'^reaction_components/(?P<id>[^/]+)/expressions/?$', views.component_expression_list),
+    url(r'^(?P<model>[^/]+)/reaction_components/(?P<id>[^/]+)/interaction_partners/?$', views.interaction_partner_list),
+    url(r'^(?P<model>[^/]+)/reaction_components/(?P<id>[^/]+)/with_interaction_partners/?$', views.get_component_with_interaction_partners),
+    url(r'^(?P<model>[^/]+)/enzymes/?$', views.enzyme_list),
+    url(r'^(?P<model>[^/]+)/enzymes/(?P<id>[^/]+)/connected_metabolites/?$', views.connected_metabolites),
+#    url(r'^expressions/(?P<enzyme_id>[^/]+)/?$', views.expressions_list),
+    url(r'^(?P<model>[^/]+)/metabolite_reactions/(?P<reaction_component_id>[^/]+)/?$', views.get_metabolite_reactions),
+    url(r'^(?P<model>[^/]+)/metabolite_reactions/(?P<reaction_component_id>[^/]+)/reactome/(?P<reaction_id>[^/]+)/?$', views.get_metabolite_reactome),
+    url(r'^(?P<model>[^/]+)/search/(?P<term>[^/]+)/?$', views.search),
+    url(r'^all/search/(?P<term>[^/]+)/?$', views.search),
+    url(r'^(?P<model>[^/]+)/metabolite/(?P<id>[^/]+)/?$', views.get_component),
+    url(r'^gemodels/?$', views.get_gemodels),
+    url(r'^gemodel/(?P<id>[^/]+)/?$', views.get_gemodel),
+    url(r'^(?P<model>[^/]+)/convert_to_reaction_component_ids/(?P<compartmentID>[^/]+)/?$', views.convert_to_reaction_component_ids),
+    url(r'^(?P<model>[^/]+)/subsystems/?$', views.get_subsystems),
+    url(r'^(?P<model>[^/]+)/subsystem/(?P<subsystem_id>[^/]+)/?$', views.get_subsystem_coordinates),
+    url(r'^(?P<model>[^/]+)/compartment/(?P<compartmentID>[^/]+)/?$', views.get_compartment),
+    url(r'^(?P<model>[^/]+)/compartment_information/?$', views.get_compartment_information),
+    url(r'^showsubsystem/(?P<subsystem_id>[^/]+)/?$', views.get_subsystem),
+    url(r'^hpa/?$', views.get_HPA_xml_content),
+
+]
+
+
+'''url(r'^models/?$', views.model_list),
     url(r'^models/(?P<id>[0-9]+)/?$', views.get_model),
     url(r'^authors/?$', views.author_list),
     url(r'^authors/(?P<id>[0-9]+)/?$', views.get_author),
@@ -36,5 +76,4 @@ urlpatterns = [
     url(r'^compartment/(?P<compartmentID>[^/]+)/?$', views.get_compartment),
     url(r'^compartment_information/?$', views.get_compartment_information),
     url(r'^showsubsystem/(?P<subsystem_id>[^/]+)/?$', views.get_subsystem),
-    url(r'^hpa/?$', views.get_HPA_xml_content),
-]
+    url(r'^hpa/?$', views.get_HPA_xml_content),'''

@@ -53,6 +53,7 @@ import { default as EventBus } from '../../event-bus';
 
 export default {
   name: 'region',
+  props: ['model'],
   data() {
     return {
       errorMessage: '',
@@ -84,7 +85,7 @@ export default {
     },
     getReactionComponentIDs(array, HLonly) {
       // get the correct IDs from the backend
-      axios.post(`convert_to_reaction_component_ids/${this.compartmentID}`, { data: array })
+      axios.post(`${this.model}/convert_to_reaction_component_ids/${this.compartmentID}`, { data: array })
       .then((response) => {
         const res = response.data;
         const d = {};

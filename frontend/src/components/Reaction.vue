@@ -44,6 +44,7 @@ import { reformatChemicalReaction } from '../helpers/compartment';
 
 export default {
   name: 'reaction',
+  props: ['model'],
   data() {
     return {
       rId: this.$route.query.id,
@@ -75,7 +76,7 @@ export default {
       this.load();
     },
     load() {
-      axios.get(`reactions/${this.rId}/`)
+      axios.get(`${this.model}/reactions/${this.rId}/`)
       .then((response) => {
         this.info = response.data.reaction;
         this.pmids = response.data.pmids;

@@ -101,6 +101,7 @@ export default {
     ReactionTable,
     Loader,
   },
+  props: ['model'],
   data() {
     return {
       loading: true,
@@ -183,7 +184,7 @@ export default {
       this.loading = true;
       const startTime = Date.now();
       const enzymeId = this.id;
-      axios.get(`enzymes/${enzymeId}/connected_metabolites`)
+      axios.get(`${this.model}/enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
           const endTime = Date.now();
           this.loadTime = (endTime - startTime) / 1000; // TODO: show load time in seconds

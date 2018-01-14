@@ -93,12 +93,6 @@ WSGI_APPLICATION = 'metabolicatlas.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hma',
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db',
-        'PORT': 5432,
     },
     'human': {
         'ENGINE': 'django.db.backends.postgresql',
