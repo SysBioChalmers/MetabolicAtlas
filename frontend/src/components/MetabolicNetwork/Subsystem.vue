@@ -1,34 +1,61 @@
 <template>
   <div>
-    <p class="menu-label">Subsystem:</p>
-    <ul class="menu-list">
-      <li class="m-li" v-for="system in systemOrder">
-        <span v-if="selectedSystem == system"
-        class="li-selected"
-        @click="selectSubsystem(system)">
-         &#9662;&nbsp;{{ system }}
-        </span>
-        <span v-else @click="selectSubsystem(system)">
-          &#9656;&nbsp;{{ system }}
-        </span>
-        <ul class="subs-ul" v-show="selectedSystem === system">
-          <li v-for="subsystem in subsystems[system]"
-          v-if="system !== 'Collection of reactions'"
-          @click="showSubsystem(system, subsystem.id)">
-              <span v-if="selectedSubSystem==subsystem.name"
-              class="li-selected"@click="selectedSubSystem=subsystem.name">
-               &#9642;&nbsp;{{ subsystem.name }}
-               </span>
-              <span v-else @click="selectedSubSystem=subsystem.name">
-                &#9642;&nbsp;{{ subsystem.name }}
-              </span>
-          </li>
-          <li v-else class="disable">
-              <span>&#9642;&nbsp;{{ subsystem.name }}</span>
-          </li>
-        </ul>
-      </li>
-    </ul>
+    <div>
+      <p class="menu-label">Subsystem:</p>
+      <ul class="menu-list">
+        <li class="m-li" v-for="system in systemOrder">
+          <span v-if="selectedSystem == system"
+          class="li-selected"
+          @click="selectSystem(system)">
+           &#9662;&nbsp;{{ system }}
+          </span>
+          <span v-else @click="selectSystem(system)">
+            &#9656;&nbsp;{{ system }}
+          </span>
+          <ul class="subs-ul" v-show="selectedSystem === system">
+            <li v-for="subsystem in subsystems[system]"
+            v-if="system !== 'Collection of reactions'">
+                <span v-if="selectedSubsystem === subsystem"
+                class="li-selected"@click="selectedSubsystem=subsystem">
+                 &#9642;&nbsp;{{ subsystem.name }}
+                 </span>
+                <span v-else @click="selectedSubsystem=subsystem">
+                  &#9642;&nbsp;{{ subsystem.name }}
+                </span>
+            </li>
+            <li v-else class="disable">
+                <span>&#9642;&nbsp;{{ subsystem.name }}</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div v-if="selectedSubsystem">
+      <hr>
+      <table class="table">
+      <tr>
+        <td>
+          <a @click="viewSubsystem()">{{ selectedSubsystem.name }}</a>
+        </td>
+        <td>
+          <span class="tag" @click="showSubsystem()">View</span>
+        </td>
+      </tr>
+      </table>
+      <ul class="menu-list">
+        <li class="menu-label">
+          # reactions: {{ selectedSubsystem['nr_reactions'] }}
+        </li>
+        <li class="menu-label">
+          # metabolites: {{ selectedSubsystem['nr_metabolites'] }}
+        </li>
+        <li class="menu-label">
+          # enzymes: {{ selectedSubsystem['nr_enzymes'] }}
+        </li>
+        <li class="menu-label">
+          # compartments: {{ selectedSubsystem['nr_compartment'] }}
+        </li>
+    </div>
   </div>
 </template>
 
@@ -45,7 +72,7 @@ export default {
       subsystems: {},
       subsystemsSystem: {}, // to get the system from the subsystem
       selectedSystem: '',
-      selectedSubSystem: '',
+      selectedSubsystem: '',
       subsystemCount: 0,
       systemOrder: [
         'Amino Acid metabolism',
@@ -65,16 +92,16 @@ export default {
     EventBus.$on('showSubsystem', (id) => {
       if (!id) {
         this.selectedSystem = 'Other metabolism';
-        this.selectedSubSystem = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
-        id = 38;
-        this.loadSubsystemCoordinates(id);
+        this.selectedSubsystem = this.subsystems['Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism'];
+        id = 172;
+        this.loadSubsystemCoordinates(id, null);
       } else {
-        this.loadSubsystemCoordinates(id);
+        this.loadSubsystemCoordinates(id, null);
       }
     });
     EventBus.$on('resetView', () => {
       this.selectedSystem = '';
-      this.selectedSubSystem = '';
+      this.selectedSubsystem = '';
     });
   },
   beforeMount() {
@@ -124,8 +151,10 @@ export default {
           }
         });
     },
-    loadSubsystemCoordinates(id) {
-      axios.get(`${this.model}/subsystem/${id}`)
+    loadSubsystemCoordinates(id, compID) {
+      const url = compID ? `${this.model}/subsystem/${id}/${compID}` : `${this.model}/subsystem/${id}`;
+      console.log(url);
+      axios.get(url)
         .then((response) => {
           const subCoors = response.data;
           console.log(subCoors);
@@ -142,20 +171,23 @@ export default {
         }
       );
     },
-    selectSubsystem(system) {
+    selectSystem(system) {
       if (this.selectedSystem === system) {
         this.selectedSystem = '';
       } else {
         this.selectedSystem = system;
       }
     },
-    showSubsystem(system, id) {
+    viewSubsystem() {
+      EventBus.$emit('updateSelTab', 'subsystem', this.selectedSubsystem.id);
+    },
+    showSubsystem() {
       // forbid the display of this system
-      if (system !== 'Collection of reactions') {
-        if (!id) {
-          this.loadSubsystemCoordinates(38);
+      if (this.selectedSystem !== 'Collection of reactions') {
+        if (!this.selectedSubsystem) {
+          this.loadSubsystemCoordinates(172, null);
         } else {
-          this.loadSubsystemCoordinates(id);
+          this.loadSubsystemCoordinates(this.selectedSubsystem.id, null);
         }
       }
     },
@@ -172,10 +204,14 @@ li.m-li {
   }
 }
 
+span.tag {
+  cursor: pointer;
+}
+
 ul.subs-ul {
   overflow-x: hidden;
   overflow-y: auto;
-  max-height: 20rem;
+  max-height: 15rem;
 }
 
 .menu-list li ul {

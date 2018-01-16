@@ -96,6 +96,7 @@ def get_reaction(request, model, id):
         reaction = Reaction.objects.using(model).get(id=id)
     except Reaction.DoesNotExist:
         return HttpResponse(status=404)
+
     reactionserializer = ReactionSerializer(reaction, context={'model': model})
     pmids = ReactionReference.objects.using(model).filter(reaction_id=id)
     if pmids.count():
@@ -107,6 +108,7 @@ def get_reaction(request, model, id):
         pmidsresponse = requests.get(url).json()['result']
     else:
         pmidsresponse = {}
+
     return JSONResponse({'reaction': reactionserializer.data,
                          'pmids': pmidsresponse})
 
@@ -680,9 +682,9 @@ def get_subsystem(request, model, subsystem_id):
 
     results = {
         'subsystemAnnotations': SubsystemSerializer(s).data,
-        'metabolites': ReactionComponentLiteSerializer(sms, many=True).data,
-        'enzymes': ReactionComponentLiteSerializer(ses, many=True).data,
-        'reactions': ReactionLiteSerializer(srs, many=True).data
+        'metabolites': ReactionComponentLiteSerializer(sms, many=True, context={'model': model}).data,
+        'enzymes': ReactionComponentLiteSerializer(ses, many=True, context={'model': model}).data,
+        'reactions': ReactionLiteSerializer(srs, many=True, context={'model': model}).data
     }
 
     return JSONResponse(results)
@@ -698,21 +700,23 @@ def get_subsystems(request, model):
         return HttpResponse(status=404)
 
     serializer = SubsystemSerializer(subsystems, many=True)
-    return JSONResponse(serializer.data);
+
+    return JSONResponse(serializer.data)
 
 
 @api_view()
-def get_subsystem_coordinates(request, model, subsystem_id):
+def get_subsystem_coordinates(request, model, subsystem_id, compartmentID=False):
     """
     For a given subsystem, get the compartment name and X,Y locations in the corresponding SVG map,
     try it with for example 38 for the TCA cycle.
     """
     try:
-        logging.warn(subsystem_id)
-        tileSubsystem = TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
+        if not compartmentID:
+            tileSubsystem = TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
+        else:
+            tileSubsystem = TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartmentID)
     except TileSubsystem.DoesNotExist:
         return HttpResponse(status=404)
-
     serializer = TileSubsystemSerializer(tileSubsystem)
 
     return JSONResponse(serializer.data)

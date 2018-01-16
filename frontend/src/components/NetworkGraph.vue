@@ -110,7 +110,7 @@ export default {
         disabledTab3 = this.componentID[0] !== 'E';
         disabledTab4 = this.componentID[0] !== 'M';
         disabledTab5 = this.componentID[0] !== 'R';
-        disabledTab6 = this.componentID[0] !== '3';
+        disabledTab6 = !Number.isInteger(this.componentID);
       }
 
       return [
