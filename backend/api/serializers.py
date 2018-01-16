@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from api.models import *
 
+import logging
+
 class GEMSerializer(serializers.ModelSerializer):
     authors = serializers.StringRelatedField(many=True)
 
@@ -28,7 +30,7 @@ class MetaboliteSearchSerializer(serializers.ModelSerializer):
 class EnzymeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enzyme
-        fields = ('function', 'catalytic_activity', 'uniprot_link', 'ensembl_link')
+        fields = ('function', 'catalytic_activity', 'ensembl_link', 'uniprot_acc', 'ncbi')
 
 class EnzymeSearchSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,6 +45,7 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
+
 
 class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
@@ -81,8 +84,8 @@ class ReactionSerializer(serializers.ModelSerializer):
             'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 class ReactionLiteSerializer(serializers.ModelSerializer):
     reactants = ReactionComponentLiteSerializer(many=True)
@@ -96,8 +99,8 @@ class ReactionLiteSerializer(serializers.ModelSerializer):
             'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 
 class ReactionSearchSerializer(serializers.ModelSerializer):
@@ -109,8 +112,8 @@ class ReactionSearchSerializer(serializers.ModelSerializer):
             'compartment', 'subsystem')
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 
 # This is a helper class to determine if a component is a currency metabolite
@@ -161,8 +164,8 @@ class MetaboliteReactionSerializer(serializers.Serializer):
     modifiers = ReactionComponentSerializer(many=True, read_only=True)
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.filter(reaction=model.reaction_id).values_list('subsystem')
-        return Subsystem.objects.filter(id__in=ss_ids).values_list('name')
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.reaction_id).values_list('subsystem')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
 
 class ConnectedMetabolitesSerializer(serializers.Serializer):
@@ -172,22 +175,20 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
 
 
 class SubsystemSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Subsystem
         fields = ('id', 'name', 'system', 'external_id', 'description')
 
 class CompartmentSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Compartment
-        fields = ('name',)
+        fields = ('id', 'name', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')
 
 
-class CompartmentInformationSerializer(serializers.ModelSerializer):
+class CompartmentSvgSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CompartmentInformation
+        model = CompartmentSvg
         fields = ('id', 'compartment', 'display_name', 'filename', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')
 
 # =======================================================================================
@@ -219,11 +220,11 @@ class GEModelSerializer(serializers.ModelSerializer):
     gemodelset = GEModelSetSerializer()
     sample = GEModelSampleSerializer()
     files = GEModelFileSerializer(many=True, read_only=True)
-    reference = GEModelReferenceSerializer()
+    ref = GEModelReferenceSerializer(many=True)
 
     class Meta:
         model = GEModel
-        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'reference', 'maintained')
+        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'ref', 'maintained')
 
 
 class GEModelListSerializer(serializers.ModelSerializer):
@@ -236,7 +237,10 @@ class GEModelListSerializer(serializers.ModelSerializer):
         return gg.name
 
     def get_model_year(self, model):
-        return model.reference.year
+        # FIXME get reference from the set
+        refs = model.ref.all()
+        if refs:
+            return refs[0].year
 
     class Meta:
         model = GEModel
@@ -249,4 +253,4 @@ class GEModelListSerializer(serializers.ModelSerializer):
 class TileSubsystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = TileSubsystem
-        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'compartmentinformation_id', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)
+        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'compartmentsvg_id', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)

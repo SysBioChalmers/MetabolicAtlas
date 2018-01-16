@@ -3,12 +3,13 @@
     <div class="columns">
       <div class="column is-3">
         <div class="tabs is-pulled-left is-toggle">
-          <li class="is-active"><a><span>{{ $t('human') }}</span></a></li>
-          <li v-if="false"><a><span>{{ $t('yeast') }}</span></a></li>
+          <li class="is-active" @click="selectedModel = 'human'"><a><span>{{ $t('human') }}</span></a></li>
+          <li v-if="false" @click="selectedModel = 'yeast'"><a><span>{{ $t('yeast') }}</span></a></li>
         </div>
       </div>
       <global-search
       :quickSearch=true
+      :model="SelectedModel"
       ></global-search>
       <div class="column">
         <div class="is-pulled-right">
@@ -33,12 +34,12 @@
       {{ errorMessage }}
     </div>
     <div v-else>
-      <metabolic-network v-show="selectedTab===1"></metabolic-network>
-      <closest-interaction-partners v-if="selectedTab===2"></closest-interaction-partners>
-      <enzyme v-if="selectedTab===3"></enzyme>
-      <metabolite v-if="selectedTab===4"></metabolite>
-      <reaction v-if="selectedTab===5"></reaction>
-      <subsystem v-if="selectedTab===6"></subsystem>
+      <metabolic-network v-show="selectedTab===1" :model="SelectedModel"></metabolic-network>
+      <closest-interaction-partners v-if="selectedTab===2" :model="SelectedModel"></closest-interaction-partners>
+      <enzyme v-if="selectedTab===3" :model="SelectedModel"></enzyme>
+      <metabolite v-if="selectedTab===4" :model="SelectedModel"></metabolite>
+      <reaction v-if="selectedTab===5" :model="SelectedModel"></reaction>
+      <subsystem v-if="selectedTab===6" :model="SelectedModel"></subsystem>
     </div>
   </div>
 </template>
@@ -68,6 +69,7 @@ export default {
   },
   data() {
     return {
+      SelectedModel: 'human',
       selectedTab: 1,
       searchTerm: '',
       searchResults: [],

@@ -9,10 +9,10 @@ parser.add_argument('-s', dest='os', help="which OS, mac or linux? will influenc
 parser.add_argument('-p', dest='only_print', action='store_true', default=False);
 parser.add_argument('-o', dest='organism', help="which organism, default human", default='hsapiens', type=str)
 args = parser.parse_args()
-attributes=['hgnc_symbol','uniprot_swissprot'];
+attributes=['hgnc_symbol','uniprotswissprot']; #  uniprot_swissprot
 if((args.attributes is not None) and (len(args.attributes)>0)):
 	attributes = args.attributes.split(",")
-outputFile="downloadedFiles/ensembl" + str(args.version) + "_" + "_".join(attributes) + "."+args.organism+".tab"
+outputFile="ensembl" + str(args.version) + "_" + "_".join(attributes) + "."+args.organism+".tab"
 outputFile.replace("_1006", "") # for GO attributes...
 outputFile.replace("_1003", "") # for GO attributes...
 
@@ -20,7 +20,7 @@ outputFile.replace("_1003", "") # for GO attributes...
 def versionMap(v):
  	# http://www.ensembl.org/biomart/martservice
 	if(v==89):
-		return 'http://sep2015.archive.ensembl.org/biomart/martservice'
+		return 'http://may2017.archive.ensembl.org/biomart/martservice'
 	elif(v==82):
 		return 'http://sep2015.archive.ensembl.org/biomart/martservice'
 	elif(v==81):
@@ -65,5 +65,5 @@ def getData(oFile, ver, att):
 	else:
 		os.system(cmd)
 
-
-getData(outputFile, args.version, attributes)
+if not os.path.exists(outputFile):
+	getData(outputFile, args.version, attributes)

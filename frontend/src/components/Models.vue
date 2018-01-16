@@ -47,24 +47,22 @@
                   {{ selectedModel[field.name] }}
                 </td>
               </tr>
-              <tr>
+              <tr v-if="selectedModel.ref && selectedModel.ref.length !== 0">
                 <td class="td-key">Reference</td>
-                <td v-if="selectedModel.link">
-                  <a :href="selectedModel.link" target="_blank">
-                    {{ selectedModel.title }}
-                  </a>
+                <td v-if="selectedModel.ref[0].link">
+                  <template v-if="selectedModel.ref[0].pubmed">
+                    <a :href="selectedModel.ref[0].link" target="_blank">
+                      {{ selectedModel.ref[0].title }} (PMID:{{ selectedModel.ref[0].pubmed }})
+                    </a>
+                  </template>
+                  <template v-else>
+                    <a :href="selectedModel.ref[0].link" target="_blank">
+                      {{ selectedModel.ref[0].title }}
+                    </a>
+                  </template>
                 </td>
                 <td v-else>
-                    {{ selectedModel.title }}
-                </td>
-              </tr>
-              <tr v-if="selectedModel.pubmed">
-                <td class="td-key">PUBMED ID</td>
-                <td>
-                  <a :href="'https://www.ncbi.nlm.nih.gov/pubmed/' + selectedModel.pubmed" 
-                  target="_blank">
-                    {{ selectedModel.pubmed }}
-                  </a>
+                    {{ selectedModel.ref.title }}
                 </td>
               </tr>
             </tbody>
@@ -159,8 +157,9 @@ export default {
         delete model.gemodelset.reference;
         model = $.extend(model, model.gemodelset);
         delete model.gemodelset;
-        model = $.extend(model, model.reference);
-        delete model.reference;
+        // model = $.extend(model, model.reference);
+        // delete model.reference;
+        console.log(response);
         if (!model.description) {
           model.description = setDescription;
         }

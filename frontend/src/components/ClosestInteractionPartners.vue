@@ -212,6 +212,7 @@ export default {
     Loader,
     'compact-picker': Compact,
   },
+  props: ['model'],
   data() {
     return {
       loading: true,
@@ -367,7 +368,7 @@ export default {
       );
     },
     load() {
-      axios.get(`reaction_components/${this.id}/with_interaction_partners`)
+      axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
           const component = response.data.component;
@@ -376,10 +377,9 @@ export default {
           this.componentName = component.short_name || component.long_name;
           this.id = component.id;
           if (component.enzyme) {
-            const uniprotLink = component.enzyme ? component.enzyme.uniprot_link : null;
-            const uniprotId = uniprotLink.split('/').pop();
+            const uniprotId = component.enzyme ? component.enzyme.uniprot_acc : null;
             this.title = `${this.chemicalName(this.componentName)}
-              (<a href="${uniprotLink}" target="_blank">${uniprotId}</a>)`;
+              (<a href="http://www.uniprot.org/uniprot/${uniprotId}" target="_blank">${uniprotId}</a>)`;
           } else {
             this.title = `${this.chemicalName(this.componentName)}`;
           }
@@ -421,7 +421,7 @@ export default {
         });
     },
     loadExpansion() {
-      axios.get(`reaction_components/${this.selectedElmId}/with_interaction_partners`)
+      axios.get(`${this.model}/reaction_components/${this.selectedElmId}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
           this.errorMessage = null;

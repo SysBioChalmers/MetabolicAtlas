@@ -38,6 +38,7 @@ export default {
     ReactionTable,
     Loader,
   },
+  props: ['model'],
   data() {
     return {
       errorMessage: '',
@@ -96,7 +97,7 @@ export default {
       if (this.expandAllCompartment) {
         id = id.replace(/[a-z]$/, '');
       }
-      axios.get(`metabolite_reactions/${id}`)
+      axios.get(`${this.model}/metabolite_reactions/${id}`)
         .then((response) => {
           this.errorMessage = '';
           this.reactions = response.data;

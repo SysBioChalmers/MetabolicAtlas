@@ -101,6 +101,7 @@ export default {
     ReactionTable,
     Loader,
   },
+  props: ['model'],
   data() {
     return {
       loading: true,
@@ -130,11 +131,9 @@ export default {
       detailTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'enzymeName', display: 'Name' },
+        { name: 'long_name', display: 'Ensembl ID', modifier: this.reformatEnsblLink },
         { name: 'compartment', display: 'Compartment' },
-        { name: 'currency_metabolites', display: 'Metabolites', modifier: this.reformatList },
         { name: 'formula', display: 'Formula' },
-        { name: 'metabolite', display: 'Metabolite' },
-        { name: 'organism', display: 'Organism' },
       ],
 
       tableSearchTerm: '',
@@ -179,11 +178,14 @@ export default {
       }
       return output;
     },
+    reformatEnsblLink(id) {
+      return `<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${id}" target="_blank">${id}</a>`;
+    },
     load() {
       this.loading = true;
       const startTime = Date.now();
       const enzymeId = this.id;
-      axios.get(`enzymes/${enzymeId}/connected_metabolites`)
+      axios.get(`${this.model}/enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
           const endTime = Date.now();
           this.loadTime = (endTime - startTime) / 1000; // TODO: show load time in seconds
@@ -200,6 +202,7 @@ export default {
             this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
             this.enzyme = response.data.enzyme;
             this.enzyme.enzymeName = this.enzymeName;
+            this.enzyme.long_name = response.data.enzyme.long_name;
             this.elms = elms;
             const [elements, stylesheet] = graph(elms, rels);
             this.cy = cytoscape({

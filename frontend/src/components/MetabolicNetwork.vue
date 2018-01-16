@@ -32,10 +32,10 @@
     <div class="columns">
       <div class="column is-2" v-show="!hideSidebar">
         <div class="box" id="list-res">
-          <compartment v-show="levelSelected==='compartment'"></compartment>
+          <compartment v-show="levelSelected==='compartment'" :model="model"></compartment>
           <subsystem v-show="levelSelected==='subsystem'"
-            @sendSubSysCount="showSubsystemCount"></subsystem>
-          <region v-show="levelSelected==='region'"></region>
+            @sendSubSysCount="showSubsystemCount" :model="model"></subsystem>
+          <region v-show="levelSelected==='region'" :model="model"></region>
         </div>
       </div>
       <div id="svgframe" class="column"
@@ -66,6 +66,9 @@ export default {
     Region,
     Svgmap,
   },
+  props: [
+    'model',
+  ],
   data() {
     return {
       errorMessage: '',

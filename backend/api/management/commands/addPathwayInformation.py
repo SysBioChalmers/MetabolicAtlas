@@ -11,42 +11,39 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 padding = 500
-svgFolder = "../nginx/svgs/"
+svgFolder = "/project/svgs/"
 
-
-def getMinAndMax(reactions, allPos):
+# TODO consider also the position of the text of the pathway
+def getMinAndMax(reactions):
     x_top_left = 100000
     y_top_left = 100000
     x_bottom_right = 0
     y_bottom_right = 0
-    comps = {}
     for r in reactions:
-        if( r.reaction_id in allPos ):
-            pos = allPos[r.reaction_id]
-            x = pos[0]
-            y = pos[1]
-            comps[r.reaction.compartment] = "1"
-            if( x < x_top_left ):
-                x_top_left = x
-            if( x > x_bottom_right ):
-                x_bottom_right = x
-            if( y < y_top_left ):
-                y_top_left = y
-            if( y > y_bottom_right ):
-                y_bottom_right = y
-    if(len(comps)>0):
-        return(x_top_left, y_top_left, x_bottom_right, y_bottom_right, comps)
-    else:
-        return(None)
+        x = r[0]
+        y = r[1]
+        if x < x_top_left:
+            x_top_left = x
+        if x > x_bottom_right:
+            x_bottom_right = x
+        if y < y_top_left:
+            y_top_left = y
+        if y > y_bottom_right:
+            y_bottom_right = y
+
+    return x_top_left, y_top_left, x_bottom_right, y_bottom_right
 
 
 
 def readCompartment(fileName):
+    """ Read svgs file and get all reactions ID and its coordinate x,y """
     ret = {}
     with open (svgFolder+fileName, "r") as myfile:
         data=myfile.readlines()
         for idx, l in enumerate(data):
-            if( re.search("Shape_of_Reaction", l) ):
+            l = l.strip()
+            if False and re.search("Shape_of_Reaction", l):
+                # old version of svgs file
                 rid = re.sub(r'^.*Shape_of_Reaction.','', l.rstrip())
                 rid = re.sub(r'..$','', rid)
                 trans = re.sub(r'^.*transform=.matrix.','', data[idx+1].rstrip())
@@ -55,21 +52,56 @@ def readCompartment(fileName):
                 x = float(pos[4])
                 y = float(pos[5])
                 ret[rid] = (x, y)
-    return(ret)
+            m = re.match('<g class="reaction" id="(.*)"', l)
+            if m:
+                rid = m.group(1)
+                m = re.search('matrix[(]1,0,0,1,(\d+),(\d+)[)]', data[idx+1])
+                x, y = m.groups()
+                ret[rid] = (float(x), float(y))
 
-def compartmentByCompartment(ci, pathways):
+    return ret
+
+def compartmentByCompartment(ci, pathways, dict_pathway):
     m = readCompartment(ci.filename)
+    print ("Reactions found in the SVG file: %s" % len(m))
     for p in pathways:
         reactions = SubsystemReaction.objects.filter(subsystem_id=p.id)
-        box = getMinAndMax(reactions, m)
-        if( not box is None ):
-            t = TileSubsystem(subsystem_id = p.id, subsystem_name=p.name,
-                compartmentinformation_id = ci.id,
-                compartment_name = ci.display_name,
-                x_top_left = box[0]-padding, y_top_left = box[1]-padding,
-                x_bottom_right = box[2]+padding, y_bottom_right = box[3]+padding,
-                reaction_count = len(reactions) )
-            t.save()
+
+        # store stats
+        if p.name not in dict_pathway:
+            dict_pathway[p.name] = [len(reactions), {}]
+
+        print ("Reactions found in '%s': %s" % (p.name, reactions.count()))
+        r_overlap = [m[r.reaction_id] for r in reactions if r.reaction_id in m]
+        print ("Overlap: %s (%s) " % (len(r_overlap), float(len(r_overlap))/len(reactions) * 100.0 ))
+        dict_pathway[p.name][1][ci.display_name] = len(r_overlap) # store the overlap with each compartement
+
+        if r_overlap:
+            # create tileSubtitle only if got coordinates
+            box = getMinAndMax(r_overlap)
+            # check if exists
+            ss = Subsystem.objects.get(id=p.id)
+            # TODO check if the pathway is really visible in the svg
+            try:
+                t = TileSubsystem.objects.get(subsystem_id=ss, compartment_name=ci.display_name)
+                '''print ("Already exists")
+                print (t.x_top_left, t.y_top_left, int(box[0]-padding), int(box[1]-padding))
+                assert t.x_top_left == int(box[0]-padding)
+                assert t.y_top_left == int(box[1]-padding)'''
+            except TileSubsystem.DoesNotExist:
+                t = TileSubsystem(subsystem_id = ss, subsystem_name=p.name,
+                    compartmentinformation_id = ci.id,
+                    compartment_name = ci.display_name,
+                    x_top_left = box[0]-padding, y_top_left = box[1]-padding,
+                    x_bottom_right = box[2]+padding, y_bottom_right = box[3]+padding,
+                    reaction_count = len(r_overlap)) # store the real number of reaction in the compartment
+                t.save()
+        else:
+            continue
+            print ("Cannot get coord box for pathway %s" % p.name)
+            exit(1)
+
+    return dict_pathway
 
 def setAsMainIfInOnlyOneCompartment():
     sql = "update tile_subsystems set is_main=true where subsystem_id in (select subsystem_id from tile_subsystems group by subsystem_id having count(*)<2);"
@@ -205,9 +237,26 @@ def manuallySetSomeAsMain():
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
+        print ("Make sure you put the last svg files version in data/svgs")
+        input()
         pathways = Subsystem.objects.exclude(system='Collection of reactions')
         cis = CompartmentInformation.objects.all()
+        dict_pathway = {}
+        
         for ci in cis:
-            compartmentByCompartment(ci, pathways)
+            print ("Processing compartement %s" % ci.display_name)
+            dict_pathway = compartmentByCompartment(ci, pathways, dict_pathway)
+
         setAsMainIfInOnlyOneCompartment()
         manuallySetSomeAsMain()
+
+        # check if the best compartment is selected as main, the one with the most of reactions
+        for el, v in dict_pathway.items():
+            most_present_compartment = [[k2, float(v[1][k2])/v[0] * 100] for k2 in sorted(v[1], key=v[1].get, reverse=True)][0]
+            # print (el, v[0], sum([v2 for k2, v2 in v[1].items()]), most_present_compartment)
+            dict_pathway[el].append(most_present_compartment)
+
+        for sub in TileSubsystem.objects.filter(is_main=True):
+            if dict_pathway[sub.subsystem_name][2][0] != sub.compartment_name:
+                print ("Warning: '%s' main in '%s' but should be '%s'" % (sub.subsystem_name, sub.compartment_name, dict_pathway[sub.subsystem_name][2]))
+
