@@ -47,7 +47,7 @@
                   {{ selectedModel[field.name] }}
                 </td>
               </tr>
-              <tr v-if="selectedModel.ref.length !== 0">
+              <tr v-if="selectedModel.ref && selectedModel.ref.length !== 0">
                 <td class="td-key">Reference</td>
                 <td v-if="selectedModel.ref[0].link">
                   <template v-if="selectedModel.ref[0].pubmed">
