@@ -710,6 +710,7 @@ def get_subsystem_coordinates(request, model, subsystem_id, compartmentID=False)
     For a given subsystem, get the compartment name and X,Y locations in the corresponding SVG map,
     try it with for example 38 for the TCA cycle.
     """
+    print([x.name for x in Compartment.objects.all()])
     try:
         if not compartmentID:
             tileSubsystem = TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
