@@ -35,7 +35,7 @@
       <table class="table">
       <tr>
         <td>
-        <a @click="viewSubsystem()">{{ selectedSubsystem.name }}</a>
+          <a @click="viewSubsystem()">{{ selectedSubsystem.name }}</a>
         </td>
         <td>
           <span class="tag" @click="showSubsystem()">View</span>
@@ -73,7 +73,6 @@ export default {
       subsystemsSystem: {}, // to get the system from the subsystem
       selectedSystem: '',
       selectedSubsystem: '',
-      selectedsubsystemStats: {},
       subsystemCount: 0,
       systemOrder: [
         'Amino Acid metabolism',
