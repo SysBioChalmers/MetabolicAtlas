@@ -128,9 +128,9 @@ export default {
       // return l.join('; ');
       // TODO add route logic on url 'subsystem' query
       let str = '';
-      for (const a of l) {
+      for (const s of l) {
         // str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
-        str = str.concat('<a href="#">', a, '</a>');
+        str = str.concat(`<a href="/?tab=6&id=${s[0]}">`, s[1], '</a>');
       }
       return str;
     },

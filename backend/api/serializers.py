@@ -67,7 +67,6 @@ class ReactionReferenceSerializer(serializers.ModelSerializer):
         fields = ('pmid',)
 
 class SubsystemReactionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = SubsystemReaction
         fields = ('reaction', 'subsystem')
@@ -85,7 +84,7 @@ class ReactionSerializer(serializers.ModelSerializer):
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('id', 'name')
 
 class ReactionLiteSerializer(serializers.ModelSerializer):
     reactants = ReactionComponentLiteSerializer(many=True)
@@ -100,7 +99,7 @@ class ReactionLiteSerializer(serializers.ModelSerializer):
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('id', 'name')
 
 
 class ReactionSearchSerializer(serializers.ModelSerializer):
@@ -113,7 +112,7 @@ class ReactionSearchSerializer(serializers.ModelSerializer):
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
+        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('id', 'name')
 
 
 # This is a helper class to determine if a component is a currency metabolite
@@ -177,7 +176,7 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
 class SubsystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subsystem
-        fields = ('id', 'name', 'system', 'external_id', 'description')
+        fields = ('id', 'name', 'system', 'external_id', 'description', 'nr_compartment', 'nr_reactions', 'nr_metabolites', 'nr_enzymes')
 
 class CompartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -186,7 +185,6 @@ class CompartmentSerializer(serializers.ModelSerializer):
 
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CompartmentSvg
         fields = ('id', 'compartment', 'display_name', 'filename', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')

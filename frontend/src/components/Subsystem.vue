@@ -5,8 +5,8 @@
     </div>
   </div>
   <div v-else>
-    <loader v-show="loading"></loader>
-    <div v-show="!loading">
+    <loader v-show="showLoader"></loader>
+    <div v-show="!showLoader">
       <div class="subsystem-table">
         <table v-if="info && Object.keys(info).length != 0" class="table main-table">
           <tr class="m-row" v-for="el in mainTableKey">
@@ -55,10 +55,11 @@ export default {
     ReactionTable,
     Loader,
   },
+  props: ['model'],
   data() {
     return {
       sId: this.$route.query.id,
-      loading: false,
+      showLoader: false,
       info: {},
       metabolites: [],
       enzymes: [],
@@ -111,14 +112,14 @@ export default {
       this.load();
     },
     load() {
-      this.loading = true;
-      axios.get(`showsubsystem/${this.sId}/`)
+      this.showLoader = true;
+      axios.get(`${this.model}/showsubsystem/${this.sId}/`)
       .then((response) => {
         this.info = response.data.subsystemAnnotations;
         this.metabolites = response.data.metabolites;
         this.enzymes = response.data.enzymes;
         this.reactions = response.data.reactions;
-        this.loading = false;
+        this.showLoader = false;
       })
       .catch(() => {
         this.errorMessage = this.$t('notFoundError');

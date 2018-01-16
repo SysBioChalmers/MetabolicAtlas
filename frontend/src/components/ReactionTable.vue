@@ -30,7 +30,9 @@
             <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td v-show="showCP">{{ r.cp }}</td>
-          <td v-show="showSubsystem">{{ r.subsystem.join('; ') }}</td>
+          <td v-show="showSubsystem">
+            <a v-for="(s, index) in r.subsystem" v-on:click.prevent="viewSubsystem(s[0])"
+            >{{ index == 0 ? s[1] : `, ${s[1]}` }}</a></td>
           <td>{{ r.compartment.replace('=>','⇨') }}</td>
         </tr>
       </tbody>
@@ -114,8 +116,11 @@ export default {
         EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
       }
     },
-    viewReaction: function viewReaction(id) {
+    viewReaction(id) {
       EventBus.$emit('updateSelTab', 'reaction', id);
+    },
+    viewSubsystem(id) {
+      EventBus.$emit('updateSelTab', 'subsystem', id);
     },
     displayCompartment(r) {
       const comp = {};
