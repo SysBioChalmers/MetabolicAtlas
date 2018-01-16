@@ -47,8 +47,7 @@ export default {
       compartmentStats: {},
       currentCompartment: null,
       selectedCompartmentID: 0,
-      // compartmentIDOrder2: [6, 7, 5, 3, 8, 2, 20, 21, 22, 23, 24, 25],
-      compartmentIDOrder: [4, 5, 3, 2, 6, 1, 7, 8, 9, 10, 11, 12],
+      compartmentIDOrder: [18, 19, 17, 16, 20, 15, 21, 22, 23, 24, 25, 26],
     };
   },
   created() {
