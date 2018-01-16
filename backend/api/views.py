@@ -379,7 +379,7 @@ def connected_metabolites(request, model, id):
     reactions = as_reactant + as_product + as_modifier
 
     connected_metabolites = ConnectedMetabolites(enzyme, enzyme.compartment, reactions)
-    serializer = ConnectedMetabolitesSerializer(connected_metabolites)
+    serializer = ConnectedMetabolitesSerializer(connected_metabolites, context={'model': model})
     return JSONResponse(serializer.data)
 
 #@api_view()
@@ -657,19 +657,19 @@ def convert_to_reaction_component_ids(request, model, compartmentID):
     return JSONResponse(results)
 
 @api_view()
-def get_subsystem(request, subsystem_id):
+def get_subsystem(request, model, subsystem_id):
     """
     For a given subsystem, get all containing metabolites, enzymes, and reactions,
     try it with for example 38 for the TCA cycle.
     """
     try:
-        s = Subsystem.objects.get(id=subsystem_id)
+        s = Subsystem.objects.using(model).get(id=subsystem_id)
     except Subsystem.DoesNotExist:
         return HttpResponse(status=404)
 
-    smsQuerySet = SubsystemMetabolite.objects.filter(subsystem_id=subsystem_id)
-    sesQuerySet = SubsystemEnzyme.objects.filter(subsystem_id=subsystem_id) # FIXME contains metabolite ids not enzyme
-    srsQuerySet = SubsystemReaction.objects.filter(subsystem_id=subsystem_id)
+    smsQuerySet = SubsystemMetabolite.objects.using(model).filter(subsystem_id=subsystem_id)
+    sesQuerySet = SubsystemEnzyme.objects.using(model).filter(subsystem_id=subsystem_id) # FIXME contains metabolite ids not enzyme
+    srsQuerySet = SubsystemReaction.objects.using(model).filter(subsystem_id=subsystem_id)
     sms = []; ses = []; srs = [];
     for m in smsQuerySet:
         sms.append(m.reaction_component)
@@ -708,7 +708,8 @@ def get_subsystem_coordinates(request, model, subsystem_id):
     try it with for example 38 for the TCA cycle.
     """
     try:
-        tileSubsystem = TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, is_main=True)
+        logging.warn(subsystem_id)
+        tileSubsystem = TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
     except TileSubsystem.DoesNotExist:
         return HttpResponse(status=404)
 

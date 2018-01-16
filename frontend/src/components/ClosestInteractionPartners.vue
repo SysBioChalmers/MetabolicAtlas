@@ -377,10 +377,9 @@ export default {
           this.componentName = component.short_name || component.long_name;
           this.id = component.id;
           if (component.enzyme) {
-            const uniprotLink = component.enzyme ? component.enzyme.uniprot_link : null;
-            const uniprotId = uniprotLink.split('/').pop();
+            const uniprotId = component.enzyme ? component.enzyme.uniprot_acc : null;
             this.title = `${this.chemicalName(this.componentName)}
-              (<a href="${uniprotLink}" target="_blank">${uniprotId}</a>)`;
+              (<a href="http://www.uniprot.org/uniprot/${uniprotId}" target="_blank">${uniprotId}</a>)`;
           } else {
             this.title = `${this.chemicalName(this.componentName)}`;
           }

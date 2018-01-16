@@ -41,9 +41,9 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
         next(f) # skip the header
         HMDB_dict, HMDB_secondary_dict, HMDB_name_dict, HMDB_iupac_name_dict, HMDB_synonyms_dict, \
          HMDB_chebi_dict, HMDB_pubchem_dict = hmdb_data
-        LIPIDMAPS_dict, LIPIDMAPS_name_dict, LIPIDMAPS_systematic_name_dict, \
+        '''LIPIDMAPS_dict, LIPIDMAPS_name_dict, LIPIDMAPS_systematic_name_dict, \
          LIPIDMAPS_synonyms_dict, LIPIDMAPS_chebi_dict, LIPIDMAPS_pubchem_dict, \
-         LIPIDMAPS_hmdb_dict = lipidmaps_data
+         LIPIDMAPS_hmdb_dict = lipidmaps_data'''
 
         prev_name = None
         inserted = 0

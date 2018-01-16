@@ -125,7 +125,7 @@ export default {
         });
     },
     loadSubsystemCoordinates(id) {
-      axios.get(`subsystem/${id}`)
+      axios.get(`${this.model}/subsystem/${id}`)
         .then((response) => {
           const subCoors = response.data;
           console.log(subCoors);
@@ -135,7 +135,7 @@ export default {
             minY: subCoors.y_top_left,
             maxY: subCoors.y_bottom_right,
           };
-          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartmentinformation_id, coors);
+          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartmentsvg_id, coors);
         })
         .catch((error) => {
           console.log(error);

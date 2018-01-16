@@ -30,8 +30,7 @@ class MetaboliteSearchSerializer(serializers.ModelSerializer):
 class EnzymeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enzyme
-        fields = ('function', 'catalytic_activity', 'ensembl_link')
-        # fields = ('function', 'catalytic_activity', 'uniprot_link', 'ensembl_link')
+        fields = ('function', 'catalytic_activity', 'ensembl_link', 'uniprot_acc', 'ncbi')
 
 class EnzymeSearchSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,15 +40,12 @@ class EnzymeSearchSerializer(serializers.ModelSerializer):
 class ReactionComponentSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
     metabolite = MetaboliteSerializer(read_only=True)
-    # metabolite = serializers.SerializerMethodField('test')
     enzyme = EnzymeSerializer(read_only=True)
 
     class Meta:
         model = ReactionComponent
         fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme', 'currency_metabolites')
 
-    def test(self, model):
-        return Metabolite.objects.using(self.context.get('model')).get(reaction_component_id=model.id)
 
 class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
@@ -257,4 +253,4 @@ class GEModelListSerializer(serializers.ModelSerializer):
 class TileSubsystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = TileSubsystem
-        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'compartmentinformation_id', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)
+        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'compartmentsvg_id', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)

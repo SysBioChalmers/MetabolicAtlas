@@ -292,7 +292,6 @@ class SubsystemSvg(models.Model):
         db_table = "subsystemsvg"
 
 
-# "Meta-Svgrmation" tables
 class NumberOfInteractionPartners(models.Model):
     reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
     first_order = models.FloatField()

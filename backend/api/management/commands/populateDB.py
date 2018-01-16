@@ -77,7 +77,7 @@ def _checkIfFileExists(files_list):
 # so wrap up all the files for the given species
 def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_first_metabolite=0):
     # first check that ALL files exists
-    HMRdatabase2_00_xml_file = os.path.join(ressource_files_dir, 'HMRdatabase2_00.xml')
+    HMRdatabase2_00_xml_file = os.path.join(ressource_files_dir, 'HMRdatabase2_00-2.xml')
     ensembl_annotation_file = os.path.join(ressource_files_dir, 'ensembl%s_hgnc_symbol_uniprotswissprot.hsapiens.tab' % ensembl_version)
 
     currency_mets_file = os.path.join(db_generation_files_dir, 'human_currencyMets.csv')
@@ -138,8 +138,7 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
 
     # then add the data to the database in the RIGHT order
     addSBMLData.addSBMLData(database, HMRdatabase2_00_xml_file, ensembl_version, ensembl_archive_url, skip_first_reaction=skip_first_reaction)  # addSBMLData, None is ensembl_archive_path
-    
-    exit()
+
     logger.info("Currency Metabolites")
     addCurrencyMetabolites.addCurrencyMetabolites(database, currency_mets_file)  # addCurrencyMetabolites
 
@@ -147,12 +146,13 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
     logger.info("Add annotations for the metabolites")
     # masses = addMetabolites.readMassCalcFile(mass_calculation_file) // masses are in HMDB_file
     # hmdb = addMetabolites.readHMDBFile(HMDB_masses_file) // file missing 
-    hmdb_info = parse_HMDB.parse_HMDB_tab(HMDB_file, synonyms_as_dict=True, chebi_as_dict=True, pubchem_as_dict=True)
+    hmdb_data = parse_HMDB.parse_HMDB_tab(HMDB_file, synonyms_as_dict=True, chebi_as_dict=True, pubchem_as_dict=True)
     pubchem_db_dfile = os.path.join(ressource_files_dir, 'pubchem.db')
     if not os.path.isfile(pubchem_db_dfile):
         import pubchem
         # pubchem.generate_pubchem_db(pubchem_file)
-    addMetabolites.metaboliteDefinitions(database, metabolite_excel_file, hmdb_info, pubchem_db_dfile, skip_first_metabolite=skip_first_metabolite)
+    # lipidmaps_data = ... skip lipdsmaps data, its not use in HMR2.0
+    addMetabolites.metaboliteDefinitions(database, metabolite_excel_file, hmdb_data, pubchem_db_dfile, None, skip_first_metabolite=skip_first_metabolite)
 
     # addReactionComponentAnnotation
     logger.info("Add 'mappings' between identifiers")
@@ -203,6 +203,9 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
 
     '''
     insert_reaction_reference(database, reaction_excel_file)
+
+    logger.info("Then add interaction partners using: python manage.py addNumberOfInteractionPartners [database]")
+    logger.info("Then add svg data using: python manage.py addCompartmentInformation database_generation/data/compartmentInfo.tab [database]")
 
 def insert_reaction_reference(database, reaction_excel_file):
     # until Dimitra have added the annotations to the SBML file...

@@ -162,6 +162,8 @@ def readPathwayTitle(fileName):
 
 
 def setAsMainIfInOnlyOneCompartment(database):
+    # TODO check the result, the table was not updated the last time this code ran
+    # expected ~37 uptaded rows
     sql = ("update tile_subsystems "
                 "set is_main = true" 
                 " where subsystem_id in ("
@@ -180,13 +182,13 @@ def manuallySetSomeAsMain(database):
         compartment_name="Lysosome").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Pentose and glucuronate interconversions",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Pyruvate metabolism",
         compartment_name="Mitochondria").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Pentose phosphate pathway",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Histidine metabolism",
         compartment_name="Mitochondria").update(is_main=True)
@@ -213,13 +215,13 @@ def manuallySetSomeAsMain(database):
         compartment_name="Mitochondria").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Linoleate metabolism",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Eicosanoid metabolism",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Carnitine shuttle (endoplasmic reticular)",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Acylglycerides metabolism",
         compartment_name="Mitochondria").update(is_main=True)
@@ -234,34 +236,34 @@ def manuallySetSomeAsMain(database):
         compartment_name="Mitochondria").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Androgen metabolism",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Glycosphingolipid biosynthesis-globo series",
         compartment_name="Lysosome").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Glycosylphosphatidylinositol (GPI)-anchor biosynthesis",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Prostaglandin biosynthesis",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Ether lipid metabolism",
         compartment_name="Peroxisome").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Bile acid recycling",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Biopterin metabolism",
         compartment_name="Nucleus").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Ascorbate and aldarate metabolism",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Porphyrin metabolism",
         compartment_name="Mitochondria").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Retinol metabolism",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Thiamine metabolism",
         compartment_name="Mitochondria").update(is_main=True)
@@ -276,7 +278,7 @@ def manuallySetSomeAsMain(database):
         compartment_name="Mitochondria").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Metabolism of xenobiotics by cytochrome P450",
-        compartment_name="ER").update(is_main=True)
+        compartment_name="Endoplasmic reticulum").update(is_main=True)
     t = TileSubsystem.objects.using(database).filter(
         subsystem_name="Fatty acid biosynthesis (even-chain)",
         compartment_name="Mitochondria").update(is_main=True)
@@ -855,7 +857,7 @@ def readCompInfo(database, ci_file):
         # python manage.py addCompartmentInformation database_generation/data/compartmentInfo.tab [database]
         cis = CompartmentSvg.objects.using(database).all()
         for ci in cis:
-            rcs = ReactionComponent.objects.filter(id__in=compt_rme_svg[ci.display_name]['metabolite'])
+            rcs = ReactionComponent.objects.using(database).filter(id__in=compt_rme_svg[ci.display_name]['metabolite'])
             nr_metabolites = 0
             for rc in rcs:
                 rccis = ReactionComponentCompartmentSvg.objects.using(database). \
@@ -866,7 +868,7 @@ def readCompInfo(database, ci_file):
                 nr_metabolites += 1
 
             # add the connection to the reactions
-            rs = Reaction.objects.filter(id__in=compt_rme_svg[ci.display_name]['reaction'])
+            rs = Reaction.objects.using(database).filter(id__in=compt_rme_svg[ci.display_name]['reaction'])
             for r in rs:
                 rcis = ReactionCompartmentSvg.objects.using(database). \
                     filter(reaction=r, compartmentsvg=ci)
@@ -875,7 +877,7 @@ def readCompInfo(database, ci_file):
                     add.save(using=database)
             nr_reactions = len(list(rs))
 
-            rcs = ReactionComponent.objects.filter(id__in=compt_rme_svg[ci.display_name]['enzyme'])
+            rcs = ReactionComponent.objects.using(database).filter(id__in=compt_rme_svg[ci.display_name]['enzyme'])
             nr_enzymes = 0
             for rc in rcs:
                 rccis = ReactionComponentCompartmentSvg.objects.using(database). \
@@ -904,7 +906,7 @@ def readCompInfo(database, ci_file):
                           select reaction_id from subsystem_reaction where subsystem_id in (
                             select subsystem_id from tile_subsystems where compartmentsvg_id=%s)))
             """ % ci.id
-            rcs = ReactionComponent.objects.raw(sql)
+            rcs = ReactionComponent.objects.using(database).raw(sql)
             nr_metabolites = len(list(rcs))
             '''for rc in rcs:
                 rccis = ReactionComponentCompartmentSvg.objects.using(database). \
@@ -919,7 +921,7 @@ def readCompInfo(database, ci_file):
                         select reaction_id from subsystem_reaction where subsystem_id in (
                           select subsystem_id from tile_subsystems where compartmentsvg_id=%s))
             """ % ci.id
-            rs = Reaction.objects.raw(sql)
+            rs = Reaction.objects.using(database).raw(sql)
             nr_reactions = len(list(rs))
             '''for r in rs:
                 rcis = ReactionCompartmentSvg.objects.using(database). \
@@ -931,7 +933,7 @@ def readCompInfo(database, ci_file):
             # how many subsystems?
             sql = """SELECT * from subsystems WHERE id in ( \
                         select subsystem_id from tile_subsystems where compartmentsvg_id=%s)""" % ci.id
-            s = Subsystem.objects.raw(sql)
+            s = Subsystem.objects.using(database).raw(sql)
             nr_subsystems = len(list(s))
 
             # how many enzymes?
@@ -940,7 +942,7 @@ def readCompInfo(database, ci_file):
                          select reaction_id from subsystem_reaction where subsystem_id in (
                            select subsystem_id from tile_subsystems where compartmentsvg_id=%s)))
             """ % ci.id
-            rcs = ReactionComponent.objects.raw(sql)
+            rcs = ReactionComponent.objects.using(database).raw(sql)
             nr_enzymes = len(list(rcs))
             '''for rc in rcs:
                 rccis = ReactionComponentCompartmentSvg.objects.using(database). \
@@ -966,6 +968,6 @@ class Command(BaseCommand):
         parser.add_argument('database', type=str)
 
     def handle(self, *args, **options):
-        print ("Make sure you put the last svg files version in data/svgs")
+        print ("Make sure you put the last svg files version in backend/svgs")
         input()
         readCompInfo(options['database'], options['compartment-file'])
