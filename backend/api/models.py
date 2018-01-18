@@ -61,12 +61,8 @@ class GEModel(models.Model):
             raise AttributeError("Model set must me specify")
         if not self.sample:
             raise AttributeError("Model sample must me specify")
-        # if not self.reaction_count:
-        #    raise AttributeError("reaction count cannot be 0")
-        # if not self.metabolite_count:
-        #    raise AttributeError("metabolite count cannot be 0")
-        # if not self.enzyme_count:
-        #    raise AttributeError("enzyme count cannot be 0")
+        if not self.reaction_count and not self.metabolite_count and not self.enzyme_count:
+            raise AttributeError("component count cannot be all 0")
         super(GEModel, self).save(*args, **kwargs)
 
     class Meta:
