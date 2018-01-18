@@ -22,7 +22,10 @@ import urllib.request
 
 def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
 
-    path_key = ['organism', 'name', 'organ_system', ['tissue', 'cell_type', 'cell_line']]
+    if (model_set_data['name'] in ['Fungi', 'Bacteria', 'S.cerevisiae']):
+        path_key = ['name', 'organism', 'organ_system', ['tissue', 'cell_type', 'cell_line']]
+    else:
+        path_key = ['organism', 'name', 'organ_system', ['tissue', 'cell_type', 'cell_line']]
     model_data_list = []
     for i in range(len(liste_dico_data)):
         GEM_sample = {}
@@ -43,7 +46,8 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
             else:
                 if k in dic or k in model_set:
                     v = dic[k] if k in dic else model_set[k]
-                    path = os.path.join(path, v.lower().replace(',', '').replace(' ', '_'))
+                    if v:
+                        path = os.path.join(path, v.lower().replace(',', '').replace(' ', '_'))
         path = os.path.join(FTP_root, path)
         if not os.path.isdir(path):
             os.makedirs(path)
@@ -93,7 +97,8 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
                 else:
                     shutil.copyfile(xml_file, output_file_path)
                     if not output_file_path.endswith('.zip'):
-                        output_zip = output_file_path[:-4] + '.zip'
+
+                        output_zip = os.path.splitext(output_file_path)[0] + '.zip'
                         print (output_zip)
                         if not os.path.isfile(output_zip):
                             import zipfile
@@ -109,7 +114,7 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
                                 zf.close()
             if xml_file == input_file and formats[i] == "SBML":
                 # parse the file
-                count_file = "%s.cnt" % output_file_path[:-4]
+                count_file = "%s.cnt" % os.path.splitext(output_file_path)[0]
                 if os.path.isfile(count_file):
                     (GEM['reaction_count'], GEM['metabolite_count'], GEM['enzyme_count']) = read_count_file(count_file)
                 elif os.path.isfile(output_file_path):
@@ -119,7 +124,7 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
                 else:
                     print ("Error: cannot find file %s" % output_file_path)
                     exit()
-            else:
+            elif 'reaction_count' not in GEM:
                 # FIXME not able to read non-SBML file
                 if 'reaction_count' in dic:
                     GEM['reaction_count'] = dic['reaction_count']
@@ -135,13 +140,12 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
                     GEM['enzyme_count'] = 0
 
             if output_file_path.endswith('.xml'):
-                output_paths.append(output_file_path[:-4] + '.zip')
+                output_paths.append(os.path.splitext(output_file_path)[0] + '.zip')
             else:
                 output_paths.append(output_file_path)
         if len(output_paths) != len(formats):
             print ("Error: format / path do not match")
             exit()
-
 
         for k in ['organism', 'organ_system', 'tissue', 'cell_type', 'cell_line']:
             if k not in dic:
@@ -164,7 +168,6 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
             print ("Error: missing reference info")
             print (dic)
             exit()
-
 
         if next(iter(set([a,b,c,d]))):
             GEM['reference'] = [{
@@ -200,7 +203,6 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
             GEM['files'].append({'path': path, 'format': formatt})
 
         GEM['sample'] = GEM_sample
-        # print (GEM)
         model_data_list.append(GEM)
 
     return model_data_list
@@ -238,7 +240,11 @@ def parse_info_file(info_file):
                 exit()
             global_dict[row[0]] = row[1]
 
-        model_set_data['name'] = global_dict.pop('name')
+        if 'name' in global_dict:
+            model_set_data['name'] = global_dict.pop('name')
+        else:
+            model_set_data['name'] = None
+
         if 'description' in global_dict:
             model_set_data['description'] = global_dict.pop('description')
         else:
@@ -467,7 +473,6 @@ def insert_gems(model_set_data, model_data_list):
             gs = GEModelSample(**model_sample)
             gs.save()
 
-
         gem_reference = model_dict.pop('reference')
         list_gem_reference = []
         if isinstance(gem_reference, list):
@@ -535,7 +540,7 @@ def insert_gems(model_set_data, model_data_list):
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-# dir_path = os.path.dirname(os.path.join(dir_path, "HMR/"))
+dir_path = os.path.dirname(os.path.join(dir_path, "HMR/"))
 # dir_path = os.path.dirname(os.path.join(dir_path, "INIT_cancer/"))
 # dir_path = os.path.dirname(os.path.join(dir_path, "INIT_normal/"))
 # dir_path = os.path.dirname(os.path.join(dir_path, "curated_model/"))
@@ -549,7 +554,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path = "/project/"
 
 if not os.path.exists(dir_path):
-    print ("Error: path %s not found")
+    print ("Error: path %s not found" % dir_path)
 
 matches = []
 for root, dirnames, filenames in os.walk(dir_path):
@@ -559,7 +564,6 @@ for root, dirnames, filenames in os.walk(dir_path):
 delete_gems()
 for parse_data_file, info_file, root_path in matches:
     print ("Parsing: %s" % parse_data_file)
-    print (root)
     global_dict = None
     if not os.path.isfile(info_file):
         print("Error: %s file" % info_file)

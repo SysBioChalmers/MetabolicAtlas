@@ -793,7 +793,7 @@ def get_gemodels(request):
     serializer = GEModelListSerializer(GEModel.objects.all(), many=True)
     # serializer = None
     # get models from git
-    list_repo = []
+    '''list_repo = []
     try:
         URL = 'https://api.github.com/orgs/SysBioChalmers/repos'
         result = urllib.request.urlopen(URL)
@@ -818,7 +818,7 @@ def get_gemodels(request):
             d = parse_readme_file(readme_content)
             # TODO make GEM objects and json to current serializer
 
-            break
+            break'''
 
     return JSONResponse(serializer.data)
 

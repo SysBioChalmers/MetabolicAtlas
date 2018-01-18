@@ -193,9 +193,13 @@ class CompartmentSvgSerializer(serializers.ModelSerializer):
 # models database
 
 class GEModelFileSerializer(serializers.ModelSerializer):
+    path = serializers.SerializerMethodField('get_file_path')
     class Meta:
         model = GEModelFile
         fields = ('path', 'format')
+
+    def get_file_path(self, model):
+        return "%s%s" % ('http://ftp.icsb.chalmers.se/models', model.path.split('/FTP')[1])
 
 class GEModelReferenceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -235,10 +239,13 @@ class GEModelListSerializer(serializers.ModelSerializer):
         return gg.name
 
     def get_model_year(self, model):
-        # FIXME get reference from the set
         refs = model.ref.all()
         if refs:
             return refs[0].year
+        else:
+            years = model.gemodelset.reference.all().values_list('year', flat=True)
+            if years:
+                return max(years)
 
     class Meta:
         model = GEModel

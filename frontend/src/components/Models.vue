@@ -5,32 +5,58 @@
   <div v-else id="models">
     <span class="title">Models</span>
     <br>
-    <span id="show-m-but" class="button is-primary" :class="{'is-active': showMaintained }"
-    @click="showMaintained = !showMaintained">
-      Maintained only
-    </span>
     <div class="container">
       <loader v-show="showLoader"></loader>
-      <table v-show="filteredOldGEMS.length != 0" 
-      class="table is-bordered is-striped is-narrow">
-        <thead>
-          <tr style="background: #F8F4F4">
-            <th v-for="f in fields" v-html="f.display"
-              @click="sortBy(f.name)">
-              </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="m-row" v-for="gem in filteredOldGEMS"
-            @click="getModel(gem.id)">
-            <td v-for="i in fields.length">
-              {{ gem[fields[i-1].name] }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-if="sortedGEMS.length != 0">
+        <div class="columns">
+          <div class="column">
+            <span id="show-m-but" class="button is-primary" :class="{'is-active': showMaintained }"
+              @click="toggleMaintainedModels">
+              Maintained only
+            </span>
+            <span id="show-m-but" class="button is-primary is-pulled-right" :class="{'is-active': showFTPaccess }"
+              @click="showFTPaccess = !showFTPaccess">
+              FTP access
+            </span>
+          </div>
+        </div>
+        <div v-if="!showFTPaccess">
+          <table class="table is-bordered is-striped is-narrow" v-if="filteredOldGEMS.length != 0">
+            <thead>
+              <tr style="background: #F8F4F4">
+                <th v-for="f in fields" v-html="f.display"
+                  @click="sortBy(f.name)">
+                  </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="m-row" v-for="gem in filteredOldGEMS"
+                @click="getModel(gem.id)">
+                <td v-for="i in fields.length">
+                  {{ gem[fields[i-1].name] }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else>
+          <h4 class="is-4 title">Downloading from a web browser</h4>
+          Model files can be downloaded from <a href="http://ftp.icsb.chalmers.se">ftp.icsb.chalmers.se</a>
+          <br><br>
+          <h4 class="is-4 title">Downloading from a FTP client</h4>
+          Connect to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>)
+          <br><br>
+          host: ftp.icsb.chalmers.se<br>
+          login: (leave it empty)<br>
+          password: (leave it empty)<br>
+          port: 21
+        </div>
+      </div>
+      <div v-else>
+        <span v-if="!showLoader">No models available</span>
+      </div>
     </div>
-     <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
+    <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
       <div class="modal-background" @click="showModelTable = false"></div>
       <div class="modal-content">
         <div id="modal-info" class="model-table">
@@ -100,15 +126,15 @@ export default {
   data() {
     return {
       fields: [
-        { name: 'organism', display: 'Organism' },
         { name: 'set_name', display: 'Set' },
+        { name: 'organism', display: 'Organism' },
         { name: 'label', display: 'Label' },
-        { name: 'organ_system', display: 'System' },
+        // { name: 'organ_system', display: 'System' },
         { name: 'tissue', display: 'Tissue' },
         { name: 'cell_type', display: 'Cell type' },
         { name: 'reaction_count', display: '#&nbsp;reactions' },
-        { name: 'metabolite_count', display: '#&nbsp;met' },
-        { name: 'enzyme_count', display: '#&nbsp;prot' },
+        { name: 'metabolite_count', display: '#&nbsp;metabolites' },
+        { name: 'enzyme_count', display: '#&nbsp;enzymes' },
         { name: 'year', display: 'Year' },
       ],
       model_fields: [
@@ -118,8 +144,8 @@ export default {
         { name: 'tissue', display: 'Tissue' },
         { name: 'cell_type', display: 'Cell type' },
         { name: 'reaction_count', display: '#&nbsp;reactions' },
-        { name: 'metabolite_count', display: '#&nbsp;met' },
-        { name: 'enzyme_count', display: '#&nbsp;prot' },
+        { name: 'metabolite_count', display: '#&nbsp;metabolites' },
+        { name: 'enzyme_count', display: '#&nbsp;enzymes/genes' },
         { name: 'year', display: 'Year' },
         { name: 'maintained', display: 'Maintained' },
       ],
@@ -131,6 +157,7 @@ export default {
       showMaintained: false,
       showModelTable: false,
       showLoader: false,
+      showFTPaccess: false,
     };
   },
   computed: {
@@ -182,7 +209,8 @@ export default {
           delete gem.sample;
           this.GEMS.push($.extend(gem, sample));
         }
-        this.sortedGEMS = this.GEMS;
+        this.sortedGEMS = this.GEMS.sort(
+          compare('set_name', 'asc'));
         this.errorMessage = '';
         this.showLoader = false;
       })
@@ -204,6 +232,10 @@ export default {
       this.sortedGEMS = gemsList.sort(
         compare(field, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
+    },
+    toggleMaintainedModels() {
+      this.showMaintained = !this.showMaintained;
+      this.showFTPaccess = false;
     },
   },
   beforeMount() {
