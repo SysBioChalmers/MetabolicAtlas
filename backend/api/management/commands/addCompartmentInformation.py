@@ -4,6 +4,7 @@
 import csv
 import os
 import re
+import operator
 
 from django.db import models
 from api.models import *
@@ -58,6 +59,7 @@ def read_compartment_reaction(fileName):
             m = re.match('<g class="reaction" id="(.+)"', l)
             if m:
                 rid = m.group(1)
+                # FIX ME, might need to change 1 to 1.0 
                 m = re.search('matrix[(]1,0,0,1,(\d+),(\d+)[)]', data[idx+1])
                 x, y = m.groups()
                 res[rid] = (float(x), float(y))
@@ -79,6 +81,23 @@ def read_compartment_metabolite(fileName):
             if m:
                 rid = m.group(1).split('-')[0]
                 res[rid] = None
+
+    return res
+
+
+def read_compartment_multi_metabolite(fileName):
+    res = set()
+    unique = set()
+    with open(os.path.join(svgFolder, fileName), "r") as myfile:
+        data = myfile.readlines()
+        for idx, l in enumerate(data):
+            l = l.strip()
+            m = re.match('<g class="metabolite" id="(M_.*)"', l)
+            if m:
+                rid = m.group(1).split('-')[0]
+                if rid in unique:
+                    res.add(rid)
+                unique.add(rid)
 
     return res
 
@@ -318,7 +337,7 @@ def autoSetIsMain(database, pathway_compt_coverage):
     s_no_ismain = 0
     for el, v in pathway_compt_coverage.items():
         most_compart, perc = v[2][0]
-        if perc > 60.0:
+        if perc > 60.0: # FIX ME auto main if contains 60% of all the reactions
             ts = TileSubsystem.objects.using(database).filter(subsystem_name=el).update(is_main=False)
             s_ismain += TileSubsystem.objects.using(database).filter(subsystem_name=el, compartment_name=most_compart).update(is_main=True)
 
@@ -327,12 +346,351 @@ def autoSetIsMain(database, pathway_compt_coverage):
     s_main = TileSubsystem.objects.using(database).filter(is_main=True).values_list('subsystem_name', flat=True)
     s_no_ismain = TileSubsystem.objects.using(database).filter(~Q(subsystem_name__in=s_main))
 
-    print (s_ismain)
-    print (len(s_no_ismain))
-    print (len(TileSubsystem.objects.using(database).all()))
+    print ("Subsystems with main compartment:", s_ismain)
+    print ("Subsystems without main compartment:", len(s_no_ismain))
+    print ("total TileSubsystem:", len(TileSubsystem.objects.using(database).all()))
 
     for el in s_no_ismain:
         print (pathway_compt_coverage[el.subsystem_name][2])
+
+
+def write_subsystem_summary_file(database, rme_compt_svg, sub_compt_svg, pathway_compt_coverage):
+    # read the subsystem from db to get the system and keep the same order
+    subsystems = Subsystem.objects.using(database).all()
+    subsystems = sorted(subsystems, key=operator.attrgetter('name'))
+
+    cor = []
+    with open("database_generation/data/subsystem.txt", 'w') as fw:
+        for ss in subsystems:
+            sorted_dict = sorted(pathway_compt_coverage[ss.name][1].items(), key=operator.itemgetter(1), reverse=True)
+            percent_reaction_db = "; ".join(["%s:%s" % (k, v) for (k, v) in sorted_dict])
+
+            is_main = []
+            if ss.name in sub_compt_svg:
+                compartment_from_svg = "; ".join(sub_compt_svg[ss.name])
+                for compt in sub_compt_svg[ss.name]:
+                    r = TileSubsystem.objects.using(database).filter(subsystem_name=ss.name, compartment_name__iregex=compt+'.*')
+                    if r:
+                        # print (len(r))
+                        r = r[0]
+                        # print (r.subsystem_name, r.compartment_name, r.is_main)
+                        is_main.append(str(r.is_main))
+                    else:
+                        # print ("error", ss.name, compt)
+                        is_main.append("None")
+                        # exit()
+            else:
+                compartment_from_svg = ''
+
+            if ss.system != 'Collection of reactions':
+                fw.write("%s\t%s\t%s\t%s\t%s\n" % (ss.name, ss.system, percent_reaction_db, compartment_from_svg, "; ".join(is_main)))
+            else:
+                cor.append("%s\t%s\t%s\t%s\t%s\n" % (ss.name, ss.system, percent_reaction_db, compartment_from_svg, "; ".join(is_main)))
+
+        for line in cor:
+            fw.write(line)
+
+        # exit()
+
+
+def write_ssub_connection_files(v):
+    with open('database_generation/data/subs_connect_mat.txt', 'w') as fw:
+        ssubs = list(v.keys())
+        fw.write("#\t" + "\t".join(ssubs) + "\n")
+        for ssub1 in ssubs:
+            fw.write("%s\t" % ssub1)
+            for ssub2 in ssubs:
+                if ssub1 in v and ssub2 in v[ssub1]:
+                    fw.write(";".join(v[ssub1][ssub2]) + "\t")
+                else:
+                    fw.write("\t")
+            fw.write("\n")
+
+    with open('database_generation/data/subs_connect_table.txt', 'w') as fw:
+        ssubs = list(v.keys())
+        s = set()
+        for ssub1 in ssubs:
+            for ssub2 in ssubs:
+                k = ssub1+ssub2
+                if k in s:
+                    continue
+                s.add(k)
+                k2 = ssub2+ssub1
+                if k2 in s:
+                    continue
+                s.add(k2)
+                if ssub1 != ssub2 and ssub1 in v and ssub2 in v[ssub1]:
+                    fw.write("%s\t%s\t%s\t%s\n" % (ssub1, ssub2, len(v[ssub1][ssub2]), ";".join(v[ssub1][ssub2])))
+
+
+def write_meta_freq_files(database, v):
+    with open('database_generation/data/meta_compartment_freq.txt', 'w') as fw:
+        compts = [ci for ci in Compartment.objects.using(database).all().values_list('name', flat=True)]
+        fw.write("#meta id\t" + "\t".join(compts) + "\n")
+        for meta in v:
+            fw.write(meta + "\t")
+            for compt in compts:
+                if compt in v[meta]['compartment']:
+                    as_reactant = v[meta]['compartment'][compt]['reactant']
+                    as_product = v[meta]['compartment'][compt]['product']
+                    in_reaction = len(v[meta]['compartment'][compt]) - 2
+                    fw.write("%s;%s;%s\t" % (in_reaction, as_reactant, as_product))
+                else:
+                    fw.write("\t")
+            fw.write("\n")
+
+    with open('database_generation/data/meta_subsystem_freq.txt', 'w') as fw:
+        ssubs = [ss for ss in Subsystem.objects.using(database).all().values_list('name', flat=True)]
+        fw.write("#meta id\t" + "\t".join(ssubs) + "\n")
+        for meta in v:
+            fw.write(meta + "\t")
+            for ssub in ssubs:
+                if ssub in v[meta]['subsystem']:
+                    as_reactant = v[meta]['subsystem'][ssub]['reactant']
+                    as_product = v[meta]['subsystem'][ssub]['product']
+                    in_reaction = len(v[meta]['subsystem'][ssub]) - 2
+                    fw.write("%s;%s;%s\t" % (in_reaction, as_reactant, as_product))
+                else:
+                    fw.write("\t")
+            fw.write("\n")
+
+
+def get_compt_subsystem_connectivity(database, compt_rme, rme_compt, sub_rme, rme_sub, compt_sub, compt_sub_reaction, pathway_compt_coverage):
+
+        # metabolites that should be represented multiple time in the network, e.g H20
+    high_freq_meta = {'M_m01597', 'M_m02348', 'M_m01371', 'M_m02877', 'M_m02759', 'M_m02552', 'M_m02046', 'M_m02039', \
+     'M_m02900', 'M_m02555', 'M_m01980', 'M_m01802', 'M_m02914', 'M_m02554', 'M_m02026', 'M_m02519', 'M_m02553', \
+      'M_m02040', 'M_m02901', 'M_m02630', 'M_m03107', 'M_m01334', 'M_m01450'}
+
+    # read multi meta from svg file
+    mm_svg = {}
+    for ci in CompartmentSvg.objects.using(database).all():
+        if ci.display_name[:7] == "Cytosol":
+            continue
+        mmeta_compartment = read_compartment_multi_metabolite(ci.filename)
+        mm_svg[ci.display_name] = mmeta_compartment
+        print ("%s : %s" % (ci.display_name, len(mmeta_compartment)))
+
+
+    # define multiple metabolite
+    global_compt_mm = set()
+    global_ssub_mm = set()
+    # metabolites to draw multiple time at compartment or subsystem level
+    mm = {'compartment': {}, 'subsystem': {}}
+    mm_compt_sub = {}
+    subsystem_connection = {}
+    unique_meta_ssub = {}
+
+    result = {}
+
+    for meta in rme_compt:
+        # for each meta 
+        # count when the meta is reactant or product in each reaction
+        # store the infor for each compartment and for each subsystem where the reaction is
+        if meta[0] != 'M':
+            continue
+        result[meta] = {'compartment': {}, 'subsystem': {}}
+        reactions_as_reactant = {e for e in ReactionReactant.objects.using(database).filter(reactant_id=meta).values_list('reaction_id', flat=True)}
+        for r_reaction in reactions_as_reactant:
+            for cpmt in rme_compt[r_reaction]:
+                if cpmt not in result[meta]['compartment']:
+                    result[meta]['compartment'][cpmt] = {'reactant': 0, 'product': 0}
+                if r_reaction not in result[meta]['compartment'][cpmt]:
+                    result[meta]['compartment'][cpmt][r_reaction] = {'reactant': True, 'product': False}
+                result[meta]['compartment'][cpmt]['reactant'] += 1
+
+            for ssub in rme_sub[r_reaction]:
+                if ssub not in result[meta]['subsystem']:
+                    result[meta]['subsystem'][ssub] = {'reactant': 0, 'product': 0}
+                if r_reaction not in result[meta]['subsystem'][ssub]:
+                    result[meta]['subsystem'][ssub][r_reaction] = {'reactant': True, 'product': False}
+                result[meta]['subsystem'][ssub]['reactant'] += 1
+                if ssub[:10] == "Transport,":
+                    pass
+                    # do not count any transport reaction, is the reaction in transport ssub
+                    '''for cpmt in rme_compt[r_reaction]:
+                        if ssub in compt_sub[cpmt]:
+                            result[meta]['compartment'][cpmt]['reactant'] -= 1'''
+
+        reaction_as_product = {e for e in ReactionProduct.objects.using(database).filter(product_id=meta).values_list('reaction_id', flat=True)}
+        for p_reaction in reaction_as_product:
+            for cpmt in rme_compt[p_reaction]:
+                if cpmt not in result[meta]['compartment']:
+                    result[meta]['compartment'][cpmt] = {'reactant': 0, 'product': 0}
+                if p_reaction not in result[meta]['compartment'][cpmt]:
+                    result[meta]['compartment'][cpmt][p_reaction] = {'reactant': False, 'product': True}
+                else:
+                    result[meta]['compartment'][cpmt][p_reaction]['product'] = True
+                result[meta]['compartment'][cpmt]['product'] += 1
+
+            for ssub in rme_sub[p_reaction]:
+                if ssub not in result[meta]['subsystem']:
+                    result[meta]['subsystem'][ssub] = {'reactant': 0, 'product': 0}
+                if p_reaction not in result[meta]['subsystem'][ssub]:
+                    result[meta]['subsystem'][ssub][p_reaction] = {'reactant': False, 'product': True}
+                else:
+                    result[meta]['subsystem'][ssub][p_reaction]['product'] = True
+                result[meta]['subsystem'][ssub]['product'] += 1
+                if ssub[:10] == "Transport,":
+                    pass
+                    # do not count any transport reaction, is the reaction in transport ssub
+                    '''for cpmt in rme_compt[p_reaction]:
+                        if ssub in compt_sub[cpmt]:
+                            result[meta]['compartment'][cpmt]['product'] -= 1'''
+
+        reactions_as_reactant.union(reaction_as_product)
+        if len(reactions_as_reactant) == 1:
+            # meta in a single reaction, the meta is should me uniquely drawn
+            continue
+
+        # check if the meta should be drawn multiple time at the compartment lvl and subsystem of the compartment
+        meta_ss_added = False
+        for cpmt in result[meta]['compartment']:
+            meta_compt_ss_added = False
+            high_reaction_freq = set()
+            # exclude Extracellular and Boundary, never drawn
+            if cpmt in ['Extracellular', 'Boundary']:
+                continue
+            if len(result[meta]['compartment'][cpmt]) > 3: # 'reactant', 'product' and [reactions ids... > 1]
+                # part of multiple reactions
+                if (result[meta]['compartment'][cpmt]['reactant'] == 0 and result[meta]['compartment'][cpmt]['product'] != 1) or \
+                   (result[meta]['compartment'][cpmt]['product'] == 0 and result[meta]['compartment'][cpmt]['reactant'] != 1) or \
+                   result[meta]['compartment'][cpmt]['reactant'] > 1 or result[meta]['compartment'][cpmt]['product'] > 1:
+                    if cpmt not in mm['compartment']:
+                        mm['compartment'][cpmt] = set()
+                    mm['compartment'][cpmt].add(meta)
+                    meta_compt_ss_added = True
+                    meta_ss_added = True
+                    if len(result[meta]['compartment']) == 1:
+                        global_compt_mm.add(meta)
+
+                    if cpmt not in ['Cytosol', 'Peroxisome'] and meta not in mm_svg[cpmt]:
+                        print ("warning: multi meta %s is not multi in svg, compartment %s" % (meta, cpmt))
+                        #print (result[meta]['compartment'][cpmt])
+                        #input()
+                        # exit()
+
+                if len(result[meta]['compartment'][cpmt]) > 12:
+                    # more than 10 diff reactions
+                    high_reaction_freq.add(meta)
+
+
+                # check if unique in each subsystem, if true, the meta can be drawn uniquely and will connect
+                # subsystem together
+                single_in_one_subsystem = {}
+                tot_as_reactant = 0
+                tot_as_product = 0
+                for ssub in compt_sub[cpmt]:
+                    as_reactant = 0
+                    as_product = 0
+                    if ssub in result[meta]['subsystem']:
+                        if ssub[:10] == "Transport,":
+                            continue
+                        for reaction in result[meta]['compartment'][cpmt]:
+                            if reaction[0] != 'R':
+                                # exclude {'reactant': 0, 'product': 0}
+                                continue
+                            if reaction in result[meta]['subsystem'][ssub]:
+                                # consider only reactions of the ssub that are in the current compartment
+                                if result[meta]['subsystem'][ssub][reaction]['reactant']:
+                                    as_reactant += 1
+                                    tot_as_reactant += 1
+                                if result[meta]['subsystem'][ssub][reaction]['product']:
+                                    as_product += 1
+                                    tot_as_product += 1
+                    if (as_reactant ==1 and as_product == 1) or \
+                        (as_reactant == 1 and not as_product) or \
+                        (as_product == 1 and not as_reactant) or \
+                        (as_reactant and as_product and as_reactant + as_product <= 3):
+                        single_in_one_subsystem[ssub] = True
+                    elif as_reactant or as_product:
+                        if cpmt not in mm_compt_sub:
+                            mm_compt_sub[cpmt] = {}
+                        if ssub not in mm_compt_sub[cpmt]:
+                            mm_compt_sub[cpmt][ssub] = set()
+                        mm_compt_sub[cpmt][ssub].add(meta)
+
+
+                is_only_transport = False
+                if tot_as_reactant == 0 and tot_as_product == 0:
+                    is_only_transport = True
+
+                if single_in_one_subsystem and meta not in high_reaction_freq:
+                    keys = list(single_in_one_subsystem.keys())
+                    for i in range(len(keys)):
+                        for j in range(len(keys)):
+                            if i == j:
+                                continue
+                            if keys[i] not in subsystem_connection:
+                                subsystem_connection[keys[i]] = {}
+                            if keys[j] not in subsystem_connection[keys[i]]:
+                                subsystem_connection[keys[i]][keys[j]] = set()
+                            subsystem_connection[keys[i]][keys[j]].add(meta)
+
+                            if keys[j] not in subsystem_connection:
+                                subsystem_connection[keys[j]] = {}
+                            if keys[i] not in subsystem_connection[keys[j]]:
+                                subsystem_connection[keys[j]][keys[i]] = set()
+                            subsystem_connection[keys[j]][keys[i]].add(meta)
+
+                    '''if is_multiple_in_one_subsystem:
+                        if cpmt not in mm['compartment']:
+                            mm['compartment'][cpmt] = set()
+                        mm['compartment'][cpmt].add(meta)
+                        meta_compt_ss_added = True
+                        meta_ss_added = True
+                        if len(result[meta]['compartment']) == 1:
+                            global_compt_mm.add(meta)
+
+                        if cpmt not in ['Cytosol', 'Peroxisome'] and meta not in mm_svg[cpmt]:
+                            print ("second check")
+                            print ("as_reactant: %s, as_product: %s (%s)" % (as_reactant, as_product, ssub))
+                            print ("Error: multi meta %s is not multi in svg" % meta)
+                            print ("compartment", cpmt)
+                            print (result[meta]['compartment'][cpmt])
+                            input()
+                            # exit()'''
+
+            # check if multi in svg but not found multi by the algo
+            if cpmt not in ['Cytosol'] and not meta_compt_ss_added and meta in mm_svg[cpmt] and not is_only_transport:
+                print ("warning: not multi meta %s is multi in svg, compartment %s" % (meta, cpmt))
+                # print (result[meta]['compartment'][cpmt])
+                # input()
+                # exit()
+
+        # check if the meta should be drawn multiple time at the subsystem lvl
+        # without considering the compartment lvl
+
+        for ssub in result[meta]['subsystem']:
+            # filter Transport subsystem
+            if ssub[:10] == "Transport,":
+                continue
+            if len(result[meta]['subsystem'][ssub]) > 3: # 'reactant', 'product' and [reactions ids... > 1]
+                # part of multiple reactions
+                if (result[meta]['subsystem'][ssub]['reactant'] == 0 and result[meta]['subsystem'][ssub]['product'] != 1) or \
+                    (result[meta]['subsystem'][ssub]['product'] == 0 and result[meta]['subsystem'][ssub]['reactant'] != 1) or \
+                    ((result[meta]['subsystem'][ssub]['reactant'] > 1 or result[meta]['subsystem'][ssub]['product'] > 1) and \
+                    (result[meta]['subsystem'][ssub]['reactant'] + result[meta]['subsystem'][ssub]['product']) > 3):
+                    # if only multiple times reactant or only multiple times product or several time both
+                    if ssub not in mm['subsystem']:
+                        mm['subsystem'][ssub] = set()
+                    mm['subsystem'][ssub].add(meta)
+
+                else:
+                    if ssub not in unique_meta_ssub:
+                        unique_meta_ssub[ssub] = set()
+                    unique_meta_ssub[ssub].add(meta)
+
+        # FIX ME? not M_m02012l is not multiple but get 2-2 reactant product in total 3 subsystems
+
+    write_ssub_connection_files(subsystem_connection)
+
+    write_meta_freq_files(database, result)
+
+    with open("database_generation/data/umeta_subsystem.txt", 'w') as fw:
+        for subsystem in unique_meta_ssub:
+            fw.write("%s\t%s\n" % (subsystem, "; ".join(unique_meta_ssub[subsystem])))
+
 
 def get_subsystem_compt_element(database):
     # get compartment statistics and check thaht every reaction/component
@@ -438,15 +796,15 @@ def get_subsystem_compt_element(database):
         print (s_name, len(sub_compt_using_reaction[s_name]), len(sub_compt_using_metabolite[s_name]), len(sub_compt_using_enzyme[s_name]))
         if len(sub_compt_using_reaction[s_name]) != len(sub_compt_using_metabolite[s_name]):
             # ignore relation get with enzymes cause it give more compartments
-            # can't remember why...
+            # enzyme id are not duplicated like metabolite
             print ("Error")
+            print (sub_compt_using_reaction[s_name], sub_compt_using_metabolite[s_name])
             exit(1)
 
-        '''print (sub_compt_using_reaction[s_name])
-        print (sub_compt_using_metabolite[s_name])
-        print (sub_compt_using_enzyme[s_name])
+        print ("sub_compt_using_reaction", sub_compt_using_reaction[s_name])
+        print ("sub_compt_using_metabolite", sub_compt_using_metabolite[s_name])
+        print ("sub_compt_using_enzyme", sub_compt_using_enzyme[s_name])
         print ("###################################")
-        exit()'''
 
     reaction_not_compt = []
     reaction_not_sub = []
@@ -476,6 +834,7 @@ def get_subsystem_compt_element(database):
                 metabolite_not_sub.append(rc.id)
         else:
             print ("Error: component type = '%s'" % rc.component_type)
+            exit(1)
 
     print ("not r in c: ", len(reaction_not_compt), len(set(reaction_not_compt)))
     print ("not r in s: ", len(reaction_not_sub), len(set(reaction_not_sub)))
@@ -513,10 +872,10 @@ def get_subsystem_compt_element(database):
             # store list of reactions per compt-subsystem
             compt_sub_reaction[c.name][s.name].update(r_overlap)
 
-
-            print ("Reactions found in '%s': %s | overlap: %s (%s)" % \
-                (s.name, len(sub_reaction), len(r_overlap), float(len(r_overlap))/len(sub_reaction) * 100.0))
-            pathway_compt_coverage[s.name][1][c.name] = len(r_overlap) # store the overlap with the current compartment
+            if len(r_overlap) != 0:
+                print ("Cmp %s - Reactions found in '%s': %s | overlap: %s (%s)" % \
+                    (c.name, s.name, len(sub_reaction), len(r_overlap), float(len(r_overlap))/len(sub_reaction) * 100.0))
+                pathway_compt_coverage[s.name][1][c.name] = len(r_overlap) # store the overlap with the current compartment
     '''
     pathway_compt_coverage:
 
@@ -539,7 +898,7 @@ def get_subsystem_compt_element(database):
 
     '''
 
-    return compt_rme, rme_compt, sub_rme, rme_sub, compt_sub, compt_sub_reaction, pathway_compt_coverage
+    return compt_rme, rme_compt, sub_rme, rme_sub, compt_sub, sub_compt_using_reaction, compt_sub_reaction, pathway_compt_coverage
 
 
 def get_subsystem_compt_element_svg(database):
@@ -550,6 +909,7 @@ def get_subsystem_compt_element_svg(database):
     compt_rme_svg = {}
     rme_compt_svg = {}
     compt_sub_svg = {}
+    sub_compt_svg = {}
 
     for ci in CompartmentSvg.objects.using(database).all():
         reaction_compartment = read_compartment_reaction(ci.filename)
@@ -586,11 +946,15 @@ def get_subsystem_compt_element_svg(database):
                 compt_sub_svg[ci.display_name] = set()
             compt_sub_svg[ci.display_name].add(s)
 
+            if s not in sub_compt_svg:
+                sub_compt_svg[s] = set()
+            sub_compt_svg[s].add(ci.display_name)
+
         # create the key even if there is no subsystem (case of Cytosol 6)
         if ci.display_name not in compt_sub_svg:
             compt_sub_svg[ci.display_name] = set()
 
-    return compt_rme_svg, rme_compt_svg, compt_sub_svg
+    return compt_rme_svg, rme_compt_svg, compt_sub_svg, sub_compt_svg
 
 
 def saveTileSubsystem(database, compt_sub_svg, compt_sub, compt_rme_svg, compt_rme, sub_rme, compt_sub_reaction):
@@ -689,10 +1053,19 @@ def readCompInfo(database, ci_file):
                 cinfo.save(using=database)
 
         # get element in subsystem / compt from database
-        compt_rme, rme_compt, sub_rme, rme_sub, compt_sub, compt_sub_reaction, pathway_compt_coverage = get_subsystem_compt_element(database)
+        compt_rme, rme_compt, sub_rme, rme_sub, compt_sub, sub_compt_using_reaction, \
+         compt_sub_reaction, pathway_compt_coverage = get_subsystem_compt_element(database)
+
+        get_compt_subsystem_connectivity(database, compt_rme, rme_compt, sub_rme, rme_sub, compt_sub, compt_sub_reaction, pathway_compt_coverage)
+
         # get element in subsystem / compt from svg
-        compt_rme_svg, rme_compt_svg, compt_sub_svg = get_subsystem_compt_element_svg(database)
-        # compare M, R, E
+        compt_rme_svg, rme_compt_svg, compt_sub_svg, sub_compt_svg = get_subsystem_compt_element_svg(database)
+
+        write_subsystem_summary_file(database, rme_compt_svg, sub_compt_svg, pathway_compt_coverage)
+
+        # exit()
+
+        # compare M, R, E localization between SVG and database
         for compt in compt_rme_svg:
             print ("====", compt)
             d_svg = compt_rme_svg[compt]

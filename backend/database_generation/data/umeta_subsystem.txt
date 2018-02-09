@@ -1,0 +1,100 @@
+Purine metabolism	M_m01948m; M_m01639c; M_m01280s; M_m01279c; M_m01669c; M_m01334m; M_m01686c; M_m01433c; M_m02170c; M_m01688c; M_m01419c; M_m01280c; M_m02038c; M_m03148p; M_m01666c
+Beta oxidation of branched-chain fatty acids	M_m00563m
+Steroid metabolism	M_m00408c; M_m00399r; M_m01660r; M_m01450c; M_m00807c; M_m02769r; M_m01072c; M_m00409c; M_m00294c; M_m01615c; M_m00739c; M_m02182c; M_m02763r; M_m00592c; M_m00406c; M_m01450m
+Acylglycerides metabolism	M_m00504c; M_m02958c; M_m00509c; M_m00505c; M_m00506c; M_m00507c; M_m00508c
+Fatty acid elongation (odd-chain)	M_m02052c; M_m02612c
+Glycosylphosphatidylinositol (GPI)-anchor biosynthesis	M_m02431r; M_m01781r; M_m01143r; M_m02483r
+Fatty acid activation	M_m00020c
+Chondroitin sulfate degradation	M_m01562l; M_m01547l; M_m01536l; M_m01558l; M_m01529l; M_m01550l; M_m01524l; M_m01539l
+Sulfur metabolism	M_m02871c; M_m02877c
+Cholesterol metabolism	M_m02040c; M_m02187c; M_m01597p; M_m01253m
+Estrogen metabolism	M_m00986c; M_m00412c; M_m00432c; M_m01789c; M_m01000c; M_m00410c; M_m00650r
+Terpenoid backbone biosynthesis	M_m00200c; M_m01628c
+Glycine, serine and threonine metabolism	M_m02007c; M_m02819c; M_m02039m; M_m01998c; M_m02475c; M_m01307m; M_m01394c; M_m01974c; M_m02007p; M_m01654c; M_m02154c; M_m00913c; M_m02553m; M_m02819p; M_m02554c; M_m00826m; M_m02880c; M_m02555c; M_m01307c; M_m02980c; M_m02993c; M_m00671c; M_m02552m; M_m02980m; M_m02944m; M_m01393c
+Histidine metabolism	M_m01974c; M_m01261c; M_m02165c; M_m01597c; M_m02124c; M_m03124c
+Other amino acid	M_m02886c
+Aminoacyl-tRNA biosynthesis	M_m02408c
+Isolated	M_m00271c; M_m02554c; M_m02039m; M_m01192c; M_m00589c; M_m00299c; M_m00984c; M_m00368c; M_m01974s; M_m02553c; M_m02555c; M_m00355c; M_m00200c; M_m00415c; M_m02034c
+Vitamin D metabolism	M_m03142c; M_m00035m; M_m00035c; M_m00613m; M_m02805c; M_m00620m; M_m01417m
+Keratan sulfate degradation	M_m02253l; M_m02277l; M_m02301l; M_m02250l; M_m02256l; M_m02281l; M_m02260l; M_m02266l; M_m02243l; M_m02240l; M_m02263l; M_m02274l; M_m02284l; M_m02246l
+Thiamine metabolism	M_m02985c
+Ether lipid metabolism	M_m00549c; M_m02114p; M_m00514c; M_m00560c
+Tryptophan metabolism	M_m01255m
+Glutathione metabolism	M_m02027c; M_m01974c; M_m01626s; M_m01986c; M_m02027m; M_m01127c; M_m01307c; M_m02026m; M_m01927c; M_m01628c; M_m02040s
+Beta oxidation of phytanic acid	M_m01334p; M_m01371p; M_m02759p
+Folate metabolism	M_m02692c; M_m02118c; M_m00266m; M_m00267c; M_m02119m; M_m02118m; M_m02692m; M_m00268c; M_m02552m; M_m00267m; M_m02119c; M_m01700m; M_m02691c; M_m02553m; M_m00268m; M_m02040m
+Starch and sucrose metabolism	M_m01996c; M_m02452c; M_m01967c
+Cholesterol biosynthesis 2	M_m02343c; M_m02805c
+Miscellaneous	M_m02046c
+Fatty acid biosynthesis (even-chain)	M_m02972c; M_m02643c; M_m01728c
+Oxidative phosphorylation	M_m03102m; M_m02751m; M_m02040m; M_m01824m; M_m03103m
+Pentose and glucuronate interconversions	M_m01285c; M_m01973c; M_m01371c
+Omega-6 fatty acid metabolism	M_m01934c; M_m01364c; M_m01597m; M_m01597p; M_m01261m; M_m00131c; M_m01261p; M_m00682m; M_m00119c; M_m00682p; M_m00716c; M_m00009c; M_m01697c
+Glycosphingolipid biosynthesis-globo series	M_m01912c; M_m02328c
+Pyruvate metabolism	M_m02026c; M_m02696c; M_m02552m; M_m02403c; M_m02553m; M_m02633m; M_m00168c
+Cysteine and methionine metabolism	M_m01974m; M_m01974c; M_m02877c; M_m02042c; M_m01016c; M_m02986c; M_m02949c; M_m02041c; M_m01306m; M_m00245c; M_m02349c; M_m01306c; M_m02949m; M_m02871c
+Carnitine shuttle	M_m00022c; M_m00120c; M_m00122c; M_m00107c; M_m00102c; M_m00124c; M_m00577c; M_m00105c; M_m00261c; M_m00126c; M_m00263c; M_m00342c; M_m00011c; M_m00100c; M_m02410c; M_m00092c; M_m02409c
+Galactose metabolism	M_m01965s; M_m01967c
+Fatty acid biosynthesis (unsaturated)	M_m01236c; M_m00016c; M_m00025c; M_m00007c
+Serotonin and melatonin biosynthesis	M_m01107c; M_m02041c; M_m02147c
+Metabolism of xenobiotics by cytochrome P450	M_m01298c; M_m01294c; M_m01440c; M_m02552c; M_m03043c; M_m01377c; M_m00547c; M_m02553c; M_m00568c; M_m00565c; M_m01444c
+Tyrosine metabolism	M_m01831c; M_m02040m; M_m02039m; M_m00807c; M_m01952c; M_m02175c; M_m02355c; M_m02720c; M_m02719c; M_m02354c; M_m02174c
+Riboflavin metabolism	M_m02842c
+Biotin metabolism	M_m02040c; M_m01356c; M_m02426c; M_m01400c; M_m01401c
+Pool reactions	M_m01450c; M_m00240c; M_m02808c; M_m02958c; M_m02685c; M_m02684c; M_m00656c; M_m00511c; M_m00560c; M_m02750c; M_m01451c; M_m02629c; M_m02392c; M_m02908c
+N-glycan metabolism	M_m00140r; M_m01657c; M_m00153r; M_m01730c; M_m00139r; M_m01971r; M_m02323g; M_m01970r; M_m02759c
+Phenylalanine, tyrosine and tryptophan biosynthesis	M_m02135c; M_m01249c; M_m00730c; M_m03099c; M_m02168c; M_m00734c; M_m01134c; M_m00981c; M_m00775c; M_m01002c; M_m02721c; M_m02371c; M_m00633c; M_m02720c; M_m00821c; M_m01053c; M_m02725c; M_m02407c; M_m00727c; M_m00818c
+Beta oxidation of even-chain fatty acids	M_m00042p; M_m00039m; M_m00042m; M_m02678p; M_m00039p
+Omega-3 fatty acid metabolism	M_m01038r; M_m02040n; M_m00121c; M_m00134c; M_m00012c; M_m01038c; M_m00108c; M_m01038p; M_m02039n; M_m00103c; M_m00262c; M_m00716c; M_m00125c; M_m02365c
+Glycerophospholipid metabolism	M_m01426m; M_m01311c; M_m00236c; M_m02896c; M_m01428c; M_m01814c; M_m01260c; M_m01983c; M_m00549c; M_m00235c; M_m00238c; M_m02914m; M_m01596c; M_m01425c; M_m00511c; M_m02912c; M_m01623c; M_m02759c; M_m00516c
+Propanoate metabolism	M_m01371m; M_m00900m; M_m02774m; M_m02555m; M_m02554m; M_m02772c; M_m01371c; M_m02759m; M_m02759c; M_m02040m
+Ascorbate and aldarate metabolism	M_m02041c; M_m02394c
+Chondroitin / heparan sulfate biosynthesis	M_m01518g; M_m01568g; M_m00762g; M_m01565g; M_m01516g
+Sphingolipid metabolism	M_m01960g; M_m02928c; M_m02040g; M_m02931c; M_m01905g; M_m01430g; M_m02025g; M_m01798c; M_m02015g; M_m01972c; M_m02040s; M_m02010g; M_m01275c; M_m02930c; M_m01679l; M_m02030g; M_m02033g; M_m01941g; M_m02908c
+Cholesterol biosynthesis 1 (Bloch pathway)	M_m03158c; M_m00167c; M_m00953c; M_m01066c; M_m01285c; M_m02759c; M_m01371c; M_m02336c
+Alanine, aspartate and glutamate metabolism	M_m02026c; M_m02819c; M_m01597m; M_m01370m; M_m02555m; M_m02819m; M_m02554m; M_m02942m; M_m02552m; M_m01307m; M_m01369c; M_m01307c; M_m01862c; M_m02553m; M_m01261m
+Glycolysis / Gluconeogenesis	M_m01968r; M_m02552c; M_m02696c; M_m02553c; M_m01939c; M_m01252c; M_m01965c
+Lysine metabolism	M_m00631c; M_m01974m; M_m02129n; M_m02868m; M_m00204c; M_m02555m; M_m02554m; M_m01306m; M_m02040p
+Nucleotide metabolism	M_m03118c; M_m01755m; M_m01721c; M_m01673m; M_m02847c; M_m01673c; M_m02039c
+Artificial reactions	M_m02555c
+Beta oxidation of unsaturated fatty acids (n-9)	M_m01191m; M_m01141m; M_m00007m
+O-glycan metabolism	M_m01607g
+Fatty acid biosynthesis (odd-chain)	M_m03048c; M_m02687c
+Arachidonic acid metabolism	M_m01042c; M_m01058c; M_m00098c; M_m02040n; M_m01058r; M_m00098p; M_m02096p; M_m00309r; M_m00307r; M_m01058n; M_m00098r; M_m01058p
+Glycosphingolipid biosynthesis-lacto and neolacto series	M_m02346c; M_m02904c
+Bile acid recycling	M_m01987c
+ROS detoxification	M_m02041c; M_m02041m
+Protein modification	M_m01365c; M_m00197c
+Retinol metabolism	M_m02838c; M_m01597c; M_m00993c; M_m01029c; M_m00993r; M_m01230r; M_m00290c
+Beta oxidation of unsaturated fatty acids (n-7)	M_m00118m
+C5-branched dibasic acid metabolism	M_m02040m
+Fatty acid elongation (even-chain)	M_m01725c; M_m01773c; M_m02941c; M_m02971c
+Eicosanoid metabolism	M_m02370c
+Linoleate metabolism	M_m00314r; M_m01220r; M_m00533c; M_m00314c
+Pentose phosphate pathway	M_m01968r; M_m02039r; M_m01961r; M_m02554c; M_m01785c; M_m02039c; M_m01169c; M_m02555c; M_m02843c
+Vitamin B6 metabolism	M_m02818c; M_m02815c; M_m02817c; M_m02816c
+Androgen metabolism	M_m01660r; M_m02763c; M_m01064c; M_m00971c; M_m00971r; M_m02762c; M_m02969c; M_m01069r; M_m00408r; M_m01064r; M_m02969r
+Fructose and mannose metabolism	M_m01950c; M_m02040c; M_m02554c; M_m02455c; M_m02552c; M_m01951c; M_m02553c; M_m02555c; M_m01949c; M_m02759c; M_m02034c
+Fatty acid desaturation (even-chain)	M_m02647c
+Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism	M_m02633c; M_m02183c; M_m02554c; M_m02007p; M_m02555m; M_m02984m; M_m01982c; M_m02554m; M_m02751m; M_m02555c; M_m02633m
+Glucocorticoid biosynthesis	M_m02769c; M_m00409c
+Butanoate metabolism	M_m02552c; M_m02553c; M_m01255c; M_m02039c
+Valine, leucine, and isoleucine metabolism	M_m01371m; M_m02552c; M_m01285m; M_m00669m; M_m02046m; M_m02039c; M_m01013c; M_m02751m; M_m02553c; M_m01013m; M_m02468m; M_m00663m; M_m02480m; M_m00824m
+Exchange reactions	M_m01569s; M_m02048s; M_m02352s; M_m03146s; M_m03147s; M_m02353s; M_m02047s
+Inositol phosphate metabolism	M_m01968c; M_m02492c; M_m02750r; M_m00531c; M_m00554g; M_m01718n; M_m01133c; M_m00523c
+Arginine and proline metabolism	M_m01371m; M_m02125c; M_m02504p; M_m02658m; M_m01285m; M_m02870c; M_m02926c; M_m02751m; M_m02921c; M_m02751c; M_m01596m; M_m00969m; M_m02503p; M_m02922c; M_m02658c; M_m00970c; M_m02504c; M_m02877c
+beta-Alanine metabolism	M_m00248c; M_m00969c; M_m02923c; M_m02125c
+Glycerolipid metabolism	M_m02733c; M_m00490c; M_m02039c
+Glycosphingolipid metabolism	M_m02012l; M_m01679g; M_m01960l; M_m01679c
+Pantothenate and CoA biosynthesis	M_m02623c; M_m00184c; M_m01285m; M_m01597c; M_m00163c; M_m01349c; M_m01674c
+Porphyrin metabolism	M_m01399c; M_m02804c; M_m01822s; M_m02050c; M_m02039s; M_m01821s
+Glycosphingolipid biosynthesis-ganglio series	M_m02010c; M_m01947c; M_m02033c; M_m02023c; M_m02028c
+prostaglandin biosynthesis	M_m01168c; M_m02785c; M_m02794r; M_m00635c
+Vitamin E metabolism	M_m01097m; M_m01924c; M_m00766c; M_m01935c
+Leukotriene metabolism	M_m00599r; M_m02418s; M_m00583c; M_m02552r; M_m00588r; M_m02369c; M_m00326r; M_m02366c; M_m02652p; M_m00599c; M_m00585c; M_m02364c; M_m02553r
+Nicotinate and nicotinamide metabolism	M_m02584c; M_m02554c; M_m02844c; M_m02586c; M_m00536c; M_m02806c; M_m02552m; M_m02578c
+Bile acid biosynthesis	M_m01181c; M_m01090c; M_m00758c; M_m00750c; M_m01445c; M_m01090m; M_m00978c; M_m01183r; M_m01597m; M_m02774m; M_m01434p; M_m01078c; M_m00623m; M_m01095c; M_m00918c; M_m00752c; M_m00979c; M_m01177c; M_m00618p
+Amino sugar and nucleotide sugar metabolism	M_m02554c; M_m02552c; M_m03111c; M_m01845c; M_m03110c; M_m02553c; M_m02555c; M_m02527c; M_m01623c; M_m02630c
+Pyrimidine metabolism	M_m01644c; M_m01371m; M_m02554c; M_m01747m; M_m01590c; M_m01285m; M_m01680m; M_m01668c; M_m01755c; M_m01673c; M_m01756m; M_m02806c; M_m01643c; M_m01752c; M_m02555c; M_m01753c; M_m01623c; M_m02759c; M_m03106c
+Blood group biosynthesis	M_m02346g; M_m02904g
+Biopterin metabolism	M_m01170c; M_m01170n; M_m01698c; M_m01833c
