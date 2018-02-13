@@ -20,13 +20,21 @@ import xml.etree.ElementTree as ET
 import urllib
 import urllib.request
 
-def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
 
-    if (model_set_data['name'] in ['Fungi', 'Bacteria', 'S.cerevisiae']):
+#####################################################################################################
+# running this script might give the following error on a zip file:
+# xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 2
+# on  /project/model_files/FTP/human/curated_models/myocyte/iMyocyte2419-etc...
+# the zip file contains multiple files, remove all but the .xml to fix the parsing
+
+def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path, model_set_data, global_dict):
+
+    if (model_set_data['name'] in ['Fungi models', 'Bacteria models', 'S.cerevisiae models']):
         path_key = ['name', 'organism', 'organ_system', ['tissue', 'cell_type', 'cell_line']]
     else:
         path_key = ['organism', 'name', 'organ_system', ['tissue', 'cell_type', 'cell_line']]
     model_data_list = []
+
     for i in range(len(liste_dico_data)):
         GEM_sample = {}
         GEM = {}
@@ -151,7 +159,7 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path):
             if k not in dic:
                 GEM_sample[k] = None
             else:
-                GEM_sample[k] = dic[k]
+                GEM_sample[k] = dic[k].capitalize()
         
         for k in ['description', 'label', 'maintained']:
             if k not in dic:
@@ -241,12 +249,12 @@ def parse_info_file(info_file):
             global_dict[row[0]] = row[1]
 
         if 'name' in global_dict:
-            model_set_data['name'] = global_dict.pop('name')
+            model_set_data['name'] = global_dict.pop('name').capitalize()
         else:
             model_set_data['name'] = None
 
         if 'description' in global_dict:
-            model_set_data['description'] = global_dict.pop('description')
+            model_set_data['description'] = global_dict.pop('description').capitalize()
         else:
             model_set_data['description'] = None
 
@@ -429,7 +437,6 @@ def delete_gems():
 
 def insert_gems(model_set_data, model_data_list):
 
-
     # insert set references
     set_references = []
     set_references_ids = []
@@ -538,48 +545,48 @@ def insert_gems(model_set_data, model_data_list):
 
     print ("%s models added" % i)
 
+def start_parsing():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.dirname(os.path.join(dir_path, "HMR/"))
+    # dir_path = os.path.dirname(os.path.join(dir_path, "INIT_cancer/"))
+    # dir_path = os.path.dirname(os.path.join(dir_path, "INIT_normal/"))
+    # dir_path = os.path.dirname(os.path.join(dir_path, "curated_model/"))
+    # dir_path = os.path.dirname(os.path.join(dir_path, "tissue-specific/"))
+    # dir_path = os.path.dirname(os.path.join(dir_path, "personalized/"))
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-dir_path = os.path.dirname(os.path.join(dir_path, "HMR/"))
-# dir_path = os.path.dirname(os.path.join(dir_path, "INIT_cancer/"))
-# dir_path = os.path.dirname(os.path.join(dir_path, "INIT_normal/"))
-# dir_path = os.path.dirname(os.path.join(dir_path, "curated_model/"))
-# dir_path = os.path.dirname(os.path.join(dir_path, "tissue-specific/"))
-# dir_path = os.path.dirname(os.path.join(dir_path, "personalized/"))
+    # dir_path = "/project/model_files/biomet-toolbox-fungi/"
+    # dir_path = "/project/model_files/biomet-toolbox-cere/"
+    # dir_path = "/project/model_files/biomet-toolbox-bacteria/"
 
-# dir_path = "/project/model_files/biomet-toolbox-fungi/"
-# dir_path = "/project/model_files/biomet-toolbox-cere/"
-# dir_path = "/project/model_files/biomet-toolbox-bacteria/"
+    dir_path = "/project/"
 
-dir_path = "/project/"
+    if not os.path.exists(dir_path):
+        print ("Error: path %s not found" % dir_path)
 
-if not os.path.exists(dir_path):
-    print ("Error: path %s not found" % dir_path)
+    matches = []
+    for root, dirnames, filenames in os.walk(dir_path):
+        for filename in fnmatch.filter(filenames, 'parsed_data.txt'):
+            matches.append([os.path.join(root, filename), os.path.join(root, 'info.txt'), root])
 
-matches = []
-for root, dirnames, filenames in os.walk(dir_path):
-    for filename in fnmatch.filter(filenames, 'parsed_data.txt'):
-        matches.append([os.path.join(root, filename), os.path.join(root, 'info.txt'), root])
 
-delete_gems()
-for parse_data_file, info_file, root_path in matches:
-    print ("Parsing: %s" % parse_data_file)
-    global_dict = None
-    if not os.path.isfile(info_file):
-        print("Error: %s file" % info_file)
-        exit()
-    global_dict, model_set_data = parse_info_file(info_file)
+    for parse_data_file, info_file, root_path in matches:
+        print ("Parsing: %s" % parse_data_file)
+        global_dict = None
+        if not os.path.isfile(info_file):
+            print("Error: %s file" % info_file)
+            exit()
+        global_dict, model_set_data = parse_info_file(info_file)
 
-    print ("global_dict %s" % global_dict)
-    print ("model_set_data %s" % model_set_data)
+        print ("global_dict %s" % global_dict)
+        print ("model_set_data %s" % model_set_data)
 
-    results = read_gems_data_file(parse_data_file, global_dict=global_dict)
-    print (results)
-    model_data_list = build_ftp_path_and_dl(results, '/project/model_files/FTP', model_set_data, root_path)
+        results = read_gems_data_file(parse_data_file, global_dict=global_dict)
+        print (results)
+        model_data_list = build_ftp_path_and_dl(results, '/project/model_files/FTP', model_set_data, root_path, model_set_data, global_dict)
 
-    for el in model_data_list:
-        print (el)
-    insert_gems(model_set_data, model_data_list)
+        for el in model_data_list:
+            print (el)
+        insert_gems(model_set_data, model_data_list)
 
 
 class Command(BaseCommand):
@@ -587,4 +594,12 @@ class Command(BaseCommand):
     help = 'our help string comes here'
 
     def handle(self, *args, **options):
-        pass
+        delete_gems()
+        start_parsing()
+        print ("""
+Models file are located in backend/model_files/FTP and
+must be move to the ftp.icsb.chalmers.se VM into /home/cholley/models/
+with the following command:
+rsync -avup backend/model_files/FTP/ cholley@ftp.icsb.chalmers.se:/home/cholley/models/  --include='*/' --include='*.zip' --exclude='*'
+then move the /home/cholley/models dir to /ftp (on the VM)
+""")

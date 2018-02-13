@@ -199,7 +199,10 @@ class GEModelFileSerializer(serializers.ModelSerializer):
         fields = ('path', 'format')
 
     def get_file_path(self, model):
-        return "%s%s" % ('http://ftp.icsb.chalmers.se/models', model.path.split('/FTP')[1])
+        if '/FTP' in model.path:
+            return "%s%s" % ('http://ftp.icsb.chalmers.se/models', model.path.split('/FTP')[1])
+        else:
+            return model.path
 
 class GEModelReferenceSerializer(serializers.ModelSerializer):
     class Meta:
