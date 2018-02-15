@@ -211,6 +211,7 @@ class GEModelReferenceSerializer(serializers.ModelSerializer):
 
 class GEModelSetSerializer(serializers.ModelSerializer):
     reference = GEModelReferenceSerializer(many=True, read_only=True)
+
     class Meta:
         model = GEModelSet
         fields = ('name', 'description', 'reference')
@@ -242,13 +243,18 @@ class GEModelListSerializer(serializers.ModelSerializer):
         return gg.name
 
     def get_model_year(self, model):
-        refs = model.ref.all()
-        if refs:
-            return refs[0].year
+        years = model.ref.only('year').all().values_list('year', flat=True)
+        if years:
+            return max(years)
         else:
-            years = model.gemodelset.reference.all().values_list('year', flat=True)
+            years = model.gemodelset.reference.only('year').all().values_list('year', flat=True)
             if years:
                 return max(years)
+
+    def setup_eager_loading(cls, queryset):
+        """ Perform necessary eager loading of data. """
+        queryset = queryset.prefetch_related('sample')
+        return queryset
 
     class Meta:
         model = GEModel

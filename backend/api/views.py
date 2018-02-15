@@ -769,10 +769,21 @@ def get_compartment_information(request, model):
 def get_gemodel(request, id):
     """
     For a given model id, pull out everything we know about the GEM,
-    supply an id, for instance 630.
+    supply an id, for instance 630 or a label e.g HMR2.0.
     """
+    try: 
+        int(id)
+        is_int = True
+    except ValueError:
+        is_int = False
+
     try:
-        model = GEModel.objects.get(id=id)
+        if is_int:
+            model = GEModel.objects.get(id=id)
+        else:
+            if id == "HMR2":
+                id = "v2.00"
+            model = GEModel.objects.get(label=id)
     except GEModel.DoesNotExist:
         return HttpResponse(status=404)
 
