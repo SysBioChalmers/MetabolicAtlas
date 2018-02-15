@@ -65,7 +65,7 @@
           <tr v-for="el in detailTableKey">
             <td v-if="el.display" class="td-key">{{ el.display }}</td>
             <td v-if="enzyme[el.name]">
-              <span v-if="el.modifier" v-html="el.modifier(enzyme[el.name])">
+              <span v-if="el.modifier" v-html="el.modifier(enzyme)">
               </span>
               <span v-else>
                 {{ enzyme[el.name] }}
@@ -131,9 +131,13 @@ export default {
       detailTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'enzymeName', display: 'Name' },
+        { name: 'function', display: 'Function' },
         { name: 'long_name', display: 'Ensembl ID', modifier: this.reformatEnsblLink },
-        { name: 'compartment', display: 'Compartment' },
+        { name: 'uniprot_acc', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
+        { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBIlink },
         { name: 'formula', display: 'Formula' },
+        { name: 'compartment', display: 'Compartment' },
+
       ],
 
       tableSearchTerm: '',
@@ -178,8 +182,14 @@ export default {
       }
       return output;
     },
-    reformatEnsblLink(id) {
-      return `<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${id}" target="_blank">${id}</a>`;
+    reformatEnsblLink(enzyme) {
+      return `<a href="${enzyme.ensembl_link}" target="_blank">${enzyme.long_name}</a>`;
+    },
+    reformatUniprotLink(enzyme) {
+      return `<a href="http://www.uniprot.org/uniprot/${enzyme.uniprot_acc}" target="_blank">${enzyme.uniprot_acc}</a>`;
+    },
+    reformatNCBIlink(enzyme) {
+      return `<a href="https://www.ncbi.nlm.nih.gov/gene/${enzyme.ncbi}" target="_blank">${enzyme.ncbi}</a>`;
     },
     load() {
       this.loading = true;
@@ -193,7 +203,7 @@ export default {
           this.loading = false;
           this.errorMessage = null;
 
-          // If the response has only reacionts, it doesn't have an id in root object.
+          // If the response has only reactions, it doesn't have an id in root object.
           if (response.data.compartment !== undefined) {
             this.reactions = [];
 
@@ -201,6 +211,8 @@ export default {
 
             this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
             this.enzyme = response.data.enzyme;
+            this.enzyme = $.extend(this.enzyme, response.data.enzyme.enzyme);
+            this.enzyme.enzyme = null;
             this.enzyme.enzymeName = this.enzymeName;
             this.enzyme.long_name = response.data.enzyme.long_name;
             this.elms = elms;
