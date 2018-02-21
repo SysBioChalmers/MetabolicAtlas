@@ -140,6 +140,7 @@ class Reaction(models.Model):
     #subsystem = models.CharField(max_length=600)
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
+    is_reversible = models.BooleanField(default=False)
 
     # models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
 
