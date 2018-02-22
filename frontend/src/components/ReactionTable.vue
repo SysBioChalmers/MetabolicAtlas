@@ -122,22 +122,6 @@ export default {
     viewSubsystem(id) {
       EventBus.$emit('updateSelTab', 'subsystem', id);
     },
-    displayCompartment(r) {
-      const comp = {};
-      for (const el of r.reactants) {
-        comp[el.compartment] = null;
-      }
-      for (const el of r.products) {
-        comp[el.compartment] = null;
-      }
-      if (Object.keys(comp).length === 1) {
-        return Object.keys(comp)[0];
-      } else if (Object.keys(comp).length === 2) {
-        return Object.keys(comp).join(' &#8680; ');
-      }
-      // not possible?
-      return '';
-    },
     sortBy(field) {
       const reactions = Array.prototype.slice.call(
       this.sortedReactions); // Do not mutate original elms;

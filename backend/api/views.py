@@ -26,6 +26,7 @@ class JSONResponse(HttpResponse):
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
+
 @api_view()
 def model_list(request):
     """
@@ -34,6 +35,7 @@ def model_list(request):
     models = GEM.objects.all()
     serializer = GEMSerializer(models, many=True)
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def get_model(request, id):
@@ -48,6 +50,7 @@ def get_model(request, id):
     serializer = GEMSerializer(model)
     return JSONResponse(serializer.data)
 
+
 @api_view()
 def author_list(request):
     """
@@ -56,6 +59,7 @@ def author_list(request):
     authors = Author.objects.all()
     serializer = AuthorSerializer(authors, many=True)
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def get_author(request, id):
@@ -71,6 +75,7 @@ def get_author(request, id):
     serializer = AuthorSerializer(author)
     return JSONResponse(serializer.data)
 
+
 @api_view()
 def reaction_list(request, model):
     """
@@ -82,6 +87,7 @@ def reaction_list(request, model):
     reactions = Reaction.objects.using(model).all()[offset:(offset+limit)]
     serializer = ReactionSerializer(reactions, many=True, context={'model': model})
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def get_reaction(request, model, id):
@@ -112,6 +118,7 @@ def get_reaction(request, model, id):
     return JSONResponse({'reaction': reactionserializer.data,
                          'pmids': pmidsresponse})
 
+
 @api_view()
 def reaction_reactant_list(request, model, id):
     """
@@ -127,6 +134,7 @@ def reaction_reactant_list(request, model, id):
 
     serializer = ReactionComponentSerializer(reaction.reactants, many=True, context={'model': model})
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def get_reaction_reactant(request, model, reaction_id, reactant_id):
@@ -144,6 +152,7 @@ def get_reaction_reactant(request, model, reaction_id, reactant_id):
     serializer = ReactionComponentSerializer(reactant, context={'model': model})
     return JSONResponse(serializer.data)
 
+
 @api_view()
 def reaction_product_list(request, model, id):
     """
@@ -159,6 +168,7 @@ def reaction_product_list(request, model, id):
 
     serializer = ReactionComponentSerializer(reaction.products, many=True, context={'model': model})
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def get_reaction_product(request, model, reaction_id, product_id):
@@ -176,6 +186,7 @@ def get_reaction_product(request, model, reaction_id, product_id):
     serializer = ReactionComponentSerializer(product, context={'model': model})
     return JSONResponse(serializer.data)
 
+
 @api_view()
 def reaction_modifier_list(request, model, id):
     """
@@ -192,6 +203,7 @@ def reaction_modifier_list(request, model, id):
     serializer = ReactionComponentSerializer(reaction.modifiers, many=True, context={'model': model})
     return JSONResponse(serializer.data)
 
+
 @api_view()
 def get_reaction_modifier(request, model, reaction_id, modifier_id):
     """
@@ -207,6 +219,7 @@ def get_reaction_modifier(request, model, reaction_id, modifier_id):
 
     serializer = ReactionComponentSerializer(modifier, context={'model': model})
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def component_list(request, model):
@@ -231,6 +244,7 @@ def component_list(request, model):
     serializer = ReactionComponentSerializer(components, many=True, context={'model': model})
     return JSONResponse(serializer.data)
 
+
 @api_view()
 def get_component(request, model, id):
     """
@@ -248,6 +262,7 @@ def get_component(request, model, id):
 
     serializer = ReactionComponentSerializer(component, context={'model': model})
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def currency_metabolite_list(request, model, id):
@@ -276,6 +291,7 @@ def currency_metabolite_list(request, model, id):
 #    serializer = ExpressionDataSerializer(expressions, many=True)
 #    return JSONResponse(serializer.data)
 
+
 @api_view()
 def interaction_partner_list(request, model, id):
     """
@@ -291,6 +307,7 @@ def interaction_partner_list(request, model, id):
     reactions = list(chain(component.reactions_as_reactant.all(), component.reactions_as_product.all(), component.reactions_as_modifier.all()))
     serializer = InteractionPartnerSerializer(reactions, many=True)
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def get_component_with_interaction_partners(request, model, id):
@@ -326,6 +343,7 @@ def get_component_with_interaction_partners(request, model, id):
 
     return JSONResponse(result)
 
+
 @api_view()
 def enzyme_list(request, model):
     """
@@ -338,6 +356,7 @@ def enzyme_list(request, model):
 
     serializer = ReactionComponentSerializer(enzymes, many=True, context={'model': model})
     return JSONResponse(serializer.data)
+
 
 @api_view()
 def connected_metabolites(request, model, id):
@@ -356,47 +375,20 @@ def connected_metabolites(request, model, id):
     except ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
-    reactions_count = enzyme.reactions_as_reactant.count() \
-                        + enzyme.reactions_as_product.count() \
-                        + enzyme.reactions_as_modifier.count()
+    reactions_count = enzyme.reactions_as_modifier.count()
 
-    if reactions_count > 10:
-        reactions = Reaction.objects.using(model).filter(
-                Q(reactionreactant__reactant_id=enzyme.id) |
-                Q(reactionproduct__product_id=enzyme.id) |
-                Q(reactionmodifier__modifier_id=enzyme.id)
-                ).distinct()
-        serializer = ReactionSerializer(reactions, many=True, context={'model': model})
+    reactions = Reaction.objects.using(model).filter(
+            Q(reactionmodifier__modifier_id=enzyme.id)
+            ).distinct()
+    serializer = ReactionLiteSerializer(reactions, many=True, context={'model': model})
 
-        result =  {
-            'enzyme' : ReactionComponentSerializer(enzyme, context={'model': model}).data,
-            'reactions': serializer.data
-        }
+    result =  {
+        'enzyme' : ReactionComponentSerializer(enzyme, context={'model': model}).data,
+        'reactions': serializer.data
+    }
 
-        return JSONResponse(result)
+    return JSONResponse(result)
 
-    as_reactant = [MetaboliteReaction(r, 'reactant') for r in enzyme.reactions_as_reactant.all()]
-    as_product = [MetaboliteReaction(r, 'product') for r in enzyme.reactions_as_product.all()]
-    as_modifier = [MetaboliteReaction(r, 'modifier') for r in enzyme.reactions_as_modifier.all()]
-    reactions = as_reactant + as_product + as_modifier
-
-    connected_metabolites = ConnectedMetabolites(enzyme, enzyme.compartment, reactions)
-    serializer = ConnectedMetabolitesSerializer(connected_metabolites, context={'model': model})
-    return JSONResponse(serializer.data)
-
-#@api_view()
-#def expressions_list(request, enzyme_id):
-#    tissue = request.query_params.get('tissue', '')
-#    expression_type = request.query_params.get('expression_type', '')
-
-#    expressions = ExpressionData.objects.filter(
-#            Q(gene_id__icontains=enzyme_id) &
-#            Q(tissue__icontains=tissue) &
-#            Q(expression_type__icontains=expression_type)
-#        )
-
-#    serializer = ExpressionDataSerializer(expressions, many=True)
-#    return JSONResponse(serializer.data)
 
 @api_view()
 def get_metabolite_reactions(request, model, reaction_component_id):
@@ -658,6 +650,7 @@ def convert_to_reaction_component_ids(request, model, compartmentID):
     results = reactionComponents = list(chain(rcci, rci))
     return JSONResponse(results)
 
+
 @api_view()
 def get_subsystem(request, model, subsystem_id):
     """
@@ -669,9 +662,12 @@ def get_subsystem(request, model, subsystem_id):
     except Subsystem.DoesNotExist:
         return HttpResponse(status=404)
 
-    smsQuerySet = SubsystemMetabolite.objects.using(model).filter(subsystem_id=subsystem_id)
-    sesQuerySet = SubsystemEnzyme.objects.using(model).filter(subsystem_id=subsystem_id) # FIXME contains metabolite ids not enzyme
-    srsQuerySet = SubsystemReaction.objects.using(model).filter(subsystem_id=subsystem_id)
+    smsQuerySet = SubsystemMetabolite.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction_component")
+    sesQuerySet = SubsystemEnzyme.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction_component") # FIXME contains metabolite ids not enzyme
+    srsQuerySet = SubsystemReaction.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction")
+
+    logging.warn("test")
+
     sms = []; ses = []; srs = [];
     for m in smsQuerySet:
         sms.append(m.reaction_component)
@@ -688,6 +684,7 @@ def get_subsystem(request, model, subsystem_id):
     }
 
     return JSONResponse(results)
+
 
 @api_view()
 def get_subsystems(request, model):
