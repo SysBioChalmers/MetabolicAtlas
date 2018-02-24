@@ -435,12 +435,6 @@ class ReactionComponentCompartmentSvg(models.Model):
 #
 # From tiles db
 #
-class TileReactionComponent(models.Model):
-    reaction_component_id = models.CharField(max_length=20, primary_key=True)
-    tile_name = models.CharField(max_length=200, null=True)
-
-    class Meta:
-        db_table = "tile_reactioncomponents"
 
 class TileSubsystem(models.Model):
     subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
@@ -457,6 +451,8 @@ class TileSubsystem(models.Model):
     class Meta:
         db_table = "tile_subsystems"
         unique_together = (('subsystem', 'compartment_name'),)
+
+
 #create table tile_subsystems(id bigserial primary key, subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(125), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer, reaction_count integer, is_main boolean);
 #insert into tile_subsystems values(4, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12800, 4600, 16800, 9000);
 
