@@ -73,7 +73,7 @@ export default {
   methods: {
     searchElements(HLonly) {
       const termsString = this.$refs.textarea.value;
-      const arrayTerms = termsString.trim().split(',');
+      const arrayTerms = termsString.trim().split(/[,;|-]/);
       const filterArray = [];
       for (let i = 0; i < arrayTerms.length; i += 1) {
         const trimTerm = arrayTerms[i].trim();
@@ -93,17 +93,11 @@ export default {
         for (let i = 0; i < res.length; i += 1) {
           const compartmentID = res[i][0];
           const id = res[i][1];
-          // if (id[0] === 'M' || id[0] === 'R') {
           if (!d[compartmentID.toString()]) {
             d[compartmentID.toString()] = [];
           }
           d[compartmentID.toString()].push(id);
-          // } else {
-          //  enzymeIDs.push(id);
-          // }
         }
-        // NOTE d is empty when only enzymes are found..
-
         if (!HLonly) {
           this.results = d;
           this.showResults = Object.keys(this.results).length !== 0;
@@ -112,7 +106,7 @@ export default {
           for (const key of Object.keys(d)) {
             idlist = idlist.concat(d[key]);
           }
-          // this.HLIDs = idlist.concat(enzymeIDs);
+          this.HLIDs = idlist;
           EventBus.$emit('showSVGmap', 'highlight', null, this.HLIDs);
         }
       })

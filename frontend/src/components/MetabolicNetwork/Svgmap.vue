@@ -112,7 +112,7 @@ export default {
     $('#svg-wrapper').on('click', '.metabolite', function f() {
       // exact the real id from the id
       const id = $(this).attr('id').split('-')[0].trim();
-      console.log(id);
+      // console.log(id);
       if (id[0] === 'E') {
         EventBus.$emit('updateSelTab', 'enzyme', id);
       } else {
@@ -138,8 +138,8 @@ export default {
           zoomScaleSensitivity: 0.4,
           fit: true,
           beforeZoom: (oldzl, newzl) => {
-            console.log(oldzl);
-            console.log(newzl);
+            // console.log(oldzl);
+            // console.log(newzl);
             if (newzl > this.compartment.maxZoomLvl + 0.001) {
               this.allowZoom = false;
               return false;
@@ -185,7 +185,7 @@ export default {
       }, 0);
     },
     svgfit() {
-      console.log('fit svg');
+      // console.log('fit svg');
       $('#svg-wrapper svg').attr('width', '100%');
       const h = $('.svgbox').first().css('height');
       $('#svg-wrapper svg').attr('height', h);
@@ -197,7 +197,7 @@ export default {
       }
     },
     loadSVG(compartment, callback, callback2) {
-      console.log('load svg');
+      // console.log('load svg');
       // load the svg file from the server
       // if aleady loaded, just call the callback funtion
       const newSvgName = compartment.svgName;
@@ -238,13 +238,12 @@ export default {
         callback2();
       } else {
         this.compartment = compartment;
-        console.log('finish call svgfit');
+        // console.log('finish call svgfit');
         this.svgfit();
       }
     },
     findElementsOnSVG() {
       console.log('call findElementsOnSVGs');
-      console.log(this.ids);
       const a = [];
       const debug = false;
       if (!this.ids) {
@@ -266,7 +265,7 @@ export default {
         } else {
           // console.log(`${idname} elem not found`);
         }
-        for (let j = 0; j < 100; j += 1) {
+        for (let j = 0; j < 200; j += 1) {
           idname = `#${id}-${j}`;
           elm = $(idname);
           if (elm.length) {
@@ -279,7 +278,6 @@ export default {
         }
       }
       if (a.length) {
-        console.log(a);
         this.highlightSVGelements(a);
       } else {
         this.showLoader = false;
@@ -329,7 +327,6 @@ export default {
       this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
       this.zoomBox.centerX = this.zoomBox.minX + (this.zoomBox.w / 2.0);
       this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
-      // console.log(this.zoomBox);
     },
     getTransform(el) {
       // read and parse the transform attribut, no used anmore
@@ -340,7 +337,7 @@ export default {
     },
     highlightSVGelements(els) {
       this.unHighlight();
-      const debug = false;
+      const debug = true;
       this.resetZoombox();
       for (const el of els) {
         const id = el.attr('id');
@@ -352,10 +349,13 @@ export default {
           console.log(path[0].getBBox());
         }
         // change the box color only
-        path.addClass('hl');
         this.HLelms.push(path);
         if (!this.HLonly) {
+          path.addClass('hl');
           this.updateZoomBox(el[0]); // the DOM element
+        } else {
+          path.addClass('hl2');
+          el.attr('display', 'inline');
         }
       }
       if (!this.HLonly) {
@@ -379,7 +379,7 @@ export default {
         console.log(viewBox.height);
       }
       let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
-      console.log(`newScale ${newScale}`);
+      // console.log(`newScale ${newScale}`);
       if (newScale > this.compartment.maxZoomLvl) {
         newScale = this.compartment.maxZoomLvl - 0.01; // fix zoom round e.g. 30 => 30.00001235
       }
@@ -393,6 +393,7 @@ export default {
         // un-highlight elements
         for (let i = 0; i < this.HLelms.length; i += 1) {
           this.HLelms[i].removeClass('hl');
+          this.HLelms[i].removeClass('hl2');
         }
         this.HLelms = [];
       }
@@ -480,6 +481,10 @@ export default {
 
   svg .hl {
     fill: #22FFFF;
+  }
+
+  svg .hl2 {
+    fill: red;
   }
 
 </style>
