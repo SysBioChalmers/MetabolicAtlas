@@ -7,7 +7,6 @@ import sys
 
 from django.db import models
 from api.models import *
-# from api.serializers import *
 
 import xml.etree.ElementTree as etree
 import re
@@ -275,6 +274,7 @@ def get_reaction(database, sbml_model, index):
     reaction_to_add.compartment = c # FIXME this is the compartment equation, rename it
     if '=>' in c:
         reaction_to_add.is_transport = True
+    reaction_to_add.is_reversible = sbml_reaction.getReversible()
 
     reaction_to_add.save(using=database)
 
@@ -485,7 +485,7 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
     for i in range(nb_reactions):
         if skip_first_reaction and i < skip_first_reaction:
             continue
-        if i % 100 == 0 and i !=0:
+        if i % 1000 == 0 and i !=0:
             print ("Processing reaction # %s/%s" % (i, nb_reactions))
         reaction = get_reaction(database,sbml_model, i)
         # FIXME tmp remove GEMReaction, not used if multiple DB

@@ -29,6 +29,7 @@ annotationsToAdd = {}
 
 db_generation_files_dir = "/project/database_generation/data/"
 ressource_files_dir = "/project/related_scripts/create_the_import_files/"
+large_ressource_files_dir = "/project/related_scripts/create_the_import_files/large_files"
 
 '''
 exec(open(os.path.join(sys.path[0], "../", "database_generation", "addSBMLData.py")).read())
@@ -77,6 +78,7 @@ def _checkIfFileExists(files_list):
 # so wrap up all the files for the given species
 def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_first_metabolite=0):
     # first check that ALL files exists
+
     HMRdatabase2_00_xml_file = os.path.join(ressource_files_dir, 'HMRdatabase2_00-2.xml')
     ensembl_annotation_file = os.path.join(ressource_files_dir, 'ensembl%s_hgnc_symbol_uniprotswissprot.hsapiens.tab' % ensembl_version)
 
@@ -88,7 +90,7 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
     # generate using parse_HMDB.py and downloaded from http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip (v4.0)
     HMDB_file = os.path.join(ressource_files_dir, 'HMDB.tab')
     # downloaded from ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/ and used in using pubchem.py
-    pubchem_file = os.path.join(ressource_files_dir, 'CID-Synonym-filtered')
+    pubchem_file = os.path.join(large_ressource_files_dir, 'CID-Synonym-filtered')
     # downloaded from http://www.lipidmaps.org/resources/downloads/index.html and used in using lipidmaps.py
 
 
@@ -101,7 +103,7 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
     uniprot_catactivity_file = os.path.join(ressource_files_dir, 'uniprot.human.CatalyticActivity.tab')
     uniprot_names_file = os.path.join(ressource_files_dir, 'uniprot.human.names.tab')
     # filter only kegg reference?
-    uniprot_DB_crossref_file = os.path.join(ressource_files_dir, 'uniprot.human.databasecrossreferences.tab')
+    uniprot_DB_crossref_file = os.path.join(large_ressource_files_dir, 'uniprot.human.databasecrossreferences.tab')
     # make using grep "kegg" on 'uniprot.human.databasecrossreferences.tab
     # uniprot_DB_kegg_file = os.path.join(ressource_files_dir, 'human.kegg.tab')  # contain the NCBI gene id not kegg
     # make using  grep "GeneID" uniprot.human.databasecrossreferences.tab | sed -e 's/GeneID; \(.*\)[;]\s[-][.]/\1/g' > uniprot.ncbi.tab
@@ -147,7 +149,7 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
     # masses = addMetabolites.readMassCalcFile(mass_calculation_file) // masses are in HMDB_file
     # hmdb = addMetabolites.readHMDBFile(HMDB_masses_file) // file missing 
     hmdb_data = parse_HMDB.parse_HMDB_tab(HMDB_file, synonyms_as_dict=True, chebi_as_dict=True, pubchem_as_dict=True)
-    pubchem_db_dfile = os.path.join(ressource_files_dir, 'pubchem.db')
+    pubchem_db_dfile = os.path.join(large_ressource_files_dir, 'pubchem.db')
     if not os.path.isfile(pubchem_db_dfile):
         import pubchem
         # pubchem.generate_pubchem_db(pubchem_file)

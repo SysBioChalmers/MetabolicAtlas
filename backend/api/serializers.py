@@ -80,7 +80,7 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
+            'reactants', 'products', 'modifiers', 'compartment', 'subsystem', 'is_transport', 'is_reversible')
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
@@ -95,7 +95,7 @@ class ReactionLiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
+            'reactants', 'products', 'modifiers', 'compartment', 'subsystem', 'is_transport', 'is_reversible')
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
@@ -108,7 +108,7 @@ class ReactionSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'compartment', 'subsystem')
+            'compartment', 'subsystem', 'is_transport', 'is_reversible')
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
