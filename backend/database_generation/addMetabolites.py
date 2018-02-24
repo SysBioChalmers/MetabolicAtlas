@@ -312,7 +312,8 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
                         print ("Error: HMDB id using pubchem id: %s != xls is %s" % (pubchem_hmdb_id, hmdb_id))
                         exit(1)
 
-                hmdb_link = "http://www.hmdb.ca/metabolites/%s" % hmdb_id
+                if hmdb_id:
+                    hmdb_link = "http://www.hmdb.ca/metabolites/%s" % hmdb_id
 
                 if hmdb_id and hmdb_id in HMDB_dict:
                     current = HMDB_dict[hmdb_id]

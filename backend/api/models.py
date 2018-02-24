@@ -15,8 +15,18 @@ class GEModelReference(models.Model):
 
 
 class GEModelSet(models.Model):
+    CATEGORY = (
+        ('Species', 'Species'),
+        ('Community', 'Community'),
+        ('Collection', 'Collection'),
+    )
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(null=True)
+    '''category = models.CharField(
+                        max_length=15,
+                        choices = CATEGORY,
+                        default = 'Species',
+                    )'''
     reference = models.ManyToManyField(GEModelReference, related_name='gemodelset_references')
 
     class Meta:
@@ -37,7 +47,7 @@ class GEModelSample(models.Model):
 
 
 class GEModelFile(models.Model):
-    path = models.CharField(max_length=200, unique=True)
+    path = models.CharField(max_length=500, unique=True)
     format = models.CharField(max_length=50)
 
     class Meta:
@@ -45,8 +55,8 @@ class GEModelFile(models.Model):
 
 
 class GEModel(models.Model):
-    gemodelset = models.ForeignKey(GEModelSet, default=1)
-    sample = models.ForeignKey(GEModelSample, default=1)
+    gemodelset = models.ForeignKey(GEModelSet, default=1, on_delete=models.CASCADE)
+    sample = models.ForeignKey(GEModelSample, default=1, on_delete=models.CASCADE)
     description = models.TextField(null=True)
     label = models.CharField(max_length=200, null=True)
     reaction_count = models.IntegerField(default=0)
@@ -55,6 +65,8 @@ class GEModel(models.Model):
     files = models.ManyToManyField(GEModelFile, related_name='gemodel_files')
     maintained = models.BooleanField(default=False)
     ref = models.ManyToManyField(GEModelReference, related_name='gemodels_refs', blank=True)
+    last_update = models.DateField(null=True)
+    repo_name = models.CharField(max_length=200, null=True)
 
     def save(self, *args, **kwargs):
         if not self.gemodelset:
@@ -128,6 +140,7 @@ class Reaction(models.Model):
     #subsystem = models.CharField(max_length=600)
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
+    is_reversible = models.BooleanField(default=False)
 
     # models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
 
@@ -155,7 +168,7 @@ class ReactionComponent(models.Model):
     component_type = models.CharField(max_length=50, db_index=True)
     organism = models.CharField(max_length=255)
     formula = models.CharField(max_length=255, null=True)        # only metabolites have this!
-    compartment = models.ForeignKey('Compartment', db_column='compartment', blank=True)
+    compartment = models.ForeignKey('Compartment', db_column='compartment', blank=True, on_delete=models.CASCADE)
 
     reactions_as_reactant = models.ManyToManyField(Reaction, related_name='reactants', through='ReactionReactant')
     reactions_as_product = models.ManyToManyField(Reaction, related_name='products', through='ReactionProduct')
@@ -248,7 +261,7 @@ class Metabolite(models.Model):
 
 class Enzyme(models.Model):
     reaction_component = models.OneToOneField('ReactionComponent',
-        related_name='enzyme', db_column='reaction_component')
+        related_name='enzyme', db_column='reaction_component', on_delete=models.CASCADE)
     uniprot_acc = models.CharField(max_length=35)
     protein_name = models.CharField(max_length=150)
     short_name = models.CharField(max_length=75)
@@ -289,7 +302,7 @@ class SubsystemSvg(models.Model):
 
 
 class NumberOfInteractionPartners(models.Model):
-    reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component')
+    reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component', on_delete=models.CASCADE)
     first_order = models.FloatField()
     second_order = models.FloatField(null=True)
     third_order = models.FloatField(null=True)
@@ -430,9 +443,9 @@ class TileReactionComponent(models.Model):
         db_table = "tile_reactioncomponents"
 
 class TileSubsystem(models.Model):
-    subsystem = models.ForeignKey(Subsystem)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
     subsystem_name = models.CharField(max_length=200)
-    compartmentsvg = models.ForeignKey(CompartmentSvg)
+    compartmentsvg = models.ForeignKey(CompartmentSvg, on_delete=models.CASCADE)
     compartment_name = models.CharField(max_length=125)
     x_top_left = models.IntegerField()
     y_top_left = models.IntegerField()

@@ -51,9 +51,10 @@ export default {
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'name', display: 'Name', modifier: chemicalName },
-        { name: 'compartment' },
+        { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
         { name: 'subsystem', modifier: this.reformatSubsystemList },
         { name: 'equation', modifier: this.reformatEquation },
+        { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
         { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
         { name: 'modifiers', modifier: this.reformatModifiers },
         { name: 'ec', display: 'EC', modifier: this.reformatECLink },
@@ -150,6 +151,18 @@ export default {
         data.push('<span>&nbsp;&nbsp;</span>');
       }
       return data.join(' ');
+    },
+    reformatCompartment() {
+      if (this.info.is_transport) {
+        return `${this.info.compartment} (transport reaction)`;
+      }
+      return `${this.info.compartment}`;
+    },
+    reformatReversible() {
+      if (this.info.is_reversible) {
+        return 'Yes';
+      }
+      return 'No';
     },
     chemicalFormula,
     chemicalName,

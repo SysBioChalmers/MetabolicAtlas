@@ -20,24 +20,26 @@
             </span>
           </div>
         </div>
-        <div v-if="!showFTPaccess">
-          <table class="table is-bordered is-striped is-narrow" v-if="filteredOldGEMS.length != 0">
-            <thead>
-              <tr style="background: #F8F4F4">
-                <th v-for="f in fields" v-html="f.display"
-                  @click="sortBy(f.name)">
-                  </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="m-row" v-for="gem in filteredOldGEMS"
-                @click="getModel(gem.id)">
-                <td v-for="i in fields.length">
-                  {{ gem[fields[i-1].name] }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="columns" v-if="!showFTPaccess">
+          <div class="column is-full">
+            <table class="table is-bordered is-striped is-narrow is-fullwidth" v-if="filteredOldGEMS.length != 0">
+              <thead>
+                <tr style="background: #F8F4F4">
+                  <th v-for="f in fields" v-html="f.display" :width="f.width ? f.width : ''"
+                    @click="sortBy(f.name)">
+                    </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="m-row" v-for="gem in filteredOldGEMS"
+                  @click="getModel(gem.id)">
+                  <td v-for="i in fields.length">
+                    {{ gem[fields[i-1].name] }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div v-else>
           <h4 class="is-4 title">Downloading from a web browser</h4>
@@ -76,16 +78,8 @@
               <tr v-if="selectedModel.ref && selectedModel.ref.length !== 0">
                 <td class="td-key">Reference</td>
                 <td v-if="selectedModel.ref[0].link">
-                  <template v-if="selectedModel.ref[0].pubmed">
-                    <a :href="selectedModel.ref[0].link" target="_blank">
-                      {{ selectedModel.ref[0].title }} (PMID:{{ selectedModel.ref[0].pubmed }})
-                    </a>
-                  </template>
-                  <template v-else>
-                    <a :href="selectedModel.ref[0].link" target="_blank">
-                      {{ selectedModel.ref[0].title }}
-                    </a>
-                  </template>
+                  <a :href="selectedModel.ref[0].link" target="_blank" v-html="getReferenceLink(selectedModel.ref[0])">
+                  </a>
                 </td>
                 <td v-else>
                     {{ selectedModel.ref.title }}
@@ -131,18 +125,18 @@ export default {
         { name: 'label', display: 'Label' },
         // { name: 'organ_system', display: 'System' },
         { name: 'tissue', display: 'Tissue' },
-        { name: 'cell_type', display: 'Cell type' },
-        { name: 'reaction_count', display: '#&nbsp;reactions' },
-        { name: 'metabolite_count', display: '#&nbsp;metabolites' },
-        { name: 'enzyme_count', display: '#&nbsp;enzymes' },
-        { name: 'year', display: 'Year' },
+        { name: 'cell_type', display: 'Cell&nbsp;type' },
+        { name: 'reaction_count', display: '#&nbsp;reactions', width: 100 },
+        { name: 'metabolite_count', display: '#&nbsp;metabolites', width: 100 },
+        { name: 'enzyme_count', display: '#&nbsp;enzymes', width: 100 },
+        { name: 'year', display: 'Year', width: 70 },
       ],
       model_fields: [
         { name: 'organism', display: 'Organism' },
         { name: 'set_name', display: 'Set' },
         { name: 'organ_system', display: 'System' },
         { name: 'tissue', display: 'Tissue' },
-        { name: 'cell_type', display: 'Cell type' },
+        { name: 'cell_type', display: 'Cell&nbsp;type' },
         { name: 'reaction_count', display: '#&nbsp;reactions' },
         { name: 'metabolite_count', display: '#&nbsp;metabolites' },
         { name: 'enzyme_count', display: '#&nbsp;enzymes/genes' },
@@ -236,6 +230,13 @@ export default {
     toggleMaintainedModels() {
       this.showMaintained = !this.showMaintained;
       this.showFTPaccess = false;
+    },
+    getReferenceLink(ref) {
+      const title = ref.title.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      if (ref.pubmed) {
+        return `${title} (PMID: ${ref.pubmed})`;
+      }
+      return title;
     },
   },
   beforeMount() {

@@ -80,7 +80,7 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
+            'reactants', 'products', 'modifiers', 'compartment', 'subsystem', 'is_transport', 'is_reversible')
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
@@ -95,7 +95,7 @@ class ReactionLiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers', 'compartment', 'subsystem')
+            'reactants', 'products', 'modifiers', 'compartment', 'subsystem', 'is_transport', 'is_reversible')
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
@@ -108,7 +108,7 @@ class ReactionSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'compartment', 'subsystem')
+            'compartment', 'subsystem', 'is_transport', 'is_reversible')
 
     def get_subsystems(self, model):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
@@ -199,7 +199,10 @@ class GEModelFileSerializer(serializers.ModelSerializer):
         fields = ('path', 'format')
 
     def get_file_path(self, model):
-        return "%s%s" % ('http://ftp.icsb.chalmers.se/models', model.path.split('/FTP')[1])
+        if '/FTP' in model.path:
+            return "%s%s" % ('http://ftp.icsb.chalmers.se/models', model.path.split('/FTP')[1])
+        else:
+            return model.path
 
 class GEModelReferenceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -208,6 +211,7 @@ class GEModelReferenceSerializer(serializers.ModelSerializer):
 
 class GEModelSetSerializer(serializers.ModelSerializer):
     reference = GEModelReferenceSerializer(many=True, read_only=True)
+
     class Meta:
         model = GEModelSet
         fields = ('name', 'description', 'reference')
@@ -239,13 +243,18 @@ class GEModelListSerializer(serializers.ModelSerializer):
         return gg.name
 
     def get_model_year(self, model):
-        refs = model.ref.all()
-        if refs:
-            return refs[0].year
+        years = model.ref.only('year').all().values_list('year', flat=True)
+        if years:
+            return max(years)
         else:
-            years = model.gemodelset.reference.all().values_list('year', flat=True)
+            years = model.gemodelset.reference.only('year').all().values_list('year', flat=True)
             if years:
                 return max(years)
+
+    def setup_eager_loading(cls, queryset):
+        """ Perform necessary eager loading of data. """
+        queryset = queryset.prefetch_related('sample')
+        return queryset
 
     class Meta:
         model = GEModel
