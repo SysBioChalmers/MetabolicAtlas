@@ -360,7 +360,7 @@ def write_subsystem_summary_file(database, rme_compt_svg, sub_compt_svg, pathway
     subsystems = sorted(subsystems, key=operator.attrgetter('name'))
 
     cor = []
-    with open("database_generation/data/subsystem.txt", 'w') as fw:
+    with open("database_generation/data/connectivity/subsystem.txt", 'w') as fw:
         for ss in subsystems:
             sorted_dict = sorted(pathway_compt_coverage[ss.name][1].items(), key=operator.itemgetter(1), reverse=True)
             percent_reaction_db = "; ".join(["%s:%s" % (k, v) for (k, v) in sorted_dict])
@@ -394,7 +394,7 @@ def write_subsystem_summary_file(database, rme_compt_svg, sub_compt_svg, pathway
 
 
 def write_ssub_connection_files(v):
-    with open('database_generation/data/subs_connect_mat.txt', 'w') as fw:
+    with open('database_generation/data/connectivity/subs_connect_mat.txt', 'w') as fw:
         ssubs = list(v.keys())
         fw.write("#\t" + "\t".join(ssubs) + "\n")
         for ssub1 in ssubs:
@@ -406,7 +406,7 @@ def write_ssub_connection_files(v):
                     fw.write("\t")
             fw.write("\n")
 
-    with open('database_generation/data/subs_connect_table.txt', 'w') as fw:
+    with open('database_generation/data/connectivity/subs_connect_table.txt', 'w') as fw:
         ssubs = list(v.keys())
         s = set()
         for ssub1 in ssubs:
@@ -424,7 +424,7 @@ def write_ssub_connection_files(v):
 
 
 def write_meta_freq_files(database, v):
-    with open('database_generation/data/meta_compartment_freq.txt', 'w') as fw:
+    with open('database_generation/data/connectivity/meta_compartment_freq.txt', 'w') as fw:
         compts = [ci for ci in Compartment.objects.using(database).all().values_list('name', flat=True)]
         fw.write("#meta id\t" + "\t".join(compts) + "\n")
         for meta in v:
@@ -439,7 +439,7 @@ def write_meta_freq_files(database, v):
                     fw.write("\t")
             fw.write("\n")
 
-    with open('database_generation/data/meta_subsystem_freq.txt', 'w') as fw:
+    with open('database_generation/data/connectivity/meta_subsystem_freq.txt', 'w') as fw:
         ssubs = [ss for ss in Subsystem.objects.using(database).all().values_list('name', flat=True)]
         fw.write("#meta id\t" + "\t".join(ssubs) + "\n")
         for meta in v:
@@ -687,7 +687,7 @@ def get_compt_subsystem_connectivity(database, compt_rme, rme_compt, sub_rme, rm
 
     write_meta_freq_files(database, result)
 
-    with open("database_generation/data/umeta_subsystem.txt", 'w') as fw:
+    with open("database_generation/data/connectivity/umeta_subsystem.txt", 'w') as fw:
         for subsystem in unique_meta_ssub:
             fw.write("%s\t%s\n" % (subsystem, "; ".join(unique_meta_ssub[subsystem])))
 
