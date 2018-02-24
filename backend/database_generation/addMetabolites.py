@@ -24,11 +24,11 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
     def match(expr, item):
         return re.match(expr, item) is not None
 
-    con = sqlite3.connect(pubchem_db)
-    con.create_function("REGEXP", 2, match)
-    cur = con.cursor()
-
     reannotate = False
+    if reannotate:
+        con = sqlite3.connect(pubchem_db)
+        con.create_function("REGEXP", 2, match)
+        cur = con.cursor()
 
     # store all names to compare with new name found in pubchem/hmdb
     rc_name_dict = {}
@@ -410,8 +410,9 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
                 # and replace the name in the reaction equation
                 pass
 
-    cur.close()
-    con.close()
+    if reannotate:
+        cur.close()
+        con.close()
 
     print ("inserted %s / %s" % (inserted, i))
     print ("inserted hmdb %s" % inserted_hmdb)

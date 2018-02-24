@@ -1061,10 +1061,6 @@ def readCompInfo(database, ci_file):
         # get element in subsystem / compt from svg
         compt_rme_svg, rme_compt_svg, compt_sub_svg, sub_compt_svg = get_subsystem_compt_element_svg(database)
 
-        write_subsystem_summary_file(database, rme_compt_svg, sub_compt_svg, pathway_compt_coverage)
-
-        # exit()
-
         # compare M, R, E localization between SVG and database
         for compt in compt_rme_svg:
             print ("====", compt)
@@ -1118,8 +1114,6 @@ def readCompInfo(database, ci_file):
                 exit(1)
 
         # compare subsystem
-        print (len(compt_sub_svg))
-        print (len(compt_sub))
         s_svg_cyto_tot = set()
         for compt in compt_rme_svg:
             print ("====", compt)
@@ -1161,6 +1155,8 @@ def readCompInfo(database, ci_file):
         input("continue?")
 
         saveTileSubsystem(database, compt_sub_svg, compt_sub, compt_rme_svg, compt_rme, sub_rme, compt_sub_reaction)
+
+        write_subsystem_summary_file(database, rme_compt_svg, sub_compt_svg, pathway_compt_coverage)
 
         subsystems = Subsystem.objects.using(database).exclude(system='Collection of reactions')
         subsystem_stat_dict = {}
@@ -1217,7 +1213,6 @@ def readCompInfo(database, ci_file):
             subsystem.nr_metabolites = smsQuerySet.count()
             subsystem.nr_compartment = len(set(compartment_meta))
             subsystem.save(using=database)
-            print (s.name)
 
 
         # update subsystem svg stat
