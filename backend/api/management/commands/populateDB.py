@@ -112,7 +112,7 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
     required_files = [
        HMRdatabase2_00_xml_file, ensembl_annotation_file,
        currency_mets_file, mass_calculation_file, HMDB_file,
-       pubchem_file, metabolite_excel_file, reaction_excel_file,
+       metabolite_excel_file, reaction_excel_file,
        uniprot_keyword_file, uniprot_EC_file, uniprot_function_file,
        uniprot_catactivity_file, uniprot_names_file, uniprot_DB_crossref_file,
        uniprot_ncbi_file
@@ -150,10 +150,13 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
     # hmdb = addMetabolites.readHMDBFile(HMDB_masses_file) // file missing 
     hmdb_data = parse_HMDB.parse_HMDB_tab(HMDB_file, synonyms_as_dict=True, chebi_as_dict=True, pubchem_as_dict=True)
     pubchem_db_dfile = os.path.join(large_ressource_files_dir, 'pubchem.db')
-    if not os.path.isfile(pubchem_db_dfile):
+    if False and not os.path.isfile(pubchem_db_dfile):
+         #  its not used in HMR2.0
         import pubchem
-        # pubchem.generate_pubchem_db(pubchem_file)
-    # lipidmaps_data = ... skip lipdsmaps data, its not use in HMR2.0
+        pubchem_file = os.path.join(large_ressource_files_dir, 'CID-Synonym-filtered')
+        _checkIfFileExists([pubchem_file])
+        pubchem.generate_pubchem_db(pubchem_file)
+    # lipidmaps_data = ... skip lipdsmaps data, its not used in HMR2.0
     addMetabolites.metaboliteDefinitions(database, metabolite_excel_file, hmdb_data, pubchem_db_dfile, None, skip_first_metabolite=skip_first_metabolite)
 
     # addReactionComponentAnnotation

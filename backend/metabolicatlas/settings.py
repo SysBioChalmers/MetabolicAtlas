@@ -96,7 +96,7 @@ DATABASES = {
     },
     'human': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hma',
+        'NAME': 'hmm',
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
@@ -104,7 +104,7 @@ DATABASES = {
     },
     'yeast': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ymh',
+        'NAME': 'ymm',
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
@@ -117,14 +117,6 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_DB2_PASSWORD'),
         'HOST': 'db2',
         'PORT': 5432,
-    },
-    'tiles': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB2_TILES_DB'),
-        'USER': os.getenv('POSTGRES_DB2_USER'),
-        'PASSWORD': os.getenv('POSTGRES_DB2_PASSWORD'),
-        'HOST': 'db2',
-        'PORT': 5432,
     }
 }
 
@@ -133,7 +125,6 @@ DATABASES = {
 
 DATABASE_ROUTERS = [
     'api.routers.GemodelRouter',
-    'api.routers.TileRouter',
     'api.routers.ApiRouter'
 ]
 
@@ -168,8 +159,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # SWAGGER
 SWAGGER_SETTINGS = {
-    'LOGIN_URL': 'admin:login',
-    'LOGOUT_URL': 'admin:logout',
+    # 'LOGIN_URL': 'admin:login',
+    # 'LOGOUT_URL': 'admin:logout',
     "exclude_namespaces": ["internal_apis"],
 }
 
