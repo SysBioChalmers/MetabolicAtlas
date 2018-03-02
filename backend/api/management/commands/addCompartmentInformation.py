@@ -957,6 +957,19 @@ def get_subsystem_compt_element_svg(database):
     return compt_rme_svg, rme_compt_svg, compt_sub_svg, sub_compt_svg
 
 
+def saveSubsystemCompartment(database, sub_compt_using_reaction):
+    for subsystem, compartments in sub_compt_using_reaction.items():
+        ss = Subsystem.objects.using(database).get(name=subsystem)
+        for compartment in compartments:
+            compt = Compartment.objects.using(database).get(name=compartment)
+
+            try:
+                sc = SubsystemCompartment.objects.using(database).get(subsystem=ss, compartment=compt)
+            except SubsystemCompartment.DoesNotExist:
+                sc = SubsystemCompartment(subsystem=ss, compartment=compt)
+                sc.save(using=database)
+
+
 def saveTileSubsystem(database, compt_sub_svg, compt_sub, compt_rme_svg, compt_rme, sub_rme, compt_sub_reaction):
 
     for c_name_svg in compt_rme_svg: # all compartments having a svg file (cytosol splited)
@@ -1153,6 +1166,8 @@ def readCompInfo(database, ci_file):
         print ("%s total subsystem have been found in svg / %s in database" % (len(s_svg_cyto_tot), len(compt_sub['Cytosol'])))
         print ("overlaping subsystems: %s" % len((s_svg_cyto_tot & compt_sub['Cytosol'])))
         input("continue?")
+
+        saveSubsystemCompartment(database, sub_compt_using_reaction)
 
         saveTileSubsystem(database, compt_sub_svg, compt_sub, compt_rme_svg, compt_rme, sub_rme, compt_sub_reaction)
 

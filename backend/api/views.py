@@ -595,7 +595,7 @@ def search(request, model, term):
 
         RCserializer = ReactionComponentSearchSerializer(components, many=True)
         compartmentSerializer = CompartmentSerializer(compartments, many=True)
-        subsystemSerializer = SubsystemSerializer(subsystems, many=True)
+        subsystemSerializer = SubsystemSerializer(subsystems, many=True, context={'model': model})
         reactionSerializer = ReactionSearchSerializer(reactions, many=True, context={'model': model})
 
     results = {
@@ -681,7 +681,7 @@ def get_subsystem(request, model, subsystem_id):
         srs.append(r.reaction)
 
     results = {
-        'subsystemAnnotations': SubsystemSerializer(s).data,
+        'subsystemAnnotations': SubsystemSerializer(s, context={'model': model}).data,
         'metabolites': ReactionComponentLiteSerializer(sms, many=True, context={'model': model}).data,
         'enzymes': ReactionComponentLiteSerializer(ses, many=True, context={'model': model}).data,
         'reactions': ReactionLiteSerializer(srs, many=True, context={'model': model}).data
@@ -699,7 +699,7 @@ def get_subsystems(request, model):
     except Subsystem.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = SubsystemSerializer(subsystems, many=True)
+    serializer = SubsystemSerializer(subsystems, many=True, context={'model': model})
 
     return JSONResponse(serializer.data)
 

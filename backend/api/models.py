@@ -300,6 +300,13 @@ class SubsystemSvg(models.Model):
     class Meta:
         db_table = "subsystemsvg"
 
+# relation subsystem / compartment in SVGs can be found in TilesSubsystems
+class SubsystemCompartment(models.Model):
+    subsystem = models.ForeignKey('subsystem', on_delete=models.CASCADE)
+    compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subsystem_compartment"
 
 class NumberOfInteractionPartners(models.Model):
     reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component', on_delete=models.CASCADE)
