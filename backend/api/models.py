@@ -275,7 +275,6 @@ class Enzyme(models.Model):
     class Meta:
         db_table = "enzymes"
 
-
 class Subsystem(models.Model):
     name = models.CharField(max_length=100, unique=True)
     system = models.CharField(max_length=100)
@@ -283,8 +282,9 @@ class Subsystem(models.Model):
     description = models.CharField(max_length=255, null=True)
     nr_reactions = models.IntegerField(default=0)
     nr_metabolites = models.IntegerField(default=0)
+    nr_unique_metabolites = models.IntegerField(default=0)
     nr_enzymes = models.IntegerField(default=0)
-    nr_compartment = models.IntegerField(default=0)
+    nr_compartments = models.IntegerField(default=0)
 
     class Meta:
         db_table = "subsystems"
@@ -294,8 +294,9 @@ class SubsystemSvg(models.Model):
     system = models.CharField(max_length=100)
     nr_reactions = models.IntegerField(default=0)
     nr_metabolites = models.IntegerField(default=0)
+    nr_unique_metabolites = models.IntegerField(default=0)
     nr_enzymes = models.IntegerField(default=0)
-    nr_compartment = models.IntegerField(default=0)
+    nr_compartments = models.IntegerField(default=0)
 
     class Meta:
         db_table = "subsystemsvg"

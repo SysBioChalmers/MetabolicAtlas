@@ -1189,6 +1189,9 @@ def readCompInfo(database, ci_file):
             # from SBML
             smsQuerySet = SubsystemMetabolite.objects.using(database). \
                 filter(subsystem_id=subsystem).values_list('reaction_component_id', flat=True)
+            unique_meta = set()
+            for meta_id in smsQuerySet:
+                unique_meta.add(meta_id[:-1])
             sesQuerySet = SubsystemEnzyme.objects.using(database). \
                 filter(subsystem_id=subsystem).values_list('reaction_component_id', flat=True)
             srsQuerySet = SubsystemReaction.objects.using(database). \
@@ -1226,13 +1229,15 @@ def readCompInfo(database, ci_file):
             subsystem.nr_reactions = srsQuerySet.count()
             subsystem.nr_enzymes = sesQuerySet.count()
             subsystem.nr_metabolites = smsQuerySet.count()
-            subsystem.nr_compartment = len(set(compartment_meta))
+            subsystem.nr_unique_metabolites = len(unique_meta)
+            subsystem.nr_compartments = len(set(compartment_meta))
             subsystem.save(using=database)
 
 
         # update subsystem svg stat
         for p_name, v in pathway_compt_coverage.items():
-            # stats display on the HMR web site are the one taht correspond to the model file
+            # stats display on the HMR web site are the one that correspond to the model file
+            # so skip it for now
             continue
 
         # compartment svg stats, values correspond to what is inside the svg files
@@ -1278,7 +1283,7 @@ def readCompInfo(database, ci_file):
             # thus stats should not be use when query about cytosol_x
             CompartmentSvg.objects.using(database). \
                 filter(id=ci.id).update(nr_reactions=nr_reactions, nr_subsystems=nr_subsystems, \
-                 nr_metabolites=nr_metabolites, nr_enzymes=nr_enzymes)
+                 nr_metabolites=nr_metabolites, nr_enzymes=nr_enzymes)  # nr_unique_meta is not updated
 
 
         # get compartment statistics from the xml data
@@ -1291,13 +1296,6 @@ def readCompInfo(database, ci_file):
             """ % ci.id
             rcs = ReactionComponent.objects.using(database).raw(sql)
             nr_metabolites = len(list(rcs))
-            '''for rc in rcs:
-                rccis = ReactionComponentCompartmentSvg.objects.using(database). \
-                   filter(component=rc, compartmentsvg=ci)
-                if not rccis:
-                    add = ReactionComponentCompartmentSvg(component=rc, compartmentsvg=ci)
-                    add.save(using=database)
-                nr_metabolites += 1'''
 
             # add the connection to the reactions
             sql = """SELECT * FROM reaction WHERE id in (
@@ -1306,12 +1304,6 @@ def readCompInfo(database, ci_file):
             """ % ci.id
             rs = Reaction.objects.using(database).raw(sql)
             nr_reactions = len(list(rs))
-            '''for r in rs:
-                rcis = ReactionCompartmentSvg.objects.using(database). \
-                    filter(reaction=r, compartmentsvg=ci)
-                if not rcis:
-                    add = ReactionCompartmentSvg(reaction=r, compartmentsvg=ci)
-                    add.save(using=database)'''
 
             # how many subsystems?
             sql = """SELECT * from subsystems WHERE id in ( \
@@ -1327,13 +1319,6 @@ def readCompInfo(database, ci_file):
             """ % ci.id
             rcs = ReactionComponent.objects.using(database).raw(sql)
             nr_enzymes = len(list(rcs))
-            '''for rc in rcs:
-                rccis = ReactionComponentCompartmentSvg.objects.using(database). \
-                    filter(component=rc, compartmentsvg=ci)
-                if not rccis:
-                    add = ReactionComponentCompartmentSvg(component=rc, compartmentsvg=ci)
-                    add.save(using=database)
-                nr_enzymes += 1'''
 
             # finally update the stats
             # stats display on the HMR web site are the one that correspond to the model file
