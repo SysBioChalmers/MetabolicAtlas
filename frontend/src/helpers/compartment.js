@@ -350,7 +350,12 @@ export function reformatChemicalReaction(equation, reaction) {
     return '';
   }
   const addComp = reaction.compartment.includes('=>');
-  let arr = equation.split(' &#8680; ');
+  let arr = null;
+  if (reaction.is_reversible) {
+    arr = equation.split(' &#8660; ');
+  } else {
+    arr = equation.split(' &#8680; ');
+  }
   if (arr.length === 1) {
     arr = equation.split(' => ');
   }
@@ -366,6 +371,9 @@ export function reformatChemicalReaction(equation, reaction) {
   products = products.map(
     (x, i, a) => formatSpan(x, i, a, reaction.products, addComp)).join(' + ');
 
+  if (reaction.is_reversible) {
+    return `${reactants} &#8660; ${products}`;
+  }
   return `${reactants} &#8680; ${products}`;
 }
 

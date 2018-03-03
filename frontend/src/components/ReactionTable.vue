@@ -83,16 +83,20 @@ export default {
       if (this.selectedElmId) {
         this.showCP = true;
         for (const reaction of this.reactions) {
-          const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
-          const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
-          reaction.cp = '';
-          if (boolC) {
-            reaction.cp = 'consume';
-            if (boolP) {
-              reaction.cp += '/produce';
+          if (reaction.is_reversible) {
+            reaction.cp = 'reversible';
+          } else {
+            const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
+            const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
+            reaction.cp = '';
+            if (boolC) {
+              reaction.cp = 'consume';
+              if (boolP) {
+                reaction.cp += '/produce';
+              }
+            } else if (boolP) {
+              reaction.cp = 'produce';
             }
-          } else if (boolP) {
-            reaction.cp = 'produce';
           }
         }
       }
@@ -105,11 +109,11 @@ export default {
     },
   },
   methods: {
-    formatChemicalReaction(v) {
-      return chemicalReaction(v);
+    formatChemicalReaction(v, r) {
+      return chemicalReaction(v, r);
     },
     reformatChemicalReactionHTML(v, r) {
-      return reformatChemicalReaction(this.formatChemicalReaction(v), r);
+      return reformatChemicalReaction(this.formatChemicalReaction(v, r), r);
     },
     viewEnzyneReactions: function viewEnzyneReactions(modifier) {
       if (modifier) {
