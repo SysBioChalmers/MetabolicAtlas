@@ -797,7 +797,7 @@ export default {
       const proteins = `${enzymeIDs.join(',')}?format=xml`;
       const url = baseUrl + proteins;
 
-      axios.post('hpa/', { url })
+      axios.post('hpa/xml_request', { url })
       .then((response) => {
         const hpaRnadata = parseHpaRnaExpressionLvl(rawElms, response.data, false); // = true unzip
         this.rawElms = hpaRnadata.graphElements;

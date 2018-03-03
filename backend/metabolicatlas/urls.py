@@ -16,13 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url, include
 from rest_framework_swagger.views import get_swagger_view
+from rest_framework.schemas import get_schema_view
 
 from api import views
 
-schema_view = get_swagger_view(title='Metabolic Atlas API')
+schema_view_swagger = get_swagger_view(title='Metabolic Atlas API', urlconf='api.urls')
+
+schema_view = get_schema_view(
+    title='Metabolic Atlas API',
+    # url='https://www.example.org/api/',
+    urlconf='api.urls'
+)
 
 urlpatterns = [
-    url('^swagger', schema_view),
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/', include('api.urls')),
+    url('^swagger', schema_view_swagger),
+    url(r'^api/', include('api.urls', namespace="public_apis")),
+    url(r'^api/', include('api.private_urls', namespace="private_apis")),
 ]
