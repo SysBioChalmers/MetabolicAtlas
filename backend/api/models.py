@@ -275,7 +275,6 @@ class Enzyme(models.Model):
     class Meta:
         db_table = "enzymes"
 
-
 class Subsystem(models.Model):
     name = models.CharField(max_length=100, unique=True)
     system = models.CharField(max_length=100)
@@ -283,8 +282,9 @@ class Subsystem(models.Model):
     description = models.CharField(max_length=255, null=True)
     nr_reactions = models.IntegerField(default=0)
     nr_metabolites = models.IntegerField(default=0)
+    nr_unique_metabolites = models.IntegerField(default=0)
     nr_enzymes = models.IntegerField(default=0)
-    nr_compartment = models.IntegerField(default=0)
+    nr_compartments = models.IntegerField(default=0)
 
     class Meta:
         db_table = "subsystems"
@@ -294,12 +294,20 @@ class SubsystemSvg(models.Model):
     system = models.CharField(max_length=100)
     nr_reactions = models.IntegerField(default=0)
     nr_metabolites = models.IntegerField(default=0)
+    nr_unique_metabolites = models.IntegerField(default=0)
     nr_enzymes = models.IntegerField(default=0)
-    nr_compartment = models.IntegerField(default=0)
+    nr_compartments = models.IntegerField(default=0)
 
     class Meta:
         db_table = "subsystemsvg"
 
+# relation subsystem / compartment in SVGs can be found in TilesSubsystems
+class SubsystemCompartment(models.Model):
+    subsystem = models.ForeignKey('subsystem', on_delete=models.CASCADE)
+    compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subsystem_compartment"
 
 class NumberOfInteractionPartners(models.Model):
     reaction_component_id = models.ForeignKey('ReactionComponent', db_column='reaction_component', on_delete=models.CASCADE)

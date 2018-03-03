@@ -174,9 +174,14 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
 
 
 class SubsystemSerializer(serializers.ModelSerializer):
+    compartment = serializers.SerializerMethodField('get_compartments')
     class Meta:
         model = Subsystem
-        fields = ('id', 'name', 'system', 'external_id', 'description', 'nr_compartment', 'nr_reactions', 'nr_metabolites', 'nr_enzymes')
+        fields = ('id', 'name', 'system', 'external_id', 'description', 'compartment', 'nr_compartments', 'nr_reactions', 'nr_metabolites', 'nr_enzymes')
+
+    def get_compartments(self, model):
+        compt_ids = SubsystemCompartment.objects.using(self.context.get('model')).filter(subsystem_id=model.id).values_list('compartment_id')
+        return Compartment.objects.using(self.context.get('model')).filter(id__in=compt_ids).values_list('name', flat=True)
 
 class CompartmentSerializer(serializers.ModelSerializer):
     class Meta:

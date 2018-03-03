@@ -595,7 +595,7 @@ def search(request, model, term):
 
         RCserializer = ReactionComponentSearchSerializer(components, many=True)
         compartmentSerializer = CompartmentSerializer(compartments, many=True)
-        subsystemSerializer = SubsystemSerializer(subsystems, many=True)
+        subsystemSerializer = SubsystemSerializer(subsystems, many=True, context={'model': model})
         reactionSerializer = ReactionSearchSerializer(reactions, many=True, context={'model': model})
 
     results = {
@@ -681,7 +681,7 @@ def get_subsystem(request, model, subsystem_id):
         srs.append(r.reaction)
 
     results = {
-        'subsystemAnnotations': SubsystemSerializer(s).data,
+        'subsystemAnnotations': SubsystemSerializer(s, context={'model': model}).data,
         'metabolites': ReactionComponentLiteSerializer(sms, many=True, context={'model': model}).data,
         'enzymes': ReactionComponentLiteSerializer(ses, many=True, context={'model': model}).data,
         'reactions': ReactionLiteSerializer(srs, many=True, context={'model': model}).data
@@ -699,7 +699,7 @@ def get_subsystems(request, model):
     except Subsystem.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = SubsystemSerializer(subsystems, many=True)
+    serializer = SubsystemSerializer(subsystems, many=True, context={'model': model})
 
     return JSONResponse(serializer.data)
 
@@ -859,7 +859,6 @@ def parse_readme_file(content):
 @api_view(['POST'])
 def get_HPA_xml_content(request):
     url = request.data['url']
-    logging.warn(url);
     with urllib.request.urlopen(url) as response:
         data = response.read()
 
@@ -867,3 +866,30 @@ def get_HPA_xml_content(request):
     ddata = gzip.decompress(data)
 
     return HttpResponse(ddata)
+
+@api_view()
+def HPA_enzyme_info(request, ensembl_id):
+    try:
+        res = ReactionComponent.objects.using('human').get(long_name=ensembl_id)
+        rcid = res.id
+    except:
+        return JSONResponse([])
+
+    subs = Subsystem.objects.using('human').filter(
+            Q(id__in=SubsystemEnzyme.objects.using('human').filter(reaction_component_id=rcid).values('subsystem_id')) &
+            ~Q(system='Collection of reactions')
+        ).values('id', 'name', 'nr_reactions', 'nr_enzymes', 'nr_metabolites', 'nr_unique_metabolites')
+
+    result = []
+    for sub in subs.all():
+        # get the reactions
+        reactions = SubsystemReaction.objects.using('human').filter(subsystem_id=sub['id']).values('reaction_id')
+        compartments = Compartment.objects.using('human').filter(
+            id__in=SubsystemCompartment.objects.using('human').filter(subsystem_id=sub['id']).values('compartment_id').distinct()
+        ).values_list('name', flat=True)
+        sub['compartments'] = list(compartments)
+        sub['reactions_catalysed'] = ReactionModifier.objects.using('human').filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
+        del sub['id']
+        result.append(sub)
+
+    return JSONResponse(result)

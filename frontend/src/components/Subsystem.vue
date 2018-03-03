@@ -23,7 +23,7 @@
           </tr>
           <tr>
             <td class="td-key">Compartments</td>
-            <td>{{ compartmentListHtml }}</td>
+            <td>{{ info['compartment'].join(', ') }}</td>
           </tr>
           <tr>
             <td class="td-key">Metabolites</td>
@@ -64,7 +64,6 @@ export default {
       metabolites: [],
       enzymes: [],
       reactions: [],
-      compartments: [],
       errorMessage: '',
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
@@ -82,28 +81,21 @@ export default {
   computed: {
     metabolitesListHtml() {
       const l = ['<span class="tags">'];
+      this.metabolites.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
       for (const m of this.metabolites) {
-        l.push(`<span id="${m.id}" class="tag rcm"><a>${m.short_name}</a></span>`);
+        l.push(`<span id="${m.id}" class="tag rcm"><a>${m.short_name}[${m.id.substr(m.id.length - 1)}]</a></span>`);
       }
       l.push('</span>');
       return l.join('');
     },
     enzymesListHtml() {
       const l = ['<span class="tags">'];
+      this.enzymes.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
       for (const e of this.enzymes) {
         l.push(`<span id="${e.id}" class="tag rce"><a>${e.short_name}</a></span>`);
       }
       l.push('</span>');
       return l.join('');
-    },
-    compartmentListHtml() {
-      const l = {};
-      for (const r of this.reactions) {
-        for (const c of r.compartment.split('=>')) {
-          l[c.trim()] = null;
-        }
-      }
-      return Object.keys(l).join(', ');
     },
   },
   methods: {
