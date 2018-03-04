@@ -8,7 +8,13 @@
     <div v-show="!errorMessage">
       <div class="container columns">
         <div class="column is-5">
-          <h3 class="title is-3">Enzyme | {{ enzymeName }}</h3>
+          <h3 class="title is-3">
+          Enzyme | {{ enzymeName }}
+          <span class="button is-info" title="View on Human Protein Atlas" v-if="model === 'human'"
+          @click="visitLink('https://www.proteinatlas.org/search/' + enzyme.long_name, true)">
+            View on HPA
+          </span>
+          </h3>
         </div>
       </div>
       <div id="enzyme-details" class="reaction-table">
