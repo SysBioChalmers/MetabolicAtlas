@@ -46,22 +46,14 @@
 <script>
 import axios from 'axios';
 import $ from 'jquery';
-import cytoscape from 'cytoscape';
-import regCose from 'cytoscape-cose-bilkent';
-import Sidebar from 'components/Sidebar';
-import CytoscapeTable from 'components/CytoscapeTable';
 import ReactionTable from 'components/ReactionTable';
 import Loader from 'components/Loader';
-// import { default as transform } from '../data-mappers/connected-metabolites';
-// import { default as graph } from '../graph-stylers/connected-metabolites';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
 
 export default {
   name: 'enzyme',
   components: {
-    Sidebar,
-    CytoscapeTable,
     ReactionTable,
     Loader,
   },
@@ -69,14 +61,9 @@ export default {
   data() {
     return {
       loading: true,
-      cy: null,
       errorMessage: null,
       elms: [],
-
       id: '',
-      selectedElmId: '',
-      selectedElm: null,
-
       enzyme: {},
       enzymeName: '',
       tableStructure: [
@@ -103,7 +90,6 @@ export default {
         { name: 'compartment', display: 'Compartment' },
 
       ],
-
       tableSearchTerm: '',
       reactions: [],
       loadTime: 0,
@@ -127,15 +113,7 @@ export default {
   methods: {
     setup() {
       this.id = this.$route.query.id;
-      this.selectedElmId = '';
-      this.selectedElm = null;
       this.load();
-    },
-    highlightNode(elmId) {
-      this.cy.nodes().deselect();
-      const node = this.cy.getElementById(elmId);
-      node.json({ selected: true });
-      node.trigger('tap');
     },
     reformatList(l) {
       let output = '';
@@ -199,7 +177,6 @@ export default {
     visitLink,
   },
   beforeMount() {
-    regCose(cytoscape);
     this.setup();
   },
 };
