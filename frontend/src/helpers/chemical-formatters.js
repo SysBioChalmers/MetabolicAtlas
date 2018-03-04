@@ -29,10 +29,13 @@ export function chemicalNameExternalLink(value, link) {
           >${chemicalName(value)}</a>`;
 }
 
-export function chemicalReaction(value) {
+export function chemicalReaction(value, r) {
   if (value === null) {
     return '';
   }
   // apply chemical name to all metabolites
+  if (r.is_reversible) {
+    return chemicalName(value).replace(/(=>)/g, '&#8660;');
+  }
   return chemicalName(value).replace(/(=>)/g, '&#8680;');
 }
