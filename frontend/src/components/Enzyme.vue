@@ -62,7 +62,6 @@ export default {
     return {
       loading: true,
       errorMessage: null,
-      elms: [],
       id: '',
       enzyme: {},
       enzymeName: '',
@@ -105,9 +104,6 @@ export default {
   computed: {
     filename() {
       return `ma_catalyzed_reaction_${this.enzymeName}`;
-    },
-    elmsInTable() {
-      return this.elms.filter(elm => elm.type !== 'reaction' && elm.type !== 'enzyme');
     },
   },
   methods: {
