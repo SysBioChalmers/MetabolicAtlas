@@ -26,8 +26,8 @@ pipeline {
       steps {
         sh '''
           PATH=$PATH:/usr/local/bin
-          docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p sysomics build
-          docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p sysomics up -d
+          docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p metabolicatlas build
+          docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p metabolicatlas up -d
           docker exec metabolicatlas_backend_1 python manage.py makemigrations
           docker exec metabolicatlas_backend_1 python manage.py migrate
         '''
