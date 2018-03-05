@@ -14,6 +14,7 @@ pipeline {
     stage('Configure') {
       steps {
         sh '''cp postgres.env.sample postgres.env'''
+        sh '''cp db2_postgres.env.sample db2_postgres.env'''
         echo 'Copied PostgreSQL environment.'
       }
     }
