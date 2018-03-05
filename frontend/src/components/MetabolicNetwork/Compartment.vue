@@ -4,9 +4,9 @@
       <p class="menu-label">Compartment:</p>
       <ul class="menu-list">
         <li class="m-li" v-for="comp in compartments"
-        :class="{ 'selected' : selectedCompartmentID==comp.compartmentID }"
-        @click="showCompartment(comp.compartmentID)">
-          {{ comp.name}}
+        :class="{ 'selected' : selectedCompartment==comp.name }"
+        @click="showCompartment(comp.name)">
+          {{ comp.name }}
         </li>
       </ul>
     </div>
@@ -35,7 +35,7 @@
 <script>
 
 import axios from 'axios';
-import { getCompartmentFromCID } from '../../helpers/compartment';
+import { getCompartmentFromName } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
@@ -46,8 +46,21 @@ export default {
       compartments: [],
       compartmentStats: {},
       currentCompartment: null,
-      selectedCompartmentID: 0,
-      compartmentIDOrder: [18, 19, 17, 16, 20, 15, 21, 22, 23, 24, 25, 26],
+      selectedCompartment: 'wholemap',
+      compartmentNameOrder: [
+        'Endoplasmic reticulum',
+        'Golgi apparatus',
+        'Lysosome',
+        'Mitochondria',
+        'Nucleus',
+        'Peroxisome',
+        'Cytosol_1',
+        'Cytosol_2',
+        'Cytosol_3',
+        'Cytosol_4',
+        'Cytosol_5',
+        'Cytosol_6',
+      ],
     };
   },
   created() {
@@ -55,34 +68,35 @@ export default {
       this.showCompartment(id);
     });
     EventBus.$on('resetView', () => {
-      this.selectedCompartmentID = 0;
+      this.selectedCompartment = 'wholemap';
     });
     this.loadCompartments();
   },
   methods: {
     loadCompartments() {
-      for (const CID of this.compartmentIDOrder) {
-        this.compartments.push(getCompartmentFromCID(CID));
+      for (const Cname of this.compartmentNameOrder) {
+        this.compartments.push(getCompartmentFromName(Cname));
       }
       axios.get(`${this.model}/compartment_information/`)
       .then((response) => {
-        // console.log(response);
         this.compartmentStats = {};
         for (const compInfo of response.data) {
-          this.compartmentStats[compInfo.id] = compInfo;
+          this.compartmentStats[compInfo.display_name] = compInfo;
         }
-        this.currentCompartment = this.compartmentStats[0];
+        this.currentCompartment = null;
       })
       .catch((error) => {
         console.log(error);
       });
     },
-    showCompartment(compartmentID) {
-      this.selectedCompartmentID = compartmentID;
-      this.currentCompartment = this.compartmentStats[compartmentID];
-      EventBus.$emit('showSVGmap', 'compartment', compartmentID, []);
+    showCompartment(compartmentName) {
+      this.selectedCompartment = compartmentName;
+      this.currentCompartment = this.compartmentStats[compartmentName];
+      const s = `${this.currentCompartment.display_name} - ${this.currentCompartment.nr_metabolites} Metabolites; ${this.currentCompartment.nr_enzymes} Enzymes; ${this.currentCompartment.nr_reactions} Reactions; ${this.currentCompartment.nr_subsystems} Subsystems`;
+      this.$emit('showMapInfo', s);
+      EventBus.$emit('showSVGmap', 'compartment', compartmentName, []);
     },
-    getCompartmentFromCID,
+    getCompartmentFromName,
   },
 };
 </script>

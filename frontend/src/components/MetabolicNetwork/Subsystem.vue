@@ -53,7 +53,7 @@
           # enzymes: {{ selectedSubsystem['nr_enzymes'] }}
         </li>
         <li class="menu-label">
-          # compartments: {{ selectedSubsystem['nr_compartment'] }}
+          # compartments: {{ selectedSubsystem['nr_compartments'] }}
         </li>
     </div>
   </div>
@@ -89,14 +89,14 @@ export default {
   },
   created() {
     /* eslint-disable no-param-reassign */
-    EventBus.$on('showSubsystem', (id) => {
-      if (!id) {
+    EventBus.$on('showSubsystem', (name) => {
+      if (!name) {
+        const subname = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
         this.selectedSystem = 'Other metabolism';
-        this.selectedSubsystem = this.subsystems['Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism'];
-        id = 172;
-        this.loadSubsystemCoordinates(id, null);
+        this.selectedSubsystem = this.subsystems[subname];
+        this.loadSubsystemCoordinates(subname, null);
       } else {
-        this.loadSubsystemCoordinates(id, null);
+        this.loadSubsystemCoordinates(name, null);
       }
     });
     EventBus.$on('resetView', () => {
@@ -123,7 +123,6 @@ export default {
           this.subsystems = systems;
           this.subsystemsSystem = {};
           this.subsystemCount = 0;
-          console.log(this.subsystems);
           for (const k of Object.keys(systems)) {
             this.subsystems[k] = this.subsystems[k].sort(
               (a, b) => {
@@ -138,7 +137,6 @@ export default {
               this.subsystemsSystem[k] = s;
             }
           }
-          console.log(this.subsystems);
           // update the parent component
           this.$emit('sendSubSysCount', this.subsystemCount);
         })
@@ -151,20 +149,22 @@ export default {
           }
         });
     },
-    loadSubsystemCoordinates(id, compID) {
-      const url = compID ? `${this.model}/subsystem/${id}/${compID}` : `${this.model}/subsystem/${id}`;
+    loadSubsystemCoordinates(subsystemName, compName) {
+      let url = `${this.model}/showsubsystem/${subsystemName}`;
+      if (compName) {
+        url = `${this.model}/showsubsystem/${subsystemName}/${compName}`;
+      }
       console.log(url);
       axios.get(url)
         .then((response) => {
           const subCoors = response.data;
-          console.log(subCoors);
           const coors = {
             minX: subCoors.x_top_left,
             maxX: subCoors.x_bottom_right,
             minY: subCoors.y_top_left,
             maxY: subCoors.y_bottom_right,
           };
-          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartmentsvg_id, coors);
+          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartment_name, coors);
         })
         .catch((error) => {
           console.log(error);
@@ -185,9 +185,9 @@ export default {
       // forbid the display of this system
       if (this.selectedSystem !== 'Collection of reactions') {
         if (!this.selectedSubsystem) {
-          this.loadSubsystemCoordinates(172, null);
+          this.loadSubsystemCoordinates('Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', null);
         } else {
-          this.loadSubsystemCoordinates(this.selectedSubsystem.id, null);
+          this.loadSubsystemCoordinates(this.selectedSubsystem.name, null);
         }
       }
     },

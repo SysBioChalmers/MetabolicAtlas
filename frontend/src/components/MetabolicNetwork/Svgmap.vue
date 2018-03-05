@@ -25,7 +25,7 @@ import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
-import { getCompartmentFromCID } from '../../helpers/compartment';
+import { getCompartmentFromName } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
@@ -61,29 +61,26 @@ export default {
     };
   },
   created() {
-    EventBus.$on('showSVGmap', (type, id, ids) => {
+    EventBus.$on('showSVGmap', (type, name, ids) => {
       console.log('show svg map');
-      console.log(`emit ${type} ${id} ${ids}`);
+      console.log(`emit ${type} ${name} ${ids}`);
       if (type === 'compartment') {
         this.HLonly = false;
-        this.showCompartment(id);
+        this.showCompartment(name);
       } else if (type === 'subsystem') {
         this.HLonly = false;
-        this.showTiles(id, ids);
+        this.showTiles(name, ids);
       } else if (type === 'tiles') {
         this.HLonly = false;
-        this.showTiles(id, ids);
+        this.showTiles(name, ids);
       } else if (type === 'highlight') {
         this.HLonly = true;
         this.hlElements(null, ids);
       } else if (type === 'find') {
         this.HLonly = false;
-        this.hlElements(id, ids);
-      } else if (type === 'wholemap') {
-        const compartment = getCompartmentFromCID(id);
-        this.loadSVG(compartment, this.loadSvgPanZoom, null);
-      } else if (!this.svgName) {
-        const compartment = getCompartmentFromCID(0);
+        this.hlElements(name, ids);
+      } else if (!this.svgName || type === 'wholemap') {
+        const compartment = getCompartmentFromName('wholemap');
         this.loadSVG(compartment, this.loadSvgPanZoom, null);
       }
     });
@@ -398,11 +395,13 @@ export default {
         this.HLelms = [];
       }
     },
-    hlElements(compartmentID, ids) {
-      if (compartmentID) {
-        const compartment = getCompartmentFromCID(compartmentID);
+    hlElements(compartmentName, ids) {
+      if (compartmentName) {
+        const compartment = getCompartmentFromName(compartmentName);
         this.ids = ids;
-        this.loadSVG(compartment, this.loadSvgPanZoom, this.findElementsOnSVG);
+        if (compartment) {
+          this.loadSVG(compartment, this.loadSvgPanZoom, this.findElementsOnSVG);
+        }
       } else {
         this.unHighlight();
         this.ids = ids;
@@ -411,20 +410,24 @@ export default {
         }
       }
     },
-    showTiles(compartmentID, coordinate) {
-      if (compartmentID) {
-        const compartment = getCompartmentFromCID(compartmentID);
-        this.updateZoomBoxCoor(coordinate);
-        this.loadSVG(compartment, this.loadSvgPanZoom, this.zoomOnTiles);
+    showTiles(compartmentName, coordinate) {
+      if (compartmentName) {
+        const compartment = getCompartmentFromName(compartmentName);
+        if (compartment) {
+          this.updateZoomBoxCoor(coordinate);
+          this.loadSVG(compartment, this.loadSvgPanZoom, this.zoomOnTiles);
+        }
       }
     },
-    showCompartment(compartmentID) {
-      if (compartmentID) {
-        const compartment = getCompartmentFromCID(compartmentID);
-        this.loadSVG(compartment, this.loadSvgPanZoom);
+    showCompartment(compartmentName) {
+      if (compartmentName) {
+        const compartment = getCompartmentFromName(compartmentName);
+        if (compartment) {
+          this.loadSVG(compartment, this.loadSvgPanZoom);
+        }
       }
     },
-    getCompartmentFromCID,
+    getCompartmentFromName,
   },
 };
 </script>
