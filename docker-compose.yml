@@ -45,8 +45,6 @@ services:
     command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/project
-    ports:
-      - "8000:8000"
     networks:
       - net-tier
 
@@ -61,8 +59,6 @@ services:
       # - ./frontend/config:/project/config
       - ./frontend/dist:/project/dist
       - ./frontend/test:/project/test
-    ports:
-      - "8080:8080"
     networks:
       - net-tier
 
