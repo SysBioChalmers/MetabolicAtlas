@@ -25,7 +25,7 @@
         <tbody>
           <template v-for="v, k in results">
             <tr class="m-tr" @click="selectedRow=k">
-              <td>{{ getCompartmentFromCID(k).name }}</td>
+              <td>{{ k }}</td>
               <td>{{ v.length }} 
                 <span class="tag" @click="zoomOnElements(k, v)">View</span>
               </td>
@@ -48,7 +48,7 @@
 <script>
 
 import axios from 'axios';
-import { getCompartmentFromCID } from '../../helpers/compartment';
+import { getCompartmentFromName } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
@@ -59,7 +59,7 @@ export default {
       errorMessage: '',
       showResults: false,
       selectedRow: '',
-      compartmentID: 0,
+      compartmentName: '',
       results: {},
       enzymeIDs: [],
       HLIDs: [],
@@ -67,7 +67,7 @@ export default {
   },
   created() {
     EventBus.$on('resetView', () => {
-      this.compartmentID = 0;
+      this.compartmentName = 0;
     });
   },
   methods: {
@@ -85,18 +85,18 @@ export default {
     },
     getReactionComponentIDs(array, HLonly) {
       // get the correct IDs from the backend
-      axios.post(`${this.model}/convert_to_reaction_component_ids/${this.compartmentID}`, { data: array })
+      axios.post(`${this.model}/convert_to_reaction_component_ids/${this.compartmentName}`, { data: array })
       .then((response) => {
         const res = response.data;
         const d = {};
         // const enzymeIDs = [];
         for (let i = 0; i < res.length; i += 1) {
-          const compartmentID = res[i][0];
+          const compartmentName = res[i][0];
           const id = res[i][1];
-          if (!d[compartmentID.toString()]) {
-            d[compartmentID.toString()] = [];
+          if (!d[compartmentName]) {
+            d[compartmentName] = [];
           }
-          d[compartmentID.toString()].push(id);
+          d[compartmentName].push(id);
         }
         if (!HLonly) {
           this.results = d;
@@ -112,13 +112,13 @@ export default {
       })
       .catch(() => {});
     },
-    hlCompartmentElements(compartmentID, ids) {
-      EventBus.$emit('showSVGmap', 'compartment', compartmentID, ids);
+    hlCompartmentElements(compartmentName, ids) {
+      EventBus.$emit('showSVGmap', 'compartment', compartmentName, ids);
     },
-    zoomOnElements(compartmentID, ids) {
-      EventBus.$emit('showSVGmap', 'find', compartmentID, ids);
+    zoomOnElements(compartmentName, ids) {
+      EventBus.$emit('showSVGmap', 'find', compartmentName, ids);
     },
-    getCompartmentFromCID,
+    getCompartmentFromName,
   },
 };
 </script>

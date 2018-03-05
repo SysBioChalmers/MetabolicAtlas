@@ -92,7 +92,7 @@ export default {
     console.log(this.$route.query);
     if (this.$route.query.tab && this.$route.query.tab === '1' && !this.initialEmit) {
       console.log('initial emit whole map');
-      EventBus.$emit('showSVGmap', 'wholemap', 0);
+      EventBus.$emit('showSVGmap', 'wholemap', null, []);
       this.initialEmit = true;
     }
   },

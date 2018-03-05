@@ -191,6 +191,7 @@ class CompartmentSerializer(serializers.ModelSerializer):
 
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
+    compartment = serializers.SlugRelatedField(slug_field='name', queryset=Compartment.objects.all())
     class Meta:
         model = CompartmentSvg
         fields = ('id', 'compartment', 'display_name', 'filename', 'nr_metabolites', 'nr_enzymes', 'nr_reactions', 'nr_subsystems')

@@ -602,7 +602,7 @@ def search(request, model, term):
 
 
 @api_view(['POST'])
-def convert_to_reaction_component_ids(request, model, compartmentID):
+def convert_to_reaction_component_ids(request, model, compartment_name=None):
     arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
     if not arrayTerms:
         return JSONResponse({})
@@ -624,25 +624,36 @@ def convert_to_reaction_component_ids(request, model, compartmentID):
     if not reaction_component_ids and not reaction_ids:
         return HttpResponse(status=404)
 
-    if str(compartmentID) == '0':
+    if not compartment_name:
         # get the compartment id for each component id
-        rcci = ReactionComponentCompartmentSvg.objects.using(model).filter(Q(component_id__in=reaction_component_ids)) \
-        .values_list('compartmentsvg_id', 'component_id')
+        rcci = ReactionComponentCompartmentSvg.objects.using(model) \
+        .filter(Q(component_id__in=reaction_component_ids)) \
+        .select_related('Compartmentsvg') \
+        .values_list('compartmentsvg__display_name', 'component_id')
 
         # get the compartment id for each reaction id
         rci = ReactionCompartmentSvg.objects.using(model).filter(Q(reaction_id__in=reaction_ids)) \
-        .values_list('compartmentsvg_id', 'reaction_id')
+        .select_related('Compartmentsvg') \
+        .values_list('compartmentsvg__display_name', 'reaction_id')
 
     else:
+        try:
+            compartment = CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
+            compartmentID = compartment.compartment
+        except CompartmentSvg.DoesNotExist:
+            return HttpResponse(status=404)
+
         # get the component ids in the input compartment
         rcci = ReactionComponentCompartmentSvg.objects.using(model).filter(
                 Q(component_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
-            ).values_list('compartmentsvg_id', 'component_id')
+            ).select_related('Compartmentsvg') \
+            .values_list('compartmentsvg__display_name', 'component_id')
 
         # get the reaction ids in the input compartment
         rci = ReactionCompartmentSvg.objects.using(model).filter(
             Q(reaction_id__in=reaction_ids) & Q(Compartmentsvg_id=compartmentID)
-        ).values_list('compartmentsvg_id', 'reaction_id')
+        ).select_related('Compartmentsvg') \
+        .values_list('compartmentsvg__display_name', 'reaction_id')
 
         if not rcci.count() and not rci.count():
             return HttpResponse(status=404)
@@ -652,11 +663,16 @@ def convert_to_reaction_component_ids(request, model, compartmentID):
 
 
 @api_view()
-def get_subsystem(request, model, subsystem_id):
+def get_subsystem(request, model, subsystem_name):
     """
-    For a given subsystem, get all containing metabolites, enzymes, and reactions,
-    try it with for example 38 for the TCA cycle.
+    For a given subsystem name, get all containing metabolites, enzymes, and reactions.
     """
+    try:
+        subsystem = Subsystem.objects.using(model).get(name__iexact=subsystem_name)
+        subsystem_id = subsystem.id
+    except Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
     try:
         s = Subsystem.objects.using(model).get(id=subsystem_id)
     except Subsystem.DoesNotExist:
@@ -665,8 +681,6 @@ def get_subsystem(request, model, subsystem_id):
     smsQuerySet = SubsystemMetabolite.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction_component")
     sesQuerySet = SubsystemEnzyme.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction_component") # FIXME contains metabolite ids not enzyme
     srsQuerySet = SubsystemReaction.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction")
-
-    logging.warn("test")
 
     sms = []; ses = []; srs = [];
     for m in smsQuerySet:
@@ -702,16 +716,29 @@ def get_subsystems(request, model):
 
 
 @api_view()
-def get_subsystem_coordinates(request, model, subsystem_id, compartmentID=False):
+def get_subsystem_coordinates(request, model, subsystem_name, compartment_name=False):
     """
-    For a given subsystem, get the compartment name and X,Y locations in the corresponding SVG map,
-    try it with for example 38 for the TCA cycle.
+    For a given subsystem name, get the compartment name and X,Y locations in the corresponding SVG map.
     """
+
+    logging.warn(subsystem_name)
+
     try:
-        if not compartmentID:
+        subsystem = Subsystem.objects.using(model).get(name__iexact=subsystem_name)
+        subsystem_id = subsystem.id
+    except Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        if not compartment_name:
             tileSubsystem = TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
         else:
-            tileSubsystem = TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartmentID)
+            try:
+                compartment = CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
+            except CompartmentSvg.DoesNotExist:
+                return HttpResponse(status=404)
+            tileSubsystem = TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartment)
+
     except TileSubsystem.DoesNotExist:
         return HttpResponse(status=404)
     serializer = TileSubsystemSerializer(tileSubsystem)
@@ -720,10 +747,9 @@ def get_subsystem_coordinates(request, model, subsystem_id, compartmentID=False)
 
 
 @api_view()
-@is_model_valid
-def get_compartment(request, model, compartmentID):
+def get_compartment(request, model, compartment_name):
     try:
-        compartment = CompartmentSvg.objects.using(model).get(id=compartmentID)
+        compartment = CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
     except CompartmentSvg.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -746,7 +772,7 @@ def get_compartment_information(request, model):
     compartmentSerializer = CompartmentSerializer(compartment_info, many=True)
     d = {}
     for el in compartmentSerializer.data:
-        d[el['id']] = el
+        d[el['name']] = el
 
     for el in compartmentSvgSerializer.data:
         values = d[el['compartment']]
@@ -765,8 +791,7 @@ def get_compartment_information(request, model):
 @api_view()
 def get_gemodel(request, id):
     """
-    For a given model id, pull out everything we know about the GEM,
-    supply an id, for instance 630 or a label e.g HMR2.0.
+    For a given model id or label, pull out everything we know about the GEM.
     """
     try: 
         int(id)

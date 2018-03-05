@@ -105,7 +105,7 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model}/showsubsystem/${this.sId}/`)
+      axios.get(`${this.model}/subsystem/${this.sId}/`)
       .then((response) => {
         this.info = response.data.subsystemAnnotations;
         this.metabolites = response.data.metabolites;
