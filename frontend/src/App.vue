@@ -1,17 +1,22 @@
 <template>
   <div id="app" class="hero is-fullheight">
     <div class="hero-head">
-      <nav id="main-nav" class="nav" style="box-shadow: none">
-        <div class="container">
-          <div>
-            <a id="logo" class="nav-item" @click="goToPage('/')" >
-              <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
-            </a>
+      <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+          <a id="logo" class="navbar-item" @click="goToPage('')" >
+            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
+          </a>
+          <div class="navbar-burger" data-target="navMenu">
+            <span
+               v-for="menuItem in menuItems"
+               :class="[{ 'is-active': isActive(menuItem) }, '']"
+               @click="goToPage(menuItem)"
+            >{{ menuItem }}</span>
           </div>
           <div class="nav-right nav-menu">
             <a
                v-for="menuItem in menuItems"
-               class="nav-item"
+               class="navbar-item"
                :class="[{ 'is-active': isActive(menuItem) }, '']"
                @click="goToPage(menuItem)"
             >{{ menuItem }}</a>
@@ -97,6 +102,7 @@ export default {
 <style lang='scss'>
 
 $primary: #64CC9A;
+$link: #64CC9A;
 $warning: #FFC67D;
 $danger: #FF865C;
 
@@ -106,7 +112,10 @@ $desktop: 1192px !default;
 $widescreen: 1384px !default;
 $fullhd: 1576px !default;
 
+
+/* @import "./sass/extensions/_all" FIX ME */
 @import '~bulma';
+@import '~bulma-extensions/bulma-accordion/dist/bulma-accordion';
 @import './styles/mixins';
 
 @include keyframes(rotating) {
