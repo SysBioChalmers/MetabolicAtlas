@@ -20,7 +20,7 @@ export default {
     navBut5Title: 'About',
     navBut6Title: 'Help',
     navBut7Title: 'Contact',
-    human: 'HMR 2.0',
+    hmr2: 'HMR 2.0',
     yeast: 'Yeast 7.6',
     reset: 'Reset',
     exportButton: 'Export to Excel',

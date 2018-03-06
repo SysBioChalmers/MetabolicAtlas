@@ -521,14 +521,14 @@ def search(request, model, term):
         return HttpResponse(status=404)
 
     if model == 'all':
-        models = ['human', 'yeast']
+        models = ['hmr2']
         limit = 1000
     else:
         models = [model]
         limit = 50
 
     for model in models:
-        if model == 'yeast':
+        if model == 'ymr':
             # TODO remove
             continue
 

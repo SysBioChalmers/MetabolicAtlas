@@ -10,7 +10,7 @@
         <div class="column is-5">
           <h3 class="title is-3">
           Enzyme | {{ enzymeName }}
-          <span class="button is-info" title="View on Human Protein Atlas" v-if="model === 'human'"
+          <span class="button is-info" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
           @click="visitLink('https://www.proteinatlas.org/search/' + enzyme.long_name, true)">
             View on HPA
           </span>
@@ -62,7 +62,6 @@ export default {
     return {
       loading: true,
       errorMessage: null,
-      elms: [],
       id: '',
       enzyme: {},
       enzymeName: '',
@@ -105,9 +104,6 @@ export default {
   computed: {
     filename() {
       return `ma_catalyzed_reaction_${this.enzymeName}`;
-    },
-    elmsInTable() {
-      return this.elms.filter(elm => elm.type !== 'reaction' && elm.type !== 'enzyme');
     },
   },
   methods: {
