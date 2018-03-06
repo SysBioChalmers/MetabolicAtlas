@@ -892,25 +892,25 @@ def get_HPA_xml_content(request):
 @api_view()
 def HPA_enzyme_info(request, ensembl_id):
     try:
-        res = ReactionComponent.objects.using('human').get(long_name=ensembl_id)
+        res = ReactionComponent.objects.using('hmr2').get(long_name=ensembl_id)
         rcid = res.id
     except:
         return JSONResponse([])
 
-    subs = Subsystem.objects.using('human').filter(
-            Q(id__in=SubsystemEnzyme.objects.using('human').filter(reaction_component_id=rcid).values('subsystem_id')) &
+    subs = Subsystem.objects.using('hmr2').filter(
+            Q(id__in=SubsystemEnzyme.objects.using('hmr2').filter(reaction_component_id=rcid).values('subsystem_id')) &
             ~Q(system='Collection of reactions')
         ).values('id', 'name', 'nr_reactions', 'nr_enzymes', 'nr_metabolites', 'nr_unique_metabolites')
 
     result = []
     for sub in subs.all():
         # get the reactions
-        reactions = SubsystemReaction.objects.using('human').filter(subsystem_id=sub['id']).values('reaction_id')
-        compartments = Compartment.objects.using('human').filter(
-            id__in=SubsystemCompartment.objects.using('human').filter(subsystem_id=sub['id']).values('compartment_id').distinct()
+        reactions = SubsystemReaction.objects.using('hmr2').filter(subsystem_id=sub['id']).values('reaction_id')
+        compartments = Compartment.objects.using('hmr2').filter(
+            id__in=SubsystemCompartment.objects.using('hmr2').filter(subsystem_id=sub['id']).values('compartment_id').distinct()
         ).values_list('name', flat=True)
         sub['compartments'] = list(compartments)
-        sub['reactions_catalysed'] = ReactionModifier.objects.using('human').filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
+        sub['reactions_catalysed'] = ReactionModifier.objects.using('hmr2').filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
         del sub['id']
         result.append(sub)
 
