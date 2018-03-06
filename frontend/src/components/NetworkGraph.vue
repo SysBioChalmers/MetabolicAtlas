@@ -3,7 +3,7 @@
     <div class="columns">
       <div class="column is-3">
         <div class="tabs is-pulled-left is-toggle">
-          <li class="is-active" @click="selectedModel = 'human'"><a><span>{{ $t('human') }}</span></a></li>
+          <li class="is-active" @click="selectedModel = 'hmr2'"><a><span>{{ $t('hmr2') }}</span></a></li>
           <li v-if="false" @click="selectedModel = 'yeast'"><a><span>{{ $t('yeast') }}</span></a></li>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default {
   },
   data() {
     return {
-      SelectedModel: 'human',
+      SelectedModel: 'hmr2',
       selectedTab: 1,
       searchTerm: '',
       searchResults: [],

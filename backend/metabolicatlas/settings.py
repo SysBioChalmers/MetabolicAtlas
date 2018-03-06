@@ -94,17 +94,9 @@ WSGI_APPLICATION = 'metabolicatlas.wsgi.application'
 DATABASES = {
     'default': {
     },
-    'human': {
+    'hmr2': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hmm',
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db',
-        'PORT': 5432,
-    },
-    'yeast': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ymm',
+        'NAME': 'hmr2',
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
