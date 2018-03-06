@@ -72,7 +72,7 @@ source postgres.env                               # to load the environment vari
 python manage.py makemigrations
 python manage.py migrate --database [database] e.g. 'human' for 'hmm' (see settings.py)
 python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables
-python manage.py populateDB      # read in the HMR2.0 database, and all associated annotations
+python manage.py populateDB [ensembl_version] [database]      # read in the HMR2.0 database, and all associated annotations, e.g. '89' for Esenmbl
 python manage.py addNumberOfInteractionPartners [database]   # for each reaction_component calculate the number of interaction partners...
 
 # **deprecated**, expression data are directly requested from HPA
@@ -139,23 +139,23 @@ Watch out the API rate limit (https://developer.github.com/v3/rate_limit/).
 #### Full model databases
 
 ```bash
-docker exec -it $(docker ps -qf "name=metabolicatlas_db_1")  pg_dump -U postgres -d hmm --create -T 'auth_*' -T 'django_*' > hmm_vX.db
+docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") pg_dump -U postgres -d hmm --create -T 'auth_*' -T 'django_*' > hmm.db
 ```
 
 #### GEMs database
 
 ```bash
-docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > /home/cholley/Downloads/gems_vX.db
+docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > gems.db
 ```
 
 ### Import databases
 
-```bash 
-docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hmm < PATH_TO_DB_FILE 
+```bash
+docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres < PATH_TO_DB_FILE
 ``` 
 
 ```bash
-docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres gems < PATH_TO_DB_FILE
+docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres < PATH_TO_DB_FILE
 ```
 
 ### All helper commands
