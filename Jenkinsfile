@@ -34,7 +34,7 @@ pipeline {
           docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p metabolicatlas up -d
 
           docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres < '/home/jenkins/new/workspace/databases/hmm.db'
-          docker exec -i $(docker ps -qf "name=metabolicatlas_db_2") psql -U postgres < '/home/jenkins/new/workspace/databases/gems.db'
+          docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres < '/home/jenkins/new/workspace/databases/gems.db'
 
           docker exec metabolicatlas_backend_1 python manage.py makemigrations
           docker exec metabolicatlas_backend_1 python manage.py migrate --database human
