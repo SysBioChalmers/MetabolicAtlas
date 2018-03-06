@@ -40,8 +40,8 @@ pipeline {
           docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres < gems.db
 
           docker exec metabolicatlas_backend_1 python manage.py makemigrations
-          docker exec metabolicatlas_backend_1 python manage.py migrate --database hmr2
-          docker exec metabolicatlas_backend_1 python manage.py migrate --database gems
+          docker exec metabolicatlas_backend_1 python manage.py migrate --database hmr2 --fake
+          docker exec metabolicatlas_backend_1 python manage.py migrate --database gems --fake
 
           rm hmr2.db
           rm gems.db
