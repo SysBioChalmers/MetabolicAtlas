@@ -26,9 +26,6 @@ pipeline {
     stage('Deploy') {
       steps {
         sh '''
-          wget https://chalmersuniversity.box.com/shared/static/q41d7lvcqe18g0gwr9yaar8zoedqvhfl.db -P /home/jenkins/new/workspace/databases -O hmm.db
-          wget https://chalmersuniversity.box.com/shared/static/om86nb6y8ji044wzoiljm8aghmbdvs41.db -P /home/jenkins/new/workspace/databases -O gems.db
-
           PATH=$PATH:/usr/local/bin
           docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p metabolicatlas build
           docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p metabolicatlas up -d
