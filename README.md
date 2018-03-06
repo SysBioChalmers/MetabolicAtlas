@@ -52,16 +52,16 @@ If you encounter any problems try running `restart-stack`. or look at the logs `
 
 #### Full model databases
 
-Create databases using psql (in the docker container), example for hmm:
+Create databases using psql (in the docker container), example for hmr2:
 
 ```bash
-CREATE DATABASE "hmm" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
+CREATE DATABASE "hmr2" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
 ```
 
 To disconnect all sessions open on a database use:
 
 ```bash
-SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'hmm' AND pid <> pg_backend_pid();
+SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'hmr2' AND pid <> pg_backend_pid();
 ```
 
 Then the data as explained in the above section...
@@ -70,7 +70,7 @@ Then the data as explained in the above section...
 source postgres.env                               # to load the environment variables
 
 python manage.py makemigrations
-python manage.py migrate --database [database] e.g. 'human' for 'hmm' (see settings.py)
+python manage.py migrate --database [database] e.g. 'hmr2' (see settings.py)
 python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables
 python manage.py populateDB      # read in the HMR2.0 database, and all associated annotations
 python manage.py addNumberOfInteractionPartners [database]   # for each reaction_component calculate the number of interaction partners...
@@ -84,7 +84,7 @@ python manage.py addTissueOntology                # add the BrendaTissueOntology
 
 **deprecated** Login into the database and run the following 3 commands to load the expression data...
 ```bash
-psql -h localhost -p 5432 -U postgres -d hmm
+psql -h localhost -p 5432 -U postgres -d hmr2
 ```
 ```sql
 \copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_antibody_from_HPA_0.csv' csv delimiter ',' quote '"';
@@ -139,19 +139,19 @@ Watch out the API rate limit (https://developer.github.com/v3/rate_limit/).
 #### Full model databases
 
 ```bash
-docker exec -it $(docker ps -qf "name=metabolicatlas_db_1")  pg_dump -U postgres -d hmm --create -T 'auth_*' -T 'django_*' > hmm_vX.db
+docker exec -it $(docker ps -qf "name=metabolicatlas_db_1")  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
 ```
 
 #### GEMs database
 
 ```bash
-docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > /home/cholley/Downloads/gems_vX.db
+docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > /home/cholley/Downloads/gems.db
 ```
 
 ### Import databases
 
 ```bash 
-docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hmm < PATH_TO_DB_FILE 
+docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hmr2 < PATH_TO_DB_FILE 
 ``` 
 
 ```bash
