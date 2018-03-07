@@ -29,7 +29,7 @@ services:
     links:
       - backend:backend
     volumes:
-      - ./fontend/dist-html:/usr/share/nginx/html:ro
-      - ./fontend/dist:/static
+      - ./frontend/dist-html:/usr/share/nginx/html:ro
+      - ./frontend/dist:/static
       # - ./backend/static/admin:/static/admin
       - ./backend/media:/media
