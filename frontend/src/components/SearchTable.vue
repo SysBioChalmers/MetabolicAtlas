@@ -109,7 +109,7 @@
                     <td>HMR2.00</td>
                     <td>
                       <template v-for="sub, index in item.subsystem">
-                        <a @click="viewComponentInfo(sub[0], 6)">{{ index != 0 ? '; ' : '' }}{{ sub[1] | capitalize }}</a>
+                        <a @click="viewComponentInfo(sub[1], 6)">{{ index != 0 ? '; ' : '' }}{{ sub[1] | capitalize }}</a>
                       </template>
                     </td>
                     <td>{{ item.compartment | capitalize }}</td>
@@ -136,7 +136,7 @@
                   <tr v-for="item in searchResults['subsystem']">
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
-                    <td><a @click="viewComponentInfo(item.id, 6)">{{ item.name | capitalize }}</a></td>
+                    <td><a @click="viewComponentInfo(item.name, 6)">{{ item.name | capitalize }}</a></td>
                     <td>{{ item.system | capitalize }}</td>
                   </tr>
                 </tbody>

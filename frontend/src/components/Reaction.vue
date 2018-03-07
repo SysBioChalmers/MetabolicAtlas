@@ -131,7 +131,7 @@ export default {
       let str = '';
       for (const s of l) {
         // str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
-        str = str.concat(`<a href="/?tab=6&id=${s[0]}">`, s[1], '</a>');
+        str = str.concat(`<a href="/?tab=6&id=${s[1]}">`, s[1], '</a>');
       }
       return str;
     },
