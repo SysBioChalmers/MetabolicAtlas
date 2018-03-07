@@ -8,12 +8,18 @@
           </a>
           <div class="navbar-burger" data-target="navMenu">
             <span
+               v-show="false"
                v-for="menuItem in menuItems"
                :class="[{ 'is-active': isActive(menuItem) }, '']"
                @click="goToPage(menuItem)"
             >{{ menuItem }}</span>
           </div>
-          <div class="nav-right nav-menu">
+        </div>
+        <div class="navbar-menu" id="#nav-menu">
+          <div class="navbar-end">
+            <a class="navbar-item" v-show="isLoadedNetworkGraph && !isShowNetworkGraph">
+              <div class="button is-info" @click="showNetworkGraph()">Metabolic Map</div>
+            </a>
             <a
                v-for="menuItem in menuItems"
                class="navbar-item"
