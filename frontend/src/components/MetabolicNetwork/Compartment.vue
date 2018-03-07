@@ -1,7 +1,6 @@
 <template>
   <div>
     <div id="compartment-panel">
-      <p class="menu-label">Compartment:</p>
       <ul class="menu-list">
         <li class="m-li" v-for="comp in compartments"
         :class="{ 'selected' : selectedCompartment==comp.name }"
@@ -9,25 +8,6 @@
           {{ comp.name }}
         </li>
       </ul>
-    </div>
-    <div v-if="currentCompartment && compartmentStats">
-      <hr>
-      <table class="table is-narrow is-fullwidth">
-        <tbody>
-          <tr>
-            <td># Metabolites</td><td>{{ currentCompartment.nr_metabolites }}</td>
-          </tr>
-          <tr>
-            <td># Enzymes</td><td>{{ currentCompartment.nr_enzymes }}</td>
-          </tr>
-          <tr>
-            <td># Reactions</td><td>{{ currentCompartment.nr_reactions  }}</td>
-          </tr>
-          <tr>
-            <td># Subsystems</td><td>{{ currentCompartment.nr_subsystems  }}</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </template>

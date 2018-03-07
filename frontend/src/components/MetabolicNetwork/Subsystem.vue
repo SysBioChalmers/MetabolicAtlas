@@ -1,7 +1,6 @@
 <template>
   <div>
     <div>
-      <p class="menu-label">Subsystem:</p>
       <ul class="menu-list">
         <li class="m-li" v-for="system in systemOrder">
           <span v-if="selectedSystem == system"
@@ -196,6 +195,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+li {
+  font-size: 13;
+}
 
 li.m-li {
   cursor: pointer;

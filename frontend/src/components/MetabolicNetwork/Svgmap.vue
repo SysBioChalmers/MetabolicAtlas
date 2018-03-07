@@ -86,8 +86,8 @@ export default {
     });
   },
   mounted() {
-    $('#svgbox').attr('width', '100%');
-    $('#svgbox').attr('height', `${$(window).height() - 300}`);
+    // $('#svgbox').attr('width', '100%');
+    // $('#svgbox').attr('height', `${$(window).height() - 300}`);
 
     // add a white reactange behind the name
     /*  $('#svg-wrapper').on('mouseover', '.metabolite, .reaction', function f() {
@@ -185,7 +185,14 @@ export default {
       // console.log('fit svg');
       $('#svg-wrapper svg').attr('width', '100%');
       const h = $('.svgbox').first().css('height');
-      $('#svg-wrapper svg').attr('height', h);
+      const a = $('.svgbox').first().offset().top;
+      const vph = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+      console.log(`h: ${h}`);
+      console.log(`a: ${a}`);
+      console.log(`vph: ${vph}`);
+      const v = vph - a;
+
+      $('#svg-wrapper svg').attr('height', `${v}px`);
       if (this.panZoom) {
         this.panZoom.resize(); // update SVG cached size
         this.panZoom.fit();
@@ -438,6 +445,7 @@ export default {
   #svg-wrapper {
     margin: auto;
     width: 100%;
+    height: auto;
     img {
       padding: 20px;
       width: 600px;
@@ -463,10 +471,9 @@ export default {
 
   .svgbox {
     position: relative;
-    margin: auto;
-    width: auto;
-    height:700px;
-    border: 1px solid black;
+    margin: 0;
+    width: 100%;
+    height:100%;
   }
 
   #svgOption {

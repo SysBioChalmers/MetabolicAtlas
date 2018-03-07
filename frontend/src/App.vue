@@ -1,5 +1,10 @@
 <template>
   <div id="app" class="hero is-fullheight">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <transition name="fade">
+      <metabolic-network id="metabolicNetwork" v-if="isLoadedNetworkGraph" v-show="isShowNetworkGraph" :model="selectedModel"></metabolic-network>
+    </transition>
     <div class="hero-head">
       <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
@@ -55,13 +60,17 @@
 <script>
 
 import SvgIcon from './components/SvgIcon';
+import MetabolicNetwork from './components/MetabolicNetwork';
 import Logo from './assets/logo.svg';
 import router from './router';
+import { default as EventBus } from './event-bus';
+
 
 export default {
   name: 'app',
   components: {
     SvgIcon,
+    MetabolicNetwork,
   },
   data() {
     return {
@@ -75,7 +84,21 @@ export default {
         this.$t('navBut6Title'),
         this.$t('navBut7Title'),
       ],
+      isLoadedNetworkGraph: false,
+      isShowNetworkGraph: false,
+      selectedModel: 'hmr2',
     };
+  },
+  created() {
+    EventBus.$on('toggleNetworkGraph', () => {
+      if (!this.isLoadedNetworkGraph) {
+        this.isLoadedNetworkGraph = true;
+      }
+      this.isShowNetworkGraph = !this.isShowNetworkGraph;
+    });
+    EventBus.$on('updateSelectedModel', (model) => {
+      this.selectedModel = model;
+    });
   },
   methods: {
     goToPage(name) {
@@ -100,6 +123,9 @@ export default {
         return name.toLowerCase() === this.$route.name.toLowerCase();
       }
       return false;
+    },
+    showNetworkGraph() {
+      EventBus.$emit('toggleNetworkGraph');
     },
   },
 };
@@ -135,15 +161,20 @@ $fullhd: 1576px !default;
   }
 }
 
-#main-nav {
-  height: 75px;
-
-  #logo {
-    padding-left: 0;
-  }
+#metabolicNetwork {
+  position: fixed;
+  z-index:999;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background: whitesmoke;
+  overflow: hidden;
 }
 
-.nav-menu {
+.navbar-menu {
   a {
     font-size: 1.15em;
   }
@@ -162,6 +193,13 @@ $fullhd: 1576px !default;
 .hero.is-fullheight .hero-body {
   align-items: initial;
   display: flex;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 </style>

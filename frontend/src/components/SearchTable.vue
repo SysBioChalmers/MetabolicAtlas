@@ -150,7 +150,7 @@
               <table class="table is-fullwidth">
                 <thead>
                   <tr>
-                    <th>Organism</th><th>Model</th><th>Compartment</th>
+                    <th>Organism</th><th>Model</th><th>Compartment</th><th>View</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -158,6 +158,11 @@
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
                     <td>{{ item.name | capitalize }}</td>
+                    <td>
+                      <div class="button" @click="viewCompartmentSVG(item.id)">
+                        <span class="fa fa-eye"></span>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -181,6 +186,7 @@ import $ from 'jquery';
 import Loader from 'components/Loader';
 import router from '../router';
 import { chemicalFormula } from '../helpers/chemical-formatters';
+import EventBus from '../event-bus';
 
 export default {
   name: 'search-table',
@@ -358,7 +364,7 @@ export default {
     showTab(elementType) {
       return this.showTabType === elementType;
     },
-    viewComponentInfo: function viewMetaboliteInfo(id, tabIndex) {
+    viewComponentInfo: function viewComponentInfo(id, tabIndex) {
       router.push(
         {
           path: '/',
@@ -368,6 +374,9 @@ export default {
           },
         },
       );
+    },
+    viewCompartmentSVG: function viewCompartmentSVG(id) {
+      EventBus.$emit('showSVGmap', 'compartment', id);
     },
     resetFilters() {
       for (const tabname of this.tabs) {
