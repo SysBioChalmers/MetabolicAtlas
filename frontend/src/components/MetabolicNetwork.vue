@@ -77,8 +77,9 @@
       </div>
       <div class="column" id="svgframe">
         <svgmap v-show="!dim3D" @loadedComponent="handleLoadedComponent" @loading="showLoader=true"></svgmap>
-        <div id="iLoader" class="container loading" v-show="showLoader">
-          <a class="button is-large is-loading"></a>
+        <d3dforce v-if="dim3D" @loadedComponent="handleLoadedComponent" @loading="showLoader=true"></d3dforce>
+        <div id="iLoader" class="loading" v-show="showLoader">
+          <a class="button is-loading"></a>
         </div>
       </div>
     </div>
@@ -92,6 +93,7 @@ import Compartment from 'components/MetabolicNetwork/Compartment';
 import Subsystem from 'components/MetabolicNetwork/Subsystem';
 import Region from 'components/MetabolicNetwork/Region';
 import Svgmap from 'components/MetabolicNetwork/Svgmap';
+import D3dforce from 'components/MetabolicNetwork/D3dforce';
 import SvgIcon from 'components/SvgIcon';
 import bulmaAccordion from 'bulma-extensions/bulma-accordion/dist/bulma-accordion.min';
 import Logo from '../assets/logo.svg';
@@ -107,6 +109,7 @@ export default {
     Subsystem,
     Region,
     Svgmap,
+    D3dforce,
   },
   props: [
     'model',
@@ -250,14 +253,15 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 90%;
     opacity: 0.8;
+    display: table;
     a {
       color: white;
       font-size: 5em;
       font-weight: 1000;
-    }
-    .button {
+      display: table-cell;
+      vertical-align: middle;
       background: black;
       border: 0;
     }

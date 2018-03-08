@@ -425,13 +425,9 @@ export default {
 
 <style lang="scss">
   #svg-wrapper {
-    margin: auto;
-    width: 100%;
-    height: auto;
-    img {
-      padding: 20px;
-      width: 600px;
-      margin: auto;
+    margin: 0;
+    svg {
+      width: 100%;
     }
   }
 
