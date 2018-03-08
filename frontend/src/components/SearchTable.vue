@@ -159,7 +159,7 @@
                     <td>HMR2.00</td>
                     <td>{{ item.name | capitalize }}</td>
                     <td>
-                      <div class="button" @click="viewCompartmentSVG(item.id)">
+                      <div class="button" @click="viewCompartmentSVG(item.name)">
                         <span class="fa fa-eye"></span>
                       </div>
                     </td>
@@ -364,7 +364,7 @@ export default {
     showTab(elementType) {
       return this.showTabType === elementType;
     },
-    viewComponentInfo: function viewComponentInfo(id, tabIndex) {
+    viewComponentInfo(id, tabIndex) {
       router.push(
         {
           path: '/',
@@ -375,8 +375,11 @@ export default {
         },
       );
     },
-    viewCompartmentSVG: function viewCompartmentSVG(id) {
-      EventBus.$emit('showSVGmap', 'compartment', id);
+    viewCompartmentSVG(name) {
+      if (name === 'cytosol') {
+        name = 'cytosol_1';  // eslint-disable-line no-param-reassign
+      }
+      EventBus.$emit('requestViewer', 'compartment', name, '', []);
     },
     resetFilters() {
       for (const tabname of this.tabs) {

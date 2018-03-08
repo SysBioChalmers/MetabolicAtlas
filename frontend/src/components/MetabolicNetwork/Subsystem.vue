@@ -13,14 +13,14 @@
           </span>
           <ul class="subs-ul" v-show="selectedSystem === system">
             <li v-for="subsystem in subsystems[system]"
-            v-if="system !== 'Collection of reactions'">
-                <span v-if="selectedSubsystem === subsystem"
-                class="li-selected"@click="selectedSubsystem=subsystem">
-                 &#9642;&nbsp;{{ subsystem.name }}
-                 </span>
-                <span v-else @click="selectedSubsystem=subsystem">
-                  &#9642;&nbsp;{{ subsystem.name }}
-                </span>
+              v-if="system !== 'Collection of reactions'">
+              <span v-if="selectedSubsystem === subsystem"
+              class="li-selected"@click="selectedSubsystem=subsystem">
+               &#9642;&nbsp;{{ subsystem.name }}
+               </span>
+              <span v-else @click="selectedSubsystem=subsystem">
+                &#9642;&nbsp;{{ subsystem.name }}
+              </span>
             </li>
             <li v-else class="disable">
                 <span>&#9642;&nbsp;{{ subsystem.name }}</span>
@@ -34,7 +34,7 @@
       <table class="table">
       <tr>
         <td>
-          <a @click="viewSubsystem()">{{ selectedSubsystem.name }}</a>
+          <a @click="exploreSubsystem()">{{ selectedSubsystem.name }}</a>
         </td>
         <td>
           <span class="tag" @click="showSubsystem()">View</span>
@@ -65,10 +65,11 @@ import EventBus from '../../event-bus';
 
 export default {
   name: 'subsystem',
-  props: ['model'],
+  props: ['model', 'subsystemName'],
   data() {
     return {
       subsystems: {},
+      subsystemsDict: {},
       subsystemsSystem: {}, // to get the system from the subsystem
       selectedSystem: '',
       selectedSubsystem: '',
@@ -86,6 +87,20 @@ export default {
       ],
     };
   },
+  watch: {
+    subsystemName(newVal, oldVal) { // eslint-disable-line no-unused-vars
+      console.log(this.subsystemName);
+      console.log(this.subsystemsSystem);
+      if (this.subsystemName in this.subsystemsSystem) {
+        this.selectedSystem = this.subsystemsSystem[this.subsystemName];
+        this.selectedSubsystem = this.subsystemsDict[this.subsystemName];
+        const s = `${this.selectedSystem} - ${this.selectedSubsystem.nr_metabolites} Metabolites; ${this.selectedSubsystem.nr_enzymes} Enzymes; ${this.selectedSubsystem.nr_reactions} Reactions; ${this.selectedSubsystem.nr_compartments} Compartments`;
+        this.$emit('showMapInfo', s);
+      } else {
+        this.selectedSystem = '';
+      }
+    },
+  },
   created() {
     /* eslint-disable no-param-reassign */
     EventBus.$on('showSubsystem', (name) => {
@@ -97,10 +112,6 @@ export default {
       } else {
         this.loadSubsystemCoordinates(name, null);
       }
-    });
-    EventBus.$on('resetView', () => {
-      this.selectedSystem = '';
-      this.selectedSubsystem = '';
     });
   },
   beforeMount() {
@@ -133,7 +144,8 @@ export default {
             );
             this.subsystemCount += systems[k].length;
             for (const s of systems[k]) {
-              this.subsystemsSystem[k] = s;
+              this.subsystemsDict[s.name] = s;
+              this.subsystemsSystem[s.name] = k;
             }
           }
           // update the parent component
@@ -149,9 +161,9 @@ export default {
         });
     },
     loadSubsystemCoordinates(subsystemName, compName) {
-      let url = `${this.model}/showsubsystem/${subsystemName}`;
+      let url = `${this.model}/subsystem_coord/${subsystemName}`;
       if (compName) {
-        url = `${this.model}/showsubsystem/${subsystemName}/${compName}`;
+        url = `${this.model}/subsystem_coord/${subsystemName}/${compName}`;
       }
       console.log(url);
       axios.get(url)
@@ -163,7 +175,7 @@ export default {
             minY: subCoors.y_top_left,
             maxY: subCoors.y_bottom_right,
           };
-          EventBus.$emit('showSVGmap', 'subsystem', subCoors.compartment_name, coors);
+          EventBus.$emit('requestViewer', 'subsystem', subCoors.compartment_name, subsystemName, coors);
         })
         .catch((error) => {
           console.log(error);
@@ -177,17 +189,12 @@ export default {
         this.selectedSystem = system;
       }
     },
-    viewSubsystem() {
+    exploreSubsystem() {
       EventBus.$emit('updateSelTab', 'subsystem', this.selectedSubsystem.id);
     },
     showSubsystem() {
-      // forbid the display of this system
       if (this.selectedSystem !== 'Collection of reactions') {
-        if (!this.selectedSubsystem) {
-          this.loadSubsystemCoordinates('Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', null);
-        } else {
-          this.loadSubsystemCoordinates(this.selectedSubsystem.name, null);
-        }
+        EventBus.$emit('showSubsystem', this.selectedSubsystem.name);
       }
     },
   },

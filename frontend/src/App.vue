@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <transition name="fade">
-      <metabolic-network id="metabolicNetwork" v-if="isLoadedNetworkGraph" v-show="isShowNetworkGraph" :model="selectedModel"></metabolic-network>
+      <metabolic-network id="metabolicNetwork" v-show="isShowNetworkGraph" :model="selectedModel"></metabolic-network>
     </transition>
     <div class="hero-head">
       <nav class="navbar" role="navigation" aria-label="main navigation">
@@ -22,7 +22,7 @@
         </div>
         <div class="navbar-menu" id="#nav-menu">
           <div class="navbar-end">
-            <a class="navbar-item" v-show="isLoadedNetworkGraph && !isShowNetworkGraph">
+            <a class="navbar-item" v-show="!isShowNetworkGraph">
               <div class="button is-info" @click="showNetworkGraph()">Metabolic Map</div>
             </a>
             <a
@@ -84,16 +84,17 @@ export default {
         this.$t('navBut6Title'),
         this.$t('navBut7Title'),
       ],
-      isLoadedNetworkGraph: false,
       isShowNetworkGraph: false,
       selectedModel: 'hmr2',
     };
   },
   created() {
+    EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
+      this.isShowNetworkGraph = true;
+      console.log(`requestViewer ${type}, ${name}, ${secondaryName}, ${ids}`);
+      EventBus.$emit('showAction', type, name, secondaryName, ids);
+    });
     EventBus.$on('toggleNetworkGraph', () => {
-      if (!this.isLoadedNetworkGraph) {
-        this.isLoadedNetworkGraph = true;
-      }
       this.isShowNetworkGraph = !this.isShowNetworkGraph;
     });
     EventBus.$on('updateSelectedModel', (model) => {

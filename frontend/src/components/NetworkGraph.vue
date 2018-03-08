@@ -84,7 +84,7 @@ export default {
     },
   },
   created() {
-    console.log('network_graph_crated');
+    console.log('network_graph_created');
     // init the global events
     EventBus.$on('resetView', () => {
       this.levelSelected = 'subsystem';

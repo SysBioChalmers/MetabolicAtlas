@@ -79,7 +79,7 @@
               <strong>Compartment: </strong> {{ r.name }}
               <div>
                 <span class="tag is-primary is-medium"
-                  @click="viewCompartment(getCompartmentFromName(r.name.toLowerCase()).compartmentID)">
+                  @click="viewCompartment(r.name.toLowerCase())">
                   View
                 </span>
               </div>
@@ -205,9 +205,11 @@ export default {
       this.searchResults = [];
       EventBus.$emit('updateSelTab', type, id);
     },
-    viewCompartment(id) {
-      this.goToTab('map', null);
-      EventBus.$emit('showCompartment', id, []);
+    viewCompartment(name) {
+      if (name === 'cytosol') {
+        name = 'cytosol_1';  // eslint-disable-line no-param-reassign
+      }
+      EventBus.$emit('requestViewer', 'compartment', name, '', []);
     },
     formatSearchResultLabel(c, searchTerm) {
       let s = `${c.short_name || c.long_name} (${c.compartment}`;
