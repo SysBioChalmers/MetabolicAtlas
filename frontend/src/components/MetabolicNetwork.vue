@@ -14,13 +14,12 @@
     <div class="columns">
       <div class="column is-2 has-text-centered" id="iSwitch">
         <div class="field">
-          <label for="dimSwitch" @click="switch3Dimension(false)">2D Maps</label>
+          <label for="" @click="switch3Dimension(false)">2D Maps</label>
           <input id="dimSwitch" type="checkbox" name="dimSwitch"
-           class="switch is-large is-rtl" :checked="{'checked' : dim3D}"
-           :disabled="activeSwitch ? false : 'disabled'"
-           @click="switch3Dimension()">
-          <label for="dimSwitch"></label>
-          <label for="dimSwitch" @click="switch3Dimension(true)">&nbsp;3D Force</label>
+           class="switch is-large is-rtl" :checked="!dim3D"
+           :disabled="activeSwitch ? false : 'disabled'">
+          <label for="" @click="switch3Dimension(null)"></label>
+          <label for="" @click="switch3Dimension(true)">&nbsp;3D Force</label>
         </div>
       </div>
       <div class="column" id="iBarInfo" v-html="mapInfoString">
@@ -208,9 +207,11 @@ export default {
   }
 
   #iSwitch {
-    * {
+    label {
       font-size: 1.5rem;
+      cursor: pointer;
     }
+
   }
 
   #iBarInfo {

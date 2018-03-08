@@ -25,7 +25,10 @@ export default {
       compartment: null,
       subsystem: null,
       showLoader: false,
-      network: null,
+      network: {
+        nodes: [],
+        links: [],
+      },
     };
   },
   mounted() {
@@ -49,12 +52,13 @@ export default {
         });
     },
     getGraphDataSet() {
+      const network = this.network;
       const tunnel = function graph(Graph) {
         Graph
           .nodeLabel('name')
           .nodeAutoColorBy('group')
           .forceEngine('ngraph')
-          .graphData({ nodes: this.network.nodes, links: this.network.links })
+          .graphData({ nodes: network.nodes, links: network.links })
           .linkAutoColorBy('group')
           .nodeAutoColorBy('group')
           .nodeOpacity(1)
