@@ -876,6 +876,155 @@ def parse_readme_file(content):
     return d
 
 
+@api_view()
+def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False):
+    if component_name:
+        if ctype == 'compartment':
+            try:
+                compartment = Compartment.objects.using(model).get(name__iexact=component_name)
+            except Subsystem.DoesNotExist:
+                return HttpResponse(status=404)
+
+            reactions_id = ReactionCompartment.objects.using(model). \
+                filter(compartment=compartment).values_list('reaction', flat=True)
+            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+                prefetch_related('reactants', 'products', 'modifiers')
+        else:
+            try:
+                subsystem = Subsystem.objects.using(model).get(name__iexact=component_name)
+            except Subsystem.DoesNotExist:
+                return HttpResponse(status=404)
+
+            reactions_id = SubsystemReaction.objects.using(model). \
+                filter(subsystem=subsystem).values_list('reaction', flat=True)
+            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+                prefetch_related('reactants', 'products', 'modifiers')
+    else:
+        reactions = Reaction.objects.using(model).all().prefetch_related('reactants', 'products', 'modifiers')
+
+    nodes = {}
+    links = {}
+
+    duplicateEnzyme = True
+    duplicatedEnz= {}
+    duplicateMetabolite = dup_meta
+    duplicatedId = {}
+
+    duplicateMetaName = {'ATP', 'ADP', 'Pi', 'PPi', 'H2O', 'O2', 'PI pool', 'H+', \
+     'NADP', 'NADP+', 'NADH', 'NAD+', 'CoA', 'NADPH', 'acetyl-CoA', 'FAD', 'FADH'}
+
+    for r in reactions:
+        reaction = {
+            'group': 'reaction',
+            'id': r.id,
+            'name': r.id,
+        }
+        nodes[r.id] = reaction;
+
+        for m in r.reactants.all():
+            duplicateCurrentMeta = False
+            if m.short_name in duplicateMetaName:
+                duplicateCurrentMeta = True
+
+            doMeta = True;
+            metabolite = None;
+            mid = m.id
+            if duplicateMetabolite:
+                if mid not in nodes:
+                    duplicatedId[mid] = 0
+                elif duplicateCurrentMeta:
+                    duplicatedId[m.id] += 1
+                    mid = "%s-%s" % (m.id, duplicatedId[m.id])
+                else:
+                    doMeta = False;
+
+            if doMeta:
+                metabolite = {
+                    'group': 'metabolite',
+                    'id': mid,
+                    'rid': m.id,
+                    'name': m.short_name or m.long_name,
+                }
+
+                nodes[mid] = metabolite;
+
+            rel = {
+              'id': mid + "-" + r.id,
+              'source': mid,
+              'target': r.id,
+              'group': 'fe',
+              'rev': r.is_reversible,
+            }
+            links[rel['id']] = rel;
+
+        for m in r.products.all():
+            duplicateCurrentMeta = False
+            if m.short_name in duplicateMetaName:
+                duplicateCurrentMeta = True
+
+            doMeta = True;
+            metabolite = None
+            mid = m.id;
+            if duplicateMetabolite:
+                if mid not in nodes:
+                    duplicatedId[mid] = 0
+                elif duplicateCurrentMeta:
+                    duplicatedId[m.id] += 1
+                    mid = "%s-%s" % (m.id, duplicatedId[m.id])
+                else:
+                    doMeta = False
+
+            if doMeta:
+                metabolite = {
+                    'group': 'metabolite',
+                    'id': mid,
+                    'rid': m.id,
+                    'name': m.short_name or m.long_name,
+                }
+
+                nodes[mid] = metabolite
+
+            rel = {
+              'id': r.id + "-" + mid,
+              'source': r.id,
+              'target': mid,
+              'group': 'fe',
+              'rev': r.is_reversible,
+            }
+            links[rel['id']] = rel
+
+        for e in r.modifiers.all():
+            eid = e.id;
+            if eid in nodes:
+                duplicatedEnz[eid] += 1;
+                eid = "%s-%s" % (eid, duplicatedEnz[eid])
+            else:
+                duplicatedEnz[eid] = 0;
+
+            enzyme = {
+              'id': eid,
+              'group': 'enzyme',
+              'name': e.short_name or e.long_name,
+            }
+            nodes[eid] = enzyme;
+
+            rel = {
+              'id': eid + "-" + r.id,
+              'source': eid,
+              'target': r.id,
+              'group': 'ee',
+              'rev': r.is_reversible,
+            }
+            links[rel['id']] = rel
+
+    results = {
+        'nodes': [v for k, v in nodes.items()],
+        'links': [v for k, v in links.items()],
+    }
+
+    return JSONResponse(results)
+
+
 #####################################################################################
 
 @api_view(['POST'])
