@@ -29,8 +29,6 @@ export default {
   data() {
     return {
       errorMessage: '',
-      loadedComponentType: '',
-      loadedComponentName: '',
       loadedCompartment: null,
       svgContent: null,
       svgName: '',
@@ -58,26 +56,20 @@ export default {
       console.log(`emit ${type} ${name} ${ids}`);
       if (type === 'compartment') {
         this.HLonly = false;
-        this.loadedComponentType = 'compartment';
         this.showCompartment(name);
       } else if (type === 'subsystem') {
         this.HLonly = false;
-        this.loadedComponentType = 'subsystem';
         this.showTiles(name, ids);
       } else if (type === 'tiles') {
         this.HLonly = false;
-        this.loadedComponentType = 'tiles';
         this.showTiles(name, ids);
       } else if (type === 'highlight') {
         this.HLonly = true;
-        this.loadedComponentType = 'highlight';
         this.hlElements(null, ids);
       } else if (type === 'find') {
         this.HLonly = false;
-        this.loadedComponentType = 'find';
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
-        this.loadedComponentType = 'wholemap';
         const compartment = getCompartmentFromName('wholemap');
         this.loadSVG(compartment, null);
       }
@@ -177,8 +169,7 @@ export default {
           // call findElementsOnSVG
           callback();
         } else {
-          this.$emit('loadedComponent', true, this.loadedComponentType,
-            this.loadedComponentName, '');
+          this.$emit('loadedComponent', true, '');
         }
       }, 0);
     },
@@ -210,8 +201,7 @@ export default {
       this.$emit('loading');
       if (!newSvgName) {
         // TODO remove this when all svg files are available
-        this.$emit('loadedComponent', false, this.loadedComponentType,
-         this.loadedComponentName, 'Svg file \'newSvgName\' not available');
+        this.$emit('loadedComponent', false, 'SVG map not available.');
         return;
       }
 
@@ -231,8 +221,7 @@ export default {
           .catch((error) => {
             // TODO: handle error
             console.log(error);
-            this.$emit('loadedComponent', false, this.loadedComponentType,
-              this.loadedComponentName, error);
+            this.$emit('loadedComponent', false, error);
           });
       } else if (callback) {
         this.loadedCompartment = compartment;
@@ -242,8 +231,7 @@ export default {
         this.loadedCompartment = compartment;
         // console.log('finish call svgfit');
         this.svgfit();
-        this.$emit('loadedComponent', true, this.loadedComponentType,
-         this.loadedComponentName, '');
+        this.$emit('loadedComponent', true, '');
       }
     },
     findElementsOnSVG() {
@@ -276,8 +264,7 @@ export default {
         this.highlightSVGelements(a);
       } else {
         // this.showLoader = false;
-        this.$emit('loadedComponent', true, this.loadedComponentType,
-         this.loadedComponentName, '');
+        this.$emit('loadedComponent', true, '');
       }
     },
     updateZoomBoxCoor(coordinate) {
@@ -351,8 +338,7 @@ export default {
       if (!this.HLonly) {
         this.zoomOnTiles();
       } else {
-        this.$emit('loadedComponent', true, this.loadedComponentType,
-         this.loadedComponentName, '');
+        this.$emit('loadedComponent', true, '');
       }
     },
     zoomOnTiles() {
@@ -373,8 +359,7 @@ export default {
       console.log('zoom at');
       console.log(newScale);
       this.panZoom.zoom(newScale);
-      this.$emit('loadedComponent', true, this.loadedComponentType,
-         this.loadedComponentName, '');
+      this.$emit('loadedComponent', true, '');
     },
     unHighlight() {
       if (this.HLelms) {
