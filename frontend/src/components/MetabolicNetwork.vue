@@ -5,17 +5,23 @@
         <svg-icon width="175" height="40" :glyph="Logo"></svg-icon>
       </div>
       <div class="column has-text-centered" id="iTitle">
-        Metabolic Map
+        Metabolic Viewer of <span class="has-text-info">{{ model.toUpperCase() }}</span>
       </div>
       <div class="column">
-        <button id="iHideBut" class="button is-info is-pulled-right" @click="hideNetworkGraph()">HIDE</button>
+        <button id="iHideBut" class="button is-dark is-pulled-right" @click="hideNetworkGraph()">Close</button>
       </div>
     </div>
     <div class="columns">
-      <div class="column is-1 has-text-centered" id="iModel">
-        Model: {{ model }}
-      </div>
-      <div class="column is-1">
+      <div class="column is-2 has-text-centered" id="iSwitch">
+        <div class="field">
+          <label for="dimSwitch" @click="switch3Dimension(false)">2D Maps</label>
+          <input id="dimSwitch" type="checkbox" name="dimSwitch"
+           class="switch is-large is-rtl" :checked="{'checked' : dim3D}"
+           :disabled="activeSwitch ? false : 'disabled'"
+           @click="switch3Dimension()">
+          <label for="dimSwitch"></label>
+          <label for="dimSwitch" @click="switch3Dimension(true)">&nbsp;3D Force</label>
+        </div>
       </div>
       <div class="column" id="iBarInfo" v-html="mapInfoString">
       </div>
@@ -69,11 +75,13 @@
           </article>
         </section>
       </div>
-      <div class="column" id="svgframe" >
-        <svgmap></svgmap>
+      <div class="column" id="svgframe">
+        <svgmap v-show="!dim3D" @loadedComponent="handleLoadedComponent" @loading="showLoader=true"></svgmap>
+        <div id="iLoader" class="container loading" v-show="showLoader">
+          <a class="button is-large is-loading"></a>
+        </div>
       </div>
     </div>
-    <br>
   </div>
 </template>
 
@@ -110,13 +118,19 @@ export default {
       mapInfoString: '',
       levelSelected: 'subsystem',
       selectedModel: 'hmr2',
-      // hideSidebar: false,
+      dim3D: false,
+      currentDisplay: 'wholemap',
       compartmentCount: 0,
       subsystemCount: 0,
       initialEmit: false,
+      showLoader: false,
     };
   },
-
+  computed: {
+    activeSwitch() {
+      return ['compartment', 'subsystem'].includes(this.currentDisplay) && !this.showLoader;
+    },
+  },
   beforeMount() {
     this.compartmentCount = Object.keys(getCompartments(this.getCompartments())).length;
   },
@@ -127,7 +141,7 @@ export default {
       this.levelSelected = 'subsystem';
     }
     console.log(this.$route.query);
-    if (this.$route.query.tab && this.$route.query.tab === '1' && !this.initialEmit) {
+    if (this.currentDisplay === 'wholemap' && !this.initialEmit) {
       console.log('initial emit whole map');
       EventBus.$emit('showSVGmap', 'wholemap', null, []);
       this.initialEmit = true;
@@ -143,6 +157,24 @@ export default {
     hideNetworkGraph() {
       EventBus.$emit('toggleNetworkGraph');
     },
+    switch3Dimension(b) {
+      if (this.dim3D) {
+        this.dim3D = b;
+      } else if (this.currentDisplay !== 'wholemap') {
+        if (b !== null) {
+          this.dim3D = b;
+        } else {
+          this.dim3D = !this.dim3D;
+        }
+      }
+    },
+    handleLoadedComponent(isSuccess, type, componentName, errorMessage) {
+      console.log(`${isSuccess} ${type} ${componentName} ${errorMessage}`);
+      if (isSuccess) {
+        this.currentDisplay = type;
+      }
+      this.showLoader = false;
+    },
     getCompartments,
     bulmaAccordion,
   },
@@ -152,7 +184,6 @@ export default {
 <style lang="scss">
 
 #metabolicNetwork {
-
   #iTopBar {
     border-bottom: 1px solid black;
     .column {
@@ -173,8 +204,10 @@ export default {
     margin: 10px;
   }
 
-  #iModel {
-    font-size: 1.2em;
+  #iSwitch {
+    * {
+      font-size: 1.5rem;
+    }
   }
 
   #iBarInfo {
@@ -210,7 +243,28 @@ export default {
     bottom: 0;
   }
 
+  #iLoader {
+    z-index: 10;
+    position: absolute;
+    background: black;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+    a {
+      color: white;
+      font-size: 5em;
+      font-weight: 1000;
+    }
+    .button {
+      background: black;
+      border: 0;
+    }
+  }
+
   #svgframe {
+    position: relative;
     width: 100%;
     height: 100vh;
     padding: 0;

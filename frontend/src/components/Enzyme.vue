@@ -185,37 +185,4 @@ h1, h2 {
   font-weight: normal;
 }
 
-.connected-metabolites {
-  #cygraph-wrapper {
-    position: relative;
-  }
-
-  #cy {
-    position: static;
-    margin: auto;
-    height: 720px;
-  }
-
-  #sidebar {
-    max-height: 720px;
-    overflow-y: auto;
-  }
-
-  #contextMenuGraph {
-    position: absolute;
-    z-index: 999;
-
-    span {
-      display: block;
-      padding: 5px 10px;
-      text-align: left;
-      border-radius: 0;
-
-      a {
-        color: white;
-      }
-    }
-  }
-}
-
 </style>

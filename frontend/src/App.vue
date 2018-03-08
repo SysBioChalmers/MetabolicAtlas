@@ -143,11 +143,13 @@ $body-size: 14px !default
 $desktop: 1192px !default;
 $widescreen: 1384px !default;
 $fullhd: 1576px !default;
+$switch-background: $primary;
 
 
 /* @import "./sass/extensions/_all" FIX ME */
 @import '~bulma';
 @import '~bulma-extensions/bulma-accordion/dist/bulma-accordion';
+@import '~bulma-extensions/bulma-switch/dist/bulma-switch';
 @import './styles/mixins';
 
 @include keyframes(rotating) {
@@ -163,7 +165,7 @@ $fullhd: 1576px !default;
 
 #metabolicNetwork {
   position: fixed;
-  z-index:999;
+  z-index:100;
   top: 0;
   bottom: 0;
   left: 0;

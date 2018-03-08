@@ -1,19 +1,12 @@
 <template>
   <div>
-    <loader v-show="showLoader"></loader>
-    <div v-show="!showLoader">
-      <div v-show="!showMissingSVGString" class="svgbox">
-        <div id="svg-wrapper" v-html="svgContent">
-        </div>
-        <div id="svgOption">
-          <span class="button" v-show="!showMissingSVGString" v-on:click="svgfit()">Reset view</span>
-          <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom ? panZoom.zoomIn() : ''">+</span>
-          <span class="button" v-show="!showMissingSVGString" v-on:click="panZoom ? panZoom.zoomOut(): ''">-</span>
-        </div>
+    <div class="svgbox">
+      <div id="svg-wrapper" v-html="svgContent">
       </div>
-      <div class="svgbox has-text-centered" v-show="showMissingSVGString"
-        style="line-height: 200px">
-        Sorry, the SVG file is not yet available for this compartment
+      <div id="svgOption">
+        <span class="button" v-on:click="svgfit()">Reset view</span>
+        <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''">+</span>
+        <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''">-</span>
       </div>
     </div>
   </div>
@@ -36,10 +29,9 @@ export default {
   data() {
     return {
       errorMessage: '',
-      compartment: null,
-      showResults: false,
-      showMissingSVGString: true,
-      showLoader: false,
+      loadedComponentType: '',
+      loadedComponentName: '',
+      loadedCompartment: null,
       svgContent: null,
       svgName: '',
       svgBigMapName: 'whole_metabolic_network_without_details',
@@ -66,22 +58,28 @@ export default {
       console.log(`emit ${type} ${name} ${ids}`);
       if (type === 'compartment') {
         this.HLonly = false;
+        this.loadedComponentType = 'compartment';
         this.showCompartment(name);
       } else if (type === 'subsystem') {
         this.HLonly = false;
+        this.loadedComponentType = 'subsystem';
         this.showTiles(name, ids);
       } else if (type === 'tiles') {
         this.HLonly = false;
+        this.loadedComponentType = 'tiles';
         this.showTiles(name, ids);
       } else if (type === 'highlight') {
         this.HLonly = true;
+        this.loadedComponentType = 'highlight';
         this.hlElements(null, ids);
       } else if (type === 'find') {
         this.HLonly = false;
+        this.loadedComponentType = 'find';
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
+        this.loadedComponentType = 'wholemap';
         const compartment = getCompartmentFromName('wholemap');
-        this.loadSVG(compartment, this.loadSvgPanZoom, null);
+        this.loadSVG(compartment, null);
       }
     });
   },
@@ -137,10 +135,10 @@ export default {
           beforeZoom: (oldzl, newzl) => {
             // console.log(oldzl);
             // console.log(newzl);
-            if (newzl > this.compartment.maxZoomLvl + 0.001) {
+            if (newzl > this.loadedCompartment.maxZoomLvl + 0.001) {
               this.allowZoom = false;
               return false;
-            } else if (newzl < this.compartment.minZoomLvl - 0.001) {
+            } else if (newzl < this.loadedCompartment.minZoomLvl - 0.001) {
               this.allowZoom = false;
               return false;
             }
@@ -156,17 +154,17 @@ export default {
           onZoom: (zc) => {
             // console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
             this.zoomLevel = zc;
-            if (zc >= this.compartment.RenderZoomLvl.metaboliteLabel) {
+            if (zc >= this.loadedCompartment.RenderZoomLvl.metaboliteLabel) {
               $('.metabolite .lbl, .reaction .lbl').attr('display', 'inline');
             } else {
               $('.metabolite .lbl, .reaction .lbl').attr('display', 'none');
             }
-            if (zc >= this.compartment.RenderZoomLvl['flux-edge']) {
+            if (zc >= this.loadedCompartment.RenderZoomLvl['flux-edge']) {
               $('.flux-edge, .effector-edge').attr('display', 'inline');
             } else {
               $('.flux-edge, .effector-edge').attr('display', 'none');
             }
-            if (zc >= this.compartment.RenderZoomLvl.metabolite) {
+            if (zc >= this.loadedCompartment.RenderZoomLvl.metabolite) {
               $('.metabolite, .reaction').attr('display', 'inline');
             } else {
               $('.metabolite, .reaction').attr('display', 'none');
@@ -178,18 +176,21 @@ export default {
         if (callback) {
           // call findElementsOnSVG
           callback();
+        } else {
+          this.$emit('loadedComponent', true, this.loadedComponentType,
+            this.loadedComponentName, '');
         }
       }, 0);
     },
     svgfit() {
       // console.log('fit svg');
       $('#svg-wrapper svg').attr('width', '100%');
-      const h = $('.svgbox').first().css('height');
+      // const h = $('.svgbox').first().css('height');
       const a = $('.svgbox').first().offset().top;
       const vph = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-      console.log(`h: ${h}`);
-      console.log(`a: ${a}`);
-      console.log(`vph: ${vph}`);
+      // console.log(`h: ${h}`);
+      // console.log(`a: ${a}`);
+      // console.log(`vph: ${vph}`);
       const v = vph - a;
 
       $('#svg-wrapper svg').attr('height', `${v}px`);
@@ -197,24 +198,23 @@ export default {
         this.panZoom.resize(); // update SVG cached size
         this.panZoom.fit();
         this.panZoom.center();
-        this.showLoader = false;
+        // this.showLoader = false;
       }
     },
-    loadSVG(compartment, callback, callback2) {
+    loadSVG(compartment, callback) {
       // console.log('load svg');
       // load the svg file from the server
       // if aleady loaded, just call the callback funtion
       const newSvgName = compartment.svgName;
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
-      this.showLoader = true;
+      this.$emit('loading');
       if (!newSvgName) {
         // TODO remove this when all svg files are available
-        this.showMissingSVGString = true;
-        this.showLoader = false;
+        this.$emit('loadedComponent', false, this.loadedComponentType,
+         this.loadedComponentName, 'Svg file \'newSvgName\' not available');
         return;
       }
-      this.showMissingSVGString = false;
-      // console.log(`newSvgName ${newSvgName}`);
+
       if (newSvgName !== this.svgName) {
         // console.log('new svg');
         axios.get(svgLink)
@@ -222,52 +222,43 @@ export default {
             // console.log('get the svg');
             this.svgContent = response.data;
             this.svgName = newSvgName;
-            this.compartment = compartment;
+            this.loadedCompartment = compartment;
             setTimeout(() => {
-              this.showLoader = false;
-              if (callback) {
-                callback(callback2);
-              }
+              // this.showLoader = false;
+              this.loadSvgPanZoom(callback);
             }, 0);
           })
           .catch((error) => {
             // TODO: handle error
             console.log(error);
-            this.showLoader = false;
-            this.showMissingSVGString = true;
+            this.$emit('loadedComponent', false, this.loadedComponentType,
+              this.loadedComponentName, error);
           });
-      } else if (callback2) {
-        this.compartment = compartment;
+      } else if (callback) {
+        this.loadedCompartment = compartment;
         // call findElementsOnSVG
-        callback2();
+        callback();
       } else {
-        this.compartment = compartment;
+        this.loadedCompartment = compartment;
         // console.log('finish call svgfit');
         this.svgfit();
+        this.$emit('loadedComponent', true, this.loadedComponentType,
+         this.loadedComponentName, '');
       }
     },
     findElementsOnSVG() {
       console.log('call findElementsOnSVGs');
       const a = [];
-      const debug = false;
       if (!this.ids) {
         this.showLoader = false;
         return;
-      }
-      if (debug) {
-        // this.ids = ['E_2778', 'M_m03106s', 'M_m02041p', 'fake1', 'fake3', 'fake5'];
-        // this.ids = ['fake5', 'fake4'];
-        this.ids = ['fake1', 'fake4'];
       }
       for (let i = 0; i < this.ids.length; i += 1) {
         const id = this.ids[i].trim();
         let idname = `#${id}`;
         let elm = $(idname);
         if (elm.length) {
-          // console.log(idname);
           a.push(elm);
-        } else {
-          // console.log(`${idname} elem not found`);
         }
         for (let j = 0; j < 200; j += 1) {
           idname = `#${id}-${j}`;
@@ -284,7 +275,9 @@ export default {
       if (a.length) {
         this.highlightSVGelements(a);
       } else {
-        this.showLoader = false;
+        // this.showLoader = false;
+        this.$emit('loadedComponent', true, this.loadedComponentType,
+         this.loadedComponentName, '');
       }
     },
     updateZoomBoxCoor(coordinate) {
@@ -333,7 +326,7 @@ export default {
       this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
     },
     getTransform(el) {
-      // read and parse the transform attribut, no used anmore
+      // read and parse the transform attribut, no used anymore
       let transform = el.attr('transform');
       transform = transform.substring(0, transform.length - 1);
       transform = transform.substring(7, transform.length);
@@ -341,17 +334,10 @@ export default {
     },
     highlightSVGelements(els) {
       this.unHighlight();
-      const debug = true;
       this.resetZoombox();
       for (const el of els) {
         const id = el.attr('id');
         const path = $(`#${id} path`);
-        if (debug) {
-          console.log(id);
-          console.log(el[0].getBBox());
-          console.log(path);
-          console.log(path[0].getBBox());
-        }
         // change the box color only
         this.HLelms.push(path);
         if (!this.HLonly) {
@@ -364,6 +350,9 @@ export default {
       }
       if (!this.HLonly) {
         this.zoomOnTiles();
+      } else {
+        this.$emit('loadedComponent', true, this.loadedComponentType,
+         this.loadedComponentName, '');
       }
     },
     zoomOnTiles() {
@@ -375,22 +364,17 @@ export default {
         y: -(this.zoomBox.centerY * realZoom) + (this.panZoom.getSizes().height / 2),
       });
       const viewBox = this.panZoom.getSizes().viewBox;
-      const debug = false;
-      if (debug) {
-        console.log(this.zoomBox.w);
-        console.log(viewBox.width);
-        console.log(this.zoomBox.h);
-        console.log(viewBox.height);
-      }
       let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
       // console.log(`newScale ${newScale}`);
-      if (newScale > this.compartment.maxZoomLvl) {
-        newScale = this.compartment.maxZoomLvl - 0.01; // fix zoom round e.g. 30 => 30.00001235
+      if (newScale > this.loadedCompartment.maxZoomLvl) {
+        // fix zoom round e.g. 30 => 30.00001235
+        newScale = this.loadedCompartment.maxZoomLvl - 0.01;
       }
       console.log('zoom at');
       console.log(newScale);
       this.panZoom.zoom(newScale);
-      this.showLoader = false;
+      this.$emit('loadedComponent', true, this.loadedComponentType,
+         this.loadedComponentName, '');
     },
     unHighlight() {
       if (this.HLelms) {
@@ -407,7 +391,7 @@ export default {
         const compartment = getCompartmentFromName(compartmentName);
         this.ids = ids;
         if (compartment) {
-          this.loadSVG(compartment, this.loadSvgPanZoom, this.findElementsOnSVG);
+          this.loadSVG(compartment, this.findElementsOnSVG);
         }
       } else {
         this.unHighlight();
@@ -422,7 +406,7 @@ export default {
         const compartment = getCompartmentFromName(compartmentName);
         if (compartment) {
           this.updateZoomBoxCoor(coordinate);
-          this.loadSVG(compartment, this.loadSvgPanZoom, this.zoomOnTiles);
+          this.loadSVG(compartment, this.zoomOnTiles);
         }
       }
     },
@@ -430,7 +414,7 @@ export default {
       if (compartmentName) {
         const compartment = getCompartmentFromName(compartmentName);
         if (compartment) {
-          this.loadSVG(compartment, this.loadSvgPanZoom);
+          this.loadSVG(compartment, null);
         }
       }
     },
@@ -440,8 +424,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-
   #svg-wrapper {
     margin: auto;
     width: 100%;
