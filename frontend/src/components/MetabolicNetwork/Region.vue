@@ -1,17 +1,13 @@
 <template>
   <div>
     <div class="field">
-      <div class="">
-        <label class="label">IDs: </label>
-      </div>
-      <br>
       <p class="control">
         <textarea id="idarea" class="textarea" ref="textarea" placeholder="M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g, R_HMR_4410">M_m01965g, E_3071, E_3122, M_m02597g, M_m01969g, E_463, M_m02682g, R_HMR_4410</textarea>
       </p>
     </div>
     <div>
-      <button class="button is-primary" @click="searchElements(false)">Search</button>
-      <button class="button is-primary" @click="searchElements(true)">Highlight</button>
+      <button class="button is-info" @click="searchElements(false)">Search</button>
+      <button class="button is-info" @click="searchElements(true)">Highlight</button>
     </div>
     <div id="table-res" v-show="showResults">
       <span class="help is-small">Click on a row to highlight the corresponding components</span>
@@ -128,8 +124,7 @@ export default {
 
 
   #idarea {
-    width: 100px;
-    height: 200px;
+    height: 100px;
   }
 
   #table-res {

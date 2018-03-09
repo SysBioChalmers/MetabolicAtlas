@@ -109,7 +109,7 @@
                     <td>HMR2.00</td>
                     <td>
                       <template v-for="sub, index in item.subsystem">
-                        <a @click="viewComponentInfo(sub[0], 6)">{{ index != 0 ? '; ' : '' }}{{ sub[1] | capitalize }}</a>
+                        <a @click="viewComponentInfo(sub[1], 6)">{{ index != 0 ? '; ' : '' }}{{ sub[1] | capitalize }}</a>
                       </template>
                     </td>
                     <td>{{ item.compartment | capitalize }}</td>
@@ -136,7 +136,7 @@
                   <tr v-for="item in searchResults['subsystem']">
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
-                    <td><a @click="viewComponentInfo(item.id, 6)">{{ item.name | capitalize }}</a></td>
+                    <td><a @click="viewComponentInfo(item.name, 6)">{{ item.name | capitalize }}</a></td>
                     <td>{{ item.system | capitalize }}</td>
                   </tr>
                 </tbody>
@@ -150,7 +150,7 @@
               <table class="table is-fullwidth">
                 <thead>
                   <tr>
-                    <th>Organism</th><th>Model</th><th>Compartment</th>
+                    <th>Organism</th><th>Model</th><th>Compartment</th><th>View</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -158,6 +158,11 @@
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
                     <td>{{ item.name | capitalize }}</td>
+                    <td>
+                      <div class="button" @click="viewCompartmentSVG(item.name)">
+                        <span class="fa fa-eye"></span>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -181,6 +186,7 @@ import $ from 'jquery';
 import Loader from 'components/Loader';
 import router from '../router';
 import { chemicalFormula } from '../helpers/chemical-formatters';
+import EventBus from '../event-bus';
 
 export default {
   name: 'search-table',
@@ -358,7 +364,7 @@ export default {
     showTab(elementType) {
       return this.showTabType === elementType;
     },
-    viewComponentInfo: function viewMetaboliteInfo(id, tabIndex) {
+    viewComponentInfo(id, tabIndex) {
       router.push(
         {
           path: '/',
@@ -368,6 +374,12 @@ export default {
           },
         },
       );
+    },
+    viewCompartmentSVG(name) {
+      if (name === 'cytosol') {
+        name = 'cytosol_1';  // eslint-disable-line no-param-reassign
+      }
+      EventBus.$emit('requestViewer', 'compartment', name, '', []);
     },
     resetFilters() {
       for (const tabname of this.tabs) {

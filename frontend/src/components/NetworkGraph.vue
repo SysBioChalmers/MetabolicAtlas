@@ -9,7 +9,7 @@
       </div>
       <global-search
       :quickSearch=true
-      :model="SelectedModel"
+      :model="selectedModel"
       ></global-search>
       <div class="column">
         <div class="is-pulled-right">
@@ -34,12 +34,12 @@
       {{ errorMessage }}
     </div>
     <div v-else>
-      <metabolic-network v-show="selectedTab===1" :model="SelectedModel"></metabolic-network>
-      <closest-interaction-partners v-if="selectedTab===2" :model="SelectedModel"></closest-interaction-partners>
-      <enzyme v-if="selectedTab===3" :model="SelectedModel"></enzyme>
-      <metabolite v-if="selectedTab===4" :model="SelectedModel"></metabolite>
-      <reaction v-if="selectedTab===5" :model="SelectedModel"></reaction>
-      <subsystem v-if="selectedTab===6" :model="SelectedModel"></subsystem>
+      <!-- <metabolic-network v-show="selectedTab===1" :model="selectedModel"></metabolic-network> -->
+      <closest-interaction-partners v-if="selectedTab===2" :model="selectedModel"></closest-interaction-partners>
+      <enzyme v-if="selectedTab===3" :model="selectedModel"></enzyme>
+      <metabolite v-if="selectedTab===4" :model="selectedModel"></metabolite>
+      <reaction v-if="selectedTab===5" :model="selectedModel"></reaction>
+      <subsystem v-if="selectedTab===6" :model="selectedModel"></subsystem>
     </div>
   </div>
 </template>
@@ -69,7 +69,7 @@ export default {
   },
   data() {
     return {
-      SelectedModel: 'hmr2',
+      selectedModel: 'hmr2',
       selectedTab: 1,
       searchTerm: '',
       searchResults: [],
@@ -84,7 +84,7 @@ export default {
     },
   },
   created() {
-    console.log('network_graph_crated');
+    console.log('network_graph_created');
     // init the global events
     EventBus.$on('resetView', () => {
       this.levelSelected = 'subsystem';
@@ -172,27 +172,24 @@ export default {
 
       this.selectedTab = tabIndex + 1;
 
-      const fullQuery = {
-        ...this.$route.query,
-        tab: this.selectedTab,
-      };
+
       if (tabIndex === 0) {
-        delete fullQuery.id;
+        // delete fullQuery.id;
+        console.log('on tab 0 resetview ?');
+        EventBus.$emit('toggleNetworkGraph');
       } else if (componentID) {
+        const fullQuery = {
+          ...this.$route.query,
+          tab: this.selectedTab,
+        };
         // remove the current key if other than 'id'
         fullQuery.id = componentID;
-      }
 
+        this.$router.push({
+          query: fullQuery,
+        });
+      }
       // console.log(fullQuery);
-
-      this.$router.push({
-        query: fullQuery,
-      });
-
-      if (tabIndex === 0) {
-        console.log('on tab 0 resetview ?');
-        EventBus.$emit('showSVGmap');
-      }
     },
     search() {
       if (this.searchTerm.length < 2) {
@@ -219,6 +216,10 @@ export default {
         path: '/About#releaseNotes',
         query: {},
       });
+    },
+    updateSelectedModel(model) {
+      this.selectedModel = model;
+      EventBus.$emit('updateSelectedModel', model);
     },
   },
 };

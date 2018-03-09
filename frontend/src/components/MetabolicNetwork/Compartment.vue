@@ -1,33 +1,13 @@
 <template>
   <div>
     <div id="compartment-panel">
-      <p class="menu-label">Compartment:</p>
       <ul class="menu-list">
         <li class="m-li" v-for="comp in compartments"
-        :class="{ 'selected' : selectedCompartment==comp.name }"
+        :class="{ 'selected' : compartmentName==comp.name }"
         @click="showCompartment(comp.name)">
           {{ comp.name }}
         </li>
       </ul>
-    </div>
-    <div v-if="currentCompartment && compartmentStats">
-      <hr>
-      <table class="table is-narrow is-fullwidth">
-        <tbody>
-          <tr>
-            <td># Metabolites</td><td>{{ currentCompartment.nr_metabolites }}</td>
-          </tr>
-          <tr>
-            <td># Enzymes</td><td>{{ currentCompartment.nr_enzymes }}</td>
-          </tr>
-          <tr>
-            <td># Reactions</td><td>{{ currentCompartment.nr_reactions  }}</td>
-          </tr>
-          <tr>
-            <td># Subsystems</td><td>{{ currentCompartment.nr_subsystems  }}</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </template>
@@ -40,13 +20,12 @@ import { default as EventBus } from '../../event-bus';
 
 export default {
   name: 'compartment',
-  props: ['model'],
+  props: ['model', 'compartmentName'],
   data() {
     return {
       compartments: [],
       compartmentStats: {},
       currentCompartment: null,
-      selectedCompartment: 'wholemap',
       compartmentNameOrder: [
         'Endoplasmic reticulum',
         'Golgi apparatus',
@@ -63,12 +42,18 @@ export default {
       ],
     };
   },
+  watch: {
+    compartmentName(newVal, oldVal) { // eslint-disable-line no-unused-vars
+      if (this.compartmentName in this.compartmentStats) {
+        this.currentCompartment = this.compartmentStats[this.compartmentName];
+        const s = `${this.currentCompartment.display_name} - ${this.currentCompartment.nr_metabolites} Metabolites; ${this.currentCompartment.nr_enzymes} Enzymes; ${this.currentCompartment.nr_reactions} Reactions; ${this.currentCompartment.nr_subsystems} Subsystems`;
+        this.$emit('showMapInfo', s);
+      }
+    },
+  },
   created() {
     EventBus.$on('showCompartment', (id) => {
       this.showCompartment(id);
-    });
-    EventBus.$on('resetView', () => {
-      this.selectedCompartment = 'wholemap';
     });
     this.loadCompartments();
   },
@@ -90,11 +75,7 @@ export default {
       });
     },
     showCompartment(compartmentName) {
-      this.selectedCompartment = compartmentName;
-      this.currentCompartment = this.compartmentStats[compartmentName];
-      const s = `${this.currentCompartment.display_name} - ${this.currentCompartment.nr_metabolites} Metabolites; ${this.currentCompartment.nr_enzymes} Enzymes; ${this.currentCompartment.nr_reactions} Reactions; ${this.currentCompartment.nr_subsystems} Subsystems`;
-      this.$emit('showMapInfo', s);
-      EventBus.$emit('showSVGmap', 'compartment', compartmentName, []);
+      EventBus.$emit('requestViewer', 'compartment', compartmentName, '', []);
     },
     getCompartmentFromName,
   },
