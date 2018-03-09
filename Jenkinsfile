@@ -56,14 +56,13 @@ pipeline {
         sh '''
           wget https://chalmersuniversity.box.com/shared/static/hwbn410g7yxy4o7c8utolapaub1bnfqy.gz -O hma_svgs.tar.gz
           tar -xzf hma_svgs.tar.gz -C nginx/svgs/
-          rm *.db hma_svgs.tar.gz
         '''
       }
     }
     stage('Clean up') {
       steps {
         sh '''
-          rm hmr2.db gems.db hma_svgs.tar.gz
+          rm *.db hma_svgs.tar.gz
         '''
         echo 'We are live!'
       }
