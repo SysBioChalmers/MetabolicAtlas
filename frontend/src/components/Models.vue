@@ -3,18 +3,18 @@
     {{ errorMessage }}
    </div>
   <div v-else id="models">
-    <span class="title">Models</span>
+    <span class="title">Genome-Scale Metabolic Models</span>
     <br>
     <div class="container">
       <loader v-show="showLoader"></loader>
       <div v-if="sortedGEMS.length != 0">
         <div class="columns">
           <div class="column">
-            <span id="show-m-but" class="button is-primary" :class="{'is-active': showMaintained }"
+            <span id="show-m-but" class="button is-light" :class="{'is-active': showMaintained }"
               @click="toggleMaintainedModels">
               Maintained only
             </span>
-            <span id="show-m-but" class="button is-primary is-pulled-right" :class="{'is-active': showFTPaccess }"
+            <span id="show-m-but" class="button is-pulled-right" :class="{'is-active': showFTPaccess }"
               @click="showFTPaccess = !showFTPaccess">
               FTP access
             </span>

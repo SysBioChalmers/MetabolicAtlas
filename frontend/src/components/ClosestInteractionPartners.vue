@@ -348,7 +348,7 @@ export default {
   },
   methods: {
     setup() {
-      this.id = this.$route.query.id;
+      this.id = this.$route.params.id;
       this.selectedElmId = '';
       this.selectedElm = null;
       this.load();
@@ -935,7 +935,7 @@ export default {
     padding: 15px;
     border: 1px solid black;
     border-radius: 2px;
-    z-index: 999;
+    z-index: 30;
 
     span, div.select, compact-picker {
       display: inline-block;
