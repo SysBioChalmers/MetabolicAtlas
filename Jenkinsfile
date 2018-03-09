@@ -23,13 +23,18 @@ pipeline {
         echo 'Should do some testing..'
       }
     }
-    stage('Deploy') {
+    stage('Build') {
       steps {
         sh '''
           PATH=$PATH:/usr/local/bin
           docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p metabolicatlas build
           docker-compose -f docker-compose.yml -f docker-compose-prod.yml -p metabolicatlas up -d
-
+        '''
+      }
+    }
+    stage('Import databases') {
+      steps {
+        sh '''
           wget https://chalmersuniversity.box.com/shared/static/q41d7lvcqe18g0gwr9yaar8zoedqvhfl.db -O hmr2.db
           wget https://chalmersuniversity.box.com/shared/static/om86nb6y8ji044wzoiljm8aghmbdvs41.db -O gems.db
 
@@ -42,9 +47,22 @@ pipeline {
           docker exec metabolicatlas_backend_1 python manage.py makemigrations
           docker exec metabolicatlas_backend_1 python manage.py migrate --database hmr2 --fake
           docker exec metabolicatlas_backend_1 python manage.py migrate --database gems --fake
-
-          rm hmr2.db
-          rm gems.db
+        '''
+      }
+    }
+    stage('Fetch SVGs') {
+      steps {
+        sh '''
+          wget https://chalmersuniversity.box.com/shared/static/hwbn410g7yxy4o7c8utolapaub1bnfqy.gz -O hma_svgs.tar.gz
+          tar -xzf hma_svgs.tar.gz -C nginx/svgs/
+          rm *.db hma_svgs.tar.gz
+        '''
+      }
+    }
+    stage('Clean up') {
+      steps {
+        sh '''
+          rm hmr2.db gems.db hma_svgs.tar.gz
         '''
         echo 'We are live!'
       }
@@ -52,7 +70,7 @@ pipeline {
   }
   post {
    success {
-     slackSend (color: '#00AA00', message: "Deployment successful")
+     slackSend (color: '#00AA00', message: "Deployment successful, branch ${env.GIT_BRANCH}")
    }
    failure {
      slackSend (color: '#cc0c0c', message: "Failed ${env.BUILD_URL}")
