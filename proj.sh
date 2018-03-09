@@ -10,7 +10,6 @@ function stop-stack {
     docker-compose -p metabolicatlas kill
 }
 
-
 function restart-stack {
     stop-stack && start-stack
 }
@@ -33,15 +32,6 @@ function create-su {
     docker exec -it metabolicatlas_backend_1 python manage.py createsuperuser
 }
 
-function build-production {
-    docker exec metabolicatlas_frontend_1 npm run build
-    sudo rm -rf nginx/static
-    sudo mkdir nginx/static
-    sudo cp -r frontend/dist/* nginx/
-    sudo mv nginx/index.html nginx/static/
-    sudo cp -r backend/static/ nginx/static/
-    sudo rm -rf frontend/dist
-}
 
 echo -e "
 
@@ -55,6 +45,5 @@ Available commands:
 \tdb-make-migrations
 \tdb-migrate
 \tcreate-su
-\tbuild-production
 
 "
