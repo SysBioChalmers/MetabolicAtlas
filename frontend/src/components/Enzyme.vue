@@ -108,7 +108,7 @@ export default {
   },
   methods: {
     setup() {
-      this.id = this.$route.query.id;
+      this.id = this.$route.params.id;
       this.load();
     },
     reformatList(l) {

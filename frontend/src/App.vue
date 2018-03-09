@@ -1,36 +1,69 @@
 <template>
   <div id="app" class="hero is-fullheight">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <transition name="fade">
-      <metabolic-network id="metabolicNetwork" v-show="isShowNetworkGraph" :model="selectedModel"></metabolic-network>
+      <metabolic-viewer id="metabolicViewer" v-show="isMetabolicViewer"
+      :model="{ id: selectedModel, name: modelsName[selectedModel] }"></metabolic-viewer>
     </transition>
     <div class="hero-head">
-      <nav class="navbar" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-          <a id="logo" class="navbar-item" @click="goToPage('')" >
-            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
-          </a>
-          <div class="navbar-burger" data-target="navMenu">
-            <span
-               v-show="false"
-               v-for="menuItem in menuItems"
-               :class="[{ 'is-active': isActive(menuItem) }, '']"
-               @click="goToPage(menuItem)"
-            >{{ menuItem }}</span>
-          </div>
-        </div>
-        <div class="navbar-menu" id="#nav-menu">
-          <div class="navbar-end">
-            <a class="navbar-item" v-show="!isShowNetworkGraph">
-              <div class="button is-info" @click="showNetworkGraph()">Metabolic Map</div>
+      <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+        <div class="container">
+          <div class="navbar-brand">
+            <a id="logo" class="navbar-item" @click="goToPage('')" >
+              <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
             </a>
-            <a
-               v-for="menuItem in menuItems"
-               class="navbar-item"
-               :class="[{ 'is-active': isActive(menuItem) }, '']"
-               @click="goToPage(menuItem)"
-            >{{ menuItem }}</a>
+            <div class="navbar-burger" data-target="navMenu">
+              <span
+                 v-show="false"
+                 v-for="menuItem in menuItems"
+                 :class="[{ 'is-active': isActive(menuItem) }, '']"
+                 @click="goToPage(menuItem)"
+              >{{ menuItem }}</span>
+            </div>
+          </div>
+          <div class="navbar-menu" id="#nav-menu">
+            <div class="navbar-end">
+              <template v-for="menuItem, index in menuItems">
+                <template v-if="index === 0">
+                  <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link"  @click="goToPage('', selectedModel)">
+                      {{ menuItem }}
+                      &nbsp;<span class="tag is-info is-large">{{ modelsName[selectedModel] }}</span>
+                    </a>
+                    <div class="navbar-dropdown">
+                      <a class="navbar-item is-primary"
+                        v-for="model in models"
+                        @click="goToPage('', model)">
+                        {{ modelsName[model] }}
+                      </a>
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <template v-if="Array.isArray(menuItem)">
+                    <div class="navbar-item has-dropdown is-hoverable">
+                      <a class="navbar-link" @click="goToPage(menuItem[0])">
+                        {{ menuItem[0] }}
+                      </a>
+                      <div class="navbar-dropdown">
+                        <a class="navbar-item is-primary" 
+                        v-for="submenu, index in menuItem" v-if="index != 0"
+                        @click="goToPage(menuItem[index])">
+                          {{ menuItem[index] }}
+                        </a>
+                      </div>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <a
+                       class="navbar-item"
+                       :class="[{ 'is-active': isActive(menuItem) }, '']"
+                       @click="goToPage(menuItem)"
+                    >{{ menuItem }}</a>
+                  </template>
+                </template>
+              </template>
+            </div>
           </div>
         </div>
       </nav>
@@ -42,14 +75,23 @@
     </div>
     <div class="hero-foot">
       <footer class="footer">
-        <div class="container">
-          <div class="content has-text-centered">
-            <p v-html="$t('footerText')"><p>
-            <p>
-              <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
-              <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
-              <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
-            </p>
+        <div class="columns">
+          <div class="column is-2">
+          </div>
+          <div class="column is-8">
+            <div class="content has-text-centered">
+              <p v-html="$t('footerText')"><p>
+              <p>
+                <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
+                <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
+                <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
+              </p>
+            </div>
+          </div>
+          <div class="column is-2">
+            <div class="is-pulled-right">
+              <a @click="viewRelaseNotes">Release v1.0</a>
+            </div>
           </div>
         </div>
       </footer>
@@ -60,7 +102,7 @@
 <script>
 
 import SvgIcon from './components/SvgIcon';
-import MetabolicNetwork from './components/MetabolicNetwork';
+import MetabolicViewer from './components/MetabolicViewer';
 import Logo from './assets/logo.svg';
 import router from './router';
 import { default as EventBus } from './event-bus';
@@ -70,63 +112,75 @@ export default {
   name: 'app',
   components: {
     SvgIcon,
-    MetabolicNetwork,
+    MetabolicViewer,
   },
   data() {
     return {
       Logo,
+      modelsName: {
+        hmr2: this.$t('hmr2'),
+      },
+      models: [
+        'hmr2',
+      ],
       menuItems: [
         this.$t('navBut1Title'),
         this.$t('navBut2Title'),
-        this.$t('navBut3Title'),
+        [this.$t('navBut3Title'),
+          this.$t('navBut31Title'),
+          this.$t('navBut32Title'),
+          this.$t('navBut33Title'),
+        ],
         this.$t('navBut4Title'),
         this.$t('navBut5Title'),
         this.$t('navBut6Title'),
-        this.$t('navBut7Title'),
       ],
-      isShowNetworkGraph: false,
+      isMetabolicViewer: false,
       selectedModel: 'hmr2',
     };
   },
   created() {
     EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
-      this.isShowNetworkGraph = true;
+      this.isMetabolicViewer = true;
       console.log(`requestViewer ${type}, ${name}, ${secondaryName}, ${ids}`);
       EventBus.$emit('showAction', type, name, secondaryName, ids);
     });
     EventBus.$on('toggleNetworkGraph', () => {
-      this.isShowNetworkGraph = !this.isShowNetworkGraph;
-    });
-    EventBus.$on('updateSelectedModel', (model) => {
-      this.selectedModel = model;
+      this.isMetabolicViewer = !this.isMetabolicViewer;
     });
   },
   methods: {
-    goToPage(name) {
+    goToPage(name, model) {
       // TODO: make this not hard-coded
-      if (name === this.menuItems[0]) {
+      if (model) {
         router.push(
           {
-            path: '/',
-            query: {
-              tab: 1,
-            },
+            path: `/GemsExplorer/${model}`,
           },
         );
-      } else if (['tools', 'databases'].includes(name.toLowerCase())) {
-        router.push(`Resources#${name.toLowerCase()}`);
+      } else if (['tools', 'external databases', 'api'].includes(name.toLowerCase())) {
+        if (name.toLowerCase() === 'external databases') {
+          name = 'databases'; // eslint-disable-line no-param-reassign
+        }
+        router.push(`/Resources#${name.toLowerCase()}`);
       } else {
         router.push(`/${name}`);
       }
     },
     isActive(name) {
       if (this.$route.name) {
+        if (Array.isArray(name)) {
+          return name[0].toLowerCase() === this.$route.name.toLowerCase();
+        }
         return name.toLowerCase() === this.$route.name.toLowerCase();
       }
       return false;
     },
-    showNetworkGraph() {
-      EventBus.$emit('toggleNetworkGraph');
+    viewRelaseNotes() {
+      router.push({
+        path: '/About#releaseNotes',
+        query: {},
+      });
     },
   },
 };
@@ -164,7 +218,7 @@ $switch-background: $primary;
   }
 }
 
-#metabolicNetwork {
+#metabolicViewer {
   position: fixed;
   z-index:100;
   top: 0;
@@ -177,6 +231,11 @@ $switch-background: $primary;
   overflow: hidden;
 }
 
+/* FIXME .is-light overwritten somewhere */
+.navbar.is-light {
+  background: whitesmoke;
+}
+
 .navbar-menu {
   a {
     font-size: 1.15em;
@@ -184,7 +243,8 @@ $switch-background: $primary;
 }
 
 .footer {
-  padding-bottom: 2em;
+  padding-bottom: 1em;
+  padding-top: 1em;
   img {
     max-height: 75px;
   }
@@ -206,3 +266,5 @@ $switch-background: $primary;
 }
 
 </style>
+
+

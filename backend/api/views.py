@@ -904,6 +904,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
     nodes = {}
     links = {}
+    linksList = []
 
     duplicateEnzyme = True
     duplicatedEnz= {}
@@ -915,9 +916,9 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
     for r in reactions:
         reaction = {
-            'group': 'reaction',
+            'g': 'r',
             'id': r.id,
-            'name': r.id,
+            'n': r.id,
         }
         nodes[r.id] = reaction;
 
@@ -940,22 +941,23 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
             if doMeta:
                 metabolite = {
-                    'group': 'metabolite',
+                    'g': 'm',
                     'id': mid,
-                    'rid': m.id,
-                    'name': m.short_name or m.long_name,
+                    # 'rid': m.id,
+                    'n': m.short_name or m.long_name,
                 }
 
                 nodes[mid] = metabolite;
 
             rel = {
-              'id': mid + "-" + r.id,
-              'source': mid,
-              'target': r.id,
-              'group': 'fe',
-              'rev': r.is_reversible,
+              #'id': mid + "-" + r.id,
+              's': mid,
+              't': r.id,
+              #'g': 'fe',
+              # 'rev': r.is_reversible,
             }
-            links[rel['id']] = rel;
+            # links[rel['id']] = rel
+            linksList.append(rel)
 
         for m in r.products.all():
             duplicateCurrentMeta = False
@@ -976,22 +978,23 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
             if doMeta:
                 metabolite = {
-                    'group': 'metabolite',
+                    'g': 'm',
                     'id': mid,
-                    'rid': m.id,
-                    'name': m.short_name or m.long_name,
+                    #'rid': m.id,
+                    'n': m.short_name or m.long_name,
                 }
 
                 nodes[mid] = metabolite
 
             rel = {
-              'id': r.id + "-" + mid,
-              'source': r.id,
-              'target': mid,
-              'group': 'fe',
-              'rev': r.is_reversible,
+              #'id': r.id + "-" + mid,
+              's': r.id,
+              't': mid,
+              #'g': 'fe',
+              # 'rev': r.is_reversible,
             }
-            links[rel['id']] = rel
+            # links[rel['id']] = rel
+            linksList.append(rel)
 
         for e in r.modifiers.all():
             eid = e.id;
@@ -1003,23 +1006,25 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
             enzyme = {
               'id': eid,
-              'group': 'enzyme',
-              'name': e.short_name or e.long_name,
+              'g': 'e',
+              'n': e.short_name or e.long_name,
             }
             nodes[eid] = enzyme;
 
             rel = {
-              'id': eid + "-" + r.id,
-              'source': eid,
-              'target': r.id,
-              'group': 'ee',
-              'rev': r.is_reversible,
+              #'id': eid + "-" + r.id,
+              's': eid,
+              't': r.id,
+              #'g': 'ee',
+              # 'rev': r.is_reversible,
             }
-            links[rel['id']] = rel
+            # links[rel['id']] = rel
+            linksList.append(rel)
 
     results = {
         'nodes': [v for k, v in nodes.items()],
-        'links': [v for k, v in links.items()],
+        # 'links': [v for k, v in links.items()],
+        'links': linksList
     }
 
     return JSONResponse(results)

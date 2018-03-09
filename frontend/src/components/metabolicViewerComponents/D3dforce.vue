@@ -80,20 +80,23 @@ export default {
     },
     constructGraph() {
       const width = this.$refs.graphParent.offsetParent.offsetWidth; // FIXME
-      console.log(`width ${width}`);
+      const height = this.$refs.graphParent.offsetParent.offsetHeight; // FIXME
+      console.log(`width ${width} ${height}`);
       this.graph = forceGraph3D()(document.getElementById('3d-graph'))
-        .width(width)
-        .nodeLabel('name')
-        .nodeAutoColorBy('group')
+        .width(width).height(height)
+        .nodeLabel('n')
+        .linkSource('s')
+        .linkTarget('t')
+        .nodeAutoColorBy('g')
         .forceEngine('ngraph')
         .graphData({ nodes: this.network.nodes, links: this.network.links })
-        .linkAutoColorBy('group')
-        .nodeAutoColorBy('group')
+        // .linkAutoColorBy('group')
+        .nodeAutoColorBy('g')
         .nodeOpacity(1)
         .linkWidth(2)
         .nodeResolution(8)
         .warmupTicks(100)
-        .cooldownTicks(50);
+        .cooldownTicks(0);
     },
     getCompartmentFromName,
   },

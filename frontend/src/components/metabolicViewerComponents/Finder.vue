@@ -48,7 +48,7 @@ import { getCompartmentFromName } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
 
 export default {
-  name: 'region',
+  name: 'finder',
   props: ['model'],
   data() {
     return {

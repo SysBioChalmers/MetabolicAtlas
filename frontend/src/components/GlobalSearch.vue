@@ -1,11 +1,12 @@
 <template>
-  <div class="column" v-bind:class="quickSearch ? 'is-7' : 'is-8'">
+  <div class="column is-8">
     <div class="control">
       <div v-if="!quickSearch">Search across all GEMs</div>
       <div id="input-wrapper">
+        <p class="control has-icons-right">
         <input
           id="search"
-          class="input"
+          class="input is-medium"
           v-model="searchTermString"
           @input="searchDebounce"
           type="text"
@@ -14,7 +15,10 @@
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
-          <div id="text-input-alert" v-show="showSearchCharAlert">Type at least 2 char</div>
+          <span class="icon is-small is-right" v-show="showSearchCharAlert" style="width: 250px">
+            Type at least 2 characters
+          </span>
+        </p>
       </div>
       <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
         <div class="has-text-centered">
@@ -259,21 +263,8 @@ export default {
 
 <style lang="scss">
 
-#search {
-  height: 38px;
-}
-
 #input-wrapper {
   position: relative; /* for absolute child element */
-}
-
-#text-input-alert {
-  width: 150px;
-  height: 38px;
-  position: absolute; /* to align it to right and positon it over the input */
-  top: 10px;
-  right: 0;
-  color: lightgrey;
 }
 
 #searchResults {

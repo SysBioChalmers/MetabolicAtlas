@@ -1,11 +1,11 @@
 <template>
-  <div id="metabolicNetwork">
+  <div id="metabolicViewer">
     <div class="columns" id="iTopBar">
       <div class="column" id="iLogo">
         <svg-icon width="175" height="40" :glyph="Logo"></svg-icon>
       </div>
       <div class="column has-text-centered" id="iTitle">
-        Metabolic Viewer of <span class="has-text-info">{{ model.toUpperCase() }}</span>
+        Metabolic Viewer of <span class="has-text-info">{{ model.name.toUpperCase() }}</span>
       </div>
       <div class="column">
         <button id="iHideBut" class="button is-dark is-pulled-right" @click="hideNetworkGraph()">Close</button>
@@ -38,7 +38,7 @@
             </div>
             <div class="accordion-body">
               <div class="accordion-content">
-                <region :model="model"></region>
+                <finder :model="model.id"></finder>
               </div>
             </div>
           </article>
@@ -64,7 +64,7 @@
             </div>
             <div class="accordion-body" id="iSearch">
               <div class="accordion-content">
-                <compartment :model="model" @showMapInfo="updateMapInfo"
+                <compartment :model="model.id" @showMapInfo="updateMapInfo"
                 :compartmentName="currentDisplayedName"></compartment>
               </div>
             </div>
@@ -80,7 +80,7 @@
             </div>
             <div class="accordion-body">
               <div class="accordion-content">
-                <subsystem :model="model" @sendSubSysCount="showSubsystemCount"
+                <subsystem :model="model.id" @sendSubSysCount="showSubsystemCount"
                 :subsystemName="currentDisplayedName" @showMapInfo="updateMapInfo"></subsystem>
               </div>
             </div>
@@ -90,11 +90,11 @@
       <div class="column is-10" id="graphframe">
         <div class="columns">
           <svgmap class="column" v-show="!dim3D"
-          :model="model"
+          :model="model.id"
           @loadedComponent="handleLoadedComponent"
           @loading="showLoader=true"></svgmap>
           <d3dforce class="column" v-show="dim3D"
-          :model="model"
+          :model="model.id"
           @loadedComponent="handleLoadedComponent"
           @loading="showLoader=true"></d3dforce>
         </div>
@@ -119,25 +119,25 @@
 <script>
 
 // import $ from 'jquery';
-import Compartment from 'components/MetabolicNetwork/Compartment';
-import Subsystem from 'components/MetabolicNetwork/Subsystem';
-import Region from 'components/MetabolicNetwork/Region';
-import Svgmap from 'components/MetabolicNetwork/Svgmap';
-import D3dforce from 'components/MetabolicNetwork/D3dforce';
-import SvgIcon from 'components/SvgIcon';
 import bulmaAccordion from 'bulma-extensions/bulma-accordion/dist/bulma-accordion.min';
+import Compartment from './metabolicViewerComponents/Compartment';
+import Subsystem from './metabolicViewerComponents/Subsystem';
+import Finder from './metabolicViewerComponents/Finder';
+import Svgmap from './metabolicViewerComponents/Svgmap';
+import D3dforce from './metabolicViewerComponents/D3dforce';
+import SvgIcon from './SvgIcon';
 import Logo from '../assets/logo.svg';
 import { default as EventBus } from '../event-bus';
 import { getCompartments } from '../helpers/compartment';
 
 
 export default {
-  name: 'metabolic-network',
+  name: 'metabolic-viewer',
   components: {
     SvgIcon,
     Compartment,
     Subsystem,
-    Region,
+    Finder,
     Svgmap,
     D3dforce,
   },
@@ -254,7 +254,7 @@ export default {
 
 <style lang="scss">
 
-#metabolicNetwork {
+#metabolicViewer {
   #iTopBar {
     border-bottom: 1px solid black;
     .column {

@@ -47,7 +47,7 @@ export default {
   props: ['model'],
   data() {
     return {
-      rId: this.$route.query.id,
+      rId: this.$route.params.id,
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'name', display: 'Name', modifier: chemicalName },
@@ -73,7 +73,7 @@ export default {
   },
   methods: {
     setup() {
-      this.rId = this.$route.query.id;
+      this.rId = this.$route.params.id;
       this.load();
     },
     load() {
@@ -120,7 +120,7 @@ export default {
       const html = [];
       html.push('<div class="tags">');
       for (const mod of mods) {
-        html.push(`<span class="tag"><a href="/?tab=3&id=${mod.id}">${mod.short_name}</a></span>`);
+        html.push(`<span class="tag"><a class="e" name="${mod.id}">${mod.short_name}</a></span>`);
       }
       html.push('</div>');
       return html.join(' ');
@@ -131,7 +131,7 @@ export default {
       let str = '';
       for (const s of l) {
         // str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
-        str = str.concat(`<a href="/?tab=6&id=${s[1]}">`, s[1], '</a>');
+        str = str.concat(`<a class="s" name="${s[1]}">`, s[1], '</a>');
       }
       return str;
     },
@@ -192,8 +192,14 @@ export default {
     },
   },
   beforeMount() {
-    $('body').on('click', 'td rc', function f() {
+    /* $('body').on('click', 'td m', function f() {
       EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
+    }); */
+    $('body').on('click', 'a.e', function f() {
+      EventBus.$emit('updateSelTab', 'enzyme', $(this).attr('name'));
+    });
+    $('body').on('click', 'a.s', function f() {
+      EventBus.$emit('updateSelTab', 'subsystem', $(this).attr('name'));
     });
     this.setup();
   },
