@@ -113,7 +113,7 @@ def get_formula_from_notes(notes):
 
 def get_short_name_from_notes(notes):
     """Get short name from SBML notes for the proteins."""
-    match = re.search(".*<p>SHORT NAME: ([A-Z0-9]+)</p>.*", notes)
+    match = re.search(".*<p>SHORT NAME: ([^<]+)</p>.*", notes)
     if match:
         return match.group(1)
 
