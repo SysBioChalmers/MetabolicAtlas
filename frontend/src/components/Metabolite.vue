@@ -73,7 +73,7 @@ export default {
   props: ['model'],
   data() {
     return {
-      mId: this.$route.query.id,
+      mId: this.$route.params.id,
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
         { name: 'long_name', display: 'Name' },
@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     setup() {
-      this.mId = this.$route.query.id;
+      this.mId = this.$route.params.id;
       this.load();
     },
     load() {

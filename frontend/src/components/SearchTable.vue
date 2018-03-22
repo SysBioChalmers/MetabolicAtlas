@@ -1,14 +1,12 @@
 <template>
   <div id="search-table">
     <div class="container columns">
-      <div class="column is-offset-3">
-        <global-search
-        :quickSearch=false
-        :searchTerm=searchTerm
-        @updateResults="updateResults"
-        @searchResults="loading=true">
-        </global-search>
-      </div>
+      <global-search class="is-offset-2"
+      :quickSearch=false
+      :searchTerm=searchTerm
+      @updateResults="updateResults"
+      @searchResults="loading=true">
+      </global-search>
     </div>
     <div>
       <div class="tabs is-boxed is-fullwidth">
@@ -38,7 +36,7 @@
             <div class="column" v-for="(types, key) in filters['metabolite']">
               {{ key | capitalize }}
               <select :disabled="types.length === 1"
-              @change="doFilterResults('metabolite', key, $event)">
+                @change="doFilterResults('metabolite', key, $event)">
                 <option v-for="el in types">
                   {{ el }}
                 </option>
@@ -58,7 +56,7 @@
                 <td>HMR2.00</td>
                 <td>{{ item.compartment | capitalize }}</td>
                 <td>
-                  <a @click="viewComponentInfo(item.id, 4)">{{ item.id }}</a>
+                  <a @click="viewComponentInfo('metabolite', 4)">{{ item.id }}</a>
                 </td>
                 <td>{{ item.short_name }}</td>
                 <td v-html="formulaFormater(item.formula)"></td>
@@ -83,7 +81,7 @@
                     <td>HMR2.00</td>
                     <td>{{ item.compartment | capitalize }}</td>
                     <td>
-                      <a @click="viewComponentInfo(item.id, 3)">{{ item.id }}</a>
+                      <a @click="viewComponentInfo('enzyme', item.id)">{{ item.id }}</a>
                     </td>
                     <td>{{ item.short_name }}</td>
                     <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
@@ -109,12 +107,12 @@
                     <td>HMR2.00</td>
                     <td>
                       <template v-for="sub, index in item.subsystem">
-                        <a @click="viewComponentInfo(sub[0], 6)">{{ index != 0 ? '; ' : '' }}{{ sub[1] | capitalize }}</a>
+                        <a @click="viewComponentInfo('subsystem', sub[1])">{{ index != 0 ? '; ' : '' }}{{ sub[1] | capitalize }}</a>
                       </template>
                     </td>
                     <td>{{ item.compartment | capitalize }}</td>
                     <td>
-                      <a @click="viewComponentInfo(item.id, 5)">{{ item.id }}</a>
+                      <a @click="viewComponentInfo('reaction', item.id)">{{ item.id }}</a>
                     </td>
                     <td>{{ item.equation }}</td>
                   </tr>
@@ -136,7 +134,7 @@
                   <tr v-for="item in searchResults['subsystem']">
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
-                    <td><a @click="viewComponentInfo(item.id, 6)">{{ item.name | capitalize }}</a></td>
+                    <td><a @click="viewComponentInfo('subsystem', item.name)">{{ item.name | capitalize }}</a></td>
                     <td>{{ item.system | capitalize }}</td>
                   </tr>
                 </tbody>
@@ -150,7 +148,7 @@
               <table class="table is-fullwidth">
                 <thead>
                   <tr>
-                    <th>Organism</th><th>Model</th><th>Compartment</th>
+                    <th>Organism</th><th>Model</th><th>Compartment</th><th>View</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -158,6 +156,11 @@
                     <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
                     <td>HMR2.00</td>
                     <td>{{ item.name | capitalize }}</td>
+                    <td>
+                      <div class="button" @click="viewCompartmentSVG(item.name)">
+                        <span class="fa fa-eye"></span>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -179,8 +182,8 @@
 import GlobalSearch from 'components/GlobalSearch';
 import $ from 'jquery';
 import Loader from 'components/Loader';
-import router from '../router';
 import { chemicalFormula } from '../helpers/chemical-formatters';
+import EventBus from '../event-bus';
 
 export default {
   name: 'search-table',
@@ -358,16 +361,14 @@ export default {
     showTab(elementType) {
       return this.showTabType === elementType;
     },
-    viewComponentInfo: function viewMetaboliteInfo(id, tabIndex) {
-      router.push(
-        {
-          path: '/',
-          query: {
-            tab: tabIndex,
-            id,
-          },
-        },
-      );
+    viewComponentInfo(type, id) {
+      EventBus.$emit('updateSelTab', type, id);
+    },
+    viewCompartmentSVG(name) {
+      if (name === 'cytosol') {
+        name = 'cytosol_1';  // eslint-disable-line no-param-reassign
+      }
+      EventBus.$emit('requestViewer', 'compartment', name, '', []);
     },
     resetFilters() {
       for (const tabname of this.tabs) {

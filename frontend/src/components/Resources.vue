@@ -51,7 +51,7 @@
       <h2 id="api" class="title is-2">API</h2>
       <div class="columns">
         <div class="column is-1">
-          <a href="swagger">GEM API</a>
+          <a href="swagger">GEMs API</a>
         </div>
         <div class="column">
           <div class="">

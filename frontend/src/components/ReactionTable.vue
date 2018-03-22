@@ -31,7 +31,7 @@
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
-            <a v-for="(s, index) in r.subsystem" v-on:click.prevent="viewSubsystem(s[0])"
+            <a v-for="(s, index) in r.subsystem" v-on:click.prevent="viewSubsystem(s[1])"
             >{{ index == 0 ? s[1] : `, ${s[1]}` }}</a></td>
           <td>{{ r.compartment.replace('=>','⇨') }}</td>
         </tr>
@@ -115,7 +115,7 @@ export default {
     reformatChemicalReactionHTML(v, r) {
       return reformatChemicalReaction(this.formatChemicalReaction(v, r), r);
     },
-    viewEnzyneReactions: function viewEnzyneReactions(modifier) {
+    viewEnzyneReactions(modifier) {
       if (modifier) {
         EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
       }
@@ -143,7 +143,7 @@ export default {
     },
   },
   beforeMount() {
-    $('body').on('click', 'td rc', function f() {
+    $('body').on('click', 'td m', function f() {
       EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
     });
   },
@@ -155,11 +155,11 @@ export default {
 
 .reaction-table {
 
-  rc {
+  m {
     color: #64CC9A;
   }
 
-  th, rc, span.sc {
+  th, m, span.sc {
     cursor: pointer;
   }
 

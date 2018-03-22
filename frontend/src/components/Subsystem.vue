@@ -58,7 +58,7 @@ export default {
   props: ['model'],
   data() {
     return {
-      sId: this.$route.query.id,
+      sName: this.$route.params.id,
       showLoader: false,
       info: {},
       metabolites: [],
@@ -66,7 +66,6 @@ export default {
       reactions: [],
       errorMessage: '',
       mainTableKey: [
-        { name: 'id', display: 'Identifier' },
         { name: 'name', display: 'Name' },
         { name: 'system' },
       ],
@@ -100,12 +99,12 @@ export default {
   },
   methods: {
     setup() {
-      this.sId = this.$route.query.id;
+      this.sName = this.$route.params.id;
       this.load();
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model}/showsubsystem/${this.sId}/`)
+      axios.get(`${this.model}/subsystem/${this.sName}/`)
       .then((response) => {
         this.info = response.data.subsystemAnnotations;
         this.metabolites = response.data.metabolites;

@@ -4,7 +4,6 @@ const data = {
     name: 'Whole map',
     letter: '',
     svgName: 'whole_metabolic_network_without_details',
-    compartmentID: 0,
     maxZoomLvl: 10,
     RenderZoomLvl: {
       metabolite: 2,
@@ -20,7 +19,6 @@ const data = {
     letter: 's',
     color: '',
     svgName: 'fakesvg',
-    compartmentID: 28,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -37,7 +35,6 @@ const data = {
     letter: 'c',
     color: '',
     svgName: '',
-    compartmentID: 13,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -54,7 +51,6 @@ const data = {
     letter: 'p',
     color: '',
     svgName: 'peroxisome',
-    compartmentID: 15,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -72,7 +68,6 @@ const data = {
     color: '',
     svgName: 'mitochondrion',
     // svgName: 'fakesvg',
-    compartmentID: 16,
     maxZoomLvl: 15,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -89,7 +84,6 @@ const data = {
     letter: 'l',
     color: '',
     svgName: 'lysosome',
-    compartmentID: 17,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -106,7 +100,6 @@ const data = {
     letter: 'r',
     color: '',
     svgName: 'ER',
-    compartmentID: 18,
     maxZoomLvl: 30,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -123,7 +116,6 @@ const data = {
     letter: 'g',
     color: '',
     svgName: 'golgi',
-    compartmentID: 19,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -140,7 +132,6 @@ const data = {
     letter: 'n',
     color: '',
     svgName: 'nucleus',
-    compartmentID: 20,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -152,12 +143,11 @@ const data = {
       'effector-edge': 3,
     },
   },
-  cytosol1: {
+  cytosol_1: {
     name: 'Cytosol_1',
     letter: 'c1',
     color: '',
     svgName: 'cytosol_1',
-    compartmentID: 21,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -169,12 +159,11 @@ const data = {
       'effector-edge': 3,
     },
   },
-  cytosol2: {
+  cytosol_2: {
     name: 'Cytosol_2',
     letter: 'c2',
     color: '',
     svgName: 'cytosol_2',
-    compartmentID: 22,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -186,12 +175,11 @@ const data = {
       'effector-edge': 3,
     },
   },
-  cytosol3: {
+  cytosol_3: {
     name: 'Cytosol_3',
     letter: 'c3',
     color: '',
     svgName: 'cytosol_3',
-    compartmentID: 23,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -203,12 +191,11 @@ const data = {
       'effector-edge': 3,
     },
   },
-  cytosol4: {
+  cytosol_4: {
     name: 'Cytosol_4',
     letter: 'c4',
     color: '',
     svgName: 'cytosol_4',
-    compartmentID: 24,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -220,12 +207,11 @@ const data = {
       'effector-edge': 3,
     },
   },
-  cytosol5: {
+  cytosol_5: {
     name: 'Cytosol_5',
     letter: 'c5',
     color: '',
     svgName: 'cytosol_5',
-    compartmentID: 25,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -237,12 +223,11 @@ const data = {
       'effector-edge': 3,
     },
   },
-  cytosol6: {
+  cytosol_6: {
     name: 'Cytosol_6',
     letter: 'c6',
     color: '',
     svgName: 'cytosol_6',
-    compartmentID: 26,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -259,7 +244,6 @@ const data = {
     letter: 'x',
     color: '',
     svgName: '',
-    compartmentID: 27,
     maxZoomLvl: 10,
     minZoomLvl: 1,
     RenderZoomLvl: {
@@ -291,23 +275,6 @@ const l = {
   c6: data.cytosol6,
 };
 
-const d = {
-  0: data.wholemap,
-  15: data.peroxisome,
-  16: data.mitochondria,
-  17: data.lysosome,
-  18: data['endoplasmic reticulum'],
-  19: data['golgi apparatus'],
-  20: data.nucleus,
-  21: data.cytosol1,
-  22: data.cytosol2,
-  23: data.cytosol3,
-  24: data.cytosol4,
-  25: data.cytosol5,
-  26: data.cytosol6,
-  27: data.boundary,
-  28: data.extracellular,
-};
 
 export function getCompartmentFromLetter(letter) {
   if (l[letter]) {
@@ -322,27 +289,19 @@ export function getCompartmentFromID(id) {
 }
 
 export function getCompartmentFromName(name) {
-  if (data[name.toLowerCase()]) {
+  if (name && data[name.toLowerCase()]) {
     return data[name.toLowerCase()];
   }
   return null;
 }
 
-export function getCompartmentFromCID(compartmentID) {
-  if (d[compartmentID]) {
-    return d[compartmentID];
-  }
-  return null;
-}
-
-
 function formatSpan(currentVal, index, array, elements, addComp) {
   const regex = /(.+)\[(.)\]/g;
   const match = regex.exec(currentVal);
   if (!addComp) {
-    return `<rc id="${elements[index].id}">${match[1]}</rc>`;
+    return `<m id="${elements[index].id}">${match[1]}</m>`;
   }
-  return `<rc id="${elements[index].id}">${match[1]}</rc><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
+  return `<m id="${elements[index].id}">${match[1]}</m><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
 }
 
 export function reformatChemicalReaction(equation, reaction) {
@@ -378,7 +337,7 @@ export function reformatChemicalReaction(equation, reaction) {
 }
 
 export function getCompartmentCount() {
-  return Object.keys(d).length;
+  return Object.keys(l).length;
 }
 
 export function getCompartments() {

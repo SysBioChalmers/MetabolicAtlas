@@ -602,7 +602,7 @@ def search(request, model, term):
 
 
 @api_view(['POST'])
-def convert_to_reaction_component_ids(request, model, compartmentID):
+def convert_to_reaction_component_ids(request, model, compartment_name=None):
     arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
     if not arrayTerms:
         return JSONResponse({})
@@ -624,25 +624,36 @@ def convert_to_reaction_component_ids(request, model, compartmentID):
     if not reaction_component_ids and not reaction_ids:
         return HttpResponse(status=404)
 
-    if str(compartmentID) == '0':
+    if not compartment_name:
         # get the compartment id for each component id
-        rcci = ReactionComponentCompartmentSvg.objects.using(model).filter(Q(component_id__in=reaction_component_ids)) \
-        .values_list('compartmentsvg_id', 'component_id')
+        rcci = ReactionComponentCompartmentSvg.objects.using(model) \
+        .filter(Q(component_id__in=reaction_component_ids)) \
+        .select_related('Compartmentsvg') \
+        .values_list('compartmentsvg__display_name', 'component_id')
 
         # get the compartment id for each reaction id
         rci = ReactionCompartmentSvg.objects.using(model).filter(Q(reaction_id__in=reaction_ids)) \
-        .values_list('compartmentsvg_id', 'reaction_id')
+        .select_related('Compartmentsvg') \
+        .values_list('compartmentsvg__display_name', 'reaction_id')
 
     else:
+        try:
+            compartment = CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
+            compartmentID = compartment.compartment
+        except CompartmentSvg.DoesNotExist:
+            return HttpResponse(status=404)
+
         # get the component ids in the input compartment
         rcci = ReactionComponentCompartmentSvg.objects.using(model).filter(
                 Q(component_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
-            ).values_list('compartmentsvg_id', 'component_id')
+            ).select_related('Compartmentsvg') \
+            .values_list('compartmentsvg__display_name', 'component_id')
 
         # get the reaction ids in the input compartment
         rci = ReactionCompartmentSvg.objects.using(model).filter(
             Q(reaction_id__in=reaction_ids) & Q(Compartmentsvg_id=compartmentID)
-        ).values_list('compartmentsvg_id', 'reaction_id')
+        ).select_related('Compartmentsvg') \
+        .values_list('compartmentsvg__display_name', 'reaction_id')
 
         if not rcci.count() and not rci.count():
             return HttpResponse(status=404)
@@ -652,11 +663,16 @@ def convert_to_reaction_component_ids(request, model, compartmentID):
 
 
 @api_view()
-def get_subsystem(request, model, subsystem_id):
+def get_subsystem(request, model, subsystem_name):
     """
-    For a given subsystem, get all containing metabolites, enzymes, and reactions,
-    try it with for example 38 for the TCA cycle.
+    For a given subsystem name, get all containing metabolites, enzymes, and reactions.
     """
+    try:
+        subsystem = Subsystem.objects.using(model).get(name__iexact=subsystem_name)
+        subsystem_id = subsystem.id
+    except Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
     try:
         s = Subsystem.objects.using(model).get(id=subsystem_id)
     except Subsystem.DoesNotExist:
@@ -665,8 +681,6 @@ def get_subsystem(request, model, subsystem_id):
     smsQuerySet = SubsystemMetabolite.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction_component")
     sesQuerySet = SubsystemEnzyme.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction_component") # FIXME contains metabolite ids not enzyme
     srsQuerySet = SubsystemReaction.objects.using(model).filter(subsystem_id=subsystem_id).select_related("reaction")
-
-    logging.warn("test")
 
     sms = []; ses = []; srs = [];
     for m in smsQuerySet:
@@ -702,16 +716,29 @@ def get_subsystems(request, model):
 
 
 @api_view()
-def get_subsystem_coordinates(request, model, subsystem_id, compartmentID=False):
+def get_subsystem_coordinates(request, model, subsystem_name, compartment_name=False):
     """
-    For a given subsystem, get the compartment name and X,Y locations in the corresponding SVG map,
-    try it with for example 38 for the TCA cycle.
+    For a given subsystem name, get the compartment name and X,Y locations in the corresponding SVG map.
     """
+
+    logging.warn(subsystem_name)
+
     try:
-        if not compartmentID:
+        subsystem = Subsystem.objects.using(model).get(name__iexact=subsystem_name)
+        subsystem_id = subsystem.id
+    except Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        if not compartment_name:
             tileSubsystem = TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
         else:
-            tileSubsystem = TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartmentID)
+            try:
+                compartment = CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
+            except CompartmentSvg.DoesNotExist:
+                return HttpResponse(status=404)
+            tileSubsystem = TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartment)
+
     except TileSubsystem.DoesNotExist:
         return HttpResponse(status=404)
     serializer = TileSubsystemSerializer(tileSubsystem)
@@ -720,10 +747,9 @@ def get_subsystem_coordinates(request, model, subsystem_id, compartmentID=False)
 
 
 @api_view()
-@is_model_valid
-def get_compartment(request, model, compartmentID):
+def get_compartment(request, model, compartment_name):
     try:
-        compartment = CompartmentSvg.objects.using(model).get(id=compartmentID)
+        compartment = CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
     except CompartmentSvg.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -746,7 +772,7 @@ def get_compartment_information(request, model):
     compartmentSerializer = CompartmentSerializer(compartment_info, many=True)
     d = {}
     for el in compartmentSerializer.data:
-        d[el['id']] = el
+        d[el['name']] = el
 
     for el in compartmentSvgSerializer.data:
         values = d[el['compartment']]
@@ -765,8 +791,7 @@ def get_compartment_information(request, model):
 @api_view()
 def get_gemodel(request, id):
     """
-    For a given model id, pull out everything we know about the GEM,
-    supply an id, for instance 630 or a label e.g HMR2.0.
+    For a given model id or label, pull out everything we know about the GEM.
     """
     try: 
         int(id)
@@ -849,6 +874,160 @@ def parse_readme_file(content):
             d[key_entry[entry]] = value.strip()
 
     return d
+
+
+@api_view()
+def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False):
+    if component_name:
+        if ctype == 'compartment':
+            try:
+                compartment = Compartment.objects.using(model).get(name__iexact=component_name)
+            except Subsystem.DoesNotExist:
+                return HttpResponse(status=404)
+
+            reactions_id = ReactionCompartment.objects.using(model). \
+                filter(compartment=compartment).values_list('reaction', flat=True)
+            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+                prefetch_related('reactants', 'products', 'modifiers')
+        else:
+            try:
+                subsystem = Subsystem.objects.using(model).get(name__iexact=component_name)
+            except Subsystem.DoesNotExist:
+                return HttpResponse(status=404)
+
+            reactions_id = SubsystemReaction.objects.using(model). \
+                filter(subsystem=subsystem).values_list('reaction', flat=True)
+            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+                prefetch_related('reactants', 'products', 'modifiers')
+    else:
+        reactions = Reaction.objects.using(model).all().prefetch_related('reactants', 'products', 'modifiers')
+
+    nodes = {}
+    links = {}
+    linksList = []
+
+    duplicateEnzyme = True
+    duplicatedEnz= {}
+    duplicateMetabolite = dup_meta
+    duplicatedId = {}
+
+    duplicateMetaName = {'ATP', 'ADP', 'Pi', 'PPi', 'H2O', 'O2', 'PI pool', 'H+', \
+     'NADP', 'NADP+', 'NADH', 'NAD+', 'CoA', 'NADPH', 'acetyl-CoA', 'FAD', 'FADH'}
+
+    for r in reactions:
+        reaction = {
+            'g': 'r',
+            'id': r.id,
+            'n': r.id,
+        }
+        nodes[r.id] = reaction;
+
+        for m in r.reactants.all():
+            duplicateCurrentMeta = False
+            if m.short_name in duplicateMetaName:
+                duplicateCurrentMeta = True
+
+            doMeta = True;
+            metabolite = None;
+            mid = m.id
+            if duplicateMetabolite:
+                if mid not in nodes:
+                    duplicatedId[mid] = 0
+                elif duplicateCurrentMeta:
+                    duplicatedId[m.id] += 1
+                    mid = "%s-%s" % (m.id, duplicatedId[m.id])
+                else:
+                    doMeta = False;
+
+            if doMeta:
+                metabolite = {
+                    'g': 'm',
+                    'id': mid,
+                    # 'rid': m.id,
+                    'n': m.short_name or m.long_name,
+                }
+
+                nodes[mid] = metabolite;
+
+            rel = {
+              #'id': mid + "-" + r.id,
+              's': mid,
+              't': r.id,
+              #'g': 'fe',
+              # 'rev': r.is_reversible,
+            }
+            # links[rel['id']] = rel
+            linksList.append(rel)
+
+        for m in r.products.all():
+            duplicateCurrentMeta = False
+            if m.short_name in duplicateMetaName:
+                duplicateCurrentMeta = True
+
+            doMeta = True;
+            metabolite = None
+            mid = m.id;
+            if duplicateMetabolite:
+                if mid not in nodes:
+                    duplicatedId[mid] = 0
+                elif duplicateCurrentMeta:
+                    duplicatedId[m.id] += 1
+                    mid = "%s-%s" % (m.id, duplicatedId[m.id])
+                else:
+                    doMeta = False
+
+            if doMeta:
+                metabolite = {
+                    'g': 'm',
+                    'id': mid,
+                    #'rid': m.id,
+                    'n': m.short_name or m.long_name,
+                }
+
+                nodes[mid] = metabolite
+
+            rel = {
+              #'id': r.id + "-" + mid,
+              's': r.id,
+              't': mid,
+              #'g': 'fe',
+              # 'rev': r.is_reversible,
+            }
+            # links[rel['id']] = rel
+            linksList.append(rel)
+
+        for e in r.modifiers.all():
+            eid = e.id;
+            if eid in nodes:
+                duplicatedEnz[eid] += 1;
+                eid = "%s-%s" % (eid, duplicatedEnz[eid])
+            else:
+                duplicatedEnz[eid] = 0;
+
+            enzyme = {
+              'id': eid,
+              'g': 'e',
+              'n': e.short_name or e.long_name,
+            }
+            nodes[eid] = enzyme;
+
+            rel = {
+              #'id': eid + "-" + r.id,
+              's': eid,
+              't': r.id,
+              #'g': 'ee',
+              # 'rev': r.is_reversible,
+            }
+            # links[rel['id']] = rel
+            linksList.append(rel)
+
+    results = {
+        'nodes': [v for k, v in nodes.items()],
+        # 'links': [v for k, v in links.items()],
+        'links': linksList
+    }
+
+    return JSONResponse(results)
 
 
 #####################################################################################
