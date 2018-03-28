@@ -31,5 +31,5 @@ services:
     volumes:
       - ./frontend/dist-html:/usr/share/nginx/html:ro
       - ./frontend/dist:/static
-      # - ./backend/static/admin:/static/admin
+      - ./backend/static/rest_framework_swagger:/static/rest_framework_swagger
       - ./backend/media:/media
