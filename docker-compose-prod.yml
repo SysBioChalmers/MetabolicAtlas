@@ -12,7 +12,6 @@ services:
     restart: always
     volumes:
       - ./backend/static:/project/static
-      # - ./backend/media:/media
 
 
   frontend:
@@ -31,5 +30,5 @@ services:
     volumes:
       - ./frontend/dist-html:/usr/share/nginx/html:ro
       - ./frontend/dist:/static
-      # - ./backend/static/admin:/static/admin
       - ./backend/media:/media
+      - /home/jenkins/ssl:/ssl:ro
