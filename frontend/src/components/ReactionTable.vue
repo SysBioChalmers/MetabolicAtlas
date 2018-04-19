@@ -4,7 +4,10 @@
       <span class="tag">
         # Reaction(s): {{ reactions.length }}
       </span>
-      <span class="tag">
+      <span class="tag" v-if="transportReactionCount === 0">
+        # Transport reaction(s): {{ transportReactionCount }}
+      </span>
+      <span class="tag link" v-else @click="sortBy('compartment', '=>', 'desc')">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
       <span v-show="reactions.length==200" class="tag is-danger is-pulled-right">
@@ -16,7 +19,7 @@
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
           v-for="f in fields" v-show="showCol(f.name)"
-            @click="sortBy(f.name)">{{ f.display }}
+            @click="sortBy(f.name, null, null)">{{ f.display }}
             </th>
         </tr>
       </thead>
@@ -126,11 +129,15 @@ export default {
     viewSubsystem(id) {
       EventBus.$emit('updateSelTab', 'subsystem', id);
     },
-    sortBy(field) {
+    sortBy(field, pattern, order) {
       const reactions = Array.prototype.slice.call(
       this.sortedReactions); // Do not mutate original elms;
+      let sortOrder = order;
+      if (!order) {
+        sortOrder = this.sortAsc ? 'asc' : 'desc';
+      }
       this.sortedReactions = reactions.sort(
-        compare(field, this.sortAsc ? 'asc' : 'desc'));
+        compare(field, pattern, sortOrder));
       this.sortAsc = !this.sortAsc;
     },
     showCol(name) {
@@ -159,7 +166,7 @@ export default {
     color: #64CC9A;
   }
 
-  th, m, span.sc {
+  th, m, span.sc, .tag.link {
     cursor: pointer;
   }
 

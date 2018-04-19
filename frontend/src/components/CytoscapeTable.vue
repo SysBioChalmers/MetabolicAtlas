@@ -155,7 +155,7 @@ export default {
     },
     sortBy(field) {
       const elms = Array.prototype.slice.call(this.filteredElms); // Do not mutate original elms;
-      this.sortedElms = elms.sort(compare(field, this.sortAsc ? 'asc' : 'desc'));
+      this.sortedElms = elms.sort(compare(field, null, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
       this.updateTable();
     },

@@ -110,6 +110,7 @@
 <script>
 import axios from 'axios';
 import Loader from 'components/Loader';
+import _ from 'lodash';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 import { default as EventBus } from '../event-bus';
 import { getCompartmentFromName } from '../helpers/compartment';
@@ -136,7 +137,7 @@ export default {
       errorMessage: '',
       resultsOrder: ['metabolite', 'enzyme', 'reaction', 'subsystem', 'compartment'],
       searchResults: [],
-      searchTermString: this.searchTerm,
+      searchTermString: '',
       showSearchCharAlert: false,
       showResults: true,
       showLoader: false,
@@ -151,21 +152,17 @@ export default {
     },
   },
   methods: {
-    searchDebounce() {
+    searchDebounce: _.debounce(function e() {
       this.noResult = false;
       this.showSearchCharAlert = this.searchTermString.length === 1;
-
       if (!this.quickSearch) {
         return;
       }
-
       this.showLoader = true;
-      this._.debounce(() => {
-        if (this.searchTermString.length >= 2) {
-          this.search(this.searchTermString);
-        }
-      }, 700)();
-    },
+      if (this.searchTermString.length > 1) {
+        this.search(this.searchTermString);
+      }
+    }, 700),
     search(searchTerm) {
       const url = this.quickSearch ? `${this.model}/search/${searchTerm}` : `all/search/${searchTerm}`;
       axios.get(url)

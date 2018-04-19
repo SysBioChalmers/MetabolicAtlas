@@ -56,7 +56,7 @@
                 <td>HMR2.00</td>
                 <td>{{ item.compartment | capitalize }}</td>
                 <td>
-                  <a @click="viewComponentInfo('metabolite', 4)">{{ item.id }}</a>
+                  <a @click="viewComponentInfo('metabolite', item.id)">{{ item.id }}</a>
                 </td>
                 <td>{{ item.short_name }}</td>
                 <td v-html="formulaFormater(item.formula)"></td>
