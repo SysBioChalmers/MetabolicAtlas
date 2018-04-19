@@ -17,26 +17,48 @@
           </h3>
         </div>
       </div>
-      <div id="enzyme-details" class="reaction-table">
-        <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table">
-          <tr v-for="el in detailTableKey">
-            <td v-if="el.display" class="td-key">{{ el.display }}</td>
-            <td v-if="enzyme[el.name]">
-              <span v-if="el.modifier" v-html="el.modifier(enzyme)">
-              </span>
-              <span v-else>
-                {{ enzyme[el.name] }}
-              </span>
-            </td>
-            <td v-else> - </td>
-          </tr>
-        </table>
-      </div>
-      <loader v-show="loading"></loader>
-      <div v-show="!loading">
-        <div v-show="reactions.length > 0">
-          <loader v-show="loading"></loader>
-          <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
+      <div class="columns">
+        <div class="column">
+          <div class="columns">
+            <div id="enzyme-details" class="reaction-table column is-10">
+              <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table">
+                <tr v-for="el in detailTableKey">
+                  <td v-if="el.display" class="td-key">{{ el.display }}</td>
+                  <td v-if="enzyme[el.name]">
+                    <span v-if="el.modifier" v-html="el.modifier(enzyme)">
+                    </span>
+                    <span v-else>
+                      {{ enzyme[el.name] }}
+                    </span>
+                  </td>
+                  <td v-else> - </td>
+                </tr>
+              </table>
+            </div>
+            <div class="column">
+              <div class="box has-text-centered">
+                <div class="button is-medium is-info">
+                  View on Metabolic Viewer
+                </div>
+                <br><br>
+                <div class="button is-medium is-info"
+                  @click="viewInteractionPartners">
+                  View interaction partners
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <loader v-show="loading"></loader>
+              <div v-show="!loading">
+                <div v-show="reactions.length > 0">
+                  <loader v-show="loading"></loader>
+                  <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -79,19 +101,17 @@ export default {
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
       detailTableKey: [
-        { name: 'id', display: 'Identifier' },
         { name: 'enzymeName', display: 'Name' },
+        { name: 'id', display: 'Identifier' },
         { name: 'function', display: 'Function' },
         { name: 'long_name', display: 'Ensembl ID', modifier: this.reformatEnsblLink },
-        { name: 'uniprot_acc', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
-        { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBIlink },
         { name: 'formula', display: 'Formula' },
         { name: 'compartment', display: 'Compartment' },
-
+        { name: 'uniprot_acc', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
+        { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBIlink },
       ],
       tableSearchTerm: '',
       reactions: [],
-      loadTime: 0,
       showGraphContextMenu: false,
     };
   },
@@ -131,16 +151,12 @@ export default {
     },
     load() {
       this.loading = true;
-      const startTime = Date.now();
       const enzymeId = this.id;
       axios.get(`${this.model}/enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
-          const endTime = Date.now();
-          this.loadTime = (endTime - startTime) / 1000; // TODO: show load time in seconds
-
           this.loading = false;
           this.errorMessage = null;
-
+          this.id = response.data.enzyme.id;
           this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
           this.enzyme = response.data.enzyme;
           this.enzyme = $.extend(this.enzyme, response.data.enzyme.enzyme);
@@ -166,6 +182,9 @@ export default {
       container.scrollTop(
         $(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
       );
+    },
+    viewInteractionPartners() {
+      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.id}`);
     },
     chemicalFormula,
     chemicalName,

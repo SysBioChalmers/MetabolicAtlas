@@ -5,56 +5,77 @@
         {{ errorMessage }}
       </div>
     </div>
-    <div v-else class="metabolite-table">
-      <div id="metabolite-table">
-        <table v-if="info && Object.keys(info).length != 0" class="table main-table">
-          <tr v-for="el in mainTableKey">
-            <td v-if="el.display" class="td-key">{{ el.display }}</td>
-            <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-            <td v-if="info.metabolite[el.name]">
-              <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
-              </span>
-              <span v-else>
-                {{ info.metabolite[el.name] }}
-              </span>
-            </td>
-            <td v-else-if="info[el.name]">
-              <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
-              </span>
-              <span v-else>
-                {{ info[el.name] }}
-              </span>
-            </td>
-            <td v-else> - </td>
-          </tr>
-        </table>
-        <div v-show="showHMDB">
-          <br>
-          <span class="subtitle">HMDB</span>
-          <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
-            <tr v-for="el in HMDBRAbleKey">
-              <td v-if="el.display" class="td-key">{{ el.display }}</td>
-              <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-              <td v-if="info.metabolite[el.name]">
-                <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
-                </span>
-                <span v-else>
-                  {{ info.metabolite[el.name] }}
-                </span>
-              </td>
-              <td v-else-if="info[el.name]">
-                <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
-                </span>
-                <span v-else>
-                  {{ info[el.name] }}
-                </span>
-              </td>
-              <td v-else> - </td>
-            </tr>
-          </table>
-        </div>
+    <div v-else>
+      <div class="columns">
+        <p id="met-title" class="title is-1">Metabolite</p>
       </div>
-      <reactome id="metabolite-reactome" :model="this.model"></reactome>
+      <div class="columns metabolite-table">
+        <div class="column is-10">
+          <div id="metabolite-table">
+            <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+              <tr v-for="el in mainTableKey">
+                <td v-if="el.display" class="td-key">{{ el.display }}</td>
+                <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+                <td v-if="info.metabolite[el.name]">
+                  <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
+                  </span>
+                  <span v-else>
+                    {{ info.metabolite[el.name] }}
+                  </span>
+                </td>
+                <td v-else-if="info[el.name]">
+                  <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+                  </span>
+                  <span v-else>
+                    {{ info[el.name] }}
+                  </span>
+                </td>
+                <td v-else> - </td>
+              </tr>
+            </table>
+            <div v-show="showHMDB">
+              <br>
+              <span class="subtitle">HMDB</span>
+              <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
+                <tr v-for="el in HMDBRAbleKey">
+                  <td v-if="el.display" class="td-key">{{ el.display }}</td>
+                  <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+                  <td v-if="info.metabolite[el.name]">
+                    <span v-if="el.modifier" v-html="el.modifier(info.metabolite[el.name])">
+                    </span>
+                    <span v-else>
+                      {{ info.metabolite[el.name] }}
+                    </span>
+                  </td>
+                  <td v-else-if="info[el.name]">
+                    <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+                    </span>
+                    <span v-else>
+                      {{ info[el.name] }}
+                    </span>
+                  </td>
+                  <td v-else> - </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="box has-text-centered">
+            <div class="button is-medium is-info">
+              View on Metabolic Viewer
+            </div>
+            <br><br>
+            <div class="button is-medium is-info"
+              @click="viewInteractionPartners">
+              View interaction partners
+            </div>
+          </div>
+        </div>
+      </div> 
+      <div class="columns">
+        <reactome id="metabolite-reactome" :model="this.model"></reactome>
+      </div>
     </div>
   </div>
 </template>
@@ -75,16 +96,16 @@ export default {
     return {
       mId: this.$route.params.id,
       mainTableKey: [
-        { name: 'id', display: 'Identifier' },
         { name: 'long_name', display: 'Name' },
+        { name: 'id', display: 'Identifier' },
         { name: 'compartment' },
         { name: 'organism' },
         { name: 'formula', modifier: chemicalFormula },
         { name: 'charge' },
         { name: 'mass', modifier: this.reformatMass },
+        { name: 'inchi' },
         { name: 'kegg', modifier: this.reformatKeggLink },
         { name: 'chebi', modifier: this.reformatChebiLink },
-        { name: 'inchi' },
         { name: 'pubchem_link', modifier: this.reformatLink },
       ],
       HMDBRAbleKey: [
@@ -150,6 +171,9 @@ export default {
       }
       return false;
     },
+    viewInteractionPartners() {
+      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.mId}`);
+    },
   },
   beforeMount() {
     this.setup();
@@ -161,6 +185,10 @@ export default {
 </script>
 
 <style lang="scss">
+
+ #met-title {
+  padding-bottom: 2rem;
+ }
 
 .metabolite-table, .model-table, .reaction-table, .subsystem-table {
   .main-table tr td.td-key, #hmdb-table tr td.td-key {
