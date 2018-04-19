@@ -6,8 +6,8 @@
   </div>
   <div v-else>
     <loader v-show="showLoader"></loader>
-    <div v-show="!showLoader">
-      <div class="subsystem-table">
+    <div v-show="!showLoader" class="columns">
+      <div class="subsystem-table column is-10">
         <table v-if="info && Object.keys(info).length != 0" class="table main-table">
           <tr class="m-row" v-for="el in mainTableKey">
             <td v-if="el.display" class="td-key">{{ el.display }}</td>
@@ -35,9 +35,17 @@
           </tr>
         </table>
         <h3 class="title is-3">Reactions</h3>
-        <reaction-table :reactions="reactions" :showSubsystem="false"></reaction-table>
-        </table>
       </div>
+      <div class="column">
+        <div class="box has-text-centered">
+          <div class="button is-medium is-info">
+            View on Metabolic Viewer
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="columns">
+      <reaction-table :reactions="reactions" :showSubsystem="false"></reaction-table>
     </div>
   </div>
 </template>

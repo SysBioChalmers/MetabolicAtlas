@@ -4,40 +4,51 @@
       {{ errorMessage }}
     </div>
   </div>
-  <div v-else class="reaction-table">
-    <table v-if="info && Object.keys(info).length != 0" class="table main-table">
-      <tr v-for="el in mainTableKey">
-        <td v-if="el.display" class="td-key">{{ el.display }}</td>
-        <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-        <td v-if="el.isComposite">
-          <span v-html="el.modifier()"></span>
-        </td>
-        <td v-else-if="info[el.name]">
-          <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
-          </span>
-          <span v-else>
-            {{ info[el.name] }}
-          </span>
-        </td>
-        <td v-else> - </td>
-      </tr>
-    </table>
-    <span class="subtitle">References</span>
-    <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
-      <tr v-for="ref in reformatRefs(pmids)">
-        <a :href="ref.link">
-          <td v-if="ref.title" class="td-key">{{ ref.pmid }}</td>
-          <td v-if="ref.formatted">{{ ref.formatted }}</td>
-        </a>
-      </tr>
-    </table>
-    <div v-else>No references found</div>
+  <div class="columns" v-else>
+    <loader v-show="showLoader"></loader>
+    <div class="reaction-table column is-10" v-show="!showLoader">
+      <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+        <tr v-for="el in mainTableKey">
+          <td v-if="el.display" class="td-key">{{ el.display }}</td>
+          <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+          <td v-if="el.isComposite">
+            <span v-html="el.modifier()"></span>
+          </td>
+          <td v-else-if="info[el.name]">
+            <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+            </span>
+            <span v-else>
+              {{ info[el.name] }}
+            </span>
+          </td>
+          <td v-else> - </td>
+        </tr>
+      </table>
+      <span class="subtitle">References</span>
+      <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
+        <tr v-for="ref in reformatRefs(pmids)">
+          <a :href="ref.link">
+            <td v-if="ref.title" class="td-key">{{ ref.pmid }}</td>
+            <td v-if="ref.formatted">{{ ref.formatted }}</td>
+          </a>
+        </tr>
+      </table>
+      <div v-else>No references found</div>
+    </div>
+    <div class="column">
+      <div class="box has-text-centered">
+        <div class="button is-medium is-info">
+          View on Metabolic Viewer
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import $ from 'jquery';
+import Loader from 'components/Loader';
 import { default as EventBus } from '../event-bus';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { reformatChemicalReaction } from '../helpers/compartment';
@@ -45,24 +56,28 @@ import { reformatChemicalReaction } from '../helpers/compartment';
 export default {
   name: 'reaction',
   props: ['model'],
+  components: {
+    Loader,
+  },
   data() {
     return {
       rId: this.$route.params.id,
       mainTableKey: [
         { name: 'id', display: 'Identifier' },
-        { name: 'name', display: 'Name', modifier: chemicalName },
-        { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
-        { name: 'subsystem', modifier: this.reformatSubsystemList },
+        // { name: 'name', display: 'Name', modifier: chemicalName },
         { name: 'equation', modifier: this.reformatEquation },
         { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
         { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
         { name: 'modifiers', modifier: this.reformatModifiers },
         { name: 'ec', display: 'EC', modifier: this.reformatECLink },
+        { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
+        { name: 'subsystem', modifier: this.reformatSubsystemList },
         { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
       info: {},
       pmids: [],
       errorMessage: '',
+      showLoader: true,
     };
   },
   watch: {
@@ -79,6 +94,7 @@ export default {
     load() {
       axios.get(`${this.model}/reactions/${this.rId}/`)
       .then((response) => {
+        this.showLoader = false;
         this.info = response.data.reaction;
         this.pmids = response.data.pmids;
       })

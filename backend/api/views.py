@@ -103,7 +103,7 @@ def get_reaction(request, model, id):
     except Reaction.DoesNotExist:
         return HttpResponse(status=404)
 
-    reactionserializer = ReactionSerializer(reaction, context={'model': model})
+    reactionserializer = ReactionLiteSerializer(reaction, context={'model': model})
     pmids = ReactionReference.objects.using(model).filter(reaction_id=id)
     if pmids.count():
         pmidserializer = ReactionReferenceSerializer(pmids, many=True)
