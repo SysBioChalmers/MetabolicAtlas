@@ -204,7 +204,7 @@ export default {
           this.GEMS.push($.extend(gem, sample));
         }
         this.sortedGEMS = this.GEMS.sort(
-          compare('set_name', 'asc'));
+          compare('set_name', null, 'asc'));
         this.errorMessage = '';
         this.showLoader = false;
       })
@@ -224,7 +224,7 @@ export default {
       const gemsList = Array.prototype.slice.call(
       this.sortedGEMS); // Do not mutate original elms;
       this.sortedGEMS = gemsList.sort(
-        compare(field, this.sortAsc ? 'asc' : 'desc'));
+        compare(field, null, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
     },
     toggleMaintainedModels() {
