@@ -66,6 +66,9 @@ export default {
       this.setup();
     },
   },
+  beforeMount() {
+    this.setup();
+  },
   created() {
     // init the global events
     EventBus.$on('resetView', () => {
