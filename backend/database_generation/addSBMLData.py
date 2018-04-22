@@ -372,7 +372,7 @@ def get_EC_number(sbml_reaction):
     if match:
         ec = re.sub(r'^.*ec-code:EC','EC', re.sub(r'\n','',annotation))
         ec = re.sub(r"\".*","", ec)
-        return ec
+        return ec.replace(';EC', '; EC')
 
 
 def get_reaction_components(database, sbml_model, sbml_species):
