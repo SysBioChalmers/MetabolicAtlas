@@ -20,7 +20,7 @@
           </span>
         </p>
       </div>
-      <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1" ref="searchResults">
+      <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered">
           <div class="tag">
             Note: Results are restricted to the active GEM and limited to 50 per component - Hit Enter to get full results
@@ -171,11 +171,15 @@ export default {
     };
   },
   watch: {
-    searchResults() {
-      if (!this.quickSearch) {
-        this.$emit('updateResults', this.searchTermString, this.searchResults);
-      }
-    },
+    // searchResults() {
+    //   if (!this.quickSearch) {
+    //     console.log('here');
+    //     console.log(this.searchTermString);
+    //     console.log(this.searchResults);
+    //     console.log('-------------------------');
+    //     this.$emit('updateResults', this.searchTermString, this.searchResults);
+    //   }
+    // },
   },
   created() {
     // init the global events
@@ -205,25 +209,64 @@ export default {
       }
     }, 700),
     search(searchTerm) {
+      console.log('call search term');
+      if (this.searchTermString !== searchTerm) {
+        this.searchTermString = searchTerm;
+      }
       const url = this.quickSearch ? `${this.model}/search/${searchTerm}` : `all/search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
-        const searchResults = response.data.reactionComponent.reduce((subarray, el) => {
-          const arr = subarray;
-          if (!arr[el.component_type]) { arr[el.component_type] = []; }
-          arr[el.component_type].push(el);
-          return arr;
-        }, {});
+        const searchResults = {
+          metabolite: [],
+          enzyme: [],
+          reaction: [],
+          subsystem: [],
+          compartment: [],
+        };
 
-        searchResults.reaction = response.data.reaction;
-        searchResults.subsystem = response.data.subsystem;
-        searchResults.compartment = response.data.compartment;
+        for (const model of Object.keys(response.data)) {
+          const resultsModel = response.data[model];
+          console.log('here');
+          console.log(model);
+          console.log(resultsModel);
+          const metEnzResults = resultsModel.reactionComponent.reduce((subarray, el) => {
+            const arr = subarray;
+            if (!arr[el.component_type]) { arr[el.component_type] = []; }
+            arr[el.component_type].push(el);
+            return arr;
+          }, {});
+          console.log('here');
 
-        // searchResults.metabolite = searchResults.reactionComponent.filter(
-        // o => o.component_type === 'metabolite');
-        // searchResults.enzyme = searchResults.reactionComponent.filter(
-        // o => o.component_type === 'enzyme');
-        // delete searchResults.reactionComponent;
+          for (const type of Object.keys(metEnzResults)) {
+            searchResults[type] = searchResults[type].concat(
+              metEnzResults[type].map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              }));
+          }
+          if (resultsModel.reaction.length) {
+            searchResults.reaction = searchResults.reaction.concat(
+              resultsModel.reaction.map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              }));
+          }
+          if (resultsModel.subsystem.length) {
+            searchResults.subsystem = searchResults.subsystem.concat(
+              resultsModel.subsystem).map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              });
+          }
+          if (resultsModel.compartment.length) {
+            searchResults.compartment = searchResults.compartment.concat(
+              resultsModel.compartment).map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              });
+          }
+        }
+
         this.noResult = true;
         for (const k of Object.keys(searchResults)) {
           if (searchResults[k].length) {
@@ -233,12 +276,20 @@ export default {
           }
         }
         this.searchResults = searchResults;
+        console.log(searchResults);
         this.showLoader = false;
+        if (!this.quickSearch) {
+          this.$emit('updateResults', this.searchTermString, this.searchResults);
+        }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log(error);
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
+        if (!this.quickSearch) {
+          this.$emit('updateResults', this.searchTermString, this.searchResults);
+        }
       });
     },
     goToTab(type, id) {

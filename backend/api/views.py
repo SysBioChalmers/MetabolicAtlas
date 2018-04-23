@@ -520,17 +520,29 @@ def search(request, model, term):
     if len(term.strip()) < 2:
         return HttpResponse(status=404)
 
+    results = {}
     if model == 'all':
-        models = ['hmr2']
+        models = ['hmr2', 'hmr3', 'ymr']
         limit = 1000
     else:
         models = [model]
         limit = 50
 
     for model in models:
-        if model == 'ymr':
-            # TODO remove
+        # TODO save and fetch the model_name in the table 'GEMS' in databases
+        if model == 'hmr2':
+            model_name = 'HMR 2.0'
+        elif model == 'hmr3':
+            model_name = 'HMR 3.0'
             continue
+        elif model == 'ymr':
+            model_name = 'Yeast 8.0'
+            continue
+
+        if model not in results:
+            results[model] = {}
+
+        print ('done1')
 
         metabolites = Metabolite.objects.using(model).filter(
             Q(kegg__iexact=term) |
@@ -538,16 +550,24 @@ def search(request, model, term):
             Q(hmdb_name__icontains=term)
         )
 
+        print ('done2')
+
         enzymes = Enzyme.objects.using(model).filter(
             Q(uniprot_acc__iexact=term)
         )
 
+        print ('done3')
+
         compartments = Compartment.objects.using(model).filter(name__icontains=term)
+
+        print ('done4')
 
         subsystems = Subsystem.objects.using(model).filter(
             Q(name__icontains=term) |
             Q(external_id__iexact=term)
         )
+
+        print ('done5')
 
         reactions = []
         term = term.replace("→", "=>")
@@ -564,6 +584,8 @@ def search(request, model, term):
                 Q(sbo_id__iexact=term)
             )[:limit]
 
+            print ('done6')
+
             termEq = None
             reactions2 = []
             if '+' in term or '=>' in term:
@@ -573,30 +595,37 @@ def search(request, model, term):
                 )[:limit]
             reactions = list(chain(reactions, reactions2))
 
+            print ('done7')
+
         components = ReactionComponent.objects.using(model).filter(
                 Q(id__iexact=term) |
                 Q(short_name__icontains=term) |
                 Q(long_name__icontains=term) |
-                Q(formula__icontains=term) |
-                Q(metabolite__in=metabolites) |
-                Q(enzyme__in=enzymes)
-            ).order_by('short_name')[:limit]
+                Q(formula__icontains=term)
+            ).select_related('metabolite', 'enzyme')[:limit]
+
+        print ('done8')
 
         if (components.count() + compartments.count() + subsystems.count() + len(reactions))== 0:
             return HttpResponse(status=404)
+
+        print ('done9')
 
         RCserializer = ReactionComponentSearchSerializer(components, many=True)
         compartmentSerializer = CompartmentSerializer(compartments, many=True)
         subsystemSerializer = SubsystemSerializer(subsystems, many=True, context={'model': model})
         reactionSerializer = ReactionSearchSerializer(reactions, many=True, context={'model': model})
 
-    results = {
-        'reactionComponent': RCserializer.data,
-        'compartment': compartmentSerializer.data,
-        'subsystem': subsystemSerializer.data,
-        'reaction': reactionSerializer.data
-    }
+        print ('done10')
 
+        results[model]['reactionComponent'] = RCserializer.data
+        print ('done11')
+        results[model]['compartment'] = compartmentSerializer.data
+        print ('done12')
+        results[model]['subsystem'] = subsystemSerializer.data
+        print ('done13')
+        results[model]['reaction'] = reactionSerializer.data
+        print ('done14')
 
     return JSONResponse(results)
 

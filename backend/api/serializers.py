@@ -99,7 +99,8 @@ class ReactionLiteSerializer(serializers.ModelSerializer):
             'reactants', 'products', 'modifiers', 'compartment', 'subsystem', 'is_transport', 'is_reversible')
 
     def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
+        # TODO need optimization, put subsystem as string in table reaction?
+        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).select_related('subsystem').values_list('subsystem')
         return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('id', 'name')
 
 

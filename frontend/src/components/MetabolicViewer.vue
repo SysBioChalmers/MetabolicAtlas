@@ -49,7 +49,7 @@
               :class="{ 'toggle' : accordionLevelSelected === 'wholemap' }"
               @click="globalMapSelected">
               <p>Global map</p>
-              <button class="toggle" aria-label="toggle"></button>
+              <button class="toggle" aria-label="toggle" v-show="false"></button>
             </div>
             <div class="accordion-body">
             </div>
