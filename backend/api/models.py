@@ -12,8 +12,6 @@ class ILike(Lookup):
         params = lhs_params + rhs_params
         # The key word ILIKE make the match case-insensitive according to the active locale.
         # This is not in the SQL standard but is a PostgreSQL extension.
-        print(rhs)
-        print(rhs_params)
         return '%s ILIKE %s' % (lhs, rhs), params
 
 
