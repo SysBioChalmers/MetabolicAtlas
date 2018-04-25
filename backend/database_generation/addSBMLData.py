@@ -276,15 +276,18 @@ def get_reaction(database, sbml_model, index):
         reaction_to_add.is_transport = True
     reaction_to_add.is_reversible = sbml_reaction.getReversible()
 
-    reaction_to_add.save(using=database)
-
     # =========================================================================================
     pathways = get_subsystem_from_notes(database, sbml_reaction.notes_string)
+    pathways_str = []
     for p in pathways:
+        pathways_str.append(p)
         rs = SubsystemReaction.objects.using(database).filter(reaction=reaction_to_add, subsystem=p)
         if not rs:
             rs = SubsystemReaction(reaction=reaction_to_add, subsystem=p)
             rs.save(using=database)
+
+    reaction_to_add.subsystem_str = "; ".join([p.name for p in pathways_str])
+    reaction_to_add.save(using=database)
 
     # add the relationship between the reaction and the compartment
     for c in reactant_compartment.keys():
@@ -372,7 +375,7 @@ def get_EC_number(sbml_reaction):
     if match:
         ec = re.sub(r'^.*ec-code:EC','EC', re.sub(r'\n','',annotation))
         ec = re.sub(r"\".*","", ec)
-        return ec
+        return ec.replace(';EC', '; EC')
 
 
 def get_reaction_components(database, sbml_model, sbml_species):

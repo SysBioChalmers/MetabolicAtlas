@@ -354,18 +354,7 @@ export default {
       this.load();
     },
     navigate() {
-      this.$router.push(
-        { query: { ...this.$route.query, id: this.selectedElmId } },
-        () => { // On complete.
-          this.showMetaboliteTable = false;
-          this.setup();
-        },
-        () => { // On abort.
-          this.showGraphContextMenu = false;
-          this.selectedElmId = '';
-          this.selectedElm = null;
-        }
-      );
+      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.selectedElmId}`);
     },
     load() {
       axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)
@@ -572,6 +561,7 @@ export default {
             return 200;
           },
           fit: true,
+          ready: this.fitGraph,
         },
       });
       // this.cy.ready = this.cy.fit();
@@ -658,9 +648,7 @@ export default {
           updatePosition(node);
         }
       });
-      console.log(callback);
       if (callback) {
-        console.log('callback');
         callback();
       }
       /* eslint-enable no-param-reassign */

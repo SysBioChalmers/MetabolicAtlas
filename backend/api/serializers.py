@@ -49,12 +49,10 @@ class ReactionComponentSerializer(serializers.ModelSerializer):
 
 class ReactionComponentSearchSerializer(serializers.ModelSerializer):
     compartment = serializers.StringRelatedField()
-    metabolite = MetaboliteSearchSerializer(read_only=True)
-    enzyme = EnzymeSearchSerializer(read_only=True)
 
     class Meta:
         model = ReactionComponent
-        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
+        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment')
 
 class ReactionComponentLiteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,46 +73,35 @@ class ReactionSerializer(serializers.ModelSerializer):
     reactants = ReactionComponentSerializer(many=True)
     products = ReactionComponentSerializer(many=True)
     modifiers = ReactionComponentSerializer(many=True)
-    subsystem = serializers.SerializerMethodField('get_subsystems')
+    subsystem = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+     )
+
 
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
             'reactants', 'products', 'modifiers', 'compartment', 'subsystem', 'is_transport', 'is_reversible')
-
-    def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('id', 'name')
 
 
 class ReactionLiteSerializer(serializers.ModelSerializer):
     reactants = ReactionComponentLiteSerializer(many=True)
     products = ReactionComponentLiteSerializer(many=True)
     modifiers = ReactionComponentLiteSerializer(many=True)
-    subsystem = serializers.SerializerMethodField('get_subsystems')
 
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'reactants', 'products', 'modifiers', 'compartment', 'subsystem', 'is_transport', 'is_reversible')
-
-    def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('id', 'name')
-
+            'reactants', 'products', 'modifiers', 'compartment', 'subsystem_str', 'is_transport', 'is_reversible')
 
 
 class ReactionSearchSerializer(serializers.ModelSerializer):
-    subsystem = serializers.SerializerMethodField('get_subsystems')
-
     class Meta:
         model = Reaction
         fields = ('id', 'name', 'sbo_id', 'equation', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-            'compartment', 'subsystem', 'is_transport', 'is_reversible')
-
-    def get_subsystems(self, model):
-        ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.id).values_list('subsystem')
-        return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('id', 'name')
+            'compartment', 'subsystem_str', 'is_transport', 'is_reversible')
 
 
 # This is a helper class to determine if a component is a currency metabolite
@@ -175,14 +162,15 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
 
 
 class SubsystemSerializer(serializers.ModelSerializer):
-    compartment = serializers.SerializerMethodField('get_compartments')
+    compartment = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+     )
+
     class Meta:
         model = Subsystem
         fields = ('id', 'name', 'system', 'external_id', 'description', 'compartment', 'nr_compartments', 'nr_reactions', 'nr_metabolites', 'nr_enzymes')
-
-    def get_compartments(self, model):
-        compt_ids = SubsystemCompartment.objects.using(self.context.get('model')).filter(subsystem_id=model.id).values_list('compartment_id')
-        return Compartment.objects.using(self.context.get('model')).filter(id__in=compt_ids).values_list('name', flat=True)
 
 class CompartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -230,10 +218,10 @@ class GEModelSampleSerializer(serializers.ModelSerializer):
 
 
 class GEModelSerializer(serializers.ModelSerializer):
-    gemodelset = GEModelSetSerializer()
-    sample = GEModelSampleSerializer()
+    gemodelset = GEModelSetSerializer(read_only=True)
+    sample = GEModelSampleSerializer(read_only=True)
     files = GEModelFileSerializer(many=True, read_only=True)
-    ref = GEModelReferenceSerializer(many=True)
+    ref = GEModelReferenceSerializer(many=True, read_only=True)
 
     class Meta:
         model = GEModel
@@ -242,21 +230,20 @@ class GEModelSerializer(serializers.ModelSerializer):
 
 class GEModelListSerializer(serializers.ModelSerializer):
     set_name = serializers.SerializerMethodField('get_model_set_name')
-    sample = GEModelSampleSerializer()
+    sample = GEModelSampleSerializer(read_only=True)
     year = serializers.SerializerMethodField('get_model_year')
 
     def get_model_set_name(self, model):
-        gg = GEModelSet.objects.get(id=model.gemodelset.id)
-        return gg.name
+        return model.gemodelset.name
 
     def get_model_year(self, model):
-        years = model.ref.only('year').all().values_list('year', flat=True)
-        if years:
-            return max(years)
+        refs = model.ref
+        if refs.all():
+            return max([r.year for r in refs.all()])
         else:
-            years = model.gemodelset.reference.only('year').all().values_list('year', flat=True)
-            if years:
-                return max(years)
+            refs = model.gemodelset.reference
+            if refs.all():
+                return max([r.year for r in refs.all()])
 
     class Meta:
         model = GEModel

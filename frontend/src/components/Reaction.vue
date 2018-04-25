@@ -71,7 +71,7 @@ export default {
         { name: 'modifiers', modifier: this.reformatModifiers },
         { name: 'ec', display: 'EC', modifier: this.reformatECLink },
         { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
-        { name: 'subsystem', modifier: this.reformatSubsystemList },
+        { name: 'subsystem_str', display: 'Subsystem', modifier: this.reformatSubsystemList },
         { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
       info: {},
@@ -141,13 +141,13 @@ export default {
       html.push('</div>');
       return html.join(' ');
     },
-    reformatSubsystemList(l) {
+    reformatSubsystemList(substr) {
       // return l.join('; ');
       // TODO add route logic on url 'subsystem' query
       let str = '';
-      for (const s of l) {
+      for (const s of substr.split('; ')) {
         // str = str.concat('<a href="/?tab=1&subsystem=', a, '">', a, '</a>');
-        str = str.concat(`<a class="s" name="${s[1]}">`, s[1], '</a>');
+        str = str.concat(`<a class="s" name="${s}">`, s, '</a>');
       }
       return str;
     },

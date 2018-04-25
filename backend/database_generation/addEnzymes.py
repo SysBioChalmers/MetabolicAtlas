@@ -49,10 +49,7 @@ def addEnzymes(database, fileName, ecs, functions, activities, ncbi_dict, ensemb
                         protein_name=row[2].strip(), short_name=row[3].strip(), ec=EC, ncbi=ncbi,
                         function=function, catalytic_activity=act, ensembl_link=e_link)
                     p.save(using=database)
-                # proteinsToAdd.append(p)
                 proteinsAdded[rca.component] = None
-    exit(1)
-    # Enzyme.objects.bulk_create(proteinsToAdd)
 
 
 # please remember that the uniprot id is the first column so the uniprot accession is the second :)
