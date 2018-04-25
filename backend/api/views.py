@@ -842,10 +842,6 @@ def get_gemodels(request):
     """
     # get models from database
 
-    l = logging.getLogger('django.db.backends')
-    l.setLevel(logging.DEBUG)
-    l.addHandler(logging.StreamHandler())
-
     serializer = GEModelListSerializer(GEModel.objects.all(). \
         prefetch_related('gemodelset__reference', 'ref').select_related('gemodelset', 'sample'), many=True)
 
