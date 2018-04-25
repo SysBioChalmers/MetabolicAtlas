@@ -165,7 +165,6 @@ export default {
       console.log(id);
       axios.get(`gemodel/${id}`)
       .then((response) => {
-        console.log(response);
         let model = response.data;
         // reformat the dictionnary
         delete model.id;
@@ -180,7 +179,6 @@ export default {
         delete model.gemodelset;
         // model = $.extend(model, model.reference);
         // delete model.reference;
-        console.log(response);
         if (!model.description) {
           model.description = setDescription;
         }
