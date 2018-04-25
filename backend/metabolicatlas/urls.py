@@ -20,7 +20,7 @@ from rest_framework.schemas import get_schema_view
 
 from api import views
 
-schema_view_swagger = get_swagger_view(title='Metabolic Atlas API', urlconf='api.urls')
+schema_view_swagger = get_swagger_view(title='Metabolic Atlas API', urlconf='api.urls', url='/api')
 
 schema_view = get_schema_view(
     title='Metabolic Atlas API',

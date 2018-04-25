@@ -209,7 +209,6 @@ export default {
       }
     }, 700),
     search(searchTerm) {
-      console.log('call search term');
       if (this.searchTermString !== searchTerm) {
         this.searchTermString = searchTerm;
       }
@@ -226,20 +225,16 @@ export default {
 
         for (const model of Object.keys(response.data)) {
           const resultsModel = response.data[model];
-          console.log('here');
-          console.log(model);
-          console.log(resultsModel);
-          const metEnzResults = resultsModel.reactionComponent.reduce((subarray, el) => {
-            const arr = subarray;
-            if (!arr[el.component_type]) { arr[el.component_type] = []; }
-            arr[el.component_type].push(el);
-            return arr;
-          }, {});
-          console.log('here');
-
-          for (const type of Object.keys(metEnzResults)) {
-            searchResults[type] = searchResults[type].concat(
-              metEnzResults[type].map(
+          if (resultsModel.metabolite.length) {
+            searchResults.metabolite = searchResults.metabolite.concat(
+              resultsModel.metabolite.map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              }));
+          }
+          if (resultsModel.enzyme.length) {
+            searchResults.enzyme = searchResults.enzyme.concat(
+              resultsModel.enzyme.map(
               (e) => {
                 const d = e; d.model = model; return d;
               }));
@@ -276,14 +271,12 @@ export default {
           }
         }
         this.searchResults = searchResults;
-        console.log(searchResults);
         this.showLoader = false;
         if (!this.quickSearch) {
           this.$emit('updateResults', this.searchTermString, this.searchResults);
         }
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;

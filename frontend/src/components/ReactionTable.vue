@@ -34,8 +34,8 @@
             >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
-            <a v-for="(s, index) in r.subsystem" v-on:click.prevent="viewSubsystem(s[1])"
-            >{{ index == 0 ? s[1] : `, ${s[1]}` }}</a></td>
+            <a v-for="(s, index) in r.subsystem_str.split('; ')" v-on:click.prevent="viewSubsystem(s)"
+            >{{ index == 0 ? s : `; ${s}` }}</a></td>
           <td>{{ r.compartment.replace('=>','⇨') }}</td>
         </tr>
       </tbody>
