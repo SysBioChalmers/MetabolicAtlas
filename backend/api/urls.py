@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^(?P<model>[^/]+)/search/(?P<term>[^/]+)/?$', views.search),
     url(r'^(?P<model>[^/]+)/metabolite/(?P<id>[^/]+)/?$', views.get_component),
     url(r'^gemodels/?$', views.get_gemodels),
-    url(r'^gemodel/(?P<id>[^/]+)/?$', views.get_gemodel),
+    url(r'^gemodel/(?P<model_id>[^/]+)/?$', views.get_gemodel),
     url(r'^(?P<model>[^/]+)/subsystem/(?P<subsystem_name>[^/]+)/?$', views.get_subsystem),
     url(r'^(?P<model>[^/]+)/subsystems/?$', views.get_subsystems),
     url(r'^(?P<model>[^/]+)/compartment/(?P<compartment_name>[^/]+)/?$', views.get_compartment),

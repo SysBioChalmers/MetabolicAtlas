@@ -1,8 +1,21 @@
 from django.db import models
+from django.db.models.fields import Field
+from django.db.models import Lookup
 
-#
-# From gems db
-#
+@Field.register_lookup
+class ILike(Lookup):
+    lookup_name = 'ilike'
+
+    def as_sql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = lhs_params + rhs_params
+        # The key word ILIKE make the match case-insensitive according to the active locale.
+        # This is not in the SQL standard but is a PostgreSQL extension.
+        print(rhs)
+        print(rhs_params)
+        return '%s ILIKE %s' % (lhs, rhs), params
+
 
 class GEModelReference(models.Model):
     title = models.TextField()
@@ -55,8 +68,8 @@ class GEModelFile(models.Model):
 
 
 class GEModel(models.Model):
-    gemodelset = models.ForeignKey(GEModelSet, default=1, on_delete=models.CASCADE)
-    sample = models.ForeignKey(GEModelSample, default=1, on_delete=models.CASCADE)
+    gemodelset = models.ForeignKey(GEModelSet, on_delete=models.CASCADE)
+    sample = models.ForeignKey(GEModelSample, on_delete=models.CASCADE)
     description = models.TextField(null=True)
     label = models.CharField(max_length=200, null=True)
     reaction_count = models.IntegerField(default=0)
@@ -137,12 +150,11 @@ class Reaction(models.Model):
     lower_bound = models.FloatField()
     upper_bound = models.FloatField()
     objective_coefficient = models.FloatField(null=True)
-    #subsystem = models.CharField(max_length=600)
+    subsystem_str = models.CharField(max_length=1000)
+    subsystem = models.ManyToManyField('Subsystem', related_name='subsystems', through='SubsystemReaction')
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
     is_reversible = models.BooleanField(default=False)
-
-    # models = models.ManyToManyField(GEM, related_name='reactions', through='GemReaction')
 
     def __str__(self):
         return "<Reaction: {0} {1}>".format(self.id, self.modifiers)
@@ -280,6 +292,7 @@ class Subsystem(models.Model):
     system = models.CharField(max_length=100)
     external_id = models.CharField(max_length=25, null=True)
     description = models.CharField(max_length=255, null=True)
+    compartment = models.ManyToManyField('Compartment', related_name='compartments', through='SubsystemCompartment')
     nr_reactions = models.IntegerField(default=0)
     nr_metabolites = models.IntegerField(default=0)
     nr_unique_metabolites = models.IntegerField(default=0)

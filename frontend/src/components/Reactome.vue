@@ -10,7 +10,8 @@
           <span v-show="expandAllCompartment">Restrict to current compartment</span>
           </button>
       </p>
-      <reaction-table v-show="!showLoader" :reactions="reactions" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
+      <reaction-table v-show="!showLoader && !expandAllCompartment" :reactions="reactions" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
+      <reaction-table v-show="!showLoader && expandAllCompartment" :reactions="reactionsAllcompartment" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
       <div v-if="errorMessage" class="columns">
         <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
           {{ errorMessage }}
@@ -43,6 +44,7 @@ export default {
     return {
       errorMessage: '',
       reactions: [],
+      reactionsAllcompartment: [],
       reactome: null,
       showLoader: true,
       expandAllCompartment: false,
@@ -91,19 +93,24 @@ export default {
       }, g3).setLineColor('#5D4037');
     },
     loadReactions() {
-      this.showLoader = true;
-      this.elementID = this.$route.params.id || this.$route.query.id;
-      let id = this.elementID;
-      if (this.expandAllCompartment) {
-        id = id.replace(/[a-z]$/, '');
+      let ID = this.$route.params.id || this.$route.query.id;
+      if (this.elementID === ID &&
+         ((this.expandAllCompartment && this.reactionsAllcompartment.length !== 0) ||
+         (!this.expandAllCompartment && this.reactions.length !== 0))) {
+        return;
       }
-      axios.get(`${this.model}/metabolite_reactions/${id}`)
+      this.showLoader = true;
+      this.elementID = ID;
+      if (this.expandAllCompartment) {
+        ID = ID.replace(/[a-z]$/, '');
+      }
+      axios.get(`${this.model}/metabolite_reactions/${ID}`)
         .then((response) => {
           this.errorMessage = '';
-          this.reactions = response.data;
-          if (this.reactions.length > 0) {
-            // const r = this.reactions[0];
-            // this.loadReactome(r.id);
+          if (this.expandAllCompartment) {
+            this.reactionsAllcompartment = response.data;
+          } else {
+            this.reactions = response.data;
           }
           this.showLoader = false;
         })

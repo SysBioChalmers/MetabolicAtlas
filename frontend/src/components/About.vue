@@ -53,10 +53,10 @@
       <div class="text">
         <p>Metabolic Atlas would not be possible without the following excellent sources of information.</p>
         <ul>
-          <li><h5 class="title is-5"><a href="http://proteinatlas.org" target="_blank">The Human Protein Atlas</h5></li>
-          <li><h5 class="title is-5"><a href="http://www.genome.jp/kegg/" target="_blank">KEGG: Kyoto Encyclopedia of Genes and Genomes</h5></li>
-          <li><h5 class="title is-5"><a href="http://www.uniprot.org" target="_blank">UniProt</h5></li>
-          <li><h5 class="title is-5"><a href="http://www.hmdb.ca/" target="_blank">The Human Metabolome Database</h5></li>
+          <li><h5 class="title is-5"><a href="http://proteinatlas.org" target="_blank">The Human Protein Atlas</a></h5></li>
+          <li><h5 class="title is-5"><a href="http://www.genome.jp/kegg/" target="_blank">KEGG: Kyoto Encyclopedia of Genes and Genomes</a></h5></li>
+          <li><h5 class="title is-5"><a href="http://www.uniprot.org" target="_blank">UniProt</a></h5></li>
+          <li><h5 class="title is-5"><a href="http://www.hmdb.ca/" target="_blank">The Human Metabolome Database</a></h5></li>
         </ul>
       </div>
       <h2 class="subtitle is-2">Citing the Metabolic Atlas</h2>

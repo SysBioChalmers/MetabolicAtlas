@@ -54,6 +54,7 @@
         <li class="menu-label">
           # compartments: {{ selectedSubsystem['nr_compartments'] }}
         </li>
+      </ul>
     </div>
   </div>
 </template>
