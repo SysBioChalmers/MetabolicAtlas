@@ -1,7 +1,7 @@
 <template>
   <div id="search-table">
     <div class="container columns">
-      <global-search class="is-offset-2"
+      <global-search class="is-offset-3"
       :quickSearch=false
       :searchTerm=searchTerm
       @updateResults="updateResults"
@@ -9,7 +9,7 @@
       </global-search>
     </div>
     <div>
-      <div class="tabs is-boxed is-fullwidth">
+      <div class="tabs is-boxed is-fullwidth" v-if="showTabType">
         <ul>
           <li :disabled="resultsCount[tab] === 0" 
           :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
@@ -20,7 +20,7 @@
           </li>
         </ul>
       </div>
-      <loader v-show="loading"></loader>
+      <loader v-show="loading && searchTerm !== ''"></loader>
       <div v-show="!loading">
         <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
           <good-table
@@ -118,10 +118,44 @@
             styleClass="vgt-table striped bordered">
           </good-table>
         </div>
+      </div>
+      <div v-show="!showTabType || searchTerm === ''">
+        <div v-if="searchResults.length === 0" class="column is-4 is-offset-4 has-text-centered notification">
+          {{ $t('searchNoResult') }}
         </div>
-        <div v-show="!showTabType">
-          <div v-if="searchResults.length === 0" class="column is-8 is-offset-2 has-text-centered">
-            {{ $t('searchNoResult') }}
+        <div class="columns">
+          <div class="column is-6 is-offset-3 content">
+            <p>You can search metabolites by:</p>
+            <ul class="menu-list">
+              <li>ID</li>
+              <li>name</li>
+              <li>formula</li>
+              <li>HMDB ID, name</li>
+              <li>KEGG ID</li>
+            </ul>
+            <p>Enzymes by:</p>
+            <ul class="menu-list">
+              <li>ID</li>
+              <li>name</li>
+              <li>Ensembl ID</li>
+              <li>Uniprot ID, name</li>
+              <li>KEGG ID</li>
+            </ul>
+            <p>Reactions by:</p>
+            <ul class="menu-list">
+              <li>ID</li>
+              <li>equation:</li>
+              <ul class="menu-list">
+                <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
+                <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
+              </ul>
+              <li>EC code</li>
+              <li>SBO ID</li>
+            </ul>
+            <p>Subsystem and compartment by:</p>
+            <ul class="menu-list">
+              <li>name</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -374,7 +408,7 @@ export default {
         ],
       },
       resultsCount: {},
-      searchTerm: 'metabolite',
+      searchTerm: '',
       searchResults: {},
       showTabType: '',
       loading: true,
@@ -649,7 +683,7 @@ export default {
 
   },
   beforeMount() {
-    this.searchTerm = this.$route.query.term;
+    this.searchTerm = this.$route.query.term || '';
   },
   mounted() {
     if (this.searchTerm) {

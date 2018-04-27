@@ -577,14 +577,14 @@ def search(request, model, term):
                 Q(id__iexact=term) |
                 Q(name__icontains=term) |
                 Q(equation__icontains=termEq) |
-                Q(ec__iexact=term) |
+                Q(ec__icontains=term) |
                 Q(sbo_id__iexact=term) |
                 (Q(equation__ilike=termEqlike) if termEqlike else Q(pk__isnull=True))
             )[:limit]
 
         metabolites = ReactionComponent.objects.using(model).select_related('compartment').filter(
                 Q(component_type__exact='metabolite') &
-                (Q(id__iexact=term) |
+                (Q(id__istartswith=term) |
                 Q(short_name__icontains=term) |
                 Q(long_name__icontains=term) |
                 Q(formula__icontains=term) |
@@ -593,7 +593,7 @@ def search(request, model, term):
 
         enzymes = ReactionComponent.objects.using(model).select_related('compartment').filter(
                 Q(component_type__exact='enzyme') &
-                (Q(id__iexact=term) |
+                (Q(id__istartswith=term) |
                 Q(short_name__icontains=term) |
                 Q(long_name__icontains=term) |
                 Q(formula__icontains=term) |
