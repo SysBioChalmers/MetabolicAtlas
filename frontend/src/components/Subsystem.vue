@@ -27,19 +27,35 @@
           </tr>
           <tr>
             <td class="td-key">Metabolites</td>
-            <td v-html="metabolitesListHtml"></td>
+            <td>
+              <div v-html="metabolitesListHtml"></div>
+              <div v-if="!this.showFullMetabolite && this.metabolites.length > this.limitMetabolite">
+                <br>
+                <button class="is-small button" @click="showFullMetabolite=true">
+                  ... and {{ this.metabolites.length - 40}} more
+                </button>
+              </div>
+            </td>
           </tr>
           <tr>
             <td class="td-key">Enzymes</td>
-            <td v-html="enzymesListHtml"></td>
+            <td>
+              <div v-html="enzymesListHtml"></div>
+              <div v-if="!this.showFullEnzyme && this.enzymes.length > this.limitEnzyme">
+                <br>
+                <button class="is-small button" @click="showFullEnzyme=true">
+                  ... and {{ this.enzymes.length - 40}} more
+                </button>
+              </div>
+            </td>
           </tr>
         </table>
         <h3 class="title is-3">Reactions</h3>
       </div>
       <div class="column">
         <div class="box has-text-centered">
-          <div class="button is-medium is-info">
-            View on Metabolic Viewer
+          <div class="button is-info">
+            <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
           </div>
         </div>
       </div>
@@ -77,6 +93,10 @@ export default {
         { name: 'name', display: 'Name' },
         { name: 'system' },
       ],
+      showFullMetabolite: false,
+      showFullEnzyme: false,
+      limitMetabolite: 40,
+      limitEnzyme: 40,
     };
   },
   watch: {
@@ -89,7 +109,12 @@ export default {
     metabolitesListHtml() {
       const l = ['<span class="tags">'];
       this.metabolites.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
+      let i = 0;
       for (const m of this.metabolites) {
+        if (!this.showFullMetabolite && i > this.limitMetabolite) {
+          break;
+        }
+        i += 1;
         l.push(`<span id="${m.id}" class="tag rcm"><a>${m.short_name}[${m.id.substr(m.id.length - 1)}]</a></span>`);
       }
       l.push('</span>');
@@ -98,7 +123,12 @@ export default {
     enzymesListHtml() {
       const l = ['<span class="tags">'];
       this.enzymes.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
+      let i = 0;
       for (const e of this.enzymes) {
+        if (!this.showFullEnzyme && i > this.limitEnzyme) {
+          break;
+        }
+        i += 1;
         l.push(`<span id="${e.id}" class="tag rce"><a>${e.short_name}</a></span>`);
       }
       l.push('</span>');
