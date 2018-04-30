@@ -322,19 +322,26 @@ def get_component_with_interaction_partners(request, model, id):
 
     component_serializer = ReactionComponentSerializer(component, context={'model': model})
 
-    reactions_count = component.reactions_as_reactant. \
-        prefetch_related('reactants', 'products', 'modifiers').count() + \
-            component.reactions_as_product. \
-        prefetch_related('reactants', 'products', 'modifiers').count() + \
-            component.reactions_as_modifier. \
-        prefetch_related('reactants', 'products', 'modifiers').count()
+    reactions_count = component.reactions_as_reactant.count() + \
+            component.reactions_as_product.count() + \
+            component.reactions_as_modifier.count()
+
     if reactions_count > 100:
         return HttpResponse(status=406)
 
     reactions = list(chain(
-        component.reactions_as_reactant.all(),
-        component.reactions_as_product.all(),
-        component.reactions_as_modifier.all()
+        component.reactions_as_reactant. \
+        prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
+            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+            'reactants__compartment', 'products__compartment', 'modifiers__compartment').all(),
+        component.reactions_as_product. \
+        prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
+            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+            'reactants__compartment', 'products__compartment', 'modifiers__compartment').all(),
+        component.reactions_as_modifier. \
+        prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
+            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+            'reactants__compartment', 'products__compartment', 'modifiers__compartment').all()
     ))
     reactions_serializer = InteractionPartnerSerializer(reactions, many=True)
 
