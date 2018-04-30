@@ -24,7 +24,7 @@
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered">
           <div class="tag">
-            Note: Results are restricted to the active GEM and limited to 50 per component - Hit Enter to get full results
+            Results are restricted to the active GEM and limited to 50 per component - Click <a @click="goToSearchPage">&nbsp;Here&nbsp;</a> to get full results
           </div>
         </div>
         <div v-if="searchResults" class="searchGroupResultSection"
