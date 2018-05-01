@@ -7,7 +7,7 @@
   <div class="columns" v-else>
     <loader v-show="showLoader"></loader>
     <div class="reaction-table column is-10" v-show="!showLoader">
-      <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+      <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
         <tr v-for="el in mainTableKey">
           <td v-if="el.display" class="td-key">{{ el.display }}</td>
           <td v-else class="td-key">{{ reformatKey(el.name) }}</td>

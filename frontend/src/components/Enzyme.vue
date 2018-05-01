@@ -21,7 +21,7 @@
         <div class="column">
           <div class="columns">
             <div id="enzyme-details" class="reaction-table column is-10">
-              <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table">
+              <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table is-fullwidth">
                 <tr v-for="el in detailTableKey">
                   <td v-if="el.display" class="td-key">{{ el.display }}</td>
                   <td v-if="enzyme[el.name]">

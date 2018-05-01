@@ -25,6 +25,22 @@
       <metabolite v-if="selectedType==='metabolite'" :model="selectedModel"></metabolite>
       <reaction v-if="selectedType==='reaction'" :model="selectedModel"></reaction>
       <subsystem v-if="selectedType==='subsystem'" :model="selectedModel"></subsystem>
+      <template v-if="selectedType===''">
+        <div class="columns">
+          <div class="column">
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column has-text-centered">
+            <span class="title is-4">Or visualize networks with the MetabolicViewer</span> 
+             <div class="has-text-centered">
+              <a @click="showNetworkGraph">
+                <img width="500" :src="imgUrl('./metabolicViewer-600.jpg')" style="border: 1px solid black" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -66,6 +82,7 @@ export default {
     },
   },
   beforeMount() {
+    this.dBImageSources = require.context('../assets', false, /\.(png|gif|jpg)$/);
     this.setup();
   },
   created() {
@@ -111,6 +128,12 @@ export default {
     },
     showNetworkGraph() {
       EventBus.$emit('toggleNetworkGraph');
+    },
+    showWholeMap() {
+      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+    },
+    imgUrl(path) {
+      return this.dBImageSources(path);
     },
   },
 };

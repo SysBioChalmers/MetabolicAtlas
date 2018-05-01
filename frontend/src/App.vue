@@ -3,7 +3,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <transition name="fade">
       <metabolic-viewer id="metabolicViewer" v-show="isMetabolicViewer"
-      :model="{ id: selectedModel, name: models[selectedModel].short_name }"></metabolic-viewer>
+      :model="{ id: selectedModel, name: models[selectedModel].short_name }"
+      ></metabolic-viewer>
     </transition>
     <div class="hero-head">
       <nav class="navbar is-light" role="navigation" aria-label="main navigation">
@@ -156,6 +157,11 @@ export default {
     });
     EventBus.$on('toggleNetworkGraph', () => {
       this.isMetabolicViewer = !this.isMetabolicViewer;
+    });
+    document.body.addEventListener('keyup', (e) => {
+      if (e.keyCode === 27) {
+        this.isMetabolicViewer = false;
+      }
     });
   },
   methods: {

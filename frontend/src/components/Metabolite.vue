@@ -12,7 +12,7 @@
       <div class="columns metabolite-table">
         <div class="column is-10">
           <div id="metabolite-table">
-            <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+            <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
               <tr v-for="el in mainTableKey">
                 <td v-if="el.display" class="td-key">{{ el.display }}</td>
                 <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
@@ -36,7 +36,7 @@
             <div v-show="showHMDB">
               <br>
               <span class="subtitle">HMDB</span>
-              <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
+              <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table is-fullwidth">
                 <tr v-for="el in HMDBRAbleKey">
                   <td v-if="el.display" class="td-key">{{ el.display }}</td>
                   <td v-else class="td-key">{{ reformatKey(el.name) }}</td>

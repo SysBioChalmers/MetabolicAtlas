@@ -8,7 +8,7 @@
     <loader v-show="showLoader"></loader>
     <div v-show="!showLoader" class="columns">
       <div class="subsystem-table column is-10">
-        <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+        <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
           <tr class="m-row" v-for="el in mainTableKey">
             <td v-if="el.display" class="td-key">{{ el.display }}</td>
             <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
