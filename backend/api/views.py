@@ -807,7 +807,7 @@ def get_gemodel(request, model_id):
          prefetch_related('files', 'ref')
     else:
          if model_id == "HMR2":
-             model_id = "v2.00"
+             model_id = "HMR 2.0"
          model = GEModel.objects.filter(label=model_id). \
          prefetch_related('files', 'ref')
 
