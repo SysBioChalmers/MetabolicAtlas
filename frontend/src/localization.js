@@ -1,7 +1,7 @@
 export default {
   en: {
-    searchPlaceholder: 'Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP[c] => cAMP[c] + PPi[c])',
-    searchNoResult: 'No result found',
+    searchPlaceholder: 'Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem',
+    searchNoResult: 'No results found',
     footerText: 'Chalmers University of Technology | Department of Biology and Biological Engineering | <a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a>',
     moreInformation: 'More information',
     connectedMetabolites: {
@@ -23,7 +23,7 @@ export default {
     navBut5Title: 'About',
     navBut6Title: 'Contact',
     hmr2: 'HMR 2.0',
-    yeast: 'Yeast 7.6',
+    ymr: 'Yeast 7.6',
     reset: 'Reset',
     exportButton: 'Export to Excel',
     metabolicViewer: 'Metabolic Viewer',

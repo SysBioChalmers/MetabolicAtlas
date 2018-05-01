@@ -28,55 +28,6 @@ class JSONResponse(HttpResponse):
 
 
 @api_view()
-def model_list(request):
-    """
-    List all Genome-scale metabolic models (GEMs) that are in the database
-    """
-    models = GEM.objects.all()
-    serializer = GEMSerializer(models, many=True)
-    return JSONResponse(serializer.data)
-
-
-@api_view()
-def get_model(request, id):
-    """
-    Return all known information for a given model, supply its id, for example 1
-    """
-    try:
-        model = GEM.objects.get(id=id)
-    except GEM.DoesNotExist:
-        return HttpResponse(status=404)
-
-    serializer = GEMSerializer(model)
-    return JSONResponse(serializer.data)
-
-
-@api_view()
-def author_list(request):
-    """
-    List all authors for all the GEMs in the database
-    """
-    authors = Author.objects.all()
-    serializer = AuthorSerializer(authors, many=True)
-    return JSONResponse(serializer.data)
-
-
-@api_view()
-def get_author(request, id):
-    """
-    Return all the information we have about a specific author,
-    supply an id (for example 1)
-    """
-    try:
-        author = Author.objects.get(id=id)
-    except Author.DoesNotExist:
-        return HttpResponse(status=404)
-
-    serializer = AuthorSerializer(author)
-    return JSONResponse(serializer.data)
-
-
-@api_view()
 def reaction_list(request, model):
     """
     Returns ALL reactions
@@ -814,6 +765,29 @@ def get_compartment_information(request, model):
 
 #=========================================================================================================
 # For the Models database
+
+@api_view()
+def model_list(request):
+    """
+    List all Genome-scale metabolic models (GEMs) that are in the databases
+    """
+    models = GEM.objects.all()
+    serializer = GEMListSerializer(models, many=True)
+    return JSONResponse(serializer.data)
+
+
+@api_view()
+def get_model(request, id):
+    """
+    Return all known information for a given model, supply its id (int)
+    """
+    try:
+        model = GEM.objects.get(id=id)
+    except GEM.DoesNotExist:
+        return HttpResponse(status=404)
+
+    serializer = GEMSerializer(model)
+    return JSONResponse(serializer.data)
 
 
 @api_view()

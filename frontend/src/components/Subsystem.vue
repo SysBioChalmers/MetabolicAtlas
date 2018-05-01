@@ -111,7 +111,7 @@ export default {
       this.metabolites.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
       let i = 0;
       for (const m of this.metabolites) {
-        if (!this.showFullMetabolite && i > this.limitMetabolite) {
+        if (!this.showFullMetabolite && i === this.limitMetabolite) {
           break;
         }
         i += 1;
@@ -125,7 +125,7 @@ export default {
       this.enzymes.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
       let i = 0;
       for (const e of this.enzymes) {
-        if (!this.showFullEnzyme && i > this.limitEnzyme) {
+        if (!this.showFullEnzyme && i === this.limitEnzyme) {
           break;
         }
         i += 1;

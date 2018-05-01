@@ -5,8 +5,6 @@ app_name = 'public_apis'
 urlpatterns = [
     url(r'^models/?$', views.model_list),
     url(r'^models/(?P<id>[0-9]+)/?$', views.get_model),
-    url(r'^authors/?$', views.author_list),
-    url(r'^authors/(?P<id>[0-9]+)/?$', views.get_author),
     url(r'^(?P<model>[^/]+)/reactions/?$', views.reaction_list),
     url(r'^(?P<model>[^/]+)/reactions/(?P<id>[^/]+)/?$', views.get_reaction),
     url(r'^(?P<model>[^/]+)/reactions/(?P<id>[^/]+)/reactants/?$', views.reaction_reactant_list),

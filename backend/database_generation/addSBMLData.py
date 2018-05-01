@@ -275,6 +275,7 @@ def get_reaction(database, sbml_model, index):
     if '=>' in c:
         reaction_to_add.is_transport = True
     reaction_to_add.is_reversible = sbml_reaction.getReversible()
+    reaction_to_add.save(using=database)
 
     # =========================================================================================
     pathways = get_subsystem_from_notes(database, sbml_reaction.notes_string)
@@ -435,29 +436,38 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
         exit(1)
 
     sbml_model = doc.getModel()
-
     # get author and model
-    logger.info("Importing model")
-    if sbml_model.name == "HMRdatabase":
-        pmid = "24419221"
-        title="Genome-scale metabolic modelling of hepatocytes reveals serine deficiency in patients with non-alcoholic fatty liver disease"
-    else:
-        pmid="NA"
-        title="NA"
 
-    m = GEM.objects.using(database).filter(short_name=sbml_model.id,
-        name=sbml_model.name, pmid=pmid, article_title=title,
-        ensembl_version=ensembl_version, ensembl_archive_url=ensembl_archive_url)
-    if not m:
-        model = GEM(short_name=sbml_model.id,
-            name=sbml_model.name, pmid=pmid, article_title=title,
-            ensembl_version=ensembl_version, ensembl_archive_url=ensembl_archive_url)
-        model.save(using=database)
+    # Fill GEM table, contains information on model that can be explore on the MetabolicAtlas website
+    # i.e. HMR2, HMR3, YEAST?
+
+    # the table is related to data stored in Gemodel, Gemodelref etc...
+    # so gems database must be completed before running this method
+
+    if database == 'hmr2':
+        # fetch HMR v2.0
+        try:
+            hmr2 = GEModel.objects.using('gems').get(label='HMR 2.0')
+        except GEModel.DoesNotExist:
+            print ('Error: cannot find HMR2 model in gems database')
+            exit(1)
+
+        model = GEM.objects.using('gems').filter(name=hmr2.gemodelset.name, short_name=hmr2.label, database_name=database)
+        if not model:
+            publication = GEModelReference.objects.using('gems').get(pubmed='24419221')
+            model = GEM(name=hmr2.gemodelset.name, short_name=hmr2.label, database_name=database, model=hmr2, publication=publication, ensembl_version=ensembl_version, ensembl_archive_url=ensembl_archive_url)
+            model.save(using='gems')
+        else:
+            model= model[0]
+    elif database == 'hmr3':
+        pass
+    elif database == 'ymr':
+        pass
 
     """Get author of the specified SBML model."""
     sbml_author = SbmlAuthor(sbml_model)
     print ("Author found:", sbml_author)
-    a = Author.objects.using(database).filter(given_name=sbml_author.given_name,
+    a = Author.objects.using('gems').filter(given_name=sbml_author.given_name,
                     family_name=sbml_author.family_name,
                     email=sbml_author.email,
                     organization=sbml_author.organization)
@@ -466,10 +476,10 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
                         family_name=sbml_author.family_name,
                         email=sbml_author.email,
                         organization=sbml_author.organization)
-        author.save(using=database)
+        author.save(using='gems')
 
-        # ma = GEMAuthor(model=model, author=author)
-        # ma.save(using=database)
+        ma = GEMAuthor(model=model, author=author)
+        ma.save(using='gems')
 
     # get compartments
     logger.info("Importing compartments")

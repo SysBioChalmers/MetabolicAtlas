@@ -22,7 +22,7 @@ class GEModelReference(models.Model):
     year = models.CharField(max_length=4)
 
     class Meta:
-        db_table = "gemodelreference"
+        db_table = "gemodel_reference"
 
 
 class GEModelSet(models.Model):
@@ -33,15 +33,10 @@ class GEModelSet(models.Model):
     )
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(null=True)
-    '''category = models.CharField(
-                        max_length=15,
-                        choices = CATEGORY,
-                        default = 'Species',
-                    )'''
     reference = models.ManyToManyField(GEModelReference, related_name='gemodelset_references')
 
     class Meta:
-        db_table = "gemodelset"
+        db_table = "gemodel_set"
 
 
 class GEModelSample(models.Model):
@@ -54,7 +49,7 @@ class GEModelSample(models.Model):
     unique_together = (('organism', 'organ_system', 'tissue', 'cell_type', 'cell_line'),)
 
     class Meta:
-        db_table = "gemodelsample"
+        db_table = "gemodel_sample"
 
 
 class GEModelFile(models.Model):
@@ -62,7 +57,7 @@ class GEModelFile(models.Model):
     format = models.CharField(max_length=50)
 
     class Meta:
-        db_table = "gemodelfile"
+        db_table = "gemodel_file"
 
 
 class GEModel(models.Model):
@@ -81,9 +76,9 @@ class GEModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.gemodelset:
-            raise AttributeError("Model set must me specify")
+            raise AttributeError("Model set must be specified")
         if not self.sample:
-            raise AttributeError("Model sample must me specify")
+            raise AttributeError("Model sample must be specified")
         if not self.reaction_count and not self.metabolite_count and not self.enzyme_count:
             raise AttributeError("component count cannot be all 0")
         super(GEModel, self).save(*args, **kwargs)
@@ -94,6 +89,55 @@ class GEModel(models.Model):
 
 ##########################################################################################################################
 ##########################################################################################################################
+# part of Gems database
+
+class Author(models.Model):
+    given_name = models.CharField(max_length=255, blank=False)
+    family_name = models.CharField(max_length=255, blank=False)
+    email = models.CharField(max_length=255, blank=False)
+    organization = models.CharField(max_length=255, blank=False)
+
+    def __str__(self):
+        return "<Author: {0} {1}>".format(self.given_name, self.family_name)
+
+    class Meta:
+        db_table = "author"
+
+class GEM(models.Model):
+    name = models.CharField(max_length=255, blank=False)
+    short_name = models.CharField(max_length=255, blank=False)
+    database_name = models.CharField(max_length=255, blank=False)
+    publication =  models.OneToOneField( # only one main paper per model
+            'GEModelReference',
+            related_name='publication',
+            db_column='publication',
+            on_delete=models.SET_NULL, null=True)
+    ensembl_version = models.CharField(max_length=50, null=True) # keep track of this... for HMR2 make an educated guess!
+    ensembl_archive_url = models.CharField(max_length=50, null=True)
+    authors = models.ManyToManyField(Author, related_name='authors', through='GEMAuthor')
+    model = models.OneToOneField(
+            'GEModel',
+            related_name='model',
+            db_column='model',
+            on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return "<GEM: {0} {1} {2}>".format(self.name, self.short_name, self.database_name)
+
+    class Meta:
+        db_table = "gems"
+
+
+class GEMAuthor(models.Model):
+    model = models.ForeignKey(GEM, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "gem_authors"
+
+##########################################################################################################################
+##########################################################################################################################
+
 #
 # Extra "annotation" models, such as BTO mappings
 #
@@ -111,33 +155,6 @@ class TissueOntology(models.Model):
 #
 # Models
 #
-
-class GEM(models.Model):
-    short_name = models.CharField(max_length=255, blank=False)
-    name = models.CharField(max_length=255, blank=False)
-    pmid = models.CharField(max_length=11, blank=False)
-    article_title = models.CharField(max_length=255, blank=False)
-    ensembl_version = models.CharField(max_length=50, null=True) # keep track of this... for HMR2 make an educated guess!
-    ensembl_archive_url = models.CharField(max_length=50, null=True)
-
-    def __str__(self):
-        return "<GEM: {0}>".format(self.short_name)
-
-    class Meta:
-        db_table = "gems"
-
-class Author(models.Model):
-    given_name = models.CharField(max_length=255, blank=False)
-    family_name = models.CharField(max_length=255, blank=False)
-    email = models.CharField(max_length=255, blank=False)
-    organization = models.CharField(max_length=255, blank=False)
-    # models = models.ManyToManyField(GEM, related_name='authors', through='GemAuthor')
-
-    def __str__(self):
-        return "<Author: {0} {1}>".format(self.given_name, self.family_name)
-
-    class Meta:
-        db_table = "author"
 
 class Reaction(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
@@ -351,20 +368,6 @@ class ConnectedMetabolites(object):
 #
 # Relationships
 #
-
-class GEMAuthor(models.Model):
-    model = models.ForeignKey(GEM, on_delete=models.CASCADE)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "gem_authors"
-
-class GEMReaction(models.Model):
-    model = models.ForeignKey(GEM, on_delete=models.CASCADE)
-    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "gem_reactions"
 
 class ReactionReactant(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)

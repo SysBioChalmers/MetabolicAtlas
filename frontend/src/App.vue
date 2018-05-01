@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <transition name="fade">
       <metabolic-viewer id="metabolicViewer" v-show="isMetabolicViewer"
-      :model="{ id: selectedModel, name: modelsName[selectedModel] }"></metabolic-viewer>
+      :model="{ id: selectedModel, name: models[selectedModel].short_name }"></metabolic-viewer>
     </transition>
     <div class="hero-head">
       <nav class="navbar is-light" role="navigation" aria-label="main navigation">
@@ -28,13 +28,12 @@
                   <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link"  @click="goToPage('', selectedModel)">
                       {{ menuItem }}
-                      &nbsp;<span class="tag is-info is-large">{{ modelsName[selectedModel] }}</span>
+                      &nbsp;<span class="tag is-info is-large">{{ models[selectedModel].short_name }}</span>
                     </a>
                     <div class="navbar-dropdown">
                       <a class="navbar-item is-primary"
-                        v-for="model in models"
-                        @click="goToPage('', model)">
-                        {{ modelsName[model] }}
+                        v-for="model, k in models"
+                        @click="goToPage('', model.database_name)" v-html="getModelDescription(model)">
                       </a>
                     </div>
                   </div>
@@ -101,6 +100,7 @@
 
 <script>
 
+import axios from 'axios';
 import SvgIcon from './components/SvgIcon';
 import MetabolicViewer from './components/MetabolicViewer';
 import Logo from './assets/logo.svg';
@@ -117,12 +117,7 @@ export default {
   data() {
     return {
       Logo,
-      modelsName: {
-        hmr2: this.$t('hmr2'),
-      },
-      models: [
-        'hmr2',
-      ],
+      models: { hmr2: { short_name: '' } },
       menuItems: [
         this.$t('navBut1Title'),
         this.$t('navBut2Title'),
@@ -139,6 +134,20 @@ export default {
       selectedModel: 'hmr2',
     };
   },
+  beforeMount() {
+    // get models list
+    axios.get('models/')
+      .then((response) => {
+        const models = {};
+        for (const model of response.data) {
+          models[model.database_name] = model;
+        }
+        this.models = models;
+      })
+      .catch(() => {
+        this.errorMessage = this.$t('unknownError');
+      });
+  },
   created() {
     EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
       this.isMetabolicViewer = true;
@@ -150,6 +159,14 @@ export default {
     });
   },
   methods: {
+    getModelDescription(model) {
+      return `<div>${model.short_name} - ${model.name}<div>
+      <div class="has-text-grey">
+        ${model.reaction_count} reactions -
+        ${model.metabolite_count} metabolites -
+        <br>${model.enzyme_count} enzymes
+      </div>`;
+    },
     goToPage(name, model) {
       // TODO: make this not hard-coded
       if (model) {
