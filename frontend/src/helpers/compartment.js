@@ -299,9 +299,9 @@ function formatSpan(currentVal, index, array, elements, addComp) {
   const regex = /(.+)\[(.)\]/g;
   const match = regex.exec(currentVal);
   if (!addComp) {
-    return `<m id="${elements[index].id}">${match[1]}</m>`;
+    return `<m class="${elements[index].id}">${match[1]}</m>`;
   }
-  return `<m id="${elements[index].id}">${match[1]}</m><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
+  return `<m class="${elements[index].id}">${match[1]}</m><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
 }
 
 export function reformatChemicalReaction(equation, reaction) {

@@ -83,7 +83,7 @@ export default {
     reactions() {
       // create consume/produce column
       // TODO do this at the dababase level
-      if (this.selectedElmId) {
+      if (false && this.selectedElmId) {
         this.showCP = true;
         for (const reaction of this.reactions) {
           if (reaction.is_reversible) {
@@ -151,8 +151,17 @@ export default {
   },
   beforeMount() {
     $('body').on('click', 'td m', function f() {
-      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
+      if ($(this).attr('class') !== this.selectedElmId) {
+        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
+      }
     });
+  },
+  updated() {
+    if (this.selectedElmId) {
+      // when the table is from the selectedElmId page (metabolite)
+      // do not color the selectedElmId is the reaction equations
+      $(`.${this.selectedElmId}`).css('color', 'rgb(54, 54, 54)');
+    }
   },
 };
 
@@ -163,7 +172,7 @@ export default {
 .reaction-table {
 
   m {
-    color: #64CC9A;
+    color: #3498db;
   }
 
   th, m, span.sc, .tag.link {

@@ -7,7 +7,9 @@
     </div>
     <div v-else>
       <div class="columns">
-        <p id="met-title" class="title is-1">Metabolite</p>
+        <div class="column">
+          <p id="met-title" class="title is-1">Metabolite</p>
+        </div>
       </div>
       <div class="columns metabolite-table">
         <div class="column is-10">
@@ -97,16 +99,14 @@ export default {
       mId: this.$route.params.id,
       mainTableKey: [
         { name: 'long_name', display: 'Name' },
-        { name: 'id', display: 'Identifier' },
-        { name: 'compartment' },
-        { name: 'organism' },
         { name: 'formula', modifier: chemicalFormula },
         { name: 'charge' },
-        { name: 'mass', modifier: this.reformatMass },
         { name: 'inchi' },
+        { name: 'compartment' },
+        { name: 'id', display: 'Model ID' },
         { name: 'kegg', modifier: this.reformatKeggLink },
         { name: 'chebi', modifier: this.reformatChebiLink },
-        { name: 'pubchem_link', modifier: this.reformatLink },
+        { name: 'pubchem_link', display: 'Pubchem', modifier: this.reformatLink },
       ],
       HMDBRAbleKey: [
         { name: 'hmdb_description', display: 'Description' },

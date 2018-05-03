@@ -212,7 +212,7 @@ export default {
 <style lang='scss'>
 
 $primary: #64CC9A;
-$link: #64CC9A;
+$link: #3498db;
 $warning: #FFC67D;
 $danger: #FF865C;
 

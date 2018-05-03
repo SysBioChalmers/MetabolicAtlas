@@ -7,18 +7,18 @@
   <div class="columns" v-else>
     <loader v-show="showLoader"></loader>
     <div class="reaction-table column is-10" v-show="!showLoader">
-      <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
+      <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
         <tr v-for="el in mainTableKey">
           <td v-if="el.display" class="td-key">{{ el.display }}</td>
           <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
           <td v-if="el.isComposite">
             <span v-html="el.modifier()"></span>
           </td>
-          <td v-else-if="info[el.name]">
-            <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+          <td v-else-if="reaction[el.name]">
+            <span v-if="el.modifier" v-html="el.modifier(reaction[el.name])">
             </span>
             <span v-else>
-              {{ info[el.name] }}
+              {{ reaction[el.name] }}
             </span>
           </td>
           <td v-else> - </td>
@@ -63,7 +63,7 @@ export default {
     return {
       rId: this.$route.params.id,
       mainTableKey: [
-        { name: 'id', display: 'Identifier' },
+        { name: 'id', display: 'Model ID' },
         // { name: 'name', display: 'Name', modifier: chemicalName },
         { name: 'equation', modifier: this.reformatEquation },
         { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
@@ -74,7 +74,7 @@ export default {
         { name: 'subsystem_str', display: 'Subsystem', modifier: this.reformatSubsystemList },
         { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
       ],
-      info: {},
+      reaction: {},
       pmids: [],
       errorMessage: '',
       showLoader: true,
@@ -95,7 +95,7 @@ export default {
       axios.get(`${this.model}/reactions/${this.rId}/`)
       .then((response) => {
         this.showLoader = false;
-        this.info = response.data.reaction;
+        this.reaction = response.data.reaction;
         this.pmids = response.data.pmids;
       })
       .catch(() => {
@@ -109,7 +109,7 @@ export default {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
     },
     reformatEquation(equation) {
-      return this.reformatChemicalReaction(equation, this.info);
+      return this.reformatChemicalReaction(equation, this.reaction);
     },
     reformatSBOLink(s, link) {
       if (link) {
@@ -157,27 +157,27 @@ export default {
     reformatQuant() {
       const data = [];
       for (const key of ['upper_bound', 'lower_bound', 'objective_coefficient']) {
-        if (this.info[key]) {
+        if (this.reaction[key]) {
           data.push(this.formatQuantFieldName(this.reformatKey(key)));
           if (key === 'objective_coefficient') {
-            data.push(this.reformatMass(this.info[key]));
+            data.push(this.reformatMass(this.reaction[key]));
           }
-          data.push(this.info[key]);
+          data.push(this.reaction[key]);
         }
         data.push('<span>&nbsp;&nbsp;</span>');
       }
       return data.join(' ');
     },
     reformatCompartment() {
-      const compartment = this.info.is_reversible ?
-       this.info.compartment.replace('=>', '&#8660;') : this.info.compartment.replace('=>', '&#8680;');
-      if (this.info.is_transport) {
+      const compartment = this.reaction.is_reversible ?
+       this.reaction.compartment.replace('=>', '&#8660;') : this.reaction.compartment.replace('=>', '&#8680;');
+      if (this.reaction.is_transport) {
         return `${compartment} (transport reaction)`;
       }
       return `${compartment}`;
     },
     reformatReversible() {
-      if (this.info.is_reversible) {
+      if (this.reaction.is_reversible) {
         return 'Yes';
       }
       return 'No';
@@ -210,9 +210,6 @@ export default {
     },
   },
   beforeMount() {
-    /* $('body').on('click', 'td m', function f() {
-      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
-    }); */
     $('body').on('click', 'a.e', function f() {
       EventBus.$emit('updateSelTab', 'enzyme', $(this).attr('name'));
     });

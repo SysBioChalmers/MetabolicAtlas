@@ -388,7 +388,6 @@ def get_reaction_components(database, sbml_model, sbml_species):
         components_in_db = ReactionComponent.objects.select_related('compartment').using(database).filter(id=species.id)
         if not components_in_db:
             component = ReactionComponent(id=species.id, long_name=species.name)
-            component.organism = ""        # FIXME get organism from model, remove the column organism
 
             # FIXME atm the component type is based on long name...
             if component.long_name.startswith("ENSG"):

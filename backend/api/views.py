@@ -251,7 +251,7 @@ def interaction_partner_list(request, model, id):
     for example E_1008).
     """
     try:
-        component = ReactionComponent.objects.using(model).get(id=id)
+        component = ReactionComponent.objects.using(model).get(Q(id=id) | Q(long_name=id))
     except ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -351,7 +351,7 @@ def connected_metabolites(request, model, id):
 
 
 @api_view()
-def get_metabolite_reactions(request, model, reaction_component_id):
+def get_metabolite_reactions(request, model, id):
     """
     In which reactions does a given metabolite occur,
     supply a metabolite id (for example M_m00003c).
@@ -359,15 +359,15 @@ def get_metabolite_reactions(request, model, reaction_component_id):
     only return the list of reactions for the given compartment (!),
     or alternatively in all compartments.
     """
-    component = ReactionComponent.objects.using(model).filter((Q(id=reaction_component_id) |
-                                                            Q(long_name=reaction_component_id)) &
+    component = ReactionComponent.objects.using(model).filter((Q(id=id) |
+                                                            Q(long_name=id)) &
                                                             Q(component_type='metabolite'))
 
     if component.count() == 0:
         try:
             component = ReactionComponent.objects.using(model).filter(
-                                                      (Q(id__icontains=reaction_component_id) |
-                                                       Q(long_name=reaction_component_id)) &
+                                                      (Q(id__icontains=id) |
+                                                       Q(long_name=id)) &
                                                        Q(component_type='metabolite')
                                                    )
         except ReactionComponent.DoesNotExist:
@@ -388,13 +388,13 @@ def get_metabolite_reactions(request, model, reaction_component_id):
 
 
 @api_view()
-def get_metabolite_reactome(request, reaction_component_id, reaction_id):
+def get_metabolite_reactome(request, id, reaction_id):
     """
     For a given reaction component, pull out all reactions in which it occurs,
     and then for these pull out all metabolites, supply an id, for example M_m00674c.
     """
     try:
-        component = ReactionComponent.objects.get(id=reaction_component_id)
+        component = ReactionComponent.objects.get(id=id)
         reaction = Reaction.objects.get(id=reaction_id)
     except ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)

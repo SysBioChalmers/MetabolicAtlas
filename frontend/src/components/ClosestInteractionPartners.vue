@@ -28,7 +28,7 @@
             <div class="dropdown" id="dropdownMenuExport">
               <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
-                @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
+                @click="showMenuExport=!showMenuExport" v-show="showNetworkGraph">
                   <span>Export graph</span>
                   <span class="icon is-small">
                     &#9663;
@@ -59,18 +59,18 @@
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click="viewReactionComponent('enzyme')">Show enzyme</span>
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
+<!--             <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
             <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span>
+            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span> -->
           </div>
           <div v-show="selectedElm && selectedElm.type === 'metabolite'">
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click="viewReactionComponent('metabolite')">Show metabolite</span>
             <span class="is-black sep is-paddingless"></span>
-            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
+<!--             <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
             <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span>
+            v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span> -->
           </div>
         </div>
         <div id="cip-graph">
@@ -459,10 +459,8 @@ export default {
           break;
         }
       }
-
       if (reactionId) {
         let eles = this.cy.collection();
-
         for (const rel of this.rels) {
           if (rel.reaction === reactionId) {
             const relationEle = this.cy.getElementById(rel.id);
@@ -475,7 +473,6 @@ export default {
             eles = eles.add(targetEle);
           }
         }
-
         const instance = this.cy.viewUtilities();
         instance.unhighlight(this.cy.elements());
         instance.highlight(eles);
@@ -596,7 +593,7 @@ export default {
 
       const updatePosition = (node) => {
         contextMenuGraph.style.left = `${node.renderedPosition().x + 15}px`;
-        contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenuGraph.style.top = `${node.renderedPosition().y + 130}px`;
       };
 
       const nodeInViewport = (node) => {
@@ -733,9 +730,9 @@ export default {
         }
       } else if (this.toggleMetaboliteExpLevel) {
         console.log(expSample);
-        // load expression data for metabolite
+        // load data for metabolite
       } else {
-        // disable expression lvl for metabolite
+        // disable lvl for metabolite
         this.nodeDisplayParams.metaboliteExpSource = false;
         this.nodeDisplayParams.metaboliteExpType = false;
         this.nodeDisplayParams.metaboliteExpSample = false;
