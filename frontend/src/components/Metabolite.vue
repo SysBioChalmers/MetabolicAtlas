@@ -7,12 +7,14 @@
     </div>
     <div v-else>
       <div class="columns">
-        <p id="met-title" class="title is-1">Metabolite</p>
+        <div class="column">
+          <p id="met-title" class="title is-1">Metabolite</p>
+        </div>
       </div>
       <div class="columns metabolite-table">
         <div class="column is-10">
           <div id="metabolite-table">
-            <table v-if="info && Object.keys(info).length != 0" class="table main-table">
+            <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
               <tr v-for="el in mainTableKey">
                 <td v-if="el.display" class="td-key">{{ el.display }}</td>
                 <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
@@ -36,7 +38,7 @@
             <div v-show="showHMDB">
               <br>
               <span class="subtitle">HMDB</span>
-              <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table">
+              <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table is-fullwidth">
                 <tr v-for="el in HMDBRAbleKey">
                   <td v-if="el.display" class="td-key">{{ el.display }}</td>
                   <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
@@ -62,11 +64,11 @@
         </div>
         <div class="column">
           <div class="box has-text-centered">
-            <div class="button is-medium is-info">
-              View on Metabolic Viewer
+            <div class="button is-info">
+              <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
             </div>
             <br><br>
-            <div class="button is-medium is-info"
+            <div class="button is-info"
               @click="viewInteractionPartners">
               View interaction partners
             </div>
@@ -97,16 +99,14 @@ export default {
       mId: this.$route.params.id,
       mainTableKey: [
         { name: 'long_name', display: 'Name' },
-        { name: 'id', display: 'Identifier' },
-        { name: 'compartment' },
-        { name: 'organism' },
         { name: 'formula', modifier: chemicalFormula },
         { name: 'charge' },
-        { name: 'mass', modifier: this.reformatMass },
         { name: 'inchi' },
+        { name: 'compartment' },
+        { name: 'id', display: 'Model ID' },
         { name: 'kegg', modifier: this.reformatKeggLink },
         { name: 'chebi', modifier: this.reformatChebiLink },
-        { name: 'pubchem_link', modifier: this.reformatLink },
+        { name: 'pubchem_link', display: 'Pubchem', modifier: this.reformatLink },
       ],
       HMDBRAbleKey: [
         { name: 'hmdb_description', display: 'Description' },

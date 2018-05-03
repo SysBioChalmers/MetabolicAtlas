@@ -1,17 +1,17 @@
 <template>
-  <div class="column is-8">
+  <div class="column is-6">
     <div class="control">
       <div v-if="!quickSearch">Search across all GEMs</div>
       <div id="input-wrapper">
         <p class="control has-icons-right">
         <input
           id="search"
-          class="input is-medium"
+          class="input"
           v-model="searchTermString"
           @input="searchDebounce"
           type="text"
           :placeholder="$t('searchPlaceholder')"
-          v-on:keyup.enter="validateSearch()"
+          v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
@@ -19,11 +19,12 @@
             Type at least 2 characters
           </span>
         </p>
+        <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered">
           <div class="tag">
-            Note: Results are restricted to the active GEM and limited to 50 per component - Hit Enter to get full results
+            Results are restricted to the active GEM and limited to 50 per component - Click <a @click="goToSearchPage">&nbsp;Here&nbsp;</a> to get full results
           </div>
         </div>
         <div v-if="searchResults" class="searchGroupResultSection"
@@ -291,6 +292,9 @@ export default {
       this.searchResults = [];
       EventBus.$emit('updateSelTab', type, id);
     },
+    advancedSearch() {
+      this.$router.push({ name: 'search' });
+    },
     viewOnMetabolicViewer(name, type) {
       if (type === 'compartment') {
         if (name === 'cytosol') {
@@ -354,7 +358,7 @@ export default {
 #searchResults {
   background: white;
   position: absolute;
-  top: 42px;
+  top: 37px;
   max-height: 22rem;
   overflow-y: auto;
   overflow-x: hidden;

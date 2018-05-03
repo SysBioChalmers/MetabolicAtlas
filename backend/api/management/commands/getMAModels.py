@@ -483,12 +483,12 @@ def insert_gems(model_set_data, model_data_list):
         gem_reference = model_dict.pop('reference')
         list_gem_reference = []
         if isinstance(gem_reference, list):
-            print ("gem_reference %s" % gem_reference)
+            # print ("gem_reference %s" % gem_reference)
             for gem_reference in gem_reference:
                 try:
                     gr = GEModelReference.objects.get(Q(link=gem_reference['link']) &
                                                   Q(pubmed=gem_reference['pubmed']))
-                    print ("current Gem ref year %s " % gr.year)
+                    # print ("current Gem ref year %s " % gr.year)
                     # print ("gr1 %s" % gr)
                 except GEModelReference.DoesNotExist:
                     gr = GEModelReference(**gem_reference)
@@ -502,10 +502,6 @@ def insert_gems(model_set_data, model_data_list):
             list_gem_reference.append(set_references[0])
         else:
             # if no reference for model and no (or multiple reference for set)
-            print ('+++++++++++')
-            print (model_dict)
-            print (gem_reference)
-            exit()
             gem_reference = None
             print ("current Gem ref year None")
 
@@ -534,7 +530,7 @@ def insert_gems(model_set_data, model_data_list):
             # print ("g1 %s" % g)
         except GEModel.DoesNotExist:
             g = GEModel(gemodelset=gg, sample=gs, **model_dict)
-            print (model_dict)
+            # print (model_dict)
             g.save()
             g.ref.add(*list_gem_reference)
             # print ("g2 %s" % g)
@@ -558,7 +554,7 @@ def start_parsing():
     # dir_path = "/project/model_files/biomet-toolbox-cere/"
     # dir_path = "/project/model_files/biomet-toolbox-bacteria/"
 
-    dir_path = "/project/"
+    dir_path = "/project/model_files"
 
     if not os.path.exists(dir_path):
         print ("Error: path %s not found" % dir_path)
@@ -577,15 +573,15 @@ def start_parsing():
             exit()
         global_dict, model_set_data = parse_info_file(info_file)
 
-        print ("global_dict %s" % global_dict)
-        print ("model_set_data %s" % model_set_data)
+        # print ("global_dict %s" % global_dict)
+        # print ("model_set_data %s" % model_set_data)
 
         results = read_gems_data_file(parse_data_file, global_dict=global_dict)
-        print (results)
+        # print (results)
         model_data_list = build_ftp_path_and_dl(results, '/project/model_files/FTP', model_set_data, root_path, model_set_data, global_dict)
 
-        for el in model_data_list:
-            print (el)
+        # for el in model_data_list:
+        #    print (el)
         insert_gems(model_set_data, model_data_list)
 
 

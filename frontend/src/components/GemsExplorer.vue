@@ -6,9 +6,9 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column is-2">
-        <div class="button is-medium is-info" v-if="selectedType" @click="showNetworkGraph()">
-          {{ $t('metabolicViewer') }}
+      <div class="column is-3">
+        <div class="button is-info" v-if="selectedType" @click="showNetworkGraph()">
+        <p><i class="fa fa-map"></i> {{ $t('metabolicViewer') }}</p>
         </div>
       </div>
       <global-search
@@ -25,6 +25,22 @@
       <metabolite v-if="selectedType==='metabolite'" :model="selectedModel"></metabolite>
       <reaction v-if="selectedType==='reaction'" :model="selectedModel"></reaction>
       <subsystem v-if="selectedType==='subsystem'" :model="selectedModel"></subsystem>
+      <template v-if="selectedType===''">
+        <div class="columns">
+          <div class="column">
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column has-text-centered">
+            <span class="title is-4">Or visualize networks with the MetabolicViewer</span> 
+             <div class="has-text-centered">
+              <a @click="showNetworkGraph">
+                <img width="500" :src="imgUrl('./metabolicViewer-600.jpg')" style="border: 1px solid black" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -37,7 +53,6 @@ import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
 import Reaction from 'components/Reaction';
 import Subsystem from 'components/Subsystem';
-// import router from '../router';
 import { default as EventBus } from '../event-bus';
 
 export default {
@@ -67,6 +82,7 @@ export default {
     },
   },
   beforeMount() {
+    this.dBImageSources = require.context('../assets', false, /\.(png|gif|jpg)$/);
     this.setup();
   },
   created() {
@@ -112,6 +128,12 @@ export default {
     },
     showNetworkGraph() {
       EventBus.$emit('toggleNetworkGraph');
+    },
+    showWholeMap() {
+      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+    },
+    imgUrl(path) {
+      return this.dBImageSources(path);
     },
   },
 };

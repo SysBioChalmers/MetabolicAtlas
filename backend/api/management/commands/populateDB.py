@@ -49,6 +49,7 @@ exec(open(os.path.join(sys.path[0], "../", "database_generation", "addEnzymes.py
 # where are the data located?
 baseFolder=os.path.join(sys.path[0], "../", "database_generation", "data/")'''
 
+
 def _getEnsemblArchiveURL(v):
     if v==89:
         return 'http://May2017.archive.ensembl.org/'
@@ -84,15 +85,6 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
 
     currency_mets_file = os.path.join(db_generation_files_dir, 'human_currencyMets.csv')
     mass_calculation_file = os.path.join(db_generation_files_dir, 'human_massCalc.txt')
-    # HMDB_masses_file = os.path.join(db_generation_files_dir, 'hmdb_masses.csv') // now in HMDB_file
-    # is hmdb_masses.csv = hmdb.tab?
-
-    # generate using parse_HMDB.py and downloaded from http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip (v4.0)
-    HMDB_file = os.path.join(ressource_files_dir, 'HMDB.tab')
-    # downloaded from ftp://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/ and used in using pubchem.py
-    pubchem_file = os.path.join(large_ressource_files_dir, 'CID-Synonym-filtered')
-    # downloaded from http://www.lipidmaps.org/resources/downloads/index.html and used in using lipidmaps.py
-
 
     metabolite_excel_file = os.path.join(db_generation_files_dir, 'human_metaboliteListFromExcel.txt')
     reaction_excel_file = os.path.join(db_generation_files_dir, 'human_reactionsFromExcel.txt')
@@ -111,7 +103,7 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
 
     required_files = [
        HMRdatabase2_00_xml_file, ensembl_annotation_file,
-       currency_mets_file, mass_calculation_file, HMDB_file,
+       currency_mets_file, mass_calculation_file,
        metabolite_excel_file, reaction_excel_file,
        uniprot_keyword_file, uniprot_EC_file, uniprot_function_file,
        uniprot_catactivity_file, uniprot_names_file, uniprot_DB_crossref_file,
@@ -146,18 +138,8 @@ def populate_human_db(database, ensembl_version, skip_first_reaction=0, skip_fir
 
     # addMetabolites
     logger.info("Add annotations for the metabolites")
-    # masses = addMetabolites.readMassCalcFile(mass_calculation_file) // masses are in HMDB_file
-    # hmdb = addMetabolites.readHMDBFile(HMDB_masses_file) // file missing 
-    hmdb_data = parse_HMDB.parse_HMDB_tab(HMDB_file, synonyms_as_dict=True, chebi_as_dict=True, pubchem_as_dict=True)
-    pubchem_db_dfile = os.path.join(large_ressource_files_dir, 'pubchem.db')
-    if False and not os.path.isfile(pubchem_db_dfile):
-         #  its not used in HMR2.0
-        import pubchem
-        pubchem_file = os.path.join(large_ressource_files_dir, 'CID-Synonym-filtered')
-        _checkIfFileExists([pubchem_file])
-        pubchem.generate_pubchem_db(pubchem_file)
     # lipidmaps_data = ... skip lipdsmaps data, its not used in HMR2.0
-    addMetabolites.metaboliteDefinitions(database, metabolite_excel_file, hmdb_data, pubchem_db_dfile, None, skip_first_metabolite=skip_first_metabolite)
+    addMetabolites.metaboliteDefinitions(database, metabolite_excel_file, skip_first_metabolite=skip_first_metabolite)
 
     # addReactionComponentAnnotation
     logger.info("Add 'mappings' between identifiers")
@@ -250,7 +232,6 @@ def insert_reaction_reference(database, reaction_excel_file):
                 exit(1)
 
             for pmid in r:
-                int(el) # test all PMID string
                 rr = ReactionReference.objects.using(database).filter(reaction=reaction[0], pmid=pmid)
                 if not rr:
                     rr = ReactionReference(reaction=reaction[0], pmid=pmid)
@@ -276,9 +257,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         database = options['database']
-        if database == "human":
+        if database.startswith("hmr"):
             populate_human_db(database, options['ensembl_version'], skip_first_reaction=options['skip_first_reaction'],
              skip_first_metabolite=options['skip_first_metabolite'])
-        elif database == "yeast":
+        elif database.startswith("ymr"):
             populate_yeast_db(database)
 

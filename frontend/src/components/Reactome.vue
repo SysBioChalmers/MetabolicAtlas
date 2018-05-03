@@ -1,5 +1,5 @@
 <template>
-  <div class="reactome">
+  <div class="reactome column">
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
       <div v-show="false" id="diagram"></div>

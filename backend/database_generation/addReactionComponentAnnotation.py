@@ -66,6 +66,7 @@ def addReactionComponentAnnotation(database, idType, idCol, annType, annFile, an
                     else:
                         print("Multiple rc found for "+name)
         # temp = []
+        print ("saving annotations...")
         for a in annotationsToAdd:
             # temp.append(annotationsToAdd[a])
             annotationsToAdd[a].save(using=database)

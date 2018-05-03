@@ -3,20 +3,6 @@ from api.models import *
 
 import logging
 
-class GEMSerializer(serializers.ModelSerializer):
-    authors = serializers.StringRelatedField(many=True)
-
-    class Meta:
-        model = GEM
-        fields = ('id', 'short_name', 'name', 'authors')
-
-class AuthorSerializer(serializers.ModelSerializer):
-    models = serializers.StringRelatedField(many=True)
-
-    class Meta:
-        model = Author
-        fields = ('id', 'given_name', 'family_name', 'email', 'organization', 'models')
-
 class MetaboliteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metabolite
@@ -187,6 +173,7 @@ class CompartmentSvgSerializer(serializers.ModelSerializer):
 # =======================================================================================
 # models database
 
+
 class GEModelFileSerializer(serializers.ModelSerializer):
     path = serializers.SerializerMethodField('get_file_path')
     class Meta:
@@ -248,6 +235,41 @@ class GEModelListSerializer(serializers.ModelSerializer):
     class Meta:
         model = GEModel
         fields = ('id','set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ('id', 'given_name', 'family_name', 'email', 'organization')
+
+
+class GEMListSerializer(serializers.ModelSerializer):
+    authors = AuthorSerializer(many=True)
+    metabolite_count = serializers.SerializerMethodField('get_meta_count')
+    enzyme_count = serializers.SerializerMethodField('get_enz_count')
+    reaction_count = serializers.SerializerMethodField('get_react_count')
+
+    class Meta:
+        model = GEM
+        fields = ('id', 'short_name', 'name', 'database_name', 'authors', 'metabolite_count', 'enzyme_count', 'reaction_count')
+
+    def get_meta_count(self, model):
+        return model.model.metabolite_count
+
+    def get_enz_count(self, model):
+        return model.model.enzyme_count
+
+    def get_react_count(self, model):
+        return model.model.reaction_count
+
+
+class GEMSerializer(serializers.ModelSerializer):
+    authors = AuthorSerializer(many=True)
+    model = GEModelSerializer(read_only=True)
+
+    class Meta:
+        model = GEM
+        fields = ('id', 'short_name', 'name', 'database_name', 'authors', 'model')
 
 
 # =======================================================================================
