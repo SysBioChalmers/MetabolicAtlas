@@ -21,7 +21,7 @@
         <div class="column">
           <div class="columns">
             <div id="enzyme-details" class="reaction-table column is-10">
-              <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table">
+              <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table is-fullwidth">
                 <tr v-for="el in detailTableKey">
                   <td v-if="el.display" class="td-key">{{ el.display }}</td>
                   <td v-if="enzyme[el.name]">
@@ -37,11 +37,11 @@
             </div>
             <div class="column">
               <div class="box has-text-centered">
-                <div class="button is-medium is-info">
-                  View on Metabolic Viewer
+                <div class="button is-info">
+                  <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
                 </div>
                 <br><br>
-                <div class="button is-medium is-info"
+                <div class="button is-info"
                   @click="viewInteractionPartners">
                   View interaction partners
                 </div>
@@ -101,12 +101,11 @@ export default {
         { field: 'compartment', colName: 'Compartment', modifier: null },
       ],
       detailTableKey: [
-        { name: 'enzymeName', display: 'Name' },
-        { name: 'id', display: 'Identifier' },
+        { name: 'enzymeName', display: 'Gene Name' },
         { name: 'function', display: 'Function' },
-        { name: 'long_name', display: 'Ensembl ID', modifier: this.reformatEnsblLink },
-        { name: 'formula', display: 'Formula' },
         { name: 'compartment', display: 'Compartment' },
+        { name: 'id', display: 'Model ID' },
+        { name: 'long_name', display: 'Ensembl ID', modifier: this.reformatEnsblLink },
         { name: 'uniprot_acc', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
         { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBIlink },
       ],

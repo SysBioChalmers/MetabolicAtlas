@@ -19,7 +19,7 @@ import re
 # add cross check with CHEBI database
 # add cross check with lipidMaps if ..
 # get and check Kegg ID from pubchem synonym 
-def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_data, skip_first_metabolite=0):
+def metaboliteDefinitions(database, fileName, skip_first_metabolite=0):
 
     def match(expr, item):
         return re.match(expr, item) is not None
@@ -39,8 +39,9 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
     with open(fileName, "r") as f:
         reader = csv.reader(f, delimiter='\t')
         next(f) # skip the header
-        HMDB_dict, HMDB_secondary_dict, HMDB_name_dict, HMDB_iupac_name_dict, HMDB_synonyms_dict, \
-         HMDB_chebi_dict, HMDB_pubchem_dict = hmdb_data
+        HMDB_dict = None
+        '''HMDB_dict, HMDB_secondary_dict, HMDB_name_dict, HMDB_iupac_name_dict, HMDB_synonyms_dict, \
+         HMDB_chebi_dict, HMDB_pubchem_dict = hmdb_data'''
         '''LIPIDMAPS_dict, LIPIDMAPS_name_dict, LIPIDMAPS_systematic_name_dict, \
          LIPIDMAPS_synonyms_dict, LIPIDMAPS_chebi_dict, LIPIDMAPS_pubchem_dict, \
          LIPIDMAPS_hmdb_dict = lipidmaps_data'''
@@ -289,7 +290,7 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
                 prev_name = rc_name
 
             if hmdb_id:
-                if hmdb_id not in HMDB_dict:
+                if HMDB_dict and hmdb_id not in HMDB_dict:
                     if hmdb_id.lower() in HMDB_synonyms_dict:
                         # print("Warning: ID '%s' found in sec accession/synonym dict as %s" % (hmdb_id, HMDB_synonyms_dict[hmdb_id]))
                         hmdb_id = HMDB_synonyms_dict[hmdb_id.lower()]
@@ -315,7 +316,7 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
                 if hmdb_id:
                     hmdb_link = "http://www.hmdb.ca/metabolites/%s" % hmdb_id
 
-                if hmdb_id and hmdb_id in HMDB_dict:
+                if HMDB_dict and hmdb_id and hmdb_id in HMDB_dict:
                     current = HMDB_dict[hmdb_id]
                     hmdb_name = current["name"]
                     hmdb_desc = current["description"]
@@ -390,13 +391,13 @@ def metaboliteDefinitions(database, fileName, hmdb_data, pubchem_db, lipidmaps_d
             # print (row[1], rc_name, correct_name, hmdb_id, kegg, chebi, pubchem_id, inchi[:10] if inchi else inchi, formula)
             # exit(1)
 
-            # FIXME Remove the 'charge' field in the model, not used
             m = Metabolite(reaction_component=reaction_component, hmdb=hmdb_id,
                 formula=formula, mass=mass, mass_avg=avg_mass, kegg=kegg,
                 chebi=chebi, inchi=inchi, bigg=bigg,
                 hmdb_link=hmdb_link, pubchem_link=pubchem_link,
                 hmdb_name=hmdb_name, hmdb_description=hmdb_desc,
                 hmdb_function=hmdb_function)
+
             m.save(using=database)
 
             # check formula
