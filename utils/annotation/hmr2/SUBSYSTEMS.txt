@@ -1,0 +1,128 @@
+# the subsystem's name is the ID in the database
+@ID	system	external_id	external_link	description
+Acyl-CoA hydrolysis	Other	external_id	external_link.com	sub description
+Acylglycerides metabolism	Other metabolism	external_id	external_link.com	sub description
+Alanine, aspartate and glutamate metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Amino sugar and nucleotide sugar metabolism	Other metabolism	external_id	external_link.com	sub description
+Aminoacyl-tRNA biosynthesis	Other	external_id	external_link.com	sub description
+Androgen metabolism	Other metabolism	external_id	external_link.com	sub description
+Arachidonic acid metabolism	Other metabolism	external_id	external_link.com	sub description
+Arginine and proline metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Ascorbate and aldarate metabolism	Other metabolism	external_id	external_link.com	sub description
+beta-Alanine metabolism	Other metabolism	external_id	external_link.com	sub description
+Beta oxidation of branched-chain fatty acids	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of di-unsaturated fatty acids (n-6)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of even-chain fatty acids	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of odd-chain fatty acids	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of phytanic acid	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of poly-unsaturated fatty acids	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of unsaturated fatty acids (n-7)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of unsaturated fatty acids (n-9)	Fatty acid	external_id	external_link.com	sub description
+Bile acid biosynthesis	Other	external_id	external_link.com	sub description
+Bile acid recycling	Other	external_id	external_link.com	sub description
+Biopterin metabolism	Other metabolism	external_id	external_link.com	sub description
+Biotin metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Blood group biosynthesis	Other	external_id	external_link.com	sub description
+Butanoate metabolism	Other metabolism	external_id	external_link.com	sub description
+C5-branched dibasic acid metabolism	Other metabolism	external_id	external_link.com	sub description
+Carnitine shuttle	Carnitine shuttle	external_id	external_link.com	sub description
+Cholesterol biosynthesis 1 (Bloch pathway)	Cholesterol biosynthesis	external_id	external_link.com	sub description
+Cholesterol biosynthesis 2	Cholesterol biosynthesis	external_id	external_link.com	sub description
+Cholesterol biosynthesis 3  (Kandustch-Russell pathway)	Cholesterol biosynthesis	external_id	external_link.com	sub description
+Cholesterol metabolism	Other metabolism	external_id	external_link.com	sub description
+Chondroitin / heparan sulfate biosynthesis	Other	external_id	external_link.com	sub description
+Chondroitin sulfate degradation	Other	external_id	external_link.com	sub description
+Cysteine and methionine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Eicosanoid metabolism	Other metabolism	external_id	external_link.com	sub description
+Estrogen metabolism	Other metabolism	external_id	external_link.com	sub description
+Ether lipid metabolism	Other metabolism	external_id	external_link.com	sub description
+Exchange reactions	Other	external_id	external_link.com	sub description
+Fatty acid activation	Fatty acid	external_id	external_link.com	sub description
+Fatty acid biosynthesis (even-chain)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid biosynthesis (odd-chain)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid biosynthesis (unsaturated)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid desaturation (even-chain)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid desaturation (odd-chain)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid elongation (even-chain)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid elongation (odd-chain)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid transfer reactions	Fatty acid	external_id	external_link.com	sub description
+Folate metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Formation and hydrolysis of cholesterol esters	Other	external_id	external_link.com	sub description
+Fructose and mannose metabolism	Other metabolism	external_id	external_link.com	sub description
+Galactose metabolism	Other metabolism	external_id	external_link.com	sub description
+Glucocorticoid biosynthesis	Other	external_id	external_link.com	sub description
+Glutathione metabolism	Other metabolism	external_id	external_link.com	sub description
+Glycerolipid metabolism	Other metabolism	external_id	external_link.com	sub description
+Glycerophospholipid metabolism	Other metabolism	external_id	external_link.com	sub description
+Glycine, serine and threonine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Glycolysis / Gluconeogenesis	Other	external_id	external_link.com	sub description
+Glycosphingolipid biosynthesis-ganglio series	Glycosphingolipid biosynthesis/metabolism	external_id	external_link.com	sub description
+Glycosphingolipid biosynthesis-globo series	Glycosphingolipid biosynthesis/metabolism	external_id	external_link.com	sub description
+Glycosphingolipid biosynthesis-lacto and neolacto series	Glycosphingolipid biosynthesis/metabolism	external_id	external_link.com	sub description
+Glycosphingolipid metabolism	Glycosphingolipid biosynthesis/metabolism	external_id	external_link.com	sub description
+Glycosylphosphatidylinositol (GPI)-anchor biosynthesis	Other	external_id	external_link.com	sub description
+Heparan sulfate degradation	Other	external_id	external_link.com	sub description
+Histidine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Inositol phosphate metabolism	Other metabolism	external_id	external_link.com	sub description
+Keratan sulfate biosynthesis	Other	external_id	external_link.com	sub description
+Keratan sulfate degradation	Other	external_id	external_link.com	sub description
+Leukotriene metabolism	Other metabolism	external_id	external_link.com	sub description
+Linoleate metabolism	Other metabolism	external_id	external_link.com	sub description
+Lipoic acid metabolism	Other metabolism	external_id	external_link.com	sub description
+Lysine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Metabolism of xenobiotics by cytochrome P450	Other	external_id	external_link.com	sub description
+N-glycan metabolism	Other metabolism	external_id	external_link.com	sub description
+Nicotinate and nicotinamide metabolism	Other metabolism	external_id	external_link.com	sub description
+Nitrogen metabolism	Other metabolism	external_id	external_link.com	sub description
+Nucleotide metabolism	Other metabolism	external_id	external_link.com	sub description
+O-glycan metabolism	Other metabolism	external_id	external_link.com	sub description
+Omega-3 fatty acid metabolism	Other metabolism	external_id	external_link.com	sub description
+Omega-6 fatty acid metabolism	Other metabolism	external_id	external_link.com	sub description
+Oxidative phosphorylation	Other	external_id	external_link.com	sub description
+Pantothenate and CoA biosynthesis	Other	external_id	external_link.com	sub description
+Pentose and glucuronate interconversions	Other	external_id	external_link.com	sub description
+Pentose phosphate pathway	Other	external_id	external_link.com	sub description
+Phenylalanine, tyrosine and tryptophan biosynthesis	Other	external_id	external_link.com	sub description
+Porphyrin metabolism	Other metabolism	external_id	external_link.com	sub description
+Propanoate metabolism	Other metabolism	external_id	external_link.com	sub description
+prostaglandin biosynthesis	Other	external_id	external_link.com	sub description
+Protein assembly	Other	external_id	external_link.com	sub description
+Protein degradation	Other	external_id	external_link.com	sub description
+Protein modification	Other	external_id	external_link.com	sub description
+Purine metabolism	Other metabolism	external_id	external_link.com	sub description
+Pyrimidine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Pyruvate metabolism	Other metabolism	external_id	external_link.com	sub description
+ROS detoxification	Other	external_id	external_link.com	sub description
+Retinol metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Riboflavin metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Serotonin and melatonin biosynthesis	Other	external_id	external_link.com	sub description
+Sphingolipid metabolism	Other metabolism	external_id	external_link.com	sub description
+Starch and sucrose metabolism	Other metabolism	external_id	external_link.com	sub description
+Steroid metabolism	Other metabolism	external_id	external_link.com	sub description
+Sulfur metabolism	Other metabolism	external_id	external_link.com	sub description
+Terpenoid backbone biosynthesis	Other	external_id	external_link.com	sub description
+Thiamine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism	Other metabolism	external_id	external_link.com	sub description
+Tryptophan metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Tyrosine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Valine, leucine, and isoleucine metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
+Vitamin B12 metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Vitamin B6 metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Vitamin D metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Vitamin E metabolism	Vitamin metabolism	external_id	external_link.com	sub description
+Artificial reactions	Collection of reactions	external_id	external_link.com	sub description
+Isolated	Collection of reactions	external_id	external_link.com	sub description
+Miscellaneous	Collection of reactions	external_id	external_link.com	sub description
+Other amino acid	Collection of reactions	external_id	external_link.com	sub description
+Pool reactions	Collection of reactions	external_id	external_link.com	sub description
+Transport, Golgi apparatus	Collection of reactions	external_id	external_link.com	sub description
+Transport, Golgi to extracellular	Collection of reactions	external_id	external_link.com	sub description
+Transport, Golgi to lysosome	Collection of reactions	external_id	external_link.com	sub description
+Transport, endoplasmic reticular	Collection of reactions	external_id	external_link.com	sub description
+Transport, extracellular	Collection of reactions	external_id	external_link.com	sub description
+Transport, lysosomal	Collection of reactions	external_id	external_link.com	sub description
+Transport, lysosome to ER	Collection of reactions	external_id	external_link.com	sub description
+Transport, lysosome to cytosol	Collection of reactions	external_id	external_link.com	sub description
+Transport, mitochondrial	Collection of reactions	external_id	external_link.com	sub description
+Transport, nuclear	Collection of reactions	external_id	external_link.com	sub description
+Transport, peroxisomal	Collection of reactions	external_id	external_link.com	sub description
