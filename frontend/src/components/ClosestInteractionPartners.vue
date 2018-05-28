@@ -54,7 +54,9 @@
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span v-show="!expandedIds.includes(selectedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
-          <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
+          <div v-show="selectedElm && selectedElmId !== id">
+            <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
+          </div>
           <div v-show="selectedElm && selectedElm.type === 'enzyme'">
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click="viewReactionComponent('enzyme')">Show enzyme</span>
@@ -166,7 +168,7 @@
         </div>
         <div id="cip-table">
           <cytoscape-table
-            :structure="tableStructure"
+            :structure="tableStructure[model]"
             :elms="elms"
             :selected-elm-id="selectedElmId"
             :filename="filename"
@@ -195,8 +197,8 @@ import Loader from 'components/Loader';
 
 import { default as EventBus } from '../event-bus';
 
-import { default as transform } from '../data-mappers/closest-interaction-partners';
-import { default as graph } from '../graph-stylers/closest-interaction-partners';
+import { default as transform } from '../data-mappers/hmr-closest-interaction-partners';
+import { default as graph } from '../graph-stylers/hmr-closest-interaction-partners';
 
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
@@ -247,13 +249,14 @@ export default {
       },
 
       cy: null,
-      tableStructure: [
-        { field: 'type', colName: 'Type', modifier: false },
-        { field: 'short', colName: 'Short name', modifier: false, rc: 'type' },
-        { field: 'long', colName: 'Long name', modifier: chemicalName },
-        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
-        { field: 'compartment', colName: 'Compartment', modifier: false },
-      ],
+      tableStructure: {
+        hmr2: [
+          { field: 'type', colName: 'Type' },
+          { field: 'name', colName: 'Name' },
+          { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+          { field: 'compartment', colName: 'Compartment' },
+        ],
+      },
 
       showMenuExport: false,
       showMenuExpression: false,
@@ -318,7 +321,6 @@ export default {
           a: 1,
         },
       },
-
       maxZoom: 10,
       minZoom: 0.1,
       factorZoom: 0.08,
@@ -363,17 +365,21 @@ export default {
           const component = response.data.component;
           const reactions = response.data.reactions;
 
-          this.componentName = component.short_name || component.long_name;
+          this.componentName = component.name || component.gene_name || component.id;
+          console.log(this.componentName);
           this.id = component.id;
-          if (component.enzyme) {
-            const uniprotId = component.enzyme ? component.enzyme.uniprot_acc : null;
-            this.title = `${this.chemicalName(this.componentName)}
-              (<a href="http://www.uniprot.org/uniprot/${uniprotId}" target="_blank">${uniprotId}</a>)`;
+          if ('gene_name' in component) {
+            this.title = `${this.chemicalName(this.componentName)}`;
+            if (component.uniprot != null) {
+              this.title = `${this.title} (<a href="${component.uniprot_link}" target="_blank">${component.uniprot}</a>)`;
+            }
+            component.type = 'enzyme';
           } else {
             this.title = `${this.chemicalName(this.componentName)}`;
+            component.type = 'metabolite';
           }
 
-          [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
+          [this.rawElms, this.rawRels] = transform(component, reactions);
           this.selectedElm = this.rawElms[component.id];
           this.selectedElm.name = this.componentName;
 

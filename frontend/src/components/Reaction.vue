@@ -8,14 +8,14 @@
     <loader v-show="showLoader"></loader>
     <div class="reaction-table column is-10" v-show="!showLoader">
       <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
-        <tr v-for="el in mainTableKey">
-          <td v-if="el.display" class="td-key">{{ el.display }}</td>
+        <tr v-for="el in mainTableKey[model]">
+          <td v-if="'display' in el" class="td-key">{{ el.display }}</td>
           <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
-          <td v-if="el.isComposite">
+          <td v-if="'isComposite' in el">
             <span v-html="el.modifier()"></span>
           </td>
           <td v-else-if="reaction[el.name]">
-            <span v-if="el.modifier" v-html="el.modifier(reaction[el.name])">
+            <span v-if="'modifier' in el" v-html="el.modifier(reaction[el.name])">
             </span>
             <span v-else>
               {{ reaction[el.name] }}
@@ -62,18 +62,19 @@ export default {
   data() {
     return {
       rId: this.$route.params.id,
-      mainTableKey: [
-        { name: 'id', display: 'Model ID' },
-        // { name: 'name', display: 'Name', modifier: chemicalName },
-        { name: 'equation', modifier: this.reformatEquation },
-        { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
-        { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
-        { name: 'modifiers', modifier: this.reformatModifiers },
-        { name: 'ec', display: 'EC', modifier: this.reformatECLink },
-        { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
-        { name: 'subsystem_str', display: 'Subsystem', modifier: this.reformatSubsystemList },
-        { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
-      ],
+      mainTableKey: {
+        hmr2: [
+          { name: 'id', display: 'Model ID' },
+          { name: 'equation', modifier: this.reformatEquation },
+          { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
+          { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
+          { name: 'gene_rule', isComposite: true, display: 'Enzymes', modifier: this.reformatModifiers },
+          { name: 'ec', display: 'EC', modifier: this.reformatECLink },
+          { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
+          { name: 'subsystem', display: 'Subsystem', modifier: this.reformatSubsystemList },
+          { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
+        ],
+      },
       reaction: {},
       pmids: [],
       errorMessage: '',
@@ -108,8 +109,8 @@ export default {
     reformatKey(k) {
       return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
     },
-    reformatEquation(equation) {
-      return this.reformatChemicalReaction(equation, this.reaction);
+    reformatEquation() {
+      return this.reformatChemicalReaction(this.reaction);
     },
     reformatSBOLink(s, link) {
       if (link) {
@@ -132,14 +133,27 @@ export default {
     reformatMass(s) {
       return `${s} g/mol`;
     },
-    reformatModifiers(mods) {
-      const html = [];
-      html.push('<div class="tags">');
-      for (const mod of mods) {
-        html.push(`<span class="tag"><a class="e" name="${mod.id}">${mod.short_name}</a></span>`);
+    reformatModifiers() {
+      let newGRnameArr = null;
+      if (this.reaction.name_gene_rule) {
+        newGRnameArr = this.reaction.name_gene_rule.split(/ and | or /).map(
+        e => e.replace(/^\(+|\)+$/g, '')
+        );
       }
-      html.push('</div>');
-      return html.join(' ');
+      let newGR = this.reaction.gene_rule;
+      const newGRArr = newGR.split(/ and | or /).map(
+        e => e.replace(/^\(+|\)+$/g, '')
+        );
+      for (let i = 0, l = newGRArr.length; i < l; i += 1) {
+        let e;
+        if (newGRnameArr) {
+          e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRnameArr[i]}</a></span>`;
+        } else {
+          e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRArr[i]}</a></span>`;
+        }
+        newGR = newGR.replace(newGRArr[i], e);
+      }
+      return newGR;
     },
     reformatSubsystemList(substr) {
       // return l.join('; ');
@@ -182,10 +196,6 @@ export default {
       }
       return 'No';
     },
-    chemicalFormula,
-    chemicalName,
-    chemicalNameExternalLink,
-    reformatChemicalReaction,
     reformatRefs(refs) {
       const outrefs = [];
       for (const key of Object.keys(refs)) {
@@ -208,6 +218,10 @@ export default {
       }
       return outrefs;
     },
+    chemicalFormula,
+    chemicalName,
+    chemicalNameExternalLink,
+    reformatChemicalReaction,
   },
   beforeMount() {
     $('body').on('click', 'a.e', function f() {

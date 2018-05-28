@@ -70,7 +70,7 @@
     </div>
     <div class="hero-body">
       <div class="container">
-        <router-view></router-view>
+        <router-view :selectedModel="selectedModel"></router-view>
       </div>
     </div>
     <div class="hero-foot">
@@ -118,7 +118,7 @@ export default {
   data() {
     return {
       Logo,
-      models: { hmr2: { short_name: '' } },
+      models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
       menuItems: [
         this.$t('navBut1Title'),
         this.$t('navBut2Title'),

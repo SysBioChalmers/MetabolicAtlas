@@ -45,14 +45,10 @@
             <tr
               v-for="elm in matchingElms"
               :class="[{ 'highlight': isSelected(elm.id) }, '']"
-              @click="highlight(elm.id)"
-            >
-              <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
-              <td v-else-if="s.rc">
-                <a @click="viewReactionComponent(
-                  elm[s.rc] ? elm[s.rc] : s.rc, 
-                  getRCID(s, elm))">{{ elm[s.field] }}
-                </a>
+              @click="highlight(elm.id)">
+              <td v-for="s in structure" v-if="'modifier' in s" v-html="applyModifier(s, elm)"></td>
+              <td v-else-if="s.field === 'name'">
+                <a @click="viewReactionComponent(elm['type'], elm.id)">{{ elm[s.field] }}</a>
               </td>
               <td v-else>{{ elm[s.field] }}</td>
             </tr>
@@ -61,14 +57,10 @@
             <tr
               v-for="elm in unMatchingElms"
               :class="[{ 'highlight': isSelected(elm.id) }, '']"
-              @click="highlight(elm.id)"
-            >
-              <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
-              <td v-else-if="s.rc">
-                <a @click="viewReactionComponent(
-                  elm[s.rc] ? elm[s.rc] : s.rc, 
-                  getRCID(s, elm))">{{ elm[s.field] }}
-                </a>
+              @click="highlight(elm.id)">
+              <td v-for="s in structure" v-if="'modifier' in s" v-html="applyModifier(s, elm)"></td>
+              <td v-else-if="s.field === 'name'">
+                <a @click="viewReactionComponent(elm['type'], elm.id)">{{ elm[s.field] }}</a>
               </td>
               <td v-else>{{ elm[s.field] }}</td>
             </tr>
@@ -117,7 +109,7 @@ export default {
       return this.elms.filter(el => el.type === 'enzyme').length;
     },
     metaboliteCount() {
-      return this.elms.filter(el => el.type === 'metabolite').length;
+      return this.elms.filter(el => el.type !== 'enzyme').length;
     },
     reactionCount() {
       const countReation = {};
@@ -131,19 +123,9 @@ export default {
   },
   methods: {
     applyModifier(s, elm) {
+      console.log(s);
+      console.log(elm);
       return s.modifier(elm[s.field], elm.link);
-    },
-    getRCID(s, elm) {
-      let id;
-      if (s.id) {
-        id = s.id;
-        if (s.id === 'self') {
-          id = elm[s.field];
-        }
-      } else {
-        id = elm.id || elm.real_id;
-      }
-      return id;
     },
     viewReactionComponent(type, id) {
       EventBus.$emit('updateSelTab', type, id);

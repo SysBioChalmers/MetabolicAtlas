@@ -253,14 +253,6 @@ export default {
             html: true,
           },
           {
-            label: 'Ensembl ID',
-            field: 'ensembl',
-            filterOptions: {
-              enabled: true,
-            },
-            sortable: true,
-          },
-          {
             label: 'Uniprot ID',
             field: 'uniprot',
             filterOptions: {
@@ -385,6 +377,30 @@ export default {
             },
             sortable: true,
           },
+          {
+            label: '# Metabolites',
+            field: 'metaboliteCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Enzymes',
+            field: 'enzymeCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Reactions',
+            field: 'reactionCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
         ],
         compartment: [
           {
@@ -400,6 +416,38 @@ export default {
           {
             label: 'Name',
             field: 'name',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Metabolites',
+            field: 'metaboliteCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Enzymes',
+            field: 'enzymeCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Reactions',
+            field: 'reactionCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Subsystems',
+            field: 'subsystemCount',
             filterOptions: {
               enabled: false,
             },
@@ -498,7 +546,7 @@ export default {
             rows[componentType].push({
               id: el.id,
               model: el.model,
-              name: el.short_name,
+              name: el.name,
               formula: el.formula,
               // subsystem: el.subsystem,
               compartment: el.compartment,
@@ -512,14 +560,13 @@ export default {
             rows[componentType].push({
               id: el.id,
               model: el.model,
-              name: el.short_name,
-              ensembl: el.long_name,
-              uniprot: el.enzyme ? el.enzyme.uniprot_acc : '',
+              name: el.gene_name,
+              uniprot: el.uniprot,
               compartment: el.compartment,
             });
           } else if (componentType === 'reaction') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
-              if (field === 'subsystem_str') {
+              if (field === 'subsystem') {
                 for (const subsystem of el[field].split('; ')) {
                   if (!(subsystem in filterTypeDropdown[componentType][field])) {
                     filterTypeDropdown[componentType][field][subsystem] = 1;
@@ -540,7 +587,7 @@ export default {
               model: el.model,
               equation: el.equation,
               ec: el.ec,
-              subsystem: el.subsystem_str,
+              subsystem: el.subsystem,
               compartment: el.compartment,
               is_transport: el.is_transport,
             });
@@ -561,6 +608,9 @@ export default {
               name: `<a href="/GemsExplorer/${el.model}/subsystem/${el.name}">${el.name}</a>`,
               system: el.system,
               compartment: el.compartment,
+              metaboliteCount: el.metabolite_count,
+              enzymeCount: el.enzyme_count,
+              reactionCount: el.reaction_count,
             });
           } else if (componentType === 'compartment') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
@@ -571,10 +621,10 @@ export default {
             rows[componentType].push({
               model: el.model,
               name: el.name,
-              metaboliteCount: el.nr_metabolites,
-              enzymeCount: el.nr_enzymes,
-              reactionCount: el.nr_reactions,
-              subsystemCount: el.nr_subsystems,
+              metaboliteCount: el.metabolite_count,
+              enzymeCount: el.enzyme_count,
+              reactionCount: el.reaction_count,
+              subsystemCount: el.subsystem_count,
             });
           }
         }
@@ -600,7 +650,7 @@ export default {
 
       this.columns.enzyme[0].filterOptions.filterDropdownItems =
           filterTypeDropdown.enzyme.model;
-      this.columns.enzyme[4].filterOptions.filterDropdownItems =
+      this.columns.enzyme[3].filterOptions.filterDropdownItems =
           filterTypeDropdown.enzyme.compartment;
 
       this.columns.reaction[0].filterOptions.filterDropdownItems =

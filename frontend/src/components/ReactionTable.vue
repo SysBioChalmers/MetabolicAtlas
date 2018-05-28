@@ -19,8 +19,7 @@
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
           v-for="f in fields" v-show="showCol(f.name)"
-            @click="sortBy(f.name, null, null)">{{ f.display }}
-            </th>
+            @click="sortBy(f.name, null, null)" v-html="f.display"></th>
         </tr>
       </thead>
       <tbody>
@@ -28,13 +27,16 @@
           <td>
             <a @click="viewReaction(r.id)">{{ r.id }}</a>
           </td>
-          <td v-html="reformatChemicalReactionHTML(r.equation, r)"></td>
+          <td v-html="reformatChemicalReactionHTML(r)"></td>
           <td>
-            <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
-            >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
+            <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)">
+              <template v-if="m.name">{{ index == 0 ? m.name : `, ${m.name}` }}</template>
+              <template v-else>{{ index == 0 ? m.id : `, ${m.id}` }}</template>
+            </a>
+          </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
-            <a v-for="(s, index) in r.subsystem_str.split('; ')" v-on:click.prevent="viewSubsystem(s)"
+            <a v-for="(s, index) in r.subsystem.split('; ')" v-on:click.prevent="viewSubsystem(s)"
             >{{ index == 0 ? s : `; ${s}` }}</a></td>
           <td>{{ r.is_reversible ? r.compartment.replace('=>', '&#8660;') : r.compartment.replace('=>', '&#8680;') }}</td>
         </tr>
@@ -57,13 +59,13 @@ export default {
     return {
       showCP: false,
       fields: [{
-        display: 'Reaction ID',
+        display: 'Reaction&nbsp;ID',
         name: 'id',
       }, {
         display: 'Equation',
         name: 'equation',
       }, {
-        display: 'Modifiers',
+        display: 'Enzymes',
         name: 'modifiers',
       }, {
         display: 'C/P',
@@ -115,8 +117,8 @@ export default {
     formatChemicalReaction(v, r) {
       return chemicalReaction(v, r);
     },
-    reformatChemicalReactionHTML(v, r) {
-      return reformatChemicalReaction(this.formatChemicalReaction(v, r), r);
+    reformatChemicalReactionHTML(r) {
+      return reformatChemicalReaction(r);
     },
     viewEnzyneReactions(modifier) {
       if (modifier) {

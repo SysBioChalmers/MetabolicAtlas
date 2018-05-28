@@ -15,12 +15,12 @@ Vue.use(VueRouter);
 
 const routes = [
   { path: '/', name: 'GemsExplorerRoot', component: GemsExplorer },
-  { path: '/GemsExplorer/:model/', name: 'GemsExplorerModel', component: GemsExplorer },
-  { path: '/GemsExplorer/:model/:type/:id', name: 'GemsExplorer', component: GemsExplorer },
+  { path: '/GemsExplorer/:model/', name: 'GemsExplorerModel', component: GemsExplorer, props: true },
+  { path: '/GemsExplorer/:model/:type/:id', name: 'GemsExplorer', component: GemsExplorer, props: true },
   { path: '/about', name: 'about', component: About },
-  { path: '/comparemodels', name: 'comparemodels', component: CompareModels },
   { path: '/search', name: 'search', component: SearchTable },
   { path: '/gems', name: 'gems', component: Models },
+  { path: '/gems/compare/', name: 'comparemodels', component: CompareModels },
   { path: '/gems/:id', name: 'gemsID', component: Models },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Help },

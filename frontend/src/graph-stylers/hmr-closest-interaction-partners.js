@@ -15,10 +15,10 @@ export default function (elms, rels, nodeDisplayParams) {
     const elm = elms[id];
 
     if (elm.type === 'enzyme') {
-      let hpaLink = `http://www.proteinatlas.org/${elm.long}/`;
+      // let hpaLink = `http://www.proteinatlas.org/${elm.long}/`;
       if (enzExpSource && elm.expressionLvl) {
         if (nodeDisplayParams.enzymeExpSource === 'HPA') {
-          hpaLink = `http://www.proteinatlas.org/${elm.long}/nodeDisplayParams.enzymeExpSample#top`;
+          // hpaLink = `http://www.proteinatlas.org/${elm.long}/nodeDisplayParams.enzymeExpSample#top`;
         }
       } else if (!elm.expressionLvl) {
         elm.expressionLvl = {};
@@ -32,11 +32,11 @@ export default function (elms, rels, nodeDisplayParams) {
         group: 'nodes',
         data: {
           id: elm.id,
-          name: elm.short,
+          name: elm.name,
           color: elm.expressionLvl,
-          hpaLink, // TODO: move into config
+          // hpaLink, // TODO: move into config
           type: elm.type,
-          details: elm.details,
+          // details: elm.details,
         },
       });
     } else {
@@ -44,9 +44,9 @@ export default function (elms, rels, nodeDisplayParams) {
         group: 'nodes',
         data: {
           id: elm.id,
-          name: elm.short,
+          name: elm.name,
           type: elm.type,
-          details: elm.details,
+          // details: elm.details,
         },
       });
     }
