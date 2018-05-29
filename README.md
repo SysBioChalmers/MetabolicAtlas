@@ -116,8 +116,18 @@ source postgres.env                               # to load the environment vari
 python manage.py makemigrations
 python manage.py migrate --database [database] e.g. 'hmr2' (see settings.py)
 python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables (optional)
-python manage.py populateDB [ensembl_version] [database]      # insert SBML information and annotations in the specified database, e.g. '89' for Ensembl
-python manage.py addNumberOfInteractionPartners [database]   # for each reaction_component calculate and store the number of interaction partners...
+python manage.py populateDB [database] [YAML file] [model label] [model PMID]
+# model label and model PMID are used to get information about the input model. from the 'gems' database,
+# consequently the model should be added by getGithubModels.py in the 'gems' database
+# it means that the model repo should be available and public on Chalmers Sysbio Github organization repos
+# [model label] [model PMID] might be extracted from the YAML in the future, this is a temporary solution
+
+python manage.py addAnnotations [database] 'all' '' # add content of annotations files found in annotation/hmr2/ in the database
+# this commande will create data in tables metabolite and enzyme
+
+# no available yet
+# python manage.py addCurrencyMetabolites [database]   # define currency metabolites
+# python manage.py addNumberOfInteractionPartners [database]   # for each reaction_component calculate and store the number of interaction partners...
 ```
 
 (as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)
@@ -125,7 +135,7 @@ python manage.py addNumberOfInteractionPartners [database]   # for each reaction
 Insert all information related to the svg maps, compare the DB and svg maps, shows statistics
 
 ```bash
-python manage.py addCompartmentInformation database_generation/data/compartmentInfo.tab [database]
+python manage.py addCompartmentSubsystemInformation [database] --compartment-svg-file database_generation/[database]/compartmentSVF.tsv
 ```
 
 ### dump databases
