@@ -1,51 +1,26 @@
 class GemodelRouter(object):
     def db_for_read(self, model, **hints):
         if model.__name__ in ['GEModelSet', 'GEModelSample', 'GEModelReference', 'GEModelFile',
-         'GEModel', 'GEModelSet_reference', 'GEModel_files', 'GEModel_ref']:
+         'GEModel', 'GEM', 'GEMAuthor', 'Author']:
             return 'gems'
         return None
 
     def db_for_write(self, model, **hints):
         if model.__name__ in ['GEModelSet', 'GEModelSample', 'GEModelReference', 'GEModelFile', 'GEModel',
-        'GEModelSet_reference', 'GEModel_files', 'GEModel_ref']:
+         'GEM', 'GEMAuthor', 'Author']:
             return 'gems'
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
         if obj1.__class__.__name__ in ['GEModelSet', 'GEModelSample', 'GEModelReference',
-         'GEModelFile', 'GEModel', 'GEModelSet_reference', 'GEModel_files', 'GEModel_ref']:
+         'GEModelFile', 'GEModel', 'GEM', 'GEMAuthor', 'Author']:
             return True
         return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         if model_name in ['gemodelset', 'gemodelsample', 'gemodelreference', 'gemodelfile',
-         'gemodel']:
+         'gemodel', 'gem', 'gemauthor', 'author']:
             return db == 'gems'
-        return None
-
-
-class TileRouter(object):
-    def db_for_read(self, model, **hints):
-        '''if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
-            return 'default'
-            #return 'tiles'''
-        return None
-
-    def db_for_write(self, model, **hints):
-        '''if hasattr(model, 'name') and model.__name__ in ['TileReactionComponent', 'TileSubsystem']:
-            return 'default'''
-            #return 'tiles'
-        return None
-
-    def allow_relation(self, obj1, obj2, **hints):
-        if obj1.__class__.__name__ in ['TileReactionComponent', 'TileSubsystem']:
-            return True
-        return None
-
-    def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if model_name in ['tilereactioncomponent', 'tilesubsystem']:
-            #return db == 'tiles'
-            return db == 'default'
         return None
 
 class ApiRouter(object):
@@ -59,4 +34,4 @@ class ApiRouter(object):
         return True
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        return db != 'gems' and db != 'tiles'
+        return db != 'gems'

@@ -10,7 +10,6 @@ function stop-stack {
     docker-compose -p metabolicatlas kill
 }
 
-
 function restart-stack {
     stop-stack && start-stack
 }

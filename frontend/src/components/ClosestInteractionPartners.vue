@@ -28,7 +28,7 @@
             <div class="dropdown" id="dropdownMenuExport">
               <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
-                @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
+                @click="showMenuExport=!showMenuExport" v-show="showNetworkGraph">
                   <span>Export graph</span>
                   <span class="icon is-small">
                     &#9663;
@@ -54,23 +54,25 @@
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
           <span v-show="!expandedIds.includes(selectedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
-          <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
+          <div v-show="selectedElm && selectedElmId !== id">
+            <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
+          </div>
           <div v-show="selectedElm && selectedElm.type === 'enzyme'">
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click="viewReactionComponent('enzyme')">Show enzyme</span>
             <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
+<!--             <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
             <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span>
+            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span> -->
           </div>
           <div v-show="selectedElm && selectedElm.type === 'metabolite'">
             <span class="is-black sep is-paddingless"></span>
             <span class="button is-dark" v-on:click="viewReactionComponent('metabolite')">Show metabolite</span>
             <span class="is-black sep is-paddingless"></span>
-            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
+<!--             <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
             v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
             <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span>
+            v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span> -->
           </div>
         </div>
         <div id="cip-graph">
@@ -166,7 +168,7 @@
         </div>
         <div id="cip-table">
           <cytoscape-table
-            :structure="tableStructure"
+            :structure="tableStructure[model]"
             :elms="elms"
             :selected-elm-id="selectedElmId"
             :filename="filename"
@@ -195,8 +197,8 @@ import Loader from 'components/Loader';
 
 import { default as EventBus } from '../event-bus';
 
-import { default as transform } from '../data-mappers/closest-interaction-partners';
-import { default as graph } from '../graph-stylers/closest-interaction-partners';
+import { default as transform } from '../data-mappers/hmr-closest-interaction-partners';
+import { default as graph } from '../graph-stylers/hmr-closest-interaction-partners';
 
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
@@ -247,13 +249,14 @@ export default {
       },
 
       cy: null,
-      tableStructure: [
-        { field: 'type', colName: 'Type', modifier: false },
-        { field: 'short', colName: 'Short name', modifier: false, rc: 'type' },
-        { field: 'long', colName: 'Long name', modifier: chemicalName },
-        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
-        { field: 'compartment', colName: 'Compartment', modifier: false },
-      ],
+      tableStructure: {
+        hmr2: [
+          { field: 'type', colName: 'Type' },
+          { field: 'name', colName: 'Name' },
+          { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+          { field: 'compartment', colName: 'Compartment' },
+        ],
+      },
 
       showMenuExport: false,
       showMenuExpression: false,
@@ -318,7 +321,6 @@ export default {
           a: 1,
         },
       },
-
       maxZoom: 10,
       minZoom: 0.1,
       factorZoom: 0.08,
@@ -348,24 +350,13 @@ export default {
   },
   methods: {
     setup() {
-      this.id = this.$route.query.id;
+      this.id = this.$route.params.id;
       this.selectedElmId = '';
       this.selectedElm = null;
       this.load();
     },
     navigate() {
-      this.$router.push(
-        { query: { ...this.$route.query, id: this.selectedElmId } },
-        () => { // On complete.
-          this.showMetaboliteTable = false;
-          this.setup();
-        },
-        () => { // On abort.
-          this.showGraphContextMenu = false;
-          this.selectedElmId = '';
-          this.selectedElm = null;
-        }
-      );
+      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.selectedElmId}`);
     },
     load() {
       axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)
@@ -374,17 +365,21 @@ export default {
           const component = response.data.component;
           const reactions = response.data.reactions;
 
-          this.componentName = component.short_name || component.long_name;
+          this.componentName = component.name || component.gene_name || component.id;
+          console.log(this.componentName);
           this.id = component.id;
-          if (component.enzyme) {
-            const uniprotId = component.enzyme ? component.enzyme.uniprot_acc : null;
-            this.title = `${this.chemicalName(this.componentName)}
-              (<a href="http://www.uniprot.org/uniprot/${uniprotId}" target="_blank">${uniprotId}</a>)`;
+          if ('gene_name' in component) {
+            this.title = `${this.chemicalName(this.componentName)}`;
+            if (component.uniprot != null) {
+              this.title = `${this.title} (<a href="${component.uniprot_link}" target="_blank">${component.uniprot}</a>)`;
+            }
+            component.type = 'enzyme';
           } else {
             this.title = `${this.chemicalName(this.componentName)}`;
+            component.type = 'metabolite';
           }
 
-          [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
+          [this.rawElms, this.rawRels] = transform(component, reactions);
           this.selectedElm = this.rawElms[component.id];
           this.selectedElm.name = this.componentName;
 
@@ -470,10 +465,8 @@ export default {
           break;
         }
       }
-
       if (reactionId) {
         let eles = this.cy.collection();
-
         for (const rel of this.rels) {
           if (rel.reaction === reactionId) {
             const relationEle = this.cy.getElementById(rel.id);
@@ -486,7 +479,6 @@ export default {
             eles = eles.add(targetEle);
           }
         }
-
         const instance = this.cy.viewUtilities();
         instance.unhighlight(this.cy.elements());
         instance.highlight(eles);
@@ -572,6 +564,7 @@ export default {
             return 200;
           },
           fit: true,
+          ready: this.fitGraph,
         },
       });
       // this.cy.ready = this.cy.fit();
@@ -606,7 +599,7 @@ export default {
 
       const updatePosition = (node) => {
         contextMenuGraph.style.left = `${node.renderedPosition().x + 15}px`;
-        contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenuGraph.style.top = `${node.renderedPosition().y + 130}px`;
       };
 
       const nodeInViewport = (node) => {
@@ -658,9 +651,7 @@ export default {
           updatePosition(node);
         }
       });
-      console.log(callback);
       if (callback) {
-        console.log('callback');
         callback();
       }
       /* eslint-enable no-param-reassign */
@@ -745,9 +736,9 @@ export default {
         }
       } else if (this.toggleMetaboliteExpLevel) {
         console.log(expSample);
-        // load expression data for metabolite
+        // load data for metabolite
       } else {
-        // disable expression lvl for metabolite
+        // disable lvl for metabolite
         this.nodeDisplayParams.metaboliteExpSource = false;
         this.nodeDisplayParams.metaboliteExpType = false;
         this.nodeDisplayParams.metaboliteExpSample = false;
@@ -797,7 +788,7 @@ export default {
       const proteins = `${enzymeIDs.join(',')}?format=xml`;
       const url = baseUrl + proteins;
 
-      axios.post('hpa/', { url })
+      axios.post('hpa/xml_request', { url })
       .then((response) => {
         const hpaRnadata = parseHpaRnaExpressionLvl(rawElms, response.data, false); // = true unzip
         this.rawElms = hpaRnadata.graphElements;
@@ -935,7 +926,7 @@ export default {
     padding: 15px;
     border: 1px solid black;
     border-radius: 2px;
-    z-index: 999;
+    z-index: 30;
 
     span, div.select, compact-picker {
       display: inline-block;

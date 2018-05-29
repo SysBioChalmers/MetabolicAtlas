@@ -4,7 +4,10 @@
       <span class="tag">
         # Reaction(s): {{ reactions.length }}
       </span>
-      <span class="tag">
+      <span class="tag" v-if="transportReactionCount === 0">
+        # Transport reaction(s): {{ transportReactionCount }}
+      </span>
+      <span class="tag link" v-else @click="sortBy('compartment', '=>', 'desc')">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
       <span v-show="reactions.length==200" class="tag is-danger is-pulled-right">
@@ -16,8 +19,7 @@
         <tr style="background: #F8F4F4">
           <th class="is-unselectable"
           v-for="f in fields" v-show="showCol(f.name)"
-            @click="sortBy(f.name)">{{ f.display }}
-            </th>
+            @click="sortBy(f.name, null, null)" v-html="f.display"></th>
         </tr>
       </thead>
       <tbody>
@@ -25,15 +27,18 @@
           <td>
             <a @click="viewReaction(r.id)">{{ r.id }}</a>
           </td>
-          <td v-html="reformatChemicalReactionHTML(r.equation, r)"></td>
+          <td v-html="reformatChemicalReactionHTML(r)"></td>
           <td>
-            <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)"
-            >{{ index == 0 ? m.short_name : `, ${m.short_name}` }}</a></td>
+            <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)">
+              <template v-if="m.name">{{ index == 0 ? m.name : `, ${m.name}` }}</template>
+              <template v-else>{{ index == 0 ? m.id : `, ${m.id}` }}</template>
+            </a>
+          </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
-            <a v-for="(s, index) in r.subsystem" v-on:click.prevent="viewSubsystem(s[0])"
-            >{{ index == 0 ? s[1] : `, ${s[1]}` }}</a></td>
-          <td>{{ r.compartment.replace('=>','⇨') }}</td>
+            <a v-for="(s, index) in r.subsystem.split('; ')" v-on:click.prevent="viewSubsystem(s)"
+            >{{ index == 0 ? s : `; ${s}` }}</a></td>
+          <td>{{ r.is_reversible ? r.compartment.replace('=>', '&#8660;') : r.compartment.replace('=>', '&#8680;') }}</td>
         </tr>
       </tbody>
     </table>
@@ -54,13 +59,13 @@ export default {
     return {
       showCP: false,
       fields: [{
-        display: 'Reaction ID',
+        display: 'Reaction&nbsp;ID',
         name: 'id',
       }, {
         display: 'Equation',
         name: 'equation',
       }, {
-        display: 'Modifiers',
+        display: 'Enzymes',
         name: 'modifiers',
       }, {
         display: 'C/P',
@@ -80,19 +85,23 @@ export default {
     reactions() {
       // create consume/produce column
       // TODO do this at the dababase level
-      if (this.selectedElmId) {
+      if (false && this.selectedElmId) {
         this.showCP = true;
         for (const reaction of this.reactions) {
-          const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
-          const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
-          reaction.cp = '';
-          if (boolC) {
-            reaction.cp = 'consume';
-            if (boolP) {
-              reaction.cp += '/produce';
+          if (reaction.is_reversible) {
+            reaction.cp = 'reversible';
+          } else {
+            const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
+            const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
+            reaction.cp = '';
+            if (boolC) {
+              reaction.cp = 'consume';
+              if (boolP) {
+                reaction.cp += '/produce';
+              }
+            } else if (boolP) {
+              reaction.cp = 'produce';
             }
-          } else if (boolP) {
-            reaction.cp = 'produce';
           }
         }
       }
@@ -105,13 +114,13 @@ export default {
     },
   },
   methods: {
-    formatChemicalReaction(v) {
-      return chemicalReaction(v);
+    formatChemicalReaction(v, r) {
+      return chemicalReaction(v, r);
     },
-    reformatChemicalReactionHTML(v, r) {
-      return reformatChemicalReaction(this.formatChemicalReaction(v), r);
+    reformatChemicalReactionHTML(r) {
+      return reformatChemicalReaction(r);
     },
-    viewEnzyneReactions: function viewEnzyneReactions(modifier) {
+    viewEnzyneReactions(modifier) {
       if (modifier) {
         EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
       }
@@ -122,27 +131,15 @@ export default {
     viewSubsystem(id) {
       EventBus.$emit('updateSelTab', 'subsystem', id);
     },
-    displayCompartment(r) {
-      const comp = {};
-      for (const el of r.reactants) {
-        comp[el.compartment] = null;
-      }
-      for (const el of r.products) {
-        comp[el.compartment] = null;
-      }
-      if (Object.keys(comp).length === 1) {
-        return Object.keys(comp)[0];
-      } else if (Object.keys(comp).length === 2) {
-        return Object.keys(comp).join(' &#8680; ');
-      }
-      // not possible?
-      return '';
-    },
-    sortBy(field) {
+    sortBy(field, pattern, order) {
       const reactions = Array.prototype.slice.call(
       this.sortedReactions); // Do not mutate original elms;
+      let sortOrder = order;
+      if (!order) {
+        sortOrder = this.sortAsc ? 'asc' : 'desc';
+      }
       this.sortedReactions = reactions.sort(
-        compare(field, this.sortAsc ? 'asc' : 'desc'));
+        compare(field, pattern, sortOrder));
       this.sortAsc = !this.sortAsc;
     },
     showCol(name) {
@@ -155,9 +152,18 @@ export default {
     },
   },
   beforeMount() {
-    $('body').on('click', 'td rc', function f() {
-      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
+    $('body').on('click', 'td m', function f() {
+      if ($(this).attr('class') !== this.selectedElmId) {
+        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
+      }
     });
+  },
+  updated() {
+    if (this.selectedElmId) {
+      // when the table is from the selectedElmId page (metabolite)
+      // do not color the selectedElmId is the reaction equations
+      $(`.${this.selectedElmId}`).css('color', 'rgb(54, 54, 54)');
+    }
   },
 };
 
@@ -167,11 +173,11 @@ export default {
 
 .reaction-table {
 
-  rc {
-    color: #64CC9A;
+  m {
+    color: #3498db;
   }
 
-  th, rc, span.sc {
+  th, m, span.sc, .tag.link {
     cursor: pointer;
   }
 

@@ -1,12 +1,12 @@
 export function chemicalFormula(value) {
-  if (value === null) {
+  if (value === null || value === undefined) {
     return '';
   }
   return value.replace(/([0-9])/g, '<sub>$1</sub>');
 }
 
 export function chemicalName(value) {
-  if (value === null) {
+  if (value === null || value === undefined) {
     return '';
   }
   // TODO: Add logic to format formulas
@@ -15,7 +15,7 @@ export function chemicalName(value) {
 }
 
 export function chemicalNameExternalLink(value, link) {
-  if (value === null) {
+  if (value === null || value === undefined) {
     return '';
   }
 
@@ -29,10 +29,13 @@ export function chemicalNameExternalLink(value, link) {
           >${chemicalName(value)}</a>`;
 }
 
-export function chemicalReaction(value) {
+export function chemicalReaction(value, r) {
   if (value === null) {
     return '';
   }
   // apply chemical name to all metabolites
+  if (r.is_reversible) {
+    return chemicalName(value).replace(/(=>)/g, '&#8660;');
+  }
   return chemicalName(value).replace(/(=>)/g, '&#8680;');
 }

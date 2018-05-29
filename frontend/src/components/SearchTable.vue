@@ -1,173 +1,161 @@
 <template>
   <div id="search-table">
     <div class="container columns">
-      <div class="column is-offset-3">
-        <global-search
-        :quickSearch=false
-        :searchTerm=searchTerm
-        @updateResults="updateResults"
-        @searchResults="loading=true">
-        </global-search>
-      </div>
+      <global-search class="is-offset-3"
+      :quickSearch=false
+      :searchTerm=searchTerm
+      @updateResults="updateResults"
+      @searchResults="loading=true">
+      </global-search>
     </div>
     <div>
-      <div class="tabs is-boxed is-fullwidth">
+      <div class="tabs is-boxed is-fullwidth" v-if="showTabType">
         <ul>
           <li :disabled="resultsCount[tab] === 0" 
           :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
           v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
-            <a v-show="!searchResultsFiltered[tab] || searchResultsFiltered[tab].length === resultsCount[tab]">
+            <a>
               {{ tab | capitalize }} ({{ resultsCount[tab] }})
-            </a>
-            <a v-show="searchResultsFiltered[tab] && searchResultsFiltered[tab].length !== resultsCount[tab]">
-              {{ tab | capitalize }} ({{ resultsCount[tab] }})
-              ({{ searchResultsFiltered[tab] ? searchResultsFiltered[tab].length : 0 }})
             </a>
           </li>
         </ul>
       </div>
-      <loader v-show="loading"></loader>
+      <loader v-show="loading && searchTerm !== ''"></loader>
       <div v-show="!loading">
         <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
-          <div class="button" 
-          v-on:click="toggleFilter('metabolite')" 
-          :disabled="disabledFilters['metabolite']"
-          :class="{'is-active': toggleFilters['metabolite'], 'is-primary': Object.keys(activeFilters['metabolite']).length !== 0}"
-          >Filters</div>
-          <div class="box columns" v-show="toggleFilters['metabolite']">
-            <div class="column" v-for="(types, key) in filters['metabolite']">
-              {{ key | capitalize }}
-              <select :disabled="types.length === 1"
-              @change="doFilterResults('metabolite', key, $event)">
-                <option v-for="el in types">
-                  {{ el }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <table class="table is-fullwidth">
-            <thead>
-              <tr>
-                <th>Organism</th><th>Model</th><th>Compartment</th>
-                <th>ID</th><th>Name</th><th>Formula</th><th>Mass</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in searchResultsFiltered['metabolite']">
-                <td>{{ item.organism | capitalize }}</td>
-                <td>HMR2.00</td>
-                <td>{{ item.compartment | capitalize }}</td>
-                <td>
-                  <a @click="viewComponentInfo(item.id, 4)">{{ item.id }}</a>
-                </td>
-                <td>{{ item.short_name }}</td>
-                <td v-html="formulaFormater(item.formula)"></td>
-                <td v-html="item.metabolite && item.metabolite.mass ? item.metabolite.mass + '&nbsp;g/mol' : ''"></td>
-              </tr>
-            </tbody>
-          </table>
+          <good-table
+            :columns="columns['metabolite']"
+            :rows="rows['metabolite']"
+            :lineNumbers="true"
+            :sort-options="{
+              enabled: true,
+              initialSortBy: {field: 'name', type: 'asc'}
+            }"
+            :paginationOptions="{
+              enabled: true,
+              perPage: 50,
+              position: 'both',
+              perPageDropdown: [50, 100, 200],
+              dropdownAllowAll: false,
+              setCurrentPage: 1,
+              nextLabel: 'next',
+              prevLabel: 'prev',
+              rowsPerPageLabel: 'Rows per page',
+              ofLabel: 'of',
+            }"
+            styleClass="vgt-table striped bordered">
+          </good-table>
         </div>
         <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
-          <div class="columns">
-            <div class="column">
-              <table class="table is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Organism</th><th>Model</th><th>Compartment</th><th>ID</th>
-                    <th>Name</th><th>Uniprot ID</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in searchResults['enzyme']">
-                    <td>{{ item.organism | capitalize }}</td>
-                    <td>HMR2.00</td>
-                    <td>{{ item.compartment | capitalize }}</td>
-                    <td>
-                      <a @click="viewComponentInfo(item.id, 3)">{{ item.id }}</a>
-                    </td>
-                    <td>{{ item.short_name }}</td>
-                    <td>{{ item.enzyme ? item.enzyme.uniprot_acc : '' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <good-table
+            :columns="columns['enzyme']"
+            :rows="rows['enzyme']"
+            :lineNumbers="true"
+            :sort-options="{
+              enabled: true,
+              initialSortBy: {field: 'name', type: 'asc'}
+            }"
+            :paginationOptions="{
+              enabled: true,
+              perPage: 50,
+              position: 'both',
+              perPageDropdown: [50, 100, 200],
+              dropdownAllowAll: false,
+              setCurrentPage: 1,
+              nextLabel: 'next',
+              prevLabel: 'prev',
+              rowsPerPageLabel: 'Rows per page',
+              ofLabel: 'of',
+            }"
+            styleClass="vgt-table striped bordered">
+          </good-table>
         </div>
         <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
-          <div class="columns">
-            <div class="column">
-              <table class="table is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Organism</th><th>Model</th><th>Subsystem</th><th>Compartment</th>
-                    <th>ID</th><th>Equation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in searchResults['reaction']">
-                    <td>{{ item.organism ? item.organism : 'Human' | capitalize}}</td>
-                    <td>HMR2.00</td>
-                    <td>
-                      <template v-for="sub, index in item.subsystem">
-                        <a @click="viewComponentInfo(sub[0], 6)">{{ index != 0 ? '; ' : '' }}{{ sub[1] | capitalize }}</a>
-                      </template>
-                    </td>
-                    <td>{{ item.compartment | capitalize }}</td>
-                    <td>
-                      <a @click="viewComponentInfo(item.id, 5)">{{ item.id }}</a>
-                    </td>
-                    <td>{{ item.equation }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <good-table
+            :columns="columns['reaction']"
+            :rows="rows['reaction']"
+            :lineNumbers="true"
+            :sort-options="{
+              enabled: true,
+              initialSortBy: {field: 'equation', type: 'asc'}
+            }"
+            :paginationOptions="{
+              enabled: true,
+              perPage: 50,
+              position: 'both',
+              perPageDropdown: [50, 100, 200],
+              dropdownAllowAll: false,
+              setCurrentPage: 1,
+              nextLabel: 'next',
+              prevLabel: 'prev',
+              rowsPerPageLabel: 'Rows per page',
+              ofLabel: 'of',
+            }"
+            styleClass="vgt-table striped bordered">
+          </good-table>
         </div>
         <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
-          <div class="columns">
-            <div class="column">
-              <table class="table is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Organism</th><th>Model</th><th>Subsystem</th><th>System</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in searchResults['subsystem']">
-                    <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
-                    <td>HMR2.00</td>
-                    <td><a @click="viewComponentInfo(item.id, 6)">{{ item.name | capitalize }}</a></td>
-                    <td>{{ item.system | capitalize }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <good-table
+            :columns="columns['subsystem']"
+            :rows="rows['subsystem']"
+            :lineNumbers="true"
+            :sort-options="{
+              enabled: true,
+              initialSortBy: {field: 'name', type: 'asc'}
+            }"
+            styleClass="vgt-table striped bordered">
+          </good-table>
         </div>
         <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
-          <div class="columns">
-            <div class="column">
-              <table class="table is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Organism</th><th>Model</th><th>Compartment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in searchResults['compartment']">
-                    <td>{{ item.organism ? item.organism : 'Human' | capitalize }}</td>
-                    <td>HMR2.00</td>
-                    <td>{{ item.name | capitalize }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <good-table
+            :columns="columns['compartment']"
+            :rows="rows['compartment']"
+            :lineNumbers="true"
+            :sort-options="{
+              enabled: true,
+              initialSortBy: {field: 'name', type: 'asc'}
+            }"
+            styleClass="vgt-table striped bordered">
+          </good-table>
         </div>
+      </div>
+      <div v-show="!showTabType || searchTerm === ''">
+        <div v-if="searchResults.length === 0" class="column is-4 is-offset-4 has-text-centered notification">
+          {{ $t('searchNoResult') }}
         </div>
-        <div v-show="!showTabType">
-          <div v-if="searchResults.length === 0" class="column is-8 is-offset-2 has-text-centered">
-            {{ $t('searchNoResult') }}
+        <div class="columns">
+          <div class="column is-6 is-offset-3 content">
+            <p>You can search metabolites by:</p>
+            <ul class="menu-list">
+              <li>ID</li>
+              <li>name</li>
+              <li>formula</li>
+              <li>HMDB ID, name</li>
+              <li>KEGG ID</li>
+            </ul>
+            <p>Enzymes by:</p>
+            <ul class="menu-list">
+              <li>ID</li>
+              <li>name</li>
+              <li>Ensembl ID</li>
+              <li>Uniprot ID, name</li>
+              <li>KEGG ID</li>
+            </ul>
+            <p>Reactions by:</p>
+            <ul class="menu-list">
+              <li>ID</li>
+              <li>equation:</li>
+              <ul class="menu-list">
+                <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
+                <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
+              </ul>
+              <li>EC code</li>
+              <li>SBO ID</li>
+            </ul>
+            <p>Subsystem and compartment by:</p>
+            <ul class="menu-list">
+              <li>name</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -176,27 +164,26 @@
 </template>
 
 <script>
+// import Vue from 'vue';
 import GlobalSearch from 'components/GlobalSearch';
-import $ from 'jquery';
+// import $ from 'jquery';
 import Loader from 'components/Loader';
-import router from '../router';
+import { GoodTable } from 'vue-good-table';
+import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../helpers/chemical-formatters';
+import EventBus from '../event-bus';
+
+// Vue.use(VueGoodTable);
 
 export default {
   name: 'search-table',
   components: {
     GlobalSearch,
     Loader,
+    GoodTable,
   },
   data() {
     return {
-      selectedFilter: '',
-      toggleFilters: {
-        metabolite: false,
-      },
-      activeFilters: {},
-      disabledFilters: {},
-
       tabs: [
         'metabolite',
         'enzyme',
@@ -204,28 +191,283 @@ export default {
         'subsystem',
         'compartment',
       ],
+      columns: {
+        metabolite: [
+          {
+            label: 'Model',
+            field: 'model',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            formatFn: this.getDisplayModelName,
+            sortable: true,
+          },
+          {
+            label: 'Name',
+            field: this.formatMetaboliteNameCell,
+            filterOptions: {
+              enabled: true,
+              filterFn: this.filterLink,
+            },
+            sortable: true,
+            html: true,
+          },
+          {
+            label: 'Formula',
+            field: 'formula',
+            filterOptions: {
+              enabled: true,
+            },
+            sortable: true,
+          },
+          {
+            label: 'Compartment',
+            field: 'compartment',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: true,
+          },
+        ],
+        enzyme: [
+          {
+            label: 'Model',
+            field: 'model',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            formatFn: this.getDisplayModelName,
+            sortable: true,
+          },
+          {
+            label: 'Name',
+            field: this.formatEnzymeNameCell,
+            filterOptions: {
+              enabled: true,
+              filterFn: this.filterLink,
+            },
+            sortable: true,
+            html: true,
+          },
+          {
+            label: 'Uniprot ID',
+            field: 'uniprot',
+            filterOptions: {
+              enabled: true,
+            },
+            sortable: true,
+          },
+          {
+            label: 'Compartment',
+            field: 'compartment',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: true,
+          },
+        ],
+        reaction: [
+          {
+            label: 'Model',
+            field: 'model',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            formatFn: this.getDisplayModelName,
+            sortable: true,
+          },
+          {
+            label: 'ID',
+            // field: this.formatReactionNameCell,
+            field: 'id',
+            filterOptions: {
+              enabled: true,
+              filterFn: this.filterLink,
+            },
+            sortable: true,
+            html: true,
+          },
+          {
+            label: 'Equation',
+            field: 'equation',
+            filterOptions: {
+              enabled: true,
+            },
+            sortable: false,
+          },
+          {
+            label: 'EC',
+            field: 'ec',
+            filterOptions: {
+              enabled: true,
+            },
+            sortable: false,
+          },
+          {
+            label: 'Subsystem',
+            field: this.formatSubsystemArrCell,
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+              filterFn: this.filterSubsystem,
+            },
+            sortable: true,
+            html: true,
+          },
+          {
+            label: 'Compartment',
+            field: 'compartment',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: true,
+          },
+          {
+            label: 'Is transport',
+            field: 'is_transport',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: false,
+          },
+        ],
+        subsystem: [
+          {
+            label: 'Model',
+            field: 'model',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            formatFn: this.getDisplayModelName,
+            sortable: true,
+          },
+          {
+            label: 'Name',
+            field: 'name',
+            filterOptions: {
+              enabled: true,
+              filterFn: this.filterLink,
+            },
+            sortable: true,
+            html: true,
+          },
+          {
+            label: 'System',
+            field: 'system',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: true,
+          },
+          {
+            label: 'Compartment',
+            field: this.formatCompartmentArrCell,
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: true,
+          },
+          {
+            label: '# Metabolites',
+            field: 'metaboliteCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Enzymes',
+            field: 'enzymeCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Reactions',
+            field: 'reactionCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+        ],
+        compartment: [
+          {
+            label: 'Model',
+            field: 'model',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            formatFn: this.getDisplayModelName,
+            sortable: true,
+          },
+          {
+            label: 'Name',
+            field: 'name',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Metabolites',
+            field: 'metaboliteCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Enzymes',
+            field: 'enzymeCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Reactions',
+            field: 'reactionCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+          {
+            label: '# Subsystems',
+            field: 'subsystemCount',
+            filterOptions: {
+              enabled: false,
+            },
+            sortable: true,
+          },
+        ],
+      },
       resultsCount: {},
-      filters: {},
-      searchTerm: 'metabolite',
+      searchTerm: '',
       searchResults: {},
       showTabType: '',
       loading: true,
+      rows: {
+        metabolite: [],
+        enzyme: [],
+        reaction: [],
+        subsystem: [],
+        compartment: [],
+      },
     };
-  },
-  computed: {
-    searchResultsFiltered() {
-      if (!this.searchResults) {
-        return {};
-      }
-      const arr = JSON.parse(JSON.stringify(this.searchResults));
-      for (const key of Object.keys(this.activeFilters)) {
-        for (const compo of Object.keys(this.activeFilters[key])) {
-          const val = this.activeFilters[key][compo];
-          arr[key] = arr[key].filter(el => el[compo].toLowerCase() === val.toLowerCase());
-        }
-      }
-      return arr;
-    },
   },
   filters: {
     capitalize(value) {
@@ -239,13 +481,6 @@ export default {
     formulaFormater(s) {
       return chemicalFormula(s);
     },
-    toggleFilter(type) {
-      if (this.disabledFilters[type]) {
-        this.toggleFilters[type] = false;
-        return;
-      }
-      this.toggleFilters[type] = !this.toggleFilters[type];
-    },
     countResults() {
       for (const key of this.tabs) {
         this.resultsCount[key] = 0;
@@ -257,70 +492,186 @@ export default {
       }
     },
     fillFilterFields() {
-      // get the otion values of the <select> in the filter panels
-      // reset filter
-      const newFilter = {
+      const filterTypeDropdown = {
         metabolite: {
-          organism: {},
+          // organism: {},
           model: {},
           compartment: {},
-          subsystem: {},
+          // subsystem: [],
         },
         enzyme: {
-          organism: {},
+          // organism: {},
           model: {},
           compartment: {},
           subsystem: {},
         },
         reaction: {
-          organism: {},
+          // organism: {},
           model: {},
           compartment: {},
-          subsystem: {},
+          subsystem_str: {},
+          is_transport: {},
         },
         subsystem: {
-          organism: {},
+          // organism: {},
           model: {},
+          system: {},
           compartment: {},
         },
         compartment: {
-          organism: {},
+          // organism: [],
           model: {},
         },
+      };
+
+      const rows = {
+        metabolite: [],
+        enzyme: [],
+        reaction: [],
+        subsystem: [],
+        compartment: [],
       };
 
       // store choice only once in a dict
       for (const componentType of Object.keys(this.searchResults)) {
         const compoList = this.searchResults[componentType];
-        for (const el of compoList) {
-          for (const field of Object.keys(newFilter[componentType])) {
-            newFilter[componentType][field][el[field]] = 1;
-          }
-        }
-      }
+        for (const el of compoList) { // e.g. results list for metabolites
+          if (componentType === 'metabolite') {
+            for (const field of Object.keys(filterTypeDropdown[componentType])) {
+              if (!(el[field] in filterTypeDropdown[componentType][field])) {
+                filterTypeDropdown[componentType][field][el[field]] = 1;
+              }
+            }
 
-      // convert dict in array ad add 'None' if more than one choice
-      for (const kType of Object.keys(newFilter)) {
-        let validFilter = false;
-        const fields = newFilter[kType];
-        for (const kComp of Object.keys(fields)) {
-          const values = fields[kComp];
-          if (Object.keys(values).length === 1) {
-            newFilter[kType][kComp] = Object.keys(values);
-          } else {
-            newFilter[kType][kComp] = ['None'].concat(Object.keys(values).sort());
-            validFilter = true;
+            rows[componentType].push({
+              id: el.id,
+              model: el.model,
+              name: el.name,
+              formula: el.formula,
+              // subsystem: el.subsystem,
+              compartment: el.compartment,
+            });
+          } else if (componentType === 'enzyme') {
+            for (const field of Object.keys(filterTypeDropdown[componentType])) {
+              if (!(el[field] in filterTypeDropdown[componentType][field])) {
+                filterTypeDropdown[componentType][field][el[field]] = 1;
+              }
+            }
+            rows[componentType].push({
+              id: el.id,
+              model: el.model,
+              name: el.gene_name,
+              uniprot: el.uniprot,
+              compartment: el.compartment,
+            });
+          } else if (componentType === 'reaction') {
+            for (const field of Object.keys(filterTypeDropdown[componentType])) {
+              if (field === 'subsystem') {
+                for (const subsystem of el[field].split('; ')) {
+                  if (!(subsystem in filterTypeDropdown[componentType][field])) {
+                    filterTypeDropdown[componentType][field][subsystem] = 1;
+                  }
+                }
+              } else if (field === 'compartment') {
+                for (const compartment of el[field].split(/[^a-zA-Z0-9 ]+/)) {
+                  if (!(compartment.trim() in filterTypeDropdown[componentType][field])) {
+                    filterTypeDropdown[componentType][field][compartment.trim()] = 1;
+                  }
+                }
+              } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
+                filterTypeDropdown[componentType][field][el[field]] = 1;
+              }
+            }
+            rows[componentType].push({
+              id: `<a href="/GemsExplorer/${el.model}/reaction/${el.id}">${el.id}</a>`,
+              model: el.model,
+              equation: el.equation,
+              ec: el.ec,
+              subsystem: el.subsystem,
+              compartment: el.compartment,
+              is_transport: el.is_transport,
+            });
+          } else if (componentType === 'subsystem') {
+            for (const field of Object.keys(filterTypeDropdown[componentType])) {
+              if (field === 'compartment') {
+                for (const compartment of el[field]) {
+                  if (!(compartment in filterTypeDropdown[componentType][field])) {
+                    filterTypeDropdown[componentType][field][compartment] = 1;
+                  }
+                }
+              } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
+                filterTypeDropdown[componentType][field][el[field]] = 1;
+              }
+            }
+            rows[componentType].push({
+              model: el.model,
+              name: `<a href="/GemsExplorer/${el.model}/subsystem/${el.name}">${el.name}</a>`,
+              system: el.system,
+              compartment: el.compartment,
+              metaboliteCount: el.metabolite_count,
+              enzymeCount: el.enzyme_count,
+              reactionCount: el.reaction_count,
+            });
+          } else if (componentType === 'compartment') {
+            for (const field of Object.keys(filterTypeDropdown[componentType])) {
+              if (!(el[field] in filterTypeDropdown[componentType][field])) {
+                filterTypeDropdown[componentType][field][el[field]] = 1;
+              }
+            }
+            rows[componentType].push({
+              model: el.model,
+              name: el.name,
+              metaboliteCount: el.metabolite_count,
+              enzymeCount: el.enzyme_count,
+              reactionCount: el.reaction_count,
+              subsystemCount: el.subsystem_count,
+            });
           }
         }
-        if (!validFilter) {
-          // of all filter contains only one choice
-          // desactivate the filter panel
-          this.disabledFilters[kType] = true;
-          this.toggleFilters[kType] = false;
+        for (const field of Object.keys(filterTypeDropdown[componentType])) {
+          if (field === 'model') {
+            filterTypeDropdown[componentType][field] =
+              Object.keys(filterTypeDropdown[componentType][field]).map(
+                (e) => { const d = {}; d.text = this.$t(e); d.value = e; return d; }
+            );
+          } else {
+            filterTypeDropdown[componentType][field] =
+              Object.keys(filterTypeDropdown[componentType][field]).map(
+                (e) => { const d = {}; d.text = e; d.value = e; return d; }
+            );
+          }
         }
       }
-      this.filters = newFilter;
-      this.resetFilters();
+      // assign filter choices lists to the columns
+      this.columns.metabolite[0].filterOptions.filterDropdownItems =
+          filterTypeDropdown.metabolite.model;
+      this.columns.metabolite[3].filterOptions.filterDropdownItems =
+          filterTypeDropdown.metabolite.compartment;
+
+      this.columns.enzyme[0].filterOptions.filterDropdownItems =
+          filterTypeDropdown.enzyme.model;
+      this.columns.enzyme[3].filterOptions.filterDropdownItems =
+          filterTypeDropdown.enzyme.compartment;
+
+      this.columns.reaction[0].filterOptions.filterDropdownItems =
+          filterTypeDropdown.reaction.model;
+      this.columns.reaction[4].filterOptions.filterDropdownItems =
+          filterTypeDropdown.reaction.subsystem_str;
+      this.columns.reaction[5].filterOptions.filterDropdownItems =
+          filterTypeDropdown.reaction.compartment;
+      this.columns.reaction[6].filterOptions.filterDropdownItems =
+          filterTypeDropdown.reaction.is_transport;
+
+      this.columns.subsystem[0].filterOptions.filterDropdownItems =
+          filterTypeDropdown.subsystem.model;
+      this.columns.subsystem[2].filterOptions.filterDropdownItems =
+          filterTypeDropdown.subsystem.system;
+      this.columns.subsystem[3].filterOptions.filterDropdownItems =
+          filterTypeDropdown.subsystem.compartment;
+
+      this.columns.compartment[0].filterOptions.filterDropdownItems =
+          filterTypeDropdown.subsystem.model;
+      this.rows = rows;
     },
     updateResults(term, val) {
       this.loading = false;
@@ -341,53 +692,48 @@ export default {
       }
       this.showTabType = '';
     },
-    doFilterResults(type, compo, event) {
-      const select = event.srcElement;
-      const value = select.options[select.selectedIndex].innerHTML.trim().toLowerCase();
-
-      // copy the dict of filter to trigger the change
-      const newActiveFilters = JSON.parse(JSON.stringify(this.activeFilters));
-      if (value === 'none') {
-        delete newActiveFilters[type][compo];
-      } else {
-        newActiveFilters[type][compo] = value;
+    getDisplayModelName(v) {
+      return this.$t(v);
+    },
+    formatMetaboliteNameCell(row) {
+      return `<a href="/GemsExplorer/${row.model}/metabolite/${row.id}">${row.name}</a>`;
+    },
+    formatEnzymeNameCell(row) {
+      return `<a href="/GemsExplorer/${row.model}/enzyme/${row.id}">${row.name}</a>`;
+    },
+    formatReactionNameCell(row) {
+      return `<a href="/GemsExplorer/${row.model}/reaction/${row.id}">${row.id}</a>`;
+    },
+    formatSubsystemArrCell(row) {
+      let s = '';
+      for (const subsystem of row.subsystem.split('; ')) {
+        s += `<a href="/GemsExplorer/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
       }
-      // trigger changes in the computed property 'searchResultsFiltered'
-      this.activeFilters = newActiveFilters;
+      return s.slice(0, -2);
+    },
+    formatCompartmentArrCell(row) {
+      return row.compartment.join('; ');
+    },
+    filterLink(data, s) {
+      return data.split('>')[1].split('<')[0].toLowerCase().indexOf(s.toLowerCase()) !== -1;
+    },
+    filterSubsystem(data, s) {
+      return data.indexOf(s) !== -1;
     },
     showTab(elementType) {
       return this.showTabType === elementType;
     },
-    viewComponentInfo: function viewMetaboliteInfo(id, tabIndex) {
-      router.push(
-        {
-          path: '/',
-          query: {
-            tab: tabIndex,
-            id,
-          },
-        },
-      );
-    },
-    resetFilters() {
-      for (const tabname of this.tabs) {
-        this.toggleFilters[tabname] = false;
-        this.activeFilters[tabname] = {};
-        this.disabledFilters[tabname] = false;
+    viewCompartmentSVG(name) {
+      // not used
+      if (name === 'cytosol') {
+        name = 'cytosol_1';  // eslint-disable-line no-param-reassign
       }
-
-      // reset <select>
-      $('div.box select').each(function f() {
-        $(this).find('option').first().prop('selected', true);
-      });
+      EventBus.$emit('requestViewer', 'compartment', name, '', []);
     },
-  },
-  created() {
-    // init filter booleans
-    this.resetFilters();
+
   },
   beforeMount() {
-    this.searchTerm = this.$route.query.term;
+    this.searchTerm = this.$route.query.term || '';
   },
   mounted() {
     if (this.searchTerm) {
@@ -401,14 +747,8 @@ export default {
 </script>
 
 <style lang="scss">
-#search-table {
-  .red {
-    color: #ff1a1a;
-  }
 
-  .green {
-    color: #33cc33;
-  }
+#search-table {
 
   .tabs li.is-disabled {
     cursor: not-allowed;

@@ -247,7 +247,7 @@ for repo in list_repo:
 
         model['files'] = files
         model_data_list.append(model)
-
+	# FIXME the model must be delete or update, insert_gems will not update existing models
     insert_gems(model_set_data, model_data_list)
 
 

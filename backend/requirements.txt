@@ -1,8 +1,9 @@
-Django>=1.10.6
-psycopg2
+Django==1.11
+psycopg2-binary
 djangorestframework>=3.6.1
 django-cors-headers
 django-rest-swagger>=2.1.2
 django-extensions
 pygraphviz
 python-libsbml
+pyyaml

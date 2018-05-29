@@ -14,7 +14,7 @@
     <div class="column is-1">
       <a
         :disabled="!isSearching"
-        class="button is-pulled-right"
+        class="button"
         @click="clearSearch()"
       >{{ $t('reset') }}</a>
     </div>

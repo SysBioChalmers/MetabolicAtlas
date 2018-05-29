@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import NetworkGraph from 'components/NetworkGraph';
+import GemsExplorer from 'components/GemsExplorer';
 import Resources from 'components/Resources';
 import About from 'components/About';
 import Contact from 'components/Contact';
@@ -14,17 +14,20 @@ import Hreed from 'components/Hreed';
 Vue.use(VueRouter);
 
 const routes = [
-  { path: '/', name: 'network graph', component: NetworkGraph },
+  { path: '/', name: 'GemsExplorerRoot', component: GemsExplorer },
+  { path: '/GemsExplorer/:model/', name: 'GemsExplorerModel', component: GemsExplorer, props: true },
+  { path: '/GemsExplorer/:model/:type/:id', name: 'GemsExplorer', component: GemsExplorer, props: true },
   { path: '/about', name: 'about', component: About },
-  { path: '/comparemodels', name: 'compare models', component: CompareModels },
   { path: '/search', name: 'search', component: SearchTable },
-  { path: '/models', name: 'models', component: Models },
-  { path: '/models/:id', name: 'model', component: Models },
+  { path: '/gems', name: 'gems', component: Models },
+  { path: '/gems/compare/', name: 'comparemodels', component: CompareModels },
+  { path: '/gems/:id', name: 'gemsID', component: Models },
   { path: '/resources', name: 'resources', component: Resources },
-  { path: '/help', name: 'help', component: Help },
+  { path: '/documentation', name: 'documentation', component: Help },
   { path: '/contact', name: 'contact', component: Contact },
   { path: '/Atlas', name: 'atlas', component: Atlas },
   { path: '/hreed', name: 'hreed', component: Hreed },
+  { path: '/*', name: 'GemsExplorerDefault', component: GemsExplorer },
 ];
 
 const router = new VueRouter({

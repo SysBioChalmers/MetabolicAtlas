@@ -103,7 +103,7 @@ related_scripts/create_the_import_files/*.tsv
 related_scripts/create_the_import_files/*.sdf
 related_scripts/create_the_import_files/*.db
 related_scripts/create_the_import_files/CID*
-related_scripts/create_the_import_files/large_files/
-database_generation/data/connectivity/
+related_scripts/create_the_import_files/large_files/*
+database_generation/**/output/*
 svgs/
 .~lock*

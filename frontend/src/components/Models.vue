@@ -3,18 +3,18 @@
     {{ errorMessage }}
    </div>
   <div v-else id="models">
-    <span class="title">Models</span>
+    <span class="title">Genome-Scale Metabolic Models</span>
     <br>
     <div class="container">
       <loader v-show="showLoader"></loader>
       <div v-if="sortedGEMS.length != 0">
         <div class="columns">
           <div class="column">
-            <span id="show-m-but" class="button is-primary" :class="{'is-active': showMaintained }"
+            <span id="show-m-but" class="button is-light" :class="{'is-active': showMaintained }"
               @click="toggleMaintainedModels">
               Maintained only
             </span>
-            <span id="show-m-but" class="button is-primary is-pulled-right" :class="{'is-active': showFTPaccess }"
+            <span id="show-m-but" class="button is-pulled-right" :class="{'is-active': showFTPaccess }"
               @click="showFTPaccess = !showFTPaccess">
               FTP access
             </span>
@@ -163,9 +163,8 @@ export default {
   methods: {
     getModel(id) {
       console.log(id);
-      axios.get(`gemodel/${id}`)
+      axios.get(`gems/${id}`)
       .then((response) => {
-        console.log(response);
         let model = response.data;
         // reformat the dictionnary
         delete model.id;
@@ -180,7 +179,6 @@ export default {
         delete model.gemodelset;
         // model = $.extend(model, model.reference);
         // delete model.reference;
-        console.log(response);
         if (!model.description) {
           model.description = setDescription;
         }
@@ -194,7 +192,7 @@ export default {
     },
     getModels() {
       this.showLoader = true;
-      axios.get('gemodels/')
+      axios.get('gems/')
       .then((response) => {
         this.GEMS = [];
         for (let i = 0; i < response.data.length; i += 1) {
@@ -204,7 +202,7 @@ export default {
           this.GEMS.push($.extend(gem, sample));
         }
         this.sortedGEMS = this.GEMS.sort(
-          compare('set_name', 'asc'));
+          compare('set_name', null, 'asc'));
         this.errorMessage = '';
         this.showLoader = false;
       })
@@ -224,7 +222,7 @@ export default {
       const gemsList = Array.prototype.slice.call(
       this.sortedGEMS); // Do not mutate original elms;
       this.sortedGEMS = gemsList.sort(
-        compare(field, this.sortAsc ? 'asc' : 'desc'));
+        compare(field, null, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
     },
     toggleMaintainedModels() {

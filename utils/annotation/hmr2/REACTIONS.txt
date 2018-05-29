@@ -1,0 +1,2 @@
+@ID	name	sbo_id	ec	pmid
+HMR_0030	name of reaction HMR_0030	SBO00001	ec:11232	12054595; 11673457
