@@ -10,14 +10,18 @@ Arachidonic acid metabolism	Other metabolism	external_id	external_link.com	sub d
 Arginine and proline metabolism	Amino Acid metabolism	external_id	external_link.com	sub description
 Ascorbate and aldarate metabolism	Other metabolism	external_id	external_link.com	sub description
 beta-Alanine metabolism	Other metabolism	external_id	external_link.com	sub description
-Beta oxidation of branched-chain fatty acids	Fatty acid	external_id	external_link.com	sub description
-Beta oxidation of di-unsaturated fatty acids (n-6)	Fatty acid	external_id	external_link.com	sub description
-Beta oxidation of even-chain fatty acids	Fatty acid	external_id	external_link.com	sub description
-Beta oxidation of odd-chain fatty acids	Fatty acid	external_id	external_link.com	sub description
-Beta oxidation of phytanic acid	Fatty acid	external_id	external_link.com	sub description
-Beta oxidation of poly-unsaturated fatty acids	Fatty acid	external_id	external_link.com	sub description
-Beta oxidation of unsaturated fatty acids (n-7)	Fatty acid	external_id	external_link.com	sub description
-Beta oxidation of unsaturated fatty acids (n-9)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of branched-chain fatty acids (mitochondrial)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of di-unsaturated fatty acids (n-6) (mitochondrial)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of di-unsaturated fatty acids (n-6) (peroxisomal)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of even-chain fatty acids (mitochondrial)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of even-chain fatty acids (peroxisomal)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of odd-chain fatty acids (mitochondrial)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of odd-chain fatty acids (peroxisomal)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of phytanic acid (peroxisomal)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of poly-unsaturated fatty acids (mitochondrial)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of unsaturated fatty acids (n-7) (mitochondrial)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of unsaturated fatty acids (n-9) (mitochondrial)	Fatty acid	external_id	external_link.com	sub description
+Beta oxidation of unsaturated fatty acids (n-9) (peroxisomal)	Fatty acid	external_id	external_link.com	sub description
 Bile acid biosynthesis	Other	external_id	external_link.com	sub description
 Bile acid recycling	Other	external_id	external_link.com	sub description
 Biopterin metabolism	Other metabolism	external_id	external_link.com	sub description
@@ -25,7 +29,10 @@ Biotin metabolism	Vitamin metabolism	external_id	external_link.com	sub descripti
 Blood group biosynthesis	Other	external_id	external_link.com	sub description
 Butanoate metabolism	Other metabolism	external_id	external_link.com	sub description
 C5-branched dibasic acid metabolism	Other metabolism	external_id	external_link.com	sub description
-Carnitine shuttle	Carnitine shuttle	external_id	external_link.com	sub description
+Carnitine shuttle (cytosolic)	Carnitine shuttle	external_id	external_link.com	sub description
+Carnitine shuttle (endoplasmic reticular)	Carnitine shuttle	external_id	external_link.com	sub description
+Carnitine shuttle (mitochondrial)	Carnitine shuttle	external_id	external_link.com	sub description
+Carnitine shuttle (peroxisomal)	Carnitine shuttle	external_id	external_link.com	sub description
 Cholesterol biosynthesis 1 (Bloch pathway)	Cholesterol biosynthesis	external_id	external_link.com	sub description
 Cholesterol biosynthesis 2	Cholesterol biosynthesis	external_id	external_link.com	sub description
 Cholesterol biosynthesis 3  (Kandustch-Russell pathway)	Cholesterol biosynthesis	external_id	external_link.com	sub description
@@ -37,7 +44,8 @@ Eicosanoid metabolism	Other metabolism	external_id	external_link.com	sub descrip
 Estrogen metabolism	Other metabolism	external_id	external_link.com	sub description
 Ether lipid metabolism	Other metabolism	external_id	external_link.com	sub description
 Exchange reactions	Other	external_id	external_link.com	sub description
-Fatty acid activation	Fatty acid	external_id	external_link.com	sub description
+Fatty acid activation (cytosolic)	Fatty acid	external_id	external_link.com	sub description
+Fatty acid activation (endoplasmic reticular)	Fatty acid	external_id	external_link.com	sub description
 Fatty acid biosynthesis (even-chain)	Fatty acid	external_id	external_link.com	sub description
 Fatty acid biosynthesis (odd-chain)	Fatty acid	external_id	external_link.com	sub description
 Fatty acid biosynthesis (unsaturated)	Fatty acid	external_id	external_link.com	sub description

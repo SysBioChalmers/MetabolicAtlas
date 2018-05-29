@@ -60,7 +60,7 @@ def read_compartment_reaction(fileName):
             if m:
                 rid = m.group(1)
                 # FIX ME, might need to change 1 to 1.0 
-                m = re.search('matrix[(]1,0,0,1,(\d+),(\d+)[)]', data[idx+1])
+                m = re.search('matrix[(]1[.]0,0,0,1[.]0,(\d+(?:[.]\d+)?),(\d+(?:[.]\d+)?)[)]', data[idx+1])
                 x, y = m.groups()
                 res[rid] = (float(x), float(y))
     return res
@@ -152,8 +152,9 @@ def reformat_pw_name(pw_name):
     pw_name = pw_name.replace(' ', '_').replace(',', '_'). \
         replace('/', '_').replace('-', '_').replace('(', '_'). \
         replace(')', '_')
-    pw_name = re.sub('_{2,}', '_', pw_name)
-    return pw_name.strip('_')
+    #pw_name = re.sub('_{2,}', '_', pw_name)
+    #return pw_name.strip('_')
+    return pw_name
 
 
 def is_compartment_pathway(fileName, pathway):
@@ -995,7 +996,7 @@ def saveTileSubsystem(database, compt_sub_svg, compt_sub, compt_rme_svg, compt_r
 
             # check if the subsystem is in the compartment:
             if s_name not in compt_sub[c_name]:
-                print ("Error: subsystem '%s' not in compartment '%s' in DB")
+                print ("Error: subsystem '%s' not in compartment '%s' in DB" % (s_name, c_name))
                 exit(1)
 
             # get all reaction in the current subsystem
