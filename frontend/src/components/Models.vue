@@ -163,7 +163,7 @@ export default {
   methods: {
     getModel(id) {
       console.log(id);
-      axios.get(`gemodel/${id}`)
+      axios.get(`gems/${id}`)
       .then((response) => {
         let model = response.data;
         // reformat the dictionnary
@@ -192,7 +192,7 @@ export default {
     },
     getModels() {
       this.showLoader = true;
-      axios.get('gemodels/')
+      axios.get('gems/')
       .then((response) => {
         this.GEMS = [];
         for (let i = 0; i < response.data.length; i += 1) {

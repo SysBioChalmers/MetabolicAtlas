@@ -104,7 +104,7 @@ export default {
       if (this.expandAllCompartment) {
         ID = ID.replace(/[a-z]$/, '');
       }
-      axios.get(`${this.model}/metabolite_reactions/${ID}`)
+      axios.get(`${this.model}/metabolites/${ID}/reactions/`)
         .then((response) => {
           this.errorMessage = '';
           if (this.expandAllCompartment) {

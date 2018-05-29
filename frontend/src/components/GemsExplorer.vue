@@ -65,9 +65,9 @@ export default {
     Subsystem,
     GlobalSearch,
   },
+  props: ['selectedModel'],
   data() {
     return {
-      selectedModel: 'hmr2',
       selectedType: '',
       searchTerm: '',
       searchResults: [],

@@ -6,3 +6,4 @@ django-rest-swagger>=2.1.2
 django-extensions
 pygraphviz
 python-libsbml
+pyyaml

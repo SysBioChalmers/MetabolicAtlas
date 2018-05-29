@@ -1,3 +1,6 @@
+############################################################
+# TODO is a work in progress, do not work                  #
+############################################################
 import sys, os
 
 from django.db import models
@@ -7,13 +10,27 @@ from django.core.management.base import BaseCommand
 
 def getFirstOrderInteractionPartners(reaction_component):
     # first get all reactions that the reaction component participates in
-    as_reactant = [MetaboliteReaction(rc, 'reactant') for rc in reaction_component.reactions_as_reactant.all()]
-    as_product = [MetaboliteReaction(rc, 'product') for rc in reaction_component.reactions_as_product.all()]
-    as_modifier = [MetaboliteReaction(rc, 'modifier') for rc in reaction_component.reactions_as_modifier.all()]
+    as_reactant = [r for r in reaction_component.reactions_as_reactant.all(). \
+    prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
+            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+            'reactants__compartment', 'products__compartment', 'modifiers__compartment')
+    ]
+    as_product = [r for r in reaction_component.reactions_as_product.all(). \
+    prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
+            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+            'reactants__compartment', 'products__compartment', 'modifiers__compartment')
+    ]
+    as_modifier = [r for r in reaction_component.reactions_as_modifier.all(). \
+    prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
+            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+            'reactants__compartment', 'products__compartment', 'modifiers__compartment')
+    ]
     reactions = as_reactant + as_product + as_modifier
     # then get all the unique reaction components for these reactions
     unique_reaction_components = {}
     for r in reactions:
+        print (r.reaction_id)
+        exit()
         unique_reaction_components[r.reaction_id] = None;
     return len(unique_reaction_components)
 

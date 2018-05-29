@@ -22,10 +22,10 @@
           <div class="columns">
             <div id="enzyme-details" class="reaction-table column is-10">
               <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table is-fullwidth">
-                <tr v-for="el in detailTableKey">
-                  <td v-if="el.display" class="td-key">{{ el.display }}</td>
+                <tr v-for="el in mainTableKey[model]">
+                  <td v-if="'display' in el" class="td-key">{{ el.display }}</td>
                   <td v-if="enzyme[el.name]">
-                    <span v-if="el.modifier" v-html="el.modifier(enzyme)">
+                    <span v-if="'modifier' in el" v-html=" el.modifier(enzyme)">
                     </span>
                     <span v-else>
                       {{ enzyme[el.name] }}
@@ -87,31 +87,18 @@ export default {
       id: '',
       enzyme: {},
       enzymeName: '',
-      tableStructure: [
-        { field: 'type', colName: 'Type', modifier: false },
-        { field: 'reactionid', colName: 'Reaction ID', modifier: false, rc: 'reaction', id: 'self' },
-        { field: 'short', link: true, colName: 'Short name', modifier: false, rc: 'metabolite' },
-        { field: 'long', colName: 'Long name', modifier: chemicalName },
-        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
-        {
-          field: 'isCurrencyMetabolite',
-          colName: 'Is currency metabolite',
-          modifier: b => (b ? 'yes' : 'no'),
-        },
-        { field: 'compartment', colName: 'Compartment', modifier: null },
-      ],
-      detailTableKey: [
-        { name: 'enzymeName', display: 'Gene Name' },
-        { name: 'function', display: 'Function' },
-        { name: 'compartment', display: 'Compartment' },
-        { name: 'id', display: 'Model ID' },
-        { name: 'long_name', display: 'Ensembl ID', modifier: this.reformatEnsblLink },
-        { name: 'uniprot_acc', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
-        { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBIlink },
-      ],
-      tableSearchTerm: '',
+      mainTableKey: {
+        hmr2: [
+          { name: 'enzymeName', display: 'Gene Name' },
+          { name: 'function', display: 'Function' },
+          { name: 'compartment', display: 'Compartment' },
+          { name: 'id', display: 'Model ID' },
+          { name: 'uniprot', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
+          { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBILink },
+          { name: 'id', display: 'Ensembl ID', modifier: this.reformatEnsemblLink },
+        ],
+      },
       reactions: [],
-      showGraphContextMenu: false,
     };
   },
   watch: {
@@ -139,14 +126,14 @@ export default {
       }
       return output;
     },
-    reformatEnsblLink(enzyme) {
-      return `<a href="${enzyme.ensembl_link}" target="_blank">${enzyme.long_name}</a>`;
-    },
     reformatUniprotLink(enzyme) {
-      return `<a href="http://www.uniprot.org/uniprot/${enzyme.uniprot_acc}" target="_blank">${enzyme.uniprot_acc}</a>`;
+      return `<a href="${enzyme.uniprot_link}" target="_blank">${enzyme.uniprot}</a>`;
     },
-    reformatNCBIlink(enzyme) {
-      return `<a href="https://www.ncbi.nlm.nih.gov/gene/${enzyme.ncbi}" target="_blank">${enzyme.ncbi}</a>`;
+    reformatNCBILink(enzyme) {
+      return `<a href="${enzyme.ncbi_link}" target="_blank">${enzyme.ncbi}</a>`;
+    },
+    reformatEnsemblLink(enzyme) {
+      return `<a href="${enzyme.ensembl_link}" target="_blank">${enzyme.id}</a>`;
     },
     load() {
       this.loading = true;
@@ -156,12 +143,9 @@ export default {
           this.loading = false;
           this.errorMessage = null;
           this.id = response.data.enzyme.id;
-          this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
+          this.enzymeName = response.data.enzyme.name || response.data.enzyme.id;
           this.enzyme = response.data.enzyme;
-          this.enzyme = $.extend(this.enzyme, response.data.enzyme.enzyme);
-          this.enzyme.enzyme = null;
           this.enzyme.enzymeName = this.enzymeName;
-          this.enzyme.long_name = response.data.enzyme.long_name;
           this.reactions = response.data.reactions;
         })
         .catch((error) => {
@@ -183,7 +167,7 @@ export default {
       );
     },
     viewInteractionPartners() {
-      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.id}`);
+      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.enzyme.id}`);
     },
     chemicalFormula,
     chemicalName,

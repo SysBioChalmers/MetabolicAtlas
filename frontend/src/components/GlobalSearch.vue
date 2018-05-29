@@ -277,7 +277,8 @@ export default {
           this.$emit('updateResults', this.searchTermString, this.searchResults);
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log(error);
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
