@@ -24,24 +24,13 @@ function db-make-migrations {
 }
 
 function db-migrate {
-    docker exec metabolicatlas_backend_1 python manage.py migrate
-    docker exec metabolicatlas_backend_1 python manage.py migrate --database=gems
-    docker exec metabolicatlas_backend_1 python manage.py migrate --database=tiles
+    docker exec metabolicatlas_backend_1 python manage.py migrate --database=$@
 }
 
 function create-su {
     docker exec -it metabolicatlas_backend_1 python manage.py createsuperuser
 }
 
-function build-production {
-    docker exec metabolicatlas_frontend_1 npm run build
-    sudo rm -rf nginx/static
-    sudo mkdir nginx/static
-    sudo cp -r frontend/dist/* nginx/
-    sudo mv nginx/index.html nginx/static/
-    sudo cp -r backend/static/ nginx/static/
-    sudo rm -rf frontend/dist
-}
 
 echo -e "
 
@@ -51,10 +40,8 @@ Available commands:
 \tstart-stack
 \tstop-stack
 \trestart-stack
-\tlogs
+\tlogs [container]
 \tdb-make-migrations
-\tdb-migrate
+\tdb-migrate [database]
 \tcreate-su
-\tbuild-production
-
 "
