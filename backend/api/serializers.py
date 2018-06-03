@@ -116,8 +116,8 @@ class InteractionPartnerSerializer(serializers.ModelSerializer):
     reactants = APIrcSerializer.ReactionComponentSerializer(many=True, read_only=True)
 
     class Meta:
-        model = APImodels.ReactionComponent
-        fields = ('id', 'modifiers', 'products', 'reactants')
+        model = APImodels.Reaction
+        fields = ('id', 'is_reversible', 'modifiers', 'products', 'reactants')
 
 
 class HmrInteractionPartnerLiteSerializer(serializers.ModelSerializer):
@@ -126,18 +126,23 @@ class HmrInteractionPartnerLiteSerializer(serializers.ModelSerializer):
     reactants = APIrcSerializer.ReactionComponentLiteSerializer(many=True, read_only=True)
 
     class Meta:
-        model = APImodels.ReactionComponent
-        fields = ('id', 'modifiers', 'products', 'reactants')
+        model = APImodels.Reaction
+        fields = ('id', 'is_reversible', 'modifiers', 'products', 'reactants')
 
 
 class HmrInteractionPartnerSerializer(serializers.ModelSerializer):
-    modifiers = APIrcSerializer.HmrEnzymeReactionComponentSerializer(many=True, read_only=True)
-    products = APIrcSerializer.HmrMetaboliteReactionComponentSerializer(many=True, read_only=True)
-    reactants = APIrcSerializer.HmrMetaboliteReactionComponentSerializer(many=True, read_only=True)
+    modifiers = APIrcSerializer.HmrEnzymeReactionComponentInteractionPartnerSerializer(many=True, read_only=True)
+    products = APIrcSerializer.HmrMetaboliteReactionComponentInteractionPartnerSerializer(many=True, read_only=True)
+    reactants = APIrcSerializer.HmrMetaboliteReactionComponentInteractionPartnerSerializer(many=True, read_only=True)
+    subsystem = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+     )
 
     class Meta:
-        model = APImodels.ReactionComponent
-        fields = ('id', 'modifiers', 'products', 'reactants')
+        model = APImodels.Reaction
+        fields = ('id', 'is_reversible', 'modifiers', 'products', 'reactants', 'subsystem')
 
 
 # =========================================================================================
