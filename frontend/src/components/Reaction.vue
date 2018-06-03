@@ -140,18 +140,21 @@ export default {
         e => e.replace(/^\(+|\)+$/g, '')
         );
       }
+
       let newGR = this.reaction.gene_rule;
-      const newGRArr = newGR.split(/ and | or /).map(
-        e => e.replace(/^\(+|\)+$/g, '')
-        );
-      for (let i = 0, l = newGRArr.length; i < l; i += 1) {
-        let e;
-        if (newGRnameArr) {
-          e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRnameArr[i]}</a></span>`;
-        } else {
-          e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRArr[i]}</a></span>`;
+      if (newGR) {
+        const newGRArr = newGR.split(/ and | or /).map(
+          e => e.replace(/^\(+|\)+$/g, '')
+          );
+        for (let i = 0, l = newGRArr.length; i < l; i += 1) {
+          let e;
+          if (newGRnameArr) {
+            e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRnameArr[i]}</a></span>`;
+          } else {
+            e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRArr[i]}</a></span>`;
+          }
+          newGR = newGR.replace(newGRArr[i], e);
         }
-        newGR = newGR.replace(newGRArr[i], e);
       }
       return newGR;
     },
