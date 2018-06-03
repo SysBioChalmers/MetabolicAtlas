@@ -10,7 +10,6 @@ import api.serializers_rc as APIrcSerializer
 from api.views import is_model_valid
 from api.views import componentDBserializerSelector
 
-import urllib.request
 import requests
 import re
 import logging
@@ -277,11 +276,12 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 @api_view(['POST'])
 def get_HPA_xml_content(request):
     url = request.data['url']
-    with urllib.request.urlopen(url) as response:
-        data = response.read()
+    r = requests.get(url)
+    if not r.status_code == 200:
+        return HttpResponse(status=r.status_code)
 
     import gzip
-    ddata = gzip.decompress(data)
+    ddata = gzip.decompress(r.content)
 
     return HttpResponse(ddata)
 
