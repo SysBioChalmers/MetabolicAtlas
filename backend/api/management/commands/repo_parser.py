@@ -126,9 +126,6 @@ def check_model_files(model_dir, name, rule):
         if not success:
             return False
 
-        # logging.warn(model_files_json)
-        # exit()
-
         if not model_files_json and rule['required']:
             error_message = "Error: directory '%s' is empty" % name
             return False

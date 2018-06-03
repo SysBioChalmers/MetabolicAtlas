@@ -7,7 +7,10 @@
             Reaction ID: {{ selectedElm.id }}
           </span>
           <span v-else>
-            {{ selectedElm.type === 'enzyme' ? 'Enzyme' : 'Metabolite' }}: {{ selectedElm.name }}
+            {{ selectedElm.type === 'enzyme' ? 'Enzyme' : 'Metabolite' }}: 
+            <a v-on:click="viewReactionComponent(selectedElm.type)">
+              {{ selectedElm.name }}
+            </a>
           </span>
         </p>
       </header>
@@ -26,9 +29,6 @@
           <div v-if="!selectedElm.details.function &&
                      !selectedElm.details.catalytic_activity">
             {{ $t('noInfoAvailable') }}
-          </div>
-          <div v-else-if="view === 'interaction'">
-            <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
           </div>
         </div>
         <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
@@ -58,9 +58,6 @@
                      !selectedElm.details.kegg">
             {{ $t('noInfoAvailable') }}
           </div>
-          <div>
-            <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
-          </div>
         </div>
       </div>
       <div v-else-if="selectedElm.type === 'reaction'" class="card-content">
@@ -70,10 +67,6 @@
         </div>
         <div v-if="!selectedElm.subsystem">
           {{ $t('noInfoAvailable') }}
-        </div>
-        <div v-else>
-          <br>
-          <button class="button" v-on:click="viewReactionComponent(selectedElm.type)">More</button>
         </div>
       </div>
       <div v-else>
@@ -92,7 +85,7 @@ import { chemicalFormula } from '../helpers/chemical-formatters';
 
 export default {
   name: 'sidebar',
-  props: ['selectedElm', 'view'],
+  props: ['model', 'selectedElm', 'view'],
   data() {
     return {
     };

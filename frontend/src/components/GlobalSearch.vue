@@ -1,17 +1,17 @@
 <template>
-  <div class="column is-8">
+  <div class="column is-6">
     <div class="control">
       <div v-if="!quickSearch">Search across all GEMs</div>
       <div id="input-wrapper">
         <p class="control has-icons-right">
         <input
           id="search"
-          class="input is-medium"
+          class="input"
           v-model="searchTermString"
           @input="searchDebounce"
           type="text"
           :placeholder="$t('searchPlaceholder')"
-          v-on:keyup.enter="validateSearch()"
+          v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
@@ -19,73 +19,100 @@
             Type at least 2 characters
           </span>
         </p>
+        <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
       </div>
-      <div v-if="quickSearch" id="searchResults" v-show="showResults && searchTermString.length > 1">
+      <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered">
           <div class="tag">
-            Note: Results are restricted to the active GEM and limited to 50 per component - Hit Enter to get full results
+            Results are restricted to the active GEM and limited to 50 per component - Click <a @click="goToSearchPage">&nbsp;Here&nbsp;</a> to get full results
           </div>
         </div>
         <div v-if="searchResults" class="searchGroupResultSection"
           v-for="k in resultsOrder" >
           <div v-for="r in searchResults[k]" class="searchResultSection">
             <div v-if="k === 'enzyme'">
-              <strong>Enzyme: </strong> {{ r.name }}
+              <b>Enzyme: </b> {{ r.name }}
               <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
-              <div>
-                 <span
-                  class="tag is-primary is-medium"
-                  @click="goToTab('interaction', r.id)">
-                  Closest interaction partners
-                </span>
-                <span class="tag is-primary is-medium"
-                  @click="goToTab('enzyme', r.id)">
-                  Enzyme
-                </span>
+              <div class="columns">
+                <div class="column">
+                  <span
+                    class="tag is-primary is-medium"
+                    @click="goToTab('interaction', r.id)">
+                    Closest interaction partners
+                  </span>
+                  <span class="tag is-primary is-medium"
+                    @click="goToTab('enzyme', r.id)">
+                    Enzyme
+                  </span>
+                  <span class="tag is-info is-medium is-pulled-right"
+                    @click="viewOnMetabolicViewer(r.id, 'enzyme')">
+                    View
+                  </span>
+                </div>
               </div>
             </div>
             <div v-else-if="k === 'metabolite'">
-              <strong>Metabolite: </strong> {{ r.name }}
+              <b>Metabolite: </b> {{ r.name }}
               <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
-              <div>
-                <span
-                  class="tag is-primary is-medium"
-                  @click="goToTab('interaction', r.id)">
-                  Closest interaction partners
-                </span>
-                <span class="tag is-primary is-medium"
-                  @click="goToTab('metabolite', r.id)">
-                  Metabolite
-                </span>
+              <div class="columns">
+                <div class="column">
+                  <span
+                    class="tag is-primary is-medium"
+                    @click="goToTab('interaction', r.id)">
+                    Closest interaction partners
+                  </span>
+                  <span class="tag is-primary is-medium"
+                    @click="goToTab('metabolite', r.id)">
+                    Metabolite
+                  </span>
+                  <span class="tag is-info is-medium is-pulled-right"
+                    @click="viewOnMetabolicViewer(r.id, 'metabolite')">
+                    View
+                  </span>
+                </div>
               </div>
             </div>
             <div v-else-if="k === 'reaction'">
-              <strong>Reaction: </strong> {{ r.id }} ‒ {{ r.equation }}
-              <div>
-                <span
-                  class="tag is-primary is-medium"
-                  @click="goToTab('reaction', r.id)">
-                  Reaction
-                </span>
+              <b>Reaction: </b> {{ r.id }} ‒ {{ r.equation }}
+              <div class="columns">
+                <div class="column">
+                  <span
+                    class="tag is-primary is-medium"
+                    @click="goToTab('reaction', r.id)">
+                    Reaction
+                  </span>
+                  <span class="tag is-info is-medium is-pulled-right"
+                    @click="viewOnMetabolicViewer(r.id, 'reaction')">
+                    View
+                  </span>
+                </div>
               </div>
             </div>
             <div v-else-if="k === 'subsystem'">
-              <strong>Subsystem: </strong> {{ r.name }} ‒ {{ r.system }}
-              <div>
-                <span
-                  class="tag is-primary is-medium"
-                  @click="goToTab('subsystem', r.id)">
-                  Subsystem
-                </span>
+              <b>Subsystem: </b> {{ r.name }} ‒ {{ r.system }}
+              <div class="columns">
+                <div class="column">
+                  <span
+                    class="tag is-primary is-medium"
+                    @click="goToTab('subsystem', r.name.toLowerCase())">
+                    Subsystem
+                  </span>
+                  <span class="tag is-info is-medium is-pulled-right"
+                    @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'subsystem')">
+                    View
+                  </span>
+                </div>
               </div>
             </div>
             <div v-else-if="k === 'compartment'">
-              <strong>Compartment: </strong> {{ r.name }}
-              <div>
-                <span class="tag is-primary is-medium"
-                  @click="viewCompartment(r.name.toLowerCase())">
-                  View
-                </span>
+              <b>Compartment: </b> {{ r.name }}
+              <div class="columns">
+                <div class="column">
+                  <span class="tag is-info is-medium is-pulled-right"
+                    @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'compartment')">
+                    View
+                  </span>
+                </div>
               </div>
             </div>
             <hr>
@@ -110,6 +137,7 @@
 <script>
 import axios from 'axios';
 import Loader from 'components/Loader';
+import _ from 'lodash';
 import { chemicalFormula } from '../helpers/chemical-formatters';
 import { default as EventBus } from '../event-bus';
 import { getCompartmentFromName } from '../helpers/compartment';
@@ -136,7 +164,7 @@ export default {
       errorMessage: '',
       resultsOrder: ['metabolite', 'enzyme', 'reaction', 'subsystem', 'compartment'],
       searchResults: [],
-      searchTermString: this.searchTerm,
+      searchTermString: '',
       showSearchCharAlert: false,
       showResults: true,
       showLoader: false,
@@ -144,48 +172,97 @@ export default {
     };
   },
   watch: {
-    searchResults() {
-      if (!this.quickSearch) {
-        this.$emit('updateResults', this.searchTermString, this.searchResults);
-      }
-    },
+    // searchResults() {
+    //   if (!this.quickSearch) {
+    //     console.log('here');
+    //     console.log(this.searchTermString);
+    //     console.log(this.searchResults);
+    //     console.log('-------------------------');
+    //     this.$emit('updateResults', this.searchTermString, this.searchResults);
+    //   }
+    // },
+  },
+  created() {
+    // init the global events
+    EventBus.$on('hideSearchResult', () => {
+      this.showResults = false;
+    });
+  },
+  mounted() {
+    this.$refs.searchResults.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    this.$refs.searchInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
   },
   methods: {
-    searchDebounce() {
+    searchDebounce: _.debounce(function e() {
       this.noResult = false;
       this.showSearchCharAlert = this.searchTermString.length === 1;
-
       if (!this.quickSearch) {
         return;
       }
-
       this.showLoader = true;
-      this._.debounce(() => {
-        if (this.searchTermString.length >= 2) {
-          this.search(this.searchTermString);
-        }
-      }, 700)();
-    },
+      if (this.searchTermString.length > 1) {
+        this.showResults = true;
+        this.search(this.searchTermString);
+      }
+    }, 700),
     search(searchTerm) {
+      if (this.searchTermString !== searchTerm) {
+        this.searchTermString = searchTerm;
+      }
       const url = this.quickSearch ? `${this.model}/search/${searchTerm}` : `all/search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
-        const searchResults = response.data.reactionComponent.reduce((subarray, el) => {
-          const arr = subarray;
-          if (!arr[el.component_type]) { arr[el.component_type] = []; }
-          arr[el.component_type].push(el);
-          return arr;
-        }, {});
+        const searchResults = {
+          metabolite: [],
+          enzyme: [],
+          reaction: [],
+          subsystem: [],
+          compartment: [],
+        };
 
-        searchResults.reaction = response.data.reaction;
-        searchResults.subsystem = response.data.subsystem;
-        searchResults.compartment = response.data.compartment;
+        for (const model of Object.keys(response.data)) {
+          const resultsModel = response.data[model];
+          if (resultsModel.metabolite.length) {
+            searchResults.metabolite = searchResults.metabolite.concat(
+              resultsModel.metabolite.map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              }));
+          }
+          if (resultsModel.enzyme.length) {
+            searchResults.enzyme = searchResults.enzyme.concat(
+              resultsModel.enzyme.map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              }));
+          }
+          if (resultsModel.reaction.length) {
+            searchResults.reaction = searchResults.reaction.concat(
+              resultsModel.reaction.map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              }));
+          }
+          if (resultsModel.subsystem.length) {
+            searchResults.subsystem = searchResults.subsystem.concat(
+              resultsModel.subsystem).map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              });
+          }
+          if (resultsModel.compartment.length) {
+            searchResults.compartment = searchResults.compartment.concat(
+              resultsModel.compartment).map(
+              (e) => {
+                const d = e; d.model = model; return d;
+              });
+          }
+        }
 
-        // searchResults.metabolite = searchResults.reactionComponent.filter(
-        // o => o.component_type === 'metabolite');
-        // searchResults.enzyme = searchResults.reactionComponent.filter(
-        // o => o.component_type === 'enzyme');
-        // delete searchResults.reactionComponent;
         this.noResult = true;
         for (const k of Object.keys(searchResults)) {
           if (searchResults[k].length) {
@@ -196,11 +273,18 @@ export default {
         }
         this.searchResults = searchResults;
         this.showLoader = false;
+        if (!this.quickSearch) {
+          this.$emit('updateResults', this.searchTermString, this.searchResults);
+        }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log(error);
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
+        if (!this.quickSearch) {
+          this.$emit('updateResults', this.searchTermString, this.searchResults);
+        }
       });
     },
     goToTab(type, id) {
@@ -209,11 +293,16 @@ export default {
       this.searchResults = [];
       EventBus.$emit('updateSelTab', type, id);
     },
-    viewCompartment(name) {
-      if (name === 'cytosol') {
-        name = 'cytosol_1';  // eslint-disable-line no-param-reassign
+    advancedSearch() {
+      this.$router.push({ name: 'search' });
+    },
+    viewOnMetabolicViewer(name, type) {
+      if (type === 'compartment') {
+        if (name === 'cytosol') {
+          name = 'cytosol_1';  // eslint-disable-line no-param-reassign
+        }
       }
-      EventBus.$emit('requestViewer', 'compartment', name, '', []);
+      EventBus.$emit('requestViewer', type, name, '', []);
     },
     formatSearchResultLabel(c, searchTerm) {
       let s = `${c.short_name || c.long_name} (${c.compartment}`;
@@ -270,23 +359,26 @@ export default {
 #searchResults {
   background: white;
   position: absolute;
-  top: 40px;
-  max-height: 300px;
+  top: 37px;
+  max-height: 22rem;
   overflow-y: auto;
+  overflow-x: hidden;
   width: 100%;
-  border: 1px solid #64CC9A;
+  border: 1px solid lightgray;
   border-top: 0;
   margin-top: -2px;
   z-index: 30;
+
+  hr {
+    margin: 1rem 0;
+  }
 
   .searchGroupResultSection:first-child {
     padding-top: 15px;
   }
 
   .searchResultSection {
-    margin-bottom: 10px;
     padding: 0 10px;
-    background: white;
 
     label {
       font-style: italic;
@@ -294,14 +386,6 @@ export default {
 
     span {
       cursor: pointer;
-    }
-  }
-
-  .searchGroupResultSection:last-child {
-    .searchResultSection:last-child {
-      hr {
-        display: none;
-      }
     }
   }
 }

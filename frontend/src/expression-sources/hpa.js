@@ -55,14 +55,13 @@ export default function(rawElms, xmlContent, unzip) {
   }
 
   const xmlDoc = parseXML(xmlContent);
-  console.log(xmlDoc);
   const genes = xmlDoc.getElementsByTagName('entry');
   const hpaGeneEx = {};
   let hpaRnaTissues = {};
   let hpaRnaCellLines = {};
   for (const gene of genes) {
-    const genename = gene.getElementsByTagName('name')[0].textContent;
-    hpaGeneEx[genename] = [];
+    const geneID = gene.getElementsByTagName('identifier')[0].id;
+    hpaGeneEx[geneID] = [];
     const samples = gene.getElementsByTagName('rnaExpression')[0].getElementsByTagName('data');
     // Loop through rnaExpression children 'samples'
     for (let i = 0; i < samples.length; i += 1) {
@@ -101,7 +100,7 @@ export default function(rawElms, xmlContent, unzip) {
       if (geneExpression.value) {
         geneExpression.color = getExpressionColor(geneExpression.value);
       }
-      hpaGeneEx[genename].push(geneExpression);
+      hpaGeneEx[geneID].push(geneExpression);
     }
   }
 
@@ -120,8 +119,8 @@ export default function(rawElms, xmlContent, unzip) {
     }
     rawElms2[elid].expressionLvl.HPA.RNA = {};
     const HPARNAexp = rawElms2[elid].expressionLvl.HPA.RNA;
-    if (hpaGeneEx[rawElms[elid].short]) {
-      for (const tissue of hpaGeneEx[rawElms[elid].short]) {
+    if (hpaGeneEx[rawElms[elid].id]) {
+      for (const tissue of hpaGeneEx[rawElms[elid].id]) {
         HPARNAexp[tissue.name] = tissue.color;
       }
     }

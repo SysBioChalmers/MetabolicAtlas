@@ -1,0 +1,11 @@
+# comment
+#
+# the name on the columns correspond to the name in the database, thoses name should be changed and specify in the a serializer
+# the new column name should be specify in the frontend, as to define the order of the column show in the metabolite page
+#
+# ID: should match the ID in the YAML file, is the model ID
+# name_link: if the name must be a link, specify the destination here
+# alt_name1/alt_name2: can be a short version of the name or the name without the compartment
+
+@ID	name_link	alt_name1	alt_name2	aliases	external_id1	external_link1	external_id2	external_link2	external_id3	external_link3	external_id4	external_link4	formula	description	function1	function2	charge	mass	mass_avg	inchi
+m03057c	name_link.com	tryphophate alt_name1	tryphophate alt_name2	ALIAS1; ALIAS2; ALIAS3	HMDB00001	www.hmdb.com/HMDB00001							F0RM4l3	description	function1	function2	42	1234.56		INCHI==========================

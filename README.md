@@ -42,13 +42,57 @@ build-stack
 start-stack
 ```
 
-The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&id=E_3396.
+The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&id=E_3396.`
 The backend should be available at: `http://localhost/api/`, for example: `http://localhost/api/reaction_components/E_3379/with_interaction_partners`.
 There is also a swagger UI for browsing the API at: `http://localhost/swagger`.
 
 If you encounter any problems try running `restart-stack`. or look at the logs `logs backend` / `logs frontend`
 
 ### Create the databases
+
+The Full models databases are mapping public models (supposedly) inserted into the GEMs database, thus GEMs database should be built prior the Full models databases.
+
+#### GEMs database
+
+Connect to the corresponding DB docker container (db2)
+
+```bash
+docker exec -it $(docker ps -qf "name=metabolicatlas_db2_1")  bash
+```
+
+To disconnect all sessions open on a database use:
+
+```bash
+SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'gems' AND pid <> pg_backend_pid();
+```
+
+Create the db in psql (-U postgres)
+
+```sql
+CREATE DATABASE "gems" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
+```
+
+To import models:
+
+Extract model_files_full.tar.gz (available in the MetabolicAtlas folder on Box) into backend/model_files/ (might not exist) and run in the **backend container**:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate --database gems
+python manage.py getMAModels
+```
+
+Follow the instructions displayed at the end to serve the models file from ftp.icsb.chalmers.se.
+Note: model files are stored in backend/model_files/FTP, removing this folder will re-download models files from remote locations (http://www.metabolicatlas.org/ and http://biomet-toolbox.chalmers.se/).
+
+
+To import **public** models from SysbioChalmers Github organization, run:
+
+```bash
+python manage.py getGithubModels
+```
+
+Watch out the API rate limit (https://developer.github.com/v3/rate_limit/).
 
 #### Full model databases
 
@@ -64,75 +108,35 @@ To disconnect all sessions open on a database use:
 SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'hmr2' AND pid <> pg_backend_pid();
 ```
 
-Then the data as explained in the above section...
+Then connect to the **backend container** and run:
 
 ```bash
 source postgres.env                               # to load the environment variables
 
 python manage.py makemigrations
 python manage.py migrate --database [database] e.g. 'hmr2' (see settings.py)
-python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables
-python manage.py populateDB      # read in the HMR2.0 database, and all associated annotations
-python manage.py addNumberOfInteractionPartners [database]   # for each reaction_component calculate the number of interaction partners...
+python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables (optional)
+python manage.py populateDB [database] [YAML file] [model label] [model PMID]
+# model label and model PMID are used to get information about the input model. from the 'gems' database,
+# consequently the model should be added by getGithubModels.py in the 'gems' database
+# it means that the model repo should be available and public on Chalmers Sysbio Github organization repos
+# [model label] [model PMID] might be extracted from the YAML in the future, this is a temporary solution
 
-# **deprecated**, expression data are directly requested from HPA
-python manage.py expressionDataFromHPA
-# not used if no expressionDataFromHPA
-python manage.py addTissueOntology                # add the BrendaTissueOntology, this is model independent and should only be added once...
+python manage.py addAnnotations [database] 'all' '' # add content of annotations files found in annotation/hmr2/ in the database
+# this commande will create data in tables metabolite and enzyme
+
+# no available yet
+# python manage.py addCurrencyMetabolites [database]   # define currency metabolites
+# python manage.py addNumberOfInteractionPartners [database]   # for each reaction_component calculate and store the number of interaction partners...
 ```
+
 (as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)
-
-**deprecated** Login into the database and run the following 3 commands to load the expression data...
-```bash
-psql -h localhost -p 5432 -U postgres -d hmr2
-```
-```sql
-\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_antibody_from_HPA_0.csv' csv delimiter ',' quote '"';
-\copy expression_data(reaction_component, gene_id, gene_name, transcript_id, tissue, cell_type, bto_id, level, expression_type, reliability, source) from '/Users/halena/Documents/Sys2Bio/hma-prototype/database_generation/data/load_rnaseq_from_HPA_0.csv' delimiter ',';
-update reaction_component set short_name=exp.gene_name FROM (SELECT gene_id, gene_name FROM expression_data) AS exp WHERE exp.gene_id = long_name AND short_name is null;  # see if we can add any more protein symbols using the HPA data...
-```
 
 Insert all information related to the svg maps, compare the DB and svg maps, shows statistics
 
 ```bash
-python manage.py addCompartmentInformation database_generation/data/compartmentInfo.tab [database]
+python manage.py addCompartmentSubsystemInformation [database] --compartment-svg-file database_generation/[database]/compartmentSVF.tsv
 ```
-
-#### GEMs database
-
-Connect to the corresponding docker container
-
-```bash
-docker exec -it $(docker ps -qf "name=metabolicatlas_db2_1")  bash
-```
-
-Create the db in psql (-U postgres)
-
-```sql
-CREATE DATABASE "gems" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
-```
-
-To import models:
-
-Extract model_files_full.tar.gz (available in the MetabolicAtlas folder on Box) into backend/model_files/ (might not exist) and run:
-
-```bash
-python manage.py migrate --database gems
-python manage.py getMAModels
-```
-
-Follow the instructions at the end to serve the models file from ftp.icsb.chalmers.se.
-Note: model files are stored in backend/model_files/FTP, removing this folder will re-download models files from remote locations (http://www.metabolicatlas.org/ and http://biomet-toolbox.chalmers.se/).
-
-
-To import **public** models from SysbioChalmers Github organization, run:
-
-```bash
-python manage.py getGithubModels
-```
-
-Watch out the API rate limit (https://developer.github.com/v3/rate_limit/).
-
 
 ### dump databases
 

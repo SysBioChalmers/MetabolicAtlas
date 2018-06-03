@@ -34,6 +34,7 @@
               <li><a href="#reactionpage">Reaction</a> page</li>
             </ul>
           </li>
+        </ul>
         By pressing one of these you go directly to that page...<br>
         <i>alternatively</i> you can press Enter and be take to a table of
         all possible <a href="#searchresults">search results</a> that fit your term.
@@ -314,7 +315,7 @@
           </li>
           <li><a href="#gem_data">GEM data</a></li>
         </ul>
-      <div>
+      </div>
     </div>
   </div>
 </template>
