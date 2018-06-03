@@ -10,8 +10,12 @@
           <span v-show="expandAllCompartment">Restrict to current compartment</span>
           </button>
       </p>
-      <reaction-table v-show="!showLoader && !expandAllCompartment" :reactions="reactions" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
-      <reaction-table v-show="!showLoader && expandAllCompartment" :reactions="reactionsAllcompartment" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
+      <template v-show="showTable">
+        <reaction-table v-show="!showLoader && !expandAllCompartment" 
+        :reactions="reactions" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
+        <reaction-table v-show="!showLoader && expandAllCompartment" 
+        :reactions="reactionsAllcompartment" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
+      </template>
       <div v-if="errorMessage" class="columns">
         <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
           {{ errorMessage }}
@@ -39,7 +43,7 @@ export default {
     ReactionTable,
     Loader,
   },
-  props: ['model'],
+  props: ['model', 'metaboliteID'],
   data() {
     return {
       errorMessage: '',
@@ -47,19 +51,19 @@ export default {
       reactionsAllcompartment: [],
       reactome: null,
       showLoader: true,
+      showTable: false,
       expandAllCompartment: false,
       elementID: '',
+      ID: '',
     };
   },
   watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      this.loadReactions();
+    metaboliteID() {
+      if (this.metaboliteID) {
+        this.ID = this.metaboliteID;
+        this.loadReactions();
+      }
     },
-  },
-  mounted() {
-    this.loadReactions();
-    // this.drawDiagram();
   },
   methods: {
     drawDiagram() {
@@ -93,18 +97,14 @@ export default {
       }, g3).setLineColor('#5D4037');
     },
     loadReactions() {
-      let ID = this.$route.params.id || this.$route.query.id;
-      if (this.elementID === ID &&
+      if (this.elementID === this.ID &&
          ((this.expandAllCompartment && this.reactionsAllcompartment.length !== 0) ||
          (!this.expandAllCompartment && this.reactions.length !== 0))) {
         return;
       }
       this.showLoader = true;
-      this.elementID = ID;
-      if (this.expandAllCompartment) {
-        ID = ID.replace(/[a-z]$/, '');
-      }
-      axios.get(`${this.model}/metabolites/${ID}/reactions/`)
+      this.elementID = this.ID;
+      axios.get(`${this.model}/metabolites/${this.ID}/reactions/`)
         .then((response) => {
           this.errorMessage = '';
           if (this.expandAllCompartment) {
@@ -112,17 +112,13 @@ export default {
           } else {
             this.reactions = response.data;
           }
+          this.showTable = true;
           this.showLoader = false;
         })
         .catch((error) => {
+          console.log(error);
           this.loading = false;
-          switch (error.response.status) {
-            case 404:
-              this.errorMessage = this.$t('notFoundError');
-              break;
-            default:
-              this.errorMessage = this.$t('unknownError');
-          }
+          this.showTable = false;
         });
     },
     // TODO: call loadReactome when selecting a row from the table of reactions
@@ -137,6 +133,9 @@ export default {
     },
     toggleExpandAllCompartment() {
       this.expandAllCompartment = !this.expandAllCompartment;
+      if (this.expandAllCompartment) {
+        this.ID = this.ID.replace(/[a-z]{1,3}$/, '');
+      }
       this.loadReactions();
     },
   },

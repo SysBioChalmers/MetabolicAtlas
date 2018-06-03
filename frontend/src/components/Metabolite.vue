@@ -62,7 +62,7 @@
         </div>
       </div> 
       <div class="columns">
-        <reactome id="metabolite-reactome" :model="this.model"></reactome>
+        <reactome v-show="showReactome" id="metabolite-reactome" :model="this.model" :metaboliteID="metaboliteID"></reactome>
       </div>
     </div>
   </div>
@@ -83,6 +83,7 @@ export default {
   data() {
     return {
       mId: this.$route.params.id,
+      metaboliteID: '',
       mainTableKey: {
         hmr2: [
           { name: 'name' },
@@ -105,6 +106,7 @@ export default {
       errorMessage: '',
       activePanel: 'table',
       showHMDB: false,
+      showReactome: false,
     };
   },
   watch: {
@@ -116,18 +118,22 @@ export default {
   methods: {
     setup() {
       this.mId = this.$route.params.id;
-      this.load();
+      if (this.mId) {
+        this.load();
+      }
     },
     load() {
       axios.get(`${this.model}/metabolites/${this.mId}/`)
       .then((response) => {
-        console.log(response.data);
+        this.metaboliteID = this.mId;
         this.info = response.data;
         this.showHMDB = this.hasHMDBInfo();
+        this.showReactome = true;
       })
       .catch((error) => {
         console.log(error);
         this.errorMessage = this.$t('notFoundError');
+        this.showReactome = false;
       });
     },
     reformatID(id) {
