@@ -84,15 +84,18 @@ export default {
   watch: {
     reactions() {
       // create consume/produce column
-      // TODO do this at the dababase level
-      if (false && this.selectedElmId) {
+      if (this.selectedElmId) {
         this.showCP = true;
         for (const reaction of this.reactions) {
           if (reaction.is_reversible) {
             reaction.cp = 'reversible';
           } else {
-            const boolC = reaction.reactants.map(x => x.id).includes(this.selectedElmId);
-            const boolP = reaction.products.map(x => x.id).includes(this.selectedElmId);
+            let ID = this.selectedElmId;
+            if (reaction.id_equation.indexOf(ID) === -1) {
+              ID = this.selectedElmId.slice(0, -1);
+            }
+            const boolC = reaction.id_equation.split('=>')[0].indexOf(ID) !== -1;
+            const boolP = reaction.id_equation.split('=>')[1].indexOf(ID) !== -1;
             reaction.cp = '';
             if (boolC) {
               reaction.cp = 'consume';

@@ -9,7 +9,6 @@ import api.models as APImodels
 import api.serializers as APIserializer
 import api.serializers_rc as APIrcSerializer
 
-import urllib.request
 import requests
 import re
 import logging
@@ -328,7 +327,11 @@ def get_metabolite_reactions(request, model, id):
                                                                          Q(component_type='m'))
 
     if not component:
-        return HttpResponse(status=404)
+        if re.match('m[0-9]{5}', id):
+            component = APImodels.ReactionComponent.objects.using(model).filter(Q(id__istartswith=id) &
+                                                                                Q(component_type='m'))
+        else:
+            return HttpResponse(status=404)
 
     reactions = APImodels.Reaction.objects.none()
     for c in component:
