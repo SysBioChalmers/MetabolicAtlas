@@ -255,6 +255,32 @@ class HmrEnzymeReactionComponentSerializer(serializers.ModelSerializer):
         return model.enzyme.name_link if hasattr(model, 'enzyme') else None
 
 
+class HmrEnzymeReactionComponentInteractionPartnerSerializer(serializers.ModelSerializer):
+    gene_name = serializers.SerializerMethodField('read_gene_name')
+    function =  serializers.SerializerMethodField('read_function')
+    catalytic_activity = serializers.SerializerMethodField('read_catalytic_activity')
+    compartment = serializers.SerializerMethodField('read_compartment')
+
+    class Meta:
+        model = APImodels.ReactionComponent
+        fields = ('id', 'gene_name', 'function', 'catalytic_activity', 'compartment')
+
+    def read_gene_name(self, model):
+        return model.name if model.name else None
+
+    def read_function(self, model):
+        return model.enzyme.function1 if hasattr(model, 'enzyme') else None
+
+    def read_catalytic_activity(self, model):
+        return model.enzyme.catalytic_activity if hasattr(model, 'enzyme') else None
+
+    def read_compartment(self, model):
+        return model.compartment_str
+
+
+# -----------------------------------------------------------------------------------------------------
+
+
 class HmrMetaboliteReactionComponentLiteSerializer(serializers.ModelSerializer):
     model_name = serializers.SerializerMethodField('read_model_name')
     aliases = serializers.SerializerMethodField('read_aliases')
@@ -357,6 +383,26 @@ class HmrMetaboliteReactionComponentSerializer(serializers.ModelSerializer):
 
     def read_compartment(self, model):
         return model.compartment_str
+
+
+class HmrMetaboliteReactionComponentInteractionPartnerSerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField('read_description')
+    function = serializers.SerializerMethodField('read_function')
+    compartment = serializers.SerializerMethodField('read_compartment')
+
+    class Meta:
+        model = APImodels.ReactionComponent
+        fields = ('id', 'name', 'description', 'function', 'compartment')
+
+    def read_description(self, model):
+        return model.metabolite.description if hasattr(model, 'metabolite') else None
+
+    def read_function(self, model):
+        return model.metabolite.function1 if hasattr(model, 'metabolite') else None
+
+    def read_compartment(self, model):
+        return model.compartment_str
+
 
 # ==========================================================================================
 
