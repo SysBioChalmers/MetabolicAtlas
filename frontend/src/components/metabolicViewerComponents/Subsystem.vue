@@ -54,6 +54,7 @@
         <li class="menu-label">
           # compartments: {{ selectedSubsystem['nr_compartments'] }}
         </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -94,7 +95,9 @@ export default {
       if (this.subsystemName in this.subsystemsSystem) {
         this.selectedSystem = this.subsystemsSystem[this.subsystemName];
         this.selectedSubsystem = this.subsystemsDict[this.subsystemName];
-        const s = `${this.selectedSystem} - ${this.selectedSubsystem.nr_metabolites} Metabolites; ${this.selectedSubsystem.nr_enzymes} Enzymes; ${this.selectedSubsystem.nr_reactions} Reactions; ${this.selectedSubsystem.nr_compartments} Compartments`;
+        const s = `${this.selectedSystem} - ${this.selectedSubsystem.metabolite_count} Metabolites; 
+        ${this.selectedSubsystem.enzyme_count} Enzymes; ${this.selectedSubsystem.reaction_count} Reactions; 
+        ${this.selectedSubsystem.compartment_count} Compartments`;
         this.$emit('showMapInfo', s);
       } else {
         this.selectedSystem = '';

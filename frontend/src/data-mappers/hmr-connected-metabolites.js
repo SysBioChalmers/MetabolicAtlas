@@ -28,11 +28,8 @@ export default function (data) {
       type: 'reaction',
       short: `${r.reaction_id}\n(${r.subsystem})`,
       long: r.reaction_id,
-      // description: r.reaction_id,
-      // formula: r.formla,
       subsystem: r.subsystem,
       link: getLink(r),
-      // details: r.metabolite || r.enzyme,
     };
     elms.push(reaction);
 

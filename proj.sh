@@ -23,9 +23,7 @@ function db-make-migrations {
 }
 
 function db-migrate {
-    docker exec metabolicatlas_backend_1 python manage.py migrate
-    docker exec metabolicatlas_backend_1 python manage.py migrate --database=gems
-    docker exec metabolicatlas_backend_1 python manage.py migrate --database=tiles
+    docker exec metabolicatlas_backend_1 python manage.py migrate --database=$@
 }
 
 function create-su {
@@ -41,9 +39,8 @@ Available commands:
 \tstart-stack
 \tstop-stack
 \trestart-stack
-\tlogs
+\tlogs [container]
 \tdb-make-migrations
-\tdb-migrate
+\tdb-migrate [database]
 \tcreate-su
-
 "

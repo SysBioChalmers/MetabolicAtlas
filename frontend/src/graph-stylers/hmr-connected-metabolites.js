@@ -11,11 +11,11 @@ export default function (elms, rels) {
           id: elm.id,
           parent: elm.parentid,
           reactionid: elm.reactionid,
-          name: elm.short,
-          hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
-          link: elm.link,
+          name: elm.name,
+          // hpaLink: `http://www.proteinatlas.org/${elm.long}/tissue#top`, // TODO: move into config
+          // link: elm.link,
           type: elm.type,
-          details: elm.details,
+          // details: elm.details,
         },
       });
     } else if (elm.substance_type === 'reactant') {
@@ -26,11 +26,11 @@ export default function (elms, rels) {
           real_id: elm.real_id,
           parent: elm.parentid,
           reactionid: elm.reactionid,
-          name: elm.short,
-          link: elm.link,
+          name: elm.name,
+          // link: elm.link,
           type: elm.type,
           formula: elm.formula,
-          details: elm.details,
+          // details: elm.details,
         },
       });
     } else if (elm.substance_type === 'product') {
@@ -41,11 +41,11 @@ export default function (elms, rels) {
           real_id: elm.real_id,
           parent: elm.parentid,
           reactionid: elm.reactionid,
-          name: elm.short,
-          link: elm.link,
+          name: elm.name,
+          // link: elm.link,
           type: elm.type,
           formula: elm.formula,
-          details: elm.details,
+          // details: elm.details,
         },
       });
     } else if (elm.type === 'reaction') {
@@ -53,7 +53,7 @@ export default function (elms, rels) {
         group: 'nodes',
         data: {
           id: elm.id,
-          name: elm.short,
+          // name: elm.name,
           parent: elm.parentid,
           reactionid: elm.reactionid,
           type: elm.type,

@@ -1,43 +1,46 @@
 <template>
   <div class="network-graph">
-    <div class="columns" v-if="!selectedTab">
+    <div class="columns" v-if="!selectedType">
       <div class="column container has-text-centered">
         <h4 class="title is-4">Browse through your favorite GEM</h4>
       </div>
     </div>
     <div class="columns">
-      <div class="column is-2">
-        <div class="button is-medium is-info" v-if="selectedTab" @click="showNetworkGraph()">
-          {{ $t('metabolicViewer') }}
+      <div class="column is-3">
+        <div class="button is-info" v-if="selectedType" @click="showNetworkGraph()">
+        <p><i class="fa fa-map"></i> {{ $t('metabolicViewer') }}</p>
         </div>
       </div>
       <global-search
       :quickSearch=true
       :model="selectedModel"
-      ></global-search>
-    </div>
-    <br>
-    <div class="tabs is-boxed is-centered" v-if="selectedTab">
-      <ul>
-        <li
-         v-for="tab in tabs"
-         :class="[{ 'is-active': isActive(tab.type) }, { 'is-disabled': tab.type !== selectedTab }]"
-         :disabled="tab.type !== selectedTab"
-         @click="goToTab(tab.type, componentID)"
-        >
-         <a :class="{ 'disabled': tab.type !== selectedTab}"><span>{{ tab.title }}</span></a>
-        </li>
-      </ul>
+      ref="globalSearch"></global-search>
     </div>
     <div v-if="errorMessage">
       {{ errorMessage }}
     </div>
     <div v-else>
-      <closest-interaction-partners v-if="selectedTab==='interaction'" :model="selectedModel"></closest-interaction-partners>
-      <enzyme v-if="selectedTab==='enzyme'" :model="selectedModel"></enzyme>
-      <metabolite v-if="selectedTab==='metabolite'" :model="selectedModel"></metabolite>
-      <reaction v-if="selectedTab==='reaction'" :model="selectedModel"></reaction>
-      <subsystem v-if="selectedTab==='subsystem'" :model="selectedModel"></subsystem>
+      <closest-interaction-partners v-if="selectedType==='interaction'" :model="selectedModel"></closest-interaction-partners>
+      <enzyme v-if="selectedType==='enzyme'" :model="selectedModel"></enzyme>
+      <metabolite v-if="selectedType==='metabolite'" :model="selectedModel"></metabolite>
+      <reaction v-if="selectedType==='reaction'" :model="selectedModel"></reaction>
+      <subsystem v-if="selectedType==='subsystem'" :model="selectedModel"></subsystem>
+      <template v-if="selectedType===''">
+        <div class="columns">
+          <div class="column">
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column has-text-centered">
+            <span class="title is-4">Or visualize networks with the MetabolicViewer</span> 
+             <div class="has-text-centered">
+              <a @click="showNetworkGraph">
+                <img width="500" :src="imgUrl('./metabolicViewer-600.jpg')" style="border: 1px solid black" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -50,7 +53,6 @@ import Enzyme from 'components/Enzyme';
 import Metabolite from 'components/Metabolite';
 import Reaction from 'components/Reaction';
 import Subsystem from 'components/Subsystem';
-// import router from '../router';
 import { default as EventBus } from '../event-bus';
 
 export default {
@@ -63,21 +65,14 @@ export default {
     Subsystem,
     GlobalSearch,
   },
+  props: ['selectedModel'],
   data() {
     return {
-      selectedModel: 'hmr2',
-      selectedTab: '',
+      selectedType: '',
       searchTerm: '',
       searchResults: [],
       errorMessage: '',
       componentID: '',
-      tabs: [
-        { title: this.$t('tab1title'), type: 'interaction' },
-        { title: this.$t('tab2title'), type: 'enzyme' },
-        { title: this.$t('tab3title'), type: 'metabolite' },
-        { title: this.$t('tab4title'), type: 'reaction' },
-        { title: this.$t('tab5title'), type: 'subsystem' },
-      ],
     };
   },
   watch: {
@@ -85,6 +80,10 @@ export default {
     '$route': function watchSetup() {
       this.setup();
     },
+  },
+  beforeMount() {
+    this.dBImageSources = require.context('../assets', false, /\.(png|gif|jpg)$/);
+    this.setup();
   },
   created() {
     // init the global events
@@ -96,28 +95,20 @@ export default {
       console.log(`on updateSelTab ${type} ${id}`);
       this.goToTab(type, id);
     });
-  },
-  beforeMount() {
-    this.setup();
+    window.addEventListener('click', () => {
+      EventBus.$emit('hideSearchResult');
+    });
   },
   methods: {
     setup() {
-      console.log(this.$route);
-      this.selectedTab = this.$route.params.type || '';
+      this.selectedType = this.$route.params.type || '';
       this.selectedModels = this.$route.params.model || '';
       this.componentID = this.$route.params.id || '';
       if (!this.componentID || !this.selectedModels) {
         this.$router.push(`/GemsExplorer/${this.selectedModel}`);
       }
     },
-    isActive(tabType) {
-      return tabType === this.selectedTab;
-    },
     goToTab(type, componentID) {
-      if (!this.tabs.map(el => el.type).includes(type.toLowerCase())) {
-        this.$router.push('/GemsExplorer');
-        return;
-      }
       this.$router.push(`/GemsExplorer/${this.selectedModel}/${type}/${componentID}`);
     },
     search() {
@@ -135,13 +126,14 @@ export default {
           });
       }, 500)();
     },
-    selectSearchResult(tabIndex, componentID) {
-      this.searchTerm = '';
-      this.searchResults = [];
-      this.goToTab(tabIndex, componentID);
-    },
     showNetworkGraph() {
       EventBus.$emit('toggleNetworkGraph');
+    },
+    showWholeMap() {
+      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+    },
+    imgUrl(path) {
+      return this.dBImageSources(path);
     },
   },
 };
@@ -150,13 +142,13 @@ export default {
 
 <style lang="scss">
 
-a.disabled {
-  cursor: default;
-  color: lightgray;
-}
-
 .hero .tabs ul {
   border-bottom: 1px solid #dbdbdb;
+}
+
+.tabs li.is-disabled {
+  pointer-events: none;
+  opacity: .65;
 }
 
 </style>

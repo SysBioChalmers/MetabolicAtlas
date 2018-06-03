@@ -46,7 +46,8 @@ export default {
     compartmentName(newVal, oldVal) { // eslint-disable-line no-unused-vars
       if (this.compartmentName in this.compartmentStats) {
         this.currentCompartment = this.compartmentStats[this.compartmentName];
-        const s = `${this.currentCompartment.display_name} - ${this.currentCompartment.nr_metabolites} Metabolites; ${this.currentCompartment.nr_enzymes} Enzymes; ${this.currentCompartment.nr_reactions} Reactions; ${this.currentCompartment.nr_subsystems} Subsystems`;
+        const s = `${this.currentCompartment.display_name} - ${this.currentCompartment.metabolite_count} Metabolites; 
+        ${this.currentCompartment.enzyme_count} Enzymes; ${this.currentCompartment.reaction_count} Reactions; ${this.currentCompartment.subsystem_count} Subsystems`;
         this.$emit('showMapInfo', s);
       }
     },
@@ -62,7 +63,7 @@ export default {
       for (const Cname of this.compartmentNameOrder) {
         this.compartments.push(getCompartmentFromName(Cname));
       }
-      axios.get(`${this.model}/compartment_information/`)
+      axios.get(`${this.model}/compartments_svg/`)
       .then((response) => {
         this.compartmentStats = {};
         for (const compInfo of response.data) {

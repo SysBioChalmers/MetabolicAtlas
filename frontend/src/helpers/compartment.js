@@ -295,15 +295,28 @@ export function getCompartmentFromName(name) {
   return null;
 }
 
+/*
 function formatSpan(currentVal, index, array, elements, addComp) {
   const regex = /(.+)\[(.)\]/g;
   const match = regex.exec(currentVal);
   if (!addComp) {
-    return `<m id="${elements[index].id}">${match[1]}</m>`;
+    return `<m class="${elements[index].id}">${match[1]}</m>`;
   }
-  return `<m id="${elements[index].id}">${match[1]}</m><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
+  return `<m class="${elements[index].id}">${match[1]}
+  </m><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
+}*/
+
+function formatSpan(currentVal, index, array, elements, addComp) {
+  const regex = /([0-9]+ )?(.+)\[([a-z]{1,3})\]/g;
+  const match = regex.exec(currentVal);
+  if (!addComp) {
+    return `${match[1] ? match[1] : ''}<m class="${elements[index]}">${match[2]}</m>`;
+  }
+  return `${match[1] ? match[1] : ''}<m class="${elements[index]}">${match[2]}</m>
+    <span class="sc" title="${l[match[3]].name}">${match[3]}</span>`;
 }
 
+/*
 export function reformatChemicalReaction(equation, reaction) {
   if (reaction === null || equation === null) {
     return '';
@@ -329,6 +342,37 @@ export function reformatChemicalReaction(equation, reaction) {
   let products = arr[1].split(' + ');
   products = products.map(
     (x, i, a) => formatSpan(x, i, a, reaction.products, addComp)).join(' + ');
+
+  if (reaction.is_reversible) {
+    return `${reactants} &#8660; ${products}`;
+  }
+  return `${reactants} &#8680; ${products}`;
+}
+*/
+
+export function reformatChemicalReaction(reaction) {
+  if (reaction === null) {
+    return '';
+  }
+  const addComp = reaction.compartment.includes('=>');
+  let eqArr = null;
+  if (reaction.is_reversible) {
+    eqArr = reaction.equation.split(' &#8660; ');
+  } else {
+    eqArr = reaction.equation.split(' &#8680; ');
+  }
+  if (eqArr.length === 1) {
+    eqArr = reaction.equation.split(' => ');
+  }
+  const idEqArr = reaction.id_equation.split(' => ');
+  const idReactants = idEqArr[0].split(' + ');
+  const idProducts = idEqArr[1].split(' + ');
+  const reactants = eqArr[0].split(' + ').map(
+      (x, i, a) => formatSpan(x, i, a, idReactants, addComp)
+    ).join(' + ');
+  const products = eqArr[1].split(' + ').map(
+      (x, i, a) => formatSpan(x, i, a, idProducts, addComp)
+    ).join(' + ');
 
   if (reaction.is_reversible) {
     return `${reactants} &#8660; ${products}`;

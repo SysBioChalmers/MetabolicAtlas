@@ -1,5 +1,7 @@
 #########################################################
 # the actual code to read and import the GEM SBML model #
+# DO NOT USE models are inserted using the YAML format  #
+# TODO, to remove                                       #
 #########################################################
 import libsbml
 import logging
@@ -20,8 +22,8 @@ formatter = logging.Formatter(("%(asctime)s - %(name)s - %(levelname)s - "
 sh.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 
-gene_no_ensembl_id = []
-metabolite_no_formula = []
+'''gene_no_ensembl_id = []
+metabolite_no_formula = []'''
 reaction_no_modifier = []
 
 class SbmlAuthor(object):
@@ -103,7 +105,7 @@ class Equation(object):
         if match:
             return match.group(1)
 
-
+'''
 def get_formula_from_notes(notes):
     """Get formula from SBML notes."""
     match = re.search(".*<p>FORMULA: ([^<]+)</p>.*", notes)
@@ -116,7 +118,7 @@ def get_short_name_from_notes(notes):
     match = re.search(".*<p>SHORT NAME: ([^<]+)</p>.*", notes)
     if match:
         return match.group(1)
-
+'''
 
 def get_subsystem_from_notes(database, notes):
     """Get sub-system name from SBML notes for the reactions."""
@@ -195,7 +197,7 @@ def save_pathway(database, name, eid):
     elif name in collec or name.startswith("Transport"):
         sys = "Collection of reactions"
 
-    pathway = Subsystem(name=name, system=sys, external_id=eid, description="") 
+    pathway = Subsystem(name=name, system=sys, external_id=eid, description="")
     #FIXME add subsystem description
     pathway.save(using=database)
     return pathway
@@ -230,7 +232,7 @@ def get_reaction(database, sbml_model, index):
     reaction_to_add.sbo_id = sbml_reaction.sbo_term_id
     reaction_to_add.equation = get_equation(sbml_reaction)
     # EC is specific to enzyme not reaction
-    reaction_to_add.ec = get_EC_number(sbml_reaction) # FIXME store in a association table
+    # reaction_to_add.ec = get_EC_number(sbml_reaction) # FIXME store in a association table
 
     kinetic_law_parameters = get_kinetic_law_parameters(sbml_reaction)
     if kinetic_law_parameters:
@@ -260,10 +262,7 @@ def get_reaction(database, sbml_model, index):
 
     modifiers_list = get_reaction_components(database, sbml_model, sbml_reaction.getListOfModifiers())
     if not modifiers_list:
-        # print ("Warning: modifiers is empty for reaction", sbml_reaction.id)
         reaction_no_modifier.append(sbml_reaction.id)
-        # print (sbml_reaction)
-        # exit(1)
 
     for currentReactant_reactioncomponent in reactants_list:
         reactant_compartment[currentReactant_reactioncomponent.compartment] = "1"
@@ -275,16 +274,20 @@ def get_reaction(database, sbml_model, index):
     if '=>' in c:
         reaction_to_add.is_transport = True
     reaction_to_add.is_reversible = sbml_reaction.getReversible()
-
     reaction_to_add.save(using=database)
 
     # =========================================================================================
     pathways = get_subsystem_from_notes(database, sbml_reaction.notes_string)
+    pathways_str = []
     for p in pathways:
+        pathways_str.append(p)
         rs = SubsystemReaction.objects.using(database).filter(reaction=reaction_to_add, subsystem=p)
         if not rs:
             rs = SubsystemReaction(reaction=reaction_to_add, subsystem=p)
             rs.save(using=database)
+
+    reaction_to_add.subsystem_str = "; ".join([p.name.strip() for p in pathways_str])
+    reaction_to_add.save(using=database)
 
     # add the relationship between the reaction and the compartment
     for c in reactant_compartment.keys():
@@ -360,7 +363,7 @@ def get_kinetic_law_parameters(sbml_reaction):
         return params
 
 
-def get_EC_number(sbml_reaction):
+'''def get_EC_number(sbml_reaction):
     # FIXME get only one EC but there can be multiple EC in the database
     # was this function/file updated?
     """ Get the EC number(s), if applicable, for the reaction """
@@ -372,7 +375,7 @@ def get_EC_number(sbml_reaction):
     if match:
         ec = re.sub(r'^.*ec-code:EC','EC', re.sub(r'\n','',annotation))
         ec = re.sub(r"\".*","", ec)
-        return ec
+        return ec.replace(';EC', '; EC')'''
 
 
 def get_reaction_components(database, sbml_model, sbml_species):
@@ -384,32 +387,32 @@ def get_reaction_components(database, sbml_model, sbml_species):
         components_in_db = ReactionComponent.objects.select_related('compartment').using(database).filter(id=species.id)
         if not components_in_db:
             component = ReactionComponent(id=species.id, long_name=species.name)
-            component.organism = ""        # FIXME get organism from model, remove the column organism
 
             # FIXME atm the component type is based on long name...
-            if component.long_name.startswith("ENSG"):
+            '''if component.long_name.startswith("ENSG"):
+                component.component_type = "enzyme"'''
+            if component.id.startswith("E_"):
                 component.component_type = "enzyme"
-            elif not component.id.startswith("E_"):
-                component.component_type = "metabolite"
             else:
+                component.component_type = "metabolite"
+            '''else:
                 print ("Warning: invalid enzyme without Ensembl id:", component.long_name)
                 gene_no_ensembl_id.append(component.long_name)
-                component.component_type = "enzyme"
+                component.component_type = "enzyme"'''
 
-            component.formula = get_formula_from_notes(species.notes_string)
+            '''component.formula = get_formula_from_notes(species.notes_string)
             if not component.formula and component.component_type == "metabolite":
                 print ("Warning: invalid metabolite without formula:", component.long_name)
-                metabolite_no_formula.append(component.long_name)
+                metabolite_no_formula.append(component.long_name)'''
 
-            component.short_name = get_short_name_from_notes(species.notes_string)
+            '''component.short_name = get_short_name_from_notes(species.notes_string)
             if component.component_type == "metabolite" and component.short_name is None:
-                component.short_name = component.long_name # FIXME
+                component.short_name = component.long_name # FIXME'''
 
             if species.compartment:
                 sbml_compartment = sbml_model.getCompartment(species.compartment)
                 compartment = Compartment.objects.using(database).get(name=sbml_compartment.name)
                 component.compartment = compartment
-
 
             components_found.append(component)
             component.save(using=database)
@@ -432,29 +435,38 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
         exit(1)
 
     sbml_model = doc.getModel()
-
     # get author and model
-    logger.info("Importing model")
-    if sbml_model.name == "HMRdatabase":
-        pmid = "24419221"
-        title="Genome-scale metabolic modelling of hepatocytes reveals serine deficiency in patients with non-alcoholic fatty liver disease"
-    else:
-        pmid="NA"
-        title="NA"
 
-    m = GEM.objects.using(database).filter(short_name=sbml_model.id,
-        name=sbml_model.name, pmid=pmid, article_title=title,
-        ensembl_version=ensembl_version, ensembl_archive_url=ensembl_archive_url)
-    if not m:
-        model = GEM(short_name=sbml_model.id,
-            name=sbml_model.name, pmid=pmid, article_title=title,
-            ensembl_version=ensembl_version, ensembl_archive_url=ensembl_archive_url)
-        model.save(using=database)
+    # Fill GEM table, contains information on model that can be explore on the MetabolicAtlas website
+    # i.e. HMR2, HMR3, YEAST?
+
+    # the table is related to data stored in Gemodel, Gemodelref etc...
+    # so gems database must be completed before running this method
+
+    if database == 'hmr2':
+        # fetch HMR v2.0
+        try:
+            hmr2 = GEModel.objects.using('gems').get(label='HMR 2.0')
+        except GEModel.DoesNotExist:
+            print ('Error: cannot find HMR2 model in gems database')
+            exit(1)
+
+        model = GEM.objects.using('gems').filter(name=hmr2.gemodelset.name, short_name=hmr2.label, database_name=database)
+        if not model:
+            publication = GEModelReference.objects.using('gems').get(pubmed='24419221')
+            model = GEM(name=hmr2.gemodelset.name, short_name=hmr2.label, database_name=database, model=hmr2, publication=publication, ensembl_version=ensembl_version, ensembl_archive_url=ensembl_archive_url)
+            model.save(using='gems')
+        else:
+            model= model[0]
+    elif database == 'hmr3':
+        pass
+    elif database == 'ymr':
+        pass
 
     """Get author of the specified SBML model."""
     sbml_author = SbmlAuthor(sbml_model)
     print ("Author found:", sbml_author)
-    a = Author.objects.using(database).filter(given_name=sbml_author.given_name,
+    a = Author.objects.using('gems').filter(given_name=sbml_author.given_name,
                     family_name=sbml_author.family_name,
                     email=sbml_author.email,
                     organization=sbml_author.organization)
@@ -463,10 +475,10 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
                         family_name=sbml_author.family_name,
                         email=sbml_author.email,
                         organization=sbml_author.organization)
-        author.save(using=database)
+        author.save(using='gems')
 
-        # ma = GEMAuthor(model=model, author=author)
-        # ma.save(using=database)
+        ma = GEMAuthor(model=model, author=author)
+        ma.save(using='gems')
 
     # get compartments
     logger.info("Importing compartments")
@@ -488,18 +500,13 @@ def addSBMLData(database, gem_file, ensembl_version, ensembl_archive_url, skip_f
         if i % 1000 == 0 and i !=0:
             print ("Processing reaction # %s/%s" % (i, nb_reactions))
         reaction = get_reaction(database,sbml_model, i)
-        # FIXME tmp remove GEMReaction, not used if multiple DB
-        # mr = GEMReaction(model=model, reaction=reaction)
-        # mr.save(using=database)
-        # mr_to_add.append(mr)
-    # GEMReaction.objects.bulk_create(mr_to_add)
 
-    if gene_no_ensembl_id:
+    '''if gene_no_ensembl_id:
         print ("gene w/o ensembl ID:")
         print (", ".join(gene_no_ensembl_id))
     if metabolite_no_formula:
         print ("Metabolite w/o formula:")
-        print (", ".join(metabolite_no_formula))
+        print (", ".join(metabolite_no_formula))'''
     if reaction_no_modifier:
         print ("Reaction w/o modifier:")
         print (", ".join(reaction_no_modifier))
