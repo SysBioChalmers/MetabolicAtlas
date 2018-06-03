@@ -309,7 +309,6 @@ function formatSpan(currentVal, index, array, elements, addComp) {
 function formatSpan(currentVal, index, array, elements, addComp) {
   const regex = /([0-9]+ )?(.+)\[([a-z]{1,3})\]/g;
   const match = regex.exec(currentVal);
-  console.log(currentVal, match);
   if (!addComp) {
     return `${match[1] ? match[1] : ''}<m class="${elements[index]}">${match[2]}</m>`;
   }

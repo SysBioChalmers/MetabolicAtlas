@@ -76,6 +76,13 @@ export default function (xmlText) {
             var $datumData = $(this).find('data[type="data"]');
             $datumData.each(function () {
                 $(this).removeAttr('type');
+                var s = $(this)[0].outerHTML;
+                for (const el of ['compartment', 'order', 'reaction', 'direction', 'color', 'subsystem']) {
+                    if (s.indexOf(el) !== -1) {
+                        $(this).remove();
+                        break;
+                    }
+                }
             });
             // when a node is of type data clean using this logic
             var $datumPosition = $(this).find('data[type="position"]');
@@ -88,13 +95,26 @@ export default function (xmlText) {
                 $(this).text(Math.round($(this).text()));
             });
         });
+        var $edges = xml.find('edge');
+        $edges.each(function () {
+            var $datumData = $(this).find('data');
+            $datumData.each(function () {
+                var s = $(this)[0].outerHTML;
+                for (const el of ['order', 'reaction', 'direction']) {
+                    if (s.indexOf(el) !== -1) {
+                        $(this).remove();
+                        break;
+                    }
+                }
+            });
+        });
     }
     function addNewGraphmlNodesToSource(xml) {
         // get all nodes 
         var $nodes = xml.find('node');
         // add Id and label position nodes
         $nodes.each(function (idx, node) {
-            var $currentNode = $(node);
+            var $currentNode = $(node);;
             var nodeId = $currentNode.attr('id');
             var newDataIdString = '<data key="Id">' + nodeId + '</data>';
             $(newDataIdString).appendTo($currentNode);
@@ -106,14 +126,14 @@ export default function (xmlText) {
         // here all the attibutes MUST be declared as <key> elements
         var xmlDocTarget = $.parseXML(
             '<?xml version="1.0" encoding="UTF-8"?>\n' +
-            '<graphml xmlns="http:// graphml.graphdrawing.org/xmlns"\n' +
-            'xmlns:xsi="http:// www.w3.org/2001/XMLSchema-instance"\n' +
-            'xsi:schemaLocation="http:// graphml.graphdrawing.org/xmlns\n' +
-            'http:// graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">\n' +
+            '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"\n' +
+            'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
+            'xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns\n' +
+            'http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">\n' +
             '<key attr.name="name" attr.type="string" for="node" id="name"/>\n' +
-            '<key attr.name="hpaLink" attr.type="string" for="node" id="hpaLink"/>\n' +
+            // '<key attr.name="hpaLink" attr.type="string" for="node" id="hpaLink"/>\n' +
             '<key attr.name="type" attr.type="string" for="node" id="type"/>\n' +
-            '<key attr.name="details" attr.type="string" for="node" id="details"/>\n' +
+            // '<key attr.name="details" attr.type="string" for="node" id="details"/>\n' +
             '<key attr.name="X Location" attr.type="long" for="node" id="X Location"/>\n' +
             '<key attr.name="Y Location" attr.type="long" for="node" id="Y Location"/>\n' +
             '<key attr.name="Shape" attr.type="string" for="node" id="Shape"/>\n' +

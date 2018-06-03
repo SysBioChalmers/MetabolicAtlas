@@ -50,7 +50,12 @@
               <td v-else-if="s.field === 'name'">
                 <a @click="viewReactionComponent(elm['type'], elm.id)">{{ elm[s.field] }}</a>
               </td>
-              <td v-else>{{ elm[s.field] }}</td>
+              <td v-else-if="s.field === 'compartment' && (typeof elm[s.field] !== 'string' && !(elm[s.field] instanceof String))">
+                {{ Object.keys(elm[s.field]).map(k => elm[s.field][k] === 1 ? k : `${k}*`).join(', ') }}
+              </td>
+              <td v-else>
+                {{ elm[s.field] }}
+              </td>
             </tr>
           </tbody>
           <tbody id="unmachingTableBody" ref="unmachingTableBody">
@@ -123,8 +128,6 @@ export default {
   },
   methods: {
     applyModifier(s, elm) {
-      console.log(s);
-      console.log(elm);
       return s.modifier(elm[s.field], elm.link);
     },
     viewReactionComponent(type, id) {
