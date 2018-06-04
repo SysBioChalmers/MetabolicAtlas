@@ -16,8 +16,8 @@
           <div id="metabolite-table">
             <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
               <tr v-for="el in mainTableKey[model]">
-                <td v-if="el.display" class="td-key">{{ el.display }}</td>
-                <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+                <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
+                <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
                 <td v-if="info[el.name]">
                   <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
                   </span>
@@ -33,8 +33,8 @@
               <span class="subtitle">HMDB</span>
               <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table is-fullwidth">
                 <tr v-for="el in HMDBRAbleKey">
-                  <td v-if="'display' in el" class="td-key">{{ el.display }}</td>
-                  <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+                  <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
+                  <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
                   <td v-if="info[el.name]">
                     <span v-if="'modifier' in el" v-html="el.modifier(info[el.name])">
                     </span>
@@ -183,9 +183,7 @@ export default {
 
 .metabolite-table, .model-table, .reaction-table, .subsystem-table {
   .main-table tr td.td-key, #hmdb-table tr td.td-key {
-    background: #64CC9A;
     width: 150px;
-    color: white;
   }
 }
 

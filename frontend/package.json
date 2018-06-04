@@ -12,7 +12,7 @@
   "dependencies": {
     "3d-force-graph": "1.25.1",
     "axios": "^0.15.3",
-    "bulma": "^0.6.2",
+    "bulma": "^0.7.0",
     "bulma-extensions": "^1.0.3",
     "canvas2svg": "^1.0",
     "cytoscape": "^3.2.9",
