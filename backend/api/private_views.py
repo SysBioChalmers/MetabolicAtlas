@@ -133,7 +133,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
             reactions_id = APImodels.ReactionCompartment.objects.using(model). \
                 filter(compartment=compartment).values_list('reaction', flat=True)
-            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+            reactions = APImodels.Reaction.objects.using(model).filter(id__in=reactions_id). \
                 prefetch_related('reactants', 'products', 'modifiers')
         else:
             try:
@@ -143,7 +143,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
             reactions_id = APImodels.SubsystemReaction.objects.using(model). \
                 filter(subsystem=subsystem).values_list('reaction', flat=True)
-            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+            reactions = APImodels.Reaction.objects.using(model).filter(id__in=reactions_id). \
                 prefetch_related('reactants', 'products', 'modifiers')
     else:
         reactions = APImodels.Reaction.objects.using(model).all().prefetch_related('reactants', 'products', 'modifiers')
@@ -169,9 +169,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
         nodes[r.id] = reaction;
 
         for m in r.reactants.all():
-            duplicateCurrentMeta = False
-            if m.short_name in duplicateMetaName:
-                duplicateCurrentMeta = True
+            duplicateCurrentMeta = m.name in duplicateMetaName
 
             doMeta = True;
             metabolite = None;
@@ -190,7 +188,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                     'g': 'm',
                     'id': mid,
                     # 'rid': m.id,
-                    'n': m.short_name or m.long_name,
+                    'n': m.name or m.alt_name1,
                 }
 
                 nodes[mid] = metabolite;
@@ -206,9 +204,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
             linksList.append(rel)
 
         for m in r.products.all():
-            duplicateCurrentMeta = False
-            if m.short_name in duplicateMetaName:
-                duplicateCurrentMeta = True
+            duplicateCurrentMeta = m.name in duplicateMetaName
 
             doMeta = True;
             metabolite = None
@@ -227,7 +223,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                     'g': 'm',
                     'id': mid,
                     #'rid': m.id,
-                    'n': m.short_name or m.long_name,
+                    'n': m.name or m.alt_name1,
                 }
 
                 nodes[mid] = metabolite
@@ -253,7 +249,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
             enzyme = {
               'id': eid,
               'g': 'e',
-              'n': e.short_name or e.long_name,
+              'n': e.name or e.alt_name1,
             }
             nodes[eid] = enzyme;
 
