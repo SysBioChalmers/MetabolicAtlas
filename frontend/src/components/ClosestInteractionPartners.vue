@@ -539,6 +539,12 @@ export default {
           [this.rawElms, this.rawRels, this.compartmentList, this.subsystemList] =
             transform(component, reactions, this.rawElms, this.rawRels,
              this.compartmentList, this.subsystemList);
+          if (this.compartmentList.length === 1) {
+            this.compartmentHL = '';
+            this.disableCompartmentHL = true;
+          } else {
+            this.disableCompartmentHL = false;
+          }
 
           // Object.assign(this.rawElms, newElms);
           // Object.assign(this.rawRels, newRels);
