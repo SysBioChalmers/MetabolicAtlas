@@ -1,5 +1,5 @@
 <template>
-  <div class="reactome column">
+  <div class="reactome column" v-show="showTable">
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
       <div v-show="false" id="diagram"></div>
@@ -10,12 +10,10 @@
           <span v-show="expandAllCompartment">Restrict to current compartment</span>
           </button>
       </p>
-      <template v-show="showTable">
-        <reaction-table v-show="!showLoader && !expandAllCompartment" 
-        :reactions="reactions" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
-        <reaction-table v-show="!showLoader && expandAllCompartment" 
-        :reactions="reactionsAllcompartment" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
-      </template>
+      <reaction-table v-show="!showLoader && !expandAllCompartment" 
+      :reactions="reactions" :selectedElmId="ID" :showSubsystem="true"></reaction-table>
+      <reaction-table v-show="!showLoader && expandAllCompartment" 
+      :reactions="reactionsAllcompartment" :selectedElmId="ID" :showSubsystem="true"></reaction-table>
       <div v-if="errorMessage" class="columns">
         <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
           {{ errorMessage }}
@@ -53,15 +51,19 @@ export default {
       showLoader: true,
       showTable: false,
       expandAllCompartment: false,
-      elementID: '',
       ID: '',
+      reactomeID: '', // might be without compartment letters
     };
   },
   watch: {
     metaboliteID() {
       if (this.metaboliteID) {
         this.ID = this.metaboliteID;
-        this.loadReactions();
+        this.reactomeID = '';
+        this.reactions = [];
+        this.reactionsAllcompartment = [];
+        this.expandAllCompartment = false;
+        this.loadReactions(this.ID);
       }
     },
   },
@@ -96,15 +98,17 @@ export default {
         padEllipse: true,
       }, g3).setLineColor('#5D4037');
     },
-    loadReactions() {
-      if (this.elementID === this.ID &&
-         ((this.expandAllCompartment && this.reactionsAllcompartment.length !== 0) ||
+    loadReactions(ID) {
+      if (this.reactomeID &&
+          (ID !== this.reactomeID) &&
+          ((this.expandAllCompartment && this.reactionsAllcompartment.length !== 0) ||
          (!this.expandAllCompartment && this.reactions.length !== 0))) {
+        this.reactomeID = ID;
         return;
       }
       this.showLoader = true;
-      this.elementID = this.ID;
-      axios.get(`${this.model}/metabolites/${this.ID}/reactions/`)
+      this.reactomeID = ID;
+      axios.get(`${this.model}/metabolites/${ID}/reactions/`)
         .then((response) => {
           this.errorMessage = '';
           if (this.expandAllCompartment) {
@@ -117,7 +121,7 @@ export default {
         })
         .catch((error) => {
           console.log(error);
-          this.loading = false;
+          this.showLoader = false;
           this.showTable = false;
         });
     },
@@ -134,9 +138,10 @@ export default {
     toggleExpandAllCompartment() {
       this.expandAllCompartment = !this.expandAllCompartment;
       if (this.expandAllCompartment) {
-        this.ID = this.ID.replace(/[a-z]{1,3}$/, '');
+        this.loadReactions(this.ID.replace(/[a-z]{1,3}$/, ''));
+      } else {
+        this.loadReactions(this.ID);
       }
-      this.loadReactions();
     },
   },
 };

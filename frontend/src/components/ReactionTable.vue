@@ -165,6 +165,7 @@ export default {
     if (this.selectedElmId) {
       // when the table is from the selectedElmId page (metabolite)
       // do not color the selectedElmId is the reaction equations
+      $('m').css('color', '');
       $(`.${this.selectedElmId}`).css('color', 'rgb(54, 54, 54)');
     }
   },
