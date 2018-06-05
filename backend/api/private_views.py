@@ -34,8 +34,13 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
     for term in arrayTerms:
         query |= Q(id__iexact=term)
         reaction_query |= Q(id__iexact=term)
-        query |= Q(short_name__iexact=term)
-        query |= Q(long_name__iexact=term)
+        query |= Q(name__iexact=term)
+        query |= Q(alt_name1__iexact=term)
+        query |= Q(alt_name2__iexact=term)
+        query |= Q(external_id1__iexact=term)
+        query |= Q(external_id2__iexact=term)
+        query |= Q(external_id3__iexact=term)
+        query |= Q(external_id4__iexact=term)
 
     # get the list of component id
     reaction_component_ids = APImodels.ReactionComponent.objects.using(model).filter(query).values_list('id');
@@ -49,9 +54,9 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
     if not compartment_name:
         # get the compartment id for each component id
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
-        .filter(Q(component_id__in=reaction_component_ids)) \
+        .filter(Q(rc_id__in=reaction_component_ids)) \
         .select_related('Compartmentsvg') \
-        .values_list('compartmentsvg__display_name', 'component_id')
+        .values_list('compartmentsvg__display_name', 'rc_id')
 
         # get the compartment id for each reaction id
         rci = APImodels.ReactionCompartmentSvg.objects.using(model).filter(Q(reaction_id__in=reaction_ids)) \
@@ -67,9 +72,9 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
 
         # get the component ids in the input compartment
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model).filter(
-                Q(component_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
+                Q(rc_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
             ).select_related('Compartmentsvg') \
-            .values_list('compartmentsvg__display_name', 'component_id')
+            .values_list('compartmentsvg__display_name', 'rc_id')
 
         # get the reaction ids in the input compartment
         rci = APImodels.ReactionCompartmentSvg.objects.using(model).filter(
