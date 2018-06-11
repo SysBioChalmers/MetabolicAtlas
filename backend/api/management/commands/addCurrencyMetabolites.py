@@ -25,27 +25,57 @@ def addCurrencyMetabolites(database, currency_metabolite_file):
 
     reaction_without_transport = APImodels.Reaction.objects.using(database).filter(is_transport=False)
     print (reaction_without_transport.count())
-    reactants_count = APImodels.ReactionReactant.objects.using(database).filter(reaction_id__in=reaction_without_transport).values('reactant_id').annotate(total=Count('reactant_id')).order_by('total')
+    reactants_count = APImodels.ReactionReactant.objects.using(database).filter(reaction_id__in=reaction_without_transport).values('reaction_id', 'reactant_id')
+    # print (reactants_count)
+    # exit()
     d = {}
+    reactions = {}
     for el in reactants_count:
         reactant_id = el['reactant_id']
-        count = el['total']
-        sub_reactant_id = reactant_id[:8]
+        sub_reactant_id = reactant_id[:6]
+
+        if sub_reactant_id not in reactions:
+            reactions[sub_reactant_id] = set()
+            reactions[sub_reactant_id].add(el['reaction_id'])
+        elif el['reaction_id'] in reactions[sub_reactant_id]:
+            continue
+        else:
+            reactions[sub_reactant_id].add(el['reaction_id'])
+
         if sub_reactant_id not in d:
             d[sub_reactant_id] = [0, set()]
-        d[sub_reactant_id][0] += int(count)
+        d[sub_reactant_id][0] += 1
         d[sub_reactant_id][1].add(reactant_id)
-    print (d)
-    products_count = APImodels.ReactionProduct.objects.using(database).filter(reaction_id__in=reaction_without_transport).values('product_id').annotate(total=Count('product_id')).order_by('total')
+    # print (d)
+    products_count = APImodels.ReactionProduct.objects.using(database).filter(reaction_id__in=reaction_without_transport).values('reaction_id', 'product_id')
     for el in products_count:
-        reactant_id = el['product_id']
-        count = el['total']
-        sub_product_id = reactant_id[:8]
+        product_id = el['product_id']
+        sub_product_id = product_id[:6]
+
+        if sub_product_id not in reactions:
+            reactions[sub_product_id] = set()
+            reactions[sub_product_id].add(el['reaction_id'])
+        elif el['reaction_id'] in reactions[sub_product_id]:
+            continue
+        else:
+            reactions[sub_product_id].add(el['reaction_id'])
+
         if sub_product_id not in d:
             d[sub_product_id] = [0, set()]
-        d[sub_product_id][0] += int(count)
-        d[sub_product_id][1].add(reactant_id)
-    print (sorted(d.items(), key=itemgetter(1)))
+        d[sub_product_id][0] += 1
+        d[sub_product_id][1].add(product_id)
+    res = sorted(d.items(), key=itemgetter(1))
+    # print (sorted(d.items(), key=itemgetter(1)))
+    currency_ids = []
+    for el in res:
+        if el[1][0] > 40: # TODO remove hard-coded, must be extract from currency_metabolite_file
+            currency_ids.append(el[0])
+
+    APImodels.ReactionComponent.objects.using(database).filter(is_currency=False)
+    for ID in currency_ids:
+        APImodels.ReactionComponent.objects.using(database).filter(id__startswith=ID).update(is_currency=True)
+
+    exit()
 
     with open(currency_metabolite_file, 'r') as f:
         for i, line in enumerate(f):
@@ -103,3 +133,13 @@ def addCurrencyMetabolites(database, currency_metabolite_file):
                 if not cm:
                     cm = APImodels.CurrencyMetabolite(component=component[0], reaction=reaction[0])
                     cm.save(using=database)
+
+
+class Command(BaseCommand):
+
+    def add_arguments(self, parser):
+        parser.add_argument('database', type=str)
+        parser.add_argument('currency Met file', type=str)
+
+    def handle(self, *args, **options):
+        addCurrencyMetabolites(options['database'], options['currency Met file'])
