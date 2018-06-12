@@ -289,15 +289,15 @@ def get_HPA_xml_content(request):
 @api_view()
 def HPA_enzyme_info(request, ensembl_id):
     try:
-        res = APImodels.ReactionComponent.objects.using('hmr2').get(long_name=ensembl_id)
+        res = APImodels.ReactionComponent.objects.using('hmr2').get(id=ensembl_id)
         rcid = res.id
     except:
         return JSONResponse([])
 
     subs = APImodels.Subsystem.objects.using('hmr2').filter(
-            Q(id__in=SubsystemEnzyme.objects.using('hmr2').filter(reaction_component_id=rcid).values('subsystem_id')) &
+            Q(id__in=APImodels.SubsystemEnzyme.objects.using('hmr2').filter(rc_id=rcid).values('subsystem_id')) &
             ~Q(system='Collection of reactions')
-        ).values('id', 'name', 'nr_reactions', 'nr_enzymes', 'nr_metabolites', 'nr_unique_metabolites')
+        ).values('id', 'name', 'reaction_count', 'enzyme_count', 'metabolite_count', 'unique_metabolite_count')
 
     result = []
     for sub in subs.all():
