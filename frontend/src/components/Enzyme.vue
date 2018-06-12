@@ -11,7 +11,7 @@
           <h3 class="title is-3">
           Enzyme | {{ enzymeName }}
           <span class="button is-info" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
-          @click="visitLink('https://www.proteinatlas.org/search/' + enzyme.long_name, true)">
+          @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
             View on HPA
           </span>
           </h3>
@@ -91,7 +91,6 @@ export default {
         hmr2: [
           { name: 'enzymeName', display: 'Gene Name' },
           { name: 'function', display: 'Function' },
-          { name: 'compartment', display: 'Compartment' },
           { name: 'id', display: 'Model ID' },
           { name: 'uniprot', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
           { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBILink },
@@ -143,7 +142,7 @@ export default {
           this.loading = false;
           this.errorMessage = null;
           this.id = response.data.enzyme.id;
-          this.enzymeName = response.data.enzyme.name || response.data.enzyme.id;
+          this.enzymeName = response.data.enzyme.gene_name || response.data.enzyme.id;
           this.enzyme = response.data.enzyme;
           this.enzyme.enzymeName = this.enzymeName;
           this.reactions = response.data.reactions;

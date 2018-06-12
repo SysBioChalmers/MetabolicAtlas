@@ -34,8 +34,13 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
     for term in arrayTerms:
         query |= Q(id__iexact=term)
         reaction_query |= Q(id__iexact=term)
-        query |= Q(short_name__iexact=term)
-        query |= Q(long_name__iexact=term)
+        query |= Q(name__iexact=term)
+        query |= Q(alt_name1__iexact=term)
+        query |= Q(alt_name2__iexact=term)
+        query |= Q(external_id1__iexact=term)
+        query |= Q(external_id2__iexact=term)
+        query |= Q(external_id3__iexact=term)
+        query |= Q(external_id4__iexact=term)
 
     # get the list of component id
     reaction_component_ids = APImodels.ReactionComponent.objects.using(model).filter(query).values_list('id');
@@ -49,9 +54,9 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
     if not compartment_name:
         # get the compartment id for each component id
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
-        .filter(Q(component_id__in=reaction_component_ids)) \
+        .filter(Q(rc_id__in=reaction_component_ids)) \
         .select_related('Compartmentsvg') \
-        .values_list('compartmentsvg__display_name', 'component_id')
+        .values_list('compartmentsvg__display_name', 'rc_id')
 
         # get the compartment id for each reaction id
         rci = APImodels.ReactionCompartmentSvg.objects.using(model).filter(Q(reaction_id__in=reaction_ids)) \
@@ -67,9 +72,9 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
 
         # get the component ids in the input compartment
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model).filter(
-                Q(component_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
+                Q(rc_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
             ).select_related('Compartmentsvg') \
-            .values_list('compartmentsvg__display_name', 'component_id')
+            .values_list('compartmentsvg__display_name', 'rc_id')
 
         # get the reaction ids in the input compartment
         rci = APImodels.ReactionCompartmentSvg.objects.using(model).filter(
@@ -128,7 +133,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
             reactions_id = APImodels.ReactionCompartment.objects.using(model). \
                 filter(compartment=compartment).values_list('reaction', flat=True)
-            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+            reactions = APImodels.Reaction.objects.using(model).filter(id__in=reactions_id). \
                 prefetch_related('reactants', 'products', 'modifiers')
         else:
             try:
@@ -138,7 +143,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
             reactions_id = APImodels.SubsystemReaction.objects.using(model). \
                 filter(subsystem=subsystem).values_list('reaction', flat=True)
-            reactions = Reaction.objects.using(model).filter(id__in=reactions_id). \
+            reactions = APImodels.Reaction.objects.using(model).filter(id__in=reactions_id). \
                 prefetch_related('reactants', 'products', 'modifiers')
     else:
         reactions = APImodels.Reaction.objects.using(model).all().prefetch_related('reactants', 'products', 'modifiers')
@@ -164,9 +169,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
         nodes[r.id] = reaction;
 
         for m in r.reactants.all():
-            duplicateCurrentMeta = False
-            if m.short_name in duplicateMetaName:
-                duplicateCurrentMeta = True
+            duplicateCurrentMeta = m.name in duplicateMetaName
 
             doMeta = True;
             metabolite = None;
@@ -185,7 +188,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                     'g': 'm',
                     'id': mid,
                     # 'rid': m.id,
-                    'n': m.short_name or m.long_name,
+                    'n': m.name or m.alt_name1,
                 }
 
                 nodes[mid] = metabolite;
@@ -201,9 +204,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
             linksList.append(rel)
 
         for m in r.products.all():
-            duplicateCurrentMeta = False
-            if m.short_name in duplicateMetaName:
-                duplicateCurrentMeta = True
+            duplicateCurrentMeta = m.name in duplicateMetaName
 
             doMeta = True;
             metabolite = None
@@ -222,7 +223,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                     'g': 'm',
                     'id': mid,
                     #'rid': m.id,
-                    'n': m.short_name or m.long_name,
+                    'n': m.name or m.alt_name1,
                 }
 
                 nodes[mid] = metabolite
@@ -248,7 +249,7 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
             enzyme = {
               'id': eid,
               'g': 'e',
-              'n': e.short_name or e.long_name,
+              'n': e.name or e.alt_name1,
             }
             nodes[eid] = enzyme;
 
@@ -288,15 +289,15 @@ def get_HPA_xml_content(request):
 @api_view()
 def HPA_enzyme_info(request, ensembl_id):
     try:
-        res = APImodels.ReactionComponent.objects.using('hmr2').get(long_name=ensembl_id)
+        res = APImodels.ReactionComponent.objects.using('hmr2').get(id=ensembl_id)
         rcid = res.id
     except:
         return JSONResponse([])
 
     subs = APImodels.Subsystem.objects.using('hmr2').filter(
-            Q(id__in=SubsystemEnzyme.objects.using('hmr2').filter(reaction_component_id=rcid).values('subsystem_id')) &
+            Q(id__in=APImodels.SubsystemEnzyme.objects.using('hmr2').filter(rc_id=rcid).values('subsystem_id')) &
             ~Q(system='Collection of reactions')
-        ).values('id', 'name', 'nr_reactions', 'nr_enzymes', 'nr_metabolites', 'nr_unique_metabolites')
+        ).values('id', 'name', 'reaction_count', 'enzyme_count', 'metabolite_count', 'unique_metabolite_count')
 
     result = []
     for sub in subs.all():

@@ -67,6 +67,9 @@
               <td v-else-if="s.field === 'name'">
                 <a @click="viewReactionComponent(elm['type'], elm.id)">{{ elm[s.field] }}</a>
               </td>
+              <td v-else-if="s.field === 'compartment' && (typeof elm[s.field] !== 'string' && !(elm[s.field] instanceof String))">
+                {{ Object.keys(elm[s.field]).map(k => elm[s.field][k] === 1 ? k : `${k}*`).join(', ') }}
+              </td>
               <td v-else>{{ elm[s.field] }}</td>
             </tr>
           </tbody>
@@ -168,7 +171,7 @@ export default {
           let matches = false;
           for (const s of this.structure) {
             const val = elm[s.field];
-            if (typeof val === 'boolean') {
+            if (typeof val === 'boolean' || typeof val === 'object') {
               break;
             }
             if (val && val.toLowerCase().includes(t)) {

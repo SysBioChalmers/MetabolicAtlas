@@ -146,29 +146,30 @@ export default function (c, reactions, relms, rrels, rcomp, rsub) {
     }
 
     // add relations between mets components of the current reaction
-    for (const eidReactant of [...r.reactants, ...r.products]) {
-      for (const eidProduct of [...r.reactants, ...r.products]) {
-        if (eidReactant === eidProduct) {
-          continue; // eslint-disable-line no-continue
-        }
-        const relID = `${eidReactant.id}_${eidProduct.id}`;
-        const relIDinv = `${eidProduct.id}_${eidReactant.id}`;
-        if (!(relID in rels) && !(relIDinv in rels)) {
-          const relation = {
-            id: relID,
-            source: eidReactant.id,
-            target: eidProduct.id,
-            order,
-          };
-          relation.reaction = new Set([r.id]);
-          rels[relID] = relation;
-        } else if (relID in rels) {
-          rels[relID].reaction.add(r.id);
-        } else if (relIDinv in rels) {
-          rels[relIDinv].reaction.add(r.id);
-        }
-      }
-    }
+    // for (const eidReactant of [...r.reactants, ...r.products]) {
+    //   for (const eidProduct of [...r.reactants, ...r.products]) {
+    //     if (eidReactant.id !== c.id && eidProduct.id !== c.id) {
+    //       continue; // eslint-disable-line no-continue
+    //     }
+    //     const relID = `${eidReactant.id}_${eidProduct.id}`;
+    //     const relIDinv = `${eidProduct.id}_${eidReactant.id}`;
+    //     if (!(relID in rels) && !(relIDinv in rels)) {
+    //       const relation = {
+    //         id: relID,
+    //         source: eidReactant.id,
+    //         target: eidProduct.id,
+    //         order,
+    //       };
+    //       relation.reaction = new Set([r.id]);
+    //       rels[relID] = relation;
+    //     } else if (relID in rels) {
+    //       rels[relID].reaction.add(r.id);
+    //     } else if (relIDinv in rels) {
+    //       rels[relIDinv].reaction.add(r.id);
+    //     }
+    //   }
+    // }
+
 
     // add relations with the main component
     for (const eidMo of Object.keys(mods)) {
@@ -197,6 +198,15 @@ export default function (c, reactions, relms, rrels, rcomp, rsub) {
           rels[relID].reaction.add(r.id);
         } else if (relIDinv in rels) {
           rels[relIDinv].reaction.add(r.id);
+        } else {
+          const relation = {
+            id: `${eidMe}_${c.id}`,
+            target: eidMe,
+            source: c.id,
+            reaction: new Set([r.id]),
+            order,
+          };
+          rels[relID] = relation;
         }
       }
     }
