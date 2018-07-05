@@ -56,7 +56,7 @@ def read_compartment_reaction(fileName):
                 x = float(pos[4])
                 y = float(pos[5])
                 res[rid] = (x, y)
-            m = re.match('<g class="reaction" id="(.+)"', l)
+            m = re.match('<g class="reaction" id="([^"]+)"', l)
             if m:
                 rid = m.group(1)
                 # FIX ME, might need to change 1 to 1.0 
@@ -77,7 +77,7 @@ def read_compartment_metabolite(fileName):
         data = myfile.readlines()
         for idx, l in enumerate(data):
             l = l.strip()
-            m = re.match('<g class="metabolite" id="(M_.*)"', l)
+            m = re.match('<g class="metabolite" id="(m[^"]+)"', l)
             if m:
                 rid = m.group(1).split('-')[0]
                 res[rid] = None
@@ -92,7 +92,7 @@ def read_compartment_multi_metabolite(fileName):
         data = myfile.readlines()
         for idx, l in enumerate(data):
             l = l.strip()
-            m = re.match('<g class="metabolite" id="(M_.*)"', l)
+            m = re.match('<g class="metabolite" id="(m[^"]+)"', l)
             if m:
                 rid = m.group(1).split('-')[0]
                 if rid in unique:
@@ -107,7 +107,7 @@ def read_compartment_enzyme(fileName):
         data = myfile.readlines()
         for idx, l in enumerate(data):
             l = l.strip()
-            m = re.match('<g class="metabolite" id="(E_.*)"', l)
+            m = re.match('<g class="metabolite" id="(ENSG[^"]+)"', l)
             if m:
                 rid = m.group(1).split('-')[0]
                 res[rid] = None
@@ -139,7 +139,7 @@ def read_compartment_subsystem(database, fileName):
         data = myfile.readlines()
         for idx, l in enumerate(data):
             l = l.strip()
-            m = re.match('<g class="pathway" id="(.*)"', l)
+            m = re.match('<g class="pathway" id="([^"]+)"', l)
             if m:
                 sid = m.group(1)
                 sid = get_real_subsystem_name(database, sid, fileName)
