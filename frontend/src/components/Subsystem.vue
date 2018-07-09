@@ -6,10 +6,10 @@
   </div>
   <div v-else>
     <loader v-show="showLoader"></loader>
-    <div v-show="!showLoader">
-      <div class="subsystem-table">
-        <table v-if="info && Object.keys(info).length != 0" class="table main-table">
-          <tr class="m-row" v-for="el in mainTableKey">
+    <div v-show="!showLoader" class="columns">
+      <div class="subsystem-table column is-10">
+        <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
+          <tr class="m-row" v-for="el in mainTableKey[model]">
             <td v-if="el.display" class="td-key">{{ el.display }}</td>
             <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
             <td v-if="info[el.name]">
@@ -27,17 +27,41 @@
           </tr>
           <tr>
             <td class="td-key">Metabolites</td>
-            <td v-html="metabolitesListHtml"></td>
+            <td>
+              <div v-html="metabolitesListHtml"></div>
+              <div v-if="!this.showFullMetabolite && this.metabolites.length > this.limitMetabolite">
+                <br>
+                <button class="is-small button" @click="showFullMetabolite=true">
+                  ... and {{ this.metabolites.length - 40}} more
+                </button>
+              </div>
+            </td>
           </tr>
           <tr>
             <td class="td-key">Enzymes</td>
-            <td v-html="enzymesListHtml"></td>
+            <td>
+              <div v-html="enzymesListHtml"></div>
+              <div v-if="!this.showFullEnzyme && this.enzymes.length > this.limitEnzyme">
+                <br>
+                <button class="is-small button" @click="showFullEnzyme=true">
+                  ... and {{ this.enzymes.length - 40}} more
+                </button>
+              </div>
+            </td>
           </tr>
         </table>
         <h3 class="title is-3">Reactions</h3>
-        <reaction-table :reactions="reactions" :showSubsystem="false"></reaction-table>
-        </table>
       </div>
+      <div class="column">
+        <div class="box has-text-centered">
+          <div class="button is-info">
+            <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="columns" v-show="!showLoader">
+      <reaction-table :reactions="reactions" :showSubsystem="false"></reaction-table>
     </div>
   </div>
 </template>
@@ -65,10 +89,16 @@ export default {
       enzymes: [],
       reactions: [],
       errorMessage: '',
-      mainTableKey: [
-        { name: 'name', display: 'Name' },
-        { name: 'system' },
-      ],
+      mainTableKey: {
+        hmr2: [
+          { name: 'name', display: 'Name' },
+          { name: 'system' },
+        ],
+      },
+      showFullMetabolite: false,
+      showFullEnzyme: false,
+      limitMetabolite: 40,
+      limitEnzyme: 40,
     };
   },
   watch: {
@@ -80,18 +110,28 @@ export default {
   computed: {
     metabolitesListHtml() {
       const l = ['<span class="tags">'];
-      this.metabolites.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
+      this.metabolites.sort((a, b) => (a.name < b.name ? -1 : 1));
+      let i = 0;
       for (const m of this.metabolites) {
-        l.push(`<span id="${m.id}" class="tag rcm"><a>${m.short_name}[${m.id.substr(m.id.length - 1)}]</a></span>`);
+        if (!this.showFullMetabolite && i === this.limitMetabolite) {
+          break;
+        }
+        i += 1;
+        l.push(`<span id="${m.id}" class="tag rcm"><a>${m.name ? m.name : m.id}[${m.id.substr(m.id.length - 1)}]</a></span>`);
       }
       l.push('</span>');
       return l.join('');
     },
     enzymesListHtml() {
       const l = ['<span class="tags">'];
-      this.enzymes.sort((a, b) => (a.short_name < b.short_name ? -1 : 1));
+      this.enzymes.sort((a, b) => (a.name < b.name ? -1 : 1));
+      let i = 0;
       for (const e of this.enzymes) {
-        l.push(`<span id="${e.id}" class="tag rce"><a>${e.short_name}</a></span>`);
+        if (!this.showFullEnzyme && i === this.limitEnzyme) {
+          break;
+        }
+        i += 1;
+        l.push(`<span id="${e.id}" class="tag rce"><a>${e.name ? e.name : e.id}</a></span>`);
       }
       l.push('</span>');
       return l.join('');
@@ -104,7 +144,7 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model}/subsystem/${this.sName}/`)
+      axios.get(`${this.model}/subsystems/${this.sName}/`)
       .then((response) => {
         this.info = response.data.subsystemAnnotations;
         this.metabolites = response.data.metabolites;

@@ -8,11 +8,11 @@
             <thead>
               <tr>
                 <th></th>
-                <th>Model</td>
-                <th>Description</td>
-                <th># of reactions</td>
-                <th>Shared reactions overlap</td>
-                <th>Exclusive reactions</td>
+                <th>Model</th>
+                <th>Description</th>
+                <th># of reactions</th>
+                <th>Shared reactions overlap</th>
+                <th>Exclusive reactions</th>
               </tr>
             </thead>
             <tbody>

@@ -1,71 +1,81 @@
 <template>
   <div class="container cytoscape-table">
     <div class="columns">
-      <table-search
-        :reset="resetTable"
-        @search="searchTable($event)"
-        class="column is-11"
-      ></table-search>
-      <div class="column is-1">
-        <a
-          @click="exportToExcel"
-          class="button is-primary"
-        >{{ $t('exportButton') }}</a>
+      <div class="column" style="padding-bottom: 0">
+        <table-search
+          :reset="resetTable"
+          @search="searchTable($event)"
+          class="is-10"
+        ></table-search>
+      </div>
+      <div class="column is-2" style="padding-bottom: 0">
+        <div class="columns">
+          <div class="column">
+            <a
+              @click="exportToExcel"
+              class="button is-primary is-pulled-right"
+            >{{ $t('exportButton') }}</a>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <span class="tag">
-        # Metabolite(s): {{ metaboliteCount }}
-      </span>
-      <span class="tag" v-show="enzymeCount">
-         # Enzyme(s): {{ enzymeCount }}
-      </span>
-      <span class="tag" v-show="reactionCount">
-         # Reaction(s): {{ reactionCount }}
-      </span>
+    <div class="columns">
+      <div class="column">
+        <div class="field">
+          <span class="tag">
+            # Metabolite(s): {{ metaboliteCount }}
+          </span>
+          <span class="tag" v-show="enzymeCount">
+             # Enzyme(s): {{ enzymeCount }}
+          </span>
+          <span class="tag" v-show="reactionCount">
+             # Reaction(s): {{ reactionCount }}
+          </span>
+        </div>
+        <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
+          <thead>
+            <tr style="background: #F8F4F4">
+              <th class="is-unselectable"
+                v-for="s in structure"
+                @click="sortBy(s.field)"
+              >{{ s.colName }}</th>
+            </tr>
+          </thead>
+          <tbody id="machingTableBody" ref="machingTableBody">
+            <tr
+              v-for="elm in matchingElms"
+              :class="[{ 'highlight': isSelected(elm.id) }, '']"
+              @click="highlight(elm.id)">
+              <td v-for="s in structure" v-if="'modifier' in s" v-html="applyModifier(s, elm)"></td>
+              <td v-else-if="s.field === 'name'">
+                <a @click="viewReactionComponent(elm['type'], elm.id)">{{ elm[s.field] }}</a>
+              </td>
+              <td v-else-if="s.field === 'compartment' && (typeof elm[s.field] !== 'string' && !(elm[s.field] instanceof String))">
+                {{ Object.keys(elm[s.field]).map(k => elm[s.field][k] === 1 ? k : `${k}*`).join(', ') }}
+              </td>
+              <td v-else>
+                {{ elm[s.field] }}
+              </td>
+            </tr>
+          </tbody>
+          <tbody id="unmachingTableBody" ref="unmachingTableBody">
+            <tr
+              v-for="elm in unMatchingElms"
+              :class="[{ 'highlight': isSelected(elm.id) }, '']"
+              @click="highlight(elm.id)">
+              <td v-for="s in structure" v-if="'modifier' in s" v-html="applyModifier(s, elm)"></td>
+              <td v-else-if="s.field === 'name'">
+                <a @click="viewReactionComponent(elm['type'], elm.id)">{{ elm[s.field] }}</a>
+              </td>
+              <td v-else-if="s.field === 'compartment' && (typeof elm[s.field] !== 'string' && !(elm[s.field] instanceof String))">
+                {{ Object.keys(elm[s.field]).map(k => elm[s.field][k] === 1 ? k : `${k}*`).join(', ') }}
+              </td>
+              <td v-else>{{ elm[s.field] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
-      <thead>
-        <tr style="background: #F8F4F4">
-          <th class="is-unselectable"
-            v-for="s in structure"
-            @click="sortBy(s.field)"
-          >{{ s.colName }}</th>
-        </tr>
-      </thead>
-      <tbody id="machingTableBody" ref="machingTableBody">
-        <tr
-          v-for="elm in matchingElms"
-          :class="[{ 'highlight': isSelected(elm.id) }, '']"
-          @click="highlight(elm.id)"
-        >
-          <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
-          <td v-else-if="s.rc">
-            <a @click="viewReactionComponent(
-              elm[s.rc] ? elm[s.rc] : s.rc, 
-              getRCID(s, elm))">{{ elm[s.field] }}
-            </a>
-          </td>
-          <td v-else>{{ elm[s.field] }}</td>
-        </tr>
-      </tbody>
-      <tbody id="unmachingTableBody" ref="unmachingTableBody">
-        <tr
-          v-for="elm in unMatchingElms"
-          :class="[{ 'highlight': isSelected(elm.id) }, '']"
-          @click="highlight(elm.id)"
-        >
-          <td v-for="s in structure" v-if="s.modifier" v-html="applyModifier(s, elm)"></td>
-          <td v-else-if="s.rc">
-            <a @click="viewReactionComponent(
-              elm[s.rc] ? elm[s.rc] : s.rc, 
-              getRCID(s, elm))">{{ elm[s.field] }}
-            </a>
-          </td>
-          <td v-else>{{ elm[s.field] }}</td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </template>
 
@@ -107,7 +117,7 @@ export default {
       return this.elms.filter(el => el.type === 'enzyme').length;
     },
     metaboliteCount() {
-      return this.elms.filter(el => el.type === 'metabolite').length;
+      return this.elms.filter(el => el.type !== 'enzyme').length;
     },
     reactionCount() {
       const countReation = {};
@@ -122,18 +132,6 @@ export default {
   methods: {
     applyModifier(s, elm) {
       return s.modifier(elm[s.field], elm.link);
-    },
-    getRCID(s, elm) {
-      let id;
-      if (s.id) {
-        id = s.id;
-        if (s.id === 'self') {
-          id = elm[s.field];
-        }
-      } else {
-        id = elm.id || elm.real_id;
-      }
-      return id;
     },
     viewReactionComponent(type, id) {
       EventBus.$emit('updateSelTab', type, id);
@@ -155,7 +153,7 @@ export default {
     },
     sortBy(field) {
       const elms = Array.prototype.slice.call(this.filteredElms); // Do not mutate original elms;
-      this.sortedElms = elms.sort(compare(field, this.sortAsc ? 'asc' : 'desc'));
+      this.sortedElms = elms.sort(compare(field, null, this.sortAsc ? 'asc' : 'desc'));
       this.sortAsc = !this.sortAsc;
       this.updateTable();
     },
@@ -173,7 +171,7 @@ export default {
           let matches = false;
           for (const s of this.structure) {
             const val = elm[s.field];
-            if (typeof val === 'boolean') {
+            if (typeof val === 'boolean' || typeof val === 'object') {
               break;
             }
             if (val && val.toLowerCase().includes(t)) {

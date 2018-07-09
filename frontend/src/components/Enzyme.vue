@@ -11,32 +11,54 @@
           <h3 class="title is-3">
           Enzyme | {{ enzymeName }}
           <span class="button is-info" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
-          @click="visitLink('https://www.proteinatlas.org/search/' + enzyme.long_name, true)">
+          @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
             View on HPA
           </span>
           </h3>
         </div>
       </div>
-      <div id="enzyme-details" class="reaction-table">
-        <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table">
-          <tr v-for="el in detailTableKey">
-            <td v-if="el.display" class="td-key">{{ el.display }}</td>
-            <td v-if="enzyme[el.name]">
-              <span v-if="el.modifier" v-html="el.modifier(enzyme)">
-              </span>
-              <span v-else>
-                {{ enzyme[el.name] }}
-              </span>
-            </td>
-            <td v-else> - </td>
-          </tr>
-        </table>
-      </div>
-      <loader v-show="loading"></loader>
-      <div v-show="!loading">
-        <div v-show="reactions.length > 0">
-          <loader v-show="loading"></loader>
-          <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
+      <div class="columns">
+        <div class="column">
+          <div class="columns">
+            <div id="enzyme-details" class="reaction-table column is-10">
+              <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table is-fullwidth">
+                <tr v-for="el in mainTableKey[model]">
+                  <td v-if="'display' in el" class="td-key">{{ el.display }}</td>
+                  <td v-if="enzyme[el.name]">
+                    <span v-if="'modifier' in el" v-html=" el.modifier(enzyme)">
+                    </span>
+                    <span v-else>
+                      {{ enzyme[el.name] }}
+                    </span>
+                  </td>
+                  <td v-else> - </td>
+                </tr>
+              </table>
+            </div>
+            <div class="column">
+              <div class="box has-text-centered">
+                <div class="button is-info">
+                  <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+                </div>
+                <br><br>
+                <div class="button is-info"
+                  @click="viewInteractionPartners">
+                  View interaction partners
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <loader v-show="loading"></loader>
+              <div v-show="!loading">
+                <div v-show="reactions.length > 0">
+                  <loader v-show="loading"></loader>
+                  <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -65,34 +87,17 @@ export default {
       id: '',
       enzyme: {},
       enzymeName: '',
-      tableStructure: [
-        { field: 'type', colName: 'Type', modifier: false },
-        { field: 'reactionid', colName: 'Reaction ID', modifier: false, rc: 'reaction', id: 'self' },
-        { field: 'short', link: true, colName: 'Short name', modifier: false, rc: 'metabolite' },
-        { field: 'long', colName: 'Long name', modifier: chemicalName },
-        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
-        {
-          field: 'isCurrencyMetabolite',
-          colName: 'Is currency metabolite',
-          modifier: b => (b ? 'yes' : 'no'),
-        },
-        { field: 'compartment', colName: 'Compartment', modifier: null },
-      ],
-      detailTableKey: [
-        { name: 'id', display: 'Identifier' },
-        { name: 'enzymeName', display: 'Name' },
-        { name: 'function', display: 'Function' },
-        { name: 'long_name', display: 'Ensembl ID', modifier: this.reformatEnsblLink },
-        { name: 'uniprot_acc', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
-        { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBIlink },
-        { name: 'formula', display: 'Formula' },
-        { name: 'compartment', display: 'Compartment' },
-
-      ],
-      tableSearchTerm: '',
+      mainTableKey: {
+        hmr2: [
+          { name: 'enzymeName', display: 'Gene Name' },
+          { name: 'function', display: 'Function' },
+          { name: 'id', display: 'Model ID' },
+          { name: 'uniprot', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
+          { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBILink },
+          { name: 'id', display: 'Ensembl ID', modifier: this.reformatEnsemblLink },
+        ],
+      },
       reactions: [],
-      loadTime: 0,
-      showGraphContextMenu: false,
     };
   },
   watch: {
@@ -120,33 +125,26 @@ export default {
       }
       return output;
     },
-    reformatEnsblLink(enzyme) {
-      return `<a href="${enzyme.ensembl_link}" target="_blank">${enzyme.long_name}</a>`;
-    },
     reformatUniprotLink(enzyme) {
-      return `<a href="http://www.uniprot.org/uniprot/${enzyme.uniprot_acc}" target="_blank">${enzyme.uniprot_acc}</a>`;
+      return `<a href="${enzyme.uniprot_link}" target="_blank">${enzyme.uniprot}</a>`;
     },
-    reformatNCBIlink(enzyme) {
-      return `<a href="https://www.ncbi.nlm.nih.gov/gene/${enzyme.ncbi}" target="_blank">${enzyme.ncbi}</a>`;
+    reformatNCBILink(enzyme) {
+      return `<a href="${enzyme.ncbi_link}" target="_blank">${enzyme.ncbi}</a>`;
+    },
+    reformatEnsemblLink(enzyme) {
+      return `<a href="${enzyme.ensembl_link}" target="_blank">${enzyme.id}</a>`;
     },
     load() {
       this.loading = true;
-      const startTime = Date.now();
       const enzymeId = this.id;
       axios.get(`${this.model}/enzymes/${enzymeId}/connected_metabolites`)
         .then((response) => {
-          const endTime = Date.now();
-          this.loadTime = (endTime - startTime) / 1000; // TODO: show load time in seconds
-
           this.loading = false;
           this.errorMessage = null;
-
-          this.enzymeName = response.data.enzyme.short_name || response.data.enzyme.long_name;
+          this.id = response.data.enzyme.id;
+          this.enzymeName = response.data.enzyme.gene_name || response.data.enzyme.id;
           this.enzyme = response.data.enzyme;
-          this.enzyme = $.extend(this.enzyme, response.data.enzyme.enzyme);
-          this.enzyme.enzyme = null;
           this.enzyme.enzymeName = this.enzymeName;
-          this.enzyme.long_name = response.data.enzyme.long_name;
           this.reactions = response.data.reactions;
         })
         .catch((error) => {
@@ -166,6 +164,9 @@ export default {
       container.scrollTop(
         $(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
       );
+    },
+    viewInteractionPartners() {
+      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.enzyme.id}`);
     },
     chemicalFormula,
     chemicalName,

@@ -1,0 +1,3 @@
+@ID	name	name_link	alt_name1	alt_name2	aliases	external_id1	external_link1	external_id2	external_link2	external_id3	external_link3	external_id4	external_link4	function1	function2	ec	catalytic_activity	cofactor
+ENSG00000108839	CREBBP	ENSG00000108839.com	CREBBP alt_name1	prot name	GENE1; GENE2; GENE3	ENZY00001	www.enzyme.com/ENZY00001	NCBI0001	www.ncbi.com/NCBI00001					function1	function2	ec:11232	catalytic activity is cool	cofactor1; cofactor2
+ENSG00000012779	TEST42	ENSG00000108839.com	TEST42 alt_name1	prot name	GENE1; GENE2; GENE3	ENZY00001	www.enzyme.com/ENZY00001	NCBI0001	www.ncbi.com/NCBI00001					function1	function2	ec:11232	catalytic activity is cool	cofactor1; cofactor2

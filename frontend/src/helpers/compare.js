@@ -1,4 +1,4 @@
-export default (key, order = 'asc') =>
+export default (key, pattern, order = 'asc') =>
   (a, b) => {
     if (!Object.prototype.hasOwnProperty.call(a, key) || a[key] === null) {
       return 1;
@@ -10,7 +10,17 @@ export default (key, order = 'asc') =>
     const bVal = (typeof a[key] === 'string') ? b[key].toLowerCase() : b[key];
 
     let comparison = 0;
-    if (aVal > bVal) {
+    if (pattern !== null) {
+      if (aVal.search(pattern) !== -1) {
+        comparison = 1;
+      } else if (bVal.search(pattern) !== -1) {
+        comparison = -1;
+      } else if (aVal > bVal) {
+        comparison = 1;
+      } else if (aVal < bVal) {
+        comparison = -1;
+      }
+    } else if (aVal > bVal) {
       comparison = 1;
     } else if (aVal < bVal) {
       comparison = -1;

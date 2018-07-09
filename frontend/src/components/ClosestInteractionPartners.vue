@@ -28,7 +28,7 @@
             <div class="dropdown" id="dropdownMenuExport">
               <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu"
-                @click="showMenuExport=!showMenuExport" :disabled="!showNetworkGraph">
+                @click="showMenuExport=!showMenuExport" v-show="showNetworkGraph">
                   <span>Export graph</span>
                   <span class="icon is-small">
                     &#9663;
@@ -50,40 +50,67 @@
           </div>
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-          <span v-show="selectedElmId !== id"
+          <span v-show="clickedElmId !== id"
           class="button is-dark" v-on:click="navigate">Load interaction partners</span>
-          <span v-show="!expandedIds.includes(selectedElmId)"
+          <span v-show="!expandedIds.includes(clickedElmId)"
           class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
-          <span class="button is-dark" v-on:click="highlightReaction">Highlight reaction</span>
-          <div v-show="selectedElm && selectedElm.type === 'enzyme'">
-            <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent('enzyme')">Show enzyme</span>
-            <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click='visitLink(selectedElm.hpaLink, true)'>View in HPA &#8599;</span>
-            <span v-show="selectedElm && selectedElm.type === 'enzyme' && selectedElm.details" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span>
+          <div v-show="clickedElm">
+            <span class="button is-dark">Highlight reaction:</span>
           </div>
-          <div v-show="selectedElm && selectedElm.type === 'metabolite'">
-            <span class="is-black sep is-paddingless"></span>
-            <span class="button is-dark" v-on:click="viewReactionComponent('metabolite')">Show metabolite</span>
-            <span class="is-black sep is-paddingless"></span>
-            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
-            <span v-show="selectedElm && selectedElm.type === 'metabolite' && selectedElm.details" class="button is-dark"
-            v-on:click='visitLink(selectedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span>
+          <div>
+            <template v-if="clickedElm !== null && clickedElm['reaction']">
+               <template v-for="r, index of Array.from(clickedElm.reaction).slice(0,16)">
+                <span class="button is-dark is-small has-margin-left" v-on:click="highlightReaction(r)" v-if="index != 15">
+                  {{ r }}
+                </span>
+                <span v-else class="has-margin-left">
+                  {{ `${Array.from(clickedElm.reaction).length - 15} others reaction(s)...` }}
+                </span>
+               </template>
+            </template>
+          </div>
+          <div v-show="clickedElm && clickedElm.type === 'enzyme'">
+            <!-- <span class="is-black sep is-paddingless"></span> -->
+            <!-- <span class="button is-dark" v-on:click="viewReactionComponent('enzyme')">Show enzyme</span> -->
+            <!-- <span class="is-black sep is-paddingless"></span> -->
+<!--             <span class="button is-dark" v-on:click='visitLink(clickedElm.hpaLink, true)'>View in HPA &#8599;</span>
+            <span v-show="clickedElm && clickedElm.type === 'enzyme' && clickedElm.details" class="button is-dark"
+            v-on:click='visitLink(clickedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span> -->
+          </div>
+          <div v-show="clickedElm && clickedElm.type === 'metabolite'">
+            <!-- <span class="is-black sep is-paddingless"></span> -->
+            <!-- <span class="button is-dark" v-on:click="viewReactionComponent('metabolite')">Show metabolite</span> -->
+            <!-- <span class="is-black sep is-paddingless"></span> -->
+<!--             <span v-show="clickedElm && clickedElm.type === 'metabolite' && clickedElm.details" class="button is-dark"
+            v-on:click='visitLink(clickedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
+            <span v-show="clickedElm && clickedElm.type === 'metabolite' && clickedElm.details" class="button is-dark"
+            v-on:click='visitLink(clickedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span> -->
           </div>
         </div>
         <div id="cip-graph">
           <div v-show="showNetworkGraph" class="container columns">
             <div class="column is-8">
+              <transition name="slide-fade">
+                <article id="errorExpBar" class="message is-danger" v-if="errorExpMessage">
+                  <div class="message-header">
+                    <i class="fa fa-warning"></i>
+                  </div>
+                  <div class="message-body">
+                    <h5 class="title is-5">{{ errorExpMessage }}</h5>
+                  </div>
+                </article>
+              </transition>
               <div id="graphOption">
                 <span class="button" v-bind:class="[{ 'is-active': showGraphLegend }, '']"
-                v-on:click="toggleGraphLegend">Options</span>
-                <span class="button" v-on:click="zoomGraph(true)">+</span>
-                <span class="button" v-on:click="zoomGraph(false)">-</span>
-                <span class="button" v-on:click="fitGraph()">fit</span>
-              </div>
-              <div id="graphLegend" v-show="toggleMetaboliteExpLevel || toggleEnzymeExpLevel" v-html="legend">
+                v-on:click="toggleGraphLegend"><i class="fa fa-cog"></i></span>
+                <span class="button" v-on:click="zoomGraph(true)"><i class="fa fa-search-plus"></i></span>
+                <span class="button" v-on:click="zoomGraph(false)"><i class="fa fa-search-minus"></i></span>
+                <span class="button" v-on:click="fitGraph()"><i class="fa fa-arrows-alt"></i></span>
+                <span class="button" v-on:click="resetGraph(true)"><i class="fa fa-refresh"></i></span>
+                <span class="button" v-on:click="resetGraph(false)" :disabled="reactionHL === null" :class="{'is-disabled': reactionHL === null }"><i class="fa fa-eraser"></i></span>
+                <span class="button" v-on:click="viewReaction(reactionHL)" v-show="reactionHL">
+                  {{ reactionHL }}
+                </span>
               </div>
               <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
                 <button class="delete" v-on:click="toggleGraphLegend"></button>
@@ -103,33 +130,9 @@
                     v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
                     v-on:click="showColorPickerEnz = !showColorPickerEnz">
                     <compact-picker v-show="showColorPickerEnz"
-                    v-model="nodeDisplayParams.enzymeNodeColor" @input="redrawGraph(false, 'enzyme')"></compact-picker>
+                    v-model="nodeDisplayParams.enzymeNodeColor" @input="updateExpAndredrawGraph(false, 'enzyme')"></compact-picker>
                   </span>
                 </div>
-                <div class="comp">
-                  <label class="checkbox">
-                    <input type="checkbox" v-model="toggleEnzymeExpLevel" @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                    <span>HPA expression levels</span>
-                  </label>
-                  <div class="comp">
-                    <div class="select">
-                      <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel || !expSourceLoaded.enzyme.HPA" 
-                      @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                        <optgroup label="HPA - RNA levels - Tissues">
-                          <option v-for="tissue in tissues['HPA']" :value="tissue">
-                            {{ tissue }}
-                          </option>
-                        </optgroup>
-                        <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
-                          <option v-for="cellType in cellLines['HPA']" :value="cellType">
-                            {{ cellType }}
-                          </option>
-                        </optgroup>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <hr>
                 <span class="label">Metabolite</span>
                 <div class="comp">
                   <span>Shape:</span>
@@ -153,22 +156,98 @@
               <div id="cy" ref="cy" class="card is-paddingless">
               </div>
             </div>
-            <sidebar id="sidebar" :selectedElm="selectedElm" :view="'interaction'"></sidebar>
+            <div class="column">
+              <div class="columns">
+                <div class="column">
+                  <div class="card">
+                    <header class="card-header">
+                      <p class="card-header-title">
+                        <label class="checkbox">
+                          <input type="checkbox" v-model="toggleEnzymeExpLevel" :disabled="disableExpLvl"
+                          @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                          Enable <a href="https://www.proteinatlas.org/" target="_blank">HPA</a>&nbsp;RNA levels
+                        </label>
+                      <p>
+                    </header>
+                    <div class="card-content" v-if="toggleEnzymeExpLevel">
+                      <div id="graphLegend" v-show="(toggleMetaboliteExpLevel || toggleEnzymeExpLevel) && !disableExpLvl" v-html="legend">
+                      </div>
+                      <br>
+                      <div class="select is-fullwidth" :class="{ 'is-loading' : loadingHPA && toggleEnzymeExpLevel}" v-show="toggleEnzymeExpLevel && !disableExpLvl">
+                        <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel || !expSourceLoaded.enzyme.HPA" 
+                        @change.prevent="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
+                          <optgroup label="HPA - RNA levels - Tissues">
+                            <option v-for="tissue in tissues['HPA']" :value="tissue">
+                              {{ tissue }}
+                            </option>
+                          </optgroup>
+                          <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
+                            <option v-for="cellType in cellLines['HPA']" :value="cellType">
+                              {{ cellType }}
+                            </option>
+                          </optgroup>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns" v-if="compartmentList.length != 0 || subsystemList.length != 0">
+                <div class="column">
+                  <div class="card">
+                    <header class="card-header">
+                      <p class="card-header-title">
+                        Highlight&nbsp;
+                        <span class="button has-margin-left" v-on:click="resetHighlight(false)" 
+                        :disabled="isCompartmentSubsystemHLDisabled()"
+                        :class="{'is-disabled': isCompartmentSubsystemHLDisabled() }">
+                          <i class="fa fa-eraser"></i>
+                        </span>
+                      <p>
+                    </header>
+                     <div class="card-content">
+                        <div class="select is-fullwidth">
+                          <select v-model="compartmentHL" @change.prevent="highlightCompartment" :disabled="disableCompartmentHL">
+                            <option value="" disabled v-if="!disableCompartmentHL">Select a compartment</option>
+                            <option v-for="compartment in compartmentList" :value="disableCompartmentHL ? '' : compartment">
+                              {{ compartment }}
+                            </option>
+                          </select>
+                        </div>
+                        <div v-show="subsystemList.length != 0">
+                          <br>
+                          <div class="select is-fullwidth">
+                            <select v-model="subsystemHL" @change.prevent="highlightSubsystem">
+                              <option value="" disabled>Select a subsystem</option>
+                              <option v-for="sub in subsystemList" :value="sub">
+                                {{ sub }}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                     </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns">
+                <sidebar id="sidebar" :selectedElm="clickedElm" :view="'interaction'"" :model="model"></sidebar>
+              </div>
+            </div>
           </div>
           <div v-show="!showNetworkGraph" class="container columns">
             <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-              <div v-html="$t('tooManyReactionsWarn')"></div>
-              <span v-show="reactionsCount <= maxReactionCount"
-              class="button" v-on:click="constructGraph(rawElms, rawRels, fitGraph)">{{ $t('tooManyReactionsBut') }}</span>
+              <div v-html="$t('tooManyInteractionPartnerWarn')"></div>
+              <span v-show="nodeCount <= maxNodeCount"
+              class="button" v-on:click="generateGraph(fitGraph)">{{ $t('tooManyInteractionPartnerBut') }}</span>
             </div>
             <br>
           </div>
         </div>
         <div id="cip-table">
           <cytoscape-table
-            :structure="tableStructure"
+            :structure="tableStructure[model]"
             :elms="elms"
-            :selected-elm-id="selectedElmId"
+            :selected-elm-id="clickedElmId"
             :filename="filename"
             :sheetname="componentName"
             @highlight="highlightNode($event)"
@@ -185,7 +264,9 @@ import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml/src/index';
-import viewUtilities from 'cytoscape-view-utilities';
+// import viewUtilities from 'cytoscape-view-utilities';
+// import coseBilkent from 'cytoscape-cose-bilkent';
+import cola from 'cytoscape-cola';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
 
@@ -195,8 +276,8 @@ import Loader from 'components/Loader';
 
 import { default as EventBus } from '../event-bus';
 
-import { default as transform } from '../data-mappers/closest-interaction-partners';
-import { default as graph } from '../graph-stylers/closest-interaction-partners';
+import { default as transform } from '../data-mappers/hmr-closest-interaction-partners';
+import { default as graph } from '../graph-stylers/hmr-closest-interaction-partners';
 
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
 import { default as visitLink } from '../helpers/visit-link';
@@ -216,12 +297,14 @@ export default {
   data() {
     return {
       loading: true,
+      loadingHPA: false,
       errorMessage: this.$t('unknownError'),
+      errorExpMessage: '',
       title: '',
 
-      reactionsCount: 0,
-      warnReactionCount: 10,
-      maxReactionCount: 100,
+      nodeCount: 0,
+      warnNodeCount: 50,
+      maxNodeCount: 100,
       showNetworkGraph: false,
 
       rawRels: {},
@@ -229,8 +312,10 @@ export default {
 
       id: '',
       selectedElmId: '',
-
       selectedElm: null,
+
+      clickedElmId: '',
+      clickedElm: null,
       selectedSample: '',
 
       componentName: '',
@@ -240,20 +325,33 @@ export default {
       cellLines: {},
       legend: '',
 
+      expSource: '',
+      expType: '',
+      expSample: '',
+
+      reactionHL: null,
+      compartmentHL: '',
+      compartmentList: [],
+      disableCompartmentHL: false,
+      subsystemHL: '',
+      subsystemList: [],
+
       // keep track of exp lvl source already loaded
       expSourceLoaded: {
         enzyme: {},
         metabolite: {},
       },
+      disableExpLvl: false,
 
       cy: null,
-      tableStructure: [
-        { field: 'type', colName: 'Type', modifier: false },
-        { field: 'short', colName: 'Short name', modifier: false, rc: 'type' },
-        { field: 'long', colName: 'Long name', modifier: chemicalName },
-        { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
-        { field: 'compartment', colName: 'Compartment', modifier: false },
-      ],
+      tableStructure: {
+        hmr2: [
+          { field: 'type', colName: 'Type' },
+          { field: 'name', colName: 'Name' },
+          { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+          { field: 'compartment', colName: 'Compartment' },
+        ],
+      },
 
       showMenuExport: false,
       showMenuExpression: false,
@@ -318,7 +416,6 @@ export default {
           a: 1,
         },
       },
-
       maxZoom: 10,
       minZoom: 0.1,
       factorZoom: 0.08,
@@ -335,15 +432,21 @@ export default {
       return `ma_interaction_partners_${this.componentName}`;
     },
     elms() {
-      return Object.keys(this.rawElms).map(k => this.rawElms[k]);
+      if (Object.keys(this.rawElms).length !== 0) {
+        console.log('here');
+        return Object.keys(this.rawElms).map(k => this.rawElms[k]);
+      }
+      return [];
     },
     rels() {
       return Object.keys(this.rawRels).map(k => this.rawRels[k]);
     },
   },
-  beforeMount() {
+  created() {
     graphml(cytoscape, jquery);
-    viewUtilities(cytoscape, jquery);
+  },
+  beforeMount() {
+    cytoscape.use(cola);
     this.setup();
   },
   methods: {
@@ -354,51 +457,54 @@ export default {
       this.load();
     },
     navigate() {
-      this.$router.push(
-        { query: { ...this.$route.query, id: this.selectedElmId } },
-        () => { // On complete.
-          this.showMetaboliteTable = false;
-          this.setup();
-        },
-        () => { // On abort.
-          this.showGraphContextMenu = false;
-          this.selectedElmId = '';
-          this.selectedElm = null;
-        }
-      );
+      this.reactionHL = null;
+      this.compartmentHL = '';
+      this.subsystemHL = '';
+      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.clickedElmId}`);
     },
     load() {
       axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
+          this.showGraphContextMenu = false;
           const component = response.data.component;
           const reactions = response.data.reactions;
 
-          this.componentName = component.short_name || component.long_name;
+          this.componentName = component.name || component.gene_name || component.id;
           this.id = component.id;
-          if (component.enzyme) {
-            const uniprotId = component.enzyme ? component.enzyme.uniprot_acc : null;
-            this.title = `${this.chemicalName(this.componentName)}
-              (<a href="http://www.uniprot.org/uniprot/${uniprotId}" target="_blank">${uniprotId}</a>)`;
+          if ('gene_name' in component) {
+            this.title = `${this.chemicalName(this.componentName)}`;
+            if (component.uniprot != null) {
+              this.title = `${this.title} (<a href="${component.uniprot_link}" target="_blank">${component.uniprot}</a>)`;
+            }
+            component.type = 'enzyme';
           } else {
             this.title = `${this.chemicalName(this.componentName)}`;
+            component.type = 'metabolite';
           }
 
-          [this.rawElms, this.rawRels] = transform(component, component.id, reactions);
+          [this.rawElms, this.rawRels, this.compartmentList, this.subsystemList] =
+            transform(component, reactions, null, null, null, null);
+          if (this.compartmentList.length === 1) {
+            this.compartmentHL = '';
+            this.disableCompartmentHL = true;
+          }
           this.selectedElm = this.rawElms[component.id];
           this.selectedElm.name = this.componentName;
 
           this.expandedIds = [];
           this.expandedIds.push(component.id);
 
-          this.reactionCount = response.data.reactions.length;
-          if (this.reactionCount > this.warnReactionCount) {
+          this.nodeCount = Object.keys(this.rawElms).length;
+          if (this.nodeCount > this.warnNodeCount) {
             this.showNetworkGraph = false;
             this.errorMessage = '';
             return;
           }
           this.showNetworkGraph = true;
           this.errorMessage = null;
+
+          this.resetEnzymeExpression();
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
@@ -410,7 +516,7 @@ export default {
           console.log(error);
           switch (error.response.status) {
             case 406:
-              this.errorMessage = this.$t('tooManyInteractionPartners');
+              this.errorMessage = this.$t('tooManyInteractionPartner');
               break;
             case 404:
               this.errorMessage = this.$t('notFoundError');
@@ -421,27 +527,41 @@ export default {
         });
     },
     loadExpansion() {
-      axios.get(`${this.model}/reaction_components/${this.selectedElmId}/with_interaction_partners`)
+      axios.get(`${this.model}/reaction_components/${this.clickedElmId}/with_interaction_partners`)
         .then((response) => {
+          this.reactionHL = null;
           this.loading = false;
           this.errorMessage = null;
+          this.showGraphContextMenu = false;
 
           const component = response.data.component;
           const reactions = response.data.reactions;
-          const [newElms, newRels] = transform(component, this.selectedElmId, reactions);
+          [this.rawElms, this.rawRels, this.compartmentList, this.subsystemList] =
+            transform(component, reactions, this.rawElms, this.rawRels,
+             this.compartmentList, this.subsystemList);
+          if (this.compartmentList.length === 1) {
+            this.compartmentHL = '';
+            this.disableCompartmentHL = true;
+          } else {
+            this.disableCompartmentHL = false;
+          }
 
-          Object.assign(this.rawElms, newElms);
-          Object.assign(this.rawRels, newRels);
+          // Object.assign(this.rawElms, newElms);
+          // Object.assign(this.rawRels, newRels);
           // this.rawElms = this.loadHPAData(this.rawElms);
 
           this.expandedIds.push(component.id);
 
-          this.reactionCount = response.data.reactions.length;
-          if (this.reactionCount > this.warnReactionCount) {
+          this.nodeCount = Object.keys(this.rawElms).length;
+          if (this.nodeCount > this.warnNodeCount) {
             this.showNetworkGraph = false;
+            this.errorMessage = '';
             return;
           }
           this.showNetworkGraph = true;
+          this.errorMessage = null;
+
+          this.resetEnzymeExpression();
 
           // The set time out wrapper enforces this happens last.
           setTimeout(() => {
@@ -449,10 +569,14 @@ export default {
           }, 0);
         })
         .catch((error) => {
+          console.log(error);
           this.loading = false;
           switch (error.response.status) {
             case 406:
-              this.errorMessage = this.$t('tooManyInteractionPartners');
+              this.errorExpMessage = this.$t('tooManyInteractionPartner');
+              setTimeout(() => {
+                this.errorExpMessage = '';
+              }, 3000);
               break;
             case 404:
               this.errorMessage = this.$t('notFoundError');
@@ -462,35 +586,25 @@ export default {
           }
         });
     },
-    highlightReaction() {
-      let reactionId = null;
-      for (const elm of this.elms) {
-        if (this.selectedElmId === elm.id) {
-          reactionId = elm.reaction;
-          break;
-        }
-      }
-
-      if (reactionId) {
-        let eles = this.cy.collection();
-
-        for (const rel of this.rels) {
-          if (rel.reaction === reactionId) {
-            const relationEle = this.cy.getElementById(rel.id);
-            eles = eles.add(relationEle);
-
-            const sourceEle = this.cy.getElementById(rel.source);
-            eles = eles.add(sourceEle);
-
-            const targetEle = this.cy.getElementById(rel.target);
-            eles = eles.add(targetEle);
-          }
-        }
-
-        const instance = this.cy.viewUtilities();
-        instance.unhighlight(this.cy.elements());
-        instance.highlight(eles);
+    isCompartmentSubsystemHLDisabled() {
+      return ((this.compartmentHL === '' && this.subsystemHL === '') ||
+        (this.compartmentList.length < 2 && this.subsystemList.length === 0));
+    },
+    highlightReaction(rid) {
+      if (rid) {
+        this.reactionHL = rid;
+        this.redrawGraph();
         this.showGraphContextMenu = false;
+      }
+    },
+    highlightCompartment() {
+      if (this.compartmentHL) {
+        this.redrawGraph();
+      }
+    },
+    highlightSubsystem() {
+      if (this.subsystemHL) {
+        this.redrawGraph();
       }
     },
     toggleGraphLegend() {
@@ -521,8 +635,31 @@ export default {
         this.redrawGraph();
       }, 0);
     },
+    resetHighlight() {
+      if (this.isCompartmentSubsystemHLDisabled()) {
+        return;
+      }
+      this.compartmentHL = '';
+      this.subsystemHL = '';
+      this.redrawGraph();
+    },
+    resetGraph(reload) {
+      this.reactionHL = null;
+      this.selectedElm = null;
+      this.selectedElmId = '';
+      this.clickedElm = null;
+      this.clickedElmId = '';
+      this.resetEnzymeExpression();
+      if (reload) {
+        this.load();
+      } else {
+        this.redrawGraph();
+      }
+    },
     redrawGraph() {
-      const stylesheet = graph(this.rawElms, this.rawRels, this.nodeDisplayParams)[1];
+      const stylesheet = graph(this.id,
+        this.rawElms, this.rawRels, this.nodeDisplayParams,
+         this.reactionHL, this.compartmentHL, this.subsystemHL)[1];
       const cyzoom = this.cy.zoom();
       const cypan = this.cy.pan();
       this.cy.style(stylesheet);
@@ -533,7 +670,7 @@ export default {
     },
     fitGraph() {
       setTimeout(() => {
-        this.cy.fit();
+        this.cy.fit(null, 10);
         this.minZoom = this.cy.zoom() / 2.0;
       }, 300);
     },
@@ -546,19 +683,74 @@ export default {
       node.json({ selected: true });
       node.trigger('tap');
     },
+    generateGraph(callback) {
+      this.showNetworkGraph = true;
+      this.errorMessage = null;
+
+      this.resetEnzymeExpression();
+
+      // The set time out wrapper enforces this happens last.
+      setTimeout(() => {
+        this.constructGraph(this.rawElms, this.rawRels, callback);
+      }, 0);
+    },
     // this.switchSVG(compartmentID,
     constructGraph: function constructGraph(elms, rels, callback) {
-      /* eslint-disable no-param-reassign */
-      const [elements, stylesheet] = graph(elms, rels, this.nodeDisplayParams);
-      const id = this.id;
+      const [elements, stylesheet] = graph(this.id,
+        elms, rels, this.nodeDisplayParams, this.reactionHL, this.compartmentHL, this.subsystemHL);
+      // const id = this.id;
 
+      const colaOptions = {
+        animate: true, // whether to show the layout as it's running
+        refresh: 0.5, // number of ticks per frame; higher is faster but more jerky
+        maxSimulationTime: 10000, // max length in ms to run the layout
+        ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
+        fit: true, // on every layout reposition of nodes, fit the viewport
+        padding: 30, // padding around the simulation
+        boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+        nodeDimensionsIncludeLabels: undefined,
+        // whether labels should be included in determining the space used
+        // by a node (default true)
+
+        // layout event callbacks
+        ready() {}, // on layoutready
+        stop() {}, // on layoutstop
+
+        // positioning options
+        randomize: false, // use random node positions at beginning of layout
+        avoidOverlap: true, // if true, prevents overlap of node bounding boxe
+        handleDisconnected: true, // if true, avoids disconnected components from overlappin
+        nodeSpacing() { return 10; }, // extra spacing around node
+        flow: undefined,
+        // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
+        alignment: undefined,
+        // relative alignment constraints on nodes,
+        // e.g. function( node ){ return { x: 0, y: 1 } }
+        // different methods of specifying edge length
+        // each can be a constant numerical value or a function
+        // like `function( edge ){ return 2; }
+        edgeLength: undefined, // sets edge length directly in simulation
+        edgeSymDiffLength: undefined, // symmetric diff edge length in simulation
+        edgeJaccardLength: undefined, // jaccard edge length in simulation
+
+        // iterations of cola algorithm; uses default values on undefined
+        unconstrIter: undefined, // unconstrained initial layout iterations
+        userConstIter: undefined, // initial layout iterations with user-specified constraints
+        allConstIter: undefined,
+        // initial layout iterations with all constraints including non-overlap
+
+        // infinite layout options
+        infinite: false, // overrides all other options for a forces-all-the-time mode
+      };
+      const id = this.id;
       this.cy = cytoscape({
         container: this.$refs.cy,
         elements,
         style: stylesheet,
         layout: {
           // check 'cola' layout extension
-          name: 'concentric',
+          name: Object.keys(elms).length > 30 ? 'concentric' : 'cola',
+          colaOptions,
           concentric(node) {
             if (node.degree() === 1) {
               return 1;
@@ -571,10 +763,9 @@ export default {
             }
             return 200;
           },
-          fit: true,
+          ready: this.fitGraph,
         },
       });
-      // this.cy.ready = this.cy.fit();
       this.cy.userZoomingEnabled(false);
 
       window.pageYOffset = 0;
@@ -588,7 +779,7 @@ export default {
 
         cyt.$('edge').css({
           width: edgeWidth,
-          'font-size': dim,
+          'font-size': dim / 2,
         });
 
         cyt.$('node').css({
@@ -606,7 +797,7 @@ export default {
 
       const updatePosition = (node) => {
         contextMenuGraph.style.left = `${node.renderedPosition().x + 15}px`;
-        contextMenuGraph.style.top = `${node.renderedPosition().y + 210}px`;
+        contextMenuGraph.style.top = `${node.renderedPosition().y + 130}px`;
       };
 
       const nodeInViewport = (node) => {
@@ -619,27 +810,23 @@ export default {
 
       this.cy.on('tap', () => {
         this.showGraphContextMenu = false;
-        if (this.selectedElmId !== '') {
-          const instance = this.cy.viewUtilities();
-          instance.highlight(this.cy.elements());
-        }
-        this.selectedElmId = '';
-        this.selectedElm = null;
+        this.clickedElmId = '';
+        this.clickedElm = null;
       });
 
       this.cy.on('tap', 'node', (evt) => {
-        const node = evt.cyTarget;
+        const node = evt.target;
         const elmId = node.data().id;
 
-        this.selectedElmId = elmId;
-        this.selectedElm = node.data();
+        this.clickedElmId = elmId;
+        this.clickedElm = this.rawElms[elmId];
         this.showGraphContextMenu = true;
         updatePosition(node);
       });
 
       this.cy.on('drag', 'node', (evt) => {
-        const node = evt.cyTarget;
-        if (this.selectedElmId === node.data().id && nodeInViewport(node)) {
+        const node = evt.target;
+        if (this.clickedElmId === node.data().id && nodeInViewport(node)) {
           updatePosition(node);
         }
       });
@@ -649,8 +836,8 @@ export default {
       });
 
       this.cy.on('tapdragout, tapend', () => {
-        if (this.selectedElmId !== '') {
-          const node = this.cy.getElementById(this.selectedElmId);
+        if (this.clickedElmId !== '') {
+          const node = this.cy.getElementById(this.clickedElmId);
           if (!nodeInViewport(node)) {
             return;
           }
@@ -658,12 +845,9 @@ export default {
           updatePosition(node);
         }
       });
-      console.log(callback);
       if (callback) {
-        console.log('callback');
         callback();
       }
-      /* eslint-enable no-param-reassign */
     },
     // TODO: refactor
     exportGraphml: function exportGraphml() {
@@ -705,6 +889,12 @@ export default {
     },
     switchToExpressionLevel: function switchToExpressionLevel(
       componentType, expSource, expType, expSample) {
+      if (this.disableExpLvl) {
+        return;
+      }
+      this.expSource = expSource;
+      this.expType = expType;
+      this.expSample = expSample;
       // console.log(expSource);
       // console.log(expType);
       // console.log(expSample);
@@ -745,9 +935,9 @@ export default {
         }
       } else if (this.toggleMetaboliteExpLevel) {
         console.log(expSample);
-        // load expression data for metabolite
+        // load data for metabolite
       } else {
-        // disable expression lvl for metabolite
+        // disable lvl for metabolite
         this.nodeDisplayParams.metaboliteExpSource = false;
         this.nodeDisplayParams.metaboliteExpType = false;
         this.nodeDisplayParams.metaboliteExpSample = false;
@@ -779,9 +969,12 @@ export default {
         level: lvl,
       });
     },
-    viewReactionComponent: function viewReactionComponent(type) {
+    viewReactionComponent(type) {
       EventBus.$emit('updateSelTab', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
+    },
+    viewReaction(ID) {
+      EventBus.$emit('updateSelTab', 'reaction', ID);
     },
     scrollTo(id) {
       const container = jquery('body, html');
@@ -789,9 +982,17 @@ export default {
         jquery(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
       );
     },
+    resetEnzymeExpression() {
+      this.toggleEnzymeExpLevel = false;
+      this.nodeDisplayParams.enzymeExpSource = false;
+      this.nodeDisplayParams.enzymeExpType = false;
+      this.nodeDisplayParams.enzymeExpSample = false;
+      this.expSourceLoaded.enzyme = {};
+    },
     getHPAexpression(rawElms, expSource, expType, expSample) {
+      this.loadingHPA = true;
       const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
-      const enzymeIDs = enzymes.map(k => rawElms[k].long);
+      const enzymeIDs = enzymes.map(k => rawElms[k].id);
 
       const baseUrl = 'http://www.proteinatlas.org/search/external_id:';
       const proteins = `${enzymeIDs.join(',')}?format=xml`;
@@ -806,6 +1007,8 @@ export default {
         this.expSourceLoaded.enzyme.HPA = {};
         this.expSourceLoaded.enzyme.HPA.RNA = true;
         this.legend = getExpLvlLegend();
+        this.disableExpLvl = false;
+        this.loadingHPA = false;
         setTimeout(() => {
           if ((expSource && expType) && !expSample) {
             // fix option selection! because of optgroup?
@@ -818,7 +1021,13 @@ export default {
       })
       .catch((error) => {
         console.log(error);
+        this.loadingHPA = false;
+        this.toggleEnzymeExpLevel = false;
+        this.disableExpLvl = true;
         this.switchToExpressionLevel = false;
+        this.nodeDisplayParams.enzymeExpSource = false;
+        this.nodeDisplayParams.enzymeExpType = false;
+        this.nodeDisplayParams.enzymeExpSample = false;
       });
     },
     chemicalFormula,
@@ -837,7 +1046,7 @@ export default {
   }
 
   #cy {
-    position: static;
+    /* position: static; */
     margin: auto;
     height: 820px;
   }
@@ -874,6 +1083,13 @@ export default {
     }
   }
 
+  #errorExpBar {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 11;
+  }
+
   #graphOption {
     position: absolute;
     top: 12px;
@@ -892,12 +1108,6 @@ export default {
   }
 
   #graphLegend {
-    position: absolute;
-    top: 12px;
-    left: 650px;
-    height: 40px;
-    z-index: 10;
-
     .title {
       margin-bottom: 0.3em;
     }
@@ -979,6 +1189,17 @@ export default {
 
   #enz-select {
     min-width: 240px;
+  }
+
+  .slide-fade-enter-active {
+    transition: all .3s ease;
+  }
+  .slide-fade-leave-active {
+    transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter, .slide-fade-leave-active {
+    transform: translateX(200px);
+    opacity: 0;
   }
 }
 

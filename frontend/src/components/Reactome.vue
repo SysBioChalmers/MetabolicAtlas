@@ -1,5 +1,5 @@
 <template>
-  <div class="reactome">
+  <div class="reactome column" v-show="showTable">
     <h3 class="title is-3">Reactome</h3>
     <div class="container">
       <div v-show="false" id="diagram"></div>
@@ -10,7 +10,10 @@
           <span v-show="expandAllCompartment">Restrict to current compartment</span>
           </button>
       </p>
-      <reaction-table v-show="!showLoader" :reactions="reactions" :selectedElmId="elementID" :showSubsystem="true"></reaction-table>
+      <reaction-table v-show="!showLoader && !expandAllCompartment" 
+      :reactions="reactions" :selectedElmId="ID" :showSubsystem="true"></reaction-table>
+      <reaction-table v-show="!showLoader && expandAllCompartment" 
+      :reactions="reactionsAllcompartment" :selectedElmId="ID" :showSubsystem="true"></reaction-table>
       <div v-if="errorMessage" class="columns">
         <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
           {{ errorMessage }}
@@ -38,26 +41,31 @@ export default {
     ReactionTable,
     Loader,
   },
-  props: ['model'],
+  props: ['model', 'metaboliteID'],
   data() {
     return {
       errorMessage: '',
       reactions: [],
+      reactionsAllcompartment: [],
       reactome: null,
       showLoader: true,
+      showTable: false,
       expandAllCompartment: false,
-      elementID: '',
+      ID: '',
+      reactomeID: '', // might be without compartment letters
     };
   },
   watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      this.loadReactions();
+    metaboliteID() {
+      if (this.metaboliteID) {
+        this.ID = this.metaboliteID;
+        this.reactomeID = '';
+        this.reactions = [];
+        this.reactionsAllcompartment = [];
+        this.expandAllCompartment = false;
+        this.loadReactions(this.ID);
+      }
     },
-  },
-  mounted() {
-    this.loadReactions();
-    // this.drawDiagram();
   },
   methods: {
     drawDiagram() {
@@ -90,32 +98,31 @@ export default {
         padEllipse: true,
       }, g3).setLineColor('#5D4037');
     },
-    loadReactions() {
-      this.showLoader = true;
-      this.elementID = this.$route.params.id || this.$route.query.id;
-      let id = this.elementID;
-      if (this.expandAllCompartment) {
-        id = id.replace(/[a-z]$/, '');
+    loadReactions(ID) {
+      if (this.reactomeID &&
+          (ID !== this.reactomeID) &&
+          ((this.expandAllCompartment && this.reactionsAllcompartment.length !== 0) ||
+         (!this.expandAllCompartment && this.reactions.length !== 0))) {
+        this.reactomeID = ID;
+        return;
       }
-      axios.get(`${this.model}/metabolite_reactions/${id}`)
+      this.showLoader = true;
+      this.reactomeID = ID;
+      axios.get(`${this.model}/metabolites/${ID}/reactions/`)
         .then((response) => {
           this.errorMessage = '';
-          this.reactions = response.data;
-          if (this.reactions.length > 0) {
-            // const r = this.reactions[0];
-            // this.loadReactome(r.id);
+          if (this.expandAllCompartment) {
+            this.reactionsAllcompartment = response.data;
+          } else {
+            this.reactions = response.data;
           }
+          this.showTable = true;
           this.showLoader = false;
         })
         .catch((error) => {
-          this.loading = false;
-          switch (error.response.status) {
-            case 404:
-              this.errorMessage = this.$t('notFoundError');
-              break;
-            default:
-              this.errorMessage = this.$t('unknownError');
-          }
+          console.log(error);
+          this.showLoader = false;
+          this.showTable = false;
         });
     },
     // TODO: call loadReactome when selecting a row from the table of reactions
@@ -130,7 +137,11 @@ export default {
     },
     toggleExpandAllCompartment() {
       this.expandAllCompartment = !this.expandAllCompartment;
-      this.loadReactions();
+      if (this.expandAllCompartment) {
+        this.loadReactions(this.ID.replace(/[a-z]{1,3}$/, ''));
+      } else {
+        this.loadReactions(this.ID);
+      }
     },
   },
 };
