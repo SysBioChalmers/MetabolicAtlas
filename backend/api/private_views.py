@@ -356,7 +356,7 @@ def get_compartments_svg(request, model):
 
     return JSONResponse(compartmentSvgSerializer.data)
 
-##########################################################################################################3
+##########################################################################################
 
 
 @api_view()
@@ -434,3 +434,27 @@ def connected_metabolites(request, model, id):
 
     return JSONResponse(result)
 
+
+##########################################################################################
+
+@api_view()
+@is_model_valid
+def get_rna_levels(request, model, compartment):
+    try:
+        compartment = APImodels.Compartment.objects.using(model).get(name__iexact=compartment)
+    except APImodels.Compartment.DoesNotExist:
+        return HttpResponse(status=404)
+
+    rc_compart = APImodels.ReactionComponentCompartment.objects.using(model). \
+        filter(Q(compartment=compartment)).values_list('rc_id')
+    enzyme_compart = APImodels.ReactionComponent.objects.using(model). \
+        filter(Q(component_type='e') & Q(id__in=rc_compart)).values_list('id')
+
+    levels = APImodels.HpaEnzymeLevel.objects.using(model).filter(rc__in=enzyme_compart).values_list('rc_id', 'levels')
+    tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
+
+    return JSONResponse(
+        { 
+          'tissues': tissues,
+          'levels': levels
+        })

@@ -478,3 +478,18 @@ class TileSubsystem(models.Model):
 
 ##########################################################################################################################
 ##########################################################################################################################
+
+
+class HpaTissue(models.Model):
+    index = models.IntegerField(primary_key=True)
+    tissue = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        db_table = "hpa_tissue"
+
+class HpaEnzymeLevel(models.Model):
+    rc = models.OneToOneField(ReactionComponent, on_delete=models.CASCADE, primary_key=True)
+    levels = models.CharField(max_length=1000)
+
+    class Meta:
+        db_table = "hpa_enzyme_level"
