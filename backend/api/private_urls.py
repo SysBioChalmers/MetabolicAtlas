@@ -20,4 +20,6 @@ urlpatterns = [
     url(r'^(?P<model>[^/]+)/reaction_components/(?P<id>[^/]+)/with_interaction_partners/?$', private_views.get_component_with_interaction_partners),
     url(r'^(?P<model>[^/]+)/compartments_svg/?$', private_views.get_compartments_svg),
     url(r'^(?P<model>[^/]+)/enzymes/(?P<id>[^/]+)/connected_metabolites/?$', private_views.connected_metabolites),
+
+    url(r'^(?P<model>[^/]+)/enzymes/hparnalevels/(?P<compartment>[^/]+)/?$', private_views.get_rna_levels),
 ]

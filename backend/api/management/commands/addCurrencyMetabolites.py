@@ -22,12 +22,9 @@ class Substr(Func):
         )
 
 def addCurrencyMetabolites(database, currency_metabolite_file):
-
     reaction_without_transport = APImodels.Reaction.objects.using(database).filter(is_transport=False)
-    print (reaction_without_transport.count())
     reactants_count = APImodels.ReactionReactant.objects.using(database).filter(reaction_id__in=reaction_without_transport).values('reaction_id', 'reactant_id')
-    # print (reactants_count)
-    # exit()
+
     d = {}
     reactions = {}
     for el in reactants_count:
