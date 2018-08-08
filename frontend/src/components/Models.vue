@@ -67,7 +67,7 @@
           <table class="table main-table">
             <tbody>
               <tr v-for="field in model_fields" v-if="selectedModel[field.name]">
-                <td v-html="field.display" class="td-key"></td>
+                <td v-html="field.display" class="td-key has-background-primary has-text-white-bis"></td>
                 <td v-if="typeof(selectedModel[field.name]) === 'boolean'">
                   {{ selectedModel[field.name] ? 'yes' : 'No' }}
                 </td>
@@ -98,8 +98,8 @@
               </tr>
             </tbody>
           </table>
-        </div> 
-      </div> 
+        </div>
+      </div>
       <button class="modal-close" @click="showModelTable = false"></button>
     </div>
   </div>

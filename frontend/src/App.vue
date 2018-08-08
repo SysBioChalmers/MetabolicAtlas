@@ -1,101 +1,97 @@
 <template>
-  <div id="app" class="hero is-fullheight">
+  <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <transition name="fade">
       <metabolic-viewer id="metabolicViewer" v-show="isMetabolicViewer"
       :model="{ id: selectedModel, name: models[selectedModel].short_name }"
       ></metabolic-viewer>
     </transition>
-    <div class="hero-head">
-      <nav class="navbar is-light" role="navigation" aria-label="main navigation">
-        <div class="container">
-          <div class="navbar-brand">
-            <a id="logo" class="navbar-item" @click="goToPage('')" >
-              <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
-            </a>
-            <div class="navbar-burger" data-target="navMenu">
-              <span
-                 v-show="false"
-                 v-for="menuItem in menuItems"
-                 :class="[{ 'is-active': isActive(menuItem) }, '']"
-                 @click="goToPage(menuItem)"
-              >{{ menuItem }}</span>
-            </div>
+    <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+      <div class="container">
+        <div class="navbar-brand">
+          <a id="logo" class="navbar-item" @click="goToPage('')" >
+            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
+          </a>
+          <div class="navbar-burger">
+            <span
+               v-show="false"
+               v-for="menuItem in menuItems"
+               :class="[{ 'is-active': isActive(menuItem) }, '']"
+               @click="goToPage(menuItem)"
+            >{{ menuItem }}</span>
           </div>
-          <div class="navbar-menu" id="#nav-menu">
-            <div class="navbar-end">
-              <template v-for="menuItem, index in menuItems">
-                <template v-if="index === 0">
+        </div>
+        <div class="navbar-menu" id="#nav-menu">
+          <div class="navbar-end">
+            <template v-for="menuItem, index in menuItems">
+              <template v-if="index === 0">
+                <div class="navbar-item has-dropdown is-hoverable">
+                  <a class="navbar-link"  @click="goToPage('', selectedModel)">
+                    {{ menuItem }}
+                    &nbsp;<span class="tag is-info is-large">{{ models[selectedModel].short_name }}</span>
+                  </a>
+                  <div class="navbar-dropdown">
+                    <a class="navbar-item is-primary"
+                      v-for="model, k in models"
+                      @click="goToPage('', model.database_name)" v-html="getModelDescription(model)">
+                    </a>
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <template v-if="Array.isArray(menuItem)">
                   <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link"  @click="goToPage('', selectedModel)">
-                      {{ menuItem }}
-                      &nbsp;<span class="tag is-info is-large">{{ models[selectedModel].short_name }}</span>
+                    <a class="navbar-link" @click="goToPage(menuItem[0])">
+                      {{ menuItem[0] }}
                     </a>
                     <div class="navbar-dropdown">
-                      <a class="navbar-item is-primary"
-                        v-for="model, k in models"
-                        @click="goToPage('', model.database_name)" v-html="getModelDescription(model)">
+                      <a class="navbar-item is-primary" 
+                      v-for="submenu, index in menuItem" v-if="index != 0"
+                      @click="goToPage(menuItem[index])">
+                        {{ menuItem[index] }}
                       </a>
                     </div>
                   </div>
                 </template>
                 <template v-else>
-                  <template v-if="Array.isArray(menuItem)">
-                    <div class="navbar-item has-dropdown is-hoverable">
-                      <a class="navbar-link" @click="goToPage(menuItem[0])">
-                        {{ menuItem[0] }}
-                      </a>
-                      <div class="navbar-dropdown">
-                        <a class="navbar-item is-primary" 
-                        v-for="submenu, index in menuItem" v-if="index != 0"
-                        @click="goToPage(menuItem[index])">
-                          {{ menuItem[index] }}
-                        </a>
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <a
-                       class="navbar-item"
-                       :class="[{ 'is-active': isActive(menuItem) }, '']"
-                       @click="goToPage(menuItem)"
-                    >{{ menuItem }}</a>
-                  </template>
+                  <a
+                     class="navbar-item"
+                     :class="[{ 'is-active': isActive(menuItem) }, '']"
+                     @click="goToPage(menuItem)"
+                  >{{ menuItem }}</a>
                 </template>
               </template>
-            </div>
+            </template>
           </div>
         </div>
-      </nav>
-    </div>
-    <div class="hero-body">
+      </div>
+    </nav>
+    <section id="extended-section" class="section">
       <div class="container">
         <router-view :selectedModel="selectedModel"></router-view>
       </div>
-    </div>
-    <div class="hero-foot">
-      <footer class="footer">
-        <div class="columns">
-          <div class="column is-2">
-          </div>
-          <div class="column is-8">
-            <div class="content has-text-centered">
-              <p v-html="$t('footerText')"><p>
-              <p>
-                <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
-                <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
-                <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
-              </p>
-            </div>
-          </div>
-          <div class="column is-2">
-            <div class="is-pulled-right">
-              <a @click="viewRelaseNotes">Release v1.0</a>
-            </div>
+    </section>
+    <footer class="footer">
+      <div class="columns">
+        <div class="column is-2">
+        </div>
+        <div class="column is-8">
+          <div class="content has-text-centered">
+            <p v-html="$t('footerText')"><p>
+            <p>
+              <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
+              <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
+              <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
+            </p>
           </div>
         </div>
-      </footer>
-    </div>
+        <div class="column is-2">
+          <div class="is-pulled-right">
+            <a @click="viewRelaseNotes">Release v1.0</a>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -211,7 +207,7 @@ export default {
 
 <style lang='scss'>
 
-$primary: #64CC9A;
+$primary: #095915;
 $link: #3498db;
 $warning: #FFC67D;
 $danger: #FF865C;
@@ -239,6 +235,16 @@ $switch-background: $primary;
     transform: rotate(360deg);
     transform-origin: center center;
   }
+}
+
+#extended-section {
+  flex: 1;
+}
+
+#app {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column
 }
 
 #metabolicViewer {
