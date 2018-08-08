@@ -264,8 +264,6 @@ import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
 import graphml from 'cytoscape-graphml/src/index';
-// import viewUtilities from 'cytoscape-view-utilities';
-// import coseBilkent from 'cytoscape-cose-bilkent';
 import cola from 'cytoscape-cola';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';

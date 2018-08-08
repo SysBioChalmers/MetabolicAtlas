@@ -15,7 +15,7 @@ import logging
 # version 1.0.8
 
 parser = argparse.ArgumentParser(description='Chalmers genome scale metabolic model repository validator.')
-parser.add_argument('repo-name', help='A name of the remote repository or local directory (option --local)')
+parser.add_argument('repo-name', help='A name of the remote repository or local directory (option --local-repo)')
 parser.add_argument('--readme-only', action='store_true', dest="readme_only", help="check the readme file only")
 parser.add_argument('--no-summary', action='store_false', dest="show_summary", help="skip the print of the summary", default=True)
 parser.add_argument('--local-repo', action='store_true', dest="parse_local", help="local repository directory", default=False)
@@ -98,11 +98,11 @@ warning_messages = []
 gem_category = ''
 model_files_found = {}
 table_CCTS = { 
-                    'cell line': False,
-                    'cell type': False,
-                    'tissue': False,
-                    'strain': False,
-                    }
+                 'cell line': False,
+                 'cell type': False,
+                 'tissue': False,
+                 'strain': False,
+             }
 PMID_cat_found = False
 
 

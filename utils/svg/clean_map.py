@@ -89,6 +89,8 @@ def run_svgo(input_dir, output_dir):
     print ("Reading (svgo)", f)
     output_file = os.path.join(output_dir, f)
     output_file = os.path.abspath(output_file)
+    f = "'" + f + "'"
+    output_file = "'" + output_file + "'"
     # os.system('svgo --disable=cleanupIDs --disable=convertTransform --disable=convertPathData --indent=2 --pretty -i %s -o %s' % (f, output_file))
     os.system('svgo --disable=cleanupIDs --disable=convertTransform --indent=2 --pretty -i %s -o %s' % (f, output_file))
 
@@ -112,6 +114,8 @@ def run_sed(input_dir, output_dir):
     print ("Reading (sed)", f)
     output_file = os.path.join(output_dir, f)
     output_file = os.path.abspath(output_file)
+    f = "'" + f + "'"
+    output_file = "'" + output_file + "'"
 
     # remove br and create new output file
     os.system('sed -re \'s/_br_//g\' %s > %s' % (f, output_file))
@@ -467,6 +471,7 @@ def reformat_shapes(input_dir, output_dir):
                 parse_FE = False
             fw.write(line+'\n')
 
+    output_file = "'" + output_file + "'"
     # Z to reaction
     os.system('sed -rie \'s/d="M0,-25 L25,0 L0,25 L-25,0 L0,-25"/d="M0,-25 L25,0 L0,25 L-25,0 Z"/g\' %s' % output_file)
 

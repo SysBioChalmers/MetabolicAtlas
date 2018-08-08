@@ -332,7 +332,6 @@ def get_compartment_svg(request, model, compartment_name):
 @api_view()
 @is_model_valid
 def get_compartments_svg(request, model):
-    # TODO put in private url?
     try:
         compartment_svg_info = APImodels.CompartmentSvg.objects.using(model).select_related('compartment').all()
         compartment_info = APImodels.Compartment.objects.using(model).all()
