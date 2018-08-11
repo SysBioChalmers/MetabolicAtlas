@@ -24,71 +24,49 @@
       </div>
       <div class="column" id="iBarInfo" v-html="mapInfoString">
       </div>
-    </div>
+    </div> -->
      <div class="columns" style="height: auto-height">
-      <div class="column is-2" id="iSideBar">
-        <section class="accordions">
-          <article class="accordion"
-          :class="{ 'is-active' : accordionLevelSelected === 'search' }"
-          >
-            <div class="accordion-header toggle"
-            :class="{ 'toggle' : accordionLevelSelected === 'search' }"
-             @click="accordionLevelSelected = 'search'">
-              <p>Search <i class="fa fa-search"></i></p>
-            </div>
-            <div class="accordion-body">
-              <div class="accordion-content">
-                <finder :model="model.id"></finder>
-              </div>
-            </div>
-          </article>
-          <article class="accordion"
-          :class="{ 'is-active' : accordionLevelSelected === 'wholemap' }"
-          >
-            <div class="accordion-header"
-              :class="{ 'toggle' : accordionLevelSelected === 'wholemap' }"
-              @click="globalMapSelected">
-              <p>Global map</p>
-              <button class="toggle" aria-label="toggle" v-show="false"></button>
-            </div>
-            <div class="accordion-body">
-            </div>
-          </article>
-          <article class="accordion"
-          :class="{ 'is-active' : accordionLevelSelected === 'compartment' }"
-          >
-            <div class="accordion-header"
-              :class="{ 'toggle' : accordionLevelSelected === 'compartment' }"
-              @click="accordionLevelSelected = 'compartment'">
-              <p>Compartments</p>
-              <button class="toggle" aria-label="toggle"></button>
-            </div>
-            <div class="accordion-body" id="iSearch">
-              <div class="accordion-content">
-                <compartment :model="model.id" @showMapInfo="updateMapInfo"
-                :compartmentName="currentDisplayedName"></compartment>
-              </div>
-            </div>
-          </article>
-          <article class="accordion"
-          :class="{ 'is-active' : !['compartment', 'search'].includes(accordionLevelSelected) }"
-          >
-            <div class="accordion-header"
-              :class="{ 'toggle' : !['compartment', 'search'].includes(accordionLevelSelected) }"
-              @click="accordionLevelSelected = 'subsystem'">
-              <p>Subsystems ({{ subsystemCount }})</p>
-              <button class="toggle" aria-label="toggle"></button>
-            </div>
-            <div class="accordion-body">
-              <div class="accordion-content">
-                <subsystem :model="model.id" @sendSubSysCount="showSubsystemCount"
-                :subsystemName="currentDisplayedName" @showMapInfo="updateMapInfo"></subsystem>
-              </div>
-            </div>
-          </article>
-        </section>
+      <div class="column is-one-fifth" id="iSideBar">
+        <div id="menu">
+          <ul class="l0">
+            <li>HPA RNA levels
+            </li>
+          </ul>
+          <ul class="l0">
+            <li>Compartments<span>&nbsp;&#9656;</span>
+              <ul class="l1">
+                <li v-for="comp in compartments" class="clickable"
+                @click="showCompartment(comp.name)">
+                  {{ comp.name }}
+<!--                    TODO ADD subystem for cytosol parts
+ -->                </li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="l0">
+            <li>Subsystems<span>&nbsp;&#9656;</span>
+              <ul class="l1">
+                <li v-for="system in systemOrder">{{ system }}<span>&nbsp;&#9656;</span>
+                  <ul class="l2">
+                    <li v-for="subsystem in subsystems[system]" class="clickable" 
+                      v-if="system !== 'Collection of reactions'">
+                        {{ subsystem.name }}
+                    </li>
+                    <li v-else class="clickable disable">
+                       {{ subsystem.name }}
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="column">
+          <div id="iSelectedDataFrame">
+          </div>
+        </div>
       </div>
-      <div class="column is-10" id="graphframe">
+      <div class="column" id="graphframe">
         <div class="columns">
           <svgmap class="column" v-show="!dim3D"
           :model="model.id"
@@ -118,27 +96,20 @@
 </template>
 
 <script>
-
-// import $ from 'jquery';
-import bulmaAccordion from 'bulma-extensions/bulma-accordion/dist/bulma-accordion.min';
-import Compartment from './metabolicViewerComponents/Compartment';
-import Subsystem from './metabolicViewerComponents/Subsystem';
-import Finder from './metabolicViewerComponents/Finder';
+import axios from 'axios';
+// TODO remove bulm accordion fron package
 import Svgmap from './metabolicViewerComponents/Svgmap';
 import D3dforce from './metabolicViewerComponents/D3dforce';
 import SvgIcon from './SvgIcon';
 import Logo from '../assets/logo.svg';
 import { default as EventBus } from '../event-bus';
-import { getCompartments } from '../helpers/compartment';
+import { getCompartmentFromName } from '../helpers/compartment';
 
 
 export default {
   name: 'metabolic-viewer',
   components: {
     SvgIcon,
-    Compartment,
-    Subsystem,
-    Finder,
     Svgmap,
     D3dforce,
   },
@@ -156,10 +127,40 @@ export default {
       requestedName: '',
       currentDisplayedType: 'wholemap',
       currentDisplayedName: '',
-      // compartmentCount: 0,
-      subsystemCount: 0,
       initialEmit: false,
       showLoader: false,
+
+      compartments: [],
+      compartmentStats: {},
+      currentCompartment: null,
+      compartmentNameOrder: [
+        'Endoplasmic reticulum',
+        'Golgi apparatus',
+        'Lysosome',
+        'Mitochondria',
+        'Nucleus',
+        'Peroxisome',
+        'Cytosol_1',
+        'Cytosol_2',
+        'Cytosol_3',
+        'Cytosol_4',
+        'Cytosol_5',
+        'Cytosol_6',
+      ],
+      subsystems: {},
+      currentubsystem: null,
+      subsystemCount: 0,
+      systemOrder: [
+        'Amino Acid metabolism',
+        'Fatty acid',
+        'Carnitine shuttle',
+        'Glycosphingolipid biosynthesis/metabolism',
+        'Cholesterol biosynthesis',
+        'Vitamin metabolism',
+        'Other metabolism',
+        'Other',
+        'Collection of reactions',
+      ],
     };
   },
   computed: {
@@ -188,6 +189,22 @@ export default {
         EventBus.$emit('showSVGmap', type, name, ids);
       }
     });
+
+    this.loadCompartments();
+
+    // subsystem
+    /* eslint-disable no-param-reassign */
+    EventBus.$on('showSubsystem', (name) => {
+      if (!name) {
+        const subname = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
+        this.selectedSystem = 'Other metabolism';
+        this.selectedSubsystem = this.subsystems[subname];
+        this.loadSubsystemCoordinates(subname, null);
+      } else {
+        this.loadSubsystemCoordinates(name, null);
+      }
+    });
+    this.loadSubsystem();
   },
   mounted() {
     if (false && this.currentDisplayedType === 'wholemap' &&
@@ -198,9 +215,6 @@ export default {
     }
   },
   methods: {
-    showSubsystemCount(count) {
-      this.subsystemCount = count;
-    },
     updateMapInfo(text) {
       this.mapInfoString = text;
     },
@@ -247,8 +261,57 @@ export default {
       this.currentDisplayedName = this.requestedName;
       this.showLoader = false;
     },
-    getCompartments,
-    bulmaAccordion,
+    loadCompartments() {
+      for (const Cname of this.compartmentNameOrder) {
+        this.compartments.push(getCompartmentFromName(Cname));
+      }
+      axios.get(`${this.model.id}/compartments_svg/`)
+      .then((response) => {
+        this.compartmentStats = {};
+        for (const compInfo of response.data) {
+          this.compartmentStats[compInfo.display_name] = compInfo;
+        }
+        this.currentCompartment = null;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    },
+    loadSubsystem() {
+      axios.get(`${this.model.id}/subsystems`)
+        .then((response) => {
+          const systems = response.data.reduce((subarray, el) => {
+            const arr = subarray;
+            if (!arr[el.system]) { arr[el.system] = []; }
+            arr[el.system].push(el);
+            return arr;
+          }, {});
+          this.subsystems = systems;
+          this.subsystemCount = 0;
+          for (const k of Object.keys(systems)) {
+            this.subsystems[k] = this.subsystems[k].sort(
+              (a, b) => {
+                if (a.name > b.name) {
+                  return 1;
+                }
+                return a.name < b.name ? -1 : 0;
+              }
+            );
+            this.subsystemCount += systems[k].length;
+          }
+        })
+        .catch((error) => {
+          this.loading = false;
+          switch (error.response.status) {
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
+        });
+    },
+    showCompartment(compartmentName) {
+      EventBus.$emit('requestViewer', 'compartment', compartmentName, '', []);
+    },
+    getCompartmentFromName,
   },
 };
 </script>
@@ -276,44 +339,25 @@ export default {
     margin: 10px;
   }
 
-  #iSwitch {
+/*  #iSwitch {
     label {
       font-size: 1.5rem;
       cursor: pointer;
     }
-  }
-
-  #iBarInfo {
-    background: teal;
-    color: white;
-    font-style: bold;
-    font-size: 1.1em;
-  }
+  }*/
 
   #iSideBar {
     padding: 0;
     margin: 0;
     height: 100%;
+    font-size: 18px;
     /* background: red; */
-  }
 
-  #accordion {
-    > h3 {
-      font-size: 1.5em;
-      border: 1px solid black;
-      cursor: pointer;
-      padding-left: 1em;
-      margin-bottom: 2px;
-      background: lightgray;
+    #iSelectedDataFrame {
+      height: 100%;
+      background: #AAAAAA;
+      margin-left: 0.75rem;
     }
-
-    > div {
-      padding: 20px;
-    }
-  }
-
-  #iSearch {
-    bottom: 0;
   }
 
   #iLoader {
@@ -343,6 +387,12 @@ export default {
     padding: 0;
     margin: 0;
     border: 1px solid darkgray;
+    > .columns {
+      margin: 0;
+      > .column {
+        padding: 0;
+      }
+    }
   }
 
   #errorBar {
@@ -350,18 +400,6 @@ export default {
     margin: 0;
     right: 0;
     bottom: 0;
-  }
-
-  #left-bar.hidden {
-    width: 0;
-  }
-
-  #region-level-button button {
-    display: inline-block;
-  }
-
-  .li-selected {
-    color: #64CC9A;
   }
 
   .slide-fade-enter-active {
@@ -375,6 +413,48 @@ export default {
     opacity: 0;
   }
 
+  #menu {width: auto; background: #4a4a4a; color: white; position: relative;}
+  #menu ul {
+    list-style: none;
+    .l2 {
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+  }
+  #menu li {
+    padding: 17px 15px 17px 20px;
+    border-bottom: 1px solid gray;
+    border-left: 1px solid white;
+    user-select: none;
+
+    &:hover {
+      background: #2a2a2a;
+    }
+    span {
+      position: absolute;
+      right: 10px;
+    }
+
+    &.clickable {
+        cursor: pointer;
+        &.disable {
+          cursor: default;
+          background: #4a4a4a;
+          color: gray;
+        }
+    }
+
+  }
+/*  #menu li.disable {
+    color: gray;
+  }*/
+  #menu ul ul {position: absolute; top: 0; left: 100%; width: 100%; background: #4a4a4a; z-index: 11}
+  #menu ul ul.l1 {display: none;}
+  #menu ul li:hover ul.l1 {display: block;}
+  #menu ul li.disable:hover ul.l1 {display: none;}
+  #menu ul ul.l2 {display: none;}
+  #menu ul.l1 li:hover ul.l2 {display: block;}
+  #menu ul.l1 li.disable:hover ul.l2 {display: none;}
 }
 
 </style>

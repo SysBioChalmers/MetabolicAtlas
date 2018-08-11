@@ -222,7 +222,6 @@ $switch-background: $primary;
 
 /* @import "./sass/extensions/_all" FIX ME */
 @import '~bulma';
-@import '~bulma-extensions/bulma-accordion/dist/bulma-accordion';
 @import '~bulma-extensions/bulma-switch/dist/bulma-switch';
 @import './styles/mixins';
 
