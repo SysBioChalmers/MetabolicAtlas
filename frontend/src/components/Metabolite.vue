@@ -16,8 +16,8 @@
           <div id="metabolite-table">
             <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
               <tr v-for="el in mainTableKey[model]">
-                <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
-                <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
+                <td v-if="el.display" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+                <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                 <td v-if="info[el.name]">
                   <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
                   </span>
@@ -28,24 +28,20 @@
                 <td v-else> - </td>
               </tr>
             </table>
-            <div v-show="showHMDB">
+            <template v-if="hasExternalID">
               <br>
-              <span class="subtitle">HMDB</span>
-              <table v-if="info && Object.keys(info).length != 0" id="hmdb-table" class="table is-fullwidth">
-                <tr v-for="el in HMDBRAbleKey">
-                  <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
-                  <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
-                  <td v-if="info[el.name]">
-                    <span v-if="'modifier' in el" v-html="el.modifier(info[el.name])">
-                    </span>
-                    <span v-else>
-                      {{ info[el.name] }}
+              <span class="subtitle">External IDS</span>
+              <table v-if="info && Object.keys(info).length != 0" id="ed-table" class="table is-fullwidth">
+                <tr v-for="el in externalIDTableKey[model]" v-if="info[el.name]">
+                  <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+                  <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
+                  <td>
+                    <span v-html="reformatLink(info[el.name], info[el.link])">
                     </span>
                   </td>
-                  <td v-else> - </td>
                 </tr>
               </table>
-            </div>
+            </template>
           </div>
         </div>
         <div class="column">
@@ -72,7 +68,7 @@
 import axios from 'axios';
 import Reactome from 'components/Reactome';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
-
+import { reformatTableKey, reformatStringToLink, addMassUnit } from '../helpers/utils';
 
 export default {
   name: 'metabolite',
@@ -87,25 +83,25 @@ export default {
       mainTableKey: {
         hmr2: [
           { name: 'name' },
+          { name: 'description', display: 'Description' },
+          { name: 'function', display: 'Function' },
           { name: 'formula', modifier: chemicalFormula },
           { name: 'charge' },
           { name: 'inchi' },
           { name: 'compartment' },
-          { name: 'id', display: 'Model ID' },
-          { name: 'kegg', modifier: this.reformatKeggLink },
-          { name: 'chebi', modifier: this.reformatChebiLink },
-          { name: 'pubchem_link', display: 'Pubchem', modifier: this.reformatLink },
+          { name: 'id', display: 'Model&nbsp;ID' },
         ],
       },
-      HMDBRAbleKey: [
-        { name: 'description', display: 'Description' },
-        { name: 'function', display: 'Function' },
-        { name: 'hmdb_link', display: 'Link', modifier: this.reformatLink },
-      ],
+      externalIDTableKey: {
+        hmr2: [
+          { name: 'hmdb_id', display: 'HMDB ID', link: 'hmdb_link' },
+          { name: 'chebi_id', display: 'Chebi ID', link: 'chebi_link' },
+          { name: 'mnxref_id', display: 'Mnxref ID', link: 'mnxref_link' },
+        ],
+      },
       info: {},
       errorMessage: '',
       activePanel: 'table',
-      showHMDB: false,
       showReactome: false,
     };
   },
@@ -113,6 +109,16 @@ export default {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
       this.setup();
+    },
+  },
+  computed: {
+    hasExternalID() {
+      for (const item of this.externalIDTableKey[this.model]) {
+        if (this.info[item.name]) {
+          return true;
+        }
+      }
+      return false;
     },
   },
   methods: {
@@ -127,7 +133,6 @@ export default {
       .then((response) => {
         this.metaboliteID = this.mId;
         this.info = response.data;
-        this.showHMDB = this.hasHMDBInfo();
         this.showReactome = true;
       })
       .catch((error) => {
@@ -136,32 +141,9 @@ export default {
         this.showReactome = false;
       });
     },
-    reformatID(id) {
-      return id.slice(2);
-    },
-    reformatKey(k) {
-      return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
-    },
-    reformatKeggLink(s) {
-      return `<a href="http://www.genome.jp/dbget-bin/www_bget?${s}" target="_blank">${s}</a>`;
-    },
-    reformatChebiLink(s) {
-      return `<a href="http://www.ebi.ac.uk/chebi/searchId.do?chebiId=${s}" target="_blank">${s}</a>`;
-    },
-    reformatLink(s) {
-      return `<a href="${s}" target="_blank">${s}</a>`;
-    },
-    reformatMass(s) {
-      return `${s} g/mol`;
-    },
-    hasHMDBInfo() {
-      for (const key of ['hmdb_id']) {
-        if (this.info[key]) {
-          return true;
-        }
-      }
-      return false;
-    },
+    reformatTableKey(k) { return reformatTableKey(k); },
+    reformatLink(s, link) { return reformatStringToLink(s, link); },
+    reformatMass(s) { return addMassUnit(s); },
     viewInteractionPartners() {
       this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.mId}`);
     },
@@ -182,7 +164,7 @@ export default {
  }
 
 .metabolite-table, .model-table, .reaction-table, .subsystem-table {
-  .main-table tr td.td-key, #hmdb-table tr td.td-key {
+  .main-table tr td.td-key, #ed-table tr td.td-key {
     width: 150px;
   }
 }

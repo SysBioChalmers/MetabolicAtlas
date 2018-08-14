@@ -113,12 +113,8 @@ export default {
       return this.elms.filter(
         el => el.type !== 'reactant_box' && el.type !== 'product_box');
     },
-    enzymeCount() {
-      return this.elms.filter(el => el.type === 'enzyme').length;
-    },
-    metaboliteCount() {
-      return this.elms.filter(el => el.type !== 'enzyme').length;
-    },
+    enzymeCount() { return this.elms.filter(el => el.type === 'enzyme').length; },
+    metaboliteCount() { return this.elms.filter(el => el.type !== 'enzyme').length; },
     reactionCount() {
       const countReation = {};
       for (const el of this.filteredElms) {
@@ -130,18 +126,10 @@ export default {
     },
   },
   methods: {
-    applyModifier(s, elm) {
-      return s.modifier(elm[s.field], elm.link);
-    },
-    viewReactionComponent(type, id) {
-      EventBus.$emit('updateSelTab', type, id);
-    },
-    isSelected(elmId) {
-      return this.selectedElmId === elmId;
-    },
-    highlight(elmId) {
-      this.$emit('highlight', elmId);
-    },
+    applyModifier(s, elm) { return s.modifier(elm[s.field], elm.link); },
+    viewReactionComponent(type, id) { EventBus.$emit('updateSelTab', type, id); },
+    isSelected(elmId) { return this.selectedElmId === elmId; },
+    highlight(elmId) { this.$emit('highlight', elmId); },
     resetTable() {
       this.sortedElms = this.filteredElms;
       this.tableSearchTerm = '';

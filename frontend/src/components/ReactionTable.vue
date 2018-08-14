@@ -50,7 +50,7 @@ import $ from 'jquery';
 import { default as EventBus } from '../event-bus';
 import { default as compare } from '../helpers/compare';
 import { chemicalReaction } from '../helpers/chemical-formatters';
-import { reformatChemicalReaction } from '../helpers/compartment';
+import { reformatChemicalReactionLink } from '../helpers/compartment';
 
 export default {
   name: 'reaction-table',
@@ -117,23 +117,15 @@ export default {
     },
   },
   methods: {
-    formatChemicalReaction(v, r) {
-      return chemicalReaction(v, r);
-    },
-    reformatChemicalReactionHTML(r) {
-      return reformatChemicalReaction(r);
-    },
+    formatChemicalReaction(v, r) { return chemicalReaction(v, r); },
+    reformatChemicalReactionHTML(r) { return reformatChemicalReactionLink(r); },
     viewEnzyneReactions(modifier) {
       if (modifier) {
         EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
       }
     },
-    viewReaction(id) {
-      EventBus.$emit('updateSelTab', 'reaction', id);
-    },
-    viewSubsystem(id) {
-      EventBus.$emit('updateSelTab', 'subsystem', id);
-    },
+    viewReaction(id) { EventBus.$emit('updateSelTab', 'reaction', id); },
+    viewSubsystem(id) { EventBus.$emit('updateSelTab', 'subsystem', id); },
     sortBy(field, pattern, order) {
       const reactions = Array.prototype.slice.call(
       this.sortedReactions); // Do not mutate original elms;
