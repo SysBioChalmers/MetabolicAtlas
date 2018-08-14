@@ -89,7 +89,7 @@ export default {
     // init the global events
     EventBus.$on('resetView', () => {
       this.levelSelected = 'subsystem';
-      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+      EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     });
     EventBus.$on('updateSelTab', (type, id) => {
       console.log(`on updateSelTab ${type} ${id}`);
@@ -130,7 +130,7 @@ export default {
       EventBus.$emit('toggleNetworkGraph');
     },
     showWholeMap() {
-      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+      EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     },
     imgUrl(path) {
       return this.dBImageSources(path);

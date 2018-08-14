@@ -1,4 +1,4 @@
-
+// TODO get all this from database
 const data = {
   wholemap: {
     name: 'Whole map',
@@ -139,12 +139,12 @@ const data = {
       metaboliteLabel: 5,
       reaction: 2,
       reactionLabel: 5,
-      'flux-edge': 3,
-      'effector-edge': 3,
+      'flux-edge': 2,
+      'effector-edge': 2,
     },
   },
   cytosol_1: {
-    name: 'Cytosol_1',
+    name: 'Cytosol (part1)',
     letter: 'c1',
     color: '',
     svgName: 'cytosol_1',
@@ -160,7 +160,7 @@ const data = {
     },
   },
   cytosol_2: {
-    name: 'Cytosol_2',
+    name: 'Cytosol (part2)',
     letter: 'c2',
     color: '',
     svgName: 'cytosol_2',
@@ -176,7 +176,7 @@ const data = {
     },
   },
   cytosol_3: {
-    name: 'Cytosol_3',
+    name: 'Cytosol (part3)',
     letter: 'c3',
     color: '',
     svgName: 'cytosol_3',
@@ -192,7 +192,7 @@ const data = {
     },
   },
   cytosol_4: {
-    name: 'Cytosol_4',
+    name: 'Cytosol (part4)',
     letter: 'c4',
     color: '',
     svgName: 'cytosol_4',
@@ -208,7 +208,7 @@ const data = {
     },
   },
   cytosol_5: {
-    name: 'Cytosol_5',
+    name: 'Cytosol (part5)',
     letter: 'c5',
     color: '',
     svgName: 'cytosol_5',
@@ -224,7 +224,7 @@ const data = {
     },
   },
   cytosol_6: {
-    name: 'Cytosol_6',
+    name: 'Cytosol (part6)',
     letter: 'c6',
     color: '',
     svgName: 'cytosol_6',
@@ -283,7 +283,8 @@ export function getCompartmentFromLetter(letter) {
   return null;
 }
 
-export function getCompartmentFromID(id) {
+// TODO fixit for multi letter compartment
+export function getCompartmentFromMetaboliteID(id) {
   const lastChar = id[id.length - 1];
   return getCompartmentFromLetter(lastChar);
 }
@@ -292,19 +293,13 @@ export function getCompartmentFromName(name) {
   if (name && data[name.toLowerCase()]) {
     return data[name.toLowerCase()];
   }
+  for (const ele of data) {
+    if (ele.svgName === name) {
+      return ele;
+    }
+  }
   return null;
 }
-
-/*
-function formatSpan(currentVal, index, array, elements, addComp) {
-  const regex = /(.+)\[(.)\]/g;
-  const match = regex.exec(currentVal);
-  if (!addComp) {
-    return `<m class="${elements[index].id}">${match[1]}</m>`;
-  }
-  return `<m class="${elements[index].id}">${match[1]}
-  </m><span class="sc" title="${l[match[2]].name}">${match[2]}</span>`;
-}*/
 
 function formatSpan(currentVal, index, array, elements, addComp) {
   const regex = /([0-9]+ )?(.+)\[([a-z]{1,3})\]/g;
@@ -316,41 +311,7 @@ function formatSpan(currentVal, index, array, elements, addComp) {
     <span class="sc" title="${l[match[3]].name}">${match[3]}</span>`;
 }
 
-/*
-export function reformatChemicalReaction(equation, reaction) {
-  if (reaction === null || equation === null) {
-    return '';
-  }
-  const addComp = reaction.compartment.includes('=>');
-  let arr = null;
-  if (reaction.is_reversible) {
-    arr = equation.split(' &#8660; ');
-  } else {
-    arr = equation.split(' &#8680; ');
-  }
-  if (arr.length === 1) {
-    arr = equation.split(' => ');
-  }
-
-  // assumes the order in reaction.reactants (reps. reaction.products)
-  // are identique to the order or the reactants (resp. products) of the equation
-
-  let reactants = arr[0].split(' + ');
-  reactants = reactants.map(
-    (x, i, a) => formatSpan(x, i, a, reaction.reactants, addComp)).join(' + ');
-
-  let products = arr[1].split(' + ');
-  products = products.map(
-    (x, i, a) => formatSpan(x, i, a, reaction.products, addComp)).join(' + ');
-
-  if (reaction.is_reversible) {
-    return `${reactants} &#8660; ${products}`;
-  }
-  return `${reactants} &#8680; ${products}`;
-}
-*/
-
-export function reformatChemicalReaction(reaction) {
+export function reformatChemicalReactionLink(reaction) {
   if (reaction === null) {
     return '';
   }
@@ -359,7 +320,7 @@ export function reformatChemicalReaction(reaction) {
   if (reaction.is_reversible) {
     eqArr = reaction.equation.split(' &#8660; ');
   } else {
-    eqArr = reaction.equation.split(' &#8680; ');
+    eqArr = reaction.equation.split(' &#8658; ');
   }
   if (eqArr.length === 1) {
     eqArr = reaction.equation.split(' => ');
@@ -377,7 +338,7 @@ export function reformatChemicalReaction(reaction) {
   if (reaction.is_reversible) {
     return `${reactants} &#8660; ${products}`;
   }
-  return `${reactants} &#8680; ${products}`;
+  return `${reactants} &#8658; ${products}`;
 }
 
 export function getCompartmentCount() {

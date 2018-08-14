@@ -3,10 +3,13 @@
     <div class="svgbox">
       <div id="svg-wrapper" v-html="svgContent">
       </div>
-      <div id="svgOption">
-        <span class="button" v-on:click="svgfit()">Reset view</span>
-        <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''">+</span>
-        <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''">-</span>
+      <div id="svgOption" class="overlay">
+        <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''"><i class="fa fa-search-plus"></i></span>
+        <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''"><i class="fa fa-search-minus"></i></span>
+        <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
+      </div>
+      <div id="svgSearch" class="overlay">
+        <span>Search:</span><input class="input" />
       </div>
     </div>
   </div>
@@ -23,13 +26,14 @@ import { default as EventBus } from '../../event-bus';
 
 export default {
   name: 'svgmap',
+  props: ['model'],
   components: {
     Loader,
   },
   data() {
     return {
       errorMessage: '',
-      loadedCompartment: null,
+      loadedMap: null,
       svgContent: null,
       svgName: '',
       svgBigMapName: 'whole_metabolic_network_without_details',
@@ -48,15 +52,19 @@ export default {
         w: 0,
       },
       allowZoom: true,
+      dragging: false,
     };
   },
   created() {
-    EventBus.$on('showSVGmap', (type, name, ids) => {
+    EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
       console.log('show svg map');
-      console.log(`emit ${type} ${name} ${ids}`);
+      console.log(`emit ${type} ${name} ${ids} ${forceReload}`);
+      if (forceReload) {
+        this.svgName = '';
+      }
       if (type === 'compartment') {
         this.HLonly = false;
-        this.showCompartment(name);
+        this.showMap(name);
       } else if (type === 'subsystem') {
         this.HLonly = false;
         this.showTiles(name, ids);
@@ -70,46 +78,41 @@ export default {
         this.HLonly = false;
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
-        const compartment = getCompartmentFromName('wholemap');
-        this.loadSVG(compartment, null);
+        // const compartment = getCompartmentFromName('wholemap');
+        this.loadSVG('wholemap', null);
       }
     });
   },
   mounted() {
-    // $('#svgbox').attr('width', '100%');
-    // $('#svgbox').attr('height', `${$(window).height() - 300}`);
-
-    // add a white reactange behind the name
-    /*  $('#svg-wrapper').on('mouseover', '.metabolite, .reaction', function f() {
-      const text = $(this)[0].children[1];
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      const SVGRect = $(this)[0].children[1].getBBox();
-      rect.setAttribute('x', SVGRect.x - 2);
-      rect.setAttribute('y', SVGRect.y - 1);
-      rect.setAttribute('width', SVGRect.width + 4);
-      rect.setAttribute('height', SVGRect.height + 2);
-      rect.setAttribute('fill', 'white');
-      $(this)[0].insertBefore(rect, text);
+    const self = this;
+    $('#svg-wrapper').on('mousedown', 'svg', () => {
+      self.isDragging = false;
+    })
+    .on('mousemove', 'svg', () => {
+      self.isDragging = true;
+    })
+    .on('mouseup', 'svg', (e) => {
+      if (!self.isDragging) {
+        const target = $(e.target);
+        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea')) {
+          self.unSelectElement();
+        }
+      }
+      self.isDragging = false;
     });
-    // remove the white rectangle
-    $('#svg-wrapper').on('mouseout', '.metabolite, .reaction', function f() {
-      $(this)[0].removeChild($(this)[0].children[3]);
-    }); */
-    //  enzymes are also .metabolite
-    $('#svg-wrapper').on('click', '.metabolite', function f() {
+    $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
       const id = $(this).attr('id').split('-')[0].trim();
-      // console.log(id);
-      if (id[0] === 'E') {
-        EventBus.$emit('updateSelTab', 'enzyme', id);
-      } else {
-        EventBus.$emit('updateSelTab', 'metabolite', id);
-      }
+      self.selectElement(id, 'metabolite');
     });
-    $('#svg-wrapper').on('click', '.reaction', function f() {
+    $('#svg-wrapper').on('click', '.enz', function f() {
       // exact the real id from the id
+      const id = $(this).attr('id').split('-')[0].trim();
+      self.selectElement(id, 'enzyme');
+    });
+    $('#svg-wrapper').on('click', '.rea', function f() {
       const id = $(this).attr('id');
-      EventBus.$emit('updateSelTab', 'reaction', id);
+      self.selectElement(id, 'reaction');
     });
   },
   methods: {
@@ -125,12 +128,10 @@ export default {
           zoomScaleSensitivity: 0.4,
           fit: true,
           beforeZoom: (oldzl, newzl) => {
-            // console.log(oldzl);
-            // console.log(newzl);
-            if (newzl > this.loadedCompartment.maxZoomLvl + 0.001) {
+            if (newzl > this.loadedMap.maxZoomLvl + 0.001) {
               this.allowZoom = false;
               return false;
-            } else if (newzl < this.loadedCompartment.minZoomLvl - 0.001) {
+            } else if (newzl < this.loadedMap.minZoomLvl - 0.001) {
               this.allowZoom = false;
               return false;
             }
@@ -146,20 +147,15 @@ export default {
           onZoom: (zc) => {
             // console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
             this.zoomLevel = zc;
-            if (zc >= this.loadedCompartment.RenderZoomLvl.metaboliteLabel) {
-              $('.metabolite .lbl, .reaction .lbl').attr('display', 'inline');
+            if (zc >= this.loadedMap.RenderZoomLvl.metaboliteLabel) {
+              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'inline');
             } else {
-              $('.metabolite .lbl, .reaction .lbl').attr('display', 'none');
+              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'none');
             }
-            if (zc >= this.loadedCompartment.RenderZoomLvl['flux-edge']) {
-              $('.flux-edge, .effector-edge').attr('display', 'inline');
+            if (zc >= this.loadedMap.RenderZoomLvl.metabolite) {
+              $('.met, .rea, .enz, .fe, .ee').attr('display', 'inline');
             } else {
-              $('.flux-edge, .effector-edge').attr('display', 'none');
-            }
-            if (zc >= this.loadedCompartment.RenderZoomLvl.metabolite) {
-              $('.metabolite, .reaction').attr('display', 'inline');
-            } else {
-              $('.metabolite, .reaction').attr('display', 'none');
+              $('.met, .rea, .enz, .fe, .ee').attr('display', 'none');
             }
           },
         });
@@ -189,14 +185,18 @@ export default {
         this.panZoom.resize(); // update SVG cached size
         this.panZoom.fit();
         this.panZoom.center();
-        // this.showLoader = false;
       }
     },
-    loadSVG(compartment, callback) {
+    loadSVG(id, callback) {
       // console.log('load svg');
       // load the svg file from the server
       // if aleady loaded, just call the callback funtion
-      const newSvgName = compartment.svgName;
+      const currentLoad = getCompartmentFromName(id);
+      if (!currentLoad) {
+        this.$emit('loadedComponent', false, '');
+        return;
+      }
+      const newSvgName = currentLoad.svgName;
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
       this.$emit('loading');
       if (!newSvgName) {
@@ -212,7 +212,7 @@ export default {
             // console.log('get the svg');
             this.svgContent = response.data;
             this.svgName = newSvgName;
-            this.loadedCompartment = compartment;
+            this.loadedMap = currentLoad;
             setTimeout(() => {
               // this.showLoader = false;
               this.loadSvgPanZoom(callback);
@@ -224,11 +224,11 @@ export default {
             this.$emit('loadedComponent', false, error);
           });
       } else if (callback) {
-        this.loadedCompartment = compartment;
+        this.loadedMap = currentLoad;
         // call findElementsOnSVG
         callback();
       } else {
-        this.loadedCompartment = compartment;
+        this.loadedMap = currentLoad;
         // console.log('finish call svgfit');
         this.svgfit();
         this.$emit('loadedComponent', true, '');
@@ -352,9 +352,9 @@ export default {
       const viewBox = this.panZoom.getSizes().viewBox;
       let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
       // console.log(`newScale ${newScale}`);
-      if (newScale > this.loadedCompartment.maxZoomLvl) {
+      if (newScale > this.loadedMap.maxZoomLvl) {
         // fix zoom round e.g. 30 => 30.00001235
-        newScale = this.loadedCompartment.maxZoomLvl - 0.01;
+        newScale = this.loadedMap.maxZoomLvl - 0.01;
       }
       console.log('zoom at');
       console.log(newScale);
@@ -371,39 +371,51 @@ export default {
         this.HLelms = [];
       }
     },
-    hlElements(compartmentName, ids) {
-      if (compartmentName) {
-        const compartment = getCompartmentFromName(compartmentName);
-        this.ids = ids;
-        if (compartment) {
-          this.loadSVG(compartment, this.findElementsOnSVG);
-        }
+    hlElements(id, ids) {
+      this.ids = ids;
+      if (id) {
+        // const compartment = getCompartmentFromName(compartmentName);
+        this.loadSVG(id, this.findElementsOnSVG);
       } else {
         this.unHighlight();
-        this.ids = ids;
         if (ids) {
           this.findElementsOnSVG();
         }
       }
     },
-    showTiles(compartmentName, coordinate) {
-      if (compartmentName) {
-        const compartment = getCompartmentFromName(compartmentName);
-        if (compartment) {
-          this.updateZoomBoxCoor(coordinate);
-          this.loadSVG(compartment, this.zoomOnTiles);
-        }
+    showTiles(id, coordinate) {
+      if (id) {
+        // const compartment = getCompartmentFromName(compartmentName);
+        this.updateZoomBoxCoor(coordinate);
+        this.loadSVG(id, this.zoomOnTiles);
       }
     },
-    showCompartment(compartmentName) {
-      if (compartmentName) {
-        const compartment = getCompartmentFromName(compartmentName);
-        if (compartment) {
-          this.loadSVG(compartment, null);
-        }
+    showMap(id) {
+      if (id) {
+        // const compartment = getCompartmentFromName(compartmentName);
+        this.loadSVG(id, null);
       }
     },
-    getCompartmentFromName,
+    selectElement(id, type) {
+      EventBus.$emit('startSelectedElement');
+      axios.get(`${this.model}/${type}s/${id}`)
+      .then((response) => {
+        let data = response.data;
+        if (type === 'reaction') {
+          data = data.reaction;
+        }
+        data.type = type;
+        EventBus.$emit('updatePanelSelectionData', data);
+        EventBus.$emit('endSelectedElement', true);
+      })
+      .catch((error) => {
+        console.log(error);
+        EventBus.$emit('endSelectedElement', false);
+      });
+    },
+    unSelectElement() {
+      EventBus.$emit('unSelectedElement');
+    },
   },
 };
 </script>
@@ -416,7 +428,7 @@ export default {
     }
   }
 
-  .metabolite, .reaction {
+  .met, .rea, .enz {
     .shape, .lbl {
       cursor: pointer;
     }
@@ -424,10 +436,11 @@ export default {
     &:hover {
       .shape {
         fill: red;
+        stroke-width: 3px;
       }
       .lbl {
         font-weight: 900;
-        text-shadow: 0 0 3px gray;
+        text-shadow: 0 0 2px white;
       }
     }
   }
@@ -439,16 +452,37 @@ export default {
     height:100%;
   }
 
+  .overlay {
+    position: absolute;
+    z-index: 10;
+    padding: 15px;
+    border: 2px solid black;
+    border-radius: 5px;
+    background: rgba(13, 13, 13, 0.8);
+  }
+
   #svgOption {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    height: 30px;
-    z-index: 10;
-
+    top: 2rem;
+    left: 2rem;
     span {
       display: inline-block;
       margin-right: 5px;
+    }
+  }
+
+  #svgSearch {
+    top: 2rem;
+    left: 25%;
+    width: 50%;
+    span {
+      display: inline-block;
+      margin: 5px 10px 5px 0px;
+      color: white;
+    }
+    input {
+      display: inline-block;
+      width: 80%;
     }
   }
 

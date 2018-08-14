@@ -11,7 +11,7 @@
         <button id="iHideBut" class="button is-dark is-pulled-right" @click="hideNetworkGraph()">Close</button>
       </div>
     </div>
-    <div class="columns">
+<!--     <div class="columns">
       <div class="column is-2 has-text-centered" id="iSwitch">
         <div class="field">
           <label for="" @click="switch3Dimension(false)">2D Maps</label>
@@ -25,31 +25,27 @@
       <div class="column" id="iBarInfo" v-html="mapInfoString">
       </div>
     </div> -->
-     <div class="columns" style="height: auto-height">
+    <div class="columns">
       <div class="column is-one-fifth" id="iSideBar">
         <div id="menu">
           <ul class="l0">
             <li>HPA RNA levels
             </li>
-          </ul>
-          <ul class="l0">
             <li>Compartments<span>&nbsp;&#9656;</span>
-              <ul class="l1">
-                <li v-for="comp in compartments" class="clickable"
-                @click="showCompartment(comp.name)">
-                  {{ comp.name }}
+              <ul class="vhs l1">
+                <li v-for="comp in Object.keys(compartments)" class="clickable"
+                @click="showCompartment(comp)">
+                  {{ compartments[comp].name }}
 <!--                    TODO ADD subystem for cytosol parts
  -->                </li>
               </ul>
             </li>
-          </ul>
-          <ul class="l0">
             <li>Subsystems<span>&nbsp;&#9656;</span>
               <ul class="l1">
                 <li v-for="system in systemOrder">{{ system }}<span>&nbsp;&#9656;</span>
-                  <ul class="l2">
+                  <ul class="l2" v-if="subsystems[system]">
                     <li v-for="subsystem in subsystems[system]" class="clickable" 
-                      v-if="system !== 'Collection of reactions'">
+                      v-if="system !== 'Collection of reactions'" @click="showSubsystem(subsystem)">
                         {{ subsystem.name }}
                     </li>
                     <li v-else class="clickable disable">
@@ -61,8 +57,81 @@
             </li>
           </ul>
         </div>
-        <div class="column">
-          <div id="iSelectedDataFrame">
+        <div id="iSelectedElementPanel">
+          <div class="loading" v-show="showSelectedElementPanelLoader">
+            <a class="button is-loading"></a>
+          </div>
+          <div v-show="!showSelectedElementPanelLoader">
+            <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
+              {{ $t('unknownError') }}
+            </div>
+            <div v-else-if="currentDisplayedType">
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">
+                    <template v-if="selectedElement">
+                      {{ capitalize(selectedElementData.type) }}: {{ selectedElementData.id }}
+                    </template>
+                    <template v-else>
+                      {{ capitalize(currentDisplayedType) }}: {{ currentDisplayedName }}
+                    </template>
+                  </p>
+                </header>
+                <div class="card-content">
+                  <div class="content">
+                    <template v-if="selectedElement">
+                      <template v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement)">
+                        <template v-for="item in selectedElementDataKeys[model.id][selectedElement]"
+                          v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
+                          <template v-if="item.name === 'external_ids'">
+                            <span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span><p>
+                            <template v-for="eid in item.value" v-if="selectedElementData[eid[1]] && selectedElementData[eid[2]]">
+                              <span class="hd">{{ capitalize(eid[0]) }}:</span>
+                              <span v-html="reformatStringToLink(selectedElementData[eid[1]], selectedElementData[eid[2]])"></span><br>
+                            </template></p>
+                          </template>
+                          <template v-else-if="['aliases', 'subsystem'].includes(item.name)">
+                            <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
+                            <template v-for="s in selectedElementData[item.name].split('; ')">
+                              &ndash;&nbsp;{{ s }}<br>
+                            </template></p>
+                          </template>
+                          <template v-else-if="['reactants', 'products'].includes(item.name)">
+                            <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
+                            <template v-for="s in selectedElementData[item.name]">
+                              &ndash;&nbsp;{{ s.name }}<br>
+                            </template></p>
+                          </template>
+                          <template v-else-if="item.name === 'equation'">
+                            <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span><br>
+                            <span v-html="chemicalReaction(selectedElementData[item.name], selectedElementData['is_reversible'])"></span></p>
+                          </template>
+                          <template v-else>
+                            <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span>
+                            {{ selectedElementData[item.name] }}</p>
+                          </template>
+                        </template>
+                      </template>
+                    </template>
+                    <template v-else>
+                      <template v-if="currentDisplayedType === 'compartment'">
+                        <span class="hd"># reaction:</span> {{ compartmentStats[currentDisplayedName]['reaction_count'] }}<br>
+                        <span class="hd"># metabolite:</span> {{ compartmentStats[currentDisplayedName]['metabolite_count'] }}<br>
+                        <span class="hd"># enzyme:</span> {{ compartmentStats[currentDisplayedName]['enzyme_count'] }}<br>
+                        <span class="hd"># subsystem:</span> {{ compartmentStats[currentDisplayedName]['subsystem_count'] }}
+                      </template>
+                      <template v-else>
+                        <span class="hd">subsystem:</span>stats
+                      </template>
+                    </template>
+                  </div>
+                </div>
+                <footer class="card-footer" 
+                  v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
+                  <a  class="card-footer-item" @click="viewOnGemsExplorer()">View more on GEMs Explorer</a>
+                </footer>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -96,15 +165,16 @@
 </template>
 
 <script>
+import $ from 'jquery';
 import axios from 'axios';
-// TODO remove bulm accordion fron package
 import Svgmap from './metabolicViewerComponents/Svgmap';
 import D3dforce from './metabolicViewerComponents/D3dforce';
 import SvgIcon from './SvgIcon';
 import Logo from '../assets/logo.svg';
 import { default as EventBus } from '../event-bus';
 import { getCompartmentFromName } from '../helpers/compartment';
-
+import { capitalize, reformatStringToLink } from '../helpers/utils';
+import { chemicalReaction } from '../helpers/chemical-formatters';
 
 export default {
   name: 'metabolic-viewer',
@@ -120,19 +190,16 @@ export default {
     return {
       Logo,
       errorMessage: '',
-      mapInfoString: '',
-      accordionLevelSelected: 'subsystem',
       dim3D: false,
       requestedType: '',
       requestedName: '',
-      currentDisplayedType: 'wholemap',
+      currentDisplayedType: '',
       currentDisplayedName: '',
       initialEmit: false,
       showLoader: false,
 
-      compartments: [],
+      compartments: {},
       compartmentStats: {},
-      currentCompartment: null,
       compartmentNameOrder: [
         'Endoplasmic reticulum',
         'Golgi apparatus',
@@ -151,16 +218,77 @@ export default {
       currentubsystem: null,
       subsystemCount: 0,
       systemOrder: [
+        'Cholesterol biosynthesis',
+        'Carnitine shuttle',
         'Amino Acid metabolism',
         'Fatty acid',
-        'Carnitine shuttle',
         'Glycosphingolipid biosynthesis/metabolism',
-        'Cholesterol biosynthesis',
         'Vitamin metabolism',
         'Other metabolism',
         'Other',
         'Collection of reactions',
       ],
+
+      selectedElement: null,
+      showSelectedElementPanelLoader: false,
+      showSelectedElementPanelError: false,
+      selectedElementDataKeys: {
+        hmr2: {
+          metabolite: [
+            { name: 'name' },
+            { name: 'model_name', display: 'Model&nbsp;name' },
+            { name: 'formula' },
+            { name: 'compartment' },
+            { name: 'aliases', display: 'Synonyms' },
+            {
+              name: 'external_ids',
+              display: 'External&nbsp;IDs',
+              value: [
+                ['HMDB', 'hmdb_id', 'hmdb_link'],
+                ['chebi', 'chebi_id', 'chebi_link'],
+                ['mnxref', 'mnxref_id', 'mnxref_link'],
+              ],
+            },
+          ],
+          enzyme: [
+            { name: 'gene_name', display: 'Gene&nbsp;name' },
+            { name: 'gene_synonyms', display: 'Synonyms' },
+            {
+              name: 'external_ids',
+              display: 'External&nbsp;IDs',
+              value: [
+                ['Uniprot', 'uniprot_id', 'uniprot_link'],
+                ['NCBI', 'ncbi_id', 'ncbi_link'],
+                ['Ensembl', 'id', 'name_link'],
+              ],
+            },
+          ],
+          reaction: [
+            { name: 'equation' },
+            { name: 'gene_rule', display: 'GPR' },
+            { name: 'subsystem', display: 'Subsystems' },
+            { name: 'reactants' },
+            { name: 'products' },
+          ],
+        },
+      },
+
+      selectedElementData: {
+        type: null,
+        id: null,
+        description: null,
+        name: null,
+        compartment: null, // mets only
+        subsystems: null, // mets and reas only, ARRAY
+        formula: null, // mets only
+        equation: null, // reas only
+        gpr: null, // reas only
+        reversible: null, // reas only
+        rna_level: null, // enz only
+        synonyms: null, // mets and enz only
+        external_ids: null, //[[source, ID, link],]
+      },
+      isHoverMenuItem: false,
     };
   },
   computed: {
@@ -169,8 +297,10 @@ export default {
     },
   },
   created() {
-    // this.compartmentCount = Object.keys(getCompartments(this.getCompartments())).length;
-    EventBus.$on('showAction', (type, name, secondaryName, ids) => {
+    this.loadCompartments();
+    this.loadSubsystem();
+
+    EventBus.$on('showAction', (type, name, secondaryName, ids, forceReload) => {
       console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
       console.log(this.dim3D);
       this.requestedType = type;
@@ -186,46 +316,74 @@ export default {
           // show error
         }
       } else {
-        EventBus.$emit('showSVGmap', type, name, ids);
+        EventBus.$emit('showSVGmap', type, name, ids, forceReload);
       }
     });
 
-    this.loadCompartments();
-
-    // subsystem
-    /* eslint-disable no-param-reassign */
-    EventBus.$on('showSubsystem', (name) => {
-      if (!name) {
-        const subname = 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism';
-        this.selectedSystem = 'Other metabolism';
-        this.selectedSubsystem = this.subsystems[subname];
-        this.loadSubsystemCoordinates(subname, null);
-      } else {
-        this.loadSubsystemCoordinates(name, null);
-      }
+    EventBus.$on('updatePanelSelectionData', (data) => {
+      this.selectedElement = data.type;
+      this.selectedElementData = data;
     });
-    this.loadSubsystem();
+    EventBus.$on('unSelectedElement', () => {
+      this.selectedElement = null;
+      this.selectedElementData = null;
+    });
+    EventBus.$on('startSelectedElement', () => {
+      this.showSelectedElementPanelLoader = true;
+    });
+    EventBus.$on('endSelectedElement', (isSuccess) => {
+      this.showSelectedElementPanelLoader = false;
+      this.showSelectedElementPanelError = !isSuccess;
+    });
   },
   mounted() {
     if (false && this.currentDisplayedType === 'wholemap' &&
      !this.initialEmit) {
       console.log('initial emit whole map');
-      EventBus.$emit('showSVGmap', 'wholemap', null, []);
+      EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
       this.initialEmit = true;
     }
+
+    // menu
+    const self = this;
+    $('#menu').on('mouseenter', 'ul.l0 > li:has(ul)', function () {
+      $('#menu ul.l1, #menu ul.l2').hide();
+      $(this).find('ul').first().show();
+      self.isHoverMenuItem = true;
+    });
+    $('#menu').on('mouseleave', 'ul.l0 > li:has(ul)', function () {
+      self.isHoverMenuItem = false;
+      $(this).find('ul').first().delay(500)
+        .queue(function () {
+          if (!self.isHoverMenuItem) {
+            $(this).hide(0);
+          }
+          $(this).dequeue();
+        });
+    });
+    $('#menu').on('mouseenter', 'ul.l1 > li:has(ul)', function () {
+      $('#menu ul.l2').hide();
+      $(this).find('ul').first().show();
+      self.isHoverMenuItem = true;
+    });
   },
   methods: {
-    updateMapInfo(text) {
-      this.mapInfoString = text;
+    viewOnGemsExplorer() {
+      if (this.currentDisplayedType === 'subsystem') {
+        EventBus.$emit('updateSelTab', this.currentDisplayedType, this.currentDisplayedName);
+      } else {
+        EventBus.$emit('updateSelTab', this.selectedElementData.type, this.selectedElementData.id);
+      }
+      this.hideNetworkGraph();
     },
     hideNetworkGraph() {
       EventBus.$emit('toggleNetworkGraph');
     },
-    globalMapSelected() {
-      this.accordionLevelSelected = 'wholemap';
-      this.switch3Dimension(false);
-      EventBus.$emit('showSVGmap', 'wholemap', null, []);
-    },
+    // globalMapSelected() {
+    //   this.accordionLevelSelected = 'wholemap';
+    //   this.switch3Dimension(false);
+    //   EventBus.$emit('showSVGmap', 'wholemap', null, []);
+    // },
     switch3Dimension(b) {
       if (!this.activeSwitch) {
         return;
@@ -243,7 +401,7 @@ export default {
         EventBus.$emit('show3Dnetwork', this.currentDisplayedType, this.currentDisplayedName);
       } else {
         EventBus.$emit('destroy3Dnetwork');
-        EventBus.$emit('showSVGmap', this.currentDisplayedType, this.currentDisplayedName, []);
+        EventBus.$emit('showSVGmap', this.currentDisplayedType, this.currentDisplayedName, [], true);
       }
     },
     handleLoadedComponent(isSuccess, errorMessage) {
@@ -263,7 +421,7 @@ export default {
     },
     loadCompartments() {
       for (const Cname of this.compartmentNameOrder) {
-        this.compartments.push(getCompartmentFromName(Cname));
+        this.compartments[Cname] = getCompartmentFromName(Cname);
       }
       axios.get(`${this.model.id}/compartments_svg/`)
       .then((response) => {
@@ -271,7 +429,6 @@ export default {
         for (const compInfo of response.data) {
           this.compartmentStats[compInfo.display_name] = compInfo;
         }
-        this.currentCompartment = null;
       })
       .catch((error) => {
         console.log(error);
@@ -308,10 +465,18 @@ export default {
           }
         });
     },
-    showCompartment(compartmentName) {
-      EventBus.$emit('requestViewer', 'compartment', compartmentName, '', []);
+    showCompartment(compartment) {
+      EventBus.$emit('requestViewer', 'compartment', compartment, '', []);
+    },
+    showSubsystem() {
+      // if (this.selectedSystem !== 'Collection of reactions') {
+      //   EventBus.$emit('showSubsystem', this.selectedSubsystem.name);
+      // }
     },
     getCompartmentFromName,
+    capitalize,
+    reformatStringToLink,
+    chemicalReaction,
   },
 };
 </script>
@@ -350,13 +515,17 @@ export default {
     padding: 0;
     margin: 0;
     height: 100%;
-    font-size: 18px;
-    /* background: red; */
 
-    #iSelectedDataFrame {
-      height: 100%;
-      background: #AAAAAA;
-      margin-left: 0.75rem;
+    #iSelectedElementPanel {
+      margin: 0.75rem;
+      margin-left: 1.5rem;
+
+      .content {
+        span.hd {
+          font-weight: bold;
+          margin-right: 5px;
+        }
+      }
     }
   }
 
@@ -413,12 +582,11 @@ export default {
     opacity: 0;
   }
 
-  #menu {width: auto; background: #4a4a4a; color: white; position: relative;}
+  #menu { width: auto; background: #4a4a4a; color: white; position: relative; font-size: 18px; }
   #menu ul {
     list-style: none;
-    .l2 {
-      max-height: 75vh;
-      overflow-y: auto;
+    &.vhs, &.l2 {
+      max-height: 75vh; overflow-y: auto;
     }
   }
   #menu li {
@@ -426,7 +594,6 @@ export default {
     border-bottom: 1px solid gray;
     border-left: 1px solid white;
     user-select: none;
-
     &:hover {
       background: #2a2a2a;
     }
@@ -434,7 +601,6 @@ export default {
       position: absolute;
       right: 10px;
     }
-
     &.clickable {
         cursor: pointer;
         &.disable {
@@ -443,18 +609,12 @@ export default {
           color: gray;
         }
     }
-
   }
-/*  #menu li.disable {
-    color: gray;
-  }*/
-  #menu ul ul {position: absolute; top: 0; left: 100%; width: 100%; background: #4a4a4a; z-index: 11}
-  #menu ul ul.l1 {display: none;}
-  #menu ul li:hover ul.l1 {display: block;}
-  #menu ul li.disable:hover ul.l1 {display: none;}
-  #menu ul ul.l2 {display: none;}
-  #menu ul.l1 li:hover ul.l2 {display: block;}
-  #menu ul.l1 li.disable:hover ul.l2 {display: none;}
+  #menu ul.l1, #menu  ul.l2 {
+    display: none;
+    position: absolute; top: 0; left: 100%; width: 100%;
+    background: #4a4a4a; z-index: 11;
+  }
 }
 
 </style>
