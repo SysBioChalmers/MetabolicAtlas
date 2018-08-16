@@ -101,11 +101,13 @@ export default {
   },
   methods: {
     setup() {
-      this.selectedType = this.$route.params.type || '';
-      this.selectedModels = this.$route.params.model || '';
-      this.componentID = this.$route.params.id || '';
-      if (!this.componentID || !this.selectedModels) {
-        this.$router.push(`/GemsExplorer/${this.selectedModel}`);
+      if (this.$route.path.includes('GemsExplorer')) {
+        this.selectedType = this.$route.params.type || '';
+        this.selectedModel = this.$route.params.model || '';
+        this.componentID = this.$route.params.id || '';
+        if (!this.componentID || !this.selectedType) {
+          this.$router.push(`/GemsExplorer/${this.selectedModel}`);
+        }
       }
     },
     goToTab(type, componentID) {

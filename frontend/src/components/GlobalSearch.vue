@@ -275,6 +275,8 @@ export default {
         this.showLoader = false;
         if (!this.quickSearch) {
           this.$emit('updateResults', this.searchTermString, this.searchResults);
+        } else {
+          this.$refs.searchResults.scrollTop = 0;
         }
       })
       .catch((error) => {

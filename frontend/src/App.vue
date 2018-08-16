@@ -68,7 +68,9 @@
     </nav>
     <section id="extended-section" class="section">
       <div class="container">
-        <router-view :selectedModel="selectedModel"></router-view>
+        <keep-alive>
+          <router-view :selectedModel="selectedModel"></router-view>
+        </keep-alive>
       </div>
     </section>
     <footer class="footer">
