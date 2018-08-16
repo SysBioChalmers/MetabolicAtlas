@@ -37,7 +37,7 @@
               </table>
               <template v-if="hasExternalID">
                 <br>
-                <span class="subtitle">External IDS</span>
+                <span class="subtitle">External IDs</span>
                 <table v-if="enzyme && Object.keys(enzyme).length != 0" id="ed-table" class="table is-fullwidth">
                   <tr v-for="el in externalIDTableKey[model]" v-if="enzyme[el.name]">
                     <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>

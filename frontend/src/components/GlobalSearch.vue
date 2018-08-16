@@ -31,8 +31,8 @@
           v-for="k in resultsOrder" >
           <div v-for="r in searchResults[k]" class="searchResultSection">
             <div v-if="k === 'enzyme'">
-              <b>Enzyme: </b> {{ r.name }}
-              <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
+              <b>Enzyme: </b>
+              <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               <div class="columns">
                 <div class="column">
                   <span
@@ -52,8 +52,8 @@
               </div>
             </div>
             <div v-else-if="k === 'metabolite'">
-              <b>Metabolite: </b> {{ r.name }}
-              <label v-html="formatSearchResultLabel(r, searchTermString)"></label>
+              <b>Metabolite: </b>
+              <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               <div class="columns">
                 <div class="column">
                   <span
@@ -73,7 +73,8 @@
               </div>
             </div>
             <div v-else-if="k === 'reaction'">
-              <b>Reaction: </b> {{ r.id }} ‒ {{ r.equation }}
+              <b>Reaction: </b>
+              <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               <div class="columns">
                 <div class="column">
                   <span
@@ -89,7 +90,8 @@
               </div>
             </div>
             <div v-else-if="k === 'subsystem'">
-              <b>Subsystem: </b> {{ r.name }} ‒ {{ r.system }}
+              <b>Subsystem: </b>
+              <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               <div class="columns">
                 <div class="column">
                   <span
@@ -105,7 +107,8 @@
               </div>
             </div>
             <div v-else-if="k === 'compartment'">
-              <b>Compartment: </b> {{ r.name }}
+              <b>Compartment: </b>
+              <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               <div class="columns">
                 <div class="column">
                   <span class="tag is-info is-medium is-pulled-right"
@@ -169,18 +172,17 @@ export default {
       showResults: true,
       showLoader: false,
       noResult: false,
+
+      itemKeys: {
+        hmr2: {
+          enzyme: ['gene_name'],
+          reaction: ['id', 'equation'],
+          metabolite: ['name', 'compartment'],
+          subsystem: ['name', 'system'],
+          compartment: ['name'],
+        },
+      },
     };
-  },
-  watch: {
-    // searchResults() {
-    //   if (!this.quickSearch) {
-    //     console.log('here');
-    //     console.log(this.searchTermString);
-    //     console.log(this.searchResults);
-    //     console.log('-------------------------');
-    //     this.$emit('updateResults', this.searchTermString, this.searchResults);
-    //   }
-    // },
   },
   created() {
     // init the global events
@@ -279,8 +281,7 @@ export default {
           this.$refs.searchResults.scrollTop = 0;
         }
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
@@ -306,27 +307,26 @@ export default {
       }
       EventBus.$emit('requestViewer', type, name, '', []);
     },
-    formatSearchResultLabel(c, searchTerm) {
-      let s = `${c.short_name || c.long_name} (${c.compartment}`;
-      if (c.formula) {
-        s = `${s} | ${this.chemicalFormula(c.formula)})`;
-      } else {
-        s = `${s})`;
+    formatSearchResultLabel(type, element, searchTerm) {
+      if (!this.quickSearch) {
+        return '';
       }
-      if (c.enzyme && c.enzyme.uniprot_acc &&
-       c.enzyme.uniprot_acc.toLowerCase().includes(searchTerm.toLowerCase())) {
-        s = `${s} ‒ Uniprot ACC: ${c.enzyme.uniprot_acc}`;
-      } else if (c.metabolite) {
-        if (c.metabolite.hmdb &&
-          c.metabolite.hmdb.toLowerCase().includes(searchTerm.toLowerCase())) {
-          s = `${s} ‒ HMDB: ${c.metabolite.hmdb}`;
-        } else if (c.metabolite.hmdb_name &&
-          c.metabolite.hmdb_name.toLowerCase().includes(searchTerm.toLowerCase())) {
-          s = `${s} ‒ HMDB: ${c.metabolite.hmdb_name}`;
-        } else if (c.metabolite.kegg &&
-          c.metabolite.kegg.toLowerCase().includes(searchTerm.toLowerCase())) {
-          s = `${s} ‒ Kegg: ${c.metabolite.kegg}`;
+      let s = '';
+      for (const key of this.itemKeys[this.model][type]) {
+        if (element[key]) {
+          s = `${s} ‒ ${element[key]}`;
         }
+      }
+      if (!s.toLowerCase().includes(searchTerm.toLowerCase())) {
+        // add info in the label containing the search string
+        for (const k of ['hmdb_id', 'uniprot_id', 'ncbi_id', 'formula', 'pubchem_id', 'aliases', 'name']) {
+          if (element[k] && element[k].toLowerCase().includes(searchTerm.toLowerCase())) {
+            s = `${s} ‒ ${element[k]}`;
+          }
+        }
+      }
+      if (s.length !== 0) {
+        return s.slice(2);
       }
       return s;
     },
