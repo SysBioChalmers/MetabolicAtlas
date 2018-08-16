@@ -83,17 +83,6 @@
       </div>
       <div class="columns">
         <div class="column is-1">
-          <a href="atlas">Atlas</a>
-        </div>
-        <div class="column">
-          <span>
-            Atlas web interface can be used for visualization of the GEMs
-            collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
-          </span>
-        </div>
-      </div>
-      <div class="columns">
-        <div class="column is-1">
           <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
         </div>
         <div class="column">
