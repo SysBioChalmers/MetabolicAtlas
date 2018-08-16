@@ -21,7 +21,6 @@ class JSONResponse(HttpResponse):
         super(JSONResponse, self).__init__(content, **kwargs)
 
 
-
 @api_view(['POST'])
 @is_model_valid
 def convert_to_reaction_component_ids(request, model, compartment_name=None):
@@ -86,6 +85,57 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
             return HttpResponse(status=404)
 
     results = reactionComponents = list(chain(rcci, rci))
+    return JSONResponse(results)
+
+
+@api_view()
+@is_model_valid
+def search_on_map(request, model, map_type, map_name, term):
+    if not term:
+        return JSONResponse([])
+
+    if map_type not in ['subsystem', 'compartment'] or not map_name:
+        return HttpResponse(status=404)
+
+    query = Q()
+    reaction_query = Q()
+    query |= Q(id__iexact=term)
+    reaction_query |= Q(id__iexact=term)
+    query |= Q(name__iexact=term)
+    query |= Q(alt_name1__iexact=term)
+    query |= Q(alt_name2__iexact=term)
+    query |= Q(external_id1__iexact=term)
+    query |= Q(external_id2__iexact=term)
+    query |= Q(external_id3__iexact=term)
+    query |= Q(external_id4__iexact=term)
+
+    mapID = None
+    mapClassRC = None
+    mapClassReaction = None
+    mapIDset = None
+    if map_type == 'compartment':
+        try:
+            compartment = APImodels.CompartmentSvg.objects.using(model).get(letter_code__iexact=map_name)
+            mapID = compartment.id
+            mapIDsetRC  = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
+                .filter(Q(compartmentsvg=mapID)).values_list('rc_id')
+            mapIDsetReaction = APImodels.ReactionCompartmentSvg.objects.using(model) \
+                .filter(Q(compartmentsvg=mapID)).values_list('reaction_id')
+        except APImodels.CompartmentSvg.DoesNotExist:
+            return HttpResponse(status=404)
+    else:
+        return HttpResponse(status=404)
+
+    # get the list of component id
+    reaction_component_ids = APImodels.ReactionComponent.objects.using(model).filter(id__in=mapIDsetRC).filter(query).values_list('id', flat=True);
+
+    # get the list of reaction id
+    reaction_ids = APImodels.Reaction.objects.using(model).filter(id__in=mapIDsetReaction).filter(reaction_query).values_list('id', flat=True)
+
+    if not reaction_component_ids.count() and not reaction_ids.count():
+        return HttpResponse(status=404)
+
+    results = list(chain(reaction_component_ids, reaction_ids))
     return JSONResponse(results)
 
 

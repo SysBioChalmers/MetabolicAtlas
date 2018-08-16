@@ -220,9 +220,9 @@ export default {
       systemOrder: [
         'Cholesterol biosynthesis',
         'Carnitine shuttle',
+        'Glycosphingolipid biosynthesis/metabolism',
         'Amino Acid metabolism',
         'Fatty acid',
-        'Glycosphingolipid biosynthesis/metabolism',
         'Vitamin metabolism',
         'Other metabolism',
         'Other',

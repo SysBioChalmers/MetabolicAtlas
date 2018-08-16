@@ -301,6 +301,18 @@ export function getCompartmentFromName(name) {
   return null;
 }
 
+export function getSubsystemFromName(name) {
+  if (name && data[name.toLowerCase()]) {
+    return data[name.toLowerCase()];
+  }
+  for (const ele of data) {
+    if (ele.svgName === name) {
+      return ele;
+    }
+  }
+  return null;
+}
+
 function formatSpan(currentVal, index, array, elements, addComp) {
   const regex = /([0-9]+ )?(.+)\[([a-z]{1,3})\]/g;
   const match = regex.exec(currentVal);
