@@ -84,11 +84,14 @@
                         <template v-for="item in selectedElementDataKeys[model.id][selectedElement]"
                           v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
                           <template v-if="item.name === 'external_ids'">
-                            <span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span><p>
-                            <template v-for="eid in item.value" v-if="selectedElementData[eid[1]] && selectedElementData[eid[2]]">
-                              <span class="hd">{{ capitalize(eid[0]) }}:</span>
-                              <span v-html="reformatStringToLink(selectedElementData[eid[1]], selectedElementData[eid[2]])"></span><br>
-                            </template></p>
+                            <span class="hd" v-html="capitalize(item.display || item.name) + ':'" 
+                            v-if="hasExternalIDs(item.value)"></span>
+                            <p v-if="hasExternalIDs(item.value)">
+                              <template v-for="eid in item.value" v-if="selectedElementData[eid[1]] && selectedElementData[eid[2]]">
+                                <span class="hd">{{ capitalize(eid[0]) }}:</span>
+                                <span v-html="reformatStringToLink(selectedElementData[eid[1]], selectedElementData[eid[2]])"></span><br>
+                              </template>
+                            </p v-if="hasExternalIDs(item.value)">
                           </template>
                           <template v-else-if="['aliases', 'subsystem'].includes(item.name)">
                             <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
@@ -368,6 +371,16 @@ export default {
     });
   },
   methods: {
+    hasExternalIDs(keys) {
+      for (const eid of keys) {
+        console.log(eid);
+        if (this.selectedElementData[eid[1]] && this.selectedElementData[eid[2]]) {
+          return true;
+        }
+      }
+      console.log('return false');
+      return false;
+    },
     viewOnGemsExplorer() {
       if (this.currentDisplayedType === 'subsystem') {
         EventBus.$emit('updateSelTab', this.currentDisplayedType, this.currentDisplayedName);
