@@ -450,14 +450,15 @@ def search(request, model, term):
 
         compartments = APImodels.Compartment.objects.using(model).filter(name__icontains=term)
 
-        subsystems = APImodels.Subsystem.objects.using(model).filter(
+        subsystems = APImodels.Subsystem.objects.using(model).prefetch_related('compartment').filter(
             Q(name__icontains=term) |
             Q(external_id__iexact=term)
         )
 
         reactions = []
         term = term.replace("→", "=>")
-        term = term.replace("⇨", "=>")
+        term = term.replace("⇒", "=>")
+        term = term.replace("⇔", "=>")
         term = term.replace("->", "=>")
         if not term.strip() == '=>':
             termEqlike = False
@@ -475,7 +476,7 @@ def search(request, model, term):
                 (Q(equation__ilike=termEqlike) if termEqlike else Q(pk__isnull=True))
             )[:limit]
 
-        metabolites = APImodels.ReactionComponent.objects.using(model).filter(
+        metabolites = APImodels.ReactionComponent.objects.using(model).select_related('metabolite').filter(
                 Q(component_type__exact='m') &
                 (Q(id__iexact=term) |
                 Q(name__icontains=term) |
@@ -489,7 +490,7 @@ def search(request, model, term):
                 Q(formula__icontains=term))
             )[:limit]
 
-        enzymes = APImodels.ReactionComponent.objects.using(model).filter(
+        enzymes = APImodels.ReactionComponent.objects.using(model).select_related('enzyme').filter(
                 Q(component_type__exact='e') &
                 (Q(id__iexact=term) |
                 Q(name__icontains=term) |
