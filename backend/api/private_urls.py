@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^(?P<model>[^/]+)/compartments_svg/?$', private_views.get_compartments_svg),
     url(r'^(?P<model>[^/]+)/enzymes/(?P<id>[^/]+)/connected_metabolites/?$', private_views.connected_metabolites),
 
-    url(r'^(?P<model>[^/]+)/enzymes/hparnalevels/(?P<compartment>[^/]+)/?$', private_views.get_rna_levels),
+    url(r'^(?P<model>[^/]+)/enzymes/hpa_rna_levels/(?P<compartment>[^/]+)/?$', private_views.get_hpa_rna_levels),
+    url(r'^(?P<model>[^/]+)/enzymes/hpa_tissue/?$', private_views.get_hpa_tissues),
 ]

@@ -55,6 +55,7 @@ import Reaction from 'components/Reaction';
 import Subsystem from 'components/Subsystem';
 import { default as EventBus } from '../event-bus';
 
+
 export default {
   name: 'gems-explorer',
   components: {

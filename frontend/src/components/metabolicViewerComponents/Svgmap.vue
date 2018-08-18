@@ -15,7 +15,7 @@
           type="text" 
           :class="searchInputClass"
           v-model.trim="searchTerm"
-          v-on:keyup.enter="searchComponentIDs(searchTerm, false)" :disabled="!loadedMap"/>
+          v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"/>
         </div>
         <div v-show="searchTerm && totalSearchMatch">
           <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
@@ -36,6 +36,7 @@ import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
 import { getCompartmentFromName, getSubsystemFromName } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
+import { getExpressionColor } from '../../expression-sources/hpa';
 
 export default {
   name: 'svgmap',
@@ -48,7 +49,9 @@ export default {
       errorMessage: '',
       loadedMap: null,
       loadedMapType: null,
+      loadedMapHistory: {},
       svgContent: null,
+      svgContentHistory: {},
       svgName: '',
       svgBigMapName: 'whole_metabolic_network_without_details',
       panZoom: null,
@@ -57,6 +60,9 @@ export default {
       elmFound: [],
       elmsHL: [],
       selectedItemHistory: {},
+
+      HPARNAlevelsHistory: {},
+      enzymeRNAlevels: {}, // enz id as key, current tissue level as value
 
       searchTerm: '',
       searchInputClass: '',
@@ -95,8 +101,7 @@ export default {
   },
   created() {
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
-      console.log('show svg map');
-      console.log(`emit ${type} ${name} ${ids} ${forceReload}`);
+      console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {
         this.svgName = '';
       }
@@ -108,19 +113,16 @@ export default {
       } else if (type === 'subsystem') {
         this.HLonly = false;
         this.showTiles(name, ids);
-      } else if (type === 'tiles') {
-        this.HLonly = false;
-        this.showTiles(name, ids);
-      } else if (type === 'highlight') {
-        this.HLonly = true;
-        this.hlElements(null, ids);
       } else if (type === 'find') {
         this.HLonly = false;
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
-        // const compartment = getCompartmentFromName('wholemap');
         this.loadSVG('wholemap', null);
       }
+    });
+
+    EventBus.$on('loadHPARNAlevels', (tissue) => {
+      this.loadHPAlevelsOnMap(tissue);
     });
   },
   mounted() {
@@ -205,19 +207,14 @@ export default {
           // call findElementsOnSVG
           callback();
         } else {
-          this.$emit('loadedComponent', true, '');
+          this.$emit('loadComplete', true, '');
         }
       }, 0);
     },
     svgfit() {
-      // console.log('fit svg');
       $('#svg-wrapper svg').attr('width', '100%');
-      // const h = $('.svgbox').first().css('height');
       const a = $('.svgbox').first().offset().top;
       const vph = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-      // console.log(`h: ${h}`);
-      // console.log(`a: ${a}`);
-      // console.log(`vph: ${vph}`);
       const v = vph - a;
 
       $('#svg-wrapper svg').attr('height', `${v}px`);
@@ -228,15 +225,14 @@ export default {
       }
     },
     loadSVG(id, callback) {
-      // console.log('load svg');
       // load the svg file from the server
-      // if aleady loaded, just call the callback funtion
+      // if already loaded, just call the callback funtion
       let currentLoad = getCompartmentFromName(id);
       if (!currentLoad) {
         currentLoad = getSubsystemFromName(id);
         if (!currentLoad) {
           this.loadedMapType = null;
-          this.$emit('loadedComponent', false, '');
+          this.$emit('loadComplete', false, '');
           return;
         }
       }
@@ -246,27 +242,36 @@ export default {
       this.$emit('loading');
       if (!newSvgName) {
         // TODO remove this when all svg files are available
-        this.$emit('loadedComponent', false, 'SVG map not available.');
+        this.$emit('loadComplete', false, 'SVG map not available.');
         return;
       }
 
       if (newSvgName !== this.svgName) {
-        // console.log('new svg');
-        axios.get(svgLink)
-          .then((response) => {
-            // console.log('get the svg');
-            this.svgContent = response.data;
-            this.svgName = newSvgName;
-            this.loadedMap = currentLoad;
-            setTimeout(() => {
-              // this.showLoader = false;
-              this.loadSvgPanZoom(callback);
-            }, 0);
-          })
-          .catch((error) => {
-            // TODO: handle error
-            this.$emit('loadedComponent', false, error);
-          });
+        if (newSvgName in this.loadedMapHistory) {
+          this.svgContent = this.svgContentHistory[newSvgName];
+          this.loadedMap = this.loadedMapHistory[newSvgName];
+          this.svgName = newSvgName;
+          setTimeout(() => {
+            this.loadSvgPanZoom(callback);
+          }, 0);
+        } else {
+          axios.get(svgLink)
+            .then((response) => {
+              this.svgContent = response.data;
+              this.svgName = newSvgName;
+              this.loadedMap = currentLoad;
+              this.svgContentHistory[this.svgName] = response.data;
+              this.loadedMapHistory[this.svgName] = currentLoad;
+              setTimeout(() => {
+                // this.showLoader = false;
+                this.loadSvgPanZoom(callback);
+              }, 0);
+            })
+            .catch((error) => {
+              // TODO: handle error
+              this.$emit('loadComplete', false, error);
+            });
+        }
       } else if (callback) {
         this.loadedMap = currentLoad;
         // call findElementsOnSVG
@@ -274,12 +279,57 @@ export default {
       } else {
         this.loadedMap = currentLoad;
         this.svgfit();
-        this.$emit('loadedComponent', true, '');
+        this.$emit('loadComplete', true, '');
       }
     },
-    searchComponentIDs(term, highlight) {
+    loadHPAlevelsOnMap(tissue) {
+      if (this.svgName in this.HPARNAlevelsHistory) {
+        this.readHPARNAlevels(tissue);
+        return;
+      }
+      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.name}`)
+      .then((response) => {
+        this.HPARNAlevelsHistory[this.svgName] = response.data;
+        setTimeout(() => {
+          this.readHPARNAlevels(tissue);
+        }, 0);
+      })
+      .catch(() => {
+        EventBus.$emit('loadRNAComplete', false, '');
+        return;
+      });
+    },
+    readHPARNAlevels(tissue) {
+      if (tissue === 'None') {
+        $('#svg-wrapper .enz .shape').attr('fill', '#fa0');
+        this.enzymeRNAlevels = {};
+        return;
+      }
+      const index = this.HPARNAlevelsHistory[this.svgName].tissues.indexOf(tissue);
+      if (index === -1) {
+        EventBus.$emit('loadRNAComplete', false, '');
+        return;
+      }
+      const levels = this.HPARNAlevelsHistory[this.svgName].levels;
+      $('#svg-wrapper .enz .shape').attr('fill', 'whitesmoke'); // init to NA
+      for (const array of levels) {
+        const enzID = array[0];
+        let level = Math.log2(parseFloat(array[1].split(',')[index]) + 1);
+        level = Math.round((level + 0.00001) * 100) / 100;
+        this.enzymeRNAlevels[enzID] = level;
+        const classs = `#svg-wrapper .enz.${enzID} .shape`;
+        $(classs).attr('fill', getExpressionColor(level));
+      }
+      // update cached selected elements
+      for (const id of Object.keys(this.selectedItemHistory)) {
+        if (this.enzymeRNAlevels[id]) {
+          this.selectedItemHistory[id].rnaLvl = this.enzymeRNAlevels[id];
+        }
+      }
+      EventBus.$emit('loadRNAComplete', true, '');
+    },
+    searchComponentIDs(term) {
       // get the correct IDs from the backend
-      console.log(highlight);
       if (!this.searchTerm) {
         this.searchInputClass = 'is-warning';
         return;
@@ -287,7 +337,6 @@ export default {
       this.isLoadingSearch = true;
       axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.letter}/${term}`)
       .then((response) => {
-        this.isLoadingSearch = false;
         this.searchInputClass = 'is-success';
         this.ids = response.data;
         this.findElementsOnSVG();
@@ -303,7 +352,7 @@ export default {
         this.isLoadingSearch = false;
         const status = error.status || error.response.status;
         if (status !== 404) {
-          this.$emit('loadedComponent', false, 'An error occurred. Please try again later.');
+          this.$emit('loadComplete', false, 'An error occurred. Please try again later.');
           this.searchInputClass = 'is-info';
         } else {
           this.searchInputClass = 'is-danger';
@@ -312,7 +361,6 @@ export default {
       });
     },
     findElementsOnSVG() {
-      console.log('call findElementsOnSVGs');
       if (!this.ids) {
         return;
       }
@@ -327,6 +375,7 @@ export default {
           this.elmFound.push(elms[j]);
         }
       }
+      this.isLoadingSearch = false;
     },
     searchNextElementOnSVG() {
       if (this.totalSearchMatch <= 1) {
@@ -445,7 +494,6 @@ export default {
         newScale = this.loadedMap.maxZoomLvl - 0.01;
       }
       this.panZoom.zoom(newScale);
-      // this.$emit('loadedComponent', true, '');
     },
     showMap(id) {
       if (id) {
@@ -464,14 +512,18 @@ export default {
         let data = response.data;
         if (type === 'reaction') {
           data = data.reaction;
+        } else if (type === 'enzyme') {
+          // add the RNA level if any
+          if (id in this.enzymeRNAlevels) {
+            data.rnaLvl = this.enzymeRNAlevels[id];
+          }
         }
         data.type = type;
         EventBus.$emit('updatePanelSelectionData', data);
         this.selectedItemHistory[id] = data;
         EventBus.$emit('endSelectedElement', true);
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         EventBus.$emit('endSelectedElement', false);
       });
     },

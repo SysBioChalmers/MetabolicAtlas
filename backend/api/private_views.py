@@ -488,7 +488,14 @@ def connected_metabolites(request, model, id):
 
 @api_view()
 @is_model_valid
-def get_rna_levels(request, model, compartment):
+def get_hpa_tissues(request, model):
+    tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
+    return JSONResponse(tissues)
+
+
+@api_view()
+@is_model_valid
+def get_hpa_rna_levels(request, model, compartment):
     try:
         compartment = APImodels.Compartment.objects.using(model).get(name__iexact=compartment)
     except APImodels.Compartment.DoesNotExist:
