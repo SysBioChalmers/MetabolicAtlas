@@ -355,34 +355,6 @@ export default {
     right: 30px;
     top: 110px;
   }
-
-  #graphLegend {
-    display: inline-block;
-    .title {
-      margin-bottom: 0.3em;
-    }
-
-    .exp-lvl-legend {
-      list-style: none;
-      li {
-        display: inline-block;
-        margin-left: 7px;
-        line-height: 15px;
-        &:first-child {
-          margin-left: 0;
-        }
-      }
-    }
-
-    span {
-      float: left;
-      margin: 0 2px 2px 2px;
-      width: 15px;
-      height: 15px;
-      display: block;
-      border: 1px solid black;
-    }
-  }
 }
 
 </style>
