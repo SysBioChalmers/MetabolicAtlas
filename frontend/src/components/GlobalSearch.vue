@@ -141,7 +141,7 @@
 import axios from 'axios';
 import Loader from 'components/Loader';
 import _ from 'lodash';
-import { chemicalFormula } from '../helpers/chemical-formatters';
+import { chemicalFormula, chemicalReaction } from '../helpers/chemical-formatters';
 import { default as EventBus } from '../event-bus';
 import { getCompartmentFromName } from '../helpers/compartment';
 
@@ -314,7 +314,11 @@ export default {
       let s = '';
       for (const key of this.itemKeys[this.model][type]) {
         if (element[key]) {
-          s = `${s} ‒ ${element[key]}`;
+          if (key === 'equation') {
+            s = `${s} ‒ ${chemicalReaction(element[key], element.is_reversible)}`;
+          } else {
+            s = `${s} ‒ ${element[key]}`;
+          }
         }
       }
       if (!s.toLowerCase().includes(searchTerm.toLowerCase())) {
