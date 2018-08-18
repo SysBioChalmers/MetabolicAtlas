@@ -99,6 +99,7 @@
 
 <script>
 
+import $ from 'jquery';
 import axios from 'axios';
 import SvgIcon from './components/SvgIcon';
 import MetabolicViewer from './components/MetabolicViewer';
@@ -146,6 +147,12 @@ export default {
       .catch(() => {
         this.errorMessage = this.$t('unknownError');
       });
+
+    $('body').on('click', 'td m', function f() {
+      if (!($(this).hasClass('cms'))) {
+        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
+      }
+    });
   },
   created() {
     EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
