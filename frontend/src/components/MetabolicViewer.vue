@@ -25,11 +25,18 @@
       <div class="column" id="iBarInfo" v-html="mapInfoString">
       </div>
     </div> -->
-    <div class="columns">
+    <div class="columns" id="iMainPanel">
       <div class="column is-one-fifth" id="iSideBar">
         <div id="menu">
           <ul class="l0">
-            <li>HPA RNA levels
+            <li @click="loadHPATissue" :class="{'clickable' : true, 'disable' : !currentDisplayedName }" >HPA RNA levels
+              <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
+              <ul class="vhs l1">
+                <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')">None</li>
+                <li v-for="tissue in HPATissue" class="clickable" @click="loadHPARNAlevels(tissue)">
+                  {{ tissue }}
+                </li>
+              </ul>
             </li>
             <li>Compartments<span>&nbsp;&#9656;</span>
               <ul class="vhs l1">
@@ -37,7 +44,7 @@
                 @click="showCompartment(comp)">
                   {{ compartments[comp].name }}
 <!--                    TODO ADD subystem for cytosol parts
- -->                </li>
+ -->            </li>
               </ul>
             </li>
             <li>Subsystems<span>&nbsp;&#9656;</span>
@@ -56,6 +63,13 @@
               </ul>
             </li>
           </ul>
+        </div>
+        <div v-if="loadedTissue">
+          <div class="has-text-centered has-text-weight-bold is-small">
+            Current tissue: {{ loadedTissue }}
+          </div>
+          <div class="panel-block" v-html="getExpLvlLegend()" >
+          </div>
         </div>
         <div id="iSelectedElementPanel">
           <div class="loading" v-show="showSelectedElementPanelLoader">
@@ -78,9 +92,13 @@
                   </p>
                 </header>
                 <div class="card-content">
-                  <div class="content">
+                  <!-- TMP fix for overflow on side bar -->
+                  <div class="content" style="max-height: 500px; overflow-y: auto;">
                     <template v-if="selectedElement">
                       <template v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement)">
+                        <p v-if="selectedElementData['rnaLvl'] != null">
+                          <span class="hd">RNA&nbsp;level:</span><span>{{ selectedElementData['rnaLvl'] }}</span>
+                        </p>
                         <template v-for="item in selectedElementDataKeys[model.id][selectedElement]"
                           v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
                           <template v-if="item.name === 'external_ids'">
@@ -142,11 +160,11 @@
         <div class="columns">
           <svgmap class="column" v-show="!dim3D"
           :model="model.id"
-          @loadedComponent="handleLoadedComponent"
+          @loadComplete="handleLoadComplete"
           @loading="showLoader=true"></svgmap>
           <d3dforce class="column" v-show="dim3D"
           :model="model.id"
-          @loadedComponent="handleLoadedComponent"
+          @loadComplete="handleLoadComplete"
           @loading="showLoader=true"></d3dforce>
         </div>
         <div id="iLoader" class="loading" v-show="showLoader">
@@ -178,6 +196,7 @@ import { default as EventBus } from '../event-bus';
 import { getCompartmentFromName } from '../helpers/compartment';
 import { capitalize, reformatStringToLink } from '../helpers/utils';
 import { chemicalReaction } from '../helpers/chemical-formatters';
+import { getExpLvlLegend } from '../expression-sources/hpa';
 
 export default {
   name: 'metabolic-viewer',
@@ -292,6 +311,10 @@ export default {
         external_ids: null, //[[source, ID, link],]
       },
       isHoverMenuItem: false,
+
+      HPATissue: [],
+      requestedTissue: '',
+      loadedTissue: '',
     };
   },
   computed: {
@@ -302,10 +325,10 @@ export default {
   created() {
     this.loadCompartments();
     this.loadSubsystem();
+    this.loadHPATissue();
 
     EventBus.$on('showAction', (type, name, secondaryName, ids, forceReload) => {
       console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
-      console.log(this.dim3D);
       this.requestedType = type;
       if (type === 'subsystem') {
         this.requestedName = secondaryName;
@@ -338,11 +361,28 @@ export default {
       this.showSelectedElementPanelLoader = false;
       this.showSelectedElementPanelError = !isSuccess;
     });
+    EventBus.$on('loadRNAComplete', (isSuccess, errorMessage) => {
+      if (!isSuccess) {
+        // show error
+        this.errorMessage = errorMessage;
+        if (!this.errorMessage) {
+          this.errorMessage = this.$t('unknownError');
+        }
+        this.showLoader = false;
+        this.loadedTissue = '';
+        this.requestedTissue = '';
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 3000);
+        return;
+      }
+      this.loadedTissue = this.requestedTissue;
+      this.showLoader = false;
+    });
   },
   mounted() {
     if (false && this.currentDisplayedType === 'wholemap' &&
      !this.initialEmit) {
-      console.log('initial emit whole map');
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
       this.initialEmit = true;
     }
@@ -373,12 +413,10 @@ export default {
   methods: {
     hasExternalIDs(keys) {
       for (const eid of keys) {
-        console.log(eid);
         if (this.selectedElementData[eid[1]] && this.selectedElementData[eid[2]]) {
           return true;
         }
       }
-      console.log('return false');
       return false;
     },
     viewOnGemsExplorer() {
@@ -417,12 +455,17 @@ export default {
         EventBus.$emit('showSVGmap', this.currentDisplayedType, this.currentDisplayedName, [], true);
       }
     },
-    handleLoadedComponent(isSuccess, errorMessage) {
+    handleLoadComplete(isSuccess, errorMessage) {
       console.log(`${isSuccess} ${errorMessage}`);
       if (!isSuccess) {
         // show error
         this.errorMessage = errorMessage;
+        if (!this.errorMessage) {
+          this.errorMessage = this.$t('unknownError');
+        }
         this.showLoader = false;
+        this.currentDisplayedType = '';
+        this.currentDisplayedName = '';
         setTimeout(() => {
           this.errorMessage = '';
         }, 3000);
@@ -444,7 +487,10 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error);
+        switch (error.response.status) {
+          default:
+            this.errorMessage = this.$t('unknownError');
+        }
       });
     },
     loadSubsystem() {
@@ -471,12 +517,31 @@ export default {
           }
         })
         .catch((error) => {
-          this.loading = false;
           switch (error.response.status) {
             default:
               this.errorMessage = this.$t('unknownError');
           }
         });
+    },
+    loadHPATissue() {
+      axios.get(`${this.model.id}/enzymes/hpa_tissue/`)
+        .then((response) => {
+          this.HPATissue = response.data;
+        })
+        .catch((error) => {
+          switch (error.response.status) {
+            default:
+              this.errorMessage = this.$t('unknownError');
+          }
+        });
+    },
+    loadHPARNAlevels(tissue) {
+      this.requestedTissue = tissue;
+      if (this.requestedTissue === 'None') {
+        this.requestedTissue = '';
+        this.loadedTissue = '';
+      }
+      EventBus.$emit('loadHPARNAlevels', tissue);
     },
     showCompartment(compartment) {
       EventBus.$emit('requestViewer', 'compartment', compartment, '', []);
@@ -490,6 +555,7 @@ export default {
     capitalize,
     reformatStringToLink,
     chemicalReaction,
+    getExpLvlLegend,
   },
 };
 </script>
@@ -498,6 +564,8 @@ export default {
 
 #metabolicViewer {
   #iTopBar {
+    height: 60px;
+
     border-bottom: 1px solid black;
     .column {
       padding-bottom: 0;
@@ -517,6 +585,10 @@ export default {
     margin: 10px;
   }
 
+  #iMainPanel {
+    flex: 1;
+  }
+
 /*  #iSwitch {
     label {
       font-size: 1.5rem;
@@ -527,11 +599,10 @@ export default {
   #iSideBar {
     padding: 0;
     margin: 0;
-    height: 100%;
+    padding-left: 0.75rem;
 
     #iSelectedElementPanel {
       margin: 0.75rem;
-      margin-left: 1.5rem;
 
       .content {
         span.hd {
@@ -620,6 +691,7 @@ export default {
           cursor: default;
           background: #4a4a4a;
           color: gray;
+          pointer-events: none;
         }
     }
   }
@@ -627,6 +699,7 @@ export default {
     display: none;
     position: absolute; top: 0; left: 100%; width: 100%;
     background: #4a4a4a; z-index: 11;
+    box-shadow: 5px 5px 5px #222222;
   }
 }
 

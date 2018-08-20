@@ -99,6 +99,7 @@
 
 <script>
 
+import $ from 'jquery';
 import axios from 'axios';
 import SvgIcon from './components/SvgIcon';
 import MetabolicViewer from './components/MetabolicViewer';
@@ -146,6 +147,12 @@ export default {
       .catch(() => {
         this.errorMessage = this.$t('unknownError');
       });
+
+    $('body').on('click', 'td m', function f() {
+      if (!($(this).hasClass('cms'))) {
+        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
+      }
+    });
   },
   created() {
     EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
@@ -251,12 +258,18 @@ $switch-background: $primary;
 #metabolicViewer {
   position: fixed;
   z-index:100;
-  top: 0;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  right: 0;
+  left: 0;
+  /*top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   height: 100%;
-  width: 100%;
+  width: 100%;*/
   background: whitesmoke;
   overflow: hidden;
 }
@@ -293,6 +306,34 @@ $switch-background: $primary;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
+}
+
+#HPARNAexpLegend {
+  margin: auto;
+  .title {
+    margin-bottom: 0.3em;
+  }
+
+  .exp-lvl-legend {
+    list-style: none;
+    li {
+      display: inline-block;
+      margin-left: 7px;
+      line-height: 15px;
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+  }
+
+  span {
+    float: left;
+    margin: 0 2px 2px 2px;
+    width: 15px;
+    height: 15px;
+    display: block;
+    border: 1px solid black;
+  }
 }
 
 </style>

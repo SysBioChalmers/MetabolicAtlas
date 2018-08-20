@@ -146,19 +146,12 @@ export default {
       return true;
     },
   },
-  beforeMount() {
-    $('body').on('click', 'td m', function f() {
-      if ($(this).attr('class') !== this.selectedElmId) {
-        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
-      }
-    });
-  },
   updated() {
     if (this.selectedElmId) {
       // when the table is from the selectedElmId page (metabolite)
       // do not color the selectedElmId is the reaction equations
       $('m').css('color', '');
-      $(`.${this.selectedElmId}`).css('color', 'rgb(54, 54, 54)');
+      $(`.${this.selectedElmId}`).addClass('cms');
     }
   },
 };
@@ -171,6 +164,10 @@ export default {
 
   m {
     color: #3498db;
+    &.cms {
+      color: rgb(54, 54, 54);
+      cursor: default;
+    }
   }
 
   th, m, span.sc, .tag.link {

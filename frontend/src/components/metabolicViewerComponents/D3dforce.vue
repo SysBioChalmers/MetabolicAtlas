@@ -70,12 +70,12 @@ export default {
               this.graph.graphData(this.network);
             }
             this.emptyNetwork = false;
-            this.$emit('loadedComponent', true, '');
+            this.$emit('loadComplete', true, '');
           }, 0);
         })
         .catch((error) => {
           console.log(error);
-          this.$emit('loadedComponent', false, error);
+          this.$emit('loadComplete', false, error);
         });
     },
     constructGraph() {

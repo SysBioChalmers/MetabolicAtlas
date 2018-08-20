@@ -12,7 +12,7 @@ const rnaExpressionLvl = [
   [6.6, 'red'],
 ];
 
-function getExpressionColor(value) {
+export function getExpressionColor(value) {
   for (const el of rnaExpressionLvl) {
     if (value <= el[0]) {
       return el[1];
@@ -20,10 +20,10 @@ function getExpressionColor(value) {
   }
   return overExpressedColor;
 }
-getExpressionColor(0);
+// getExpressionColor(0);
 
 export function getExpLvlLegend() {
-  let l = '<div class="box"><div><h5 class="title is-6 has-text-centered">HPA RNA expression level - log2(tpm) </h5></div>';
+  let l = '<div id="HPARNAexpLegend" class="box"><div><h5 class="title is-6 has-text-centered">HPA RNA expression level - log2(tpm) </h5></div>';
   const w = 150.0/(rnaExpressionLvl.length + (overExpressedColor ? 1 : 0));
   l += '<div class="has-text-centered">';
   l += '<ul class="exp-lvl-legend">'

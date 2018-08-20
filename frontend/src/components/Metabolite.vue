@@ -135,8 +135,7 @@ export default {
         this.info = response.data;
         this.showReactome = true;
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         this.errorMessage = this.$t('notFoundError');
         this.showReactome = false;
       });
