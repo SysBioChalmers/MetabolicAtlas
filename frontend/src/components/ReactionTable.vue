@@ -1,13 +1,13 @@
 <template>
   <div class="container reaction-table">
     <div class="field">
-      <span class="tag">
+      <span class="tag is-medium">
         # Reaction(s): {{ reactions.length }}
       </span>
-      <span class="tag" v-if="transportReactionCount === 0">
+      <span class="tag is-medium" v-if="transportReactionCount === 0">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
-      <span class="tag link" v-else @click="sortBy('compartment', '=>', 'desc')">
+      <span class="tag link is-medium" v-else @click="sortBy('compartment', '=>', 'desc')">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
       <span v-show="reactions.length==200" class="tag is-danger is-pulled-right">

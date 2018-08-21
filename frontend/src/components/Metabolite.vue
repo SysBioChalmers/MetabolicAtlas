@@ -8,7 +8,7 @@
     <div v-else>
       <div class="columns">
         <div class="column">
-          <p id="met-title" class="title is-1">Metabolite</p>
+          <h3 class="title is-3">Metabolite</h3>
         </div>
       </div>
       <div class="columns metabolite-table">
@@ -32,7 +32,7 @@
               <br>
               <span class="subtitle">External IDs</span>
               <table v-if="info && Object.keys(info).length != 0" id="ed-table" class="table is-fullwidth">
-                <tr v-for="el in externalIDTableKey[model]" v-if="info[el.name]">
+                <tr v-for="el in externalIDTableKey[model]" v-if="info[el.name] && info[el.link]">
                   <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                   <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                   <td>
@@ -47,7 +47,7 @@
         <div class="column">
           <div class="box has-text-centered">
             <div class="button is-info">
-              <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+              <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
             </div>
             <br><br>
             <div class="button is-info"
@@ -114,7 +114,7 @@ export default {
   computed: {
     hasExternalID() {
       for (const item of this.externalIDTableKey[this.model]) {
-        if (this.info[item.name]) {
+        if (this.info[item.name] && this.info[item.link]) {
           return true;
         }
       }
@@ -157,10 +157,6 @@ export default {
 </script>
 
 <style lang="scss">
-
- #met-title {
-  padding-bottom: 2rem;
- }
 
 .metabolite-table, .model-table, .reaction-table, .subsystem-table {
   .main-table tr td.td-key, #ed-table tr td.td-key {

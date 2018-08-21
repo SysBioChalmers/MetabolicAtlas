@@ -8,13 +8,13 @@
     <div v-show="!errorMessage">
       <div class="container columns">
         <div class="column is-5">
-          <h3 class="title is-3">
-          Enzyme | {{ enzymeName }}
-          <span class="button is-info" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
-          @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
+          <h3 class="title is-3 is-inline-block  is-marginless">
+          Enzyme | {{ enzymeName }}&nbsp;
+          </h3>
+          <span class="button is-info is-inline-block" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
+            @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
             View on HPA
           </span>
-          </h3>
         </div>
       </div>
       <div class="columns">
@@ -39,7 +39,7 @@
                 <br>
                 <span class="subtitle">External IDs</span>
                 <table v-if="enzyme && Object.keys(enzyme).length != 0" id="ed-table" class="table is-fullwidth">
-                  <tr v-for="el in externalIDTableKey[model]" v-if="enzyme[el.name]">
+                  <tr v-for="el in externalIDTableKey[model]" v-if="enzyme[el.name] && enzyme[el.link]">
                     <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                     <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                     <td>
@@ -67,7 +67,7 @@
             <div class="column">
               <loader v-show="loading"></loader>
               <template v-show="!loading && reactions.length > 0">
-                <h3 class="title is-3">Reactome</h3>
+                <h4 class="title is-4">Reactome</h4>
                 <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
               </template>
             </div>
@@ -120,7 +120,10 @@ export default {
   watch: {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
-      this.setup();
+      if (this.$route.path.includes('/enzyme/')) {
+        console.log(this.$route);
+        this.setup();
+      }
     },
   },
   computed: {
@@ -129,7 +132,7 @@ export default {
     },
     hasExternalID() {
       for (const item of this.externalIDTableKey[this.model]) {
-        if (this.enzyme[item.name]) {
+        if (this.enzyme[item.name] && this.enzyme[item.link]) {
           return true;
         }
       }

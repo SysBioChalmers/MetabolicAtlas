@@ -4,41 +4,48 @@
       {{ errorMessage }}
     </div>
   </div>
-  <div class="columns" v-else>
-    <loader v-show="showLoader"></loader>
-    <div class="reaction-table column is-10" v-show="!showLoader">
-      <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
-        <tr v-for="el in mainTableKey[model]">
-          <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
-          <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
-          <td v-if="'isComposite' in el">
-            <span v-html="el.modifier()"></span>
-          </td>
-          <td v-else-if="reaction[el.name]">
-            <span v-if="'modifier' in el" v-html="el.modifier(reaction[el.name])">
-            </span>
-            <span v-else>
-              {{ reaction[el.name] }}
-            </span>
-          </td>
-          <td v-else> - </td>
-        </tr>
-      </table>
-      <span class="subtitle">References</span>
-      <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
-        <tr v-for="ref in reformatRefs(pmids)">
-          <a :href="ref.link">
-            <td v-if="ref.title" class="td-key has-background-primary has-text-white-bis">{{ ref.pmid }}</td>
-            <td v-if="ref.formatted">{{ ref.formatted }}</td>
-          </a>
-        </tr>
-      </table>
-      <div v-else>No references found</div>
+  <div v-else>
+    <div class="columns">
+      <div class="column">
+        <h3 class="title is-3">Reaction</h3>
+      </div>
     </div>
-    <div class="column">
-      <div class="box has-text-centered">
-        <div class="button is-info">
-          <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+    <div class="columns">
+      <loader v-show="showLoader"></loader>
+      <div class="reaction-table column is-10" v-show="!showLoader">
+        <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
+          <tr v-for="el in mainTableKey[model]">
+            <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+            <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
+            <td v-if="'isComposite' in el">
+              <span v-html="el.modifier()"></span>
+            </td>
+            <td v-else-if="reaction[el.name]">
+              <span v-if="'modifier' in el" v-html="el.modifier(reaction[el.name])">
+              </span>
+              <span v-else>
+                {{ reaction[el.name] }}
+              </span>
+            </td>
+            <td v-else> - </td>
+          </tr>
+        </table>
+        <h4 class="title is-4">references</h4>
+        <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
+          <tr v-for="ref in reformatRefs(pmids)">
+            <a :href="ref.link">
+              <td v-if="ref.title" class="td-key has-background-primary has-text-white-bis">{{ ref.pmid }}</td>
+              <td v-if="ref.formatted">{{ ref.formatted }}</td>
+            </a>
+          </tr>
+        </table>
+        <div v-else>No references found</div>
+      </div>
+      <div class="column">
+        <div class="box has-text-centered">
+          <div class="button is-info">
+            <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+          </div>
         </div>
       </div>
     </div>
@@ -125,9 +132,9 @@ export default {
         for (let i = 0, l = newGRArr.length; i < l; i += 1) {
           let e;
           if (newGRnameArr) {
-            e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRnameArr[i]}</a></span>`;
+            e = `<span class="tag"><a class="e is-size-6" name="${newGRArr[i]}">${newGRnameArr[i]}</a></span>`;
           } else {
-            e = `<span class="tag"><a class="e" name="${newGRArr[i]}">${newGRArr[i]}</a></span>`;
+            e = `<span class="tag"><a class="e is-size-6" name="${newGRArr[i]}">${newGRArr[i]}</a></span>`;
           }
           newGR = newGR.replace(newGRArr[i], e);
         }
@@ -141,18 +148,18 @@ export default {
       }
       return str;
     },
-    formatQuantFieldName(name) { return `<span class="tag is-info">${name}</span>`; },
+    formatQuantFieldName(name) { return `${name}:&nbsp;`; },
     reformatQuant() {
       const data = [];
-      for (const key of ['upper_bound', 'lower_bound', 'objective_coefficient']) {
+      for (const key of ['lower_bound', 'upper_bound', 'objective_coefficient']) {
         if (this.reaction[key] != null) {
           data.push(this.formatQuantFieldName(this.reformatTableKey(key)));
           if (key === 'objective_coefficient') {
             data.push(this.reformatMass(this.reaction[key]));
           }
           data.push(this.reaction[key]);
+          data.push('<span>&nbsp;&dash;&nbsp;</span>');
         }
-        data.push('<span>&nbsp;&nbsp;</span>');
       }
       return data.join(' ');
     },
