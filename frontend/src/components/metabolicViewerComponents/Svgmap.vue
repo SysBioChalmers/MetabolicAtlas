@@ -95,6 +95,7 @@ export default {
     searchTerm() {
       if (!this.searchTerm) {
         this.unHighlight();
+        this.totalSearchMatch = 0;
         this.searchInputClass = 'is-info';
       }
     },
