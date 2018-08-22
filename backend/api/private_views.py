@@ -338,6 +338,7 @@ def get_HPA_xml_content(request):
 
 @api_view()
 def HPA_enzyme_info(request, ensembl_id):
+    # TODO provide the model, remove 'hmr2'
     try:
         res = APImodels.ReactionComponent.objects.using('hmr2').get(id=ensembl_id)
         rcid = res.id
