@@ -8,13 +8,13 @@
     <div v-show="!errorMessage">
       <div class="container columns">
         <div class="column is-5">
-          <h3 class="title is-3">
-          Enzyme | {{ enzymeName }}
-          <span class="button is-info" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
-          @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
+          <h3 class="title is-3 is-inline-block  is-marginless">
+          Enzyme | {{ enzymeName }}&nbsp;
+          </h3>
+          <span class="button is-info is-inline-block" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
+            @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
             View on HPA
           </span>
-          </h3>
         </div>
       </div>
       <div class="columns">
@@ -23,7 +23,8 @@
             <div id="enzyme-details" class="reaction-table column is-10">
               <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table is-fullwidth">
                 <tr v-for="el in mainTableKey[model]">
-                  <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
+                  <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+                  <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                   <td v-if="enzyme[el.name]">
                     <span v-if="'modifier' in el" v-html=" el.modifier(enzyme)">
                     </span>
@@ -34,6 +35,20 @@
                   <td v-else> - </td>
                 </tr>
               </table>
+              <template v-if="hasExternalID">
+                <br>
+                <span class="subtitle">External IDs</span>
+                <table v-if="enzyme && Object.keys(enzyme).length != 0" id="ed-table" class="table is-fullwidth">
+                  <tr v-for="el in externalIDTableKey[model]" v-if="enzyme[el.name] && enzyme[el.link]">
+                    <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+                    <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
+                    <td>
+                      <span v-html="reformatLink(enzyme[el.name], enzyme[el.link])">
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </template>
             </div>
             <div class="column">
               <div class="box has-text-centered">
@@ -51,12 +66,10 @@
           <div class="columns">
             <div class="column">
               <loader v-show="loading"></loader>
-              <div v-show="!loading">
-                <div v-show="reactions.length > 0">
-                  <loader v-show="loading"></loader>
-                  <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
-                </div>
-              </div>
+              <template v-show="!loading && reactions.length > 0">
+                <h4 class="title is-4">Reactome</h4>
+                <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
+              </template>
             </div>
           </div>
         </div>
@@ -67,10 +80,10 @@
 
 <script>
 import axios from 'axios';
-import $ from 'jquery';
 import ReactionTable from 'components/ReactionTable';
 import Loader from 'components/Loader';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
+import { reformatTableKey, reformatStringToLink } from '../helpers/utils';
 import { default as visitLink } from '../helpers/visit-link';
 
 export default {
@@ -89,12 +102,16 @@ export default {
       enzymeName: '',
       mainTableKey: {
         hmr2: [
-          { name: 'enzymeName', display: 'Gene Name' },
-          { name: 'function', display: 'Function' },
-          { name: 'id', display: 'Model ID' },
-          { name: 'uniprot', display: 'Uniprot ID', modifier: this.reformatUniprotLink },
-          { name: 'ncbi', display: 'NCBI ID', modifier: this.reformatNCBILink },
-          { name: 'id', display: 'Ensembl ID', modifier: this.reformatEnsemblLink },
+          { name: 'enzymeName', display: 'Gene&nbsp;Name' },
+          { name: 'function' },
+          { name: 'id', display: 'Model&nbsp;ID' },
+        ],
+      },
+      externalIDTableKey: {
+        hmr2: [
+          { name: 'id', display: 'Ensembl ID', link: 'name_link' },
+          { name: 'uniprot_id', display: 'Uniprot ID', link: 'uniprot_link' },
+          { name: 'ncbi_id', display: 'NCBI ID', link: 'ncbi_link' },
         ],
       },
       reactions: [],
@@ -103,12 +120,23 @@ export default {
   watch: {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
-      this.setup();
+      if (this.$route.path.includes('/enzyme/')) {
+        console.log(this.$route);
+        this.setup();
+      }
     },
   },
   computed: {
     filename() {
       return `ma_catalyzed_reaction_${this.enzymeName}`;
+    },
+    hasExternalID() {
+      for (const item of this.externalIDTableKey[this.model]) {
+        if (this.enzyme[item.name] && this.enzyme[item.link]) {
+          return true;
+        }
+      }
+      return false;
     },
   },
   methods: {
@@ -116,24 +144,8 @@ export default {
       this.id = this.$route.params.id;
       this.load();
     },
-    reformatList(l) {
-      let output = '';
-      if (l.length) {
-        output = l.join('; ');
-      } else {
-        output = '-';
-      }
-      return output;
-    },
-    reformatUniprotLink(enzyme) {
-      return `<a href="${enzyme.uniprot_link}" target="_blank">${enzyme.uniprot}</a>`;
-    },
-    reformatNCBILink(enzyme) {
-      return `<a href="${enzyme.ncbi_link}" target="_blank">${enzyme.ncbi}</a>`;
-    },
-    reformatEnsemblLink(enzyme) {
-      return `<a href="${enzyme.ensembl_link}" target="_blank">${enzyme.id}</a>`;
-    },
+    reformatTableKey(k) { return reformatTableKey(k); },
+    reformatLink(s, link) { return reformatStringToLink(s, link); },
     load() {
       this.loading = true;
       const enzymeId = this.id;
@@ -158,12 +170,6 @@ export default {
               this.errorMessage = this.$t('unknownError');
           }
         });
-    },
-    scrollTo(id) {
-      const container = $('body, html');
-      container.scrollTop(
-        $(`#${id}`).offset().top - (container.offset().top + container.scrollTop())
-      );
     },
     viewInteractionPartners() {
       this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.enzyme.id}`);

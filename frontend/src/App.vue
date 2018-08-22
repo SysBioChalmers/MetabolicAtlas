@@ -1,12 +1,7 @@
 <template>
   <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <transition name="fade">
-      <metabolic-viewer id="metabolicViewer" v-show="isMetabolicViewer"
-      :model="{ id: selectedModel, name: models[selectedModel].short_name }"
-      ></metabolic-viewer>
-    </transition>
-    <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+    <nav id="navbar" class="navbar is-light" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
           <a id="logo" class="navbar-item" @click="goToPage('')" >
@@ -16,62 +11,72 @@
             <span
                v-show="false"
                v-for="menuItem in menuItems"
-               :class="[{ 'is-active': isActive(menuItem) }, '']"
+               :class="{ 'is-active': isActiveRoute(menuItem) }"
                @click="goToPage(menuItem)"
             >{{ menuItem }}</span>
           </div>
         </div>
         <div class="navbar-menu" id="#nav-menu">
+          <div class="navbar-start">
+            <div class="navbar-item">
+              <div class="buttons has-addons">
+                <span class="button is-medium"
+                :class="[{ 'is-selected': showGemsExplorer }, { 'is-info': showGemsExplorer }]"
+                @click="goToPage('gemsExplorer', selectedModel)"
+                >Explorer</span>
+                <span class="button is-medium"
+                :class="[{ 'is-selected': showMetabolicViewer }, { 'is-info': showMetabolicViewer }]"
+                @click="goToPage('metabolicViewer', selectedModel)"
+                >Maps</span>
+              </div>
+            </div>
+            <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link"  @click="goToPage('gemsExplorer', selectedModel)">
+                Model:
+                &nbsp;<span class="tag is-info is-medium">{{ models[selectedModel].short_name }}</span>
+              </a>
+              <div class="navbar-dropdown">
+                <a class="navbar-item is-primary"
+                  v-for="model, k in models"
+                  @click="goToPage('gemsExplorer', model.database_name)" v-html="getModelDescription(model)">
+                </a>
+              </div>
+            </div>
+          </div>
           <div class="navbar-end">
             <template v-for="menuItem, index in menuItems">
-              <template v-if="index === 0">
+              <template v-if="Array.isArray(menuItem)">
                 <div class="navbar-item has-dropdown is-hoverable">
-                  <a class="navbar-link"  @click="goToPage('', selectedModel)">
-                    {{ menuItem }}
-                    &nbsp;<span class="tag is-info is-large">{{ models[selectedModel].short_name }}</span>
+                  <a class="navbar-link" 
+                  :class="{ 'is-active': menuItem[0] === activeDropMenu }"
+                  @click="goToPage(menuItem[0], '', menuItem[0])">
+                    {{ menuItem[0] }}
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item is-primary"
-                      v-for="model, k in models"
-                      @click="goToPage('', model.database_name)" v-html="getModelDescription(model)">
+                    <a class="navbar-item is-primary" 
+                    v-for="submenu, index in menuItem" v-if="index != 0"
+                    @click="goToPage(submenu, '', menuItem[0])">
+                      {{ submenu }}
                     </a>
                   </div>
                 </div>
               </template>
               <template v-else>
-                <template v-if="Array.isArray(menuItem)">
-                  <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link" @click="goToPage(menuItem[0])">
-                      {{ menuItem[0] }}
-                    </a>
-                    <div class="navbar-dropdown">
-                      <a class="navbar-item is-primary" 
-                      v-for="submenu, index in menuItem" v-if="index != 0"
-                      @click="goToPage(menuItem[index])">
-                        {{ menuItem[index] }}
-                      </a>
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <a
-                     class="navbar-item"
-                     :class="[{ 'is-active': isActive(menuItem) }, '']"
-                     @click="goToPage(menuItem)"
-                  >{{ menuItem }}</a>
-                </template>
+                <a
+                   class="navbar-item"
+                   :class="{ 'is-active': isActiveRoute(menuItem) }"
+                   @click="goToPage(menuItem, '', '')"
+                >{{ menuItem }}</a>
               </template>
             </template>
           </div>
         </div>
       </div>
     </nav>
-    <section id="extended-section" class="section">
-      <div class="container">
-        <router-view :selectedModel="selectedModel"></router-view>
-      </div>
-    </section>
-    <footer class="footer">
+    <keep-alive>
+      <router-view :selectedModel="selectedModel"></router-view>
+    </keep-alive>
+    <footer id="footer" class="footer">
       <div class="columns">
         <div class="column is-2">
         </div>
@@ -96,7 +101,7 @@
 </template>
 
 <script>
-
+import $ from 'jquery';
 import axios from 'axios';
 import SvgIcon from './components/SvgIcon';
 import MetabolicViewer from './components/MetabolicViewer';
@@ -117,18 +122,18 @@ export default {
       models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
       menuItems: [
         this.$t('navBut1Title'),
-        this.$t('navBut2Title'),
-        [this.$t('navBut3Title'),
-          this.$t('navBut31Title'),
-          this.$t('navBut32Title'),
-          this.$t('navBut33Title'),
+        [this.$t('navBut2Title'),
+          this.$t('navBut21Title'),
+          this.$t('navBut22Title'),
+          this.$t('navBut23Title'),
         ],
+        this.$t('navBut3Title'),
         this.$t('navBut4Title'),
-        this.$t('navBut5Title'),
-        this.$t('navBut6Title'),
       ],
-      isMetabolicViewer: false,
+      showMetabolicViewer: true,
+      showGemsExplorer: false,
       selectedModel: 'hmr2',
+      activeDropMenu: '',
     };
   },
   beforeMount() {
@@ -144,21 +149,33 @@ export default {
       .catch(() => {
         this.errorMessage = this.$t('unknownError');
       });
+
+    $('body').on('click', 'td m', function f() {
+      if (!($(this).hasClass('cms'))) {
+        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
+      }
+    });
   },
   created() {
     EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
-      this.isMetabolicViewer = true;
+      this.showMetabolicViewer = true;
       console.log(`requestViewer ${type}, ${name}, ${secondaryName}, ${ids}`);
       EventBus.$emit('showAction', type, name, secondaryName, ids);
     });
-    EventBus.$on('toggleNetworkGraph', () => {
-      this.isMetabolicViewer = !this.isMetabolicViewer;
+    EventBus.$on('showMetabolicViewer', () => {
+      this.showMetabolicViewer = true;
+      this.showGemsExplorer = false;
+      this.goToPage('metabolicViewer', this.selectedModel, '');
     });
-    document.body.addEventListener('keyup', (e) => {
-      if (e.keyCode === 27) {
-        this.isMetabolicViewer = false;
-      }
+    EventBus.$on('showGemsExplorer', () => {
+      this.showMetabolicViewer = false;
+      this.showGemsExplorer = true;
     });
+    // document.body.addEventListener('keyup', (e) => {
+    //   if (e.keyCode === 27) {
+    //     this.showMetabolicViewer = false;
+    //   }
+    // });
   },
   methods: {
     getModelDescription(model) {
@@ -169,14 +186,18 @@ export default {
         <br>${model.enzyme_count} enzymes
       </div>`;
     },
-    goToPage(name, model) {
+    goToPage(name, model, activeMenu) {
       // TODO: make this not hard-coded
+      this.activeDropMenu = activeMenu;
+      if (name.toLowerCase() === 'gemsexplorer') {
+        this.showGemsExplorer = true;
+        this.showMetabolicViewer = false;
+      } else if (name.toLowerCase() === 'metabolicviewer') {
+        this.showGemsExplorer = false;
+        this.showMetabolicViewer = true;
+      }
       if (model) {
-        router.push(
-          {
-            path: `/GemsExplorer/${model}`,
-          },
-        );
+        router.push({ path: `/${name}/${model}` });
       } else if (['tools', 'external databases', 'api'].includes(name.toLowerCase())) {
         if (name.toLowerCase() === 'external databases') {
           name = 'databases'; // eslint-disable-line no-param-reassign
@@ -186,7 +207,7 @@ export default {
         router.push(`/${name}`);
       }
     },
-    isActive(name) {
+    isActiveRoute(name) {
       if (this.$route.name) {
         if (Array.isArray(name)) {
           return name[0].toLowerCase() === this.$route.name.toLowerCase();
@@ -207,10 +228,11 @@ export default {
 
 <style lang='scss'>
 
-$primary: #095915;
-$link: #3498db;
+$primary: #4E755A;
+$link: #006992;
 $warning: #FFC67D;
 $danger: #FF865C;
+$info: #006992;
 
 $body-size: 14px !default
 
@@ -222,7 +244,6 @@ $switch-background: $primary;
 
 /* @import "./sass/extensions/_all" FIX ME */
 @import '~bulma';
-@import '~bulma-extensions/bulma-accordion/dist/bulma-accordion';
 @import '~bulma-extensions/bulma-switch/dist/bulma-switch';
 @import './styles/mixins';
 
@@ -237,7 +258,7 @@ $switch-background: $primary;
   }
 }
 
-#extended-section {
+.extended-section {
   flex: 1;
 }
 
@@ -248,16 +269,14 @@ $switch-background: $primary;
 }
 
 #metabolicViewer {
-  position: fixed;
-  z-index:100;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
   background: whitesmoke;
   overflow: hidden;
+}
+
+.has-addons {
+  .button {
+    width: 8rem;
+  }
 }
 
 /* FIXME .is-light overwritten somewhere */
@@ -282,16 +301,33 @@ $switch-background: $primary;
   }
 }
 
-.hero.is-fullheight .hero-body {
-  align-items: initial;
-  display: flex;
-}
+#HPARNAexpLegend {
+  margin: auto;
+  border-radius: 0;
+  .title {
+    margin-bottom: 0.3em;
+  }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .3s;
-}
-.fade-enter, .fade-leave-to {
-  opacity: 0;
+  .exp-lvl-legend {
+    list-style: none;
+    li {
+      display: inline-block;
+      margin-left: 7px;
+      line-height: 15px;
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+  }
+
+  span {
+    float: left;
+    margin: 0 2px 2px 2px;
+    width: 15px;
+    height: 15px;
+    display: block;
+    border: 1px solid black;
+  }
 }
 
 </style>

@@ -3,10 +3,26 @@
     <div class="svgbox">
       <div id="svg-wrapper" v-html="svgContent">
       </div>
-      <div id="svgOption">
-        <span class="button" v-on:click="svgfit()">Reset view</span>
-        <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''">+</span>
-        <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''">-</span>
+      <div id="svgOption" class="overlay">
+        <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''"><i class="fa fa-search-plus"></i></span>
+        <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''"><i class="fa fa-search-minus"></i></span>
+        <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
+      </div>
+      <div id="svgSearch" class="overlay">
+        <div><span id="st">Search:</span></div>
+        <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
+          <input id="searchInput" class="input"
+          type="text" 
+          :class="searchInputClass"
+          v-model.trim="searchTerm"
+          v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"/>
+        </div>
+        <div v-show="searchTerm && totalSearchMatch">
+          <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
+          <span class="button has-text-dark" @click="searchPrevElementOnSVG"><i class="fa fa-angle-left"></i></span>
+          <span class="button has-text-dark" @click="searchNextElementOnSVG"><i class="fa fa-angle-right"></i></span>
+          <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
+        </div>
       </div>
     </div>
   </div>
@@ -18,24 +34,43 @@ import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
-import { getCompartmentFromName } from '../../helpers/compartment';
+import { getCompartmentFromName, getSubsystemFromName } from '../../helpers/compartment';
 import { default as EventBus } from '../../event-bus';
+import { getExpressionColor } from '../../expression-sources/hpa';
 
 export default {
   name: 'svgmap',
+  props: ['model'],
   components: {
     Loader,
   },
   data() {
     return {
       errorMessage: '',
-      loadedCompartment: null,
+      loadedMap: null,
+      loadedMapType: null,
+      loadedMapHistory: {},
       svgContent: null,
+      svgContentHistory: {},
       svgName: '',
       svgBigMapName: 'whole_metabolic_network_without_details',
       panZoom: null,
+
       ids: [],
-      HLelms: [],
+      elmFound: [],
+      elmsHL: [],
+      selectedItemHistory: {},
+
+      HPARNAlevelsHistory: {},
+      enzymeRNAlevels: {}, // enz id as key, current tissue level as value
+
+      searchTerm: '',
+      searchInputClass: '',
+      isLoadingSearch: false,
+
+      currentSearchMatch: 0,
+      totalSearchMatch: 0,
+
       HLonly: false,
       zoomBox: {
         minX: 99999,
@@ -48,68 +83,79 @@ export default {
         w: 0,
       },
       allowZoom: true,
+      dragging: false,
     };
   },
+  computed: {
+    searchResultCountText() {
+      return `${this.currentSearchMatch}/${this.totalSearchMatch}`;
+    },
+  },
+  watch: {
+    searchTerm() {
+      if (!this.searchTerm) {
+        this.unHighlight();
+        this.totalSearchMatch = 0;
+        this.searchInputClass = 'is-info';
+      }
+    },
+  },
   created() {
-    EventBus.$on('showSVGmap', (type, name, ids) => {
-      console.log('show svg map');
-      console.log(`emit ${type} ${name} ${ids}`);
+    EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
+      console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
+      if (forceReload) {
+        this.svgName = '';
+      }
+      // set the type, even if might fail to load the map?
+      this.loadedMapType = type;
       if (type === 'compartment') {
         this.HLonly = false;
-        this.showCompartment(name);
+        this.showMap(name);
       } else if (type === 'subsystem') {
         this.HLonly = false;
         this.showTiles(name, ids);
-      } else if (type === 'tiles') {
-        this.HLonly = false;
-        this.showTiles(name, ids);
-      } else if (type === 'highlight') {
-        this.HLonly = true;
-        this.hlElements(null, ids);
       } else if (type === 'find') {
         this.HLonly = false;
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
-        const compartment = getCompartmentFromName('wholemap');
-        this.loadSVG(compartment, null);
+        this.loadSVG('wholemap', null);
       }
+    });
+
+    EventBus.$on('loadHPARNAlevels', (tissue) => {
+      this.loadHPAlevelsOnMap(tissue);
     });
   },
   mounted() {
-    // $('#svgbox').attr('width', '100%');
-    // $('#svgbox').attr('height', `${$(window).height() - 300}`);
-
-    // add a white reactange behind the name
-    /*  $('#svg-wrapper').on('mouseover', '.metabolite, .reaction', function f() {
-      const text = $(this)[0].children[1];
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      const SVGRect = $(this)[0].children[1].getBBox();
-      rect.setAttribute('x', SVGRect.x - 2);
-      rect.setAttribute('y', SVGRect.y - 1);
-      rect.setAttribute('width', SVGRect.width + 4);
-      rect.setAttribute('height', SVGRect.height + 2);
-      rect.setAttribute('fill', 'white');
-      $(this)[0].insertBefore(rect, text);
+    const self = this;
+    $('#svg-wrapper').on('mousedown', 'svg', () => {
+      self.isDragging = false;
+    })
+    .on('mousemove', 'svg', () => {
+      self.isDragging = true;
+    })
+    .on('mouseup', 'svg', (e) => {
+      if (!self.isDragging) {
+        const target = $(e.target);
+        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea')) {
+          self.unSelectElement();
+        }
+      }
+      self.isDragging = false;
     });
-    // remove the white rectangle
-    $('#svg-wrapper').on('mouseout', '.metabolite, .reaction', function f() {
-      $(this)[0].removeChild($(this)[0].children[3]);
-    }); */
-    //  enzymes are also .metabolite
-    $('#svg-wrapper').on('click', '.metabolite', function f() {
+    $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
       const id = $(this).attr('id').split('-')[0].trim();
-      // console.log(id);
-      if (id[0] === 'E') {
-        EventBus.$emit('updateSelTab', 'enzyme', id);
-      } else {
-        EventBus.$emit('updateSelTab', 'metabolite', id);
-      }
+      self.selectElement(id, 'metabolite');
     });
-    $('#svg-wrapper').on('click', '.reaction', function f() {
+    $('#svg-wrapper').on('click', '.enz', function f() {
       // exact the real id from the id
+      const id = $(this).attr('id').split('-')[0].trim();
+      self.selectElement(id, 'enzyme');
+    });
+    $('#svg-wrapper').on('click', '.rea', function f() {
       const id = $(this).attr('id');
-      EventBus.$emit('updateSelTab', 'reaction', id);
+      self.selectElement(id, 'reaction');
     });
   },
   methods: {
@@ -125,12 +171,10 @@ export default {
           zoomScaleSensitivity: 0.4,
           fit: true,
           beforeZoom: (oldzl, newzl) => {
-            // console.log(oldzl);
-            // console.log(newzl);
-            if (newzl > this.loadedCompartment.maxZoomLvl + 0.001) {
+            if (newzl > this.loadedMap.maxZoomLvl + 0.001) {
               this.allowZoom = false;
               return false;
-            } else if (newzl < this.loadedCompartment.minZoomLvl - 0.001) {
+            } else if (newzl < this.loadedMap.minZoomLvl - 0.001) {
               this.allowZoom = false;
               return false;
             }
@@ -146,20 +190,15 @@ export default {
           onZoom: (zc) => {
             // console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
             this.zoomLevel = zc;
-            if (zc >= this.loadedCompartment.RenderZoomLvl.metaboliteLabel) {
-              $('.metabolite .lbl, .reaction .lbl').attr('display', 'inline');
+            if (zc >= this.loadedMap.RenderZoomLvl.metaboliteLabel) {
+              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'inline');
             } else {
-              $('.metabolite .lbl, .reaction .lbl').attr('display', 'none');
+              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'none');
             }
-            if (zc >= this.loadedCompartment.RenderZoomLvl['flux-edge']) {
-              $('.flux-edge, .effector-edge').attr('display', 'inline');
+            if (zc >= this.loadedMap.RenderZoomLvl.metabolite) {
+              $('.met, .rea, .enz, .fe, .ee').attr('display', 'inline');
             } else {
-              $('.flux-edge, .effector-edge').attr('display', 'none');
-            }
-            if (zc >= this.loadedCompartment.RenderZoomLvl.metabolite) {
-              $('.metabolite, .reaction').attr('display', 'inline');
-            } else {
-              $('.metabolite, .reaction').attr('display', 'none');
+              $('.met, .rea, .enz, .fe, .ee').attr('display', 'none');
             }
           },
         });
@@ -169,19 +208,14 @@ export default {
           // call findElementsOnSVG
           callback();
         } else {
-          this.$emit('loadedComponent', true, '');
+          this.$emit('loadComplete', true, '');
         }
       }, 0);
     },
     svgfit() {
-      // console.log('fit svg');
       $('#svg-wrapper svg').attr('width', '100%');
-      // const h = $('.svgbox').first().css('height');
       const a = $('.svgbox').first().offset().top;
       const vph = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-      // console.log(`h: ${h}`);
-      // console.log(`a: ${a}`);
-      // console.log(`vph: ${vph}`);
       const v = vph - a;
 
       $('#svg-wrapper svg').attr('height', `${v}px`);
@@ -189,83 +223,182 @@ export default {
         this.panZoom.resize(); // update SVG cached size
         this.panZoom.fit();
         this.panZoom.center();
-        // this.showLoader = false;
       }
     },
-    loadSVG(compartment, callback) {
-      // console.log('load svg');
+    loadSVG(id, callback) {
       // load the svg file from the server
-      // if aleady loaded, just call the callback funtion
-      const newSvgName = compartment.svgName;
+      // if already loaded, just call the callback funtion
+      let currentLoad = getCompartmentFromName(id);
+      if (!currentLoad) {
+        currentLoad = getSubsystemFromName(id);
+        if (!currentLoad) {
+          this.loadedMapType = null;
+          this.$emit('loadComplete', false, '');
+          return;
+        }
+      }
+      const newSvgName = currentLoad.svgName;
+      // TODO add the type in url
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
       this.$emit('loading');
       if (!newSvgName) {
         // TODO remove this when all svg files are available
-        this.$emit('loadedComponent', false, 'SVG map not available.');
+        this.$emit('loadComplete', false, 'SVG map not available.');
         return;
       }
 
       if (newSvgName !== this.svgName) {
-        // console.log('new svg');
-        axios.get(svgLink)
-          .then((response) => {
-            // console.log('get the svg');
-            this.svgContent = response.data;
-            this.svgName = newSvgName;
-            this.loadedCompartment = compartment;
-            setTimeout(() => {
-              // this.showLoader = false;
-              this.loadSvgPanZoom(callback);
-            }, 0);
-          })
-          .catch((error) => {
-            // TODO: handle error
-            console.log(error);
-            this.$emit('loadedComponent', false, error);
-          });
+        if (newSvgName in this.loadedMapHistory) {
+          this.svgContent = this.svgContentHistory[newSvgName];
+          this.loadedMap = this.loadedMapHistory[newSvgName];
+          this.svgName = newSvgName;
+          setTimeout(() => {
+            this.loadSvgPanZoom(callback);
+          }, 0);
+        } else {
+          axios.get(svgLink)
+            .then((response) => {
+              this.svgContent = response.data;
+              this.svgName = newSvgName;
+              this.loadedMap = currentLoad;
+              this.svgContentHistory[this.svgName] = response.data;
+              this.loadedMapHistory[this.svgName] = currentLoad;
+              setTimeout(() => {
+                // this.showLoader = false;
+                this.loadSvgPanZoom(callback);
+              }, 0);
+            })
+            .catch((error) => {
+              // TODO: handle error
+              this.$emit('loadComplete', false, error);
+            });
+        }
       } else if (callback) {
-        this.loadedCompartment = compartment;
+        this.loadedMap = currentLoad;
         // call findElementsOnSVG
         callback();
       } else {
-        this.loadedCompartment = compartment;
-        // console.log('finish call svgfit');
+        this.loadedMap = currentLoad;
         this.svgfit();
-        this.$emit('loadedComponent', true, '');
+        this.$emit('loadComplete', true, '');
       }
     },
-    findElementsOnSVG() {
-      console.log('call findElementsOnSVGs');
-      const a = [];
-      if (!this.ids) {
-        this.showLoader = false;
+    loadHPAlevelsOnMap(tissue) {
+      if (this.svgName in this.HPARNAlevelsHistory) {
+        this.readHPARNAlevels(tissue);
         return;
       }
+      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.name}`)
+      .then((response) => {
+        this.HPARNAlevelsHistory[this.svgName] = response.data;
+        setTimeout(() => {
+          this.readHPARNAlevels(tissue);
+        }, 0);
+      })
+      .catch(() => {
+        EventBus.$emit('loadRNAComplete', false, '');
+        return;
+      });
+    },
+    readHPARNAlevels(tissue) {
+      if (tissue === 'None') {
+        $('#svg-wrapper .enz .shape').attr('fill', '#fa0');
+        this.enzymeRNAlevels = {};
+        return;
+      }
+      const index = this.HPARNAlevelsHistory[this.svgName].tissues.indexOf(tissue);
+      if (index === -1) {
+        EventBus.$emit('loadRNAComplete', false, '');
+        return;
+      }
+      const levels = this.HPARNAlevelsHistory[this.svgName].levels;
+      $('#svg-wrapper .enz .shape').attr('fill', 'whitesmoke'); // init to NA
+      for (const array of levels) {
+        const enzID = array[0];
+        let level = Math.log2(parseFloat(array[1].split(',')[index]) + 1);
+        level = Math.round((level + 0.00001) * 100) / 100;
+        this.enzymeRNAlevels[enzID] = level;
+        const classs = `#svg-wrapper .enz.${enzID} .shape`;
+        $(classs).attr('fill', getExpressionColor(level));
+      }
+      // update cached selected elements
+      for (const id of Object.keys(this.selectedItemHistory)) {
+        if (this.enzymeRNAlevels[id]) {
+          this.selectedItemHistory[id].rnaLvl = this.enzymeRNAlevels[id];
+        }
+      }
+      EventBus.$emit('loadRNAComplete', true, '');
+    },
+    searchComponentIDs(term) {
+      // get the correct IDs from the backend
+      if (!this.searchTerm) {
+        this.searchInputClass = 'is-warning';
+        return;
+      }
+      this.isLoadingSearch = true;
+      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.letter}/${term}`)
+      .then((response) => {
+        this.searchInputClass = 'is-success';
+        this.ids = response.data;
+        this.findElementsOnSVG();
+        this.resetZoombox();
+        setTimeout(() => {
+          if (this.elmFound.length !== 0) {
+            this.currentSearchMatch = 1;
+            this.updateZoomBox(this.elmFound[0]);
+          }
+        }, 0);
+      })
+      .catch((error) => {
+        this.isLoadingSearch = false;
+        const status = error.status || error.response.status;
+        if (status !== 404) {
+          this.$emit('loadComplete', false, 'An error occurred. Please try again later.');
+          this.searchInputClass = 'is-info';
+        } else {
+          this.searchInputClass = 'is-danger';
+        }
+        return;
+      });
+    },
+    findElementsOnSVG() {
+      if (!this.ids) {
+        return;
+      }
+      this.elmFound = [];
       for (let i = 0; i < this.ids.length; i += 1) {
         const id = this.ids[i].trim();
-        let idname = `#${id}`;
-        let elm = $(idname);
-        if (elm.length) {
-          a.push(elm);
-        }
-        for (let j = 0; j < 200; j += 1) {
-          idname = `#${id}-${j}`;
-          elm = $(idname);
-          if (elm.length) {
-            // console.log(idname);
-            a.push(elm);
-          } else {
-            // console.log(`${idname} elem not found`);
-            break;
-          }
+        const idname = `#svg-wrapper #${id}, #svg-wrapper .rea.${id}, #svg-wrapper .met.${id}, #svg-wrapper .enz.${id}`;
+        const elms = $(idname);
+        this.totalSearchMatch = elms.length;
+        this.currentSearchMatch = 0;
+        for (let j = 0; j < elms.length; j += 1) {
+          this.elmFound.push(elms[j]);
         }
       }
-      if (a.length) {
-        this.highlightSVGelements(a);
-      } else {
-        // this.showLoader = false;
-        this.$emit('loadedComponent', true, '');
+      this.isLoadingSearch = false;
+    },
+    searchNextElementOnSVG() {
+      if (this.totalSearchMatch <= 1) {
+        return;
       }
+      this.currentSearchMatch += 1;
+      if (this.currentSearchMatch > this.totalSearchMatch) {
+        this.currentSearchMatch = 1;
+      }
+      this.resetZoombox();
+      this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
+    },
+    searchPrevElementOnSVG() {
+      if (this.totalSearchMatch <= 1) {
+        return;
+      }
+      this.currentSearchMatch -= 1;
+      if (this.currentSearchMatch < 1) {
+        this.currentSearchMatch = this.totalSearchMatch;
+      }
+      this.resetZoombox();
+      this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
     },
     updateZoomBoxCoor(coordinate) {
       this.zoomBox.minX = coordinate.minX;
@@ -274,10 +407,19 @@ export default {
       this.zoomBox.maxY = coordinate.maxY;
     },
     updateZoomBox(el) {
-      const x = el.getBBox().x;
-      const y = el.getBBox().y;
-      const w = el.getBBox().width;
-      const h = el.getBBox().height;
+      /* eslint-disable no-param-reassign */
+      const s = $(el).find('.shape')[0];
+      let t = this.getTransform(el);
+      if (!t) {
+        t = this.getTransform(s);
+      }
+      const x = t[4];
+      const y = t[5];
+      const oldDisplay = el.style.display;
+      el.style.display = 'block';
+      const w = s.getBBox().width;
+      const h = s.getBBox().height;
+      el.style.display = oldDisplay;
       if (x < this.zoomBox.minX) {
         this.zoomBox.minX = x;
       }
@@ -290,9 +432,9 @@ export default {
       if (y + h > this.zoomBox.maxY) {
         this.zoomBox.maxY = y + h;
       }
-
       this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
       this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
+      this.zoomOnBox();
     },
     resetZoombox() {
       this.zoomBox = {
@@ -313,36 +455,33 @@ export default {
       this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
     },
     getTransform(el) {
-      // read and parse the transform attribut, no used anymore
-      let transform = el.attr('transform');
-      transform = transform.substring(0, transform.length - 1);
-      transform = transform.substring(7, transform.length);
-      return transform.split(',').map(parseFloat);
+      // read and parse the transform attribut
+      let transform = el.getAttribute('transform');
+      if (transform) {
+        transform = transform.substring(0, transform.length - 1);
+        transform = transform.substring(7, transform.length);
+        return transform.split(',').map(parseFloat);
+      }
+      return null;
     },
-    highlightSVGelements(els) {
+    highlightElementsFound() {
       this.unHighlight();
-      this.resetZoombox();
-      for (const el of els) {
-        const id = el.attr('id');
-        const path = $(`#${id} path`);
-        // change the box color only
-        this.HLelms.push(path);
-        if (!this.HLonly) {
-          path.addClass('hl');
-          this.updateZoomBox(el[0]); // the DOM element
-        } else {
-          path.addClass('hl2');
-          el.attr('display', 'inline');
-        }
-      }
-      if (!this.HLonly) {
-        this.zoomOnTiles();
-      } else {
-        this.$emit('loadedComponent', true, '');
+      this.elmHL = [];
+      for (const el of this.elmFound) {
+        $(el).addClass('hl');
+        this.elmHL.push(el);
       }
     },
-    zoomOnTiles() {
-      console.log('zoom tiles');
+    unHighlight() {
+      if (this.elmHL) {
+        // un-highlight elements
+        for (let i = 0; i < this.elmHL.length; i += 1) {
+          $(this.elmHL[i]).removeClass('hl');
+        }
+        this.elmHL = [];
+      }
+    },
+    zoomOnBox() {
       this.getCenterZoombox();
       const realZoom = this.panZoom.getSizes().realZoom;
       this.panZoom.pan({
@@ -351,59 +490,47 @@ export default {
       });
       const viewBox = this.panZoom.getSizes().viewBox;
       let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
-      // console.log(`newScale ${newScale}`);
-      if (newScale > this.loadedCompartment.maxZoomLvl) {
+      if (newScale > this.loadedMap.maxZoomLvl) {
         // fix zoom round e.g. 30 => 30.00001235
-        newScale = this.loadedCompartment.maxZoomLvl - 0.01;
+        newScale = this.loadedMap.maxZoomLvl - 0.01;
       }
-      console.log('zoom at');
-      console.log(newScale);
       this.panZoom.zoom(newScale);
-      this.$emit('loadedComponent', true, '');
     },
-    unHighlight() {
-      if (this.HLelms) {
-        // un-highlight elements
-        for (let i = 0; i < this.HLelms.length; i += 1) {
-          this.HLelms[i].removeClass('hl');
-          this.HLelms[i].removeClass('hl2');
-        }
-        this.HLelms = [];
+    showMap(id) {
+      if (id) {
+        // const compartment = getCompartmentFromName(compartmentName);
+        this.loadSVG(id, null);
       }
     },
-    hlElements(compartmentName, ids) {
-      if (compartmentName) {
-        const compartment = getCompartmentFromName(compartmentName);
-        this.ids = ids;
-        if (compartment) {
-          this.loadSVG(compartment, this.findElementsOnSVG);
-        }
-      } else {
-        this.unHighlight();
-        this.ids = ids;
-        if (ids) {
-          this.findElementsOnSVG();
-        }
+    selectElement(id, type) {
+      if (this.selectedItemHistory[id]) {
+        EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
+        return;
       }
-    },
-    showTiles(compartmentName, coordinate) {
-      if (compartmentName) {
-        const compartment = getCompartmentFromName(compartmentName);
-        if (compartment) {
-          this.updateZoomBoxCoor(coordinate);
-          this.loadSVG(compartment, this.zoomOnTiles);
+      EventBus.$emit('startSelectedElement');
+      axios.get(`${this.model}/${type}s/${id}`)
+      .then((response) => {
+        let data = response.data;
+        if (type === 'reaction') {
+          data = data.reaction;
+        } else if (type === 'enzyme') {
+          // add the RNA level if any
+          if (id in this.enzymeRNAlevels) {
+            data.rnaLvl = this.enzymeRNAlevels[id];
+          }
         }
-      }
+        data.type = type;
+        EventBus.$emit('updatePanelSelectionData', data);
+        this.selectedItemHistory[id] = data;
+        EventBus.$emit('endSelectedElement', true);
+      })
+      .catch(() => {
+        EventBus.$emit('endSelectedElement', false);
+      });
     },
-    showCompartment(compartmentName) {
-      if (compartmentName) {
-        const compartment = getCompartmentFromName(compartmentName);
-        if (compartment) {
-          this.loadSVG(compartment, null);
-        }
-      }
+    unSelectElement() {
+      EventBus.$emit('unSelectedElement');
     },
-    getCompartmentFromName,
   },
 };
 </script>
@@ -416,18 +543,18 @@ export default {
     }
   }
 
-  .metabolite, .reaction {
+  .met, .rea, .enz {
     .shape, .lbl {
       cursor: pointer;
     }
-
     &:hover {
       .shape {
         fill: red;
+        stroke-width: 3px;
       }
       .lbl {
         font-weight: 900;
-        text-shadow: 0 0 3px gray;
+        text-shadow: 0 0 2px white;
       }
     }
   }
@@ -439,25 +566,61 @@ export default {
     height:100%;
   }
 
+  .overlay {
+    position: absolute;
+    z-index: 10;
+    padding: 15px;
+    border-radius: 5px;
+    background: rgba(22, 22, 22, 0.8);
+  }
+
   #svgOption {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    height: 30px;
-    z-index: 10;
-
-    span {
+    top: 1.5rem;
+    left: 1.5rem;
+    span:not(:last-child) {
       display: inline-block;
       margin-right: 5px;
     }
   }
 
-  svg .hl {
-    fill: #22FFFF;
+  #svgSearch {
+    top: 1.5rem;
+    left: 25%;
+    margin: 0;
+    padding: 15px;
+    div {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    #st {
+      display: inline-block;
+      margin-right: 5px;
+    }
+    span:first-child {
+      color: white;
+    }
+    #searchInput {
+      display: inline-block;
+      margin-right: 5px;
+      width: 30vw;
+    }
+    #searchResCount {
+      input {
+        width: 60px;
+        text-align: center;
+      }
+    }
   }
 
-  svg .hl2 {
-    fill: red;
+  svg .hl {
+    display: inline;
+    .shape {
+      fill: red;
+      stroke: orange;
+      stroke-width: 3;
+      display: inline;
+    }
   }
 
 </style>

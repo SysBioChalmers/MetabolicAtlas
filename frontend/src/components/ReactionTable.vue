@@ -1,13 +1,13 @@
 <template>
   <div class="container reaction-table">
     <div class="field">
-      <span class="tag">
+      <span class="tag is-medium">
         # Reaction(s): {{ reactions.length }}
       </span>
-      <span class="tag" v-if="transportReactionCount === 0">
+      <span class="tag is-medium" v-if="transportReactionCount === 0">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
-      <span class="tag link" v-else @click="sortBy('compartment', '=>', 'desc')">
+      <span class="tag link is-medium" v-else @click="sortBy('compartment', '=>', 'desc')">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
       <span v-show="reactions.length==200" class="tag is-danger is-pulled-right">
@@ -50,7 +50,7 @@ import $ from 'jquery';
 import { default as EventBus } from '../event-bus';
 import { default as compare } from '../helpers/compare';
 import { chemicalReaction } from '../helpers/chemical-formatters';
-import { reformatChemicalReaction } from '../helpers/compartment';
+import { reformatChemicalReactionLink } from '../helpers/compartment';
 
 export default {
   name: 'reaction-table',
@@ -117,23 +117,15 @@ export default {
     },
   },
   methods: {
-    formatChemicalReaction(v, r) {
-      return chemicalReaction(v, r);
-    },
-    reformatChemicalReactionHTML(r) {
-      return reformatChemicalReaction(r);
-    },
+    formatChemicalReaction(v, r) { return chemicalReaction(v, r); },
+    reformatChemicalReactionHTML(r) { return reformatChemicalReactionLink(r); },
     viewEnzyneReactions(modifier) {
       if (modifier) {
         EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
       }
     },
-    viewReaction(id) {
-      EventBus.$emit('updateSelTab', 'reaction', id);
-    },
-    viewSubsystem(id) {
-      EventBus.$emit('updateSelTab', 'subsystem', id);
-    },
+    viewReaction(id) { EventBus.$emit('updateSelTab', 'reaction', id); },
+    viewSubsystem(id) { EventBus.$emit('updateSelTab', 'subsystem', id); },
     sortBy(field, pattern, order) {
       const reactions = Array.prototype.slice.call(
       this.sortedReactions); // Do not mutate original elms;
@@ -154,19 +146,12 @@ export default {
       return true;
     },
   },
-  beforeMount() {
-    $('body').on('click', 'td m', function f() {
-      if ($(this).attr('class') !== this.selectedElmId) {
-        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
-      }
-    });
-  },
   updated() {
     if (this.selectedElmId) {
       // when the table is from the selectedElmId page (metabolite)
       // do not color the selectedElmId is the reaction equations
       $('m').css('color', '');
-      $(`.${this.selectedElmId}`).css('color', 'rgb(54, 54, 54)');
+      $(`.${this.selectedElmId}`).addClass('cms');
     }
   },
 };
@@ -179,6 +164,10 @@ export default {
 
   m {
     color: #3498db;
+    &.cms {
+      color: rgb(54, 54, 54);
+      cursor: default;
+    }
   }
 
   th, m, span.sc, .tag.link {

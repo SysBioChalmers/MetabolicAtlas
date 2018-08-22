@@ -22,7 +22,7 @@
           <template v-for="v, k in results">
             <tr class="m-tr" @click="selectedRow=k">
               <td>{{ k }}</td>
-              <td>{{ v.length }} 
+              <td>{{ v.length }}
                 <span class="tag" @click="zoomOnElements(k, v)">View</span>
               </td>
             </tr>

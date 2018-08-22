@@ -1,108 +1,112 @@
 <template>
-   <div v-if="errorMessage">
-    {{ errorMessage }}
-   </div>
-  <div v-else id="models">
-    <span class="title">Genome-Scale Metabolic Models</span>
-    <br>
+  <section class="section extended-section">
     <div class="container">
-      <loader v-show="showLoader"></loader>
-      <div v-if="sortedGEMS.length != 0">
-        <div class="columns">
-          <div class="column">
-            <span id="show-m-but" class="button is-light" :class="{'is-active': showMaintained }"
-              @click="toggleMaintainedModels">
-              Maintained only
-            </span>
-            <span id="show-m-but" class="button is-pulled-right" :class="{'is-active': showFTPaccess }"
-              @click="showFTPaccess = !showFTPaccess">
-              FTP access
-            </span>
+      <div v-if="errorMessage">
+        {{ errorMessage }}
+      </div>
+      <div v-else id="models">
+        <span class="title">Genome-Scale Metabolic Models</span>
+        <br>
+        <div class="container">
+          <loader v-show="showLoader"></loader>
+          <div v-if="sortedGEMS.length != 0">
+            <div class="columns">
+              <div class="column">
+                <span id="show-m-but" class="button is-light" :class="{'is-active': showMaintained }"
+                  @click="toggleMaintainedModels">
+                  Maintained only
+                </span>
+                <span id="show-m-but" class="button is-pulled-right" :class="{'is-active': showFTPaccess }"
+                  @click="showFTPaccess = !showFTPaccess">
+                  FTP access
+                </span>
+              </div>
+            </div>
+            <div class="columns" v-if="!showFTPaccess">
+              <div class="column is-full">
+                <table class="table is-bordered is-striped is-narrow is-fullwidth" v-if="filteredOldGEMS.length != 0">
+                  <thead>
+                    <tr style="background: #F8F4F4">
+                      <th v-for="f in fields" v-html="f.display" :width="f.width ? f.width : ''"
+                        @click="sortBy(f.name)">
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="m-row" v-for="gem in filteredOldGEMS"
+                      @click="getModel(gem.id)">
+                      <td v-for="i in fields.length">
+                        {{ gem[fields[i-1].name] }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div v-else>
+              <h4 class="is-4 title">Downloading from a web browser</h4>
+              Model files can be downloaded from <a href="http://ftp.icsb.chalmers.se">ftp.icsb.chalmers.se</a>
+              <br><br>
+              <h4 class="is-4 title">Downloading from a FTP client</h4>
+              Connect to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>)
+              <br><br>
+              host: ftp.icsb.chalmers.se<br>
+              login: (leave it empty)<br>
+              password: (leave it empty)<br>
+              port: 21
+            </div>
+          </div>
+          <div v-else>
+            <span v-if="!showLoader">No models available</span>
           </div>
         </div>
-        <div class="columns" v-if="!showFTPaccess">
-          <div class="column is-full">
-            <table class="table is-bordered is-striped is-narrow is-fullwidth" v-if="filteredOldGEMS.length != 0">
-              <thead>
-                <tr style="background: #F8F4F4">
-                  <th v-for="f in fields" v-html="f.display" :width="f.width ? f.width : ''"
-                    @click="sortBy(f.name)">
-                    </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="m-row" v-for="gem in filteredOldGEMS"
-                  @click="getModel(gem.id)">
-                  <td v-for="i in fields.length">
-                    {{ gem[fields[i-1].name] }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
+          <div class="modal-background" @click="showModelTable = false"></div>
+          <div class="modal-content">
+            <div id="modal-info" class="model-table">
+              <span class="title is is-primary" v-html="buildHeader()"></span>
+              {{ selectedModel.description }}<br><br>
+              <table class="table main-table">
+                <tbody>
+                  <tr v-for="field in model_fields" v-if="selectedModel[field.name]">
+                    <td v-html="field.display" class="td-key has-background-primary has-text-white-bis"></td>
+                    <td v-if="typeof(selectedModel[field.name]) === 'boolean'">
+                      {{ selectedModel[field.name] ? 'yes' : 'No' }}
+                    </td>
+                    <td v-else>
+                      {{ selectedModel[field.name] }}
+                    </td>
+                  </tr>
+                  <tr v-if="selectedModel.ref && selectedModel.ref.length !== 0">
+                    <td class="td-key">Reference</td>
+                    <td v-if="selectedModel.ref[0].link">
+                      <a :href="selectedModel.ref[0].link" target="_blank" v-html="getReferenceLink(selectedModel.ref[0])">
+                      </a>
+                    </td>
+                    <td v-else>
+                        {{ selectedModel.ref.title }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <br>
+              <span class="subtitle">Files</span>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <td v-for="file in selectedModel.files">
+                      <a :href="file.path">{{ file.format }}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+          <button class="modal-close" @click="showModelTable = false"></button>
         </div>
-        <div v-else>
-          <h4 class="is-4 title">Downloading from a web browser</h4>
-          Model files can be downloaded from <a href="http://ftp.icsb.chalmers.se">ftp.icsb.chalmers.se</a>
-          <br><br>
-          <h4 class="is-4 title">Downloading from a FTP client</h4>
-          Connect to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>)
-          <br><br>
-          host: ftp.icsb.chalmers.se<br>
-          login: (leave it empty)<br>
-          password: (leave it empty)<br>
-          port: 21
-        </div>
-      </div>
-      <div v-else>
-        <span v-if="!showLoader">No models available</span>
       </div>
     </div>
-    <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
-      <div class="modal-background" @click="showModelTable = false"></div>
-      <div class="modal-content">
-        <div id="modal-info" class="model-table">
-          <span class="title is is-primary" v-html="buildHeader()"></span>
-          {{ selectedModel.description }}<br><br>
-          <table class="table main-table">
-            <tbody>
-              <tr v-for="field in model_fields" v-if="selectedModel[field.name]">
-                <td v-html="field.display" class="td-key has-background-primary has-text-white-bis"></td>
-                <td v-if="typeof(selectedModel[field.name]) === 'boolean'">
-                  {{ selectedModel[field.name] ? 'yes' : 'No' }}
-                </td>
-                <td v-else>
-                  {{ selectedModel[field.name] }}
-                </td>
-              </tr>
-              <tr v-if="selectedModel.ref && selectedModel.ref.length !== 0">
-                <td class="td-key">Reference</td>
-                <td v-if="selectedModel.ref[0].link">
-                  <a :href="selectedModel.ref[0].link" target="_blank" v-html="getReferenceLink(selectedModel.ref[0])">
-                  </a>
-                </td>
-                <td v-else>
-                    {{ selectedModel.ref.title }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <br>
-          <span class="subtitle">Files</span>
-          <table class="table">
-            <tbody>
-              <tr>
-                <td v-for="file in selectedModel.files">
-                  <a :href="file.path">{{ file.format }}</a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <button class="modal-close" @click="showModelTable = false"></button>
-    </div>
-  </div>
+  </section>
 </template>
 
 

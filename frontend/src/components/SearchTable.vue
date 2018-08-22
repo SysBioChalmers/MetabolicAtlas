@@ -1,166 +1,170 @@
 <template>
-  <div id="search-table">
-    <div class="container columns">
-      <global-search class="is-offset-3"
-      :quickSearch=false
-      :searchTerm=searchTerm
-      @updateResults="updateResults"
-      @searchResults="loading=true">
-      </global-search>
-    </div>
-    <div>
-      <div class="tabs is-boxed is-fullwidth" v-if="showTabType">
-        <ul>
-          <li :disabled="resultsCount[tab] === 0" 
-          :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
-          v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
-            <a>
-              {{ tab | capitalize }} ({{ resultsCount[tab] }})
-            </a>
-          </li>
-        </ul>
-      </div>
-      <loader v-show="loading && searchTerm !== ''"></loader>
-      <div v-show="!loading">
-        <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
-          <good-table
-            :columns="columns['metabolite']"
-            :rows="rows['metabolite']"
-            :lineNumbers="true"
-            :sort-options="{
-              enabled: true,
-              initialSortBy: {field: 'name', type: 'asc'}
-            }"
-            :paginationOptions="{
-              enabled: true,
-              perPage: 50,
-              position: 'both',
-              perPageDropdown: [50, 100, 200],
-              dropdownAllowAll: false,
-              setCurrentPage: 1,
-              nextLabel: 'next',
-              prevLabel: 'prev',
-              rowsPerPageLabel: 'Rows per page',
-              ofLabel: 'of',
-            }"
-            styleClass="vgt-table striped bordered">
-          </good-table>
+  <section class="section extended-section">
+    <div class="container">
+      <div id="search-table">
+        <div class="container columns">
+          <global-search class="is-offset-3"
+          :quickSearch=false
+          :searchTerm=searchTerm
+          @updateResults="updateResults"
+          @searchResults="loading=true">
+          </global-search>
         </div>
-        <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
-          <good-table
-            :columns="columns['enzyme']"
-            :rows="rows['enzyme']"
-            :lineNumbers="true"
-            :sort-options="{
-              enabled: true,
-              initialSortBy: {field: 'name', type: 'asc'}
-            }"
-            :paginationOptions="{
-              enabled: true,
-              perPage: 50,
-              position: 'both',
-              perPageDropdown: [50, 100, 200],
-              dropdownAllowAll: false,
-              setCurrentPage: 1,
-              nextLabel: 'next',
-              prevLabel: 'prev',
-              rowsPerPageLabel: 'Rows per page',
-              ofLabel: 'of',
-            }"
-            styleClass="vgt-table striped bordered">
-          </good-table>
-        </div>
-        <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
-          <good-table
-            :columns="columns['reaction']"
-            :rows="rows['reaction']"
-            :lineNumbers="true"
-            :sort-options="{
-              enabled: true,
-              initialSortBy: {field: 'equation', type: 'asc'}
-            }"
-            :paginationOptions="{
-              enabled: true,
-              perPage: 50,
-              position: 'both',
-              perPageDropdown: [50, 100, 200],
-              dropdownAllowAll: false,
-              setCurrentPage: 1,
-              nextLabel: 'next',
-              prevLabel: 'prev',
-              rowsPerPageLabel: 'Rows per page',
-              ofLabel: 'of',
-            }"
-            styleClass="vgt-table striped bordered">
-          </good-table>
-        </div>
-        <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
-          <good-table
-            :columns="columns['subsystem']"
-            :rows="rows['subsystem']"
-            :lineNumbers="true"
-            :sort-options="{
-              enabled: true,
-              initialSortBy: {field: 'name', type: 'asc'}
-            }"
-            styleClass="vgt-table striped bordered">
-          </good-table>
-        </div>
-        <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
-          <good-table
-            :columns="columns['compartment']"
-            :rows="rows['compartment']"
-            :lineNumbers="true"
-            :sort-options="{
-              enabled: true,
-              initialSortBy: {field: 'name', type: 'asc'}
-            }"
-            styleClass="vgt-table striped bordered">
-          </good-table>
-        </div>
-      </div>
-      <div v-show="!showTabType || searchTerm === ''">
-        <div v-if="searchResults.length === 0" class="column is-4 is-offset-4 has-text-centered notification">
-          {{ $t('searchNoResult') }}
-        </div>
-        <div class="columns">
-          <div class="column is-6 is-offset-3 content">
-            <p>You can search metabolites by:</p>
-            <ul class="menu-list">
-              <li>ID</li>
-              <li>name</li>
-              <li>formula</li>
-              <li>HMDB ID, name</li>
-              <li>KEGG ID</li>
+        <div>
+          <div class="tabs is-boxed is-fullwidth" v-if="showTabType">
+            <ul>
+              <li :disabled="resultsCount[tab] === 0" 
+              :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
+              v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
+                <a>
+                  {{ tab | capitalize }} ({{ resultsCount[tab] }})
+                </a>
+              </li>
             </ul>
-            <p>Enzymes by:</p>
-            <ul class="menu-list">
-              <li>ID</li>
-              <li>name</li>
-              <li>Ensembl ID</li>
-              <li>Uniprot ID, name</li>
-              <li>KEGG ID</li>
-            </ul>
-            <p>Reactions by:</p>
-            <ul class="menu-list">
-              <li>ID</li>
-              <li>equation:</li>
-              <ul class="menu-list">
-                <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
-                <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
-              </ul>
-              <li>EC code</li>
-              <li>SBO ID</li>
-            </ul>
-            <p>Subsystem and compartment by:</p>
-            <ul class="menu-list">
-              <li>name</li>
-            </ul>
+          </div>
+          <loader v-show="loading && searchTerm !== ''"></loader>
+          <div v-show="!loading">
+            <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
+              <good-table
+                :columns="columns['metabolite']"
+                :rows="rows['metabolite']"
+                :lineNumbers="true"
+                :sort-options="{
+                  enabled: true,
+                  initialSortBy: {field: 'name', type: 'asc'}
+                }"
+                :paginationOptions="{
+                  enabled: true,
+                  perPage: 50,
+                  position: 'both',
+                  perPageDropdown: [25, 50, 100, 200],
+                  dropdownAllowAll: false,
+                  setCurrentPage: 1,
+                  nextLabel: 'next',
+                  prevLabel: 'prev',
+                  rowsPerPageLabel: 'Rows per page',
+                  ofLabel: 'of',
+                }"
+                styleClass="vgt-table striped bordered">
+              </good-table>
+            </div>
+            <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
+              <good-table
+                :columns="columns['enzyme']"
+                :rows="rows['enzyme']"
+                :lineNumbers="true"
+                :sort-options="{
+                  enabled: true,
+                  initialSortBy: {field: 'name', type: 'asc'}
+                }"
+                :paginationOptions="{
+                  enabled: true,
+                  perPage: 50,
+                  position: 'both',
+                  perPageDropdown: [25, 50, 100, 200],
+                  dropdownAllowAll: false,
+                  setCurrentPage: 1,
+                  nextLabel: 'next',
+                  prevLabel: 'prev',
+                  rowsPerPageLabel: 'Rows per page',
+                  ofLabel: 'of',
+                }"
+                styleClass="vgt-table striped bordered">
+              </good-table>
+            </div>
+            <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
+              <good-table
+                :columns="columns['reaction']"
+                :rows="rows['reaction']"
+                :lineNumbers="true"
+                :sort-options="{
+                  enabled: true,
+                  initialSortBy: {field: 'equation', type: 'asc'}
+                }"
+                :paginationOptions="{
+                  enabled: true,
+                  perPage: 50,
+                  position: 'both',
+                  perPageDropdown: [10, 25, 50, 100, 200],
+                  dropdownAllowAll: false,
+                  setCurrentPage: 1,
+                  nextLabel: 'next',
+                  prevLabel: 'prev',
+                  rowsPerPageLabel: 'Rows per page',
+                  ofLabel: 'of',
+                }"
+                styleClass="vgt-table striped bordered">
+              </good-table>
+            </div>
+            <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
+              <good-table
+                :columns="columns['subsystem']"
+                :rows="rows['subsystem']"
+                :lineNumbers="true"
+                :sort-options="{
+                  enabled: true,
+                  initialSortBy: {field: 'name', type: 'asc'}
+                }"
+                styleClass="vgt-table striped bordered">
+              </good-table>
+            </div>
+            <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
+              <good-table
+                :columns="columns['compartment']"
+                :rows="rows['compartment']"
+                :lineNumbers="true"
+                :sort-options="{
+                  enabled: true,
+                  initialSortBy: {field: 'name', type: 'asc'}
+                }"
+                styleClass="vgt-table striped bordered">
+              </good-table>
+            </div>
+          </div>
+          <div v-show="!showTabType || searchTerm === ''">
+            <div v-if="searchResults.length === 0" class="column is-4 is-offset-4 has-text-centered notification">
+              {{ $t('searchNoResult') }}
+            </div>
+            <div class="columns">
+              <div class="column is-6 is-offset-3 content">
+                <p>You can search metabolites by:</p>
+                <ul class="menu-list">
+                  <li>ID</li>
+                  <li>name</li>
+                  <li>formula</li>
+                  <li>HMDB ID, name</li>
+                  <li>KEGG ID</li>
+                </ul>
+                <p>Enzymes by:</p>
+                <ul class="menu-list">
+                  <li>ID</li>
+                  <li>name</li>
+                  <li>Ensembl ID</li>
+                  <li>Uniprot ID, name</li>
+                  <li>KEGG ID</li>
+                </ul>
+                <p>Reactions by:</p>
+                <ul class="menu-list">
+                  <li>ID</li>
+                  <li>equation:</li>
+                  <ul class="menu-list">
+                    <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
+                    <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
+                  </ul>
+                  <li>EC code</li>
+                  <li>SBO ID</li>
+                </ul>
+                <p>Subsystem and compartment by:</p>
+                <ul class="menu-list">
+                  <li>name</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>

@@ -32,7 +32,7 @@
               <div v-if="!this.showFullMetabolite && this.metabolites.length > this.limitMetabolite">
                 <br>
                 <button class="is-small button" @click="showFullMetabolite=true">
-                  ... and {{ this.metabolites.length - 40}} more
+                  ... and {{ this.metabolites.length - this.limitMetabolite}} more
                 </button>
               </div>
             </td>
@@ -44,7 +44,7 @@
               <div v-if="!this.showFullEnzyme && this.enzymes.length > this.limitEnzyme">
                 <br>
                 <button class="is-small button" @click="showFullEnzyme=true">
-                  ... and {{ this.enzymes.length - 40}} more
+                  ... and {{ this.enzymes.length - this.limitEnzyme}} more
                 </button>
               </div>
             </td>
@@ -72,6 +72,7 @@ import $ from 'jquery';
 import Loader from 'components/Loader';
 import ReactionTable from 'components/ReactionTable';
 import { default as EventBus } from '../event-bus';
+import { reformatTableKey } from '../helpers/utils';
 
 export default {
   name: 'subsystem',
@@ -156,12 +157,7 @@ export default {
         this.errorMessage = this.$t('notFoundError');
       });
     },
-    getMetabolite() {
-      return this.metabolites;
-    },
-    reformatKey(k) {
-      return `${k[0].toUpperCase()}${k.slice(1).replace('_', ' ')}`;
-    },
+    reformatKey(k) { return reformatTableKey(k); },
   },
   beforeMount() {
     $('body').on('click', 'span .rcm', function f() {
