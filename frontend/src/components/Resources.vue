@@ -131,18 +131,6 @@
       <h2 id="additional" class="title is-2">Additional resources</h2>
       <div class="columns">
         <div class="column is-1">
-          <a href="hreed">Hreed</a>
-        </div>
-        <div class="column">
-          <span>
-            Hreed (Human REaction Entities Database) facilitates an access
-            to the Hreed reaction data, which can be easily retrieved by
-            using specific keywords or names of related genes, proteins, compounds and cross-references.
-          </span>
-        </div>
-      </div>
-      <div class="columns">
-        <div class="column is-1">
           <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
         </div>
         <div class="column">
