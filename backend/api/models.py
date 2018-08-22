@@ -112,8 +112,8 @@ class GEM(models.Model):
             related_name='publication',
             db_column='publication',
             on_delete=models.SET_NULL, null=True)
-    ensembl_version = models.CharField(max_length=50, null=True)  # TODO remove
-    ensembl_archive_url = models.CharField(max_length=50, null=True)  # TODO remove
+    ensembl_version = models.CharField(max_length=50, null=True)
+    ensembl_archive_url = models.CharField(max_length=50, null=True)
     authors = models.ManyToManyField(Author, related_name='authors', through='GEMAuthor')
     model = models.OneToOneField(
             'GEModel',
@@ -211,35 +211,6 @@ class ReactionComponent(models.Model):
         super(models.Model, self).__init__(self, *args, **kwargs)
         self.gene_name2 = self.name'''
 
-
-class Compartment(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    letter_code = models.CharField(max_length=3, unique=True)
-    reaction_count = models.IntegerField(default=0)
-    subsystem_count = models.IntegerField(default=0)
-    metabolite_count = models.IntegerField(default=0)
-    enzyme_count = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        db_table = "compartment"
-
-class CompartmentSvg(models.Model):
-    compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
-    display_name = models.CharField(max_length=50, unique=True)
-    filename = models.CharField(max_length=50)
-    letter_code = models.CharField(max_length=3, unique=True)
-    reaction_count = models.IntegerField(default=0)
-    subsystem_count = models.IntegerField(default=0)
-    metabolite_count = models.IntegerField(default=0)
-    enzyme_count = models.IntegerField(default=0)
-
-    class Meta:
-        db_table = "compartmentsvg"
-
-
 class Metabolite(models.Model):
     rc = models.OneToOneField(
             'ReactionComponent',
@@ -294,7 +265,7 @@ class Subsystem(models.Model):
     external_id = models.CharField(max_length=25, null=True)
     external_link = models.CharField(max_length=255, null=True)
     description = models.CharField(max_length=2000, null=True)
-    compartment = models.ManyToManyField('Compartment', related_name='compartments', through='SubsystemCompartment')
+    compartment = models.ManyToManyField('Compartment', related_name='s_compartments', through='SubsystemCompartment')
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
     unique_metabolite_count = models.IntegerField(default=0)
@@ -305,18 +276,59 @@ class Subsystem(models.Model):
         db_table = "subsystem"
 
 class SubsystemSvg(models.Model):
+    id = models.CharField(max_length=100, primary_key=True)
     subsystem = models.OneToOneField(Subsystem,
         related_name='subsystem', db_column='subsystem', on_delete=models.CASCADE)
+    display_name = models.CharField(max_length=50, unique=True)
+    filename = models.CharField(max_length=50)
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
     unique_metabolite_count = models.IntegerField(default=0)
     enzyme_count = models.IntegerField(default=0)
     compartment_count = models.IntegerField(default=0)
+    min_zoom_level = models.FloatField(default=0)
+    max_zoom_level = models.FloatField(default=0)
+    node_zoom_level = models.FloatField(default=0)
+    label_zoom_level = models.FloatField(default=0)
 
     class Meta:
         db_table = "subsystemsvg"
 
+class Compartment(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    letter_code = models.CharField(max_length=3, unique=True)
+    subsystem = models.ManyToManyField('Subsystem', related_name='c_subsystems', through='SubsystemCompartment')
+    reaction_count = models.IntegerField(default=0)
+    subsystem_count = models.IntegerField(default=0)
+    metabolite_count = models.IntegerField(default=0)
+    unique_metabolite_count = models.IntegerField(default=0)  # = metabolite_count
+    enzyme_count = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = "compartment"
+
+class CompartmentSvg(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
+    subsystem = models.ManyToManyField('Subsystem', related_name='csvg_subsystems', through='SubsystemCompartmentSvg')
+    display_name = models.CharField(max_length=50, unique=True)
+    filename = models.CharField(max_length=50)
+    letter_code = models.CharField(max_length=3, unique=True)
+    reaction_count = models.IntegerField(default=0)
+    subsystem_count = models.IntegerField(default=0)
+    metabolite_count = models.IntegerField(default=0)
+    unique_metabolite_count = models.IntegerField(default=0)
+    enzyme_count = models.IntegerField(default=0)
+    min_zoom_level = models.FloatField(default=0)
+    max_zoom_level = models.FloatField(default=0)
+    node_zoom_level = models.FloatField(default=0)
+    label_zoom_level = models.FloatField(default=0)
+
+    class Meta:
+        db_table = "compartmentsvg"
 
 class NumberOfInteractionPartners(models.Model):
     rc = models.ForeignKey('ReactionComponent', db_column='rc', on_delete=models.CASCADE)
@@ -412,10 +424,9 @@ class SubsystemEnzyme(models.Model):
         db_table = "subsystem_enzyme"
         unique_together = (('rc', 'subsystem'),)
 
-# relation subsystem / compartment in SVGs can be found in TilesSubsystems
 class SubsystemCompartment(models.Model):
-    subsystem = models.ForeignKey('subsystem', on_delete=models.CASCADE)
-    compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
+    compartment = models.ForeignKey(Compartment, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "subsystem_compartment"
@@ -452,29 +463,31 @@ class ReactionComponentCompartmentSvg(models.Model):
         db_table = "rc_compartmentsvg"
         unique_together = (('rc', 'compartmentsvg'),)
 
-#
-# From tiles db
-#
-
-class TileSubsystem(models.Model):
-    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
-    subsystem_name = models.CharField(max_length=200)
-    compartmentsvg = models.ForeignKey(CompartmentSvg, on_delete=models.CASCADE)
-    compartment_name = models.CharField(max_length=125)
-    x_top_left = models.IntegerField()
-    y_top_left = models.IntegerField()
-    x_bottom_right = models.IntegerField()
-    y_bottom_right = models.IntegerField()
-    reaction_count = models.IntegerField()
-    is_main = models.BooleanField(default=False)
+class ReactionSubsystemSvg(models.Model):
+    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
+    subsystemsvg = models.ForeignKey(SubsystemSvg, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "tile_subsystems"
-        unique_together = (('subsystem', 'compartment_name'),)
+        db_table = "reaction_subsystemsvg"
+        unique_together = (('reaction', 'subsystemsvg'),)
 
+# corresponds to SubsystemEnzyme ans SubsystemMetabolite for subsystem in the model
+class ReactionComponentSubsystemSvg(models.Model):
+    rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    subsystemsvg = models.ForeignKey(SubsystemSvg, on_delete=models.CASCADE)
 
-#create table tile_subsystems(id bigserial primary key, subsystem_id integer not null, subsystem_name varchar(200), compartment_name varchar(125), x_top_left integer, y_top_left integer, x_bottom_right integer, y_bottom_right integer, reaction_count integer, is_main boolean);
-#insert into tile_subsystems values(4, 38, 'Tricarboxylic acid cycle and glyoxylate/dicarboxylate metabolism', 'm', 12800, 4600, 16800, 9000);
+    class Meta:
+        db_table = "rc_subsystemsvg"
+        unique_together = (('rc', 'subsystemsvg'),)
+
+# relation subsystem / compartment in SVGs was previously found in TilesSubsystems
+class SubsystemCompartmentSvg(models.Model):
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
+    compartmentsvg = models.ForeignKey(CompartmentSvg, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subsystem_compartmentsvg"
+        unique_together = (('subsystem', 'compartmentsvg'),)
 
 ##########################################################################################################################
 ##########################################################################################################################

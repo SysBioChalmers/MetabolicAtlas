@@ -160,22 +160,12 @@ class MetaboliteReactionSerializer(serializers.Serializer):
         ss_ids = SubsystemReaction.objects.using(self.context.get('model')).filter(reaction=model.reaction_id).values_list('subsystem')
         return Subsystem.objects.using(self.context.get('model')).filter(id__in=ss_ids).values_list('name')
 
+
 class ConnectedMetabolitesSerializer(serializers.Serializer):
     enzyme = APIrcSerializer.ReactionComponentSerializer(read_only=True)
     compartment = serializers.CharField()
     reactions = MetaboliteReactionSerializer(many=True)
 
-
-class SubsystemSerializer(serializers.ModelSerializer):
-    compartment = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='name',
-     )
-
-    class Meta:
-        model = APImodels.Subsystem
-        fields = ('name', 'system', 'external_id', 'external_link', 'description', 'compartment', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
 
 class HmrSubsystemSerializer(serializers.ModelSerializer):
     compartment = serializers.SlugRelatedField(
@@ -188,6 +178,7 @@ class HmrSubsystemSerializer(serializers.ModelSerializer):
         model = APImodels.Subsystem
         fields = ('name', 'system', 'compartment', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
 
+
 class CompartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.Compartment
@@ -196,9 +187,36 @@ class CompartmentSerializer(serializers.ModelSerializer):
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
     compartment = serializers.SlugRelatedField(slug_field='name', queryset=APImodels.Compartment.objects.all())
+    subsystem = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+     )
     class Meta:
         model = APImodels.CompartmentSvg
-        fields = ('compartment', 'display_name', 'filename', 'letter_code', 'metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count')
+        fields = ('id', 'compartment', 'display_name', 'filename', 'letter_code', 'metabolite_count', 'enzyme_count', 'reaction_count',
+         'subsystem_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level')
+
+
+class SubsystemSerializer(serializers.ModelSerializer):
+    compartment = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+     )
+
+    class Meta:
+        model = APImodels.Subsystem
+        fields = ('name', 'system', 'external_id', 'external_link', 'description', 'compartment',
+         'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
+
+
+class SubsystemSvgSerializer(serializers.ModelSerializer):
+    subsystem = serializers.SlugRelatedField(slug_field='name', queryset=APImodels.Compartment.objects.all())
+    class Meta:
+        model = APImodels.SubsystemSvg
+        fields = ('id', 'subsystem', 'display_name', 'filename', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 
+            'reaction_count', 'compartment_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level')
 
 # =======================================================================================
 # models database
@@ -301,11 +319,3 @@ class GEMSerializer(serializers.ModelSerializer):
         model = APImodels.GEM
         fields = ('id', 'short_name', 'name', 'database_name', 'authors', 'model')
 
-
-# =======================================================================================
-# tile database
-
-class TileSubsystemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = APImodels.TileSubsystem
-        fields = ('subsystem_id', 'subsystem_name', 'compartment_name', 'compartmentsvg_id', 'x_top_left', 'y_top_left', 'x_bottom_right', 'y_bottom_right',)
