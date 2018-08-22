@@ -8,7 +8,6 @@ import Help from 'components/Help';
 import SearchTable from 'components/SearchTable';
 import Models from 'components/Models';
 import CompareModels from 'components/CompareModels';
-import Hreed from 'components/Hreed';
 
 Vue.use(VueRouter);
 
@@ -24,7 +23,6 @@ const routes = [
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Help },
   { path: '/contact', name: 'contact', component: Contact },
-  { path: '/hreed', name: 'hreed', component: Hreed },
   { path: '/*', name: 'GemsExplorerDefault', component: GemsExplorer },
 ];
 
