@@ -231,7 +231,7 @@ export default {
 $primary: #4E755A;
 $link: #006992;
 $warning: #FFC67D;
-$danger: #FF865C;
+$danger: #FF4D4D;
 $info: #006992;
 
 $body-size: 14px !default

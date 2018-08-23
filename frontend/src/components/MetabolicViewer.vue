@@ -145,18 +145,19 @@
         <div id="iLoader" class="loading" v-show="showLoader">
           <a class="button is-loading"></a>
         </div>
+        <transition name="slide-fade">
+          <article id="errorBar" class="message is-danger" v-if="errorMessage">
+            <div class="message-header">
+              <i class="fa fa-warning"></i>
+            </div>
+            <div class="message-body">
+              <h5 class="title is-5">{{ errorMessage }}</h5>
+            </div>
+          </article>
+        </transition>
       </div>
     </div>
-    <transition name="slide-fade">
-      <article id="errorBar" class="message is-danger" v-if="errorMessage">
-        <div class="message-header">
-          <i class="fa fa-warning"></i>
-        </div>
-        <div class="message-body">
-          <h5 class="title is-5">{{ errorMessage }}</h5>
-        </div>
-      </article>
-    </transition>
+
   </div>
 </template>
 
@@ -652,10 +653,12 @@ $footer-height: 8.75rem;
   }
 
   #errorBar {
+    z-index: 11;
     position: absolute;
     margin: 0;
     right: 0;
-    bottom: 0;
+    bottom: 35px;
+    border: 1px solid #FF4D4D;
   }
 
   .slide-fade-enter-active {
@@ -673,7 +676,7 @@ $footer-height: 8.75rem;
   #menu ul {
     list-style: none;
     &.vhs, &.l2 {
-      max-height: 75vh; overflow-y: auto;
+      max-height: 65vh; overflow-y: auto;
     }
   }
   #menu li {
