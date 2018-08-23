@@ -194,7 +194,7 @@ class CompartmentSvgSerializer(serializers.ModelSerializer):
      )
     class Meta:
         model = APImodels.CompartmentSvg
-        fields = ('id', 'compartment', 'display_name', 'filename', 'letter_code', 'metabolite_count', 'enzyme_count', 'reaction_count',
+        fields = ('id', 'compartment', 'display_name', 'filename', 'letter_code', 'subsystem', 'metabolite_count', 'enzyme_count', 'reaction_count',
          'subsystem_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level')
 
 
