@@ -153,14 +153,4 @@ export default {
 </script>
 
 <style lang="scss">
-
-.hero .tabs ul {
-  border-bottom: 1px solid #dbdbdb;
-}
-
-.tabs li.is-disabled {
-  pointer-events: none;
-  opacity: .65;
-}
-
 </style>

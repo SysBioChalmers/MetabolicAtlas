@@ -10,13 +10,13 @@
       <span class="tag link is-medium" v-else @click="sortBy('compartment', '=>', 'desc')">
         # Transport reaction(s): {{ transportReactionCount }}
       </span>
-      <span v-show="reactions.length==200" class="tag is-danger is-pulled-right">
+      <span v-show="reactions.length==200" class="tag is-medium is-warning is-pulled-right">
         {{ $t('tooManyReactionsTable') }}
       </span>
     </div>
     <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
       <thead>
-        <tr style="background: #F8F4F4">
+        <tr class="has-background-white-ter">
           <th class="is-unselectable"
           v-for="f in fields" v-show="showCol(f.name)"
             @click="sortBy(f.name, null, null)" v-html="f.display"></th>
@@ -163,7 +163,7 @@ export default {
 .reaction-table {
 
   m {
-    color: #3498db;
+    color: #006992;
     &.cms {
       color: rgb(54, 54, 54);
       cursor: default;
