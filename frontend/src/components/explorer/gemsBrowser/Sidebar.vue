@@ -80,8 +80,8 @@
 
 <script>
 
-import { default as EventBus } from '../event-bus';
-import { chemicalFormula } from '../helpers/chemical-formatters';
+import { default as EventBus } from '../../../event-bus';
+import { chemicalFormula } from '../../../helpers/chemical-formatters';
 
 export default {
   name: 'sidebar',
@@ -104,7 +104,7 @@ export default {
   },
   methods: {
     viewReactionComponent(type) {
-      EventBus.$emit('updateSelTab', type,
+      EventBus.$emit('GBnavigateTo', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
     chemicalFormula,

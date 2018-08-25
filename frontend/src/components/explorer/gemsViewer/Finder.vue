@@ -44,8 +44,8 @@
 <script>
 
 import axios from 'axios';
-import { getCompartmentFromName } from '../../helpers/compartment';
-import { default as EventBus } from '../../event-bus';
+import { getCompartmentFromName } from '../../../helpers/compartment';
+import { default as EventBus } from '../../../event-bus';
 
 export default {
   name: 'finder',

@@ -34,9 +34,9 @@ import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
-import { getCompartmentFromName, getSubsystemFromName } from '../../helpers/compartment';
-import { default as EventBus } from '../../event-bus';
-import { getExpressionColor } from '../../expression-sources/hpa';
+import { getCompartmentFromName, getSubsystemFromName } from '../../../helpers/compartment';
+import { default as EventBus } from '../../../event-bus';
+import { getExpressionColor } from '../../../expression-sources/hpa';
 
 export default {
   name: 'svgmap',
@@ -59,6 +59,7 @@ export default {
       ids: [],
       elmFound: [],
       elmsHL: [],
+      // TODO handle multi model history
       selectedItemHistory: {},
 
       HPARNAlevelsHistory: {},
@@ -71,7 +72,6 @@ export default {
       currentSearchMatch: 0,
       totalSearchMatch: 0,
 
-      HLonly: false,
       zoomBox: {
         minX: 99999,
         maxX: 0,
@@ -105,20 +105,15 @@ export default {
   },
   created() {
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
-      console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
+      // console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {
         this.svgName = '';
       }
       // set the type, even if might fail to load the map?
       this.loadedMapType = type;
-      if (type === 'compartment') {
-        this.HLonly = false;
+      if (type === 'compartment' || type === 'subsystem') {
         this.showMap(name);
-      } else if (type === 'subsystem') {
-        this.HLonly = false;
-        this.showTiles(name, ids);
       } else if (type === 'find') {
-        this.HLonly = false;
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
         this.loadSVG('wholemap', null);
@@ -214,7 +209,7 @@ export default {
     svgfit() {
       $('#svg-wrapper svg').attr('width', '100%');
       const vph = $('.svgbox').first().innerHeight();
-      console.log('vph', vph);
+      // console.log('vph', vph);
 
       $('#svg-wrapper svg').attr('height', `${vph}px`);
       if (this.panZoom) {
@@ -227,6 +222,7 @@ export default {
     loadSVG(id, callback) {
       // load the svg file from the server
       // if already loaded, just call the callback funtion
+      this.$emit('loading');
       let currentLoad = getCompartmentFromName(id);
       if (!currentLoad) {
         currentLoad = getSubsystemFromName(id);
@@ -239,7 +235,6 @@ export default {
       const newSvgName = currentLoad.svgName;
       // TODO add the type in url
       const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
-      this.$emit('loading');
       if (!newSvgName) {
         // TODO remove this when all svg files are available
         this.$emit('loadComplete', false, 'SVG map not available.');

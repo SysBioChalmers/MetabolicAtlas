@@ -55,7 +55,7 @@
       <div class="column">
         <div class="box has-text-centered">
           <div class="button is-info">
-            <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+            <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
           </div>
         </div>
       </div>
@@ -70,9 +70,9 @@
 import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
-import ReactionTable from 'components/ReactionTable';
-import { default as EventBus } from '../event-bus';
-import { reformatTableKey } from '../helpers/utils';
+import ReactionTable from 'components/explorer/gemsBrowser/ReactionTable';
+import { default as EventBus } from '../../../event-bus';
+import { reformatTableKey } from '../../../helpers/utils';
 
 export default {
   name: 'subsystem',
@@ -102,12 +102,6 @@ export default {
       limitEnzyme: 40,
     };
   },
-  watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      this.setup();
-    },
-  },
   computed: {
     metabolitesListHtml() {
       const l = ['<span class="tags">'];
@@ -118,7 +112,7 @@ export default {
           break;
         }
         i += 1;
-        l.push(`<span id="${m.id}" class="tag rcm"><a>${m.name ? m.name : m.id}[${m.id.substr(m.id.length - 1)}]</a></span>`);
+        l.push(`<span id="${m.id}" class="tag rcm"><a class="is-size-6">${m.name ? m.name : m.id}[${m.id.substr(m.id.length - 1)}]</a></span>`);
       }
       l.push('</span>');
       return l.join('');
@@ -132,7 +126,7 @@ export default {
           break;
         }
         i += 1;
-        l.push(`<span id="${e.id}" class="tag rce"><a>${e.name ? e.name : e.id}</a></span>`);
+        l.push(`<span id="${e.id}" class="tag rce"><a class="is-size-6">${e.name ? e.name : e.id}</a></span>`);
       }
       l.push('</span>');
       return l.join('');

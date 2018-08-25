@@ -166,7 +166,6 @@ export default {
   },
   methods: {
     getModel(id) {
-      console.log(id);
       axios.get(`gems/${id}`)
       .then((response) => {
         let model = response.data;
@@ -210,8 +209,7 @@ export default {
         this.errorMessage = '';
         this.showLoader = false;
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         this.errorMessage = this.$t('notFoundError');
         this.showLoader = false;
       });

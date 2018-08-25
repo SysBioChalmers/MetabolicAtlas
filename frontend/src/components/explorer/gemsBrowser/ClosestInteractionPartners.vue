@@ -167,7 +167,7 @@
                           @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
                           Enable <a href="https://www.proteinatlas.org/" target="_blank">HPA</a>&nbsp;RNA levels
                         </label>
-                      <p>
+                      </p>
                     </header>
                     <div class="card-content" v-if="toggleEnzymeExpLevel">
                       <div id="graphLegend" v-show="(toggleMetaboliteExpLevel || toggleEnzymeExpLevel) && !disableExpLvl" v-html="legend">
@@ -203,7 +203,7 @@
                         :class="{'is-disabled': isCompartmentSubsystemHLDisabled() }">
                           <i class="fa fa-eraser"></i>
                         </span>
-                      <p>
+                      </p>
                     </header>
                      <div class="card-content">
                         <div class="select is-fullwidth">
@@ -268,20 +268,20 @@ import cola from 'cytoscape-cola';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
 
-import Sidebar from 'components/Sidebar';
-import CytoscapeTable from 'components/CytoscapeTable';
+import Sidebar from 'components/explorer/gemsBrowser/Sidebar';
+import CytoscapeTable from 'components/explorer/gemsBrowser/CytoscapeTable';
 import Loader from 'components/Loader';
 
-import { default as EventBus } from '../event-bus';
+import { default as EventBus } from '../../../event-bus';
 
-import { default as transform } from '../data-mappers/hmr-closest-interaction-partners';
-import { default as graph } from '../graph-stylers/hmr-closest-interaction-partners';
+import { default as transform } from '../../../data-mappers/hmr-closest-interaction-partners';
+import { default as graph } from '../../../graph-stylers/hmr-closest-interaction-partners';
 
-import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
-import { default as visitLink } from '../helpers/visit-link';
-import { default as convertGraphML } from '../helpers/graph-ml-converter';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
+import { default as visitLink } from '../../../helpers/visit-link';
+import { default as convertGraphML } from '../../../helpers/graph-ml-converter';
 
-import { default as parseHpaRnaExpressionLvl, getExpLvlLegend } from '../expression-sources/hpa';
+import { default as parseHpaRnaExpressionLvl, getExpLvlLegend } from '../../../expression-sources/hpa';
 
 export default {
   name: 'closest-interaction-partners',
@@ -296,7 +296,7 @@ export default {
     return {
       loading: true,
       loadingHPA: false,
-      errorMessage: this.$t('unknownError'),
+      errorMessage: '',
       errorExpMessage: '',
       title: '',
 
@@ -419,19 +419,12 @@ export default {
       factorZoom: 0.08,
     };
   },
-  watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      this.setup();
-    },
-  },
   computed: {
     filename() {
       return `ma_interaction_partners_${this.componentName}`;
     },
     elms() {
       if (Object.keys(this.rawElms).length !== 0) {
-        console.log('here');
         return Object.keys(this.rawElms).map(k => this.rawElms[k]);
       }
       return [];
@@ -458,7 +451,7 @@ export default {
       this.reactionHL = null;
       this.compartmentHL = '';
       this.subsystemHL = '';
-      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.clickedElmId}`);
+      this.$router.push(`/explore/browser/${this.model}/interaction/${this.clickedElmId}`);
     },
     load() {
       axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)
@@ -500,7 +493,7 @@ export default {
             return;
           }
           this.showNetworkGraph = true;
-          this.errorMessage = null;
+          this.errorMessage = '';
 
           this.resetEnzymeExpression();
 
@@ -511,7 +504,7 @@ export default {
         })
         .catch((error) => {
           this.loading = false;
-          console.log(error);
+          // console.log(error);
           switch (error.response.status) {
             case 406:
               this.errorMessage = this.$t('tooManyInteractionPartner');
@@ -557,7 +550,7 @@ export default {
             return;
           }
           this.showNetworkGraph = true;
-          this.errorMessage = null;
+          this.errorMessage = '';
 
           this.resetEnzymeExpression();
 
@@ -567,7 +560,7 @@ export default {
           }, 0);
         })
         .catch((error) => {
-          console.log(error);
+          // console.log(error);
           this.loading = false;
           switch (error.response.status) {
             case 406:
@@ -700,7 +693,7 @@ export default {
 
       const colaOptions = {
         animate: true, // whether to show the layout as it's running
-        refresh: 0.5, // number of ticks per frame; higher is faster but more jerky
+        refresh: 0.1, // number of ticks per frame; higher is faster but more jerky
         maxSimulationTime: 10000, // max length in ms to run the layout
         ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
         fit: true, // on every layout reposition of nodes, fit the viewport
@@ -909,7 +902,6 @@ export default {
                 this.getHPAexpression(this.rawElms, expSource, expType, expSample);
               } else {
                 // load expression data from another source here
-                console.log(expSample);
               }
             } else {
               this.updateExpAndredrawGraph(true, componentType, expSource, expType, expSample);
@@ -932,7 +924,6 @@ export default {
           this.updateExpAndredrawGraph(true, componentType, expSource, expType, expSample);
         }
       } else if (this.toggleMetaboliteExpLevel) {
-        console.log(expSample);
         // load data for metabolite
       } else {
         // disable lvl for metabolite
@@ -968,11 +959,11 @@ export default {
       });
     },
     viewReactionComponent(type) {
-      EventBus.$emit('updateSelTab', type,
+      EventBus.$emit('GBnavigateTo', type,
        this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
     },
     viewReaction(ID) {
-      EventBus.$emit('updateSelTab', 'reaction', ID);
+      EventBus.$emit('GBnavigateTo', 'reaction', ID);
     },
     scrollTo(id) {
       const container = jquery('body, html');
@@ -1017,8 +1008,8 @@ export default {
           this.redrawGraph(true);
         }, 0);
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
+        // console.log(error);
         this.loadingHPA = false;
         this.toggleEnzymeExpLevel = false;
         this.disableExpLvl = true;

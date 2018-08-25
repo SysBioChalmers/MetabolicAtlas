@@ -24,7 +24,7 @@
 <script>
 
 export default {
-  name: 'search-table',
+  name: 'cytoscape-table-search',
   props: ['reset'],
   data() {
     return {

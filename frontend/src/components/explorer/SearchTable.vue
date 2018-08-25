@@ -121,7 +121,7 @@
               </good-table>
             </div>
           </div>
-          <div v-show="!showTabType || searchTerm === ''">
+          <div v-show="!loading && (!showTabType || searchTerm === '')">
             <div v-if="searchResults.length === 0" class="column is-4 is-offset-4 has-text-centered notification">
               {{ $t('searchNoResult') }}
             </div>
@@ -168,16 +168,12 @@
 </template>
 
 <script>
-// import Vue from 'vue';
-import GlobalSearch from 'components/GlobalSearch';
-// import $ from 'jquery';
+import GlobalSearch from 'components/explorer/GlobalSearch';
 import Loader from 'components/Loader';
 import { GoodTable } from 'vue-good-table';
 import 'vue-good-table/dist/vue-good-table.css';
-import { chemicalFormula } from '../helpers/chemical-formatters';
-import EventBus from '../event-bus';
-
-// Vue.use(VueGoodTable);
+import { chemicalFormula } from '../../helpers/chemical-formatters';
+import EventBus from '../../event-bus';
 
 export default {
   name: 'search-table',
@@ -587,7 +583,7 @@ export default {
               }
             }
             rows[componentType].push({
-              id: `<a href="/GemsExplorer/${el.model}/reaction/${el.id}">${el.id}</a>`,
+              id: `<a href="/Explore/browser/${el.model}/reaction/${el.id}">${el.id}</a>`,
               model: el.model,
               equation: el.equation,
               ec: el.ec,
@@ -609,7 +605,7 @@ export default {
             }
             rows[componentType].push({
               model: el.model,
-              name: `<a href="/GemsExplorer/${el.model}/subsystem/${el.name}">${el.name}</a>`,
+              name: `<a href="/Explore/browser/${el.model}/subsystem/${el.name}">${el.name}</a>`,
               system: el.system,
               compartment: el.compartment,
               metaboliteCount: el.metabolite_count,
@@ -699,19 +695,20 @@ export default {
     getDisplayModelName(v) {
       return this.$t(v);
     },
+    // TODO use router
     formatMetaboliteNameCell(row) {
-      return `<a href="/GemsExplorer/${row.model}/metabolite/${row.id}">${row.name}</a>`;
+      return `<a href="/Explore/browser/${row.model}/metabolite/${row.id}">${row.name}</a>`;
     },
     formatEnzymeNameCell(row) {
-      return `<a href="/GemsExplorer/${row.model}/enzyme/${row.id}">${row.name}</a>`;
+      return `<a href="/Explore/browser/${row.model}/enzyme/${row.id}">${row.name}</a>`;
     },
     formatReactionNameCell(row) {
-      return `<a href="/GemsExplorer/${row.model}/reaction/${row.id}">${row.id}</a>`;
+      return `<a href="/Explore/browser/${row.model}/reaction/${row.id}">${row.id}</a>`;
     },
     formatSubsystemArrCell(row) {
       let s = '';
       for (const subsystem of row.subsystem.split('; ')) {
-        s += `<a href="/GemsExplorer/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
+        s += `<a href="/Explore/browser/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
       }
       return s.slice(0, -2);
     },
@@ -741,7 +738,7 @@ export default {
   },
   mounted() {
     if (this.searchTerm) {
-      // trigger the search in child component
+      // trigger the search in child component (globalSearch)
       this.$children[0].search(this.searchTerm);
     }
   },

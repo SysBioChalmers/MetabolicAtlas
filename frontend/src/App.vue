@@ -17,56 +17,54 @@
           </div>
         </div>
         <div class="navbar-menu" id="#nav-menu">
-          <div class="navbar-start">
-            <div class="navbar-item">
-              <div class="buttons has-addons">
-                <span class="button is-medium"
-                :class="[{ 'is-selected': showGemsExplorer }, { 'is-info': showGemsExplorer }]"
-                @click="goToPage('gemsExplorer', selectedModel)"
-                >Explorer</span>
-                <span class="button is-medium"
-                :class="[{ 'is-selected': showMetabolicViewer }, { 'is-info': showMetabolicViewer }]"
-                @click="goToPage('metabolicViewer', selectedModel)"
-                >Maps</span>
-              </div>
-            </div>
-            <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link"  @click="goToPage('gemsExplorer', selectedModel)">
-                Model:
-                &nbsp;<span class="tag is-info is-medium">{{ models[selectedModel].short_name }}</span>
-              </a>
-              <div class="navbar-dropdown">
-                <a class="navbar-item is-primary"
-                  v-for="model, k in models"
-                  @click="goToPage('gemsExplorer', model.database_name)" v-html="getModelDescription(model)">
-                </a>
-              </div>
-            </div>
+          <div class="navbar-start" v-if="showExploreInfo">
+            <span id="modelHeader" class="has-text-centered has-background-white is-size-6 is-unselectable">
+              Current<br>model:<br>
+              <span class="tag is-info"> {{ $t(model) }}</span>
+            </span>
+            <a
+               class="navbar-item has-text-centered"
+               :class="{ 'is-active': activeBrowserBut }"
+               @click="goToGemsBrowser()"> Gem<br>Browser
+            </a>
+            <a
+               class="navbar-item has-text-centered"
+               :class="{ 'is-active': activeViewerBut }"
+               @click="goToGemsViewer()"> Maps<br>Viewer
+            </a>
           </div>
           <div class="navbar-end">
             <template v-for="menuItem, index in menuItems">
               <template v-if="Array.isArray(menuItem)">
-                <div class="navbar-item has-dropdown is-hoverable">
+                <div class="navbar-item has-dropdown is-hoverable is-unselectable">
                   <a class="navbar-link" 
                   :class="{ 'is-active': menuItem[0] === activeDropMenu }"
-                  @click="goToPage(menuItem[0], '', menuItem[0])">
+                  @click="goToPage(menuItem[0])">
                     {{ menuItem[0] }}
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item is-primary" 
-                    v-for="submenu, index in menuItem" v-if="index != 0"
-                    @click="goToPage(submenu, '', menuItem[0])">
+                    <a class="navbar-item is-primary is-unselectable" 
+                    v-for="submenu, index in menuItem" v-if="index !== 0"
+                    @click="goToPage(submenu)">
                       {{ submenu }}
                     </a>
                   </div>
                 </div>
               </template>
+              <template v-else-if="menuItem === 'Explore'">
+                  <a
+                   class="navbar-item has-text-centered is-unselectable"
+                   :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
+                   @click="goToPage(menuItem)">
+                   <b>Explore<br>models</b>
+                 </a>
+              </template>
               <template v-else>
                 <a
-                   class="navbar-item"
+                   class="navbar-item has-text-centered is-unselectable"
                    :class="{ 'is-active': isActiveRoute(menuItem) }"
-                   @click="goToPage(menuItem, '', '')"
-                >{{ menuItem }}</a>
+                   @click="goToPage(menuItem)"
+                   v-html="menuItem"></a>
               </template>
             </template>
           </div>
@@ -74,7 +72,7 @@
       </div>
     </nav>
     <keep-alive>
-      <router-view :selectedModel="selectedModel"></router-view>
+      <router-view></router-view>
     </keep-alive>
     <footer id="footer" class="footer">
       <div class="columns">
@@ -101,26 +99,21 @@
 </template>
 
 <script>
-import $ from 'jquery';
-import axios from 'axios';
 import SvgIcon from './components/SvgIcon';
-import MetabolicViewer from './components/MetabolicViewer';
 import Logo from './assets/logo.svg';
 import router from './router';
 import { default as EventBus } from './event-bus';
-
 
 export default {
   name: 'app',
   components: {
     SvgIcon,
-    MetabolicViewer,
   },
   data() {
     return {
       Logo,
-      models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
       menuItems: [
+        'Explore',
         this.$t('navBut1Title'),
         [this.$t('navBut2Title'),
           this.$t('navBut21Title'),
@@ -130,75 +123,58 @@ export default {
         this.$t('navBut3Title'),
         this.$t('navBut4Title'),
       ],
-      showMetabolicViewer: true,
-      showGemsExplorer: false,
-      selectedModel: 'hmr2',
+      showExploreInfo: false,
+      activeBrowserBut: false,
+      activeViewerBut: false,
       activeDropMenu: '',
+      model: '',
+      browserLastPath: '',
     };
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      this.saveBrowserPath();
+      this.setupButons();
+    },
+  },
   beforeMount() {
-    // get models list
-    axios.get('models/')
-      .then((response) => {
-        const models = {};
-        for (const model of response.data) {
-          models[model.database_name] = model;
-        }
-        this.models = models;
-      })
-      .catch(() => {
-        this.errorMessage = this.$t('unknownError');
-      });
-
-    $('body').on('click', 'td m', function f() {
-      if (!($(this).hasClass('cms'))) {
-        EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('class'));
-      }
+    EventBus.$on('modelSelected', (model) => {
+      this.model = model;
+    });
+    EventBus.$on('showExploreInfo', () => {
+      this.showExploreInfo = true;
+    });
+    EventBus.$on('hideExploreInfo', () => {
+      this.showExploreInfo = false;
     });
   },
   created() {
-    EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
-      this.showMetabolicViewer = true;
-      console.log(`requestViewer ${type}, ${name}, ${secondaryName}, ${ids}`);
-      EventBus.$emit('showAction', type, name, secondaryName, ids);
-    });
-    EventBus.$on('showMetabolicViewer', () => {
-      this.showMetabolicViewer = true;
-      this.showGemsExplorer = false;
-      this.goToPage('metabolicViewer', this.selectedModel, '');
-    });
-    EventBus.$on('showGemsExplorer', () => {
-      this.showMetabolicViewer = false;
-      this.showGemsExplorer = true;
-    });
-    // document.body.addEventListener('keyup', (e) => {
-    //   if (e.keyCode === 27) {
-    //     this.showMetabolicViewer = false;
-    //   }
-    // });
+    this.setupButons();
   },
   methods: {
-    getModelDescription(model) {
-      return `<div>${model.short_name} - ${model.name}<div>
-      <div class="has-text-grey">
-        ${model.reaction_count} reactions -
-        ${model.metabolite_count} metabolites -
-        <br>${model.enzyme_count} enzymes
-      </div>`;
-    },
-    goToPage(name, model, activeMenu) {
-      // TODO: make this not hard-coded
-      this.activeDropMenu = activeMenu;
-      if (name.toLowerCase() === 'gemsexplorer') {
-        this.showGemsExplorer = true;
-        this.showMetabolicViewer = false;
-      } else if (name.toLowerCase() === 'metabolicviewer') {
-        this.showGemsExplorer = false;
-        this.showMetabolicViewer = true;
+    setupButons() {
+      if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
+        this.showExploreInfo = true;
+        this.activeBrowserBut = true;
+        this.activeViewerBut = false;
+        this.model = this.$route.params.model;
+        // this.goToGemsBrowser();
+        this.saveBrowserPath();
+      } else if (this.$route.name === 'viewer') {
+        this.showExploreInfo = true;
+        this.activeBrowserBut = false;
+        this.activeViewerBut = true;
+        this.model = this.$route.params.model;
+        // this.goToGemsViewer();
+      } else {
+        this.showExploreInfo = false;
+        this.activeBrowserBut = false;
+        this.activeViewerBut = false;
       }
-      if (model) {
-        router.push({ path: `/${name}/${model}` });
-      } else if (['tools', 'external databases', 'api'].includes(name.toLowerCase())) {
+    },
+    goToPage(name) {
+      if (['tools', 'external databases', 'api'].includes(name.toLowerCase())) {
         if (name.toLowerCase() === 'external databases') {
           name = 'databases'; // eslint-disable-line no-param-reassign
         }
@@ -215,6 +191,23 @@ export default {
         return name.toLowerCase() === this.$route.name.toLowerCase();
       }
       return false;
+    },
+    goToGemsBrowser() {
+      if (this.browserLastPath) {
+        this.$router.push(this.browserLastPath);
+      } else {
+        this.$router.push(`/Explore/browser/${this.model}`);
+      }
+    },
+    goToGemsViewer() {
+      this.$router.push(`/Explore/viewer/${this.model}`);
+    },
+    saveBrowserPath() {
+      if (this.$route.name === 'browser') {
+        this.browserLastPath = this.$route.path;
+      } else if (this.$route.name === 'browserRoot') {
+        this.browserLastPath = '';
+      }
     },
     viewRelaseNotes() {
       router.push({
@@ -266,6 +259,10 @@ $switch-background: $primary;
   display: flex;
   min-height: 100vh;
   flex-direction: column
+}
+
+#modelHeader {
+  padding: 0.75rem;
 }
 
 #metabolicViewer {
