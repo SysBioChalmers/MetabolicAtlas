@@ -7,7 +7,7 @@
     </div>
     <div v-show="!errorMessage">
       <div class="container columns">
-        <div class="column is-5">
+        <div class="column">
           <h3 class="title is-3 is-inline-block  is-marginless">
           Enzyme | {{ enzymeName }}&nbsp;
           </h3>
@@ -53,7 +53,7 @@
             <div class="column">
               <div class="box has-text-centered">
                 <div class="button is-info">
-                  <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+                  <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
                 </div>
                 <br><br>
                 <div class="button is-info"
@@ -66,8 +66,8 @@
           <div class="columns">
             <div class="column">
               <loader v-show="loading"></loader>
-              <template v-show="!loading && reactions.length > 0">
-                <h4 class="title is-4">Reactome</h4>
+              <template v-show="reactions.length > 0">
+                <h4 class="title is-4" v-show="!loading">Reactome</h4>
                 <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
               </template>
             </div>
@@ -80,11 +80,11 @@
 
 <script>
 import axios from 'axios';
-import ReactionTable from 'components/ReactionTable';
+import ReactionTable from 'components/explorer/gemsBrowser/ReactionTable';
 import Loader from 'components/Loader';
-import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
-import { reformatTableKey, reformatStringToLink } from '../helpers/utils';
-import { default as visitLink } from '../helpers/visit-link';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
+import { reformatTableKey, reformatStringToLink } from '../../../helpers/utils';
+import { default as visitLink } from '../../../helpers/visit-link';
 
 export default {
   name: 'enzyme',
@@ -117,15 +117,15 @@ export default {
       reactions: [],
     };
   },
-  watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      if (this.$route.path.includes('/enzyme/')) {
-        console.log(this.$route);
-        this.setup();
-      }
-    },
-  },
+  // watch: {
+  //   /* eslint-disable quote-props */
+  //   '$route': function watchSetup() {
+  //     if (this.$route.path.includes('/enzyme/')) {
+  //       // console.log(this.$route);
+  //       this.setup();
+  //     }
+  //   },
+  // },
   computed: {
     filename() {
       return `ma_catalyzed_reaction_${this.enzymeName}`;
@@ -172,7 +172,7 @@ export default {
         });
     },
     viewInteractionPartners() {
-      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.enzyme.id}`);
+      this.$router.push(`/explore/browser/${this.model}/interaction/${this.enzyme.id}`);
     },
     chemicalFormula,
     chemicalName,

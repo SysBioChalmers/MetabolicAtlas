@@ -1,7 +1,6 @@
 <template>
   <div class="column is-6">
     <div class="control">
-      <div v-if="!quickSearch">Search across all GEMs</div>
       <div id="input-wrapper">
         <p class="control has-icons-right">
         <input
@@ -22,7 +21,7 @@
         <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
-        <div class="has-text-centered" v-show="searchResults.length !== 0 || !showLoader">
+        <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
           <div class="notification is-medium is-paddingless">
             First 50 results per category from {{ getModelName() }} -&nbsp;<a @click="goToSearchPage">click here to load all</a> 
           </div>
@@ -138,15 +137,16 @@
 import axios from 'axios';
 import Loader from 'components/Loader';
 import _ from 'lodash';
-import { chemicalFormula, chemicalReaction } from '../helpers/chemical-formatters';
-import { default as EventBus } from '../event-bus';
-import { getCompartmentFromName } from '../helpers/compartment';
-
+import { chemicalFormula, chemicalReaction } from '../../helpers/chemical-formatters';
+import { default as EventBus } from '../../event-bus';
 
 export default {
   name: 'global-search',
   props: {
     quickSearch: {
+      default: false,
+    },
+    reroute: {
       default: false,
     },
     searchTerm: {
@@ -291,7 +291,7 @@ export default {
       this.searchTerm = '';
       this.searchTermString = '';
       this.searchResults = [];
-      EventBus.$emit('updateSelTab', type, id);
+      EventBus.$emit('GBnavigateTo', type, id);
     },
     advancedSearch() {
       this.$router.push({ name: 'search' });
@@ -302,7 +302,7 @@ export default {
           name = 'cytosol_1';  // eslint-disable-line no-param-reassign
         }
       }
-      EventBus.$emit('requestViewer', type, name, '', []);
+      EventBus.$emit('navigateTo', 'gemsViever', type, name);
     },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {
@@ -340,7 +340,7 @@ export default {
       });
     },
     validateSearch() {
-      if (this.quickSearch) {
+      if (this.quickSearch || this.reroute) {
         this.goToSearchPage();
       } else if (this.searchTermString.length >= 2) {
         this.$emit('searchResults');
@@ -351,7 +351,6 @@ export default {
       return this.$t(this.model);
     },
     chemicalFormula,
-    getCompartmentFromName,
   },
 };
 </script>

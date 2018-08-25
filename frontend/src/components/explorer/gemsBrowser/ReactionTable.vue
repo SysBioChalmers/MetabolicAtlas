@@ -47,10 +47,9 @@
 
 <script>
 import $ from 'jquery';
-import { default as EventBus } from '../event-bus';
-import { default as compare } from '../helpers/compare';
-import { chemicalReaction } from '../helpers/chemical-formatters';
-import { reformatChemicalReactionLink } from '../helpers/compartment';
+import { default as EventBus } from '../../../event-bus';
+import { default as compare } from '../../../helpers/compare';
+import { chemicalReaction } from '../../../helpers/chemical-formatters';
 
 export default {
   name: 'reaction-table',
@@ -118,14 +117,20 @@ export default {
   },
   methods: {
     formatChemicalReaction(v, r) { return chemicalReaction(v, r); },
-    reformatChemicalReactionHTML(r) { return reformatChemicalReactionLink(r); },
+    reformatChemicalReactionHTML(r) {
+      // TODO fix me
+      if (this.$parent.$parent.$parent.reformatChemicalReactionLink) {
+        return this.$parent.$parent.$parent.reformatChemicalReactionLink(r);
+      }
+      return this.$parent.$parent.$parent.$parent.reformatChemicalReactionLink(r);
+    },
     viewEnzyneReactions(modifier) {
       if (modifier) {
-        EventBus.$emit('updateSelTab', 'enzyme', modifier.id);
+        EventBus.$emit('GBnavigateTo', 'enzyme', modifier.id);
       }
     },
-    viewReaction(id) { EventBus.$emit('updateSelTab', 'reaction', id); },
-    viewSubsystem(id) { EventBus.$emit('updateSelTab', 'subsystem', id); },
+    viewReaction(id) { EventBus.$emit('GBnavigateTo', 'reaction', id); },
+    viewSubsystem(id) { EventBus.$emit('GBnavigateTo', 'subsystem', id); },
     sortBy(field, pattern, order) {
       const reactions = Array.prototype.slice.call(
       this.sortedReactions); // Do not mutate original elms;

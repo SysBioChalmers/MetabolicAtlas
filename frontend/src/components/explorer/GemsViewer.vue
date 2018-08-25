@@ -1,5 +1,5 @@
 <template>
-  <div id="metabolicViewer" class="extended-section">
+  <div id="gemsViewer" class="extended-section">
     <div class="columns" id="iMainPanel">
       <div class="column is-one-fifth is-fullheight" id="iSideBar">
         <div id="menu">
@@ -124,7 +124,7 @@
                 </div>
                 <footer class="card-footer" 
                   v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
-                  <a  class="card-footer-item" @click="viewOnGemsExplorer()">View more on GEMs Explorer</a>
+                  <a class="card-footer-item has has-text-centered" @click="viewOnGemsBrowser()">View more on the Browser</a>
                 </footer>
               </div>
             </div>
@@ -164,20 +164,20 @@
 <script>
 import $ from 'jquery';
 import axios from 'axios';
-import Svgmap from './metabolicViewerComponents/Svgmap';
-import D3dforce from './metabolicViewerComponents/D3dforce';
-import SvgIcon from './SvgIcon';
-import Logo from '../assets/logo.svg';
-import { default as EventBus } from '../event-bus';
-import { getCompartmentFromName } from '../helpers/compartment';
-import { capitalize, reformatStringToLink } from '../helpers/utils';
-import { chemicalReaction } from '../helpers/chemical-formatters';
-import { getExpLvlLegend } from '../expression-sources/hpa';
+import Svgmap from 'components/explorer/gemsViewer/Svgmap';
+import D3dforce from 'components/explorer/gemsViewer/D3dforce';
+// import SvgIcon from './SvgIcon';
+import Logo from '../../assets/logo.svg';
+import { default as EventBus } from '../../event-bus';
+import { getCompartmentFromName } from '../../helpers/compartment';
+import { capitalize, reformatStringToLink } from '../../helpers/utils';
+import { chemicalReaction } from '../../helpers/chemical-formatters';
+import { getExpLvlLegend } from '../../expression-sources/hpa';
 
 export default {
-  name: 'metabolic-viewer',
+  name: 'gems-viewer',
   components: {
-    SvgIcon,
+    // SvgIcon,
     Svgmap,
     D3dforce,
   },
@@ -303,8 +303,8 @@ export default {
     this.loadSubsystem();
     this.loadHPATissue();
 
-    if (this.$route.path.toLowerCase().includes('metabolicviewer')) {
-      EventBus.$emit('showMetabolicViewer');
+    if (this.$route.path.toLowerCase().includes('gemsviewer')) {
+      EventBus.$emit('showgemsviewer');
     }
 
     EventBus.$on('showAction', (type, name, secondaryName, ids, forceReload) => {
@@ -402,11 +402,11 @@ export default {
       }
       return false;
     },
-    viewOnGemsExplorer() {
+    viewOnGemsBrowser() {
       if (this.currentDisplayedType === 'subsystem') {
-        EventBus.$emit('updateSelTab', this.currentDisplayedType, this.currentDisplayedName);
+        EventBus.$emit('navigateTo', 'gemsBrowser', this.currentDisplayedType, this.currentDisplayedName);
       } else {
-        EventBus.$emit('updateSelTab', this.selectedElementData.type, this.selectedElementData.id);
+        EventBus.$emit('navigateTo', 'gemsBrowser', this.selectedElementData.type, this.selectedElementData.id);
       }
       this.hideNetworkGraph();
     },
@@ -547,10 +547,10 @@ export default {
 
 <style lang="scss">
 
-$navbar-height: 6rem;
-$footer-height: 8.75rem;
+$navbar-height: 6.5rem;
+$footer-height: 9.8rem;
 
-#metabolicViewer {
+#gemsViewer {
   border: 1px solid black;
   #iTopBar {
     height: 60px;
@@ -575,19 +575,19 @@ $footer-height: 8.75rem;
   }
 
   .is-fullheight {
-    min-height: calc(100vh - #{$navbar-height} - #{$footer-height} - .75rem );
-    max-height: calc(100vh - #{$navbar-height} - #{$footer-height} - .75rem );
-    height: calc(100vh - #{$navbar-height} - #{$footer-height} - .75rem );
+    min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    height: calc(100vh - #{$navbar-height} - #{$footer-height});
     /*display: flex;*/
     .column {
       overflow-y: auto;
     }
   }
 
-/*
+
   #iMainPanel {
-    border: 1px solid black;
-  }*/
+    margin-bottom: 0;
+  }
 
 /*  #iSwitch {
     label {
