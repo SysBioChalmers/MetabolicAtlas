@@ -66,9 +66,9 @@
 
 <script>
 import axios from 'axios';
-import Reactome from 'components/Reactome';
-import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../helpers/chemical-formatters';
-import { reformatTableKey, reformatStringToLink, addMassUnit } from '../helpers/utils';
+import Reactome from 'components/explorer/gemsBrowser/Reactome';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
+import { reformatTableKey, reformatStringToLink, addMassUnit } from '../../../helpers/utils';
 
 export default {
   name: 'metabolite',
@@ -105,12 +105,6 @@ export default {
       showReactome: false,
     };
   },
-  watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      this.setup();
-    },
-  },
   computed: {
     hasExternalID() {
       for (const item of this.externalIDTableKey[this.model]) {
@@ -144,7 +138,7 @@ export default {
     reformatLink(s, link) { return reformatStringToLink(s, link); },
     reformatMass(s) { return addMassUnit(s); },
     viewInteractionPartners() {
-      this.$router.push(`/GemsExplorer/${this.model}/interaction/${this.mId}`);
+      this.$router.push(`/explorer/browser/${this.model}/interaction/${this.mId}`);
     },
   },
   beforeMount() {

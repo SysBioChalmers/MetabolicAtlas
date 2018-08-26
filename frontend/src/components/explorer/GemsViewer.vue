@@ -1,5 +1,5 @@
 <template>
-  <div id="metabolicViewer" class="extended-section">
+  <div id="gemsViewer" class="extended-section">
     <div class="columns" id="iMainPanel">
       <div class="column is-one-fifth is-fullheight" id="iSideBar">
         <div id="menu">
@@ -14,11 +14,11 @@
               </ul>
             </li>
             <li>Compartments<span>&nbsp;&#9656;</span>
-              <ul class="vhs l1">
-                <li v-for="comp in Object.keys(compartments)" class="clickable"
-                  @click="showCompartment(comp)">
-                  {{ compartments[comp].name }}
-<!--                    TODO ADD subystem for cytosol parts
+              <ul class="vhs l1" v-if="Object.keys(compartmentsSVG).length !== 0">
+                <li v-for="id in compartmentOrder" class="clickable" v-if="compartmentsSVG[id]" :class="{ 'disable' : !compartmentsSVG[id].sha }"
+                  @click="showCompartment(id)">
+                  {{ compartmentsSVG[id].display_name }}
+<!--                    TODO ADD subsystem for cytosol parts
  -->            </li>
               </ul>
             </li>
@@ -26,8 +26,8 @@
               <ul class="l1">
                 <li v-for="system in systemOrder">{{ system }}<span>&nbsp;&#9656;</span>
                   <ul class="l2" v-if="subsystems[system]">
-                    <li v-for="subsystem in subsystems[system]" class="clickable" 
-                      v-if="system !== 'Collection of reactions'" @click="showSubsystem(subsystem)">
+                    <li v-for="subsystem in subsystems[system]" class="clickable" :class="{ 'disable' : !subsystemsSVG[subsystem.id].sha }"
+                      v-if="system !== 'Collection of reactions' && subsystemsSVG[subsystem.id]" @click="showSubsystem(subsystem.id)">
                         {{ subsystem.name }}
                     </li>
                     <li v-else class="clickable disable">
@@ -61,8 +61,11 @@
                     <template v-if="selectedElement">
                       {{ capitalize(selectedElementData.type) }}: {{ selectedElementData.id }}
                     </template>
-                    <template v-else>
-                      {{ capitalize(currentDisplayedType) }}: {{ currentDisplayedName }}
+                    <template v-else-if="currentDisplayedType === 'compartment'">
+                      {{ capitalize(currentDisplayedType) }}: {{ compartmentsSVG[currentDisplayedName].display_name }}
+                    </template>
+                    <template v-else-if="currentDisplayedType === 'subsystem'">
+                      {{ capitalize(currentDisplayedType) }}: {{ subsystemsSVG[currentDisplayedName].display_name }}
                     </template>
                   </p>
                 </header>
@@ -111,20 +114,34 @@
                     </template>
                     <template v-else>
                       <template v-if="currentDisplayedType === 'compartment'">
-                        <span class="hd"># reaction:</span> {{ compartmentStats[currentDisplayedName]['reaction_count'] }}<br>
-                        <span class="hd"># metabolite:</span> {{ compartmentStats[currentDisplayedName]['metabolite_count'] }}<br>
-                        <span class="hd"># enzyme:</span> {{ compartmentStats[currentDisplayedName]['enzyme_count'] }}<br>
-                        <span class="hd"># subsystem:</span> {{ compartmentStats[currentDisplayedName]['subsystem_count'] }}
+                        On map:<br>
+                        <span class="hd"># reaction:</span> {{ compartmentsSVG[currentDisplayedName]['reaction_count'] }}<br>
+                        <span class="hd"># metabolite:</span> {{ compartmentsSVG[currentDisplayedName]['metabolite_count'] }}<br>
+                        <span class="hd"># enzyme:</span> {{ compartmentsSVG[currentDisplayedName]['enzyme_count'] }}<br>
+                        <span class="hd"># subsystem:</span> {{ compartmentsSVG[currentDisplayedName]['subsystem_count'] }}<br>
+                        <br>On model:<br>
+                        <span class="hd"># reaction:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
+                        <span class="hd"># metabolite:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
+                        <span class="hd"># enzyme:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
+                        <span class="hd"># subsystem:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
                       </template>
                       <template v-else>
-                        <span class="hd">subsystem:</span>stats
+                        On map:<br>
+                        <span class="hd"># reaction:</span> {{ subsystemsSVG[currentDisplayedName]['reaction_count'] }}<br>
+                        <span class="hd"># metabolite:</span> {{ subsystemsSVG[currentDisplayedName]['metabolite_count'] }}<br>
+                        <span class="hd"># enzyme:</span> {{ subsystemsSVG[currentDisplayedName]['enzyme_count'] }}<br>
+                        <br>On model:<br>
+                        <span class="hd"># reaction:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
+                        <span class="hd"># metabolite:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
+                        <span class="hd"># enzyme:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
+                        <span class="hd"># compartment:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
                       </template>
                     </template>
                   </div>
                 </div>
                 <footer class="card-footer" 
                   v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
-                  <a  class="card-footer-item" @click="viewOnGemsExplorer()">View more on GEMs Explorer</a>
+                  <a class="card-footer-item has has-text-centered" @click="viewOnGemsBrowser()">View more on the Browser</a>
                 </footer>
               </div>
             </div>
@@ -145,38 +162,36 @@
         <div id="iLoader" class="loading" v-show="showLoader">
           <a class="button is-loading"></a>
         </div>
+        <transition name="slide-fade">
+          <article id="errorBar" class="message is-danger" v-if="errorMessage">
+            <div class="message-header">
+              <i class="fa fa-warning"></i>
+            </div>
+            <div class="message-body">
+              <h5 class="title is-5">{{ errorMessage }}</h5>
+            </div>
+          </article>
+        </transition>
       </div>
     </div>
-    <transition name="slide-fade">
-      <article id="errorBar" class="message is-danger" v-if="errorMessage">
-        <div class="message-header">
-          <i class="fa fa-warning"></i>
-        </div>
-        <div class="message-body">
-          <h5 class="title is-5">{{ errorMessage }}</h5>
-        </div>
-      </article>
-    </transition>
+
   </div>
 </template>
 
 <script>
 import $ from 'jquery';
 import axios from 'axios';
-import Svgmap from './metabolicViewerComponents/Svgmap';
-import D3dforce from './metabolicViewerComponents/D3dforce';
-import SvgIcon from './SvgIcon';
-import Logo from '../assets/logo.svg';
-import { default as EventBus } from '../event-bus';
-import { getCompartmentFromName } from '../helpers/compartment';
-import { capitalize, reformatStringToLink } from '../helpers/utils';
-import { chemicalReaction } from '../helpers/chemical-formatters';
-import { getExpLvlLegend } from '../expression-sources/hpa';
+import Svgmap from 'components/explorer/gemsViewer/Svgmap';
+import D3dforce from 'components/explorer/gemsViewer/D3dforce';
+import Logo from '../../assets/logo.svg';
+import { default as EventBus } from '../../event-bus';
+import { capitalize, reformatStringToLink } from '../../helpers/utils';
+import { chemicalReaction } from '../../helpers/chemical-formatters';
+import { getExpLvlLegend } from '../../expression-sources/hpa';
 
 export default {
-  name: 'metabolic-viewer',
+  name: 'gems-viewer',
   components: {
-    SvgIcon,
     Svgmap,
     D3dforce,
   },
@@ -196,22 +211,24 @@ export default {
       showLoader: false,
 
       compartments: {},
-      compartmentStats: {},
-      compartmentNameOrder: [
-        'Endoplasmic reticulum',
-        'Golgi apparatus',
-        'Lysosome',
-        'Mitochondria',
-        'Nucleus',
-        'Peroxisome',
-        'Cytosol_1',
-        'Cytosol_2',
-        'Cytosol_3',
-        'Cytosol_4',
-        'Cytosol_5',
-        'Cytosol_6',
+      compartmentsSVG: {},
+      compartmentOrder: [
+        'er',
+        'golgi',
+        'lysosome',
+        'mitochondria',
+        'nucleus',
+        'peroxisome',
+        'cytosol_1',
+        'cytosol_2',
+        'cytosol_3',
+        'cytosol_4',
+        'cytosol_5',
+        'cytosol_6',
       ],
       subsystems: {},
+      subsystemsStats: {},
+      subsystemsSVG: {},
       currentubsystem: null,
       subsystemCount: 0,
       systemOrder: [
@@ -298,22 +315,18 @@ export default {
     },
   },
   created() {
-    this.loadCompartments();
-    this.loadSubsystem();
+    this.loadSubComptData();
+    // this.loadSubsystemSVGData();
     this.loadHPATissue();
 
-    if (this.$route.path.toLowerCase().includes('metabolicviewer')) {
-      EventBus.$emit('showMetabolicViewer');
-    }
+    // if (this.$route.path.toLowerCase().includes('gemsviewer')) {
+    //   EventBus.$emit('showgemsviewer');
+    // }
 
-    EventBus.$on('showAction', (type, name, secondaryName, ids, forceReload) => {
-      console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
+    EventBus.$on('showAction', (type, name, ids, forceReload) => {
+      // console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
       this.requestedType = type;
-      if (type === 'subsystem') {
-        this.requestedName = secondaryName;
-      } else {
-        this.requestedName = name;
-      }
+      this.requestedName = name;
       if (this.dim3D) {
         if (['compartment', 'subsystem'].includes(type)) {
           EventBus.$emit('show3Dnetwork', type, this.requestedName);
@@ -360,30 +373,30 @@ export default {
     });
   },
   mounted() {
-    if (false && this.currentDisplayedType === 'wholemap' &&
-     !this.initialEmit) {
-      EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
-      this.initialEmit = true;
-    }
+    // if (false && this.currentDisplayedType === 'wholemap' &&
+    //  !this.initialEmit) {
+    //   EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
+    //   this.initialEmit = true;
+    // }
 
     // menu
     const self = this;
-    $('#menu').on('mouseenter', 'ul.l0 > li:has(ul)', function () {
+    $('#menu').on('mouseenter', 'ul.l0 > li:has(ul)', function f() {
       $('#menu ul.l1, #menu ul.l2').hide();
       $(this).find('ul').first().show();
       self.isHoverMenuItem = true;
     });
-    $('#menu').on('mouseleave', 'ul.l0 > li:has(ul)', function () {
+    $('#menu').on('mouseleave', 'ul.l0 > li:has(ul)', function f() {
       self.isHoverMenuItem = false;
       $(this).find('ul').first().delay(500)
-        .queue(function () {
+        .queue(function ff() {
           if (!self.isHoverMenuItem) {
             $(this).hide(0);
           }
           $(this).dequeue();
         });
     });
-    $('#menu').on('mouseenter', 'ul.l1 > li:has(ul)', function () {
+    $('#menu').on('mouseenter', 'ul.l1 > li:has(ul)', function f() {
       $('#menu ul.l2').hide();
       $(this).find('ul').first().show();
       self.isHoverMenuItem = true;
@@ -401,16 +414,12 @@ export default {
       }
       return false;
     },
-    viewOnGemsExplorer() {
+    viewOnGemsBrowser() {
       if (this.currentDisplayedType === 'subsystem') {
-        EventBus.$emit('updateSelTab', this.currentDisplayedType, this.currentDisplayedName);
+        EventBus.$emit('navigateTo', 'gemsBrowser', this.currentDisplayedType, this.subsystemsSVG[this.currentDisplayedName].subsystem);
       } else {
-        EventBus.$emit('updateSelTab', this.selectedElementData.type, this.selectedElementData.id);
+        EventBus.$emit('navigateTo', 'gemsBrowser', this.selectedElementData.type, this.selectedElementData.id);
       }
-      this.hideNetworkGraph();
-    },
-    hideNetworkGraph() {
-      EventBus.$emit('toggleNetworkGraph');
     },
     // globalMapSelected() {
     //   this.accordionLevelSelected = 'wholemap';
@@ -438,7 +447,7 @@ export default {
       }
     },
     handleLoadComplete(isSuccess, errorMessage) {
-      console.log(`${isSuccess} ${errorMessage}`);
+      // console.log(`${isSuccess} ${errorMessage}`);
       if (!isSuccess) {
         // show error
         this.errorMessage = errorMessage;
@@ -457,15 +466,43 @@ export default {
       this.currentDisplayedName = this.requestedName;
       this.showLoader = false;
     },
-    loadCompartments() {
-      for (const Cname of this.compartmentNameOrder) {
-        this.compartments[Cname] = getCompartmentFromName(Cname);
-      }
-      axios.get(`${this.model}/compartments_svg/`)
+    loadSubComptData() {
+      axios.get(`${this.model}/viewer/`)
       .then((response) => {
-        this.compartmentStats = {};
-        for (const compInfo of response.data) {
-          this.compartmentStats[compInfo.display_name] = compInfo;
+        this.compartments = {};
+        for (const c of response.data.compartment) {
+          this.compartments[c.name] = c;
+        }
+        this.compartmentsSVG = {};
+        for (const c of response.data.compartmentsvg) {
+          this.compartmentsSVG[c.id] = c;
+        }
+        this.subsystemsStats = {};
+        for (const s of response.data.subsystem) {
+          this.subsystemsStats[s.name] = s;
+        }
+        this.subsystemsSVG = {};
+        for (const s of response.data.subsystemsvg) {
+          this.subsystemsSVG[s.id] = s;
+          this.subsystemsStats[s.subsystem].id = s.id;
+        }
+        const systems = response.data.subsystem.reduce((subarray, el) => {
+          const arr = subarray;
+          if (!arr[el.system]) { arr[el.system] = []; }
+          el.id = this.subsystemsStats[el.name].id; // eslint-disable-line no-param-reassign
+          arr[el.system].push(el);
+          return arr;
+        }, {});
+        this.subsystems = systems;
+        for (const k of Object.keys(systems)) {
+          this.subsystems[k] = this.subsystems[k].sort(
+            (a, b) => {
+              if (a.name > b.name) {
+                return 1;
+              }
+              return a.name < b.name ? -1 : 0;
+            }
+          );
         }
       })
       .catch((error) => {
@@ -474,36 +511,6 @@ export default {
             this.errorMessage = this.$t('unknownError');
         }
       });
-    },
-    loadSubsystem() {
-      axios.get(`${this.model}/subsystems`)
-        .then((response) => {
-          const systems = response.data.reduce((subarray, el) => {
-            const arr = subarray;
-            if (!arr[el.system]) { arr[el.system] = []; }
-            arr[el.system].push(el);
-            return arr;
-          }, {});
-          this.subsystems = systems;
-          this.subsystemCount = 0;
-          for (const k of Object.keys(systems)) {
-            this.subsystems[k] = this.subsystems[k].sort(
-              (a, b) => {
-                if (a.name > b.name) {
-                  return 1;
-                }
-                return a.name < b.name ? -1 : 0;
-              }
-            );
-            this.subsystemCount += systems[k].length;
-          }
-        })
-        .catch((error) => {
-          switch (error.response.status) {
-            default:
-              this.errorMessage = this.$t('unknownError');
-          }
-        });
     },
     loadHPATissue() {
       axios.get(`${this.model}/enzymes/hpa_tissue/`)
@@ -527,15 +534,12 @@ export default {
     },
     showCompartment(compartment) {
       this.hideDropleftMenus();
-      EventBus.$emit('requestViewer', 'compartment', compartment, '', []);
+      EventBus.$emit('showAction', 'compartment', compartment, [], false);
     },
-    showSubsystem() {
+    showSubsystem(subsystem) {
       this.hideDropleftMenus();
-      // if (this.selectedSystem !== 'Collection of reactions') {
-      //   EventBus.$emit('showSubsystem', this.selectedSubsystem.name);
-      // }
+      EventBus.$emit('showAction', 'subsystem', subsystem, [], false);
     },
-    getCompartmentFromName,
     capitalize,
     reformatStringToLink,
     chemicalReaction,
@@ -546,10 +550,10 @@ export default {
 
 <style lang="scss">
 
-$navbar-height: 6rem;
-$footer-height: 8.75rem;
+$navbar-height: 6.5rem;
+$footer-height: 9.8rem;
 
-#metabolicViewer {
+#gemsViewer {
   border: 1px solid black;
   #iTopBar {
     height: 60px;
@@ -574,19 +578,19 @@ $footer-height: 8.75rem;
   }
 
   .is-fullheight {
-    min-height: calc(100vh - #{$navbar-height} - #{$footer-height} - .75rem );
-    max-height: calc(100vh - #{$navbar-height} - #{$footer-height} - .75rem );
-    height: calc(100vh - #{$navbar-height} - #{$footer-height} - .75rem );
+    min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    height: calc(100vh - #{$navbar-height} - #{$footer-height});
     /*display: flex;*/
     .column {
       overflow-y: auto;
     }
   }
 
-/*
+
   #iMainPanel {
-    border: 1px solid black;
-  }*/
+    margin-bottom: 0;
+  }
 
 /*  #iSwitch {
     label {
@@ -652,10 +656,12 @@ $footer-height: 8.75rem;
   }
 
   #errorBar {
+    z-index: 11;
     position: absolute;
     margin: 0;
     right: 0;
-    bottom: 0;
+    bottom: 35px;
+    border: 1px solid #FF4D4D;
   }
 
   .slide-fade-enter-active {
@@ -673,7 +679,7 @@ $footer-height: 8.75rem;
   #menu ul {
     list-style: none;
     &.vhs, &.l2 {
-      max-height: 75vh; overflow-y: auto;
+      max-height: 65vh; overflow-y: auto;
     }
   }
   #menu li {

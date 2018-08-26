@@ -10,8 +10,7 @@
 
 import axios from 'axios';
 import forceGraph3D from '3d-force-graph';
-import { getCompartmentFromName } from '../../helpers/compartment';
-import { default as EventBus } from '../../event-bus';
+import { default as EventBus } from '../../../event-bus';
 
 export default {
   name: 'd3dforce',
@@ -33,8 +32,8 @@ export default {
   },
   created() {
     EventBus.$on('show3Dnetwork', (type, name) => {
-      console.log('show 3D network');
-      console.log(`emit ${type} ${name}`);
+      // console.log('show 3D network');
+      // console.log(`emit ${type} ${name}`);
       if (name.toLowerCase().substr(0, 7) === 'cytosol') {
         name = 'cytosol'; // eslint-disable-line no-param-reassign
       }
@@ -47,7 +46,7 @@ export default {
       }
     });
     EventBus.$on('destroy3Dnetwork', () => {
-      console.log('quit 3D network');
+      // console.log('quit 3D network');
       if (this.graph) {
         // this.graph.resetProps();
         // this.graph.null;
@@ -61,7 +60,6 @@ export default {
       this.$emit('loading');
       axios.get(`/${this.model}/json/${this.loadedComponentType}/${this.loadedComponentName}`)
         .then((response) => {
-          console.log(response);
           this.network = response.data;
           setTimeout(() => {
             if (this.graph === null) {
@@ -74,14 +72,12 @@ export default {
           }, 0);
         })
         .catch((error) => {
-          console.log(error);
           this.$emit('loadComplete', false, error);
         });
     },
     constructGraph() {
       const width = this.$refs.graphParent.offsetParent.offsetWidth; // FIXME
       const height = this.$refs.graphParent.offsetParent.offsetHeight; // FIXME
-      console.log(`width ${width} ${height}`);
       this.graph = forceGraph3D()(document.getElementById('3d-graph'))
         .width(width).height(height)
         .nodeLabel('n')
@@ -98,7 +94,6 @@ export default {
         .warmupTicks(100)
         .cooldownTicks(0);
     },
-    getCompartmentFromName,
   },
 };
 </script>

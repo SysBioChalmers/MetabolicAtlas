@@ -88,7 +88,7 @@ def populate_database(database, yaml_file, model_label, model_pmid, delete=False
 
         Add svg data with:
 
-            python manage.py addCompartmentSubsystemInformation %s --compartment-svg-file database_generation/%s/compartmentSVF.tsv --write-connectivity-files
+            python manage.py addMapsInformation %s ['compartment'|'subsystem'] [SVG file directory] database_generation/%s/[metadatafile].tsv
 
         Add currency met with:
 
