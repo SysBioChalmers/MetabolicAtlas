@@ -5,6 +5,7 @@ import csv
 import os
 import re
 import operator
+import hashlib
 
 from django.db import models
 from api.models import *
@@ -14,8 +15,11 @@ from django.db import connection
 from django.db import connections
 from django.db.models import Q
 
-padding = 500
-svgFolder = "/project/svgs/"
+
+def file_as_bytes(file):
+    with file:
+        return file.read()
+
 
 def read_map_reaction(filePath):
     """ Read svgs file and get all reactions ID and its coordinate x,y """
@@ -899,63 +903,93 @@ def compare_database_and_svg(compt_rme_svg, compt_rme, compt_sub_svg):
     input("continue?")
 
 
+
+
 def processData(database, map_type, map_directory, svg_map_metadata_file):
     # insert svg metadata
     if map_type == 'compartment':
-        #delete
-        CompartmentSvg.objects.using(database).all().delete()
-
         with open(svg_map_metadata_file, 'r') as f:
             reader = csv.reader(f, delimiter='\t')
             for ci in reader:
-                if ci[0][0] == '#':
+                if not ci or ci[0][0] == '#':
                     continue
                 compt = Compartment.objects.using(database).filter(name=ci[1])
                 if not compt:
                     print("Error: cannot match the compartment information name " + ci[1] + " to a compartment...")
                     exit(1)
 
-                svg_path = os.path.join(map_directory, ci[3])
-                if not os.path.isfile(svg_path):
-                    print("Error: file '" + svg_path + "' not found")
-                    exit(1)
-
                 if not re.match('[0-9a-zA-Z_]+[.]svg$', ci[3]):
                     print("invalid file name %s, expected to match [0-9a-zA-Z_]+[.]svg$")
                     exit(1)
 
-                cinfo = CompartmentSvg(id=ci[0], compartment=compt[0], display_name=ci[2], filename=ci[3], letter_code=ci[4])
-                cinfo.save(using=database)
+                inDB = False
+                try:
+                    cinfo = CompartmentSvg.objects.using(database).get(id=ci[0])
+                    inDB = True
+                except CompartmentSvg.DoesNotExist:
+                    cinfo = CompartmentSvg(id=ci[0], compartment=compt[0], display_name=ci[2], filename=ci[3], letter_code=ci[4])
+                    cinfo.save(using=database)
 
-                insert_compartment_svg_connectivity_and_stats(database, cinfo, map_directory)
+                svg_path = os.path.join(map_directory, ci[3])
+                if not os.path.isfile(svg_path):
+                    print("Warning: file '" + svg_path + "' not found")
+                    CompartmentSvg.objects.using(database). \
+                        filter(id=cinfo.id).update(sha=None, reaction_count=0, subsystem_count=0, \
+                         metabolite_count=0, unique_metabolite_count=0, enzyme_count=0)
+                    continue
+
+                # get sha
+                sha = hashlib.sha256(file_as_bytes(open(svg_path, 'rb'))).hexdigest()
+                if sha != cinfo.sha:
+                    if inDB:
+                        cinfo.delete() # delete the entry and all rows in foreign tables
+                        cinfo = CompartmentSvg(id=ci[0], compartment=compt[0], display_name=ci[2], filename=ci[3], letter_code=ci[4], sha=sha)
+                        cinfo.save(using=database)
+                    insert_compartment_svg_connectivity_and_stats(database, cinfo, map_directory)
+                else:
+                    print("SVG file '%s' is unchanged" % ci[3])
 
     elif map_type == 'subsystem':
-        #delete
-        SubsystemSvg.objects.using(database).all().delete()
-
         with open(svg_map_metadata_file, 'r') as f:
             reader = csv.reader(f, delimiter='\t')
             for si in reader:
-                if si[0][0] == '#':
+                if not si or si[0][0] == '#':
                     continue
                 sub = Subsystem.objects.using(database).filter(name=si[1])
                 if not sub:
                     print("Error: cannot match the subsystem information name " + si[1] + " to a subsystem...")
                     exit(1)
 
-                svg_path = os.path.join(map_directory, si[3])
-                if not os.path.isfile(svg_path):
-                    print("Error: file '" + svg_path + "' not found")
-                    exit(1)
-
                 if not re.match('[0-9a-zA-Z_]+[.]svg$', si[3]):
                     print("invalid file name %s, expected to match [0-9a-zA-Z_]+[.]svg$")
                     exit(1)
 
-                sinfo = SubsystemSvg(id=si[0], subsystem=sub[0], display_name=si[2], filename=si[3])
-                sinfo.save(using=database)
+                inDB = False
+                try:
+                    sinfo = SubsystemSvg.objects.using(database).get(id=si[0])
+                    inDB = True
+                except SubsystemSvg.DoesNotExist:
+                    sinfo = SubsystemSvg(id=si[0], subsystem=sub[0], display_name=si[2], filename=si[3])
+                    sinfo.save(using=database)
 
-                insert_subsystem_svg_connectivity_and_stats(database, sinfo, map_directory)
+                svg_path = os.path.join(map_directory, si[3])
+                if not os.path.isfile(svg_path):
+                    print("Warning: file '" + svg_path + "' not found")
+                    SubsystemSvg.objects.using(database). \
+                        filter(id=sinfo.id).update(sha=None, reaction_count=0, compartment_count=0, \
+                         metabolite_count=0, unique_metabolite_count=0, enzyme_count=0)
+                    continue
+
+                # get sha
+                sha = hashlib.sha256(file_as_bytes(open(svg_path, 'rb'))).hexdigest()
+                if sha != sinfo.sha:
+                    if inDB:
+                        sinfo.delete() # delete the entry and all rows in foreign tables
+                        sinfo = SubsystemSvg(id=si[0], subsystem=sub[0], display_name=si[2], filename=si[3], sha=sha)
+                        sinfo.save(using=database)
+                    insert_subsystem_svg_connectivity_and_stats(database, sinfo, map_directory)
+                else:
+                    print("SVG file '%s' is unchanged" % si[3])
 
 
 class Command(BaseCommand):

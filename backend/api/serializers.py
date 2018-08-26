@@ -187,6 +187,7 @@ class CompartmentSerializer(serializers.ModelSerializer):
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
     compartment = serializers.SlugRelatedField(slug_field='name', queryset=APImodels.Compartment.objects.all())
+    # compartment = CompartmentSerializer()
     subsystem = serializers.SlugRelatedField(
         many=True,
         read_only=True,
@@ -194,8 +195,9 @@ class CompartmentSvgSerializer(serializers.ModelSerializer):
      )
     class Meta:
         model = APImodels.CompartmentSvg
-        fields = ('id', 'compartment', 'display_name', 'filename', 'letter_code', 'subsystem', 'metabolite_count', 'enzyme_count', 'reaction_count',
-         'subsystem_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level')
+        fields = ('id', 'compartment', 'display_name', 'filename', 'letter_code', 'subsystem', 'metabolite_count',
+         'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count', 'min_zoom_level',
+          'max_zoom_level', 'node_zoom_level', 'label_zoom_level', 'sha')
 
 
 class SubsystemSerializer(serializers.ModelSerializer):
@@ -216,7 +218,7 @@ class SubsystemSvgSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.SubsystemSvg
         fields = ('id', 'subsystem', 'display_name', 'filename', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 
-            'reaction_count', 'compartment_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level')
+            'reaction_count', 'compartment_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level', 'sha')
 
 # =======================================================================================
 # models database
