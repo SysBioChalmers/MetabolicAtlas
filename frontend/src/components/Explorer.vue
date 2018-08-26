@@ -146,22 +146,17 @@ export default {
     },
   },
   beforeRouteUpdate(to, from, next) {
-    // console.log('BRU ex');
     this.setup();
     next();
   },
-  // beforeMount() {
-  //   this.setup();
-  // },
   created() {
     this.setup();
     this.getModelList();
     this.loadCompartmentData(this.model);
 
-    EventBus.$on('requestViewer', (type, name, secondaryName, ids) => {
-      this.showGemsViewer = true;
-      // console.log(`requestViewer ${type}, ${name}, ${secondaryName}, ${ids}`);
-      EventBus.$emit('showAction', type, name, secondaryName, ids);
+    EventBus.$on('requestViewer', (type, name, ids, forceReload) => {
+      this.displayViewer();
+      EventBus.$emit('showAction', type, name, ids, forceReload);
     });
     EventBus.$on('showGemsViewer', () => {
       this.displayViewer();

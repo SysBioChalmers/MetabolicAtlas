@@ -729,7 +729,7 @@ export default {
       if (name === 'cytosol') {
         name = 'cytosol_1';  // eslint-disable-line no-param-reassign
       }
-      EventBus.$emit('requestViewer', 'compartment', name, '', []);
+      EventBus.$emit('requestViewer', 'compartment', name, [], false);
     },
 
   },

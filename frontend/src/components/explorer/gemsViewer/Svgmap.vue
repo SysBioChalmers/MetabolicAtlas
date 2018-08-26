@@ -34,7 +34,6 @@ import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
-import { getCompartmentFromName, getSubsystemFromName } from '../../../helpers/compartment';
 import { default as EventBus } from '../../../event-bus';
 import { getExpressionColor } from '../../../expression-sources/hpa';
 
@@ -221,20 +220,25 @@ export default {
     },
     loadSVG(id, callback) {
       // load the svg file from the server
-      // if already loaded, just call the callback funtion
       this.$emit('loading');
-      let currentLoad = getCompartmentFromName(id);
+      // reset some values
+      this.searchTerm = '';
+      this.totalSearchMatch = 0;
+      this.searchInputClass = 'is-info';
+
+      // if already loaded, just call the callback funtion
+      let currentLoad = this.$parent.compartmentsSVG[id];
       if (!currentLoad) {
-        currentLoad = getSubsystemFromName(id);
+        currentLoad = this.$parent.subsystemsSVG[id];
         if (!currentLoad) {
           this.loadedMapType = null;
           this.$emit('loadComplete', false, '');
           return;
         }
       }
-      const newSvgName = currentLoad.svgName;
+      const newSvgName = currentLoad.filename;
       // TODO add the type in url
-      const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
+      const svgLink = `${window.location.origin}/svgs/${newSvgName}`;
       if (!newSvgName) {
         // TODO remove this when all svg files are available
         this.$emit('loadComplete', false, 'SVG map not available.');
@@ -330,7 +334,7 @@ export default {
         return;
       }
       this.isLoadingSearch = true;
-      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.letter}/${term}`)
+      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.id}/${term}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
         this.ids = response.data;

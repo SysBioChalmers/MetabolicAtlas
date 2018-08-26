@@ -44,7 +44,6 @@
 <script>
 
 import axios from 'axios';
-import { getCompartmentFromName } from '../../../helpers/compartment';
 import { default as EventBus } from '../../../event-bus';
 
 export default {
@@ -114,7 +113,6 @@ export default {
     zoomOnElements(compartmentName, ids) {
       EventBus.$emit('showSVGmap', 'find', compartmentName, ids);
     },
-    getCompartmentFromName,
   },
 };
 </script>
