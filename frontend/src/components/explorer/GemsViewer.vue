@@ -4,7 +4,7 @@
       <div class="column is-one-fifth is-fullheight" id="iSideBar">
         <div id="menu">
           <ul class="l0">
-            <li @click="loadHPATissue" :class="{'clickable' : true, 'disable' : !currentDisplayedName }" >HPA RNA levels
+            <li :class="{'clickable' : true, 'disable' : !currentDisplayedName }" >HPA RNA levels
               <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
               <ul class="vhs l1">
                 <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')">None</li>
