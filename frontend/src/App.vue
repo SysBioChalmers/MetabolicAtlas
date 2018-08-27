@@ -87,6 +87,9 @@
               <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
               <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
               <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
+              <a href="https://nbis.se/"><img src="./assets/nbislogo-green.png" /></a>
+              <a href="https://www.scilifelab.se"><img src="./assets/scilifelab-green.png" /></a>
+              <a href="https://www.sysbio.se"><img src="./assets/sysbio_logo.jpg" /></a>
             </p>
           </div>
         </div>
