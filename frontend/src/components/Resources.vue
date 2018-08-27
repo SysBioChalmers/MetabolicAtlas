@@ -107,6 +107,40 @@
         </div>
       </div>
     </div>
+    <div class="rsection">
+      <h2 id="api" class="title is-2">API</h2>
+      <div class="columns">
+        <div class="column is-1">
+          <a href="swagger">GEMs API</a>
+        </div>
+        <div class="column">
+          <div class="">
+            <span>
+              The set of URL requests for the <a href="metabolicatlas.org">metabolicatlas.org</a>
+              that will return different .json files
+              depending on the current request.
+              Gives you the possibility of trying it out to see what the
+              results would look like.
+              Main focus on the data available in the GEMs.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rsection">
+      <h2 id="additional" class="title is-2">Additional resources</h2>
+      <div class="columns">
+        <div class="column is-1">
+          <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
+        </div>
+        <div class="column">
+          <span>
+            All the online tools powered by the RAVEN toolbox
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
   </section>
 </template>
 
