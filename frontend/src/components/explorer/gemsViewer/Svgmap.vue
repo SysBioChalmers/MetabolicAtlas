@@ -1,28 +1,26 @@
 <template>
-  <div>
-    <div class="svgbox">
-      <div id="svg-wrapper" v-html="svgContent">
+  <div class="svgbox">
+    <div id="svg-wrapper" v-html="svgContent">
+    </div>
+    <div id="svgOption" class="overlay">
+      <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''"><i class="fa fa-search-plus"></i></span>
+      <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''"><i class="fa fa-search-minus"></i></span>
+      <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
+    </div>
+    <div id="svgSearch" class="overlay">
+      <div><span id="st">Search:</span></div>
+      <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
+        <input id="searchInput" class="input"
+        type="text" 
+        :class="searchInputClass"
+        v-model.trim="searchTerm"
+        v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"/>
       </div>
-      <div id="svgOption" class="overlay">
-        <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''"><i class="fa fa-search-plus"></i></span>
-        <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''"><i class="fa fa-search-minus"></i></span>
-        <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
-      </div>
-      <div id="svgSearch" class="overlay">
-        <div><span id="st">Search:</span></div>
-        <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
-          <input id="searchInput" class="input"
-          type="text" 
-          :class="searchInputClass"
-          v-model.trim="searchTerm"
-          v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"/>
-        </div>
-        <div v-show="searchTerm && totalSearchMatch">
-          <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
-          <span class="button has-text-dark" @click="searchPrevElementOnSVG"><i class="fa fa-angle-left"></i></span>
-          <span class="button has-text-dark" @click="searchNextElementOnSVG"><i class="fa fa-angle-right"></i></span>
-          <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
-        </div>
+      <div v-show="searchTerm && totalSearchMatch">
+        <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
+        <span class="button has-text-dark" @click="searchPrevElementOnSVG"><i class="fa fa-angle-left"></i></span>
+        <span class="button has-text-dark" @click="searchNextElementOnSVG"><i class="fa fa-angle-right"></i></span>
+        <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
       </div>
     </div>
   </div>
@@ -534,10 +532,6 @@ export default {
 </script>
 
 <style lang="scss">
-  #svg-wrapper {
-    margin-top: 0.75rem;
-  }
-
   .met, .rea, .enz {
     .shape, .lbl {
       cursor: pointer;
@@ -562,18 +556,10 @@ export default {
     height:100%;
   }
 
-  .overlay {
-    position: absolute;
-    z-index: 10;
-    padding: 15px;
-    border-radius: 5px;
-    background: rgba(22, 22, 22, 0.8);
-  }
-
   #svgOption {
     position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
+    top: 2.25rem;
+    left: 2.25rem;
     span:not(:last-child) {
       display: inline-block;
       margin-right: 5px;
@@ -581,7 +567,7 @@ export default {
   }
 
   #svgSearch {
-    top: 1.5rem;
+    top: 2.25rem;
     left: 25%;
     margin: 0;
     padding: 15px;
