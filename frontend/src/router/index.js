@@ -1,30 +1,29 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import GemsExplorer from 'components/GemsExplorer';
+import Home from 'components/Home';
+import Explorer from 'components/Explorer';
 import Resources from 'components/Resources';
 import About from 'components/About';
 import Help from 'components/Help';
-import SearchTable from 'components/SearchTable';
 import Models from 'components/Models';
 import CompareModels from 'components/CompareModels';
-import MetabolicViewer from 'components/MetabolicViewer';
 
 Vue.use(VueRouter);
 
 const routes = [
-  { path: '/', name: 'GemsExplorerRoot', component: GemsExplorer },
-  { path: '/gemsExplorer/:model/', name: 'GemsExplorerModel', component: GemsExplorer, props: true },
-  { path: '/gemsExplorer/:model/:type/:id', name: 'GemsExplorer', component: GemsExplorer, props: true },
-  { path: '/metabolicViewer/:model/', name: 'MetabolicViewer', component: MetabolicViewer, props: true },
+  { path: '/', name: 'Home', component: Home },
+  { path: '/explore', name: 'explorerRoot', component: Explorer, props: true },
+  { path: '/explore/search', name: 'search', component: Explorer },
+  { path: '/explore/browser/:model', name: 'browserRoot', component: Explorer, props: true },
+  { path: '/explore/browser/:model/:type/:id', name: 'browser', component: Explorer, props: true },
+  { path: '/explore/viewer/:model', name: 'viewer', component: Explorer, props: true },
   { path: '/about', name: 'about', component: About },
-  { path: '/search', name: 'search', component: SearchTable },
   { path: '/gems', name: 'gems', component: Models },
-  { path: '/gems/compare/', name: 'comparemodels', component: CompareModels },
+  { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
   { path: '/gems/:id', name: 'gemsID', component: Models },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Help },
-  { path: '/contact', name: 'contact', component: Contact },
-  { path: '/*', name: 'GemsExplorerDefault', component: GemsExplorer },
+  { path: '/*', name: 'Home', component: Home },
 ];
 
 const router = new VueRouter({

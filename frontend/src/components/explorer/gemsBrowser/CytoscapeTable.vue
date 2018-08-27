@@ -2,11 +2,11 @@
   <div class="container cytoscape-table">
     <div class="columns">
       <div class="column" style="padding-bottom: 0">
-        <table-search
+        <cytoscape-table-search
           :reset="resetTable"
           @search="searchTable($event)"
           class="is-10"
-        ></table-search>
+        ></cytoscape-table-search>
       </div>
       <div class="column is-2" style="padding-bottom: 0">
         <div class="columns">
@@ -81,15 +81,15 @@
 
 <script>
 
-import TableSearch from 'components/TableSearch';
-import { default as compare } from '../helpers/compare';
-import { default as downloadFile } from '../helpers/excel-export';
-import { default as EventBus } from '../event-bus';
+import CytoscapeTableSearch from 'components/explorer/gemsBrowser/CytoscapeTableSearch';
+import { default as compare } from '../../../helpers/compare';
+import { default as downloadFile } from '../../../helpers/excel-export';
+import { default as EventBus } from '../../../event-bus';
 
 export default {
   name: 'cytoscape-table',
   components: {
-    TableSearch,
+    CytoscapeTableSearch,
   },
   props: ['structure', 'elms', 'selectedElmId', 'filename', 'sheetname'],
   data() {

@@ -1,28 +1,26 @@
 <template>
-  <div>
-    <div class="svgbox">
-      <div id="svg-wrapper" v-html="svgContent">
+  <div class="svgbox">
+    <div id="svg-wrapper" v-html="svgContent">
+    </div>
+    <div id="svgOption" class="overlay">
+      <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''"><i class="fa fa-search-plus"></i></span>
+      <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''"><i class="fa fa-search-minus"></i></span>
+      <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
+    </div>
+    <div id="svgSearch" class="overlay">
+      <div><span id="st">Search:</span></div>
+      <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
+        <input id="searchInput" class="input"
+        type="text" 
+        :class="searchInputClass"
+        v-model.trim="searchTerm"
+        v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"/>
       </div>
-      <div id="svgOption" class="overlay">
-        <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''"><i class="fa fa-search-plus"></i></span>
-        <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''"><i class="fa fa-search-minus"></i></span>
-        <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
-      </div>
-      <div id="svgSearch" class="overlay">
-        <div><span id="st">Search:</span></div>
-        <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
-          <input id="searchInput" class="input"
-          type="text" 
-          :class="searchInputClass"
-          v-model.trim="searchTerm"
-          v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"/>
-        </div>
-        <div v-show="searchTerm && totalSearchMatch">
-          <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
-          <span class="button has-text-dark" @click="searchPrevElementOnSVG"><i class="fa fa-angle-left"></i></span>
-          <span class="button has-text-dark" @click="searchNextElementOnSVG"><i class="fa fa-angle-right"></i></span>
-          <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
-        </div>
+      <div v-show="searchTerm && totalSearchMatch">
+        <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
+        <span class="button has-text-dark" @click="searchPrevElementOnSVG"><i class="fa fa-angle-left"></i></span>
+        <span class="button has-text-dark" @click="searchNextElementOnSVG"><i class="fa fa-angle-right"></i></span>
+        <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
       </div>
     </div>
   </div>
@@ -34,9 +32,8 @@ import $ from 'jquery';
 import axios from 'axios';
 import svgPanZoom from 'svg-pan-zoom';
 import Loader from 'components/Loader';
-import { getCompartmentFromName, getSubsystemFromName } from '../../helpers/compartment';
-import { default as EventBus } from '../../event-bus';
-import { getExpressionColor } from '../../expression-sources/hpa';
+import { default as EventBus } from '../../../event-bus';
+import { getExpressionColor } from '../../../expression-sources/hpa';
 
 export default {
   name: 'svgmap',
@@ -59,6 +56,7 @@ export default {
       ids: [],
       elmFound: [],
       elmsHL: [],
+      // TODO handle multi model history
       selectedItemHistory: {},
 
       HPARNAlevelsHistory: {},
@@ -71,7 +69,6 @@ export default {
       currentSearchMatch: 0,
       totalSearchMatch: 0,
 
-      HLonly: false,
       zoomBox: {
         minX: 99999,
         maxX: 0,
@@ -82,6 +79,9 @@ export default {
         h: 0,
         w: 0,
       },
+      maxZoomLvl: 0.65,
+      labelZoomLvl: 0.40,
+      nodeZoomLvl: 0.15,
       allowZoom: true,
       dragging: false,
     };
@@ -102,20 +102,15 @@ export default {
   },
   created() {
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
-      console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
+      // console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {
         this.svgName = '';
       }
       // set the type, even if might fail to load the map?
       this.loadedMapType = type;
-      if (type === 'compartment') {
-        this.HLonly = false;
+      if (type === 'compartment' || type === 'subsystem') {
         this.showMap(name);
-      } else if (type === 'subsystem') {
-        this.HLonly = false;
-        this.showTiles(name, ids);
       } else if (type === 'find') {
-        this.HLonly = false;
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
         this.loadSVG('wholemap', null);
@@ -162,19 +157,16 @@ export default {
     loadSvgPanZoom(callback) {
       // load the lib svgPanZoom on the SVG loaded
       setTimeout(() => {
-        // const ZL = this.zoomLevel;
         this.panZoom = svgPanZoom('#svg-wrapper svg', {
           zoomEnabled: true,
           controlIconsEnabled: false,
           minZoom: 0.5,
           maxZoom: 30,
-          zoomScaleSensitivity: 0.4,
+          zoomScaleSensitivity: 0.2,
           fit: true,
           beforeZoom: (oldzl, newzl) => {
-            if (newzl > this.loadedMap.maxZoomLvl + 0.001) {
-              this.allowZoom = false;
-              return false;
-            } else if (newzl < this.loadedMap.minZoomLvl - 0.001) {
+            const rzl = this.panZoom.getSizes().realZoom;
+            if (oldzl < newzl && rzl > this.maxZoomLvl + 0.01) {
               this.allowZoom = false;
               return false;
             }
@@ -187,15 +179,14 @@ export default {
             }
             return true;
           },
-          onZoom: (zc) => {
-            // console.log(`rz: ${this.getSizes().realZoom} | zoom ${this.getZoom()}`);
-            this.zoomLevel = zc;
-            if (zc >= this.loadedMap.RenderZoomLvl.metaboliteLabel) {
+          onZoom: () => {
+            const rzl = this.panZoom.getSizes().realZoom;
+            if (rzl >= this.labelZoomLvl) {
               $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'inline');
             } else {
               $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'none');
             }
-            if (zc >= this.loadedMap.RenderZoomLvl.metabolite) {
+            if (rzl >= this.nodeZoomLvl) {
               $('.met, .rea, .enz, .fe, .ee').attr('display', 'inline');
             } else {
               $('.met, .rea, .enz, .fe, .ee').attr('display', 'none');
@@ -214,33 +205,38 @@ export default {
     },
     svgfit() {
       $('#svg-wrapper svg').attr('width', '100%');
-      const a = $('.svgbox').first().offset().top;
-      const vph = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-      const v = vph - a;
+      const vph = $('.svgbox').first().innerHeight();
+      // console.log('vph', vph);
 
-      $('#svg-wrapper svg').attr('height', `${v}px`);
+      $('#svg-wrapper svg').attr('height', `${vph}px`);
       if (this.panZoom) {
         this.panZoom.resize(); // update SVG cached size
         this.panZoom.fit();
         this.panZoom.center();
+        this.panZoom.zoomOut(); // tmp fix for iacurate fitting
       }
     },
     loadSVG(id, callback) {
       // load the svg file from the server
+      this.$emit('loading');
+      // reset some values
+      this.searchTerm = '';
+      this.totalSearchMatch = 0;
+      this.searchInputClass = 'is-info';
+
       // if already loaded, just call the callback funtion
-      let currentLoad = getCompartmentFromName(id);
+      let currentLoad = this.$parent.compartmentsSVG[id];
       if (!currentLoad) {
-        currentLoad = getSubsystemFromName(id);
+        currentLoad = this.$parent.subsystemsSVG[id];
         if (!currentLoad) {
           this.loadedMapType = null;
           this.$emit('loadComplete', false, '');
           return;
         }
       }
-      const newSvgName = currentLoad.svgName;
+      const newSvgName = currentLoad.filename;
       // TODO add the type in url
-      const svgLink = `${window.location.origin}/svgs/${newSvgName}.svg`;
-      this.$emit('loading');
+      const svgLink = `${window.location.origin}/svgs/${newSvgName}`;
       if (!newSvgName) {
         // TODO remove this when all svg files are available
         this.$emit('loadComplete', false, 'SVG map not available.');
@@ -288,7 +284,7 @@ export default {
         this.readHPARNAlevels(tissue);
         return;
       }
-      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.name}`)
+      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.id}`)
       .then((response) => {
         this.HPARNAlevelsHistory[this.svgName] = response.data;
         setTimeout(() => {
@@ -336,7 +332,7 @@ export default {
         return;
       }
       this.isLoadingSearch = true;
-      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.letter}/${term}`)
+      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.id}/${term}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
         this.ids = response.data;
@@ -490,9 +486,9 @@ export default {
       });
       const viewBox = this.panZoom.getSizes().viewBox;
       let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
-      if (newScale > this.loadedMap.maxZoomLvl) {
-        // fix zoom round e.g. 30 => 30.00001235
-        newScale = this.loadedMap.maxZoomLvl - 0.01;
+      const maxZoomLvl = (this.maxZoomLvl * this.panZoom.getZoom()) / realZoom;
+      if (newScale > maxZoomLvl) {
+        newScale = maxZoomLvl + 0.01;
       }
       this.panZoom.zoom(newScale);
     },
@@ -536,13 +532,6 @@ export default {
 </script>
 
 <style lang="scss">
-  #svg-wrapper {
-    margin: 0;
-    svg {
-      width: 100%;
-    }
-  }
-
   .met, .rea, .enz {
     .shape, .lbl {
       cursor: pointer;
@@ -562,22 +551,15 @@ export default {
   .svgbox {
     position: relative;
     margin: 0;
+    padding: 0;
     width: 100%;
     height:100%;
   }
 
-  .overlay {
-    position: absolute;
-    z-index: 10;
-    padding: 15px;
-    border-radius: 5px;
-    background: rgba(22, 22, 22, 0.8);
-  }
-
   #svgOption {
     position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
+    top: 2.25rem;
+    left: 2.25rem;
     span:not(:last-child) {
       display: inline-block;
       margin-right: 5px;
@@ -585,7 +567,7 @@ export default {
   }
 
   #svgSearch {
-    top: 1.5rem;
+    top: 2.25rem;
     left: 25%;
     margin: 0;
     padding: 15px;

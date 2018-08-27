@@ -10,8 +10,7 @@
 
 import axios from 'axios';
 import forceGraph3D from '3d-force-graph';
-import { getCompartmentFromName } from '../../helpers/compartment';
-import { default as EventBus } from '../../event-bus';
+import { default as EventBus } from '../../../event-bus';
 
 export default {
   name: 'd3dforce',
@@ -25,6 +24,7 @@ export default {
       loadedComponentName: null,
       graph: null,
       emptyNetwork: true,
+      networkHistory: {},
       network: {
         nodes: [],
         links: [],
@@ -33,8 +33,6 @@ export default {
   },
   created() {
     EventBus.$on('show3Dnetwork', (type, name) => {
-      console.log('show 3D network');
-      console.log(`emit ${type} ${name}`);
       if (name.toLowerCase().substr(0, 7) === 'cytosol') {
         name = 'cytosol'; // eslint-disable-line no-param-reassign
       }
@@ -43,11 +41,17 @@ export default {
           this.emptyNetwork) {
         this.loadedComponentType = type;
         this.loadedComponentName = name;
-        this.getJson();
+        if (name in this.networkHistory) {
+          this.$emit('loading');
+          this.graph.graphData(this.networkHistory[name]);
+        } else {
+          this.getJson();
+        }
       }
     });
+
     EventBus.$on('destroy3Dnetwork', () => {
-      console.log('quit 3D network');
+      // console.log('quit 3D network');
       if (this.graph) {
         // this.graph.resetProps();
         // this.graph.null;
@@ -55,13 +59,17 @@ export default {
         this.emptyNetwork = true;
       }
     });
+
+    EventBus.$on('update3DLoadedComponent', (type, name) => {
+      this.loadedComponentType = type;
+      this.loadedComponentName = name;
+    });
   },
   methods: {
     getJson() {
       this.$emit('loading');
       axios.get(`/${this.model}/json/${this.loadedComponentType}/${this.loadedComponentName}`)
         .then((response) => {
-          console.log(response);
           this.network = response.data;
           setTimeout(() => {
             if (this.graph === null) {
@@ -70,18 +78,15 @@ export default {
               this.graph.graphData(this.network);
             }
             this.emptyNetwork = false;
-            this.$emit('loadComplete', true, '');
           }, 0);
         })
         .catch((error) => {
-          console.log(error);
           this.$emit('loadComplete', false, error);
         });
     },
     constructGraph() {
       const width = this.$refs.graphParent.offsetParent.offsetWidth; // FIXME
       const height = this.$refs.graphParent.offsetParent.offsetHeight; // FIXME
-      console.log(`width ${width} ${height}`);
       this.graph = forceGraph3D()(document.getElementById('3d-graph'))
         .width(width).height(height)
         .nodeLabel('n')
@@ -96,9 +101,12 @@ export default {
         .linkWidth(2)
         .nodeResolution(8)
         .warmupTicks(100)
-        .cooldownTicks(0);
+        .cooldownTicks(0)
+        .onEngineStop(() => {
+          this.$emit('loadComplete', true, '');
+          this.networkHistory[this.loadedComponentName] = this.network;
+        });
     },
-    getCompartmentFromName,
   },
 };
 </script>
@@ -107,6 +115,8 @@ export default {
 
   #3d-graph {
     height: 100%;
+    width:100%;
+    overflow: hidden;
   }
 
 </style>

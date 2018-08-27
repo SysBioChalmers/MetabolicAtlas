@@ -109,22 +109,25 @@ def search_on_map(request, model, map_type, map_name, term):
     query |= Q(external_id3__iexact=term)
     query |= Q(external_id4__iexact=term)
 
-    mapID = None
-    mapClassRC = None
-    mapClassReaction = None
     mapIDset = None
     if map_type == 'compartment':
         try:
-            compartment = APImodels.CompartmentSvg.objects.using(model).get(letter_code__iexact=map_name)
-            mapID = compartment.id
+            compartment = APImodels.CompartmentSvg.objects.using(model).get(id=map_name)
             mapIDsetRC  = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
-                .filter(Q(compartmentsvg=mapID)).values_list('rc_id')
+                .filter(Q(compartmentsvg=map_name)).values_list('rc_id')
             mapIDsetReaction = APImodels.ReactionCompartmentSvg.objects.using(model) \
-                .filter(Q(compartmentsvg=mapID)).values_list('reaction_id')
+                .filter(Q(compartmentsvg=map_name)).values_list('reaction_id')
         except APImodels.CompartmentSvg.DoesNotExist:
             return HttpResponse(status=404)
     else:
-        return HttpResponse(status=404)
+        try:
+            subsystem = APImodels.SubsystemSvg.objects.using(model).get(id=map_name)
+            mapIDsetRC  = APImodels.ReactionComponentSubsystemSvg.objects.using(model) \
+                .filter(Q(subsystemsvg=map_name)).values_list('rc_id')
+            mapIDsetReaction = APImodels.ReactionSubsystemSvg.objects.using(model) \
+                .filter(Q(subsystemsvg=map_name)).values_list('reaction_id')
+        except APImodels.SubsystemSvg.DoesNotExist:
+            return HttpResponse(status=404)
 
     # get the list of component id
     reaction_component_ids = APImodels.ReactionComponent.objects.using(model).filter(id__in=mapIDsetRC).filter(query).values_list('id', flat=True);
@@ -139,36 +142,36 @@ def search_on_map(request, model, map_type, map_name, term):
     return JSONResponse(results)
 
 
-@api_view()
-@is_model_valid
-def get_subsystem_coordinates(request, model, subsystem_name, compartment_name=False):
-    """
-    For a given subsystem name, get the compartment name and X,Y locations in the corresponding SVG map.
-    """
+# @api_view()
+# @is_model_valid
+# def get_subsystem_coordinates(request, model, subsystem_name, compartment_name=False):
+#     """
+#     For a given subsystem name, get the compartment name and X,Y locations in the corresponding SVG map.
+#     """
 
-    logging.warn(subsystem_name)
+#     logging.warn(subsystem_name)
 
-    try:
-        subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=subsystem_name)
-        subsystem_id = subsystem.id
-    except APImodels.Subsystem.DoesNotExist:
-        return HttpResponse(status=404)
+#     try:
+#         subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=subsystem_name)
+#         subsystem_id = subsystem.id
+#     except APImodels.Subsystem.DoesNotExist:
+#         return HttpResponse(status=404)
 
-    try:
-        if not compartment_name:
-            tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
-        else:
-            try:
-                compartment = APImodels.CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
-            except CompartmentSvg.DoesNotExist:
-                return HttpResponse(status=404)
-            tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartment)
+#     try:
+#         if not compartment_name:
+#             tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
+#         else:
+#             try:
+#                 compartment = APImodels.CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
+#             except CompartmentSvg.DoesNotExist:
+#                 return HttpResponse(status=404)
+#             tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartment)
 
-    except APImodels.TileSubsystem.DoesNotExist:
-        return HttpResponse(status=404)
-    serializer = TileSubsystemSerializer(tileSubsystem)
+#     except APImodels.TileSubsystem.DoesNotExist:
+#         return HttpResponse(status=404)
+#     serializer = TileSubsystemSerializer(tileSubsystem)
 
-    return JSONResponse(serializer.data)
+#     return JSONResponse(serializer.data)
 
 
 @api_view()
@@ -177,8 +180,10 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
     if component_name:
         if ctype == 'compartment':
             try:
-                compartment = APImodels.Compartment.objects.using(model).get(name__iexact=component_name)
-            except Subsystem.DoesNotExist:
+                # TODO fix 'cytosol' request
+                compartmentSVG = APImodels.CompartmentSvg.objects.using(model).get(id=component_name)
+                compartment = compartmentSVG.compartment
+            except APImodels.CompartmentSvg.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.ReactionCompartment.objects.using(model). \
@@ -187,8 +192,9 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                 prefetch_related('reactants', 'products', 'modifiers')
         else:
             try:
-                subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=component_name)
-            except Subsystem.DoesNotExist:
+                subsystemSVG = APImodels.SubsystemSvg.objects.using(model).get(id=component_name)
+                subsystem = subsystemSVG.subsystem
+            except APImodels.SubsystemSvg.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.SubsystemReaction.objects.using(model). \
@@ -338,6 +344,7 @@ def get_HPA_xml_content(request):
 
 @api_view()
 def HPA_enzyme_info(request, ensembl_id):
+    # TODO provide the model, remove 'hmr2'
     try:
         res = APImodels.ReactionComponent.objects.using('hmr2').get(id=ensembl_id)
         rcid = res.id
@@ -384,26 +391,56 @@ def get_compartment_svg(request, model, compartment_name):
 def get_compartments_svg(request, model):
     try:
         compartment_svg_info = APImodels.CompartmentSvg.objects.using(model).select_related('compartment').all()
-        compartment_info = APImodels.Compartment.objects.using(model).all()
     except APImodels.CompartmentSvg.DoesNotExist:
         return HttpResponse(status=404)
 
     compartmentSvgSerializer = APIserializer.CompartmentSvgSerializer(compartment_svg_info, many=True)
 
-    # get stats from Compartment and replace it
-    compartmentSerializer = APIserializer.CompartmentSerializer(compartment_info, many=True)
-    d = {}
-    for el in compartmentSerializer.data:
-        d[el['name']] = el
-
-    for el in compartmentSvgSerializer.data:
-        values = d[el['compartment']]
-        el['reaction_count'] = values['reaction_count']
-        el['metabolite_count'] = values['metabolite_count']
-        el['enzyme_count'] = values['enzyme_count']
-        el['subsystem_count'] = values['subsystem_count']
-
     return JSONResponse(compartmentSvgSerializer.data)
+
+
+@api_view()
+@is_model_valid
+def get_subsystems_svg(request, model):
+    try:
+        subsystem_svg_info = APImodels.SubsystemSvg.objects.using(model).select_related('subsystem').all()
+    except APImodels.SubsystemSvg.DoesNotExist:
+        return HttpResponse(status=404)
+
+    subsystemSvgSerializer = APIserializer.SubsystemSvgSerializer(subsystem_svg_info, many=True)
+
+    return JSONResponse(subsystemSvgSerializer.data)
+
+
+@api_view()
+@is_model_valid
+def get_data_viewer(request, model):
+    try:
+        compartments = APImodels.Compartment.objects.using(model).all()
+    except APImodels.Compartment.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        compartments_svg = APImodels.CompartmentSvg.objects.using(model).select_related('compartment').all()
+    except APImodels.CompartmentSvg.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        subsystems = APImodels.Subsystem.objects.using(model).all().prefetch_related('compartment')
+    except APImodels.Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        subsystems_svg = APImodels.SubsystemSvg.objects.using(model).select_related('subsystem').all()
+    except APImodels.SubsystemSvg.DoesNotExist:
+        return HttpResponse(status=404)
+
+    return JSONResponse({
+            'subsystem': APIserializer.SubsystemSerializer(subsystems, many=True).data,
+            'subsystemsvg': APIserializer.SubsystemSvgSerializer(subsystems_svg, many=True).data,
+            'compartment':  APIserializer.CompartmentSerializer(compartments, many=True).data,
+            'compartmentsvg': APIserializer.CompartmentSvgSerializer(compartments_svg, many=True).data
+        })
 
 ##########################################################################################
 

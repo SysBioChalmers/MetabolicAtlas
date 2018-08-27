@@ -44,7 +44,7 @@
       <div class="column">
         <div class="box has-text-centered">
           <div class="button is-info">
-            <p><i class="fa fa-eye"></i> on Metabolic Viewer<p>
+            <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
           </div>
         </div>
       </div>
@@ -56,10 +56,9 @@
 import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
-import { default as EventBus } from '../event-bus';
-import { chemicalFormula, chemicalName, chemicalNameExternalLink, chemicalReaction } from '../helpers/chemical-formatters';
-import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink } from '../helpers/utils';
-import { reformatChemicalReactionLink } from '../helpers/compartment';
+import { default as EventBus } from '../../../event-bus';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink, chemicalReaction } from '../../../helpers/chemical-formatters';
+import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink } from '../../../helpers/utils';
 
 export default {
   name: 'reaction',
@@ -92,8 +91,21 @@ export default {
   watch: {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
-      this.setup();
+      // if (this.$route.path.includes('/reaction/')) {
+      //   this.setup();
+      // }
     },
+  },
+  created() {
+    $('body').on('click', 'a.e', function f() {
+      EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('name'));
+    });
+    $('body').on('click', 'a.s', function f() {
+      EventBus.$emit('GBnavigateTo', 'subsystem', $(this).attr('name'));
+    });
+  },
+  beforeMount() {
+    this.setup();
   },
   methods: {
     setup() {
@@ -112,7 +124,7 @@ export default {
       });
     },
     reformatTableKey(k) { return reformatTableKey(k); },
-    reformatEquation() { return this.reformatChemicalReactionLink(this.reaction); },
+    reformatEquation() { return this.$parent.$parent.reformatChemicalReactionLink(this.reaction); },
     reformatSBOLink(s, link) { return reformatSBOLink(s, link); },
     reformatECLink(s) { return reformatECLink(s); },
     reformatMass(s) { return addMassUnit(s); },
@@ -156,12 +168,17 @@ export default {
           data.push(this.formatQuantFieldName(this.reformatTableKey(key)));
           if (key === 'objective_coefficient') {
             data.push(this.reformatMass(this.reaction[key]));
+          } else {
+            data.push(this.reaction[key]);
           }
-          data.push(this.reaction[key]);
           data.push('<span>&nbsp;&dash;&nbsp;</span>');
         }
       }
-      return data.join(' ');
+      let s = data.join(' ');
+      if (s.endsWith('<span>&nbsp;&dash;&nbsp;</span>')) {
+        s = s.slice(0, -31);
+      }
+      return s;
     },
     reformatCompartment() {
       const compartmentEq =
@@ -197,20 +214,9 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameExternalLink,
-    reformatChemicalReactionLink,
-  },
-  beforeMount() {
-    $('body').on('click', 'a.e', function f() {
-      EventBus.$emit('updateSelTab', 'enzyme', $(this).attr('name'));
-    });
-    $('body').on('click', 'a.s', function f() {
-      EventBus.$emit('updateSelTab', 'subsystem', $(this).attr('name'));
-    });
-    this.setup();
   },
 };
 </script>
 
 <style lang="scss">
-
 </style>
