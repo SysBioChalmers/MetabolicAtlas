@@ -180,8 +180,10 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
     if component_name:
         if ctype == 'compartment':
             try:
-                compartment = APImodels.Compartment.objects.using(model).get(name__iexact=component_name)
-            except Subsystem.DoesNotExist:
+                # TODO fix 'cytosol' request
+                compartmentSVG = APImodels.CompartmentSvg.objects.using(model).get(id=component_name)
+                compartment = compartmentSVG.compartment
+            except APImodels.CompartmentSvg.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.ReactionCompartment.objects.using(model). \
@@ -190,8 +192,9 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                 prefetch_related('reactants', 'products', 'modifiers')
         else:
             try:
-                subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=component_name)
-            except Subsystem.DoesNotExist:
+                subsystemSVG = APImodels.SubsystemSvg.objects.using(model).get(id=component_name)
+                subsystem = subsystemSVG.subsystem
+            except APImodels.SubsystemSvg.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.SubsystemReaction.objects.using(model). \

@@ -24,6 +24,7 @@ export default {
       loadedComponentName: null,
       graph: null,
       emptyNetwork: true,
+      networkHistory: {},
       network: {
         nodes: [],
         links: [],
@@ -32,8 +33,6 @@ export default {
   },
   created() {
     EventBus.$on('show3Dnetwork', (type, name) => {
-      // console.log('show 3D network');
-      // console.log(`emit ${type} ${name}`);
       if (name.toLowerCase().substr(0, 7) === 'cytosol') {
         name = 'cytosol'; // eslint-disable-line no-param-reassign
       }
@@ -42,9 +41,15 @@ export default {
           this.emptyNetwork) {
         this.loadedComponentType = type;
         this.loadedComponentName = name;
-        this.getJson();
+        if (name in this.networkHistory) {
+          this.$emit('loading');
+          this.graph.graphData(this.networkHistory[name]);
+        } else {
+          this.getJson();
+        }
       }
     });
+
     EventBus.$on('destroy3Dnetwork', () => {
       // console.log('quit 3D network');
       if (this.graph) {
@@ -53,6 +58,11 @@ export default {
         this.graph.graphData({ nodes: [], links: [] });
         this.emptyNetwork = true;
       }
+    });
+
+    EventBus.$on('update3DLoadedComponent', (type, name) => {
+      this.loadedComponentType = type;
+      this.loadedComponentName = name;
     });
   },
   methods: {
@@ -68,7 +78,6 @@ export default {
               this.graph.graphData(this.network);
             }
             this.emptyNetwork = false;
-            this.$emit('loadComplete', true, '');
           }, 0);
         })
         .catch((error) => {
@@ -92,7 +101,11 @@ export default {
         .linkWidth(2)
         .nodeResolution(8)
         .warmupTicks(100)
-        .cooldownTicks(0);
+        .cooldownTicks(0)
+        .onEngineStop(() => {
+          this.$emit('loadComplete', true, '');
+          this.networkHistory[this.loadedComponentName] = this.network;
+        });
     },
   },
 };
@@ -102,6 +115,8 @@ export default {
 
   #3d-graph {
     height: 100%;
+    width:100%;
+    overflow: hidden;
   }
 
 </style>

@@ -148,19 +148,24 @@
           </div>
         </div>
       </div>
-      <div class="column" id="graphframe">
-        <div class="columns is-fullheight">
-          <svgmap class="column" v-show="!dim3D"
+      <div id="graphframe" class="column">
+        <div class="is-fullheight">
+          <svgmap v-show="show2D"
           :model="model"
           @loadComplete="handleLoadComplete"
           @loading="showLoader=true"></svgmap>
-          <d3dforce class="column" v-show="dim3D"
+          <d3dforce v-show="show3D"
           :model="model"
           @loadComplete="handleLoadComplete"
           @loading="showLoader=true"></d3dforce>
         </div>
         <div id="iLoader" class="loading" v-show="showLoader">
           <a class="button is-loading"></a>
+        </div>
+        <div id="iSwitch" class="overlay">
+          <span class="button" @click="switchDimension">
+            {{ show3D ? '2D' : "3D" }}
+          </span>
         </div>
         <transition name="slide-fade">
           <article id="errorBar" class="message is-danger" v-if="errorMessage">
@@ -202,7 +207,8 @@ export default {
     return {
       Logo,
       errorMessage: '',
-      dim3D: false,
+      show2D: true,
+      show3D: false,
       requestedType: '',
       requestedName: '',
       currentDisplayedType: '',
@@ -311,28 +317,22 @@ export default {
   },
   computed: {
     activeSwitch() {
-      return ['compartment', 'subsystem'].includes(this.currentDisplayedType) && !this.showLoader;
+      return !this.showLoader;
     },
   },
   created() {
     this.loadSubComptData();
-    // this.loadSubsystemSVGData();
     this.loadHPATissue();
-
-    // if (this.$route.path.toLowerCase().includes('gemsviewer')) {
-    //   EventBus.$emit('showgemsviewer');
-    // }
 
     EventBus.$on('showAction', (type, name, ids, forceReload) => {
       // console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
+      if (this.showLoader) {
+        return;
+      }
       this.requestedType = type;
       this.requestedName = name;
-      if (this.dim3D) {
-        if (['compartment', 'subsystem'].includes(type)) {
-          EventBus.$emit('show3Dnetwork', type, this.requestedName);
-        } else {
-          // show error
-        }
+      if (this.show3D) {
+        EventBus.$emit('show3Dnetwork', type, name);
       } else {
         EventBus.$emit('showSVGmap', type, name, ids, forceReload);
       }
@@ -426,20 +426,16 @@ export default {
     //   this.switch3Dimension(false);
     //   EventBus.$emit('showSVGmap', 'wholemap', null, []);
     // },
-    switch3Dimension(b) {
+    switchDimension() {
       if (!this.activeSwitch) {
         return;
       }
-      if (this.dim3D) {
-        this.dim3D = b;
-      } else if (this.currentDisplayedType !== 'wholemap') {
-        if (b !== null) {
-          this.dim3D = b;
-        } else {
-          this.dim3D = !this.dim3D;
-        }
+      if (!this.currentDisplayedType || !this.currentDisplayedName) {
+        return;
       }
-      if (this.dim3D) {
+      this.show3D = !this.show3D;
+      this.show2D = !this.show2D;
+      if (this.show3D) {
         EventBus.$emit('show3Dnetwork', this.currentDisplayedType, this.currentDisplayedName);
       } else {
         EventBus.$emit('destroy3Dnetwork');
@@ -464,6 +460,9 @@ export default {
       }
       this.currentDisplayedType = this.requestedType;
       this.currentDisplayedName = this.requestedName;
+      if (this.show2D) {
+        EventBus.$emit('update3DLoadedComponent');
+      }
       this.showLoader = false;
     },
     loadSubComptData() {
@@ -581,23 +580,19 @@ $footer-height: 9.8rem;
     min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    /*display: flex;*/
     .column {
       overflow-y: auto;
     }
   }
 
-
   #iMainPanel {
     margin-bottom: 0;
   }
 
-/*  #iSwitch {
-    label {
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-  }*/
+  #iSwitch {
+    right: 2.25rem;
+    top:  2.25rem;
+  }
 
   #iSideBar {
     padding: 0;
@@ -647,12 +642,15 @@ $footer-height: 9.8rem;
     padding: 0;
     margin: 0;
     border: 1px solid darkgray;
-    > .columns {
-      margin: 0;
-      > .column {
-        padding: 0;
-      }
-    }
+    overflow: hidden;
+  }
+
+  .overlay {
+    position: absolute;
+    z-index: 10;
+    padding: 15px;
+    border-radius: 5px;
+    background: rgba(22, 22, 22, 0.8);
   }
 
   #errorBar {
