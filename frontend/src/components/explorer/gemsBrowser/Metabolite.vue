@@ -105,6 +105,16 @@ export default {
       showReactome: false,
     };
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/metabolite/')) {
+        if (this.mId !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
+  },
   computed: {
     hasExternalID() {
       for (const item of this.externalIDTableKey[this.model]) {

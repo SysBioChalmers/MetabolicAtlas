@@ -179,6 +179,12 @@ export default {
         EventBus.$emit('GBnavigateTo', 'metabolite', $(this).attr('class'));
       }
     });
+    $('body').on('click', 'span.rcm', function f() {
+      EventBus.$emit('GBnavigateTo', 'metabolite', $(this).attr('id'));
+    });
+    $('body').on('click', 'span.rce', function f() {
+      EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('id'));
+    });
     // document.body.addEventListener('keyup', (e) => {
     //   if (e.keyCode === 27) {
     //     this.showGemsViewer = false;

@@ -117,15 +117,16 @@ export default {
       reactions: [],
     };
   },
-  // watch: {
-  //   /* eslint-disable quote-props */
-  //   '$route': function watchSetup() {
-  //     if (this.$route.path.includes('/enzyme/')) {
-  //       // console.log(this.$route);
-  //       this.setup();
-  //     }
-  //   },
-  // },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/enzyme/')) {
+        if (this.id !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
+  },
   computed: {
     filename() {
       return `ma_catalyzed_reaction_${this.enzymeName}`;

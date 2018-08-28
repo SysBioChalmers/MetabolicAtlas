@@ -68,10 +68,8 @@
 
 <script>
 import axios from 'axios';
-import $ from 'jquery';
 import Loader from 'components/Loader';
 import ReactionTable from 'components/explorer/gemsBrowser/ReactionTable';
-import { default as EventBus } from '../../../event-bus';
 import { reformatTableKey } from '../../../helpers/utils';
 
 export default {
@@ -101,6 +99,16 @@ export default {
       limitMetabolite: 40,
       limitEnzyme: 40,
     };
+  },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/subsystem/')) {
+        if (this.sName !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
   },
   computed: {
     metabolitesListHtml() {
@@ -154,12 +162,6 @@ export default {
     reformatKey(k) { return reformatTableKey(k); },
   },
   beforeMount() {
-    $('body').on('click', 'span .rcm', function f() {
-      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
-    });
-    $('body').on('click', 'span .rce', function f() {
-      EventBus.$emit('updateSelTab', 'enzyme', $(this).attr('id'));
-    });
     this.setup();
   },
 };

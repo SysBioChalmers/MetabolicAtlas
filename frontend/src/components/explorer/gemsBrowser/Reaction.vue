@@ -88,14 +88,6 @@ export default {
       showLoader: true,
     };
   },
-  watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      // if (this.$route.path.includes('/reaction/')) {
-      //   this.setup();
-      // }
-    },
-  },
   created() {
     $('body').on('click', 'a.e', function f() {
       EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('name'));
@@ -106,6 +98,16 @@ export default {
   },
   beforeMount() {
     this.setup();
+  },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/reaction/')) {
+        if (this.rId !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
   },
   methods: {
     setup() {
