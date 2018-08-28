@@ -2,7 +2,7 @@
   <div>
     <div class="columns" v-if="!selectedType">
       <div class="column container has-text-centered">
-        <h4 class="title is-4">Explore through {{ $t(model) }} with the Gems Browser</h4>
+        <h4 class="title is-4">Explore through {{ $t(model) }} with the GEM Browser</h4>
       </div>
     </div>
     <div class="columns">
@@ -19,21 +19,21 @@
     <div id="homeDiv" class="columns box" v-else-if="selectedType === ''">
       <div class="column is-4">
         <h5 class="title is-6 has-text-centered">Metabolites</h5>
-        <a v-for="met in starredComponents[model].metabolites" @click="$router.push(`/Explore/browser/${model}/metabolite/${met[1]}`)"
+        <a v-for="met in starredComponents[model].metabolites" @click="$router.push(`/explore/gem-browser/${model}/metabolite/${met[1]}`)"
          class="is-block has-text-centered">
           {{ met[0] }}
         </a>
       </div>
       <div class="column is-4">
         <h5 class="title is-6 has-text-centered">Enzymes</h5>
-        <a v-for="enz in starredComponents[model].enzymes" @click="$router.push(`/Explore/browser/${model}/enzyme/${enz[1]}`)"
+        <a v-for="enz in starredComponents[model].enzymes" @click="$router.push(`/explore/gem-browser/${model}/enzyme/${enz[1]}`)"
          class="is-block has-text-centered">
           {{ enz[0] }}
         </a>
       </div>
       <div class="column is-4">
         <h5 class="title is-6 has-text-centered">Reactions</h5>
-        <a v-for="rea in starredComponents[model].reactions" @click="$router.push(`/Explore/browser/${model}/reaction/${rea[1]}`)"
+        <a v-for="rea in starredComponents[model].reactions" @click="$router.push(`/explore/gem-browser/${model}/reaction/${rea[1]}`)"
          class="is-block has-text-centered">
           {{ rea[0] }}
         </a>
@@ -51,16 +51,16 @@
 
 <script>
 import GlobalSearch from 'components/explorer/GlobalSearch';
-import ClosestInteractionPartners from 'components/explorer/gemsBrowser/ClosestInteractionPartners';
-import Enzyme from 'components/explorer/gemsBrowser/Enzyme';
-import Metabolite from 'components/explorer/gemsBrowser/Metabolite';
-import Reaction from 'components/explorer/gemsBrowser/Reaction';
-import Subsystem from 'components/explorer/gemsBrowser/Subsystem';
+import ClosestInteractionPartners from 'components/explorer/gemBrowser/ClosestInteractionPartners';
+import Enzyme from 'components/explorer/gemBrowser/Enzyme';
+import Metabolite from 'components/explorer/gemBrowser/Metabolite';
+import Reaction from 'components/explorer/gemBrowser/Reaction';
+import Subsystem from 'components/explorer/gemBrowser/Subsystem';
 import { default as EventBus } from '../../event-bus';
 
 
 export default {
-  name: 'gems-browser',
+  name: 'gem-browser',
   components: {
     ClosestInteractionPartners,
     Enzyme,
@@ -198,15 +198,15 @@ export default {
         this.model = this.$route.params.model || '';
         this.componentID = this.$route.params.id || '';
         if (!this.componentID || !this.selectedType) {
-          this.$router.push(`/Explore/browser/${this.model}`);
+          this.$router.push(`/explore/gem-browser/${this.model}`);
         }
       }
     },
     goToTab(type, componentID) {
-      this.$router.push(`/Explore/browser/${this.model}/${type}/${componentID}`);
+      this.$router.push(`/explore/gem-browser/${this.model}/${type}/${componentID}`);
     },
-    showGemsViewer() {
-      EventBus.$emit('showGemsViewer');
+    showMapViewer() {
+      EventBus.$emit('showMapViewer');
     },
     showWholeMap() {
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);

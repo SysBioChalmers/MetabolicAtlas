@@ -165,7 +165,7 @@
                         <label class="checkbox">
                           <input type="checkbox" v-model="toggleEnzymeExpLevel" :disabled="disableExpLvl"
                           @click="switchToExpressionLevel('enzyme', 'HPA', 'RNA', selectedSample)">
-                          Enable <a href="https://www.proteinatlas.org/" target="_blank">HPA</a>&nbsp;RNA levels
+                          Enable <a href="https://www.proteinatlas.org/" target="_blank">proteinAtlas.org</a>&nbsp;RNA levels
                         </label>
                       </p>
                     </header>
@@ -268,8 +268,8 @@ import cola from 'cytoscape-cola';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
 
-import Sidebar from 'components/explorer/gemsBrowser/Sidebar';
-import CytoscapeTable from 'components/explorer/gemsBrowser/CytoscapeTable';
+import Sidebar from 'components/explorer/gemBrowser/Sidebar';
+import CytoscapeTable from 'components/explorer/gemBrowser/CytoscapeTable';
 import Loader from 'components/Loader';
 
 import { default as EventBus } from '../../../event-bus';
@@ -433,6 +433,16 @@ export default {
       return Object.keys(this.rawRels).map(k => this.rawRels[k]);
     },
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/interaction/')) {
+        if (this.id !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
+  },
   created() {
     graphml(cytoscape, jquery);
   },
@@ -451,7 +461,7 @@ export default {
       this.reactionHL = null;
       this.compartmentHL = '';
       this.subsystemHL = '';
-      this.$router.push(`/explore/browser/${this.model}/interaction/${this.clickedElmId}`);
+      this.$router.push(`/explore/gem-browser/${this.model}/interaction/${this.clickedElmId}`);
     },
     load() {
       axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)

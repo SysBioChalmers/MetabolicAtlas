@@ -66,7 +66,7 @@
 
 <script>
 import axios from 'axios';
-import Reactome from 'components/explorer/gemsBrowser/Reactome';
+import Reactome from 'components/explorer/gemBrowser/Reactome';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
 import { reformatTableKey, reformatStringToLink, addMassUnit } from '../../../helpers/utils';
 
@@ -148,7 +148,7 @@ export default {
     reformatLink(s, link) { return reformatStringToLink(s, link); },
     reformatMass(s) { return addMassUnit(s); },
     viewInteractionPartners() {
-      this.$router.push(`/explorer/browser/${this.model}/interaction/${this.mId}`);
+      this.$router.push(`/explore/gem-browser/${this.model}/interaction/${this.mId}`);
     },
   },
   beforeMount() {

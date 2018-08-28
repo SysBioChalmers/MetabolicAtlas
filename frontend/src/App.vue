@@ -18,20 +18,20 @@
         </div>
         <div class="navbar-menu" id="#nav-menu">
           <div class="navbar-start" v-if="showExploreInfo">
-            <span id="modelHeader" class="has-text-centered has-background-white is-size-6 is-unselectable">
-              Current<br>model:<br>
-              <span class="tag is-info"> {{ $t(model) }}</span>
-            </span>
             <a
                class="navbar-item has-text-centered"
                :class="{ 'is-active': activeBrowserBut }"
-               @click="goToGemsBrowser()"> Gem<br>Browser
+               @click="goToGemsBrowser()"> GEM<br>Browser
             </a>
             <a
                class="navbar-item has-text-centered"
                :class="{ 'is-active': activeViewerBut }"
-               @click="goToGemsViewer()"> Maps<br>Viewer
+               @click="goToGemsViewer()"> Map<br>Viewer
             </a>
+            <span id="modelHeader" class="has-text-centered is-unselectable" style="margin: auto">
+              <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
+              <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
+            </span>
           </div>
           <div class="navbar-end">
             <template v-for="menuItem, index in menuItems">
@@ -51,7 +51,7 @@
                   </div>
                 </div>
               </template>
-              <template v-else-if="menuItem === 'Explore'">
+              <template v-else-if="menuItem === 'explore'">
                   <a
                    class="navbar-item has-text-centered is-unselectable"
                    :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
@@ -80,20 +80,20 @@
         </div>
         <div class="column is-8">
           <div class="content has-text-centered">
-            <p v-html="$t('footerText')"><p>
-            <p>
+            <p v-html="$t('footerText')"></p>
+            <p style="height: 60px;">
               <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
               <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
               <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
               <a href="https://nbis.se/"><img src="./assets/nbislogo-green.png" /></a>
               <a href="https://www.scilifelab.se"><img src="./assets/scilifelab-green.png" /></a>
-              <a href="https://www.sysbio.se"><img src="./assets/sysbio_logo.jpg" /></a>
+              <a href="https://www.sysbio.se"><img src="./assets/sysbio-logo.png" /></a>
             </p>
           </div>
         </div>
         <div class="column is-2">
           <div class="is-pulled-right">
-            <a @click="viewRelaseNotes">Release v1.0</a>
+            <a @click="viewRelaseNotes">v1.0</a>
           </div>
         </div>
       </div>
@@ -116,7 +116,7 @@ export default {
     return {
       Logo,
       menuItems: [
-        'Explore',
+        'explore',
         this.$t('navBut1Title'),
         [this.$t('navBut2Title'),
           this.$t('navBut21Title'),
@@ -199,11 +199,11 @@ export default {
       if (this.browserLastPath) {
         this.$router.push(this.browserLastPath);
       } else {
-        this.$router.push(`/Explore/browser/${this.model}`);
+        this.$router.push(`/explore/gem-browser/${this.model}`);
       }
     },
     goToGemsViewer() {
-      this.$router.push(`/Explore/viewer/${this.model}`);
+      this.$router.push(`/explore/map-viewer/${this.model}`);
     },
     saveBrowserPath() {
       if (this.$route.name === 'browser') {
@@ -266,6 +266,12 @@ $switch-background: $primary;
 
 #modelHeader {
   padding: 0.75rem;
+  span {
+    margin-right: 0.15rem;
+  }
+  i {
+    color: gray;
+  }
 }
 
 #metabolicViewer {
@@ -294,7 +300,8 @@ $switch-background: $primary;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 75px;
+    max-height: 50px;
+    margin: 0 0.5rem;
   }
   sup {
     vertical-align: top;

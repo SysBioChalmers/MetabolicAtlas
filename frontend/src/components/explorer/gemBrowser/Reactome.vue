@@ -33,7 +33,7 @@ import SVG from 'svg.js';
 import 'svg.connectable.js';
 import 'svg.draggy.js';
 import Loader from 'components/Loader';
-import ReactionTable from 'components/explorer/gemsBrowser/ReactionTable';
+import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 
 export default {
   name: 'reactome',

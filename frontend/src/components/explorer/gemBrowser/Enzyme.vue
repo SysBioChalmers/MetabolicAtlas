@@ -11,10 +11,6 @@
           <h3 class="title is-3 is-inline-block  is-marginless">
           Enzyme | {{ enzymeName }}&nbsp;
           </h3>
-          <span class="button is-info is-inline-block" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
-            @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
-            View on HPA
-          </span>
         </div>
       </div>
       <div class="columns">
@@ -53,12 +49,17 @@
             <div class="column">
               <div class="box has-text-centered">
                 <div class="button is-info">
-                  <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
+                  <p>View on Map Viewer</p>
                 </div>
                 <br><br>
                 <div class="button is-info"
                   @click="viewInteractionPartners">
                   View interaction partners
+                </div>
+                <br><br>
+                <div class="button is-info is-inline-block" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
+                  @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
+                  View on proteinAtlas.org
                 </div>
               </div>
             </div>
@@ -80,7 +81,7 @@
 
 <script>
 import axios from 'axios';
-import ReactionTable from 'components/explorer/gemsBrowser/ReactionTable';
+import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import Loader from 'components/Loader';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
 import { reformatTableKey, reformatStringToLink } from '../../../helpers/utils';
@@ -173,7 +174,7 @@ export default {
         });
     },
     viewInteractionPartners() {
-      this.$router.push(`/explore/browser/${this.model}/interaction/${this.enzyme.id}`);
+      this.$router.push(`/explore/gem-browser/${this.model}/interaction/${this.enzyme.id}`);
     },
     chemicalFormula,
     chemicalName,

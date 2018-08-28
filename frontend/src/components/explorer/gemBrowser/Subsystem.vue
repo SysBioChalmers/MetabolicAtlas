@@ -69,7 +69,7 @@
 <script>
 import axios from 'axios';
 import Loader from 'components/Loader';
-import ReactionTable from 'components/explorer/gemsBrowser/ReactionTable';
+import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import { reformatTableKey } from '../../../helpers/utils';
 
 export default {
