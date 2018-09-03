@@ -10,9 +10,11 @@
         <h3 class="title is-3">Reaction</h3>
       </div>
     </div>
-    <div class="columns">
-      <loader v-show="showLoader"></loader>
-      <div class="reaction-table column is-10" v-show="!showLoader">
+    <div class="columns" v-show="showLoader">
+      <loader></loader>
+    </div>
+    <div class="columns" v-show="!showLoader">
+      <div class="reaction-table column is-10">
         <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
           <tr v-for="el in mainTableKey[model]">
             <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>

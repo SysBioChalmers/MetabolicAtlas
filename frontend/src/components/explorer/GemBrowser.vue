@@ -187,9 +187,6 @@ export default {
       // console.log(`on GB navigateTo ${type} ${id}`);
       this.goToTab(type, id);
     });
-    window.addEventListener('click', () => {
-      EventBus.$emit('hideSearchResult');
-    });
   },
   methods: {
     setup() {

@@ -186,6 +186,9 @@ export default {
     EventBus.$on('hideSearchResult', () => {
       this.showResults = false;
     });
+    document.addEventListener('click', () => {
+      EventBus.$emit('hideSearchResult');
+    });
   },
   mounted() {
     this.$refs.searchResults.addEventListener('click', (e) => {

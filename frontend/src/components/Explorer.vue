@@ -206,6 +206,7 @@ export default {
       } else if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
         this.displayBrowser();
       } else {
+        EventBus.$emit('destroy3Dnetwork');
         this.showBrowser = false;
         this.showViewer = false;
         this.showSearch = false;
