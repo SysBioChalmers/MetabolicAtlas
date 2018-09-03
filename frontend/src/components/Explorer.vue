@@ -77,7 +77,7 @@
                 <div class="card-content">
                   <div class="content">
                     <a @click="goToGemBrowser()">
-                      <img src="../assets/gemBrowser2.png" style="height: 368px" />
+                      <img src="../assets/gemBrowser2.png" />
                     </a>
                   </div>
                 </div>
@@ -94,7 +94,7 @@
                 </header>
                 <div class="card-content">
                   <div class="content">
-                    <a @click="goToMapViewer()" class="has-text-centered" style="height: 500px">
+                    <a @click="goToMapViewer()" class="has-text-centered">
                       <img src="../assets/mapViewer2.png" />
                     </a>
                   </div>
