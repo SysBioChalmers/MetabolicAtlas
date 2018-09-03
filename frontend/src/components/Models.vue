@@ -14,15 +14,11 @@
               <div class="column">
                 <span id="show-m-but" class="button is-light" :class="{'is-active': showMaintained }"
                   @click="toggleMaintainedModels">
-                  Maintained only
-                </span>
-                <span id="show-m-but" class="button is-pulled-right" :class="{'is-active': showFTPaccess }"
-                  @click="showFTPaccess = !showFTPaccess">
-                  FTP access
+                  Maintained models only
                 </span>
               </div>
             </div>
-            <div class="columns" v-if="!showFTPaccess">
+            <div class="columns">
               <div class="column is-full">
                 <table class="table is-bordered is-striped is-narrow is-fullwidth" v-if="filteredOldGEMS.length != 0">
                   <thead>
@@ -42,18 +38,6 @@
                   </tbody>
                 </table>
               </div>
-            </div>
-            <div v-else>
-              <h4 class="is-4 title">Downloading from a web browser</h4>
-              Model files can be downloaded from <a href="http://ftp.icsb.chalmers.se">ftp.icsb.chalmers.se</a>
-              <br><br>
-              <h4 class="is-4 title">Downloading from a FTP client</h4>
-              Connect to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>)
-              <br><br>
-              host: ftp.icsb.chalmers.se<br>
-              login: (leave it empty)<br>
-              password: (leave it empty)<br>
-              port: 21
             </div>
           </div>
           <div v-else>
@@ -117,7 +101,7 @@ import Loader from 'components/Loader';
 import { default as compare } from '../helpers/compare';
 
 export default {
-  name: 'resources',
+  name: 'gems',
   components: {
     Loader,
   },
@@ -157,7 +141,6 @@ export default {
       showMaintained: false,
       showModelTable: false,
       showLoader: false,
-      showFTPaccess: false,
     };
   },
   computed: {
@@ -242,7 +225,6 @@ export default {
     },
     toggleMaintainedModels() {
       this.showMaintained = !this.showMaintained;
-      this.showFTPaccess = false;
     },
     getReferenceLink(ref) {
       const title = ref.title.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
@@ -276,6 +258,9 @@ export default {
 
   #show-m-but {
     margin-bottom: 1rem;
+    &.is-active {
+      border: 1px solid #505050;
+    }
   }
 
   .dsc, .name {

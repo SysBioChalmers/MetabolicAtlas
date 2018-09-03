@@ -15,6 +15,8 @@ export default {
     tooManyInteractionPartnerBut: 'Generate',
     tooManyInteractionPartner: 'There are too many interaction partners to be displayed in a graph.',
     navBut1Title: 'GEMs',
+    navBut11Title: 'Compare',
+    navBut12Title: 'Download',
     navBut2Title: 'Resources',
     navBut21Title: 'Tools',
     navBut22Title: 'External Databases',
