@@ -9,7 +9,7 @@
       <div class="container columns">
         <div class="column">
           <h3 class="title is-3 is-inline-block  is-marginless">
-          Enzyme | {{ enzymeName }}&nbsp;
+          Enzyme
           </h3>
         </div>
       </div>
@@ -103,7 +103,9 @@ export default {
       enzymeName: '',
       mainTableKey: {
         hmr2: [
-          { name: 'enzymeName', display: 'Gene&nbsp;Name' },
+          { name: 'enzymeName', display: 'Gene&nbsp;name' },
+          { name: 'prot_name', display: 'Protein&nbsp;name' },
+          { name: 'gene_synonyms', display: 'Synonyms' },
           { name: 'function' },
           { name: 'id', display: 'Model&nbsp;ID' },
         ],

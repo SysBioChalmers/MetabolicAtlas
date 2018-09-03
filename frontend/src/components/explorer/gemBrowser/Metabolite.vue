@@ -18,7 +18,7 @@
               <tr v-for="el in mainTableKey[model]">
                 <td v-if="el.display" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                 <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
-                <td v-if="info[el.name]">
+                <td v-if="info[el.name] !== null">
                   <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
                   </span>
                   <span v-else>
@@ -83,8 +83,9 @@ export default {
       mainTableKey: {
         hmr2: [
           { name: 'name' },
+          { name: 'alt_name', display: 'alternate name' },
+          { name: 'aliases', display: 'Synonyms' },
           { name: 'description', display: 'Description' },
-          { name: 'function', display: 'Function' },
           { name: 'formula', modifier: chemicalFormula },
           { name: 'charge' },
           { name: 'inchi' },

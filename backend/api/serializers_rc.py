@@ -196,7 +196,7 @@ class HmrEnzymeReactionComponentLiteSerializer(serializers.ModelSerializer):
 
 class HmrEnzymeReactionComponentSerializer(serializers.ModelSerializer):
     gene_name = serializers.SerializerMethodField('read_gene_name')
-    short_name = serializers.SerializerMethodField('read_short_name')
+    prot_name = serializers.SerializerMethodField('read_prot_name')
     gene_synonyms = serializers.SerializerMethodField('read_gene_synonyms')
     function =  serializers.SerializerMethodField('read_function')
     ec =  serializers.SerializerMethodField('read_ec')
@@ -211,14 +211,14 @@ class HmrEnzymeReactionComponentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'gene_name', 'short_name', 'gene_synonyms') + \
+        fields = ('id', 'gene_name', 'prot_name', 'gene_synonyms') + \
         ('function', 'ec', 'catalytic_activity', 'cofactor') + \
         ('uniprot_id', 'uniprot_link', 'ncbi_id', 'ncbi_link', 'ensembl_link', 'name_link')
 
     def read_gene_name(self, model):
         return model.name if model.name else None
 
-    def read_short_name(self, model):
+    def read_prot_name(self, model):
         return model.alt_name1
 
     def read_gene_synonyms(self, model):
@@ -317,10 +317,11 @@ class HmrMetaboliteReactionComponentLiteSerializer(serializers.ModelSerializer):
 
 
 class HmrMetaboliteReactionComponentSerializer(serializers.ModelSerializer):
-    model_name = serializers.SerializerMethodField('read_model_name')
+    alt_name = serializers.SerializerMethodField('read_alt_name')
     aliases = serializers.SerializerMethodField('read_aliases')
     description = serializers.SerializerMethodField('read_description')
     function = serializers.SerializerMethodField('read_function')
+    formula = serializers.SerializerMethodField('read_formula')
     charge = serializers.SerializerMethodField('read_charge')
     mass =  serializers.SerializerMethodField('read_mass')
     mass_avg =  serializers.SerializerMethodField('read_mass_avg')
@@ -335,11 +336,11 @@ class HmrMetaboliteReactionComponentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name', 'model_name', 'aliases') + \
-        ('description', 'function', 'charge', 'mass', 'mass_avg', 'inchi') + \
+        fields = ('id', 'name', 'alt_name', 'aliases') + \
+        ('description', 'function', 'formula', 'charge', 'mass', 'mass_avg', 'inchi') + \
         ('hmdb_id', 'hmdb_link', 'chebi_id', 'chebi_link', 'mnxref_id', 'mnxref_link', 'compartment')
 
-    def read_model_name(self, model):
+    def read_alt_name(self, model):
         return model.alt_name1
 
     def read_aliases(self, model):
@@ -350,6 +351,9 @@ class HmrMetaboliteReactionComponentSerializer(serializers.ModelSerializer):
 
     def read_function(self, model):
         return model.metabolite.function1 if hasattr(model, 'metabolite') else None
+
+    def read_formula(self, model):
+        return model.formula
 
     def read_charge(self, model):
         return model.metabolite.charge if hasattr(model, 'metabolite') else None

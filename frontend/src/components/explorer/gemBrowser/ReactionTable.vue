@@ -2,13 +2,13 @@
   <div class="container reaction-table">
     <div class="field">
       <span class="tag is-medium">
-        # Reaction(s): {{ reactions.length }}
+        # Reactions: {{ reactions.length }}
       </span>
       <span class="tag is-medium" v-if="transportReactionCount === 0">
-        # Transport reaction(s): {{ transportReactionCount }}
+        # Transport reactions: {{ transportReactionCount }}
       </span>
       <span class="tag link is-medium" v-else @click="sortBy('compartment', '=>', 'desc')">
-        # Transport reaction(s): {{ transportReactionCount }}
+        # Transport reactions: {{ transportReactionCount }}
       </span>
       <span v-show="reactions.length==200" class="tag is-medium is-warning is-pulled-right">
         {{ $t('tooManyReactionsTable') }}

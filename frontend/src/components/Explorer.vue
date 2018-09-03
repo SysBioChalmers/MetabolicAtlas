@@ -66,7 +66,7 @@
               </div>
             </div>
           </div>
-          <div class="columns">
+          <div id="toolsSelect"class="columns">
             <div class="column">
               <div class="card">
                 <header class="card-header">
@@ -77,7 +77,7 @@
                 <div class="card-content">
                   <div class="content">
                     <a @click="goToGemBrowser()">
-                      <img src="../assets/gembrowser1.jpg" style="height: 368px" />
+                      <img src="../assets/gemBrowser2.png" style="height: 368px" />
                     </a>
                   </div>
                 </div>
@@ -95,7 +95,7 @@
                 <div class="card-content">
                   <div class="content">
                     <a @click="goToMapViewer()" class="has-text-centered" style="height: 500px">
-                      <img src="../assets/mapviewer1.jpg" />
+                      <img src="../assets/mapViewer2.png" />
                     </a>
                   </div>
                 </div>
@@ -326,4 +326,14 @@ export default {
 </script>
 
 <style lang="scss">
+
+#toolsSelect {
+  img {
+    border: solid 1px white;
+    &:hover {
+      border: solid 1px black;
+    }
+  }
+} 
+
 </style>
