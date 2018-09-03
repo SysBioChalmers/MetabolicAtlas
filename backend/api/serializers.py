@@ -251,7 +251,7 @@ class GEModelSetSerializer(serializers.ModelSerializer):
 class GEModelSampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.GEModelSample
-        fields = ('organism', 'organ_system', 'tissue', 'cell_line', 'cell_type')
+        fields = ('organism', 'organ_system', 'tissue', 'cell_type', 'cell_line')
 
 
 class GEModelSerializer(serializers.ModelSerializer):
@@ -262,7 +262,7 @@ class GEModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.GEModel
-        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'ref', 'maintained')
+        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'condition', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'ref', 'maintained')
 
 
 class GEModelListSerializer(serializers.ModelSerializer):
@@ -284,13 +284,15 @@ class GEModelListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.GEModel
-        fields = ('id', 'set_name', 'sample', 'label', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
+        fields = ('id', 'set_name', 'sample', 'label', 'condition', 'reaction_count', 'metabolite_count', 'enzyme_count', 'maintained', 'year')
 
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.Author
         fields = ('given_name', 'family_name', 'email', 'organization')
+
+############################################################################################################
 
 
 class GEMListSerializer(serializers.ModelSerializer):

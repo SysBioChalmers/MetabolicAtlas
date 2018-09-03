@@ -158,10 +158,12 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path, model
         for k in ['organism', 'organ_system', 'tissue', 'cell_type', 'cell_line']:
             if k not in dic:
                 GEM_sample[k] = None
+            elif k == 'cell_line':
+                GEM_sample[k] = dic[k]
             else:
                 GEM_sample[k] = dic[k].capitalize()
         
-        for k in ['description', 'label', 'maintained']:
+        for k in ['description', 'label', 'maintained', 'condition']:
             if k not in dic:
                 GEM[k] = None
             else:
@@ -330,7 +332,7 @@ def read_gems_data_file(parse_data_file, global_dict=None):
         types = next(reader)
         glob_value = {}
         for row in reader:
-            if len(row) == 0 or row[0][0] == "#":
+            if len([e for e in row if e]) == 0 or len(row) == 0 or row[0][0] == "#":
                 continue
             if row[0][0] == "@":
                 if not row[1] or row[1] == "none":

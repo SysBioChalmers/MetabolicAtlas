@@ -128,8 +128,8 @@ export default {
         { name: 'organism', display: 'Organism' },
         { name: 'label', display: 'Label' },
         // { name: 'organ_system', display: 'System' },
-        { name: 'tissue', display: 'Tissue' },
-        { name: 'cell_type', display: 'Cell&nbsp;type' },
+        { name: 'condition', display: 'Condition' },
+        { name: 'tissue', display: 'Tissue/Cell&nbsp;type' },
         { name: 'reaction_count', display: '#&nbsp;reactions', width: 100 },
         { name: 'metabolite_count', display: '#&nbsp;metabolites', width: 100 },
         { name: 'enzyme_count', display: '#&nbsp;enzymes', width: 100 },
@@ -139,8 +139,10 @@ export default {
         { name: 'organism', display: 'Organism' },
         { name: 'set_name', display: 'Set' },
         { name: 'organ_system', display: 'System' },
+        { name: 'condition', display: 'Condition' },
         { name: 'tissue', display: 'Tissue' },
         { name: 'cell_type', display: 'Cell&nbsp;type' },
+        { name: 'cell_line', display: 'Cell&nbsp;line' },
         { name: 'reaction_count', display: '#&nbsp;reactions' },
         { name: 'metabolite_count', display: '#&nbsp;metabolites' },
         { name: 'enzyme_count', display: '#&nbsp;enzymes/genes' },
@@ -202,7 +204,18 @@ export default {
           const gem = response.data[i];
           const sample = gem.sample;
           delete gem.sample;
-          this.GEMS.push($.extend(gem, sample));
+          const gemex = $.extend(gem, sample);
+          if (gemex.tissue && gemex.cell_type && gemex.cell_line) {
+            gemex.tissue = `${gemex.tissue} - ${gemex.cell_type} - ${gemex.cell_line}`;
+          } else if (gemex.tissue && gemex.cell_line) {
+            gemex.tissue = `${gemex.tissue} - ${gemex.cell_line}`;
+          } else if (gemex.cell_type && gemex.cell_line) {
+            gemex.tissue = `${gemex.cell_type} - ${gemex.cell_line}`;
+          } else if (gemex.cell_type) {
+            gemex.tissue = gemex.cell_type;
+          }
+          delete gemex.cell_type;
+          this.GEMS.push(gemex);
         }
         this.sortedGEMS = this.GEMS.sort(
           compare('set_name', null, 'asc'));
