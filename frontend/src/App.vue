@@ -117,7 +117,10 @@ export default {
       Logo,
       menuItems: [
         'explore',
-        this.$t('navBut1Title'),
+        [this.$t('navBut1Title'),
+          this.$t('navBut11Title'),
+          this.$t('navBut12Title'),
+        ],
         [this.$t('navBut2Title'),
           this.$t('navBut21Title'),
           this.$t('navBut22Title'),
@@ -181,9 +184,11 @@ export default {
         if (name.toLowerCase() === 'external databases') {
           name = 'databases'; // eslint-disable-line no-param-reassign
         }
-        router.push(`/Resources#${name.toLowerCase()}`);
+        router.push(`/resources#${name.toLowerCase()}`);
+      } else if (['compare', 'download'].includes(name.toLowerCase())) {
+        router.push(`/gems/${name.toLowerCase()}`);
       } else {
-        router.push(`/${name}`);
+        router.push(`/${name.toLowerCase()}`);
       }
     },
     isActiveRoute(name) {

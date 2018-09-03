@@ -65,6 +65,7 @@ class GEModel(models.Model):
     sample = models.ForeignKey(GEModelSample, on_delete=models.CASCADE)
     description = models.TextField(null=True)
     label = models.CharField(max_length=200, null=True)
+    condition = models.CharField(max_length=200, null=True)
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
     enzyme_count = models.IntegerField(default=0)

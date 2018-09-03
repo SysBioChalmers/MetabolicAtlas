@@ -6,6 +6,7 @@ import Resources from 'components/Resources';
 import About from 'components/About';
 import Help from 'components/Help';
 import Models from 'components/Models';
+import ModelsFTP from 'components/ModelsFTP';
 import CompareModels from 'components/CompareModels';
 
 Vue.use(VueRouter);
@@ -19,6 +20,7 @@ const routes = [
   { path: '/explore/map-viewer/:model', name: 'viewer', component: Explorer, props: true },
   { path: '/about', name: 'about', component: About },
   { path: '/gems', name: 'gems', component: Models },
+  { path: '/gems/download', name: 'gemsDL', component: ModelsFTP },
   { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
   { path: '/gems/:id', name: 'gemsID', component: Models },
   { path: '/resources', name: 'resources', component: Resources },
