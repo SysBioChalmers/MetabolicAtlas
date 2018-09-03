@@ -186,6 +186,9 @@ export default {
     EventBus.$on('hideSearchResult', () => {
       this.showResults = false;
     });
+    document.addEventListener('click', () => {
+      EventBus.$emit('hideSearchResult');
+    });
   },
   mounted() {
     this.$refs.searchResults.addEventListener('click', (e) => {
@@ -302,7 +305,7 @@ export default {
           name = 'cytosol_1';  // eslint-disable-line no-param-reassign
         }
       }
-      EventBus.$emit('navigateTo', 'gemsViever', type, name);
+      EventBus.$emit('navigateTo', 'mapViever', type, name);
     },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {

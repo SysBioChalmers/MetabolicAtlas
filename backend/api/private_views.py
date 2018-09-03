@@ -330,18 +330,6 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
 #####################################################################################
 
-@api_view(['POST'])
-def get_HPA_xml_content(request):
-    url = request.data['url']
-    r = requests.get(url)
-    if not r.status_code == 200:
-        return HttpResponse(status=r.status_code)
-
-    import gzip
-    ddata = gzip.decompress(r.content)
-
-    return HttpResponse(ddata)
-
 @api_view()
 def HPA_enzyme_info(request, ensembl_id):
     # TODO provide the model, remove 'hmr2'
@@ -532,7 +520,7 @@ def get_hpa_tissues(request, model):
 
 @api_view()
 @is_model_valid
-def get_hpa_rna_levels(request, model, compartment):
+def get_hpa_rna_levels_compartment(request, model, compartment):
     try:
         compartment = APImodels.Compartment.objects.using(model).get(name__iexact=compartment)
     except APImodels.Compartment.DoesNotExist:
@@ -544,6 +532,23 @@ def get_hpa_rna_levels(request, model, compartment):
         filter(Q(component_type='e') & Q(id__in=rc_compart)).values_list('id')
 
     levels = APImodels.HpaEnzymeLevel.objects.using(model).filter(rc__in=enzyme_compart).values_list('rc_id', 'levels')
+    tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
+
+    return JSONResponse(
+        { 
+          'tissues': tissues,
+          'levels': levels
+        })
+
+
+@api_view(['POST'])
+@is_model_valid
+def get_hpa_rna_levels(request, model):
+    ensemblIDs = [el.strip() for el in request.data['data'] if len(el) != 0]
+    if not ensemblIDs:
+        return HttpResponse(status=404)
+
+    levels = APImodels.HpaEnzymeLevel.objects.using(model).filter(rc__in=ensemblIDs).values_list('rc_id', 'levels')
     tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
 
     return JSONResponse(

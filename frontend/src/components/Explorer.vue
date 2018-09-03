@@ -3,21 +3,22 @@
     <div :class="{ 'container': !showViewer }">
       <template v-if="showBrowser || showViewer || showSearch">
         <keep-alive>
-          <gems-browser v-if="showBrowser" :model="model"></gems-browser>
-          <gems-viewer v-if="showViewer" :model="model"></gems-viewer>
+          <gem-browser v-if="showBrowser" :model="model"></gem-browser>
+          <map-viewer v-if="showViewer" :model="model"></map-viewer>
           <search-table v-if="showSearch"></search-table>
         </keep-alive>
       </template>
       <template v-else>
         <div class="columns">
-            <div class="column has-text-centered">
-              <h4 class="title is-4">Explore our models</h4>[<a @click="">Learn how</a>]
+          <div class="column has-text-centered">
+            <h4 class="title is-4">Explore models</h4>[<a @click="">Learn how</a>]
           </div>
         </div>
+        <br>
         <div class="box">
           <div class="columns">
             <div class="column has-text-centered has-text-weight-bold">
-              Search metabolites, enzymes, reactions... through all our Models
+              Search metabolites, enzymes, reactions... through all the integrated models
             </div>
           </div>
           <div class="columns">
@@ -47,8 +48,8 @@
             <div class="column">
               <div class="dropdown is-hoverable">
                 <div class="dropdown-trigger">
-                  <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-                    <span>Model: <a class="tag is-info">{{ models[model].short_name }}</a></span>
+                  <button class="button is-medium" aria-haspopup="true" aria-controls="dropdown-menu">
+                    <span>Model: <a class="tag is-info is-medium">{{ models[model].short_name }}</a></span>
                     <span class="icon is-small">
                       <i class="fa fa-angle-down" aria-hidden="true"></i>
                     </span>
@@ -65,17 +66,19 @@
               </div>
             </div>
           </div>
-          <div class="columns">
+          <div id="toolsSelect"class="columns">
             <div class="column">
               <div class="card">
                 <header class="card-header">
                   <p class="card-header-title">
-                     Gems Browser
+                     GEM Browser
                   </p>
                 </header>
                 <div class="card-content">
                   <div class="content">
-                    <a @click="goToGemsBrowser()">img browser</a>
+                    <a @click="goToGemBrowser()">
+                      <img src="../assets/gemBrowser2.png" />
+                    </a>
                   </div>
                 </div>
                 <footer class="card-footer">
@@ -86,12 +89,14 @@
               <div class="card">
                 <header class="card-header">
                   <p class="card-header-title">
-                    Maps Viewer
+                    Map Viewer
                   </p>
                 </header>
                 <div class="card-content">
                   <div class="content">
-                    <a @click="goToGemsViewer()">img map viewer</a>
+                    <a @click="goToMapViewer()" class="has-text-centered">
+                      <img src="../assets/mapViewer2.png" />
+                    </a>
                   </div>
                 </div>
                 <footer class="card-footer">
@@ -109,8 +114,8 @@
 <script>
 import axios from 'axios';
 import $ from 'jquery';
-import GemsBrowser from 'components/explorer/GemsBrowser';
-import GemsViewer from 'components/explorer/GemsViewer';
+import GemBrowser from 'components/explorer/GemBrowser';
+import MapViewer from 'components/explorer/MapViewer';
 import GlobalSearch from 'components/explorer/GlobalSearch';
 import SearchTable from 'components/explorer/SearchTable';
 import { default as EventBus } from '../event-bus';
@@ -119,8 +124,8 @@ import { default as EventBus } from '../event-bus';
 export default {
   name: 'explorer',
   components: {
-    GemsBrowser,
-    GemsViewer,
+    GemBrowser,
+    MapViewer,
     GlobalSearch,
     SearchTable,
   },
@@ -158,19 +163,19 @@ export default {
       this.displayViewer();
       EventBus.$emit('showAction', type, name, ids, forceReload);
     });
-    EventBus.$on('showGemsViewer', () => {
+    EventBus.$on('showMapViewer', () => {
       this.displayViewer();
     });
-    EventBus.$on('showGemsBrowser', () => {
+    EventBus.$on('showGemBrowser', () => {
       this.displayBrowser();
     });
 
     EventBus.$on('navigateTo', (tool, type, id) => {
       // console.log(`on explorer navigateTo ${tool} ${type} ${id}`);
-      if (tool === 'gemsBrowser') {
-        this.$router.push(`/Explore/browser/${this.model}/${type}/${id}`);
-      } else if (tool === 'gemsViewer') {
-        this.$router.push(`/Explore/viewer/${this.model}/`);
+      if (tool === 'GEMBrowser') {
+        this.$router.push(`/explore/gem-browser/${this.model}/${type}/${id}`);
+      } else if (tool === 'MapViewer') {
+        this.$router.push(`/explore/map-viewer/${this.model}/`);
       }
     });
 
@@ -179,9 +184,15 @@ export default {
         EventBus.$emit('GBnavigateTo', 'metabolite', $(this).attr('class'));
       }
     });
+    $('body').on('click', 'span.rcm', function f() {
+      EventBus.$emit('GBnavigateTo', 'metabolite', $(this).attr('id'));
+    });
+    $('body').on('click', 'span.rce', function f() {
+      EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('id'));
+    });
     // document.body.addEventListener('keyup', (e) => {
     //   if (e.keyCode === 27) {
-    //     this.showGemsViewer = false;
+    //     this.showMapViewer = false;
     //   }
     // });
   },
@@ -195,6 +206,7 @@ export default {
       } else if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
         this.displayBrowser();
       } else {
+        EventBus.$emit('destroy3Dnetwork');
         this.showBrowser = false;
         this.showViewer = false;
         this.showSearch = false;
@@ -262,11 +274,11 @@ export default {
       this.showBrowser = false;
       this.showViewer = false;
     },
-    goToGemsBrowser() {
-      this.$router.push(`/Explore/browser/${this.model}`);
+    goToGemBrowser() {
+      this.$router.push(`/explore/gem-browser/${this.model}`);
     },
-    goToGemsViewer() {
-      this.$router.push(`/Explore/viewer/${this.model}`);
+    goToMapViewer() {
+      this.$router.push(`/explore/map-viewer/${this.model}`);
     },
     getCompartmentNameFromLetter(l) {
       return this.compartmentLetters[l];
@@ -315,4 +327,14 @@ export default {
 </script>
 
 <style lang="scss">
+
+#toolsSelect {
+  img {
+    border: solid 1px white;
+    &:hover {
+      border: solid 1px black;
+    }
+  }
+} 
+
 </style>

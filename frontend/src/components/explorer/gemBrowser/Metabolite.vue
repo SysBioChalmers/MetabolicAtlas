@@ -18,7 +18,7 @@
               <tr v-for="el in mainTableKey[model]">
                 <td v-if="el.display" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                 <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
-                <td v-if="info[el.name]">
+                <td v-if="info[el.name] !== null">
                   <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
                   </span>
                   <span v-else>
@@ -66,7 +66,7 @@
 
 <script>
 import axios from 'axios';
-import Reactome from 'components/explorer/gemsBrowser/Reactome';
+import Reactome from 'components/explorer/gemBrowser/Reactome';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
 import { reformatTableKey, reformatStringToLink, addMassUnit } from '../../../helpers/utils';
 
@@ -83,8 +83,9 @@ export default {
       mainTableKey: {
         hmr2: [
           { name: 'name' },
+          { name: 'alt_name', display: 'alternate name' },
+          { name: 'aliases', display: 'Synonyms' },
           { name: 'description', display: 'Description' },
-          { name: 'function', display: 'Function' },
           { name: 'formula', modifier: chemicalFormula },
           { name: 'charge' },
           { name: 'inchi' },
@@ -104,6 +105,16 @@ export default {
       activePanel: 'table',
       showReactome: false,
     };
+  },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/metabolite/')) {
+        if (this.mId !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
   },
   computed: {
     hasExternalID() {
@@ -138,7 +149,7 @@ export default {
     reformatLink(s, link) { return reformatStringToLink(s, link); },
     reformatMass(s) { return addMassUnit(s); },
     viewInteractionPartners() {
-      this.$router.push(`/explorer/browser/${this.model}/interaction/${this.mId}`);
+      this.$router.push(`/explore/gem-browser/${this.model}/interaction/${this.mId}`);
     },
   },
   beforeMount() {

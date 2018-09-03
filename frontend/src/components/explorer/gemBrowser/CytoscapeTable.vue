@@ -81,7 +81,7 @@
 
 <script>
 
-import CytoscapeTableSearch from 'components/explorer/gemsBrowser/CytoscapeTableSearch';
+import CytoscapeTableSearch from 'components/explorer/gemBrowser/CytoscapeTableSearch';
 import { default as compare } from '../../../helpers/compare';
 import { default as downloadFile } from '../../../helpers/excel-export';
 import { default as EventBus } from '../../../event-bus';

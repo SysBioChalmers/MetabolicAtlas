@@ -10,8 +10,8 @@
       <div class="subsystem-table column is-10">
         <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
           <tr class="m-row" v-for="el in mainTableKey[model]">
-            <td v-if="el.display" class="td-key">{{ el.display }}</td>
-            <td v-else class="td-key">{{ reformatKey(el.name) }}</td>
+            <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
+            <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
             <td v-if="info[el.name]">
               <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
               </span>
@@ -22,11 +22,11 @@
             <td v-else> - </td>
           </tr>
           <tr>
-            <td class="td-key">Compartments</td>
+            <td class="td-key has-background-primary has-text-white-bis">Compartments</td>
             <td>{{ info['compartment'].join(', ') }}</td>
           </tr>
           <tr>
-            <td class="td-key">Metabolites</td>
+            <td class="td-key has-background-primary has-text-white-bis">Metabolites</td>
             <td>
               <div v-html="metabolitesListHtml"></div>
               <div v-if="!this.showFullMetabolite && this.metabolites.length > this.limitMetabolite">
@@ -38,7 +38,7 @@
             </td>
           </tr>
           <tr>
-            <td class="td-key">Enzymes</td>
+            <td class="td-key has-background-primary has-text-white-bis">Enzymes</td>
             <td>
               <div v-html="enzymesListHtml"></div>
               <div v-if="!this.showFullEnzyme && this.enzymes.length > this.limitEnzyme">
@@ -68,10 +68,8 @@
 
 <script>
 import axios from 'axios';
-import $ from 'jquery';
 import Loader from 'components/Loader';
-import ReactionTable from 'components/explorer/gemsBrowser/ReactionTable';
-import { default as EventBus } from '../../../event-bus';
+import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import { reformatTableKey } from '../../../helpers/utils';
 
 export default {
@@ -101,6 +99,16 @@ export default {
       limitMetabolite: 40,
       limitEnzyme: 40,
     };
+  },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/subsystem/')) {
+        if (this.sName !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
   },
   computed: {
     metabolitesListHtml() {
@@ -154,12 +162,6 @@ export default {
     reformatKey(k) { return reformatTableKey(k); },
   },
   beforeMount() {
-    $('body').on('click', 'span .rcm', function f() {
-      EventBus.$emit('updateSelTab', 'metabolite', $(this).attr('id'));
-    });
-    $('body').on('click', 'span .rce', function f() {
-      EventBus.$emit('updateSelTab', 'enzyme', $(this).attr('id'));
-    });
     this.setup();
   },
 };

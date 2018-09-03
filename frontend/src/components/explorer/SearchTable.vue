@@ -583,7 +583,7 @@ export default {
               }
             }
             rows[componentType].push({
-              id: `<a href="/Explore/browser/${el.model}/reaction/${el.id}">${el.id}</a>`,
+              id: `<a href="/explore/gem-browser/${el.model}/reaction/${el.id}">${el.id}</a>`,
               model: el.model,
               equation: el.equation,
               ec: el.ec,
@@ -605,7 +605,7 @@ export default {
             }
             rows[componentType].push({
               model: el.model,
-              name: `<a href="/Explore/browser/${el.model}/subsystem/${el.name}">${el.name}</a>`,
+              name: `<a href="/explore/gem-browser/${el.model}/subsystem/${el.name}">${el.name}</a>`,
               system: el.system,
               compartment: el.compartment,
               metaboliteCount: el.metabolite_count,
@@ -697,18 +697,18 @@ export default {
     },
     // TODO use router
     formatMetaboliteNameCell(row) {
-      return `<a href="/Explore/browser/${row.model}/metabolite/${row.id}">${row.name}</a>`;
+      return `<a href="/explore/gem-browser/${row.model}/metabolite/${row.id}">${row.name}</a>`;
     },
     formatEnzymeNameCell(row) {
-      return `<a href="/Explore/browser/${row.model}/enzyme/${row.id}">${row.name}</a>`;
+      return `<a href="/explore/gem-browser/${row.model}/enzyme/${row.id}">${row.name}</a>`;
     },
     formatReactionNameCell(row) {
-      return `<a href="/Explore/browser/${row.model}/reaction/${row.id}">${row.id}</a>`;
+      return `<a href="/explore/gem-browser/${row.model}/reaction/${row.id}">${row.id}</a>`;
     },
     formatSubsystemArrCell(row) {
       let s = '';
       for (const subsystem of row.subsystem.split('; ')) {
-        s += `<a href="/Explore/browser/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
+        s += `<a href="/explore/gem-browser/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
       }
       return s.slice(0, -2);
     },

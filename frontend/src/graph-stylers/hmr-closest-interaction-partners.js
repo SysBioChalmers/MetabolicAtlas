@@ -15,12 +15,7 @@ export default function (
   for (const id of Object.keys(elms)) {
     const elm = elms[id];
     if (elm.type === 'enzyme') {
-      // let hpaLink = `http://www.proteinatlas.org/${elm.long}/`;
-      if (enzExpSource && elm.expressionLvl) {
-        if (nodeDisplayParams.enzymeExpSource === 'HPA') {
-          // hpaLink = `http://www.proteinatlas.org/${elm.long}/nodeDisplayParams.enzymeExpSample#top`;
-        }
-      } else if (!elm.expressionLvl) {
+      if (!elm.expressionLvl) {
         elm.expressionLvl = {};
         elm.expressionLvl.false = {};
         elm.expressionLvl.false.false = {};
@@ -132,6 +127,9 @@ export default function (
     .css({
       shape: nodeDisplayParams.enzymeNodeShape,
       'background-color': function f(e) {
+        if (!e.data('color')[enzExpSource]) {
+          return 'whitesmoke';
+        }
         if (e.data('color')[enzExpSource][enzExpType][enzSample]) {
           return e.data('color')[enzExpSource][enzExpType][enzSample];
         }
