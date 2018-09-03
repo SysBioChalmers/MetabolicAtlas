@@ -532,7 +532,9 @@ export default {
         this.requestedTissue = '';
         this.loadedTissue = '';
       }
-      EventBus.$emit('loadHPARNAlevels', tissue);
+      if (this.show2D) {
+        EventBus.$emit('loadHPARNAlevels', tissue);
+      }
     },
     showCompartment(compartment) {
       this.hideDropleftMenus();
