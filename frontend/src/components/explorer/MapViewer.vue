@@ -39,9 +39,9 @@
             </li>
           </ul>
         </div>
-        <div class="column" v-if="loadedTissue">
+        <div class="column" v-if="loadedTissue && show2D">
           <div class="has-text-centered has-text-weight-bold is-small">
-            <p>Current tissue: {{ loadedTissue }}</p>
+            <p>Selected tissue: {{ loadedTissue }}</p>
           </div>
           <div v-html="getExpLvlLegend()">
           </div>
@@ -115,26 +115,26 @@
                     <template v-else>
                       <template v-if="currentDisplayedType === 'compartment'">
 <!--                         On map:<br>
-                        <span class="hd"># reaction:</span> {{ compartmentsSVG[currentDisplayedName]['reaction_count'] }}<br>
-                        <span class="hd"># metabolite:</span> {{ compartmentsSVG[currentDisplayedName]['metabolite_count'] }}<br>
-                        <span class="hd"># enzyme:</span> {{ compartmentsSVG[currentDisplayedName]['enzyme_count'] }}<br>
-                        <span class="hd"># subsystem:</span> {{ compartmentsSVG[currentDisplayedName]['subsystem_count'] }}<br>
+                        <span class="hd"># reactions:</span> {{ compartmentsSVG[currentDisplayedName]['reaction_count'] }}<br>
+                        <span class="hd"># metabolites:</span> {{ compartmentsSVG[currentDisplayedName]['metabolite_count'] }}<br>
+                        <span class="hd"># enzymes:</span> {{ compartmentsSVG[currentDisplayedName]['enzyme_count'] }}<br>
+                        <span class="hd"># subsystems:</span> {{ compartmentsSVG[currentDisplayedName]['subsystem_count'] }}<br>
                         <br>On model:<br> -->
-                        <span class="hd"># reaction:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
-                        <span class="hd"># metabolite:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
-                        <span class="hd"># enzyme:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
-                        <span class="hd"># subsystem:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
+                        <span class="hd"># reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
+                        <span class="hd"># metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
+                        <span class="hd"># enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
+                        <span class="hd"># subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
                       </template>
                       <template v-else>
 <!--                         On map:<br>
-                        <span class="hd"># reaction:</span> {{ subsystemsSVG[currentDisplayedName]['reaction_count'] }}<br>
-                        <span class="hd"># metabolite:</span> {{ subsystemsSVG[currentDisplayedName]['metabolite_count'] }}<br>
-                        <span class="hd"># enzyme:</span> {{ subsystemsSVG[currentDisplayedName]['enzyme_count'] }}<br>
+                        <span class="hd"># reactions:</span> {{ subsystemsSVG[currentDisplayedName]['reaction_count'] }}<br>
+                        <span class="hd"># metabolites:</span> {{ subsystemsSVG[currentDisplayedName]['metabolite_count'] }}<br>
+                        <span class="hd"># enzymes:</span> {{ subsystemsSVG[currentDisplayedName]['enzyme_count'] }}<br>
                         <br>On model:<br> -->
-                        <span class="hd"># reaction:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
-                        <span class="hd"># metabolite:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
-                        <span class="hd"># enzyme:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
-                        <span class="hd"># compartment:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
+                        <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
+                        <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
+                        <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
+                        <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
                       </template>
                     </template>
                   </div>
@@ -435,6 +435,9 @@ export default {
       }
       this.show3D = !this.show3D;
       this.show2D = !this.show2D;
+      this.selectedElement = null;
+      this.requestedTissue = '';
+      this.loadedTissue = '';
       if (this.show3D) {
         EventBus.$emit('show3Dnetwork', this.currentDisplayedType, this.currentDisplayedName);
       } else {
@@ -461,7 +464,7 @@ export default {
       this.currentDisplayedType = this.requestedType;
       this.currentDisplayedName = this.requestedName;
       if (this.show2D) {
-        EventBus.$emit('update3DLoadedComponent');
+        EventBus.$emit('update3DLoadedComponent', null, null);
       }
       this.showLoader = false;
     },
