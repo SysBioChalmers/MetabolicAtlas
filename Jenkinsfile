@@ -17,6 +17,9 @@ pipeline {
         sh '''cp postgres.env.sample postgres.env'''
         sh '''cp db2_postgres.env.sample db2_postgres.env'''
         echo 'Copied PostgreSQL environment.'
+        sh '''
+          sed -i "s/svgMapURL:.*/svgMapURL: 'http:\/\/ftp.icsb.chalmers.se\/.maps',/g"  frontend/src/components/explorer/mapViewer/Svgmap.vue
+        '''
       }
     }
     stage('Test') {
@@ -51,18 +54,10 @@ pipeline {
         '''
       }
     }
-    stage('Fetch SVGs') {
-      steps {
-        sh '''
-          wget https://chalmersuniversity.box.com/shared/static/hwbn410g7yxy4o7c8utolapaub1bnfqy.gz -O hma_svgs.tar.gz
-          tar -xzf hma_svgs.tar.gz -C nginx/svgs/
-        '''
-      }
-    }
     stage('Clean up') {
       steps {
         sh '''
-          rm *.db hma_svgs.tar.gz
+          rm *.db
         '''
         echo 'We are live!'
       }
@@ -70,10 +65,8 @@ pipeline {
   }
   post {
    success {
-     slackSend (color: '#00AA00', message: "Deployment successful, branch ${env.GIT_BRANCH}")
    }
    failure {
-     slackSend (color: '#cc0c0c', message: "Failed ${env.BUILD_URL}")
    }
   }
 }
