@@ -84,6 +84,8 @@ export default {
       nodeZoomLvl: 0.15,
       allowZoom: true,
       dragging: false,
+
+      svgMapURL: `${window.location.origin}/svgs`, // SEDME
     };
   },
   computed: {
@@ -235,8 +237,6 @@ export default {
         }
       }
       const newSvgName = currentLoad.filename;
-      // TODO add the type in url
-      const svgLink = `${window.location.origin}/svgs/${newSvgName}`;
       if (!newSvgName) {
         // TODO remove this when all svg files are available
         this.$emit('loadComplete', false, 'SVG map not available.');
@@ -252,6 +252,7 @@ export default {
             this.loadSvgPanZoom(callback);
           }, 0);
         } else {
+          const svgLink = `${this.svgMapURL}/${this.model}/${newSvgName}`;
           axios.get(svgLink)
             .then((response) => {
               this.svgContent = response.data;
@@ -264,9 +265,9 @@ export default {
                 this.loadSvgPanZoom(callback);
               }, 0);
             })
-            .catch((error) => {
+            .catch(() => {
               // TODO: handle error
-              this.$emit('loadComplete', false, error);
+              this.$emit('loadComplete', false, 'SVG map not available.');
             });
         }
       } else if (callback) {

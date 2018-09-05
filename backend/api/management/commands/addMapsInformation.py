@@ -999,7 +999,7 @@ class Command(BaseCommand):
         parser.add_argument('database', type=str)
         parser.add_argument('map type', type=str, choices=['compartment', 'subsystem'], help="'compartment' or 'subsystem'")
         parser.add_argument('map directory', type=str, help="location of the svg files")
-        parser.add_argument('svgmap metadata file', type=str,
+        parser.add_argument('map metadata file', type=str,
             help="tabular file that describes the name/display_name/letter/.... of the maps")
         parser.add_argument('--write-connectivity-files', action="store_true", default=False, dest='write_connectivity',
             help="Find and write overlaps between compt/sub/reaction/meta into files")
@@ -1018,4 +1018,4 @@ class Command(BaseCommand):
             write_subsystem_summary_file(database, rme_compt_svg, sub_compt_svg, pathway_compt_coverage)
             return
 
-        processData(options['database'], options['map type'], options['map directory'], options['svgmap metadata file'])
+        processData(options['database'], options['map type'], options['map directory'], options['map metadata file'])

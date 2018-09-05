@@ -35,7 +35,7 @@ def check_PMID(PMID):
         return None
     elif not json['status'] == 'ok':
         return None
-    logging.warn(json)
+    # logging.warn(json)
     doi = json['records'][0]['doi'] if 'doi' in json['records'][0] else ''
     return doi, json['records'][0]['pmid']
 
@@ -47,7 +47,7 @@ def get_info_from_pmid(PMID):
     if not r.status_code == 200:
         return None
     json = r.json()
-    logging.warn(json)
+    # logging.warn(json)
     if 'error' in json['result'][PMID]:
         return None
     if 'title' in json['result'][PMID]:
@@ -65,8 +65,8 @@ def get_info_from_pmid(PMID):
             break
     return title, year
 
-repo_parser.show_summary = False
 
+repo_parser.show_summary = False
 
 models = GEModel.objects.all()
 model_dict = {}
@@ -171,6 +171,7 @@ for repo in list_repo:
             # 'sample': None,  # specified upon the creation
             'description': None,  # should be None, description will always be the set description
             'label': None, # TODO have a algo to generate label
+            'condition': None,
             'reaction_count': 0,
             'metabolite_count': 0,
             'enzyme_count': 0,
@@ -208,6 +209,8 @@ for repo in list_repo:
                 model['enzyme_count'] = int(col)
             elif keys[j].lower() == 'strain':
                 model['label'] = col
+            elif keys[j].lower() == 'condition': #TESTME
+                model['condition'] = col
 
         if not model['label']:
             model['label'] = model_name.replace('_', ' ')
