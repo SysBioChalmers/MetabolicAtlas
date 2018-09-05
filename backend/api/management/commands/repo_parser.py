@@ -61,7 +61,8 @@ default_readme_rules = {
                  'the model': 'The repo contains',
                  'the models': 'The repo contains',
                  'the model contains': 'The repo contains',
-                 'the repo contains': 'The repo contains'
+                 'the repo contains': 'The repo contains',
+                 'main model descriptors': 'The repo contains',
                 },
     'keywords': [
         ['GEM Category', True, ['Species', 'Community', 'Collection']],
@@ -112,6 +113,7 @@ def check_model_file_content(content):
 
 
 def check_model_files(model_dir, name, rule):
+    global error_message
     global model_files_found
     print ("Checking '%s'" % name)
     if model_dir['type'] != rule['type']:
@@ -162,10 +164,12 @@ def check_model_files(model_dir, name, rule):
 
 
 def check_models_dirs(model_dir, name, rule_dir):
+    global warning_messages
+    global error_message
     print ("Checking directory '%s'" % name)
     if model_dir['type'] != rule_dir['type']:
-         print ("Error: invalid format, '%s' is expected to be %s" % (
-             name, rule_dir['type']))
+         error_message = "Error: invalid format, '%s' is expected to be %s" % \
+         (name, rule_dir['type'])
          return False
 
     content = {}
@@ -207,6 +211,8 @@ def check_models_dirs(model_dir, name, rule_dir):
 
 
 def check_repo_content(repo_content):
+    global warning_messages
+    global error_message
     content = {}
     if not parse_local_repo:
         for element in repo_content:
@@ -274,6 +280,7 @@ def check_local_repo_content(local_repo):
 
 
 def parse_readme_file(content):
+    global error_message
     readme_dict = {}
     parse_category = False
     found_model_table = False
@@ -281,7 +288,7 @@ def parse_readme_file(content):
     cat = False;
     for line in content.decode('UTF-8').split('\n'):
         line = line.strip()
-        if line.startswith("- "):
+        if line.startswith("- ") or line.startswith("* "):
             parse_category = True
             if cat:
                 readme_dict[cat] = re.sub("\s{2,}", " ", readme_dict[cat])
@@ -294,7 +301,9 @@ def parse_readme_file(content):
                 value = ""
             readme_dict[cat] = value
         elif parse_category:
-            if "the model" in cat.lower() or "the repo" in cat.lower(): # try to get the model table
+            if "the model" in cat.lower() or \
+                "the repo" in cat.lower() or \
+                 "main model descriptors" in cat.lower(): # try to get the model table
                 if re.match('^[|](?:[^|]+[|]){5,7}', line):
                     found_model_table = True
                     model_table.append([el.strip() for el in line.strip('|').split('|')])
@@ -303,11 +312,14 @@ def parse_readme_file(content):
                     break
             else:
                 readme_dict[cat] += line.strip()
-
+    if not found_model_table:
+        error_message = "Error: couldn't  fine the models table" % name
     return readme_dict
 
 
 def parse_categories(readme_dict):
+    global warning_messages
+    global error_message
     required_cat = {v for v in default_readme_rules['category'].values()}
     new_categories = {}
     for name, content in readme_dict.items():
@@ -325,17 +337,23 @@ def parse_categories(readme_dict):
                 error_message = "Error: category '%s' seems empty" % name
                 return False
             new_categories[correct_name] = content
+    # if no paper
+    for cat in ['Abstract', 'Reference', 'Pubmed ID']:
+        if cat in required_cat:
+            new_categories[cat] = ''
+            required_cat.remove(cat)
 
     if required_cat:
         # TODO check PMID_cat_found
-        print ("Error: categories not found: %s" % 
-            ", ".join(["'%s'" % c for c in required_cat]))
+        error_message = "Error: categories not found: %s" % \
+            ", ".join(["'%s'" % c for c in required_cat])
         return False
     return new_categories
 
 
 def reformat_keywords(keywords_string):
     global gem_category
+    global error_message
     keywords_string = keywords_string.strip()
     if not keywords_string:
         error_message = "Error: keywords string seems empty"
@@ -355,16 +373,17 @@ def reformat_keywords(keywords_string):
         error_message = "Error: missing keyword 'GEM Category'"
         return False
     elif kw['gem category'] not in default_readme_rules['keywords'][0][2]:
-        print ("Error: invalid keyword value '%s' for 'GEM Category', choices are %s" % 
-            (kw['gem category'], ", ".join(default_readme_rules['keywords'][0][2])))
+        error_message = "Error: invalid keyword value '%s' for 'GEM Category', choices are %s" % \
+            (kw['gem category'], ", ".join(default_readme_rules['keywords'][0][2]))
         return False
     else:
         gem_category = kw['gem category']
-
     return kw
 
 
 def parse_keywords(kw_dict):
+    global warning_messages
+    global error_message
     found_tissue = False
     found_bioreactor = False
     # print (kw_dict)
@@ -374,9 +393,18 @@ def parse_keywords(kw_dict):
             error_message = "Error: keyword '%s' not found " % name
             return False
         elif require_content and kw_dict[kw_lower_name].lower() not in [el.lower() for el in require_content]:
-            print ("Error: invalid keyword value '%s' for 'GEM Category', choices are %s" % 
-            (kw_dict[kw_lower_name], ", ".join(require_content)))
-            return False
+            list_choice = [e.strip() for e in kw_dict[kw_lower_name].lower().split(',')]
+            if len(list_choice) > 1:
+                # check each choice against the white list
+                for c in list_choice:
+                    if c not in [el.lower() for el in require_content]:
+                        error_message = "Error: invalid keyword value '%s' for '%s', choices are %s" % \
+                            (c, name, ", ".join(require_content))
+                        return False
+            else:
+                error_message = "Error: invalid keyword value '%s' for '%s', choices are %s" %  \
+                    (kw_dict[kw_lower_name], name, ", ".join(require_content))
+                return False
         elif kw_lower_name in ['cell type', 'cell line', 'tissue', 'strain']:
             if (kw_lower_name not in kw_dict or not kw_dict[kw_lower_name]) and \
                 not table_CCTS[kw_lower_name]:
@@ -403,15 +431,17 @@ def parse_keywords(kw_dict):
 
 def parse_model_table(model_array):
     global table_CCTS
+    global warning_messages
+    global error_message
     if len(model_array) < 3:
-        error_message = "Error: the model(s) table seems empty"
+        error_message = "Error: the model table seems empty"
         return False
     elif gem_category == "Species" and len(model_array) != 3:
-        error_message = "Error: the model(s) table should contains only one row for GEM category 'Species'"
+        error_message = "Error: the model table should contains only one row for GEM category 'Species'"
         return False
     if not readme_only and len(model_files_found['xml']) != len(model_array) - 2:
-        print ("Error: the number of models described in the table " +
-            "do not match the number of models in the 'xml' directory")
+        error_message = "Error: the number of models described in the table " + \
+            "do not match the number of models in the 'xml' directory"
         return False
     header = []
     model_info_dict = {}
@@ -421,8 +451,8 @@ def parse_model_table(model_array):
             missing_col = {v.lower() for v in default_readme_rules['model_table_header']} - \
                 set([h.lower() for h in header])
             if missing_col:
-                print ("Error: the model(s) table columns are missing: %s" % 
-                    ", ".join(["'%s'" % c for c in missing_col]))
+                error_message = "Error: the model(s) table columns are missing: %s" % \
+                    ", ".join(["'%s'" % c for c in missing_col])
                 return False
             for h in [h.lower() for h in header if h.lower() in ['cell type', 'cell line', 'tissue', 'strain']]:
                 table_CCTS[h] = True
@@ -442,11 +472,11 @@ def parse_model_table(model_array):
                 try:
                     a = int(row[j])
                     if a < 0:
-                        print ("Error: invalid value '%s' (column '%s') for model '%s', expected a number >= 0" %
-                            (row[j], header[j], row_model))
+                        error_message = "Error: invalid value '%s' (column '%s') for model '%s', expected a number >= 0" % \
+                            (row[j], header[j], row_model)
                         return False
                 except:
-                    print ("Error: invalid value '%s' (column '%s') for model '%s', expected a number" %
+                    error_message = ("Error: invalid value '%s' (column '%s') for model '%s', expected a number" % \
                         (row[j], header[j], row_model))
                     return False
             model_info_dict[row_model] = row[j]
@@ -464,6 +494,11 @@ def get_json(URL):
 
 
 def get_gemodel(repo_name):
+    global warning_messages
+    global error_message
+    warning_messages = []
+    error_message = ''
+
     if not parse_local_repo:
         if not repo_name.endswith('-GEM') and not (repo_name.endswith('-GEMS') or repo_name.endswith('-GEMs')):
             error_message = "Error: invalid repo name '%s', it should end with '-GEM' or '-GEMS'"
@@ -473,7 +508,6 @@ def get_gemodel(repo_name):
         URL = 'https://api.github.com/repos/SysBioChalmers/' + repo_name
         success, repo_json = get_json(URL)
         if not success:
-            print (repo_json)
             error_message = "Error: repo '%s' does not exist or is private" % repo_name
             return False
 
@@ -502,7 +536,6 @@ def get_gemodel(repo_name):
         URL = 'https://api.github.com/repos/SysBioChalmers/' + repo_name + "/contents/README.md?ref=master"
         success, readme_meta_json = get_json(URL)
         if not success:
-            print (readme_meta_json)
             error_message = "Error: cannot read the README.md file"
             return False
 
@@ -525,22 +558,27 @@ def get_gemodel(repo_name):
 
     readme_dict = parse_readme_file(readme_content)
     if not readme_dict:
+        # print ('here')
         return False
 
     cat_dict = parse_categories(readme_dict)
     if not cat_dict:
+        # print ('here2')
         return False
 
     keywords_dict = reformat_keywords(cat_dict["Model KeyWords"])
     if not keywords_dict:
+        # print ('here3')
         return False
 
     model_info_dict = parse_model_table(cat_dict["The repo contains"])
     if not model_info_dict:
+        # print ('here4')
         return False
 
     keywords_dict = parse_keywords(keywords_dict)
     if not keywords_dict:
+        # print ('here5')
         return False
 
     cat_dict['Model KeyWords'] = keywords_dict
@@ -572,6 +610,9 @@ def get_gemodel(repo_name):
 
 if __name__ == "__main__":
     get_gemodel(repo_name)
+    for wm in warning_messages:
+        print (wm)
+    print (error_message)
 
 
 # README 3 examples
