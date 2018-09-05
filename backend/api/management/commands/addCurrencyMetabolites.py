@@ -65,7 +65,7 @@ def addCurrencyMetabolites(database, currency_metabolite_file):
     # print (sorted(d.items(), key=itemgetter(1)))
     currency_ids = []
     for el in res:
-        if el[1][0] > 40: # TODO remove hard-coded, must be extract from currency_metabolite_file
+        if database == 'hmr2' and el[1][0] > 40: # TODO remove hard-coded, must be extract from currency_metabolite_file
             currency_ids.append(el[0])
 
     APImodels.ReactionComponent.objects.using(database).filter(is_currency=False)
