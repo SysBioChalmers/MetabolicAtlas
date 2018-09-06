@@ -63,10 +63,4 @@ pipeline {
       }
     }
   }
-  post {
-   success {
-   }
-   failure {
-   }
-  }
 }
