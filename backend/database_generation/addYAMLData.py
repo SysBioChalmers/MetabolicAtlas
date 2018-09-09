@@ -227,8 +227,11 @@ def load_YAML(database, yaml_file, delete=False):
 
         # extract additional info
         is_transport = False
-        if '=>' in equation_compartment:
-            is_transport = True
+        for meta_id in [a[:6] for a,b, in dict_rxn['reactant']]:
+            if meta_id in [a[:6] for a,b in dict_rxn['product']]:
+                is_transport = True
+                break
+
         is_reversible = dict_rxn['lower_bound'] == -1000
         gr_rule = dict_rxn['gene_reaction_rule'] if 'gene_reaction_rule' in dict_rxn else None
 
@@ -354,7 +357,6 @@ def load_YAML(database, yaml_file, delete=False):
             compartments = ReactionCompartment.objects.using(database). \
                 filter(reaction=r, compartment=rc.compartment).values_list('compartment_id', flat=True)
             for subsystem in dict_rxn['subsystem']:
-                # print ("sub: ", subsystem)
                 ss = Subsystem.objects.using(database).get(name__iexact=subsystem)
                 for compartment in compartments:
                     compt = Compartment.objects.using(database).get(id=compartment)
@@ -373,6 +375,7 @@ def load_YAML(database, yaml_file, delete=False):
 
 class Equation(object):
     def __init__(self, reaction, meta_dict):
+        self.id = reaction['id']
         self.reactants = reaction['reactant']
         self.products = reaction['product']
         self.meta_dict = meta_dict
@@ -389,11 +392,47 @@ class Equation(object):
         return "{0} => {1}".format(reactants_string, products_string)
 
     def get_equation_compartment(self):
-        reactants_string = self.format_reaction_part({compt for a,b,compt,d,e in self.reactants})
-        products_string = self.format_reaction_part({compt for a,b,compt,d,e in self.products})
-        if reactants_string != products_string:
-            return "{0} => {1}".format(reactants_string, products_string)
-        return reactants_string
+        reactants_set = {compt for a,b,compt,d,e in self.reactants}
+        products_set = {compt for a,b,compt,d,e in self.products}
+        reactants_list = [compt for a,b,compt,d,e in self.reactants]
+        products_list = [compt for a,b,compt,d,e in self.products]
+        reactants_set_string = self.format_reaction_part(reactants_set)
+        products_set_string = self.format_reaction_part(products_set)
+        reactants_list_string = self.format_reaction_part(reactants_list)
+        products_list_string = self.format_reaction_part(products_list)
+
+        if (len(reactants_set) == 1 and reactants_set_string != products_set_string) or (len(products_set) == 1 and reactants_set_string != products_set_string):
+            return "{0} => {1}".format(reactants_set_string, products_set_string)
+        elif reactants_list == products_list or (reactants_set == products_set and len(reactants_set) == 1 and len(products_set) == 1):
+            return reactants_set_string
+        elif len(reactants_set) == len(reactants_list) and len(products_set) == len(products_list):
+            return "{0} => {1}".format(reactants_list_string, products_list_string)
+        else:
+            # remove consecutive. duplicates in list
+            reactants_list = [e for i, e in enumerate(reactants_list) if i == 0 or (i != len(reactants_list) and reactants_list[i] != reactants_list[i-1])]
+            products_list = [e for i, e in enumerate(products_list) if i == 0 or (i != len(products_list) and products_list[i] != products_list[i-1])]
+            if len(reactants_set) == len(reactants_list) and len(products_set) == len(products_list):
+                return "{0} => {1}".format(self.format_reaction_part(reactants_list), self.format_reaction_part(products_list))
+            elif reactants_set == products_set and len(reactants_list) == len(products_list):
+                #check if same pairs
+                pairs = set()
+                for e1, e2 in zip(reactants_list, products_list):
+                    pairs.add("".join(sorted(list({e1, e2}))))
+                if len(pairs) == 1:
+                    return "{0} => {1}".format(self.format_reaction_part(reactants_set), self.format_reaction_part(list(reversed(list(reactants_set)))))
+                else:
+                    print("Error: cannot get compartment equation for reaction")
+                    print(self.id)
+                    print (reactants_list, products_list)
+                    print(pairs)
+                    exit()
+            else:
+                print("Error: cannot get compartment equation for reaction")
+                print(self.id)
+                print (reactants_list, products_list)
+                exit()
+
+        return ""
 
 
     def format_reaction_element(self, elements, using_name=False):
