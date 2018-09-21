@@ -109,7 +109,7 @@ class Command(BaseCommand):
         parser.add_argument('yaml file', type=str)
         parser.add_argument('model label', type=str)
         parser.add_argument('model pmid', type=str)
-        parser.add_argument('--delete', action='store_true', dest='delete')
+        parser.add_argument('--delete', action='store_true', dest='delete', default=False)
         parser.add_argument('--metadata-only', action='store_true', dest='metadata_only')
 
     def handle(self, *args, **options):

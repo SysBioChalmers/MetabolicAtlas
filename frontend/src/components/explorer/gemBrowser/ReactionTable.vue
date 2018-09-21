@@ -112,7 +112,7 @@ export default {
   },
   computed: {
     transportReactionCount() {
-      return this.reactions.filter(r => r.compartment.includes('=>')).length;
+      return this.reactions.filter(r => r.is_transport).length;
     },
   },
   methods: {
