@@ -18,7 +18,7 @@ pipeline {
         sh '''cp db2_postgres.env.sample db2_postgres.env'''
         echo 'Copied PostgreSQL environment.'
         sh '''
-          sed -i "s/svgMapURL:.*/svgMapURL: 'http:\\/\\/ftp.icsb.chalmers.se\\/.maps',/g"  frontend/src/components/explorer/mapViewer/Svgmap.vue
+          sed -i "s/svgMapURL:.*/svgMapURL: 'https:\\/\\/ftp.icsb.chalmers.se\\/.maps',/g"  frontend/src/components/explorer/mapViewer/Svgmap.vue
         '''
       }
     }
