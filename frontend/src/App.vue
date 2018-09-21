@@ -76,9 +76,7 @@
     </keep-alive>
     <footer id="footer" class="footer">
       <div class="columns">
-        <div class="column is-2">
-        </div>
-        <div class="column is-8">
+        <div class="column container">
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
             <p style="height: 60px;">
@@ -91,10 +89,8 @@
             </p>
           </div>
         </div>
-        <div class="column is-2">
-          <div class="is-pulled-right">
-            <a @click="viewRelaseNotes">v1.0</a>
-          </div>
+        <div class="is-pulled-right">
+          <a @click="viewRelaseNotes">v1.0</a>
         </div>
       </div>
     </footer>
