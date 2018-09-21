@@ -22,7 +22,6 @@ const routes = [
   { path: '/gems', name: 'gems', component: Models },
   { path: '/gems/download', name: 'gemsDL', component: ModelsFTP },
   { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
-  { path: '/gems/:id', name: 'gemsID', component: Models },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Help },
   { path: '/*', name: 'Home', component: Home },

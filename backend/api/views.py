@@ -692,7 +692,7 @@ def get_gemodel(request, gem_id):
          prefetch_related('files', 'ref')
     else:
          if gem_id == "HMR2":
-             gem_id = "HMR 2.0"
+             gem_id = "HMR 2.0" # TODO fix . in url
          model = APImodels.GEModel.objects.filter(label__iexact=gem_id). \
              prefetch_related('files', 'ref')
 
