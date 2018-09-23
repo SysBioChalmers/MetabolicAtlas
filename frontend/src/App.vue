@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="navbar-menu" id="#nav-menu">
-          <div class="navbar-start" v-if="showExploreInfo">
+          <div class="navbar-start" v-if="showExploreInfo && model">
             <a
                class="navbar-item has-text-centered"
                :class="{ 'is-active': activeBrowserBut }"

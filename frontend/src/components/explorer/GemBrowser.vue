@@ -1,51 +1,58 @@
 <template>
   <div>
-    <div class="columns" v-if="!selectedType">
-      <div class="column container has-text-centered">
-        <h4 class="title is-4">Explore through {{ $t(model) }} with the GEM Browser</h4>
+    <template v-if="errorMessage">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
       </div>
-    </div>
-    <div class="columns">
-      <div class="column is-3">
+    </template>
+    <template v-else>
+      <div class="columns" v-if="!selectedType">
+        <div class="column container has-text-centered">
+          <h4 class="title is-4">Explore through {{ model }} with the GEM Browser</h4>
+        </div>
       </div>
-      <global-search
-      :quickSearch=true
-      :model="model"
-      ref="globalSearch"></global-search>
-    </div>
-    <div v-if="errorMessage">
-      {{ errorMessage }}
-    </div>
-    <div id="homeDiv" class="columns box" v-else-if="selectedType === ''">
-      <div class="column is-4">
-        <h5 class="title is-6 has-text-centered">Metabolites</h5>
-        <a v-for="met in starredComponents[model].metabolites" @click="$router.push(`/explore/gem-browser/${model}/metabolite/${met[1]}`)"
-         class="is-block has-text-centered">
-          {{ met[0] }}
-        </a>
+      <div class="columns">
+        <div class="column is-3">
+        </div>
+        <global-search
+        :quickSearch=true
+        :model="model"
+        ref="globalSearch"></global-search>
       </div>
-      <div class="column is-4">
-        <h5 class="title is-6 has-text-centered">Enzymes</h5>
-        <a v-for="enz in starredComponents[model].enzymes" @click="$router.push(`/explore/gem-browser/${model}/enzyme/${enz[1]}`)"
-         class="is-block has-text-centered">
-          {{ enz[0] }}
-        </a>
+      <div id="homeDiv" class="columns box" v-if="selectedType === '' && starredComponents[model]">
+        <div class="column is-4">
+          <h5 class="title is-6 has-text-centered">Metabolites</h5>
+          <a v-for="met in starredComponents[model].metabolites" @click="$router.push(`/explore/gem-browser/${model}/metabolite/${met[1]}`)"
+            v-if="model in starredComponents"
+            class="is-block has-text-centered">
+            {{ met[0] }}
+          </a>
+        </div>
+        <div class="column is-4">
+          <h5 class="title is-6 has-text-centered">Enzymes</h5>
+          <a v-for="enz in starredComponents[model].enzymes" @click="$router.push(`/explore/gem-browser/${model}/enzyme/${enz[1]}`)"
+            v-if="model in starredComponents"
+            class="is-block has-text-centered">
+            {{ enz[0] }}
+          </a>
+        </div>
+        <div class="column is-4">
+          <h5 class="title is-6 has-text-centered">Reactions</h5>
+          <a v-for="rea in starredComponents[model].reactions" @click="$router.push(`/explore/gem-browser/${model}/reaction/${rea[1]}`)"
+            v-if="model in starredComponents"
+            class="is-block has-text-centered">
+            {{ rea[0] }}
+          </a>
+        </div>
       </div>
-      <div class="column is-4">
-        <h5 class="title is-6 has-text-centered">Reactions</h5>
-        <a v-for="rea in starredComponents[model].reactions" @click="$router.push(`/explore/gem-browser/${model}/reaction/${rea[1]}`)"
-         class="is-block has-text-centered">
-          {{ rea[0] }}
-        </a>
+      <div v-else>
+        <closest-interaction-partners v-if="selectedType==='interaction'" :model="model"></closest-interaction-partners>
+        <enzyme v-if="selectedType==='enzyme'" :model="model"></enzyme>
+        <metabolite v-if="selectedType==='metabolite'" :model="model"></metabolite>
+        <reaction v-if="selectedType==='reaction'" :model="model"></reaction>
+        <subsystem v-if="selectedType==='subsystem'" :model="model"></subsystem>
       </div>
-    </div>
-    <div v-else>
-      <closest-interaction-partners v-if="selectedType==='interaction'" :model="model"></closest-interaction-partners>
-      <enzyme v-if="selectedType==='enzyme'" :model="model"></enzyme>
-      <metabolite v-if="selectedType==='metabolite'" :model="model"></metabolite>
-      <reaction v-if="selectedType==='reaction'" :model="model"></reaction>
-      <subsystem v-if="selectedType==='subsystem'" :model="model"></subsystem>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -69,7 +76,6 @@ export default {
     Subsystem,
     GlobalSearch,
   },
-  props: ['model'],
   data() {
     return {
       selectedType: '',
@@ -77,6 +83,7 @@ export default {
       searchResults: [],
       errorMessage: '',
       componentID: '',
+      model: '',
       starredComponents: {
         hmr2: {
           metabolites: [
@@ -191,8 +198,15 @@ export default {
   methods: {
     setup() {
       if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
-        this.selectedType = this.$route.params.type || '';
         this.model = this.$route.params.model || '';
+        if (!(this.model in this.starredComponents)) {
+          // TODO use another way to check the model id is valid
+          this.model = '';
+          EventBus.$emit('modelSelected', '');
+          this.errorMessage = `Error: ${this.$t('modelNoFound')}`;
+          return;
+        }
+        this.selectedType = this.$route.params.type || '';
         this.componentID = this.$route.params.id || '';
         if (!this.componentID || !this.selectedType) {
           this.$router.push(`/explore/gem-browser/${this.model}`);

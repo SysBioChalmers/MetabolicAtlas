@@ -1,185 +1,196 @@
 <template>
   <div id="mapViewer" class="extended-section">
-    <div class="columns" id="iMainPanel">
-      <div class="column is-one-fifth is-fullheight" id="iSideBar">
-        <div id="menu">
-          <ul class="l0">
-            <li :class="{'clickable' : true, 'disable' : !currentDisplayedName }" >RNA levels from <i style="color: lightblue">proteinAtlas.org</i>
-              <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
-              <ul class="vhs l1">
-                <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')">None</li>
-                <li v-for="tissue in HPATissue" class="clickable" @click="loadHPARNAlevels(tissue)">
-                  {{ tissue }}
-                </li>
-              </ul>
-            </li>
-            <li>Compartments<span>&nbsp;&#9656;</span>
-              <ul class="vhs l1" v-if="Object.keys(compartmentsSVG).length !== 0">
-                <li v-for="id in compartmentOrder" class="clickable" v-if="compartmentsSVG[id]" :class="{ 'disable' : false }"
-                  @click="showCompartment(id)">
-                  {{ compartmentsSVG[id].display_name }}
-<!--                    TODO ADD subsystem for cytosol parts
- -->            </li>
-              </ul>
-            </li>
-            <li>Subsystems<span>&nbsp;&#9656;</span>
-              <ul class="l1">
-                <li v-for="system in systemOrder">{{ system }}<span>&nbsp;&#9656;</span>
-                  <ul class="l2" v-if="subsystems[system]">
-                    <li v-for="subsystem in subsystems[system]" class="clickable" :class="{ 'disable' : !subsystemsSVG[subsystem.id].sha }"
-                      v-if="system !== 'Collection of reactions' && subsystemsSVG[subsystem.id]" @click="showSubsystem(subsystem.id)">
-                        {{ subsystem.name }}
-                    </li>
-                    <li v-else class="clickable disable">
-                       {{ subsystem.name }}
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-        <div class="column" v-if="loadedTissue && show2D">
-          <div class="has-text-centered has-text-weight-bold is-small">
-            <p>Selected tissue: {{ loadedTissue }}</p>
-          </div>
-          <div v-html="getExpLvlLegend()">
-          </div>
-        </div>
-        <div id="iSelectedElementPanel">
-          <div class="loading" v-show="showSelectedElementPanelLoader">
-            <a class="button is-loading"></a>
-          </div>
-          <div v-show="!showSelectedElementPanelLoader">
-            <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
-              {{ $t('unknownError') }}
+    <div class="columns" id="iMainPanel" :class="{ 'is-fullheight' : errorMessage}">
+      <template v-if="errorMessage">
+        <div class="column">
+          <br><br>
+          <div class="columns">
+            <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+              {{ errorMessage }}
             </div>
-            <div v-else-if="currentDisplayedType">
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    <template v-if="selectedElement">
-                      {{ capitalize(selectedElementData.type) }}: {{ selectedElementData.id }}
-                    </template>
-                    <template v-else-if="currentDisplayedType === 'compartment'">
-                      {{ capitalize(currentDisplayedType) }}: {{ compartmentsSVG[currentDisplayedName].display_name }}
-                    </template>
-                    <template v-else-if="currentDisplayedType === 'subsystem'">
-                      {{ capitalize(currentDisplayedType) }}: {{ subsystemsSVG[currentDisplayedName].display_name }}
-                    </template>
-                  </p>
-                </header>
-                <div class="card-content">
-                  <!-- TMP fix for overflow on side bar -->
-                  <div class="content" style="max-height: 500px; overflow-y: auto;">
-                    <template v-if="selectedElement">
-                      <template v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement)">
-                        <p v-if="selectedElementData['rnaLvl'] != null">
-                          <span class="hd">RNA&nbsp;level:</span><span>{{ selectedElementData['rnaLvl'] }}</span>
-                        </p>
-                        <template v-for="item in selectedElementDataKeys[model][selectedElement]"
-                          v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
-                          <template v-if="item.name === 'external_ids'">
-                            <span class="hd" v-html="capitalize(item.display || item.name) + ':'" 
-                            v-if="hasExternalIDs(item.value)"></span>
-                            <p v-if="hasExternalIDs(item.value)">
-                              <template v-for="eid in item.value" v-if="selectedElementData[eid[1]] && selectedElementData[eid[2]]">
-                                <span class="hd">{{ capitalize(eid[0]) }}:</span>
-                                <span v-html="reformatStringToLink(selectedElementData[eid[1]], selectedElementData[eid[2]])"></span><br>
-                              </template>
-                            </p v-if="hasExternalIDs(item.value)">
-                          </template>
-                          <template v-else-if="['aliases', 'subsystem'].includes(item.name)">
-                            <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
-                            <template v-for="s in selectedElementData[item.name].split('; ')">
-                              &ndash;&nbsp;{{ s }}<br>
-                            </template></p>
-                          </template>
-                          <template v-else-if="['reactants', 'products'].includes(item.name)">
-                            <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
-                            <template v-for="s in selectedElementData[item.name]">
-                              &ndash;&nbsp;{{ s.name }}<br>
-                            </template></p>
-                          </template>
-                          <template v-else-if="item.name === 'equation'">
-                            <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span><br>
-                            <span v-html="chemicalReaction(selectedElementData[item.name], selectedElementData['is_reversible'])"></span></p>
-                          </template>
-                          <template v-else>
-                            <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span>
-                            {{ selectedElementData[item.name] }}</p>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="column is-one-fifth is-fullheight" id="iSideBar">
+          <div id="menu">
+            <ul class="l0">
+              <li :class="{'clickable' : true, 'disable' : !currentDisplayedName }" >RNA levels from <i style="color: lightblue">proteinAtlas.org</i>
+                <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
+                <ul class="vhs l1">
+                  <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')">None</li>
+                  <li v-for="tissue in HPATissue" class="clickable" @click="loadHPARNAlevels(tissue)">
+                    {{ tissue }}
+                  </li>
+                </ul>
+              </li>
+              <li>Compartments<span>&nbsp;&#9656;</span>
+                <ul class="vhs l1" v-if="Object.keys(compartmentsSVG).length !== 0">
+                  <li v-for="id in compartmentOrder" class="clickable" v-if="compartmentsSVG[id]" :class="{ 'disable' : false }"
+                    @click="showCompartment(id)">
+                    {{ compartmentsSVG[id].display_name }}
+  <!--                    TODO ADD subsystem for cytosol parts
+   -->            </li>
+                </ul>
+              </li>
+              <li>Subsystems<span>&nbsp;&#9656;</span>
+                <ul class="l1">
+                  <li v-for="system in systemOrder">{{ system }}<span>&nbsp;&#9656;</span>
+                    <ul class="l2" v-if="subsystems[system]">
+                      <li v-for="subsystem in subsystems[system]" class="clickable" :class="{ 'disable' : !subsystemsSVG[subsystem.id].sha }"
+                        v-if="system !== 'Collection of reactions' && subsystemsSVG[subsystem.id]" @click="showSubsystem(subsystem.id)">
+                          {{ subsystem.name }}
+                      </li>
+                      <li v-else class="clickable disable">
+                         {{ subsystem.name }}
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="column" v-if="loadedTissue && show2D">
+            <div class="has-text-centered has-text-weight-bold is-small">
+              <p>Selected tissue: {{ loadedTissue }}</p>
+            </div>
+            <div v-html="getExpLvlLegend()">
+            </div>
+          </div>
+          <div id="iSelectedElementPanel">
+            <div class="loading" v-show="showSelectedElementPanelLoader">
+              <a class="button is-loading"></a>
+            </div>
+            <div v-show="!showSelectedElementPanelLoader">
+              <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
+                {{ $t('unknownError') }}
+              </div>
+              <div v-else-if="currentDisplayedType">
+                <div class="card">
+                  <header class="card-header">
+                    <p class="card-header-title">
+                      <template v-if="selectedElement">
+                        {{ capitalize(selectedElementData.type) }}: {{ selectedElementData.id }}
+                      </template>
+                      <template v-else-if="currentDisplayedType === 'compartment'">
+                        {{ capitalize(currentDisplayedType) }}: {{ compartmentsSVG[currentDisplayedName].display_name }}
+                      </template>
+                      <template v-else-if="currentDisplayedType === 'subsystem'">
+                        {{ capitalize(currentDisplayedType) }}: {{ subsystemsSVG[currentDisplayedName].display_name }}
+                      </template>
+                    </p>
+                  </header>
+                  <div class="card-content">
+                    <!-- TMP fix for overflow on side bar -->
+                    <div class="content" style="max-height: 500px; overflow-y: auto;">
+                      <template v-if="selectedElement">
+                        <template v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement)">
+                          <p v-if="selectedElementData['rnaLvl'] != null">
+                            <span class="hd">RNA&nbsp;level:</span><span>{{ selectedElementData['rnaLvl'] }}</span>
+                          </p>
+                          <template v-for="item in selectedElementDataKeys[model][selectedElement]"
+                            v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
+                            <template v-if="item.name === 'external_ids'">
+                              <span class="hd" v-html="capitalize(item.display || item.name) + ':'" 
+                              v-if="hasExternalIDs(item.value)"></span>
+                              <p v-if="hasExternalIDs(item.value)">
+                                <template v-for="eid in item.value" v-if="selectedElementData[eid[1]] && selectedElementData[eid[2]]">
+                                  <span class="hd">{{ capitalize(eid[0]) }}:</span>
+                                  <span v-html="reformatStringToLink(selectedElementData[eid[1]], selectedElementData[eid[2]])"></span><br>
+                                </template>
+                              </p v-if="hasExternalIDs(item.value)">
+                            </template>
+                            <template v-else-if="['aliases', 'subsystem'].includes(item.name)">
+                              <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
+                              <template v-for="s in selectedElementData[item.name].split('; ')">
+                                &ndash;&nbsp;{{ s }}<br>
+                              </template></p>
+                            </template>
+                            <template v-else-if="['reactants', 'products'].includes(item.name)">
+                              <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
+                              <template v-for="s in selectedElementData[item.name]">
+                                &ndash;&nbsp;{{ s.name }}<br>
+                              </template></p>
+                            </template>
+                            <template v-else-if="item.name === 'equation'">
+                              <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span><br>
+                              <span v-html="chemicalReaction(selectedElementData[item.name], selectedElementData['is_reversible'])"></span></p>
+                            </template>
+                            <template v-else>
+                              <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span>
+                              {{ selectedElementData[item.name] }}</p>
+                            </template>
                           </template>
                         </template>
                       </template>
-                    </template>
-                    <template v-else>
-                      <template v-if="currentDisplayedType === 'compartment'">
-<!--                         On map:<br>
-                        <span class="hd"># reactions:</span> {{ compartmentsSVG[currentDisplayedName]['reaction_count'] }}<br>
-                        <span class="hd"># metabolites:</span> {{ compartmentsSVG[currentDisplayedName]['metabolite_count'] }}<br>
-                        <span class="hd"># enzymes:</span> {{ compartmentsSVG[currentDisplayedName]['enzyme_count'] }}<br>
-                        <span class="hd"># subsystems:</span> {{ compartmentsSVG[currentDisplayedName]['subsystem_count'] }}<br>
-                        <br>On model:<br> -->
-                        <span class="hd"># reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
-                        <span class="hd"># metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
-                        <span class="hd"># enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
-                        <span class="hd"># subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
-                      </template>
                       <template v-else>
-<!--                         On map:<br>
-                        <span class="hd"># reactions:</span> {{ subsystemsSVG[currentDisplayedName]['reaction_count'] }}<br>
-                        <span class="hd"># metabolites:</span> {{ subsystemsSVG[currentDisplayedName]['metabolite_count'] }}<br>
-                        <span class="hd"># enzymes:</span> {{ subsystemsSVG[currentDisplayedName]['enzyme_count'] }}<br>
-                        <br>On model:<br> -->
-                        <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
-                        <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
-                        <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
-                        <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
+                        <template v-if="currentDisplayedType === 'compartment'">
+  <!--                         On map:<br>
+                          <span class="hd"># reactions:</span> {{ compartmentsSVG[currentDisplayedName]['reaction_count'] }}<br>
+                          <span class="hd"># metabolites:</span> {{ compartmentsSVG[currentDisplayedName]['metabolite_count'] }}<br>
+                          <span class="hd"># enzymes:</span> {{ compartmentsSVG[currentDisplayedName]['enzyme_count'] }}<br>
+                          <span class="hd"># subsystems:</span> {{ compartmentsSVG[currentDisplayedName]['subsystem_count'] }}<br>
+                          <br>On model:<br> -->
+                          <span class="hd"># reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
+                          <span class="hd"># metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
+                          <span class="hd"># enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
+                          <span class="hd"># subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
+                        </template>
+                        <template v-else>
+  <!--                         On map:<br>
+                          <span class="hd"># reactions:</span> {{ subsystemsSVG[currentDisplayedName]['reaction_count'] }}<br>
+                          <span class="hd"># metabolites:</span> {{ subsystemsSVG[currentDisplayedName]['metabolite_count'] }}<br>
+                          <span class="hd"># enzymes:</span> {{ subsystemsSVG[currentDisplayedName]['enzyme_count'] }}<br>
+                          <br>On model:<br> -->
+                          <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
+                          <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
+                          <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
+                          <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
+                        </template>
                       </template>
-                    </template>
+                    </div>
                   </div>
+                  <footer class="card-footer" 
+                    v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
+                    <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
+                  </footer>
                 </div>
-                <footer class="card-footer" 
-                  v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
-                  <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
-                </footer>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div id="graphframe" class="column">
-        <div class="is-fullheight">
-          <svgmap v-show="show2D"
-          :model="model"
-          @loadComplete="handleLoadComplete"
-          @loading="showLoader=true"></svgmap>
-          <d3dforce v-show="show3D"
-          :model="model"
-          @loadComplete="handleLoadComplete"
-          @loading="showLoader=true"></d3dforce>
+        <div id="graphframe" class="column">
+          <div class="is-fullheight">
+            <svgmap v-show="show2D"
+            :model="model"
+            @loadComplete="handleLoadComplete"
+            @loading="showLoader=true"></svgmap>
+            <d3dforce v-show="show3D"
+            :model="model"
+            @loadComplete="handleLoadComplete"
+            @loading="showLoader=true"></d3dforce>
+          </div>
+          <div id="iLoader" class="loading" v-show="showLoader">
+            <a class="button is-loading"></a>
+          </div>
+          <div id="iSwitch" class="overlay">
+            <span class="button" @click="switchDimension">
+              {{ show3D ? '2D' : "3D" }}
+            </span>
+          </div>
+          <transition name="slide-fade">
+            <article id="errorBar" class="message is-danger" v-if="errorMessage">
+              <div class="message-header">
+                <i class="fa fa-warning"></i>
+              </div>
+              <div class="message-body">
+                <h5 class="title is-5">{{ errorMessage }}</h5>
+              </div>
+            </article>
+          </transition>
         </div>
-        <div id="iLoader" class="loading" v-show="showLoader">
-          <a class="button is-loading"></a>
-        </div>
-        <div id="iSwitch" class="overlay">
-          <span class="button" @click="switchDimension">
-            {{ show3D ? '2D' : "3D" }}
-          </span>
-        </div>
-        <transition name="slide-fade">
-          <article id="errorBar" class="message is-danger" v-if="errorMessage">
-            <div class="message-header">
-              <i class="fa fa-warning"></i>
-            </div>
-            <div class="message-body">
-              <h5 class="title is-5">{{ errorMessage }}</h5>
-            </div>
-          </article>
-        </transition>
-      </div>
+      </template>
     </div>
-
   </div>
 </template>
 
@@ -200,12 +211,10 @@ export default {
     Svgmap,
     D3dforce,
   },
-  props: [
-    'model', 'init',
-  ],
   data() {
     return {
       Logo,
+      model: '',
       errorMessage: '',
       show2D: true,
       show3D: false,
@@ -315,15 +324,18 @@ export default {
       loadedTissue: '',
     };
   },
+  // watch: {
+  //   /* eslint-disable quote-props */
+  //   '$route': function watchSetup() {
+  //     this.setup();
+  //   },
+  // },
   computed: {
     activeSwitch() {
       return !this.showLoader;
     },
   },
   created() {
-    this.loadSubComptData();
-    this.loadHPATissue();
-
     EventBus.$on('showAction', (type, name, ids, forceReload) => {
       // console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
       if (this.showLoader) {
@@ -372,13 +384,10 @@ export default {
       this.showLoader = false;
     });
   },
+  beforeMount() {
+    this.setup();
+  },
   mounted() {
-    // if (false && this.currentDisplayedType === 'wholemap' &&
-    //  !this.initialEmit) {
-    //   EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
-    //   this.initialEmit = true;
-    // }
-
     // menu
     const self = this;
     $('#menu').on('mouseenter', 'ul.l0 > li:has(ul)', function f() {
@@ -403,6 +412,21 @@ export default {
     });
   },
   methods: {
+    setup() {
+      const model = this.$route.params.model || '';
+      if (!(model in this.selectedElementDataKeys)) {
+        // TODO use another way to check the model id is valid
+        this.model = '';
+        EventBus.$emit('modelSelected', '');
+        this.errorMessage = `Error: ${this.$t('modelNoFound')}`;
+        return;
+      }
+      if (model !== this.model) {
+        this.loadSubComptData(model);
+        this.loadHPATissue(model);
+      }
+      this.model = model;
+    },
     hideDropleftMenus() {
       $('#menu ul.l1, #menu ul.l2').hide();
     },
@@ -468,8 +492,8 @@ export default {
       }
       this.showLoader = false;
     },
-    loadSubComptData() {
-      axios.get(`${this.model}/viewer/`)
+    loadSubComptData(model) {
+      axios.get(`${model}/viewer/`)
       .then((response) => {
         this.compartments = {};
         for (const c of response.data.compartment) {
@@ -514,8 +538,8 @@ export default {
         }
       });
     },
-    loadHPATissue() {
-      axios.get(`${this.model}/enzymes/hpa_tissue/`)
+    loadHPATissue(model) {
+      axios.get(`${model}/enzymes/hpa_tissue/`)
         .then((response) => {
           this.HPATissue = response.data;
         })

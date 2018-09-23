@@ -34,9 +34,11 @@ export default {
     tab3title: 'Metabolite page',
     tab4title: 'Reaction page',
     tab5title: 'Subsystem page',
+    modelNoFound: 'Invalid input model, please check the parameters.',
     notFoundError: 'No matching record(s) found, please check the parameters and try again.',
-    unknownError: 'Something went wrong, please try again or contact the system admin.',
+    unknownError: 'Something went wrong, please try again later or contact us.',
     noInfoAvailable: 'No information available',
     noIDProvided: 'No ID provided',
+    pageNotFound: 'The page requested does not exist.',
   },
 };

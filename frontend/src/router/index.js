@@ -8,6 +8,7 @@ import Help from 'components/Help';
 import Models from 'components/Models';
 import ModelsFTP from 'components/ModelsFTP';
 import CompareModels from 'components/CompareModels';
+import NotFound from 'components/NotFound';
 
 Vue.use(VueRouter);
 
@@ -24,7 +25,7 @@ const routes = [
   { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Help },
-  { path: '/*', name: 'Home', component: Home },
+  { path: '/*', name: 'notFound', component: NotFound },
 ];
 
 const router = new VueRouter({

@@ -3,8 +3,8 @@
     <div :class="{ 'container': !showViewer }">
       <template v-if="showBrowser || showViewer || showSearch">
         <keep-alive>
-          <gem-browser v-if="showBrowser" :model="model"></gem-browser>
-          <map-viewer v-if="showViewer" :model="model"></map-viewer>
+          <gem-browser v-if="showBrowser"></gem-browser>
+          <map-viewer v-if="showViewer"></map-viewer>
           <search-table v-if="showSearch"></search-table>
         </keep-alive>
       </template>
@@ -76,7 +76,7 @@
                 </header>
                 <div class="card-content">
                   <div class="content">
-                    <a @click="goToGemBrowser()">
+                    <a @click="goToGemBrowser(model)">
                       <img src="../assets/gemBrowser2.png" />
                     </a>
                   </div>
@@ -94,7 +94,7 @@
                 </header>
                 <div class="card-content">
                   <div class="content">
-                    <a @click="goToMapViewer()" class="has-text-centered">
+                    <a @click="goToMapViewer(model)" class="has-text-centered">
                       <img src="../assets/mapViewer2.png" />
                     </a>
                   </div>
@@ -170,12 +170,12 @@ export default {
       this.displayBrowser();
     });
 
-    EventBus.$on('navigateTo', (tool, type, id) => {
+    EventBus.$on('navigateTo', (tool, model, type, id) => {
       // console.log(`on explorer navigateTo ${tool} ${type} ${id}`);
       if (tool === 'GEMBrowser') {
-        this.$router.push(`/explore/gem-browser/${this.model}/${type}/${id}`);
+        this.$router.push(`/explore/gem-browser/${model}/${type}/${id}`);
       } else if (tool === 'MapViewer') {
-        this.$router.push(`/explore/map-viewer/${this.model}/`);
+        this.$router.push(`/explore/map-viewer/${model}/`);
       }
     });
 
@@ -274,11 +274,11 @@ export default {
       this.showBrowser = false;
       this.showViewer = false;
     },
-    goToGemBrowser() {
-      this.$router.push(`/explore/gem-browser/${this.model}`);
+    goToGemBrowser(model) {
+      this.$router.push(`/explore/gem-browser/${model}`);
     },
-    goToMapViewer() {
-      this.$router.push(`/explore/map-viewer/${this.model}`);
+    goToMapViewer(model) {
+      this.$router.push(`/explore/map-viewer/${model}`);
     },
     getCompartmentNameFromLetter(l) {
       return this.compartmentLetters[l];

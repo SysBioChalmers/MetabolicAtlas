@@ -305,7 +305,7 @@ export default {
           name = 'cytosol_1';  // eslint-disable-line no-param-reassign
         }
       }
-      EventBus.$emit('navigateTo', 'mapViever', type, name);
+      EventBus.$emit('navigateTo', 'mapViever', this.model, type, name);
     },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {
