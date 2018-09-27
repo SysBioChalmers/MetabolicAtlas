@@ -479,7 +479,7 @@ def parse_model_table(model_array):
                     error_message = ("Error: invalid value '%s' (column '%s') for model '%s', expected a number" % \
                         (row[j], header[j], row_model))
                     return False
-            model_info_dict[row_model] = row[j]
+            model_info_dict[row_model] = row[j].strip('_').strip()
     return model_info_dict
 
 
