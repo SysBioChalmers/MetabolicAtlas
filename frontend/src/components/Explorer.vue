@@ -308,14 +308,20 @@ export default {
         eqArr = reaction.equation.split(' => ');
       }
       const idEqArr = reaction.id_equation.split(' => ');
-      const idReactants = idEqArr[0].split(' + ');
-      const idProducts = idEqArr[1].split(' + ');
-      const reactants = eqArr[0].split(' + ').map(
+      let reactants = '';
+      let products = '';
+      if (idEqArr[0]) {
+        const idReactants = idEqArr[0].split(' + ');
+        reactants = eqArr[0].split(' + ').map(
           (x, i, a) => this.formatSpan(x, i, a, idReactants, addComp)
         ).join(' + ');
-      const products = eqArr[1].split(' + ').map(
+      }
+      if (idEqArr[1]) {
+        const idProducts = idEqArr[1].split(' + ');
+        products = eqArr[1].split(' + ').map(
           (x, i, a) => this.formatSpan(x, i, a, idProducts, addComp)
         ).join(' + ');
+      }
 
       if (reaction.is_reversible) {
         return `${reactants} &#8660; ${products}`;
