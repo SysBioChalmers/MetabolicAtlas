@@ -155,7 +155,7 @@ class Reaction(models.Model):
     objective_coefficient = models.FloatField(null=True)
     gene_rule = models.TextField(null=True) # string or/and with gene ID (can be any unique gene ID)
     gene_rule_wname = models.TextField(null=True) # string or/and with gene name
-    subsystem_str = models.CharField(max_length=1000)
+    subsystem_str = models.CharField(max_length=1000, null=True)
     subsystem = models.ManyToManyField('Subsystem', related_name='subsystems', through='SubsystemReaction')
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
