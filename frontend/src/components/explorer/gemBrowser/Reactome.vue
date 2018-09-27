@@ -100,7 +100,6 @@ export default {
     },
     loadReactions(ID) {
       if (this.reactomeID &&
-          (ID !== this.reactomeID) &&
           ((this.expandAllCompartment && this.reactionsAllcompartment.length !== 0) ||
          (!this.expandAllCompartment && this.reactions.length !== 0))) {
         this.reactomeID = ID;
@@ -108,7 +107,11 @@ export default {
       }
       this.showLoader = true;
       this.reactomeID = ID;
-      axios.get(`${this.model}/metabolites/${ID}/reactions/`)
+      let url = `${this.model}/metabolites/${ID}/reactions/`;
+      if (this.expandAllCompartment) {
+        url = `${this.model}/metabolites/${ID}/reactions/all_compartment/`;
+      }
+      axios.get(url)
         .then((response) => {
           this.errorMessage = '';
           if (this.expandAllCompartment) {

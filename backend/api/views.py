@@ -317,7 +317,7 @@ def get_metabolite(request, model, id):
 
 @api_view()
 @is_model_valid
-def get_metabolite_reactions(request, model, id):
+def get_metabolite_reactions(request, model, id, all_compartment=False):
     """
         list in which reactions does a given metabolite occur,
         supply a metabolite id (for example m00003c).
@@ -325,13 +325,12 @@ def get_metabolite_reactions(request, model, id):
     component = APImodels.ReactionComponent.objects.using(model).filter((Q(id__iexact=id) |
                                                                          Q(name__iexact=id)) &
                                                                          Q(component_type='m'))
-
     if not component:
-        if re.match('m[0-9]{5}', id):
-            component = APImodels.ReactionComponent.objects.using(model).filter(Q(id__istartswith=id) &
+        return HttpResponse(status=404)
+
+    if all_compartment:
+        component = APImodels.ReactionComponent.objects.using(model).filter(Q(name=component[0].name) &
                                                                                 Q(component_type='m'))
-        else:
-            return HttpResponse(status=404)
 
     reactions = APImodels.Reaction.objects.none()
     for c in component:
