@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+
+  db:
+
+  db2:
+
+  nginx:
+
+  backend:
+
+  frontend:

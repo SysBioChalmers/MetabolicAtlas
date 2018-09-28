@@ -1,13 +1,13 @@
 function build-stack {
-    docker-compose -p metabolicatlas build $@
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml build $@
 }
 
 function start-stack {
-    docker-compose -p metabolicatlas up -d
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d
 }
 
 function stop-stack {
-    docker-compose -p metabolicatlas kill
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml kill
 }
 
 function restart-stack {
@@ -15,7 +15,7 @@ function restart-stack {
 }
 
 function logs {
-    docker-compose -p metabolicatlas logs -f $@
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml logs -f $@
 }
 
 function db-make-migrations {
