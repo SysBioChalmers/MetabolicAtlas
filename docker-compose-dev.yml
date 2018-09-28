@@ -2,12 +2,25 @@ version: '3'
 
 services:
 
-  db:
+  db1:
+    volumes:
+      - voldb1:/var/lib/postgresql/data
 
   db2:
+    volumes:
+      - voldb2:/var/lib/postgresql/data
 
   nginx:
 
   backend:
 
   frontend:
+    command: npm run dev
+    volumes:
+      - ./frontend/src:/project/src
+      - ./frontend/dist:/project/dist
+      - ./frontend/test:/project/test
+
+volumes:
+  voldb1:
+  voldb2:
