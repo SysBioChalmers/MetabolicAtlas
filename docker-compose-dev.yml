@@ -13,8 +13,14 @@ services:
   nginx:
     build:
       dockerfile: Dockerfile
+    volumes:
+      - ./backend/static:/static
+      - ./nginx/svgs:/svgs
 
   backend:
+    volumes:
+      - ./backend:/project
+      - ./utils/annotation:/project/annotation
 
   frontend:
     command: npm run dev

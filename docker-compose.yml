@@ -26,9 +26,6 @@ services:
     depends_on:
       - backend
       - frontend
-    volumes:
-      - ./backend/static:/static
-      - ./nginx/svgs:/svgs
     ports:
       - "80:80"
       - "443:443"
@@ -45,9 +42,6 @@ services:
       - db2_postgres.env
     build: ./backend
     command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./backend:/project
-      - ./utils/annotation:/project/annotation
     networks:
       - net-tier
 
