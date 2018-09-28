@@ -19,15 +19,15 @@ function logs {
 }
 
 function db-make-migrations {
-    docker exec metabolicatlas_backend_1 python manage.py makemigrations api
+    docker exec backend python manage.py makemigrations api
 }
 
 function db-migrate {
-    docker exec metabolicatlas_backend_1 python manage.py migrate --database=$@
+    docker exec backend python manage.py migrate --database=$@
 }
 
 function create-su {
-    docker exec -it metabolicatlas_backend_1 python manage.py createsuperuser
+    docker exec -it backend python manage.py createsuperuser
 }
 
 
