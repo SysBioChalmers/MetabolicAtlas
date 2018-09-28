@@ -160,7 +160,10 @@ export default {
     reformatSubsystemList(substr) {
       let str = '';
       for (const s of substr.split('; ')) {
-        str = str.concat(`<a class="s" name="${s}">`, s, '</a>');
+        str = str.concat(`<a class="s" name="${s}">`, s, '</a><br>');
+      }
+      if (str) {
+        str = str.slice(0, -4);
       }
       return str;
     },
