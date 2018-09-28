@@ -157,7 +157,7 @@
               </div>
             </div>
             <div class="column">
-              <div class="columns">
+              <div class="columns" v-if="model === 'hmr2'">
                 <div class="column">
                   <div class="card">
                     <header class="card-header">
