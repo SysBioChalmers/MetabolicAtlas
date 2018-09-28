@@ -33,7 +33,6 @@ services:
       - db2
     env_file:
       - postgres.env
-      - db2_postgres.env
     build: ./backend
     command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     networks:
