@@ -196,7 +196,9 @@ def load_YAML(database, yaml_file, delete=False):
         rc = ReactionComponent.objects.using(database).filter(id__iexact=dict_metabolite['id'])
         if not rc:
             compartment = compartment_dict[dict_metabolite['compartment']]
-            rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], component_type='m', compartment=compartment, compartment_str=compartment.name)
+            full_name = "%s[%s]" % (dict_metabolite['name'], dict_metabolite['compartment'])
+            rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], full_name=full_name
+                component_type='m', compartment=compartment, compartment_str=compartment.name)
             rc.save(using=database)
 
             rcc = ReactionComponentCompartment(rc=rc, compartment=rc.compartment)

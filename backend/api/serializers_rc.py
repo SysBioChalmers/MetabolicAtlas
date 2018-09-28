@@ -35,17 +35,16 @@ class ReactionComponentBasicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name', 'aliases', 'formula', 'compartment',)
+        fields = ('id', 'name', 'full_name', 'aliases', 'formula', 'compartment',)
 
     def read_compartment(self, model):
         return model.compartment_str
 
 
 class ReactionComponentLiteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'full_name')
 
 
 class ReactionComponentSerializer(ReactionComponentBasicSerializer):

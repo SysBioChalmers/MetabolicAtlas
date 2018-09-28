@@ -120,7 +120,7 @@ export default {
           break;
         }
         i += 1;
-        l.push(`<span id="${m.id}" class="tag rcm"><a class="is-size-6">${m.name ? m.name : m.id}[${m.id.substr(m.id.length - 1)}]</a></span>`);
+        l.push(`<span id="${m.id}" class="tag rcm"><a class="is-size-6">${m.full_name ? m.full_name : m.id}</a></span>`);
       }
       l.push('</span>');
       return l.join('');

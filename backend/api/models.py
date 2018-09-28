@@ -183,7 +183,8 @@ class ReactionReference(models.Model):
 # corresponds to either metabolite or enzyme, should be Serialized with the proper serializer
 class ReactionComponent(models.Model):
     id = models.CharField(max_length=50, primary_key=True) # ID in the SBML/YAML model
-    name = models.CharField(max_length=255)  # gene name for enzyme, or metabolite name with compartment code
+    name = models.CharField(max_length=255)  # gene name for enzyme, or metabolite name
+    full_name = models.CharField(max_length=255)  # metabolite name with compartment letter
     alt_name1 = models.CharField(max_length=255, null=True)  # can be ORF ID in case of yeast, proteine name, metabolite short_name etc
     alt_name2 = models.CharField(max_length=255, null=True)  # can be ORF ID in case of yeast, proteine name, metabolite short_name etc
     aliases = models.CharField(max_length=2000, null=True)  # alias of gene name (including gene short name) or alias of metabolite name, semi-colon separated values
