@@ -11,6 +11,8 @@ services:
       - voldb2:/var/lib/postgresql/data
 
   nginx:
+    build:
+      dockerfile: Dockerfile
 
   backend:
 

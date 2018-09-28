@@ -23,7 +23,6 @@ services:
     container_name: nginx
     build:
       context: ./nginx
-      dockerfile: Dockerfile
     depends_on:
       - backend
       - frontend
