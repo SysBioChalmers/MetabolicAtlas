@@ -4,7 +4,6 @@ pipeline {
     stage('Docker cleanup') {
       steps {
         sh '''
-          pwd
           docker stop $(docker ps -a -q) || true
           docker rm $(docker ps -a -q) || true
           docker rmi $(docker images -q) || true

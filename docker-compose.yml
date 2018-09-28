@@ -4,18 +4,12 @@ services:
   db1:
     container_name: db1
     image: postgres
-    env_file: postgres.env
-    ports:
-      - "5432:5432"
     networks:
       - net-tier
 
   db2:
     container_name: db2
     image: postgres
-    env_file: db2_postgres.env
-    ports:
-      - "5433:5432"
     networks:
       - net-tier
 

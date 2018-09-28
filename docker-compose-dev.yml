@@ -5,11 +5,15 @@ services:
   db1:
     volumes:
       - voldb1:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   db2:
     volumes:
       - voldb2:/var/lib/postgresql/data
-
+    ports:
+      - "5433:5432"
+      
   nginx:
     build:
       dockerfile: Dockerfile

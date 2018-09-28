@@ -1,35 +1,31 @@
 version: '3'
 
 services:
-  db:
+  db1:
     restart: always
 
   db2:
     restart: always
 
-
   backend:
     restart: always
     volumes:
-      - ./backend/static:/project/static
-
+      - backend:/project
 
   frontend:
     command: npm run build
     volumes:
-      - ./frontend/dist:/project/dist
-      - ./frontend/dist-html:/project/dist-html
+      - frontend:/project
 
   nginx:
     restart: always
     build:
-      context: ./nginx
       dockerfile: Dockerfile-prod
-    links:
-      - backend:backend
     volumes:
-      - ./frontend/dist-html:/usr/share/nginx/html:ro
-      - ./frontend/dist:/static
-      - ./backend/static/rest_framework_swagger:/static/rest_framework_swagger
-      - ./backend/media:/media
+      - backend:/backend:ro
+      - frontend:/frontend:ro
       - /home/jenkins/ssl:/ssl:ro
+
+volumes:
+  frontend:
+  backend:
