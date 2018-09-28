@@ -28,7 +28,9 @@ export default function (c, reactions, relms, rrels, rcomp, rsub) {
   for (const r of reactions) {
     const mets = {};
     const reactionComp = new Set();
-    subsystemSet.add(...r.subsystem);
+    if (r.subsystem) {
+      subsystemSet.add(...r.subsystem);
+    }
     for (const m of [...r.products, ...r.reactants]) {
       const metabolite = {
         id: m.id,
@@ -41,7 +43,9 @@ export default function (c, reactions, relms, rrels, rcomp, rsub) {
       };
       compartmentSet.add(m.compartment);
       reactionComp.add(m.compartment);
-      metabolite.subsystem.add(...r.subsystem);
+      if (r.subsystem) {
+        metabolite.subsystem.add(...r.subsystem);
+      }
       mets[metabolite.id] = metabolite;
     }
 
@@ -63,7 +67,9 @@ export default function (c, reactions, relms, rrels, rcomp, rsub) {
         // ambigous localization
         reactionComp.forEach((e) => { modifier.compartment[e] = 0; });
       }
-      modifier.subsystem.add(...r.subsystem);
+      if (r.subsystem) {
+        modifier.subsystem.add(...r.subsystem);
+      }
       mods[modifier.id] = modifier;
     }
 
