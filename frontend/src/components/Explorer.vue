@@ -220,8 +220,8 @@ export default {
         this.compartmentStats = {};
         this.compartmentLetters = {};
         for (const c of response.data) {
-          this.compartmentLetters[c.letter_code] = c.name;
-          this.compartmentStats[c.name] = c;
+          this.compartmentLetters[c.letter_code] = c.name_id;
+          this.compartmentStats[c.name_id] = c;
         }
       })
       .catch((error) => {

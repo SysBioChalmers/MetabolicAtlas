@@ -34,9 +34,9 @@ urlpatterns = [
     # url(r'^(?P<model>[^/]+)/metabolite_reactions/(?P<id>[^/]+)/reactome/(?P<reaction_id>[^/]+)/?$', views.get_metabolite_reactome),
 
     url(r'^(?P<model>[^/]+)/subsystems/?$', views.get_subsystems),
-    url(r'^(?P<model>[^/]+)/subsystems/(?P<subsystem_name>[^/]+)/?$', views.get_subsystem),
+    url(r'^(?P<model>[^/]+)/subsystems/(?P<subsystem_name_id>[^/]+)/?$', views.get_subsystem),
     url(r'^(?P<model>[^/]+)/compartments/?$', views.get_compartments),
-    url(r'^(?P<model>[^/]+)/compartments/(?P<compartment_name>[^/]+)/?$', views.get_compartment),
+    url(r'^(?P<model>[^/]+)/compartments/(?P<compartment_name_id>[^/]+)/?$', views.get_compartment),
 
     url(r'^(?P<model>[^/]+)/search/(?P<term>[^/]+)/?$', views.search),
 

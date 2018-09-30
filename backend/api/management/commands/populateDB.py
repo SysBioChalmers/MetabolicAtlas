@@ -78,10 +78,11 @@ def insert_model_metadata(database, yaml_file, model_label, model_pmid):
     #     ma.save(using='gems')
 
 
-def populate_database(database, yaml_file, model_label, model_pmid=None, delete=False, metadata_only=False):
+def populate_database(database, yaml_file, model_label, model_pmid=None, delete=False, metadata_only=False, yaml_only=False):
 
     # Instert the model in the 
-    insert_model_metadata(database, yaml_file, model_label, model_pmid)
+    if not yaml_only:
+        insert_model_metadata(database, yaml_file, model_label, model_pmid)
     if metadata_only:
         return
     addYAMLData.load_YAML(database, yaml_file, delete=delete)
@@ -116,8 +117,10 @@ class Command(BaseCommand):
         parser.add_argument('--model-pmid', action='store', default=None, dest='model_pmid')
         parser.add_argument('--delete', action='store_true', dest='delete', default=False)
         parser.add_argument('--metadata-only', action='store_true', dest='metadata_only')
+        parser.add_argument('--yaml-only', action='store_true', dest='yaml_only')
 
     def handle(self, *args, **options):
-        populate_database(options['database'], options['yaml file'],  options['model label'], model_pmid=options['model_pmid'], delete=options['delete'], metadata_only=options['metadata_only'])
+        populate_database(options['database'], options['yaml file'],  options['model label'], 
+            model_pmid=options['model_pmid'], delete=options['delete'], metadata_only=options['metadata_only'], yaml_only=options['yaml_only'])
 
 

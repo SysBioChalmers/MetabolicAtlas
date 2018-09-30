@@ -64,6 +64,7 @@ import Metabolite from 'components/explorer/gemBrowser/Metabolite';
 import Reaction from 'components/explorer/gemBrowser/Reaction';
 import Subsystem from 'components/explorer/gemBrowser/Subsystem';
 import { default as EventBus } from '../../event-bus';
+import { idfy } from '../../helpers/utils';
 
 
 export default {
@@ -191,8 +192,8 @@ export default {
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
-      // console.log(`on GB navigateTo ${type} ${id}`);
-      this.goToTab(type, id);
+      // console.log(`on GB navigateTo ${type} ${id} ${idfy(id)}`);
+      this.goToTab(type, idfy(id));
     });
   },
   methods: {

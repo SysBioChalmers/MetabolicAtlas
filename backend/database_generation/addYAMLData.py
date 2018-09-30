@@ -65,6 +65,11 @@ def get_modifiersID_from_GRrule(gr_rule):
     r = re.split('[\s+and\s+|\s+or\s+|(+|)+|\s+]', gr_rule)
     return [e for e in r if e]
 
+def idfy_name(name):
+    name = name.lower()
+    name = re.sub('[^0-9a-z_]', '_', name)
+    name = re.sub('_{2,}', '_', name)
+    return name.strip('_')
 
 def insert_subsystem_stats(database):
     subsystems = Subsystem.objects.using(database).exclude(system='Collection of reactions')
@@ -180,7 +185,7 @@ def load_YAML(database, yaml_file, delete=False):
     for letter_code, name in compartments[1]:
         compartment = Compartment.objects.using(database).filter(name__iexact=name)
         if not compartment:     # only add the compartment if it does not already exists...
-            compartment = Compartment(name=name, letter_code=letter_code)
+            compartment = Compartment(name=name.capitalize(), name_id=idfy_name(name), letter_code=letter_code)
             compartment.save(using=database)
         else:
             compartment=compartment[0]
@@ -197,7 +202,7 @@ def load_YAML(database, yaml_file, delete=False):
         if not rc:
             compartment = compartment_dict[dict_metabolite['compartment']]
             full_name = "%s[%s]" % (dict_metabolite['name'], dict_metabolite['compartment'])
-            rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], full_name=full_name
+            rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], full_name=full_name,
                 component_type='m', compartment=compartment, compartment_str=compartment.name)
             rc.save(using=database)
 
@@ -273,7 +278,7 @@ def load_YAML(database, yaml_file, delete=False):
                     sub = Subsystem.objects.using(database).get(name__iexact=subsystem)
                 except Subsystem.DoesNotExist:
                     # save subsystem, just the name
-                    sub = Subsystem(name=subsystem)
+                    sub = Subsystem(name=subsystem.capitalize(), name_id=idfy_name(subsystem))
                     sub.save(using=database)
                 subsystems_list.append(sub)
 

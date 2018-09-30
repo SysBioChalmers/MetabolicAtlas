@@ -263,6 +263,7 @@ class CoFactor(models.Model):
 
 class Subsystem(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    name_id = models.CharField(max_length=100, unique=True) # use to request the subsystem by url
     system = models.CharField(max_length=100)
     external_id = models.CharField(max_length=25, null=True)
     external_link = models.CharField(max_length=255, null=True)
@@ -278,10 +279,10 @@ class Subsystem(models.Model):
         db_table = "subsystem"
 
 class SubsystemSvg(models.Model):
-    id = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+    name_id = models.CharField(max_length=100, unique=True) # use to request the subsystem by url
     subsystem = models.OneToOneField(Subsystem,
         related_name='subsystem', db_column='subsystem', on_delete=models.CASCADE)
-    display_name = models.CharField(max_length=100, unique=True)
     filename = models.CharField(max_length=100, unique=True)
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
@@ -299,6 +300,7 @@ class SubsystemSvg(models.Model):
 
 class Compartment(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    name_id = models.CharField(max_length=50, unique=True) # use to request the compartement by url
     letter_code = models.CharField(max_length=3, unique=True)
     subsystem = models.ManyToManyField('Subsystem', related_name='c_subsystems', through='SubsystemCompartment')
     reaction_count = models.IntegerField(default=0)
@@ -314,10 +316,10 @@ class Compartment(models.Model):
         db_table = "compartment"
 
 class CompartmentSvg(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50, unique=True)
+    name_id = models.CharField(max_length=50, unique=True) # use to request the subsystem by url
     compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
     subsystem = models.ManyToManyField('Subsystem', related_name='csvg_subsystems', through='SubsystemCompartmentSvg')
-    display_name = models.CharField(max_length=50, unique=True)
     filename = models.CharField(max_length=50, unique=True)
     letter_code = models.CharField(max_length=3, unique=True)
     reaction_count = models.IntegerField(default=0)
