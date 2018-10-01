@@ -522,7 +522,7 @@ def get_hpa_tissues(request, model):
 @is_model_valid
 def get_hpa_rna_levels_compartment(request, model, compartment_name_id):
     try:
-        compartment = APImodels.Compartment.objects.using(model).get(name_nid__iexact=compartment_name_id)
+        compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=compartment_name_id)
     except APImodels.Compartment.DoesNotExist:
         return HttpResponse(status=404)
 

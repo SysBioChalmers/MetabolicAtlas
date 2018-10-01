@@ -88,7 +88,7 @@ def populate_database(database, yaml_file, model_label, model_pmid=None, delete=
     addYAMLData.load_YAML(database, yaml_file, delete=delete)
 
     print("""
-         Then add annoations with:
+        Then add annoations with:
 
             python manage.py addAnnotations %s [type|'test'|'all'] [annotation_file]
 
@@ -104,7 +104,11 @@ def populate_database(database, yaml_file, model_label, model_pmid=None, delete=
 
             python manage.py addNumberOfInteractionPartners %s
 
-        """ % (database, database, database, database, database))
+        Add HPA tissue/enzyme RNA levels with:
+
+            python manage.py addHPAexpression %s
+
+        """ % (database, database, database, database, database, database))
 
 
 class Command(BaseCommand):
