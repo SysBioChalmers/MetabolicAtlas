@@ -103,6 +103,9 @@ export default {
     },
   },
   created() {
+    EventBus.$off('showSVGmap');
+    EventBus.$off('loadHPARNAlevels');
+
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
       // console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {

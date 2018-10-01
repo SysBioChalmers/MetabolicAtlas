@@ -409,6 +409,13 @@ export default {
     },
   },
   created() {
+    EventBus.$off('showAction');
+    EventBus.$off('updatePanelSelectionData');
+    EventBus.$off('unSelectedElement');
+    EventBus.$off('startSelectedElement');
+    EventBus.$off('endSelectedElement');
+    EventBus.$off('loadRNAComplete');
+
     EventBus.$on('showAction', (type, name, ids, forceReload) => {
       // console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
       if (this.showLoader) {

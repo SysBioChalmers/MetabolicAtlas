@@ -187,6 +187,9 @@ export default {
   },
   created() {
     // init the global events
+    EventBus.$off('resetView');
+    EventBus.$off('GBnavigateTo');
+
     EventBus.$on('resetView', () => {
       this.levelSelected = 'subsystem';
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
