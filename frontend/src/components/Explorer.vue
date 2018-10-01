@@ -1,11 +1,9 @@
 <template>
   <section :class="{ 'section extended-section' : !showViewer }">
     <div :class="{ 'container': !showViewer }">
-      <template v-if="showBrowser || showViewer || showSearch">
+      <template v-if="currentShowComponent">
         <keep-alive>
-          <gem-browser v-if="showBrowser"></gem-browser>
-          <map-viewer v-if="showViewer"></map-viewer>
-          <search-table v-if="showSearch"></search-table>
+          <component v-bind:is="currentShowComponent"></component>
         </keep-alive>
       </template>
       <template v-else>
@@ -133,9 +131,8 @@ export default {
     return {
       model: 'hmr2',
       models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
-      showBrowser: false,
       showViewer: false,
-      showSearch: false,
+      currentShowComponent: '',
 
       compartments: {},
       compartmentStats: {},
@@ -208,9 +205,8 @@ export default {
         this.displayBrowser();
       } else {
         EventBus.$emit('destroy3Dnetwork');
-        this.showBrowser = false;
         this.showViewer = false;
-        this.showSearch = false;
+        this.currentShowComponent = '';
       }
     },
     loadCompartmentData(model) {
@@ -261,19 +257,16 @@ export default {
       EventBus.$emit('modelSelected', this.models[this.model].short_name);
     },
     displayBrowser() {
-      this.showBrowser = true;
       this.showViewer = false;
-      this.showSearch = false;
+      this.currentShowComponent = 'GemBrowser';
     },
     displayViewer() {
-      this.showBrowser = false;
       this.showViewer = true;
-      this.showSearch = false;
+      this.currentShowComponent = 'MapViewer';
     },
     displaySearch() {
-      this.showSearch = true;
-      this.showBrowser = false;
       this.showViewer = false;
+      this.currentShowComponent = 'SearchTable';
     },
     goToGemBrowser(model) {
       this.$router.push(`/explore/gem-browser/${model}`);
