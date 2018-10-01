@@ -15,7 +15,7 @@
         <div class="column is-one-fifth is-fullheight" id="iSideBar">
           <div id="menu">
             <ul class="l0">
-              <li :class="{'clickable' : true, 'disable' : !currentDisplayedName }" >RNA levels from <i style="color: lightblue">proteinAtlas.org</i>
+              <li :class="{'clickable' : true, 'disable' : !currentDisplayedName || HPATissue.length === 0 }" >RNA levels from <i style="color: lightblue">proteinAtlas.org</i>
                 <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
                 <ul class="vhs l1">
                   <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')">None</li>
