@@ -37,13 +37,13 @@
             <template v-for="menuItem, index in menuItems">
               <template v-if="Array.isArray(menuItem)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" 
+                  <a class="navbar-link"
                   :class="{ 'is-active': menuItem[0] === activeDropMenu }"
                   @click="goToPage(menuItem[0])">
                     {{ menuItem[0] }}
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item is-primary is-unselectable" 
+                    <a class="navbar-item is-primary is-unselectable"
                     v-for="submenu, index in menuItem" v-if="index !== 0"
                     @click="goToPage(submenu)">
                       {{ submenu }}
@@ -343,5 +343,3 @@ $switch-background: $primary;
 }
 
 </style>
-
-
