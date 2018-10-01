@@ -46,7 +46,7 @@
       <div class="column">
         <div class="box has-text-centered">
           <div class="button is-info">
-            <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
+            <p>View on Map Viewer</p>
           </div>
         </div>
       </div>

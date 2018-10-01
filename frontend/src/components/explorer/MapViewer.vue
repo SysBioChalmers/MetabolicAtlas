@@ -240,7 +240,7 @@
             <a class="button is-loading"></a>
           </div>
           <div id="iSwitch" class="overlay">
-            <span class="button" @click="switchDimension" :class="{ 'disable' : disabled2D && show3D }">
+            <span class="button" @click="switchDimension" :disabled="disabled2D && show3D">
               {{ show3D ? '2D' : '3D' }}
             </span>
           </div>
@@ -712,12 +712,6 @@ $footer-height: 9.8rem;
   #iSwitch {
     right: 2.25rem;
     top:  2.25rem;
-
-    .button.disable {
-      background: gray;
-      cursor: default;
-      pointer-events: none;
-    }
   }
 
   #iSideBar {
@@ -820,7 +814,7 @@ $footer-height: 9.8rem;
     &.clickable {
         cursor: pointer;
         &.disable {
-          cursor: default;
+          cursor: not-allowed;
           background: #4a4a4a;
           color: gray;
           pointer-events: none;

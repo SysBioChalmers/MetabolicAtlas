@@ -36,16 +36,16 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('interaction', r.id)">
                       Closest interaction partners
                     </span>
-                    <span class="tag is-primary is-medium"
+                    <span class="button is-primary"
                       @click="goToTab('enzyme', r.id)">
                       Enzyme
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'enzyme')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.id, 'enzyme')" disabled>
                       View
                     </span>
                   </div>
@@ -57,16 +57,16 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('interaction', r.id)">
                       Closest interaction partners
                     </span>
-                    <span class="tag is-primary is-medium"
+                    <span class="button is-primary"
                       @click="goToTab('metabolite', r.id)">
                       Metabolite
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'metabolite')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.id, 'metabolite')" disabled>
                       View
                     </span>
                   </div>
@@ -78,12 +78,12 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('reaction', r.id)">
                       Reaction
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'reaction')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.id, 'reaction')" disabled>
                       View
                     </span>
                   </div>
@@ -95,12 +95,12 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('subsystem', r.name.toLowerCase())">
                       Subsystem
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'subsystem')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'subsystem')" disabled>
                       View
                     </span>
                   </div>
@@ -111,8 +111,8 @@
                 <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
                 <div class="columns">
                   <div class="column">
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'compartment')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'compartment')" disabled>
                       View
                     </span>
                   </div>
@@ -183,6 +183,8 @@ export default {
   },
   created() {
     // init the global events
+    EventBus.$off('hideSearchResult');
+
     EventBus.$on('hideSearchResult', () => {
       this.showResults = false;
     });
@@ -390,10 +392,6 @@ export default {
 
   .searchResultSection {
     padding: 0 10px;
-
-    span {
-      cursor: pointer;
-    }
   }
 }
 
