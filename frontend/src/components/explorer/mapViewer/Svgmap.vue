@@ -103,6 +103,9 @@ export default {
     },
   },
   created() {
+    EventBus.$off('showSVGmap');
+    EventBus.$off('loadHPARNAlevels');
+
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
       // console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {
@@ -285,7 +288,7 @@ export default {
         this.readHPARNAlevels(tissue);
         return;
       }
-      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.id}`)
+      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.name_id}`)
       .then((response) => {
         this.HPARNAlevelsHistory[this.svgName] = response.data;
         setTimeout(() => {
@@ -333,7 +336,7 @@ export default {
         return;
       }
       this.isLoadingSearch = true;
-      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.id}/${term}`)
+      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
         this.ids = response.data;

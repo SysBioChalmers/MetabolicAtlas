@@ -96,6 +96,12 @@ Watch out the API rate limit (https://developer.github.com/v3/rate_limit/).
 
 #### Full model databases
 
+Connect to the db container and once inside run psql
+
+```bash
+psql -U postgres
+```
+
 Create databases using psql (in the docker container), example for hmr2:
 
 ```bash
@@ -165,6 +171,50 @@ docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hmr2
 ```bash
 docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres gems < PATH_TO_DB_FILE
 ```
+
+### Adding a new model in the website (to be done locally only)
+
+1) The model must be publicly available online, and must have a valid README file to parse with:
+
+```bash
+python manage.py getGithubModels
+```
+Make sure the YAML format of the model is available.
+
+Each model is stored in separated database.
+
+2) Create the database as decribes in [Full model databases](#Full_model_databases) section.
+
+3) Add the database in the setting.py file with the name used to create the database. e.g.
+
+```bash
+    ...
+    'yeast': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yeast',
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432,
+    },
+    ...
+```
+
+4) run makemigrations and migrate the new database as decribes in [Full model databases](#Full_model_databases) section.
+
+5) run populateDB. The 'model label' is extracted/generate when reading the model README file step 1) and is written in the 'gem' table.
+  - if you got an error when parsing the YAML file, run python fixYAML.py [model yml file] located in backend/database_generation
+
+6) add the model in the function componentDBserializerSelector() (views.py) and create custom serializers (serializers.py and serializers_rc.py) if needed
+
+7) add Data about the model in the frontend page: (TO BE SIMPLIFIED)
+  - add the model in the dictionnary of localization.js
+  - add the model in the dictionnary 'itemKeys' of GlobalSearch.vue
+  - add the model in the dictionnary 'starredComponent' of GEMBrowser.vue
+  - add the model in the dictionnaries 'mainTableKey' and 'externalIDTableKey' of Metabolite.vue, Enzyme.vue, Reaction.vue
+  - add the model in the dictionnary 'tableStructure' of CloseInteractionPartners.vue
+  - add the model in the dictionnaries 'compartmentOrder', (optional)'systemOrder', and 'selectedElementDataKeys' of MapViewer.vue
+
 
 ### All helper commands
 

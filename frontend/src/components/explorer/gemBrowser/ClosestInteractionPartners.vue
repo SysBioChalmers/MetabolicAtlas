@@ -157,7 +157,7 @@
               </div>
             </div>
             <div class="column">
-              <div class="columns">
+              <div class="columns" v-if="model === 'hmr2'">
                 <div class="column">
                   <div class="card">
                     <header class="card-header">
@@ -345,6 +345,12 @@ export default {
       cy: null,
       tableStructure: {
         hmr2: [
+          { field: 'type', colName: 'Type' },
+          { field: 'name', colName: 'Name' },
+          { field: 'formula', colName: 'Formula', modifier: chemicalFormula },
+          { field: 'compartment', colName: 'Compartment' },
+        ],
+        yeast: [
           { field: 'type', colName: 'Type' },
           { field: 'name', colName: 'Name' },
           { field: 'formula', colName: 'Formula', modifier: chemicalFormula },

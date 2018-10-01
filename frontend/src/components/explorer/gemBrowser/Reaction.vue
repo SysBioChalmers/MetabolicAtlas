@@ -46,7 +46,7 @@
       <div class="column">
         <div class="box has-text-centered">
           <div class="button is-info">
-            <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
+            <p>View on Map Viewer</p>
           </div>
         </div>
       </div>
@@ -82,6 +82,16 @@ export default {
           { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
           { name: 'subsystem', display: 'Subsystem', modifier: this.reformatSubsystemList },
           { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
+        ],
+        yeast: [
+          { name: 'id', display: 'Model&nbsp;ID' },
+          { name: 'equation', modifier: this.reformatEquation },
+          { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
+          { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
+          { name: 'gene_rule', isComposite: true, display: 'Enzymes', modifier: this.reformatModifiers },
+          { name: 'ec', display: 'EC', modifier: this.reformatECLink },
+          { name: 'compartment', isComposite: true, modifier: this.reformatCompartment },
+          { name: 'subsystem', display: 'Subsystem', modifier: this.reformatSubsystemList },
         ],
       },
       reaction: {},
@@ -160,7 +170,10 @@ export default {
     reformatSubsystemList(substr) {
       let str = '';
       for (const s of substr.split('; ')) {
-        str = str.concat(`<a class="s" name="${s}">`, s, '</a>');
+        str = str.concat(`<a class="s" name="${s}">`, s, '</a><br>');
+      }
+      if (str) {
+        str = str.slice(0, -4);
       }
       return str;
     },

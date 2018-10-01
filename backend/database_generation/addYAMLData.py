@@ -28,37 +28,48 @@ def make_rxn_dict(info):
     d = {}
     d['reactant'] = []
     d['product'] = []
-    for key, value in info:
-        if key in ['id', 'metabolites', 'gene_reaction_rule', 'lower_bound', 'upper_bound', 'subsystem']:
-            if  key == 'subsystem':
-                if not isinstance(value, list):
-                    # yeast have multiple subsystem, subsystem in hmr are one, string type
-                    d[key] = [value]
+    try:
+        for key, value in info:
+            if key in ['id', 'metabolites', 'gene_reaction_rule', 'lower_bound', 'upper_bound', 'subsystem']:
+                if  key == 'subsystem':
+                    if not isinstance(value, list):
+                        # yeast have multiple subsystem, subsystem in hmr are one, string type
+                        d[key] = [value]
+                    else:
+                        d[key] = value
+                elif key == 'metabolites':
+                    for id, stoichiometry in value:
+                        if isinstance(stoichiometry, str):
+                            stoichiometry = float(stoichiometry)
+                        if stoichiometry < 0:
+                            d['reactant'].append([id, -stoichiometry])
+                        else:
+                            d['product'].append([id, stoichiometry])
                 else:
                     d[key] = value
-            elif key == 'metabolites':
-                for id, stoichiometry in value:
-                    if stoichiometry < 0:
-                        d['reactant'].append([id, -stoichiometry])
-                    else:
-                        d['product'].append([id, stoichiometry])
-            else:
-                d[key] = value
-    for key in ['id', 'reactant', 'product', 'lower_bound', 'upper_bound']:
-        if key not in d:
-            print ("Error: missing key '%s' for reaction %s" % (key, info))
-            exit(1)
+        for key in ['id', 'reactant', 'product', 'lower_bound', 'upper_bound']:
+            if key not in d:
+                print ("Error: missing key '%s' for reaction %s" % (key, info))
+                exit(1)
+    except Exception as e:
+        print(info)
+        print(e)
+        exit(1)
     return d
 
 
 def get_modifiersID_from_GRrule(gr_rule):
     if not gr_rule:
         return []
-    # FIXME do not for if gene ID contains parenthesis
+    # FIXME, this do not work if gene ID contains parenthesis, but is it the case?
     r = re.split('[\s+and\s+|\s+or\s+|(+|)+|\s+]', gr_rule)
     return [e for e in r if e]
-    # return re.split('[^and|or|(|)|\s]', gr_rule)
 
+def idfy_name(name):
+    name = name.lower()
+    name = re.sub('[^0-9a-z_]', '_', name)
+    name = re.sub('_{2,}', '_', name)
+    return name.strip('_')
 
 def insert_subsystem_stats(database):
     subsystems = Subsystem.objects.using(database).exclude(system='Collection of reactions')
@@ -102,6 +113,7 @@ def insert_subsystem_stats(database):
         if set(compartment_meta) != set(compartment_react) or len(set(compartment_meta)) != len(subCompartQuerySet):
             # should not be possible
             print ("error: compartment !=")
+            print (s.name)
             print ("comt_sub: ", len(subCompartQuerySet))
             print ("Metabolite: ", set(compartment_meta))
             print ("Enzyme: ", set(compartment_enz))
@@ -123,7 +135,6 @@ def insert_subsystem_stats(database):
 def insert_compartment_stats(database):
     cis = Compartment.objects.using(database).all()
     for compartment in cis:
-        print (compartment.name)
         srsQuerySet = ReactionCompartment.objects.using(database). \
             filter(compartment_id=compartment).values_list('reaction_id', flat=True)
 
@@ -174,7 +185,7 @@ def load_YAML(database, yaml_file, delete=False):
     for letter_code, name in compartments[1]:
         compartment = Compartment.objects.using(database).filter(name__iexact=name)
         if not compartment:     # only add the compartment if it does not already exists...
-            compartment = Compartment(name=name, letter_code=letter_code)
+            compartment = Compartment(name=name.capitalize(), name_id=idfy_name(name), letter_code=letter_code)
             compartment.save(using=database)
         else:
             compartment=compartment[0]
@@ -190,7 +201,9 @@ def load_YAML(database, yaml_file, delete=False):
         rc = ReactionComponent.objects.using(database).filter(id__iexact=dict_metabolite['id'])
         if not rc:
             compartment = compartment_dict[dict_metabolite['compartment']]
-            rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], component_type='m', compartment=compartment, compartment_str=compartment.name)
+            full_name = "%s[%s]" % (dict_metabolite['name'], dict_metabolite['compartment'])
+            rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], full_name=full_name,
+                component_type='m', compartment=compartment, compartment_str=compartment.name)
             rc.save(using=database)
 
             rcc = ReactionComponentCompartment(rc=rc, compartment=rc.compartment)
@@ -258,19 +271,14 @@ def load_YAML(database, yaml_file, delete=False):
             r.save(using=database)
             reaction_dict[dict_rxn['id']] = r
 
+        subsystems_list = []
         if 'subsystem' in dict_rxn:
-            subsystems_list = []
             for subsystem in dict_rxn['subsystem']:
-                # custom fix, rename (compartement name)
-                # m = re.match('.*([(](?:cytosolic|mitochondrial|peroxisomal|endoplasmic reticular)[)])$', subsystem)
-                # if m:
-                #     subsystem = subsystem.replace(m.group(1), '')
-
                 try:
                     sub = Subsystem.objects.using(database).get(name__iexact=subsystem)
                 except Subsystem.DoesNotExist:
                     # save subsystem, just the name
-                    sub = Subsystem(name=subsystem)
+                    sub = Subsystem(name=subsystem.capitalize(), name_id=idfy_name(subsystem))
                     sub.save(using=database)
                 subsystems_list.append(sub)
 
@@ -355,7 +363,7 @@ def load_YAML(database, yaml_file, delete=False):
         # reaction are part of subsystem and involve metabolites located in one or more compartments
         if 'subsystem' in dict_rxn:
             compartments = ReactionCompartment.objects.using(database). \
-                filter(reaction=r, compartment=rc.compartment).values_list('compartment_id', flat=True)
+                filter(reaction=r).values_list('compartment_id', flat=True)
             for subsystem in dict_rxn['subsystem']:
                 ss = Subsystem.objects.using(database).get(name__iexact=subsystem)
                 for compartment in compartments:
@@ -421,14 +429,12 @@ class Equation(object):
                 if len(pairs) == 1:
                     return "{0} => {1}".format(self.format_reaction_part(reactants_set), self.format_reaction_part(list(reversed(list(reactants_set)))))
                 else:
-                    print("Error: cannot get compartment equation for reaction")
-                    print(self.id)
+                    print("Error: cannot get compartment equation for reaction %s" % self.id)
                     print (reactants_list, products_list)
                     print(pairs)
                     exit()
             else:
-                print("Error: cannot get compartment equation for reaction")
-                print(self.id)
+                print("Error: cannot get compartment equation for reaction %s" % self.id)
                 print (reactants_list, products_list)
                 exit()
 

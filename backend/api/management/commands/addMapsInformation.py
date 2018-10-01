@@ -200,11 +200,11 @@ def get_compt_subsystem_connectivity(database, map_directory, compt_rme, rme_com
     # read multi meta from svg file
     mm_svg = {}
     for ci in CompartmentSvg.objects.using(database).all():
-        if ci.display_name[:7] == "Cytosol":
+        if ci.name[:7] == "Cytosol":
             continue
         mmeta_compartment = read_map_multi_metabolite(os.path.join(map_directory, ci.filename))
-        mm_svg[ci.display_name] = mmeta_compartment
-        print ("%s : %s" % (ci.display_name, len(mmeta_compartment)))
+        mm_svg[ci.name] = mmeta_compartment
+        print ("%s : %s" % (ci.name, len(mmeta_compartment)))
 
 
     # define multiple metabolite
@@ -649,12 +649,12 @@ def get_subsystem_compt_element_svg_global(database, map_directory):
         enzyme_compartment = read_map_enzyme(os.path.join(map_directory, ci.filename))
         subsystem_compartment = read_map_subsystem(os.path.join(map_directory, database, ci.filename))
 
-        print ("Reactions found in the SVG file '%s': %s" % (ci.display_name, len(reaction_compartment)))
-        print ("Metabolites found in the SVG file '%s': %s" % (ci.display_name, len(metabolite_compartment)))
-        print ("Enzymes found in the SVG file '%s': %s" % (ci.display_name, len(enzyme_compartment)))
-        print ("Subsystem found in the SVG file '%s': %s" % (ci.display_name, len(subsystem_compartment)))
+        print ("Reactions found in the SVG file '%s': %s" % (ci.name, len(reaction_compartment)))
+        print ("Metabolites found in the SVG file '%s': %s" % (ci.name, len(metabolite_compartment)))
+        print ("Enzymes found in the SVG file '%s': %s" % (ci.name, len(enzyme_compartment)))
+        print ("Subsystem found in the SVG file '%s': %s" % (ci.name, len(subsystem_compartment)))
 
-        compt_rme_svg[ci.display_name] = {
+        compt_rme_svg[ci.name] = {
             'reaction': {e for e in reaction_compartment},
             'metabolite': {e for e in metabolite_compartment},
             'enzyme': {e for e in enzyme_compartment}
@@ -663,28 +663,28 @@ def get_subsystem_compt_element_svg_global(database, map_directory):
         for r in reaction_compartment:
             if r not in rme_compt_svg:
                 rme_compt_svg[r] = set()
-            rme_compt_svg[r].add(ci.display_name)
+            rme_compt_svg[r].add(ci.name)
         for m in metabolite_compartment:
             if m not in rme_compt_svg:
                 rme_compt_svg[m] = set()
-            rme_compt_svg[m].add(ci.display_name)
+            rme_compt_svg[m].add(ci.name)
         for e in enzyme_compartment:
             if e not in rme_compt_svg:
                 rme_compt_svg[e] = set()
-            rme_compt_svg[e].add(ci.display_name)
+            rme_compt_svg[e].add(ci.name)
 
         for s in subsystem_compartment:
-            if ci.display_name not in compt_sub_svg:
-                compt_sub_svg[ci.display_name] = set()
-            compt_sub_svg[ci.display_name].add(s)
+            if ci.name not in compt_sub_svg:
+                compt_sub_svg[ci.name] = set()
+            compt_sub_svg[ci.name].add(s)
 
             if s not in sub_compt_svg:
                 sub_compt_svg[s] = set()
-            sub_compt_svg[s].add(ci.display_name)
+            sub_compt_svg[s].add(ci.name)
 
         # create the key even if there is no subsystem (case of Cytosol 6)
-        if ci.display_name not in compt_sub_svg:
-            compt_sub_svg[ci.display_name] = set()
+        if ci.name not in compt_sub_svg:
+            compt_sub_svg[ci.name] = set()
 
     return compt_rme_svg, rme_compt_svg, compt_sub_svg, sub_compt_svg
 
@@ -700,10 +700,10 @@ def parse_svg(database, component, map_directory):
     enzyme_component = read_map_enzyme(os.path.join(map_directory, component.filename))
     subsystem_component = read_map_subsystem(database, os.path.join(map_directory, component.filename))
 
-    print ("Reactions found in the SVG file '%s': %s" % (component.display_name, len(reaction_component)))
-    print ("Metabolites found in the SVG file '%s': %s" % (component.display_name, len(metabolite_component)))
-    print ("Enzymes found in the SVG file '%s': %s" % (component.display_name, len(enzyme_component)))
-    print ("Subsystem found in the SVG file '%s': %s" % (component.display_name, len(subsystem_component)))
+    print ("Reactions found in the SVG file '%s': %s" % (component.name, len(reaction_component)))
+    print ("Metabolites found in the SVG file '%s': %s" % (component.name, len(metabolite_component)))
+    print ("Enzymes found in the SVG file '%s': %s" % (component.name, len(enzyme_component)))
+    print ("Subsystem found in the SVG file '%s': %s" % (component.name, len(subsystem_component)))
 
     compt_rme_svg = {
         'reaction': {e for e in reaction_component},
@@ -913,7 +913,7 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
             for ci in reader:
                 if not ci or ci[0][0] == '#':
                     continue
-                compt = Compartment.objects.using(database).filter(name=ci[1])
+                compt = Compartment.objects.using(database).filter(name__iexact=ci[1])
                 if not compt:
                     print("Error: cannot match the compartment information name " + ci[1] + " to a compartment...")
                     exit(1)
@@ -924,10 +924,10 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
 
                 inDB = False
                 try:
-                    cinfo = CompartmentSvg.objects.using(database).get(id=ci[0])
+                    cinfo = CompartmentSvg.objects.using(database).get(name_id=ci[0])
                     inDB = True
                 except CompartmentSvg.DoesNotExist:
-                    cinfo = CompartmentSvg(id=ci[0], compartment=compt[0], display_name=ci[2], filename=ci[3], letter_code=ci[4])
+                    cinfo = CompartmentSvg(name=ci[2], name_id=ci[0], compartment=compt[0], filename=ci[3], letter_code=ci[4])
                     cinfo.save(using=database)
 
                 svg_path = os.path.join(map_directory, ci[3])
@@ -943,8 +943,8 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
                 if sha != cinfo.sha:
                     if inDB:
                         cinfo.delete() # delete the entry and all rows in foreign tables
-                        cinfo = CompartmentSvg(id=ci[0], compartment=compt[0], display_name=ci[2], filename=ci[3], letter_code=ci[4], sha=sha)
-                        cinfo.save(using=database)
+                    cinfo = CompartmentSvg(name_id=ci[0], compartment=compt[0], name=ci[2], filename=ci[3], letter_code=ci[4], sha=sha)
+                    cinfo.save(using=database)
                     insert_compartment_svg_connectivity_and_stats(database, cinfo, map_directory)
                 else:
                     print("SVG file '%s' is unchanged" % ci[3])
@@ -955,7 +955,7 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
             for si in reader:
                 if not si or si[0][0] == '#':
                     continue
-                sub = Subsystem.objects.using(database).filter(name=si[1])
+                sub = Subsystem.objects.using(database).filter(name__iexact=si[1])
                 if not sub:
                     print("Error: cannot match the subsystem information name " + si[1] + " to a subsystem...")
                     exit(1)
@@ -966,10 +966,10 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
 
                 inDB = False
                 try:
-                    sinfo = SubsystemSvg.objects.using(database).get(id=si[0])
+                    sinfo = SubsystemSvg.objects.using(database).get(name_id=si[0])
                     inDB = True
                 except SubsystemSvg.DoesNotExist:
-                    sinfo = SubsystemSvg(id=si[0], subsystem=sub[0], display_name=si[2], filename=si[3])
+                    sinfo = SubsystemSvg(name_id=si[0], subsystem=sub[0], name=si[2], filename=si[3])
                     sinfo.save(using=database)
 
                 svg_path = os.path.join(map_directory, si[3])
@@ -985,8 +985,8 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
                 if sha != sinfo.sha:
                     if inDB:
                         sinfo.delete() # delete the entry and all rows in foreign tables
-                        sinfo = SubsystemSvg(id=si[0], subsystem=sub[0], display_name=si[2], filename=si[3], sha=sha)
-                        sinfo.save(using=database)
+                    sinfo = SubsystemSvg(name_id=si[0], subsystem=sub[0], name=si[2], filename=si[3], sha=sha)
+                    sinfo.save(using=database)
                     insert_subsystem_svg_connectivity_and_stats(database, sinfo, map_directory)
                 else:
                     print("SVG file '%s' is unchanged" % si[3])
@@ -1000,7 +1000,7 @@ class Command(BaseCommand):
         parser.add_argument('map type', type=str, choices=['compartment', 'subsystem'], help="'compartment' or 'subsystem'")
         parser.add_argument('map directory', type=str, help="location of the svg files")
         parser.add_argument('map metadata file', type=str,
-            help="tabular file that describes the name/display_name/letter/.... of the maps")
+            help="tabular file that describes the name_id/name/letter/.... of the maps")
         parser.add_argument('--write-connectivity-files', action="store_true", default=False, dest='write_connectivity',
             help="Find and write overlaps between compt/sub/reaction/meta into files")
 

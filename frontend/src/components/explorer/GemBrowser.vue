@@ -8,7 +8,7 @@
     <template v-else>
       <div class="columns" v-if="!selectedType">
         <div class="column container has-text-centered">
-          <h4 class="title is-4">Explore through {{ model }} with the GEM Browser</h4>
+          <h4 class="title is-4">Explore through {{ $t(model) }} with the GEM Browser</h4>
         </div>
       </div>
       <div class="columns">
@@ -64,6 +64,7 @@ import Metabolite from 'components/explorer/gemBrowser/Metabolite';
 import Reaction from 'components/explorer/gemBrowser/Reaction';
 import Subsystem from 'components/explorer/gemBrowser/Subsystem';
 import { default as EventBus } from '../../event-bus';
+import { idfy } from '../../helpers/utils';
 
 
 export default {
@@ -171,6 +172,11 @@ export default {
             ['HMR_8780', 'HMR_8780'],
           ],
         },
+        yeast: {
+          metabolites: [],
+          enzymes: [],
+          reactions: [],
+        },
       },
     };
   },
@@ -186,13 +192,16 @@ export default {
   },
   created() {
     // init the global events
+    EventBus.$off('resetView');
+    EventBus.$off('GBnavigateTo');
+
     EventBus.$on('resetView', () => {
       this.levelSelected = 'subsystem';
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
-      // console.log(`on GB navigateTo ${type} ${id}`);
-      this.goToTab(type, id);
+      // console.log(`on GB navigateTo ${type} ${id} ${idfy(id)}`);
+      this.goToTab(type, idfy(id));
     });
   },
   methods: {

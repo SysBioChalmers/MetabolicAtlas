@@ -46,8 +46,8 @@
         </div>
         <div class="column">
           <div class="box has-text-centered">
-            <div class="button is-info">
-              <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
+            <div class="button is-info" disabled>
+              <p>View on Map Viewer</p>
             </div>
             <br><br>
             <div class="button is-info"
@@ -92,12 +92,25 @@ export default {
           { name: 'compartment' },
           { name: 'id', display: 'Model&nbsp;ID' },
         ],
+        yeast: [
+          { name: 'name' },
+          { name: 'alt_name', display: 'alternate name' },
+          { name: 'aliases', display: 'Synonyms' },
+          { name: 'description', display: 'Description' },
+          { name: 'formula', modifier: chemicalFormula },
+          { name: 'charge' },
+          { name: 'inchi' },
+          { name: 'compartment' },
+          { name: 'id', display: 'Model&nbsp;ID' },
+        ],
       },
       externalIDTableKey: {
         hmr2: [
           { name: 'hmdb_id', display: 'HMDB ID', link: 'hmdb_link' },
           { name: 'chebi_id', display: 'Chebi ID', link: 'chebi_link' },
           { name: 'mnxref_id', display: 'Mnxref ID', link: 'mnxref_link' },
+        ],
+        yeast: [
         ],
       },
       info: {},

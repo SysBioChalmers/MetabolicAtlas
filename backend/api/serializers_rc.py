@@ -31,25 +31,23 @@ class EnzymeSearchSerializer(serializers.ModelSerializer):
 # common serializers, map the name of the db column, should not be serve by swagger queries
 
 class ReactionComponentBasicSerializer(serializers.ModelSerializer):
-    compartment = serializers.SerializerMethodField('compartment')
+    compartment = serializers.SerializerMethodField('read_compartment')
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name', 'aliases', 'formula', 'compartment',)
+        fields = ('id', 'name', 'full_name', 'aliases', 'formula', 'compartment',)
 
-    def compartment(self, model):
+    def read_compartment(self, model):
         return model.compartment_str
 
 
 class ReactionComponentLiteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'full_name')
 
 
 class ReactionComponentSerializer(ReactionComponentBasicSerializer):
-
     class Meta(ReactionComponentBasicSerializer.Meta): 
         model = APImodels.ReactionComponent
         fields = ReactionComponentBasicSerializer.Meta.fields + \

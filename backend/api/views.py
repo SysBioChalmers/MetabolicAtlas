@@ -76,6 +76,34 @@ def componentDBserializerSelector(database, type, serializer_type=None):
             if serializer_type == 'lite':
                 return APIserializer.HmrInteractionPartnerLiteSerializer
             return APIserializer.HmrInteractionPartnerSerializer
+    else:
+        if type == 'reaction component':
+            if serializer_type in ['lite', 'basic']:
+                return APIrcSerializer.ReactionComponentLiteSerializer
+            return APIrcSerializer.ReactionComponentSerializer
+        elif type == 'metabolite':
+            if serializer_type in ['lite', 'basic']:
+                return APIrcSerializer.ReactionComponentLiteSerializer
+            return APIrcSerializer.ReactionComponentSerializer
+        elif type == 'enzyme':
+            if serializer_type in ['lite', 'basic']:
+                return APIrcSerializer.ReactionComponentLiteSerializer
+            return APIrcSerializer.ReactionComponentSerializer
+        elif type == 'reaction':
+            if serializer_type == 'basic':
+                return APIserializer.ReactionBasicSerializer    
+            if serializer_type == 'lite':
+                return APIserializer.ReactionLiteSerializer
+            if serializer_type == 'table':
+                return APIserializer.HmrReactionBasicRTSerializer
+            return APIserializer.ReactionSerializer
+        elif type == 'subsystem':
+            return APIserializer.SubsystemSerializer
+        elif type == 'interaction partner':
+            if serializer_type == 'lite':
+                return APIserializer.InteractionPartnerLiteSerializer
+            return APIserializer.InteractionPartnerSerializer
+
 
 
 @api_view()
@@ -317,7 +345,7 @@ def get_metabolite(request, model, id):
 
 @api_view()
 @is_model_valid
-def get_metabolite_reactions(request, model, id):
+def get_metabolite_reactions(request, model, id, all_compartment=False):
     """
         list in which reactions does a given metabolite occur,
         supply a metabolite id (for example m00003c).
@@ -325,13 +353,12 @@ def get_metabolite_reactions(request, model, id):
     component = APImodels.ReactionComponent.objects.using(model).filter((Q(id__iexact=id) |
                                                                          Q(name__iexact=id)) &
                                                                          Q(component_type='m'))
-
     if not component:
-        if re.match('m[0-9]{5}', id):
-            component = APImodels.ReactionComponent.objects.using(model).filter(Q(id__istartswith=id) &
+        return HttpResponse(status=404)
+
+    if all_compartment:
+        component = APImodels.ReactionComponent.objects.using(model).filter(Q(name=component[0].name) &
                                                                                 Q(component_type='m'))
-        else:
-            return HttpResponse(status=404)
 
     reactions = APImodels.Reaction.objects.none()
     for c in component:
@@ -427,7 +454,7 @@ def search(request, model, term):
 
     results = {}
     if model == 'all':
-        models = ['hmr2', 'hmr2n', 'hmr3', 'ymr']
+        models = ['hmr2', 'hmr2n', 'hmr3', 'yeast']
         limit = 10000
     else:
         try:
@@ -441,8 +468,6 @@ def search(request, model, term):
         if model == 'hmr2n':
             continue
         elif model == 'hmr3':
-            continue
-        elif model == 'ymr':
             continue
 
         if model not in results:
@@ -532,12 +557,12 @@ def search(request, model, term):
 
 @api_view()
 @is_model_valid
-def get_subsystem(request, model, subsystem_name):
+def get_subsystem(request, model, subsystem_name_id):
     """
     For a given subsystem name, get all containing metabolites, enzymes, and reactions.
     """
     try:
-        subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=subsystem_name)
+        subsystem = APImodels.Subsystem.objects.using(model).get(name_id__iexact=subsystem_name_id)
         subsystem_id = subsystem.id
     except APImodels.Subsystem.DoesNotExist:
         return HttpResponse(status=404)
@@ -610,12 +635,12 @@ def get_compartments(request, model):
 
 @api_view()
 @is_model_valid
-def get_compartment(request, model, compartment_name):
+def get_compartment(request, model, compartment_name_id):
     '''
         return all information for the given compartment's name.
     '''
     try:
-        compartment = APImodels.Compartment.objects.using(model).get(name__iexact=compartment_name)
+        compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=compartment_name_id)
     except APImodels.Compartment.DoesNotExist:
         return HttpResponse(status=404)
 

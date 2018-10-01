@@ -29,13 +29,14 @@ urlpatterns = [
     url(r'^(?P<model>[^/]+)/metabolites/?$', views.get_metabolites),
     url(r'^(?P<model>[^/]+)/metabolites/(?P<id>[^/]+)/?$', views.get_metabolite),
     url(r'^(?P<model>[^/]+)/metabolites/(?P<id>[^/]+)/interaction_partners/?$', views.get_metabolite_interaction_partners),
-    url(r'^(?P<model>[^/]+)/metabolites/(?P<id>[^/]+)/reactions/?$', views.get_metabolite_reactions),
+    url(r'^(?P<model>[^/]+)/metabolites/(?P<id>[^/]+)/reactions/?$', views.get_metabolite_reactions, {'all_compartment': False }),
+    url(r'^(?P<model>[^/]+)/metabolites/(?P<id>[^/]+)/reactions/all_compartment/?$', views.get_metabolite_reactions, {'all_compartment': True}),
     # url(r'^(?P<model>[^/]+)/metabolite_reactions/(?P<id>[^/]+)/reactome/(?P<reaction_id>[^/]+)/?$', views.get_metabolite_reactome),
 
     url(r'^(?P<model>[^/]+)/subsystems/?$', views.get_subsystems),
-    url(r'^(?P<model>[^/]+)/subsystems/(?P<subsystem_name>[^/]+)/?$', views.get_subsystem),
+    url(r'^(?P<model>[^/]+)/subsystems/(?P<subsystem_name_id>[^/]+)/?$', views.get_subsystem),
     url(r'^(?P<model>[^/]+)/compartments/?$', views.get_compartments),
-    url(r'^(?P<model>[^/]+)/compartments/(?P<compartment_name>[^/]+)/?$', views.get_compartment),
+    url(r'^(?P<model>[^/]+)/compartments/(?P<compartment_name_id>[^/]+)/?$', views.get_compartment),
 
     url(r'^(?P<model>[^/]+)/search/(?P<term>[^/]+)/?$', views.search),
 
