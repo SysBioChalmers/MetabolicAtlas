@@ -520,9 +520,9 @@ export default {
     },
     viewOnGemBrowser() {
       if (this.currentDisplayedType === 'subsystem') {
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.currentDisplayedType, this.subsystemsSVG[this.currentDisplayedName].subsystem);
+        EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.currentDisplayedType, this.subsystemsSVG[this.currentDisplayedName].subsystem);
       } else {
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.selectedElementData.type, this.selectedElementData.id);
+        EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.selectedElementData.type, this.selectedElementData.id);
       }
     },
     // globalMapSelected() {

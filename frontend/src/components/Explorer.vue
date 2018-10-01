@@ -116,6 +116,7 @@ import GemBrowser from 'components/explorer/GemBrowser';
 import MapViewer from 'components/explorer/MapViewer';
 import GlobalSearch from 'components/explorer/GlobalSearch';
 import SearchTable from 'components/explorer/SearchTable';
+import { idfy } from '../helpers/utils';
 import { default as EventBus } from '../event-bus';
 
 
@@ -170,7 +171,7 @@ export default {
     EventBus.$on('navigateTo', (tool, model, type, id) => {
       // console.log(`on explorer navigateTo ${tool} ${type} ${id}`);
       if (tool === 'GEMBrowser') {
-        this.$router.push(`/explore/gem-browser/${model}/${type}/${id}`);
+        this.$router.push(`/explore/gem-browser/${model}/${type}/${idfy(id)}`);
       } else if (tool === 'MapViewer') {
         this.$router.push(`/explore/map-viewer/${model}/`);
       }
