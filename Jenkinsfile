@@ -40,11 +40,11 @@ pipeline {
           wget https://chalmersuniversity.box.com/shared/static/q41d7lvcqe18g0gwr9yaar8zoedqvhfl.db -O hmr2.db
           wget https://chalmersuniversity.box.com/shared/static/om86nb6y8ji044wzoiljm8aghmbdvs41.db -O gems.db
 
-          docker exec -i $(docker ps -qf "name=metabolicatlas_db_1")  psql -U postgres -c 'drop database "hmr2"' || true
-          docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres -c 'drop database "gems"' || true
+          docker exec -i db1 psql -U postgres -c 'drop database "hmr2"' || true
+          docker exec -i db2 psql -U postgres -c 'drop database "gems"' || true
 
-          docker exec -i $(docker ps -qf "name=metabolicatlas_db_1")  psql -U postgres < hmr2.db
-          docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres < gems.db
+          docker exec -i db1 psql -U postgres < hmr2.db
+          docker exec -i db2 psql -U postgres < gems.db
 
           docker exec backend python manage.py makemigrations
           docker exec backend python manage.py migrate --database hmr2 --fake
