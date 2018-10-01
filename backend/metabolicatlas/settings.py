@@ -108,6 +108,14 @@ DATABASES = {
         'HOST': 'db',
         'PORT': 5432,
     },
+    'yeast': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yeast',
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432,
+    },
     'gems': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB2_GEMS_DB'),

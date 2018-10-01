@@ -112,6 +112,13 @@ export default {
           { name: 'function' },
           { name: 'id', display: 'Model&nbsp;ID' },
         ],
+        yeast: [
+          { name: 'enzymeName', display: 'Gene&nbsp;name' },
+          { name: 'prot_name', display: 'Protein&nbsp;name' },
+          { name: 'gene_synonyms', display: 'Synonyms' },
+          { name: 'function' },
+          { name: 'id', display: 'Model&nbsp;ID' },
+        ],
       },
       externalIDTableKey: {
         hmr2: [
@@ -119,6 +126,7 @@ export default {
           { name: 'uniprot_id', display: 'Uniprot ID', link: 'uniprot_link' },
           { name: 'ncbi_id', display: 'NCBI ID', link: 'ncbi_link' },
         ],
+        yeast: [],
       },
       reactions: [],
     };

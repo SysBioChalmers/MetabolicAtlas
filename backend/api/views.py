@@ -76,6 +76,34 @@ def componentDBserializerSelector(database, type, serializer_type=None):
             if serializer_type == 'lite':
                 return APIserializer.HmrInteractionPartnerLiteSerializer
             return APIserializer.HmrInteractionPartnerSerializer
+    else:
+        if type == 'reaction component':
+            if serializer_type in ['lite', 'basic']:
+                return APIrcSerializer.ReactionComponentLiteSerializer
+            return APIrcSerializer.ReactionComponentSerializer
+        elif type == 'metabolite':
+            if serializer_type in ['lite', 'basic']:
+                return APIrcSerializer.ReactionComponentLiteSerializer
+            return APIrcSerializer.ReactionComponentSerializer
+        elif type == 'enzyme':
+            if serializer_type in ['lite', 'basic']:
+                return APIrcSerializer.ReactionComponentLiteSerializer
+            return APIrcSerializer.ReactionComponentSerializer
+        elif type == 'reaction':
+            if serializer_type == 'basic':
+                return APIserializer.ReactionBasicSerializer    
+            if serializer_type == 'lite':
+                return APIserializer.ReactionLiteSerializer
+            if serializer_type == 'table':
+                return APIserializer.HmrReactionBasicRTSerializer
+            return APIserializer.ReactionSerializer
+        elif type == 'subsystem':
+            return APIserializer.SubsystemSerializer
+        elif type == 'interaction partner':
+            if serializer_type == 'lite':
+                return APIserializer.InteractionPartnerLiteSerializer
+            return APIserializer.InteractionPartnerSerializer
+
 
 
 @api_view()
@@ -426,7 +454,7 @@ def search(request, model, term):
 
     results = {}
     if model == 'all':
-        models = ['hmr2', 'hmr2n', 'hmr3', 'ymr']
+        models = ['hmr2', 'hmr2n', 'hmr3', 'yeast']
         limit = 10000
     else:
         try:
@@ -440,8 +468,6 @@ def search(request, model, term):
         if model == 'hmr2n':
             continue
         elif model == 'hmr3':
-            continue
-        elif model == 'ymr':
             continue
 
         if model not in results:

@@ -178,6 +178,13 @@ export default {
           subsystem: ['name', 'system'],
           compartment: ['name'],
         },
+        yeast: {
+          enzyme: ['gene_name'],
+          reaction: ['id', 'equation'],
+          metabolite: ['name', 'compartment'],
+          subsystem: ['name', 'system'],
+          compartment: ['name'],
+        },
       },
     };
   },

@@ -25,7 +25,7 @@ export default {
     navBut4Title: 'About',
     hmr2: 'HMR 2.0',
     hmr2n: 'HMR 2.0',
-    ymr: 'Yeast 7.6',
+    yeast: 'Yeast 8.3.0',
     reset: 'Reset',
     exportButton: 'Export to Excel',
     metabolicViewer: 'Metabolic Viewer',
