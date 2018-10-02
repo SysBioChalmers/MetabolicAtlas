@@ -438,7 +438,7 @@ export default {
     EventBus.$off('loadRNAComplete');
 
     EventBus.$on('showAction', (type, name, ids, forceReload) => {
-      // console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
+      // console.log(`showAction ${type} ${name} ${ids} ${forceReload}`);
       if (this.showLoader) {
         return;
       }
@@ -591,6 +591,7 @@ export default {
       if (this.show2D) {
         EventBus.$emit('update3DLoadedComponent', null, null);
       }
+      this.$router.push({ path: `/explore/map-viewer/${this.model}/${this.currentDisplayedType}/${this.currentDisplayedName}?dim=${this.show2D ? '2d' : '3d'}` });
       this.showLoader = false;
     },
     loadSubComptData(model) {
@@ -637,13 +638,30 @@ export default {
             }
           );
         }
+
         if (!this.has2DCompartmentMaps && !this.has2DSubsystemMaps) {
           this.disabled2D = true;
           this.show3D = true;
           this.show2D = false;
         }
+
+        // load maps from url if contains map_id, the url is then cleaned of the id
+        if (this.$route.name === 'viewerCompartment' || this.$route.name === 'viewerSubsystem') {
+          const type = this.$route.name === 'viewerCompartment' ? 'compartment' : 'subsystem';
+          const mapID = this.$route.params.id;
+          if (!this.$route.query.dim) {
+            this.show2D = false;
+          } else {
+            this.show2D = this.$route.query.dim === '2d' && !this.disabled2D;
+          }
+          this.show3D = !this.show2D;
+          this.$nextTick(() => {
+            EventBus.$emit('showAction', type, mapID, [], false);
+          });
+        }
       })
       .catch((error) => {
+        // console.log(error);
         switch (error.response.status) {
           default:
             this.errorMessage = this.$t('unknownError');
