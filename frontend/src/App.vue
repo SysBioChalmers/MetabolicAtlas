@@ -316,25 +316,38 @@ $switch-background: $primary;
     margin-bottom: 0.3em;
   }
 
-  .exp-lvl-legend {
-    list-style: none;
-    li {
-      display: inline-block;
-      margin-left: 7px;
-      line-height: 15px;
-      &:first-child {
-        margin-left: 0;
-      }
+  list-style: none;
+  li {
+    line-height: 15px;
+    display: inline-block;
+    &:first-child {
+      margin-left: 0;
+    }
+    span {
+      float: left;
+      margin: 0;
     }
   }
 
   span {
-    float: left;
-    margin: 0 2px 2px 2px;
-    width: 15px;
     height: 15px;
-    display: block;
-    border: 1px solid black;
+    &.boxc {
+      margin: 0 7px;
+      width: 15px;
+      border: 1px solid black;
+    }
+  }
+
+  .exp-lvl-legend {
+    list-style: none;
+    li {
+      span {
+        float: left;
+        margin: 0;
+        width: 1px;
+        border: 0
+      }
+    }
   }
 }
 

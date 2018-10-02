@@ -23,6 +23,7 @@
         <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
       </div>
     </div>
+    <div id="tooltip" ref="tooltip"></div>
   </div>
 </template>
 
@@ -156,6 +157,21 @@ export default {
     $('#svg-wrapper').on('click', '.rea', function f() {
       const id = $(this).attr('id');
       self.selectElement(id, 'reaction');
+    });
+
+    $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
+      const id = $(this).attr('id').split('-')[0].trim();
+      if (id in self.enzymeRNAlevels) {
+        self.$refs.tooltip.innerHTML = `RNA level: ${self.enzymeRNAlevels[id]}`;
+        self.$refs.tooltip.style.top = `${(e.pageY - $('.svgbox').first().offset().top) + 15}px`;
+        self.$refs.tooltip.style.left = `${(e.pageX - $('.svgbox').first().offset().left) + 15}px`;
+        self.$refs.tooltip.style.display = 'block';
+      }
+    });
+
+    $('#svg-wrapper').on('mouseout', '.enz', () => {
+      self.$refs.tooltip.innerHTML = '';
+      self.$refs.tooltip.style.display = 'none';
     });
   },
   methods: {
@@ -607,6 +623,16 @@ export default {
       stroke-width: 3;
       display: inline;
     }
+  }
+
+  #tooltip {
+    background: #C4C4C4;
+    color: black;
+    border-radius: 3px;
+    border: 1px solid gray;
+    padding: 8px;
+    position: absolute;
+    display: none;
   }
 
 </style>
