@@ -273,7 +273,6 @@ export default {
               });
           }
         }
-
         this.noResult = true;
         for (const k of Object.keys(searchResults)) {
           if (searchResults[k].length) {
@@ -291,6 +290,7 @@ export default {
         }
       })
       .catch(() => {
+        // console.log(error);
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;

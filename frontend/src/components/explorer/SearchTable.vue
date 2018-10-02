@@ -509,7 +509,7 @@ export default {
           // organism: {},
           model: {},
           compartment: {},
-          subsystem_str: {},
+          subsystem: {},
           is_transport: {},
         },
         subsystem: {
@@ -566,15 +566,16 @@ export default {
             });
           } else if (componentType === 'reaction') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
-              if (field === 'subsystem') {
+              if (field === 'subsystem' && el[field]) {
                 for (const subsystem of el[field].split('; ')) {
                   if (!(subsystem in filterTypeDropdown[componentType][field])) {
                     filterTypeDropdown[componentType][field][subsystem] = 1;
                   }
                 }
-              } else if (field === 'compartment') {
+              } else if (field === 'compartment' && el[field]) {
                 for (const compartment of el[field].split(/[^a-zA-Z0-9 ]+/)) {
-                  if (!(compartment.trim() in filterTypeDropdown[componentType][field])) {
+                  if (compartment.trim() &&
+                    !(compartment.trim() in filterTypeDropdown[componentType][field])) {
                     filterTypeDropdown[componentType][field][compartment.trim()] = 1;
                   }
                 }
@@ -707,10 +708,13 @@ export default {
     },
     formatSubsystemArrCell(row) {
       let s = '';
-      for (const subsystem of row.subsystem.split('; ')) {
-        s += `<a href="/explore/gem-browser/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
+      if (row.subsystem) {
+        for (const subsystem of row.subsystem.split('; ')) {
+          s += `<a href="/explore/gem-browser/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
+        }
+        return s.slice(0, -2);
       }
-      return s.slice(0, -2);
+      return s;
     },
     formatCompartmentArrCell(row) {
       return row.compartment.join('; ');

@@ -92,12 +92,8 @@ export default {
           if (reaction.is_reversible) {
             reaction.cp = 'reversible';
           } else {
-            let ID = this.selectedElmId;
-            if (reaction.id_equation.indexOf(ID) === -1) {
-              ID = this.selectedElmId.slice(0, -1);
-            }
-            const boolC = reaction.id_equation.split('=>')[0].indexOf(ID) !== -1;
-            const boolP = reaction.id_equation.split('=>')[1].indexOf(ID) !== -1;
+            const boolC = reaction.id_equation.split('=>')[0].indexOf(this.selectedElmId) !== -1;
+            const boolP = reaction.id_equation.split('=>')[1].indexOf(this.selectedElmId) !== -1;
             reaction.cp = '';
             if (boolC) {
               reaction.cp = 'consume';

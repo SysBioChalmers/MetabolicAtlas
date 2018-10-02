@@ -83,11 +83,11 @@ def componentDBserializerSelector(database, type, serializer_type=None):
             return APIrcSerializer.ReactionComponentSerializer
         elif type == 'metabolite':
             if serializer_type in ['lite', 'basic']:
-                return APIrcSerializer.ReactionComponentLiteSerializer
+                return APIrcSerializer.ReactionComponentSerializer
             return APIrcSerializer.ReactionComponentSerializer
         elif type == 'enzyme':
             if serializer_type in ['lite', 'basic']:
-                return APIrcSerializer.ReactionComponentLiteSerializer
+                return APIrcSerializer.ReactionComponentSerializer
             return APIrcSerializer.ReactionComponentSerializer
         elif type == 'reaction':
             if serializer_type == 'basic':
@@ -464,6 +464,7 @@ def search(request, model, term):
         models = [model]
         limit = 50
 
+    match_found = False
     for model in models:
         if model == 'hmr2n':
             continue
@@ -529,14 +530,13 @@ def search(request, model, term):
                 Q(formula__icontains=term))
             )[:limit]
 
-        if (metabolites.count() + enzymes.count() + compartments.count() + subsystems.count() + reactions.count()) == 0:
-            return HttpResponse(status=404)
+        if (metabolites.count() + enzymes.count() + compartments.count() + subsystems.count() + reactions.count()) != 0:
+            match_found = True
 
         MetaboliteSerializerClass = componentDBserializerSelector(model, 'metabolite', serializer_type='lite')
         EnzymeSerializerClass = componentDBserializerSelector(model, 'enzyme', serializer_type='lite')
         ReactionSerializerClass= componentDBserializerSelector(model, 'reaction', serializer_type='basic')
         SubsystemSerializerClass = componentDBserializerSelector(model, 'subsystem', serializer_type='lite')
-
 
         metaboliteSerializer = MetaboliteSerializerClass(metabolites, many=True)
         enzymeSerializer = EnzymeSerializerClass(enzymes, many=True)
@@ -551,6 +551,9 @@ def search(request, model, term):
         results[model]['reaction'] = reactionSerializer.data
 
         response = JSONResponse(results)
+
+    if not match_found:
+        return HttpResponse(status=404)
 
     return response
 
