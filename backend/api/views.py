@@ -5,6 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view, permission_classes
 from itertools import chain
 from rest_framework import permissions
+from django.conf import settings
 import api.models as APImodels
 import api.serializers as APIserializer
 import api.serializers_rc as APIrcSerializer
@@ -448,13 +449,14 @@ def search(request, model, term):
     # l.addHandler(logging.StreamHandler())
 
     term = term.replace(";", "#")
+    term = term.strip()
 
-    if len(term.strip()) < 2:
+    if len(term) < 2:
         return HttpResponse("Invalid query, term must be at least 2 characters long", status=400)
 
     results = {}
     if model == 'all':
-        models = ['hmr2', 'hmr2n', 'hmr3', 'yeast']
+        models = [k for k in settings.DATABASES if k not in ['default', 'gems']]
         limit = 10000
     else:
         try:
@@ -466,11 +468,6 @@ def search(request, model, term):
 
     match_found = False
     for model in models:
-        if model == 'hmr2n':
-            continue
-        elif model == 'hmr3':
-            continue
-
         if model not in results:
             results[model] = {}
 
