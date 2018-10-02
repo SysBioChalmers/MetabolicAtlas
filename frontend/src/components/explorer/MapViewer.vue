@@ -438,7 +438,7 @@ export default {
     EventBus.$off('loadRNAComplete');
 
     EventBus.$on('showAction', (type, name, ids, forceReload) => {
-      // console.log(`showAction ${type} ${name} ${secondaryName} ${ids}`);
+      // console.log(`showAction ${type} ${name} ${ids} ${forceReload}`);
       if (this.showLoader) {
         return;
       }
@@ -637,13 +637,27 @@ export default {
             }
           );
         }
+
         if (!this.has2DCompartmentMaps && !this.has2DSubsystemMaps) {
           this.disabled2D = true;
           this.show3D = true;
           this.show2D = false;
         }
+
+        // load maps from url if contains map_id, the url is then cleaned of the id
+        if (this.$route.name === 'viewerCompartment' || this.$route.name === 'viewerSubsystem') {
+          const type = this.$route.name === 'viewerCompartment' ? 'compartment' : 'subsystem';
+          const mapID = this.$route.params.id;
+          this.show2D = this.$route.params.dim === '2d' && !this.disabled2D;
+          this.show3D = !this.show2D;
+          this.$router.push({ name: 'viewer' });
+          this.$nextTick(() => {
+            EventBus.$emit('showAction', type, mapID, [], false);
+          });
+        }
       })
       .catch((error) => {
+        // console.log(error);
         switch (error.response.status) {
           default:
             this.errorMessage = this.$t('unknownError');

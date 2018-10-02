@@ -19,6 +19,8 @@ const routes = [
   { path: '/explore/gem-browser/:model', name: 'browserRoot', component: Explorer, props: true },
   { path: '/explore/gem-browser/:model/:type/:id', name: 'browser', component: Explorer, props: true },
   { path: '/explore/map-viewer/:model', name: 'viewer', component: Explorer, props: true },
+  { path: '/explore/map-viewer/:model/compartment/:id/:dim', name: 'viewerCompartment', component: Explorer, props: true },
+  { path: '/explore/map-viewer/:model/subsystem/:id/:dim', name: 'viewerSubsystem', component: Explorer, props: true },
   { path: '/about', name: 'about', component: About },
   { path: '/gems', name: 'gems', component: Models },
   { path: '/gems/download', name: 'gemsDL', component: ModelsFTP },
