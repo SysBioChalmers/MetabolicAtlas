@@ -79,7 +79,7 @@
         <div class="column container">
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
-            <p style="height: 60px;">
+            <p>
               <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
               <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
               <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
@@ -301,7 +301,7 @@ $switch-background: $primary;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 50px;
+    max-height: 35px;
     margin: 0 0.5rem;
   }
   sup {

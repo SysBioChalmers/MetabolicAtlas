@@ -709,10 +709,10 @@ export default {
 <style lang="scss">
 
 $navbar-height: 6.5rem;
-$footer-height: 9.8rem;
+$footer-height: 6.5rem;
 
 #mapViewer {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   #iTopBar {
     height: 60px;
 
@@ -800,7 +800,7 @@ $footer-height: 9.8rem;
     height: 100%;
     padding: 0;
     margin: 0;
-    border: 1px solid darkgray;
+    /* border: 1px solid darkgray; */
     overflow: hidden;
   }
 
