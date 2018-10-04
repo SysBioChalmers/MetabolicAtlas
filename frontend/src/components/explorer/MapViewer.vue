@@ -541,7 +541,7 @@ export default {
     },
     viewOnGemBrowser() {
       if (this.currentDisplayedType === 'subsystem') {
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.currentDisplayedType, this.subsystemsSVG[this.currentDisplayedName].subsystem);
+        EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.currentDisplayedType, this.currentDisplayedName);
       } else {
         EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.selectedElementData.type, this.selectedElementData.id);
       }
