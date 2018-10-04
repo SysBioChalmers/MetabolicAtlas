@@ -9,11 +9,11 @@
       <template v-else>
         <div class="columns">
           <div class="column has-text-centered">
-            <h4 class="title is-4">Explore models</h4>[<a @click="">Learn how</a>]
+            <h4 class="is-size-4 has-text-weight-bold">Explore models</h4>[<a @click="">Learn how</a>]
           </div>
         </div>
         <br>
-        <div class="box">
+        <div>
           <div class="columns">
             <div class="column has-text-centered has-text-weight-bold">
               Search metabolites, enzymes, reactions... through all the integrated models
@@ -30,11 +30,11 @@
           </div>
         </div>
         <div class="columns has-text-centered">
-          <div class="column">
-            OR
+          <div class="column has-text-weight-bold">
+            <br>OR<br>
           </div>
         </div>
-        <div class="box">
+        <div>
           <div class="columns has-text-centered">
             <div class="column">
               <div class="has-text-weight-bold">
@@ -215,7 +215,6 @@ export default {
     loadCompartmentData(model) {
       axios.get(`${model}/compartment/`)
       .then((response) => {
-        console.log(response);
         this.compartmentStats = {};
         this.compartmentLetters = {};
         for (const c of response.data) {

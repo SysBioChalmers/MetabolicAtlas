@@ -260,17 +260,17 @@ export default {
           }
           if (resultsModel.subsystem.length) {
             searchResults.subsystem = searchResults.subsystem.concat(
-              resultsModel.subsystem).map(
+              resultsModel.subsystem.map(
               (e) => {
                 const d = e; d.model = model; return d;
-              });
+              }));
           }
           if (resultsModel.compartment.length) {
             searchResults.compartment = searchResults.compartment.concat(
-              resultsModel.compartment).map(
+              resultsModel.compartment.map(
               (e) => {
                 const d = e; d.model = model; return d;
-              });
+              }));
           }
         }
         this.noResult = true;
