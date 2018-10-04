@@ -213,7 +213,7 @@ export default {
       }
     },
     loadCompartmentData(model) {
-      axios.get(`${model}/compartments/`)
+      axios.get(`${model}/compartment/`)
       .then((response) => {
         console.log(response);
         this.compartmentStats = {};

@@ -669,7 +669,7 @@ export default {
       });
     },
     loadHPATissue(model) {
-      axios.get(`${model}/enzymes/hpa_tissue/`)
+      axios.get(`${model}/enzyme/hpa_tissue/`)
         .then((response) => {
           this.HPATissue = response.data;
         })

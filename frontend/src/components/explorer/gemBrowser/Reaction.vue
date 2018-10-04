@@ -45,7 +45,7 @@
       </div>
       <div class="column">
         <div class="box has-text-centered">
-          <div class="button is-info">
+          <div class="button is-info" disabled>
             <p>View on Map Viewer</p>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default {
       this.load();
     },
     load() {
-      axios.get(`${this.model}/reactions/${this.rId}/`)
+      axios.get(`${this.model}/reaction/${this.rId}/`)
       .then((response) => {
         this.showLoader = false;
         this.reaction = response.data.reaction;

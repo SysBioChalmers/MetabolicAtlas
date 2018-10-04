@@ -472,9 +472,8 @@ export default {
       this.$router.push(`/explore/gem-browser/${this.model}/interaction/${this.clickedElmId}`);
     },
     loadHPATissue() {
-      axios.get(`${this.model}/enzymes/hpa_tissue/`)
+      axios.get(`${this.model}/enzyme/hpa_tissue/`)
         .then((response) => {
-          // this.tissues.HPA = response.data;
           Vue.set(this.tissues, 'HPA', response.data);
         })
         .catch((error) => {
@@ -1014,7 +1013,7 @@ export default {
       const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
       const enzymeIDs = enzymes.map(k => rawElms[k].id);
 
-      axios.post(`${this.model}/enzymes/hpa_rna_levels/`, { data: enzymeIDs })
+      axios.post(`${this.model}/enzyme/hpa_rna_levels/`, { data: enzymeIDs })
       .then((response) => {
         const matLevels = response.data.levels;
         for (let i = 0; i < matLevels.length; i += 1) {

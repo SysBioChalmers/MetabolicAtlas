@@ -304,7 +304,7 @@ export default {
         this.readHPARNAlevels(tissue);
         return;
       }
-      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.name_id}`)
+      axios.get(`${this.model}/enzyme/hpa_rna_levels/${this.loadedMap.name_id}`)
       .then((response) => {
         this.HPARNAlevelsHistory[this.svgName] = response.data;
         setTimeout(() => {
@@ -524,7 +524,7 @@ export default {
         return;
       }
       EventBus.$emit('startSelectedElement');
-      axios.get(`${this.model}/${type}s/${id}`)
+      axios.get(`${this.model}/${type}/${id}`)
       .then((response) => {
         let data = response.data;
         if (type === 'reaction') {

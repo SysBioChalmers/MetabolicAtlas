@@ -147,7 +147,7 @@ export default {
       }
     },
     load() {
-      axios.get(`${this.model}/metabolites/${this.mId}/`)
+      axios.get(`${this.model}/metabolite/${this.mId}/`)
       .then((response) => {
         this.metaboliteID = this.mId;
         this.info = response.data;

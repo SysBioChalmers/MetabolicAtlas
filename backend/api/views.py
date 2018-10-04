@@ -309,7 +309,7 @@ def get_enzyme(request, model, id):
 @is_model_valid
 def get_metabolites(request, model):
     """
-    List enzymes in the given model
+    List metabolites in the given model
     """
     limit = int(request.query_params.get('limit', 10000))
     offset = int(request.query_params.get('offset', 0))
@@ -326,7 +326,7 @@ def get_metabolites(request, model):
 @is_model_valid
 def get_metabolite(request, model, id):
     """
-    Return all information for a given enzyme (for example ENSEMBL0001256).
+    Return all information for a given metabolite (for example ENSEMBL0001256).
     """
     try:
         component = APImodels.ReactionComponent.objects.using(model).get(Q(id__iexact=id) |
@@ -637,7 +637,7 @@ def get_compartments(request, model):
 @is_model_valid
 def get_compartment(request, model, compartment_name_id):
     '''
-        return all information for the given compartment's name.
+        return all information for the given compartment's name id.
     '''
     try:
         compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=compartment_name_id)

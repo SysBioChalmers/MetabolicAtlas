@@ -49,7 +49,7 @@ export default {
       showTable: false,
       expandAllCompartment: false,
       ID: '',
-      reactomeID: '', // might be without compartment letters
+      reactomeID: '',
     };
   },
   watch: {
@@ -74,9 +74,9 @@ export default {
       }
       this.showLoader = true;
       this.reactomeID = ID;
-      let url = `${this.model}/metabolites/${ID}/reactions/`;
+      let url = `${this.model}/metabolite/${ID}/reactions/`;
       if (this.expandAllCompartment) {
-        url = `${this.model}/metabolites/${ID}/reactions/all_compartment/`;
+        url = `${this.model}/metabolite/${ID}/reactions/all_compartment/`;
       }
       axios.get(url)
         .then((response) => {
@@ -92,16 +92,6 @@ export default {
         .catch(() => {
           this.showLoader = false;
           this.showTable = false;
-        });
-    },
-    // TODO: call loadReactome when selecting a row from the table of reactions
-    loadReactome(reactionId) {
-      const rcid = this.$route.params.id;
-      axios.get(`metabolite_reactions/${rcid}/reactome/${reactionId}`)
-        .then((response) => {
-          this.errorMessage = '';
-          this.reactome = response.data;
-          this.showLoader = false;
         });
     },
     toggleExpandAllCompartment() {

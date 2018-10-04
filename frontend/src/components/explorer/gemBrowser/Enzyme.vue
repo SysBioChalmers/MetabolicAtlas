@@ -164,7 +164,7 @@ export default {
     load() {
       this.loading = true;
       const enzymeId = this.id;
-      axios.get(`${this.model}/enzymes/${enzymeId}/connected_metabolites`)
+      axios.get(`${this.model}/enzyme/${enzymeId}/connected_metabolites`)
         .then((response) => {
           this.loading = false;
           this.errorMessage = null;

@@ -21,9 +21,9 @@ urlpatterns = [
     # url(r'^(?P<model>[^/]+)/subsystems_svg/?$', private_views.get_subsystems_svg),
     url(r'^(?P<model>[^/]+)/viewer/?$', private_views.get_data_viewer),
 
-    url(r'^(?P<model>[^/]+)/enzymes/(?P<id>[^/]+)/connected_metabolites/?$', private_views.connected_metabolites),
+    url(r'^(?P<model>[^/]+)/enzyme/(?P<id>[^/]+)/connected_metabolites/?$', private_views.connected_metabolites),
 
-    url(r'^(?P<model>[^/]+)/enzymes/hpa_rna_levels/(?P<compartment_name_id>[^/]+)/?$', private_views.get_hpa_rna_levels_compartment),
-    url(r'^(?P<model>[^/]+)/enzymes/hpa_rna_levels/?$', private_views.get_hpa_rna_levels),
-    url(r'^(?P<model>[^/]+)/enzymes/hpa_tissue/?$', private_views.get_hpa_tissues),
+    url(r'^(?P<model>[^/]+)/enzyme/hpa_rna_levels/(?P<compartment_name_id>[^/]+)/?$', private_views.get_hpa_rna_levels_compartment),
+    url(r'^(?P<model>[^/]+)/enzyme/hpa_rna_levels/?$', private_views.get_hpa_rna_levels),
+    url(r'^(?P<model>[^/]+)/enzyme/hpa_tissue/?$', private_views.get_hpa_tissues),
 ]
