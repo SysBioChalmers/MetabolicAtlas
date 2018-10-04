@@ -428,15 +428,21 @@ class Equation(object):
                     pairs.add("".join(sorted(list({e1, e2}))))
                 if len(pairs) == 1:
                     return "{0} => {1}".format(self.format_reaction_part(reactants_set), self.format_reaction_part(list(reversed(list(reactants_set)))))
+                elif len(pairs) == 2:
+                     print("Warning: check compartment equation for reaction %s" % self.id)
+                     print (reactants_list, products_list, "=>", "{0} => {1}".format(self.format_reaction_part(reactants_set), self.format_reaction_part(list(reversed(list(reactants_set))))))
+                     return "{0} => {1}".format(self.format_reaction_part(reactants_set), self.format_reaction_part(list(reversed(list(reactants_set)))))
+
                 else:
                     print("Error: cannot get compartment equation for reaction %s" % self.id)
                     print (reactants_list, products_list)
                     print(pairs)
                     exit()
             else:
-                print("Error: cannot get compartment equation for reaction %s" % self.id)
-                print (reactants_list, products_list)
-                exit()
+                print("Warning: check compartment equation for reaction %s" % self.id)
+                print (reactants_list, products_list, "=>", " + ".join(set(reactants_list + products_list)))
+                return " + ".join(set(reactants_list + products_list))
+                # exit()
 
         return ""
 
