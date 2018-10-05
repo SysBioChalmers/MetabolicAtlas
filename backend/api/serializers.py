@@ -186,7 +186,7 @@ class CompartmentSerializer(serializers.ModelSerializer):
 
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
-    compartment = serializers.SlugRelatedField(slug_field='name', queryset=APImodels.Compartment.objects.all())
+    compartment = serializers.SlugRelatedField(slug_field='name_id', queryset=APImodels.Compartment.objects.all())
     # compartment = CompartmentSerializer()
     subsystem = serializers.SlugRelatedField(
         many=True,
@@ -214,7 +214,7 @@ class SubsystemSerializer(serializers.ModelSerializer):
 
 
 class SubsystemSvgSerializer(serializers.ModelSerializer):
-    subsystem = serializers.SlugRelatedField(slug_field='name', queryset=APImodels.Compartment.objects.all())
+    subsystem = serializers.SlugRelatedField(slug_field='name_id', queryset=APImodels.Compartment.objects.all())
     class Meta:
         model = APImodels.SubsystemSvg
         fields = ('name', 'name_id', 'subsystem', 'filename', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 

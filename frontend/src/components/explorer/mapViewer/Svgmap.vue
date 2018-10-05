@@ -258,7 +258,7 @@ export default {
       const newSvgName = currentLoad.filename;
       if (!newSvgName) {
         // TODO remove this when all svg files are available
-        this.$emit('loadComplete', false, 'SVG map not available.');
+        this.$emit('loadComplete', false, this.$t('mapNotFound'));
         return;
       }
 
@@ -286,7 +286,7 @@ export default {
             })
             .catch(() => {
               // TODO: handle error
-              this.$emit('loadComplete', false, 'SVG map not available.');
+              this.$emit('loadComplete', false, this.$t('mapNotFound'));
             });
         }
       } else if (callback) {
@@ -369,7 +369,7 @@ export default {
         this.isLoadingSearch = false;
         const status = error.status || error.response.status;
         if (status !== 404) {
-          this.$emit('loadComplete', false, 'An error occurred. Please try again later.');
+          this.$emit('loadComplete', false, this.$t('unknownError'));
           this.searchInputClass = 'is-info';
         } else {
           this.searchInputClass = 'is-danger';

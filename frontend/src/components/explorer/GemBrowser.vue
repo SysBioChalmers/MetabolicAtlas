@@ -212,7 +212,7 @@ export default {
           // TODO use another way to check the model id is valid
           this.model = '';
           EventBus.$emit('modelSelected', '');
-          this.errorMessage = `Error: ${this.$t('modelNoFound')}`;
+          this.errorMessage = `Error: ${this.$t('modelNotFound')}`;
           return;
         }
         this.selectedType = this.$route.params.type || '';
