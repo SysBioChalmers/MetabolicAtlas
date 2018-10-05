@@ -138,7 +138,7 @@ export default {
     .on('mouseup', 'svg', (e) => {
       if (!self.isDragging) {
         const target = $(e.target);
-        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea')) {
+        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') && !target.hasClass('.subsystem')) {
           self.unSelectElement();
         }
       }
@@ -157,6 +157,11 @@ export default {
     $('#svg-wrapper').on('click', '.rea', function f() {
       const id = $(this).attr('id');
       self.selectElement(id, 'reaction');
+    });
+
+    $('#svg-wrapper').on('click', '.subsystem', function f() {
+      const id = $(this).attr('id');
+      self.selectElement(id, 'subsystem');
     });
 
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
@@ -521,6 +526,10 @@ export default {
     selectElement(id, type) {
       if (this.selectedItemHistory[id]) {
         EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
+        return;
+      }
+      if (type === 'subsystem') {
+        EventBus.$emit('updatePanelSelectionData', { type: 'subsystem', id });
         return;
       }
       EventBus.$emit('startSelectedElement');

@@ -171,6 +171,25 @@
                               {{ selectedElementData[item.name] }}</p>
                             </template>
                           </template>
+                          <template v-if="selectedElementHasNoData()">
+                            {{ $t('noInfoAvailable') }}
+                          </template>
+                        </template>
+                        <template v-else>
+                          <template v-if="show3D">
+                            <span class="hd"># reactions:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['reaction_count'] }}<br>
+                            <span class="hd"># metabolites:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['metabolite_count'] }}<br>
+                            <span class="hd"># enzymes:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['enzyme_count'] }}<br>
+                            <span class="hd"># compartments:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['compartment_count'] }}<br>
+                          </template>
+                          <template v-else>
+                            <!-- show the stats of the model not the maps -->
+                            <span class="hd">Total model stats:</span><br>
+                            <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['reaction_count'] }}<br>
+                            <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['metabolite_count'] }}<br>
+                            <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['enzyme_count'] }}<br>
+                            <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['compartment_count'] }}<br>
+                          </template>
                         </template>
                       </template>
                       <template v-else>
@@ -208,7 +227,7 @@
                     </div>
                   </div>
                   <footer class="card-footer" 
-                    v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
+                    v-if="['metabolite', 'enzyme', 'reaction', 'subsystem'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
                     <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
                   </footer>
                 </div>
@@ -258,7 +277,7 @@ import Svgmap from 'components/explorer/mapViewer/Svgmap';
 import D3dforce from 'components/explorer/mapViewer/D3dforce';
 import Logo from '../../assets/logo.svg';
 import { default as EventBus } from '../../event-bus';
-import { capitalize, reformatStringToLink } from '../../helpers/utils';
+import { capitalize, reformatStringToLink, idfy } from '../../helpers/utils';
 import { chemicalReaction } from '../../helpers/chemical-formatters';
 import { getExpLvlLegend } from '../../expression-sources/hpa';
 
@@ -532,6 +551,18 @@ export default {
       }
       return false;
     },
+    selectedElementHasNoData() {
+      if (!(this.selectedElementData.type in this.selectedElementDataKeys)) {
+        return true;
+      }
+      for (const k of this.selectedElementDataKeys[this.selectedElementData.type]) {
+        if (k in this.selectedElementData &&
+          this.selectedElementData[this.selectedElementData.type][k]) {
+          return false;
+        }
+      }
+      return true;
+    },
     viewOnGemBrowser() {
       if (this.currentDisplayedType === 'subsystem') {
         EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.currentDisplayedType, this.currentDisplayedName);
@@ -718,6 +749,7 @@ export default {
     reformatStringToLink,
     chemicalReaction,
     getExpLvlLegend,
+    idfy,
   },
 };
 </script>
