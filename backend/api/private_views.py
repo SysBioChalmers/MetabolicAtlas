@@ -331,30 +331,40 @@ def get_db_json(request, model, component_name_id=None, ctype=None, dup_meta=Fal
 #####################################################################################
 
 @api_view()
-def HPA_enzyme_info(request, ensembl_id):
+def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
+    model = "hmr2"
     # TODO provide the model, remove 'hmr2'
     try:
-        res = APImodels.ReactionComponent.objects.using('hmr2').get(id=ensembl_id)
+        res = APImodels.ReactionComponent.objects.using(model).get(id=ensembl_id)
         rcid = res.id
     except:
         return JSONResponse([])
 
-    subs = APImodels.Subsystem.objects.using('hmr2').filter(
-            Q(id__in=APImodels.SubsystemEnzyme.objects.using('hmr2').filter(rc_id=rcid).values('subsystem_id')) &
+    subs = APImodels.Subsystem.objects.using(model).filter(
+            Q(id__in=APImodels.SubsystemEnzyme.objects.using(model).filter(rc_id=rcid).values('subsystem_id')) &
             ~Q(system='Collection of reactions')
-        ).values('id', 'name', 'reaction_count', 'enzyme_count', 'metabolite_count', 'unique_metabolite_count')
+        ).values('id', 'name', 'name_id', 'reaction_count', 'enzyme_count', 'metabolite_count', 'unique_metabolite_count')
 
-    result = []
+    subsystems = []
     for sub in subs.all():
         # get the reactions
-        reactions = APImodels.SubsystemReaction.objects.using('hmr2').filter(subsystem_id=sub['id']).values('reaction_id')
-        compartments = APImodels.Compartment.objects.using('hmr2').filter(
-            id__in=APImodels.SubsystemCompartment.objects.using('hmr2').filter(subsystem_id=sub['id']).values('compartment_id').distinct()
+        print (sub)
+        reactions = APImodels.SubsystemReaction.objects.using(model).filter(subsystem_id=sub['id']).values('reaction_id')
+        compartments = APImodels.Compartment.objects.using(model).filter(
+            id__in=APImodels.SubsystemCompartment.objects.using(model).filter(subsystem_id=sub['id']).values('compartment_id').distinct()
         ).values_list('name', flat=True)
+        sub['enzymes'] = APImodels.SubsystemEnzyme.objects.using(model).filter(subsystem_id=sub['id']).values_list('rc_id', flat=True)
         sub['compartments'] = list(compartments)
-        sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using('hmr2').filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
+        sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using(model).filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
+        sub['url'] = "https://ftp.icsb.chalmers.se/.maps/%s/%s.svg" % (model, sub['name_id'])
         del sub['id']
-        result.append(sub)
+        del sub['name_id']
+        subsystems.append(sub)
+
+    result = {
+        'subsystems': subsystems,
+        'doc': 'Count corresponds to unique IDs in the model',
+    }
 
     return JSONResponse(result)
 

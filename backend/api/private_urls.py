@@ -3,12 +3,12 @@ from api import private_views
 
 app_name = 'private_apis'
 urlpatterns = [
+    url(r'^hpa/enzyme/(?P<ensembl_id>[^/]+)/?$', private_views.HPA_enzyme_info),
+
     url(r'^(?P<model>[^/]+)/convert_to_reaction_component_ids/(?P<compartment_name_id>[^/]+)/?$', private_views.convert_to_reaction_component_ids),
     url(r'^(?P<model>[^/]+)/convert_to_reaction_component_ids/?$', private_views.convert_to_reaction_component_ids),
 
     url(r'^(?P<model>[^/]+)/search_map/(?P<map_type>[^/]+)/(?P<map_name_id>[^/]+)/(?P<term>[^/]+)/?$', private_views.search_on_map),
-
-    url(r'^hpa/enzyme/(?P<ensembl_id>[^/]+)/?$', private_views.HPA_enzyme_info),
 
     url(r'^(?P<model>[^/]+)/json/?$', private_views.get_db_json),
     url(r'^(?P<model>[^/]+)/json/compartment/(?P<component_name_id>[^/]+)/?$', private_views.get_db_json, {'ctype': 'compartment'}),
