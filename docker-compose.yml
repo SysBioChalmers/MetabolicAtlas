@@ -1,34 +1,25 @@
 version: '3'
 
 services:
-  db:
+  db1:
+    container_name: db1
     image: postgres
-    env_file: postgres.env
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     networks:
       - net-tier
 
   db2:
+    container_name: db2
     image: postgres
-    env_file: db2_postgres.env
-    ports:
-      - "5433:5432"
     networks:
       - net-tier
 
   nginx:
+    container_name: nginx
     build:
       context: ./nginx
-      dockerfile: Dockerfile
     depends_on:
       - backend
       - frontend
-    volumes:
-      - ./backend/static:/static
-      - ./nginx/svgs:/svgs
     ports:
       - "80:80"
       - "443:443"
@@ -36,31 +27,22 @@ services:
       - net-tier
 
   backend:
+    container_name: backend
     depends_on:
-      - db
+      - db1
       - db2
     env_file:
       - postgres.env
-      - db2_postgres.env
     build: ./backend
     command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./backend:/project
-      - ./utils/annotation:/project/annotation
     networks:
       - net-tier
-    ports:
-      - "8000:8000"
 
   frontend:
+    container_name: frontend
     depends_on:
       - backend
     build: ./frontend
-    command: npm run dev
-    volumes:
-      - ./frontend/src:/project/src
-      - ./frontend/dist:/project/dist
-      - ./frontend/test:/project/test
     networks:
       - net-tier
 
