@@ -95,7 +95,7 @@ DATABASES = {
         'NAME': 'yeast',
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db',
+        'HOST': 'db1',
         'PORT': 5432,
     },
     'gems': {
