@@ -163,7 +163,9 @@ export default {
         this.model = this.$route.params.model;
         // this.goToGemsBrowser();
         this.saveBrowserPath();
-      } else if (this.$route.name === 'viewer') {
+      } else if (this.$route.name === 'viewer' ||
+        this.$route.name === 'viewerCompartment' ||
+        this.$route.name === 'viewerSubsystem') {
         this.showExploreInfo = true;
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
