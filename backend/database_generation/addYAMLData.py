@@ -60,6 +60,102 @@ def get_modifiersID_from_GRrule(gr_rule):
     # return re.split('[^and|or|(|)|\s]', gr_rule)
 
 
+def insert_subsystem_stats(database):
+    subsystems = Subsystem.objects.using(database).exclude(system='Collection of reactions')
+    subsystem_stat_dict = {}
+    compart_stat_dict = {}
+
+    # update subsystem stats
+    for s in subsystems:
+        subsystem = Subsystem.objects.using(database).get(name=s.name)
+
+        # from SBML
+        smsQuerySet = SubsystemMetabolite.objects.using(database). \
+            filter(subsystem_id=subsystem).values_list('rc_id', flat=True)
+        unique_meta = set()
+        for meta_id in smsQuerySet:
+            unique_meta.add(meta_id[:-1])
+        sesQuerySet = SubsystemEnzyme.objects.using(database). \
+            filter(subsystem_id=subsystem).values_list('rc_id', flat=True)
+        srsQuerySet = SubsystemReaction.objects.using(database). \
+            filter(subsystem_id=subsystem).values_list('reaction_id', flat=True)
+
+        subCompartQuerySet = SubsystemCompartment.objects.using(database). \
+            filter(subsystem_id=subsystem).values_list('compartment_id', flat=True)
+
+        compartment_meta = ReactionComponent.objects.using(database). \
+            filter(id__in=smsQuerySet).values_list('compartment', flat=True).distinct()
+        compartment_meta = Compartment.objects.using(database).filter(id__in=compartment_meta).values_list('name', flat=True)
+
+        compartment_enz = ReactionComponent.objects.using(database). \
+            filter(id__in=sesQuerySet).values_list('compartment', flat=True).distinct()
+        compartment_enz = Compartment.objects.using(database).filter(id__in=compartment_enz).values_list('name', flat=True)
+
+        compartment_eq = Reaction.objects.using(database). \
+             filter(id__in=srsQuerySet).values_list('compartment', flat=True).distinct()
+        compartment_react = []
+        for el in compartment_eq:
+            compartment_react += [c.strip() for c in re.split('[+]|(?:=>)', el) if c]
+
+        # check if compartment list for meta/enz/react are the same
+        # ignore compartment_enz, they are all annotated to be in the cytosol
+        if set(compartment_meta) != set(compartment_react) or len(set(compartment_meta)) != len(subCompartQuerySet):
+            # should not be possible
+            print ("error: compartment !=")
+            print ("comt_sub: ", len(subCompartQuerySet))
+            print ("Metabolite: ", set(compartment_meta))
+            print ("Enzyme: ", set(compartment_enz))
+            print ("Reaction: ", set(compartment_react))
+            exit(1)
+
+        # print ("SS:", s.name)
+        # print ("Metabolites: ", smsQuerySet.count())
+        # print ("Unique metabolites: ", len(set(unique_meta)))
+        # print ("Enzymes: ", sesQuerySet.count())
+        # print ("Reactions: ", srsQuerySet.count())
+        # print ("Compartment: ", len(set(compartment_meta)))
+
+        Subsystem.objects.using(database). \
+            filter(id=subsystem.id).update(reaction_count=srsQuerySet.count(), compartment_count=len(set(compartment_meta)), \
+             metabolite_count=smsQuerySet.count(), unique_metabolite_count=len(unique_meta), enzyme_count=sesQuerySet.count())
+
+
+def insert_compartment_stats(database):
+    cis = Compartment.objects.using(database).all()
+    for compartment in cis:
+        print (compartment.name)
+        srsQuerySet = ReactionCompartment.objects.using(database). \
+            filter(compartment_id=compartment).values_list('reaction_id', flat=True)
+
+        sesRC = ReactionComponentCompartment.objects.using(database). \
+            filter(compartment_id=compartment).values_list('rc_id', flat=True)
+
+        sesQuerySet = ReactionComponent.objects.using(database). \
+            filter(component_type='e', id__in=sesRC).values_list('id', flat=True)
+
+        smsQuerySet = ReactionComponent.objects.using(database). \
+            filter(component_type='m', id__in=sesRC).values_list('id', flat=True)
+
+        unique_meta = set()
+        for meta_id in smsQuerySet:
+            unique_meta.add(meta_id[:-1])
+
+        subCompartQuerySet = SubsystemCompartment.objects.using(database). \
+            filter(compartment_id=compartment.id).values_list('subsystem_id', flat=True)
+
+        # print ("C:", compartment.name)
+        # print ("Metabolites: ", smsQuerySet.count())
+        # print ("Unique metabolites: ", len(set(unique_meta)))
+        # print ("Enzymes: ", sesQuerySet.count())
+        # print ("Reactions: ", srsQuerySet.count())
+        # print ("Compartment: ", subCompartQuerySet.count())
+
+        # update the stats
+        # stats display on the HMR web site are the one that correspond to the model file
+        Compartment.objects.using(database). \
+            filter(id=compartment.id).update(reaction_count=srsQuerySet.count(), subsystem_count=subCompartQuerySet.count(), \
+             metabolite_count=smsQuerySet.count(), unique_metabolite_count=len(unique_meta), enzyme_count=sesQuerySet.count())
+
 """
     read YAML model files and insert the strict minimum information
     Annotations should be added in a separate script
@@ -97,10 +193,8 @@ def load_YAML(database, yaml_file, delete=False):
             rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], component_type='m', compartment=compartment, compartment_str=compartment.name)
             rc.save(using=database)
 
-            # add the relationship to the compartment as well, if a metabolite!
-            if rc.component_type == "m":
-                rcc = ReactionComponentCompartment(rc=rc, compartment=rc.compartment)
-                rcc.save(using=database)
+            rcc = ReactionComponentCompartment(rc=rc, compartment=rc.compartment)
+            rcc.save(using=database)
         else:
             rc = rc[0]
 
@@ -133,8 +227,11 @@ def load_YAML(database, yaml_file, delete=False):
 
         # extract additional info
         is_transport = False
-        if '=>' in equation_compartment:
-            is_transport = True
+        for meta_id in [a[:6] for a,b, in dict_rxn['reactant']]:
+            if meta_id in [a[:6] for a,b in dict_rxn['product']]:
+                is_transport = True
+                break
+
         is_reversible = dict_rxn['lower_bound'] == -1000
         gr_rule = dict_rxn['gene_reaction_rule'] if 'gene_reaction_rule' in dict_rxn else None
 
@@ -254,9 +351,31 @@ def load_YAML(database, yaml_file, delete=False):
                         rccompt = ReactionComponentCompartment(rc=rc, compartment=r_compt.compartment)
                         rccompt.save(using=database)
 
+        # save the connection subsystem / compartement base on the reaction
+        # reaction are part of subsystem and involve metabolites located in one or more compartments
+        if 'subsystem' in dict_rxn:
+            compartments = ReactionCompartment.objects.using(database). \
+                filter(reaction=r, compartment=rc.compartment).values_list('compartment_id', flat=True)
+            for subsystem in dict_rxn['subsystem']:
+                ss = Subsystem.objects.using(database).get(name__iexact=subsystem)
+                for compartment in compartments:
+                    compt = Compartment.objects.using(database).get(id=compartment)
+                    try:
+                        sc = SubsystemCompartment.objects.using(database).get(subsystem=ss, compartment=compt)
+                    except SubsystemCompartment.DoesNotExist:
+                        sc = SubsystemCompartment(subsystem=ss, compartment=compt)
+                        sc.save(using=database)
+
+    print("Inserting subsystem stats...")
+    insert_subsystem_stats(database)
+    print("Inserting compartment stats...")
+    insert_compartment_stats(database)
+    print("Database %s is now populated" % database)
+
 
 class Equation(object):
     def __init__(self, reaction, meta_dict):
+        self.id = reaction['id']
         self.reactants = reaction['reactant']
         self.products = reaction['product']
         self.meta_dict = meta_dict
@@ -273,11 +392,47 @@ class Equation(object):
         return "{0} => {1}".format(reactants_string, products_string)
 
     def get_equation_compartment(self):
-        reactants_string = self.format_reaction_part({compt for a,b,compt,d,e in self.reactants})
-        products_string = self.format_reaction_part({compt for a,b,compt,d,e in self.products})
-        if reactants_string != products_string:
-            return "{0} => {1}".format(reactants_string, products_string)
-        return reactants_string
+        reactants_set = {compt for a,b,compt,d,e in self.reactants}
+        products_set = {compt for a,b,compt,d,e in self.products}
+        reactants_list = [compt for a,b,compt,d,e in self.reactants]
+        products_list = [compt for a,b,compt,d,e in self.products]
+        reactants_set_string = self.format_reaction_part(reactants_set)
+        products_set_string = self.format_reaction_part(products_set)
+        reactants_list_string = self.format_reaction_part(reactants_list)
+        products_list_string = self.format_reaction_part(products_list)
+
+        if (len(reactants_set) == 1 and reactants_set_string != products_set_string) or (len(products_set) == 1 and reactants_set_string != products_set_string):
+            return "{0} => {1}".format(reactants_set_string, products_set_string)
+        elif reactants_list == products_list or (reactants_set == products_set and len(reactants_set) == 1 and len(products_set) == 1):
+            return reactants_set_string
+        elif len(reactants_set) == len(reactants_list) and len(products_set) == len(products_list):
+            return "{0} => {1}".format(reactants_list_string, products_list_string)
+        else:
+            # remove consecutive. duplicates in list
+            reactants_list = [e for i, e in enumerate(reactants_list) if i == 0 or (i != len(reactants_list) and reactants_list[i] != reactants_list[i-1])]
+            products_list = [e for i, e in enumerate(products_list) if i == 0 or (i != len(products_list) and products_list[i] != products_list[i-1])]
+            if len(reactants_set) == len(reactants_list) and len(products_set) == len(products_list):
+                return "{0} => {1}".format(self.format_reaction_part(reactants_list), self.format_reaction_part(products_list))
+            elif reactants_set == products_set and len(reactants_list) == len(products_list):
+                #check if same pairs
+                pairs = set()
+                for e1, e2 in zip(reactants_list, products_list):
+                    pairs.add("".join(sorted(list({e1, e2}))))
+                if len(pairs) == 1:
+                    return "{0} => {1}".format(self.format_reaction_part(reactants_set), self.format_reaction_part(list(reversed(list(reactants_set)))))
+                else:
+                    print("Error: cannot get compartment equation for reaction")
+                    print(self.id)
+                    print (reactants_list, products_list)
+                    print(pairs)
+                    exit()
+            else:
+                print("Error: cannot get compartment equation for reaction")
+                print(self.id)
+                print (reactants_list, products_list)
+                exit()
+
+        return ""
 
 
     def format_reaction_element(self, elements, using_name=False):

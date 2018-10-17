@@ -89,7 +89,10 @@ def run_svgo(input_dir, output_dir):
     print ("Reading (svgo)", f)
     output_file = os.path.join(output_dir, f)
     output_file = os.path.abspath(output_file)
-    os.system('svgo --disable=cleanupIDs --disable=convertTransform --disable=convertPathData --indent=2 --pretty -i %s -o %s' % (f, output_file))
+    f = "'" + f + "'"
+    output_file = "'" + output_file + "'"
+    # os.system('svgo --disable=cleanupIDs --disable=convertTransform --disable=convertPathData --indent=2 --pretty -i %s -o %s' % (f, output_file))
+    os.system('svgo --disable=cleanupIDs --disable=convertTransform --indent=2 --pretty -i %s -o %s' % (f, output_file))
 
 
 def run_sed(input_dir, output_dir):
@@ -111,6 +114,8 @@ def run_sed(input_dir, output_dir):
     print ("Reading (sed)", f)
     output_file = os.path.join(output_dir, f)
     output_file = os.path.abspath(output_file)
+    f = "'" + f + "'"
+    output_file = "'" + output_file + "'"
 
     # remove br and create new output file
     os.system('sed -re \'s/_br_//g\' %s > %s' % (f, output_file))
@@ -141,22 +146,23 @@ def run_sed(input_dir, output_dir):
     os.system('sed -rie \'s/version="1"/version="1.0"/g\' %s' % output_file)
     os.system('sed -rie \'s/opacity="0"/opacity="0.5"/g\' %s' % output_file)
 
+    os.system('sed -rie \'s/omix:compartment="Compartment[$]([^"]+)"/omix:cmpt="\\1"/g\' %s' % output_file)
     # replace class and label
-    os.system('sed -rie \'s/class="Metabolite" id="Metabolite[$](M_m[a-z0-9]+|E_[0-9]+)[$]([0-9]+)"/class="metabolite" id="\\1-\\2"/g\' %s' % output_file)
-    os.system('sed -rie \'s/class="Metabolite" id="Metabolite[$](M_m[a-z0-9]+|E_[0-9]+)"/class="metabolite" id="\\1"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Metabolite" id="Metabolite[$](m[a-z0-9]+|ENSG[0-9]+)[^$]+[$]([0-9]+)"/class="metabolite" id="\\1-\\2"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Metabolite" id="Metabolite[$](m[a-z0-9]+|ENSG[0-9]+)[^$]+"/class="metabolite" id="\\1"/g\' %s' % output_file)
 
-    os.system('sed -rie \'s/class="Shape" id="Shape_of_Metabolite[$](M_m[a-z0-9]+|E_[0-9]+)[$]([0-9]+)"/class="shape" id="shape_\\1-\\2"/g\' %s' % output_file)
-    os.system('sed -rie \'s/class="Shape" id="Shape_of_Metabolite[$](M_m[a-z0-9]+|E_[0-9]+)"/class="shape" id="shape_\\1"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Shape" id="Shape_of_Metabolite[$](m[a-z0-9]+|ENSG[0-9]+)[^$]+[$]([0-9]+)"/class="shape" id="shape_\\1-\\2"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Shape" id="Shape_of_Metabolite[$](m[a-z0-9]+|ENSG[0-9]+)[^$]+"/class="shape" id="shape_\\1"/g\' %s' % output_file)
 
-    os.system('sed -rie \'s/class="Label" id="Label_of_Metabolite[$](M_m[a-z0-9]+|E_[0-9]+)[$]([0-9]+)"/class="lbl" id="label_\\1-\\2"/g\' %s' % output_file)
-    os.system('sed -rie \'s/class="Label" id="Label_of_Metabolite[$](M_m[a-z0-9]+|E_[0-9]+)"/class="lbl" id="label_\\1"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Label" id="Label_of_Metabolite[$](m[a-z0-9]+|ENSG[0-9]+)[^$]+[$]([0-9]+)"/class="lbl" id="label_\\1-\\2"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Label" id="Label_of_Metabolite[$](m[a-z0-9]+|ENSG[0-9]+)[^$]+"/class="lbl" id="label_\\1"/g\' %s' % output_file)
 
-    os.system('sed -rie \'s/class="Reaction" id="Reaction[$](R_HMR_[0-9]+)"/class="reaction" id="\\1"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Reaction" id="Reaction[$](HMR_[0-9]+)"/class="reaction" id="\\1"/g\' %s' % output_file)
     os.system('sed -rie \'s/class="Reaction" id="Reaction[$]/class="reaction" id="reaction_/g\' %s' % output_file)
-    os.system('sed -rie \'s/class="Shape" id="Shape_of_Reaction[$](R_HMR_[0-9]+)"/class="shape" id="shape_\\1"/g\' %s' % output_file)
-    os.system('sed -rie \'s/class="Label" id="Label_of_Reaction[$](R_HMR_[0-9]+)"/class="lbl" id="label_\\1"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Shape" id="Shape_of_Reaction[$](HMR_[0-9]+)"/class="shape" id="shape_\\1"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Label" id="Label_of_Reaction[$](HMR_[0-9]+)"/class="lbl" id="label_\\1"/g\' %s' % output_file)
 
-    os.system('sed -rie \'s/class="Shape" id="Shape_of_EffectorEdge[$](M_m[a-z0-9]+|E_[0-9]+_to_R_HMR_[0-9]+)"/class="shape" id="shape_\\1"/g\' %s' % output_file)
+    os.system('sed -rie \'s/class="Shape" id="Shape_of_EffectorEdge[$](m[a-z0-9]+|ENSG[0-9]+_to_HMR_[0-9]+)"/class="shape" id="shape_\\1"/g\' %s' % output_file)
 
     # fix reaction text size,
     os.system('sed -rie \'s/font-size="8px"/font-size="21px"/g\' %s' % output_file)
@@ -227,8 +233,6 @@ def clean_path_name(input_dir, output_dir):
     'cytosol_6.svg': [' (cytosolic)']
   }
 
-
-  # do use, maps have been mannually fixed, waiting to update svgs using the Omix plugin, then this might be removed.
   fix_sub_name = {
     'peroxisome.svg': [
         ['Beta_oxidation_of_di_unsaturated_fatty_acids__n_6_', 'Beta_oxidation_of_di_unsaturated_fatty_acids__n_6__peroxisomal_'],
@@ -267,13 +271,12 @@ def clean_path_name(input_dir, output_dir):
         ['Glycosphingolipid____metabolism', 'Glycosphingolipid_metabolism'],
         ['Chondroitin___heparan____sulfate_biosynthesis', 'Chondroitin_heparan_sulfate_biosynthesis'],
         ['Transport__Golgi____to_lysosome', 'Transport__Golgi_to_lysosome']
-      ]
+      ],
       'nucleus.svg': [
         ['Nucleotide___metabolism', 'Nucleotide_metabolism'],
         ['Nicotinate_and____nicotinamide___metabolism', 'Nicotinate_and_nicotinamide_metabolism']
       ]
   }
-
 
   os.chdir(input_dir)
   for file in glob.glob("*.svg"):
@@ -281,17 +284,27 @@ def clean_path_name(input_dir, output_dir):
     output_file = os.path.join(output_dir, file)
     output_file = os.path.abspath(output_file)
 
-    if file not in to_remove:
+    if file not in to_remove and file not in fix_sub_name:
       shutil.copy(file, output_file)
     else:
-      search_terms = to_remove[file]
-      with open(file, 'r') as fh, open(output_file, 'w') as fw:
-        for line in fh:
-          for sterm in search_terms:
-            # CHECK CHANGED Transport__ by Transport_ 29/01
-            if "Transport_" not in line and sterm in line:
-              line = line.replace(sterm, '')
-          fw.write(line)
+      if file in to_remove:
+        search_terms = to_remove[file]
+        with open(file, 'r') as fh, open(output_file, 'w') as fw:
+          for line in fh:
+            for sterm in search_terms:
+              # CHECK CHANGED Transport__ by Transport_ 29/01
+              if "Transport_" not in line and sterm in line:
+                line = line.replace(sterm, '')
+            fw.write(line)
+
+      if file in fix_sub_name:
+        list_replace = fix_sub_name[file]
+        with open(file, 'r') as fh, open(output_file, 'w') as fw:
+          for line in fh:
+            if line.startswith('    <g class="pathway" id=') or line.startswith('      <g class="lbl" id="'):
+              for tr, nr in list_replace:
+                line = line.replace(tr, nr)
+            fw.write(line)
 
 
 #################################################################################################################
@@ -458,6 +471,7 @@ def reformat_shapes(input_dir, output_dir):
                 parse_FE = False
             fw.write(line+'\n')
 
+    output_file = "'" + output_file + "'"
     # Z to reaction
     os.system('sed -rie \'s/d="M0,-25 L25,0 L0,25 L-25,0 L0,-25"/d="M0,-25 L25,0 L0,25 L-25,0 Z"/g\' %s' % output_file)
 
@@ -493,30 +507,43 @@ if __name__ == "__main__":
   step4_dir = os.path.join(output_dir, "STEP4")
   final_dir = os.path.join(output_dir, "FINAL")
 
+  if not os.path.isdir(step1_dir):
+    os.makedirs(step1_dir)
+
   if not skip_rm_title:
-    if not os.path.isdir(step1_dir):
-      os.makedirs(step1_dir)
     remove_title_empty_path(input_dir, step1_dir)
+  else:
+    step1_dir = input_dir
+
+  if not os.path.isdir(step2_dir):
+    os.makedirs(step2_dir)
 
   if not skip_sed:
-    if not os.path.isdir(step2_dir):
-      os.makedirs(step2_dir)
     run_sed(step1_dir, step2_dir)
+  else:
+    step2_dir = step1_dir
 
-  if not skip_svgo:
-    if not os.path.isdir(step3_dir):
-      os.makedirs(step3_dir)
-    run_svgo(step2_dir, step3_dir)
+  if not os.path.isdir(step3_dir):
+    os.makedirs(step3_dir)
 
   if not skip_clean_path:
-    if not os.path.isdir(step4_dir):
-      os.makedirs(step4_dir)
-    clean_path_name(step3_dir, step4_dir)
+    clean_path_name(step2_dir, step3_dir)
+  else:
+    step3_dir = step2_dir
+
+
+  if not os.path.isdir(step4_dir):
+    os.makedirs(step4_dir)
 
   if not skip_rs:
+    reformat_shapes(step3_dir, step4_dir)
+  else:
+    step4_dir = step3_dir
+
+  if not skip_svgo:
     if not os.path.isdir(final_dir):
       os.makedirs(final_dir)
-    reformat_shapes(step4_dir, final_dir)
+    run_svgo(step4_dir, final_dir)
 
 
   # print "Testing output files"

@@ -72,7 +72,7 @@ Create the db in psql (-U postgres)
 CREATE DATABASE "gems" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
 ```
 
-To import models:
+To import models from metabolicAtlas.org (old website) and biomet-toolbox:
 
 Extract model_files_full.tar.gz (available in the MetabolicAtlas folder on Box) into backend/model_files/ (might not exist) and run in the **backend container**:
 
@@ -117,13 +117,13 @@ python manage.py makemigrations
 python manage.py migrate --database [database] e.g. 'hmr2' (see settings.py)
 python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables (optional)
 python manage.py populateDB [database] [YAML file] [model label] [model PMID]
-# model label and model PMID are used to get information about the input model. from the 'gems' database,
-# consequently the model should be added by getGithubModels.py in the 'gems' database
-# it means that the model repo should be available and public on Chalmers Sysbio Github organization repos
-# [model label] [model PMID] might be extracted from the YAML in the future, this is a temporary solution
+# model label and model PMID are used to get information about the input model from the 'gems' database,
+# consequently the model must have been previously added by getMAModels.py or getGithubModels.py in the 'gems' database
+# in case of getGithubModels.py, the model repo should be available and public on the Chalmers Sysbio Github organization repos
+# note: [model label] [model PMID] might be extracted from the YAML in the future, this is a temporary solution
 
-python manage.py addAnnotations [database] 'all' '' # add content of annotations files found in annotation/hmr2/ in the database
-# this commande will create data in tables metabolite and enzyme
+python manage.py addAnnotations [database] 'all' # add content of annotations files found in annotation/hmr2/ in the database
+# this commande populate annotations data in tables: metabolite, enzyme, reaction and subsystem
 
 # no available yet
 # python manage.py addCurrencyMetabolites [database]   # define currency metabolites
@@ -132,11 +132,15 @@ python manage.py addAnnotations [database] 'all' '' # add content of annotations
 
 (as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)
 
-Insert all information related to the svg maps, compare the DB and svg maps, shows statistics
+Insert all information related to the svg maps, compare the DB and svg maps, and shows maps statistics
 
 ```bash
-python manage.py addCompartmentSubsystemInformation [database] --compartment-svg-file database_generation/[database]/compartmentSVF.tsv
+python manage.py addMapsInformation [database] [map type] [map directory] [map metadata file]
+# with [map type] 'compartment' or 'subsystem', [map directory] the folder where to with the svg files
+# and [map metadata file] a TSV file that describes svg file and link each file to a compartment/subsystem of the model
 ```
+see the example file [hmr2_compartmentSVG.tsv](/backend/database_generation/example/hmr2_compartmentSVG.tsv)
+
 
 ### dump databases
 
@@ -149,7 +153,7 @@ docker exec -it $(docker ps -qf "name=metabolicatlas_db_1")  pg_dump -U postgres
 #### GEMs database
 
 ```bash
-docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > /home/cholley/Downloads/gems.db
+docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > gems.db
 ```
 
 ### Import databases

@@ -298,9 +298,9 @@ def insert_annotation(database, component_type, file):
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('database', type=str)
-        parser.add_argument('type', action='store')
-        parser.add_argument('annotation file', action='store')
+        parser.add_argument('database', type=str, help="database's name as defined in the settings file")
+        parser.add_argument('type', action='store', help="specify 'all' to insert metabolite, enzyme, reaction and subsystem annotations")
+        parser.add_argument('annotation file', action='store', default=None, nargs='?')
 
     def handle(self, *args, **options):
         database = options['database']
@@ -315,6 +315,9 @@ class Command(BaseCommand):
             insert_annotation(database, 'reaction', '/project/annotation/%s/REACTIONS.txt' % database)
             insert_annotation(database, 'subsystem', '/project/annotation/%s/SUBSYSTEMS.txt' % database)
         else:
+            if not options['annotation file']:
+                raise ValueError("Error: the following argument is required: annotation file")
+            exit()
             insert_annotation(database, options['type'], options['annotation file'])
 
 

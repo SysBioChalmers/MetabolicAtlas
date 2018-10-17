@@ -1,109 +1,90 @@
 <template>
-  <div id="resources">
-    <div>
-      <a href="#tools">Tools</a>
-      <a href="#databases">Databases</a>
-      <a href="#api">API</a>
-      <a href="#additional">Additional Resources</a>
-    </div>
-    <div class="rsection">
-      <h2 id="tools" class="title is-2">Tools</h2>
-      <div v-for="tool_data in tools">
-        <div class="columns">
-          <div class="column is-1">
-            <a v-if="tool_data.img" :href="tool_data.link" target="_blank">
-              <img :src="tool_data.img" width="160">
-            </a>
-            <a v-else :href="tool_data.link" target="_blank">
-              <div class="name">
-                <span>{{ tool_data.name }}</span>
+  <section class="section extended-section">
+    <div class="container">
+      <div id="resources">
+        <div>
+          <a href="#tools">Tools</a>
+          <a href="#databases">Databases</a>
+          <a href="#api">API</a>
+          <a href="#additional">Additional Resources</a>
+        </div>
+        <div class="rsection">
+          <h2 id="tools" class="title is-2">Tools</h2>
+          <div v-for="tool_data in tools">
+            <div class="columns">
+              <div class="column is-1">
+                <a v-if="tool_data.img" :href="tool_data.link" target="_blank">
+                  <img :src="tool_data.img" width="160">
+                </a>
+                <a v-else :href="tool_data.link" target="_blank">
+                  <div class="name">
+                    <span>{{ tool_data.name }}</span>
+                  </div>
+                </a>
               </div>
-            </a>
+              <div class="column">
+                <div class="dsc">
+                  <span>
+                    <div v-html="tool_data.description"></div>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="column">
-            <div class="dsc">
+        </div>
+        <div class="rsection">
+          <h2 id="databases" class="title is-2">Databases</h2>
+          <div v-for="db_data in databases">
+            <div class="columns">
+              <div class="column is-1">
+                <a :href="db_data.link" target="_blank"><img :src="imgUrl(db_data.img)" height="75"></a>
+              </div>
+              <div class="column">
+                <div class="">
+                  <span>
+                    <div v-html="db_data.description"></div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="rsection">
+          <h2 id="api" class="title is-2">API</h2>
+          <div class="columns">
+            <div class="column is-1">
+              <a href="swagger">GEMs API</a>
+            </div>
+            <div class="column">
+              <div class="">
+                <span>
+                  The set of URL requests for the <a href="metabolicatlas.org">metabolicatlas.org</a>
+                  that will return different .json files
+                  depending on the current request.
+                  Gives you the possibility of trying it out to see what the
+                  results would look like.
+                  Main focus on the data available in the GEMs.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="rsection">
+          <h2 id="additional" class="title is-2">Additional resources</h2>
+          <div class="columns">
+            <div class="column is-1">
+              <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
+            </div>
+            <div class="column">
               <span>
-                <div v-html="tool_data.description"></div>
+                All the online tools powered by the RAVEN toolbox
               </span>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="rsection">
-      <h2 id="databases" class="title is-2">Databases</h2>
-      <div v-for="db_data in databases">
-        <div class="columns">
-          <div class="column is-1">
-            <a :href="db_data.link" target="_blank"><img :src="imgUrl(db_data.img)" height="75"></a>
-          </div>
-          <div class="column">
-            <div class="">
-              <span>
-                <div v-html="db_data.description"></div>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="rsection">
-      <h2 id="api" class="title is-2">API</h2>
-      <div class="columns">
-        <div class="column is-1">
-          <a href="swagger">GEMs API</a>
-        </div>
-        <div class="column">
-          <div class="">
-            <span>
-              The set of URL requests for the <a href="metabolicatlas.org">metabolicatlas.org</a>
-              that will return different .json files
-              depending on the current request.
-              Gives you the possibility of trying it out to see what the
-              results would look like.
-              Main focus on the data available in the GEMs.
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="rsection">
-      <h2 id="additional" class="title is-2">Additional resources</h2>
-      <div class="columns">
-        <div class="column is-1">
-          <a href="hreed">Hreed</a>
-        </div>
-        <div class="column">
-          <span>
-            Hreed (Human REaction Entities Database) facilitates an access
-            to the Hreed reaction data, which can be easily retrieved by
-            using specific keywords or names of related genes, proteins, compounds and cross-references.
-          </span>
-        </div>
-      </div>
-      <div class="columns">
-        <div class="column is-1">
-          <a href="atlas">Atlas</a>
-        </div>
-        <div class="column">
-          <span>
-            Atlas web interface can be used for visualization of the GEMs
-            collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface.
-          </span>
-        </div>
-      </div>
-      <div class="columns">
-        <div class="column is-1">
-          <a href="http://biomet-toolbox.chalmers.se/">Biomet-toolbox</a>
-        </div>
-        <div class="column">
-          <span>
-            All the online tools powered by the RAVEN toolbox
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
+  </section>
 </template>
 
 <script>

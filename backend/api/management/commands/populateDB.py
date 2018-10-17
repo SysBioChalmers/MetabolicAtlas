@@ -73,10 +73,12 @@ def insert_model_metadata(database, yaml_file, model_label, model_pmid):
         ma.save(using='gems')
 
 
-def populate_database(database, yaml_file, model_label, model_pmid, delete=False):
+def populate_database(database, yaml_file, model_label, model_pmid, delete=False, metadata_only=False):
 
     # Instert the model in the 
     insert_model_metadata(database, yaml_file, model_label, model_pmid)
+    if metadata_only:
+        return
     addYAMLData.load_YAML(database, yaml_file, delete=delete)
 
     print("""
@@ -86,13 +88,13 @@ def populate_database(database, yaml_file, model_label, model_pmid, delete=False
 
         Add svg data with:
 
-            python manage.py addCompartmentSubsystemInformation %s --compartment-svg-file database_generation/%s/compartmentSVF.tsv --write-connectivity-files
+            python manage.py addMapsInformation %s ['compartment'|'subsystem'] [SVG file directory] database_generation/%s/[metadatafile].tsv
 
         Add currency met with:
 
             python manage.py addCurrencyMetabolites %s
 
-        Add interaction partners with:
+        Add interaction partners info with:
 
             python manage.py addNumberOfInteractionPartners %s
 
@@ -107,9 +109,10 @@ class Command(BaseCommand):
         parser.add_argument('yaml file', type=str)
         parser.add_argument('model label', type=str)
         parser.add_argument('model pmid', type=str)
-        parser.add_argument('--delete', action='store_true', dest='delete')
+        parser.add_argument('--delete', action='store_true', dest='delete', default=False)
+        parser.add_argument('--metadata-only', action='store_true', dest='metadata_only')
 
     def handle(self, *args, **options):
-        populate_database(options['database'], options['yaml file'],  options['model label'], options['model pmid'], delete=options['delete'])
+        populate_database(options['database'], options['yaml file'],  options['model label'], options['model pmid'], delete=options['delete'], metadata_only=options['metadata_only'])
 
 

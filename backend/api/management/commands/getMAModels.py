@@ -158,10 +158,12 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path, model
         for k in ['organism', 'organ_system', 'tissue', 'cell_type', 'cell_line']:
             if k not in dic:
                 GEM_sample[k] = None
+            elif k == 'cell_line':
+                GEM_sample[k] = dic[k]
             else:
                 GEM_sample[k] = dic[k].capitalize()
         
-        for k in ['description', 'label', 'maintained']:
+        for k in ['description', 'label', 'maintained', 'condition']:
             if k not in dic:
                 GEM[k] = None
             else:
@@ -296,7 +298,6 @@ def parse_xml(xml_file):
     d = {}
     #ET.register_namespace('', "http://www.sbml.org/sbml/level3/version1/groups/version1")
     data = ET.fromstring(xml_file)
-
     versions = ['{http://www.sbml.org/sbml/level2/version3}', '{http://www.sbml.org/sbml/level2}']
     for version in versions:
         m = 0
@@ -330,7 +331,7 @@ def read_gems_data_file(parse_data_file, global_dict=None):
         types = next(reader)
         glob_value = {}
         for row in reader:
-            if len(row) == 0 or row[0][0] == "#":
+            if len([e for e in row if e]) == 0 or len(row) == 0 or row[0][0] == "#":
                 continue
             if row[0][0] == "@":
                 if not row[1] or row[1] == "none":
@@ -382,49 +383,6 @@ def read_gems_data_file(parse_data_file, global_dict=None):
 
     return res
 
-'''
-    GEModelReference
-    title = models.CharField(max_length=255, null=True)
-    link = models.CharField(max_length=255, unique=True)
-    pubmed = models.CharField(max_length=50, unique=True)
-    year = models.CharField(max_length=4, null=True)
-'''
-
-'''
-    GEModelSet
-    name = models.CharField(max_length=200, primary_key=True)
-    description = models.TextField(null=True)
-    reference = models.ManyToManyField(GEModelReference, related_name='gem_references')
-'''
-
-'''
-    GEModelSample
-    organism = models.CharField(max_length=200)
-    organ_system = models.CharField(max_length=200, null=True)
-    tissue = models.CharField(max_length=200, null=True)
-    cell_type = models.CharField(max_length=200, null=True)
-    cell_line = models.CharField(max_length=200, null=True)
-'''
-
-'''
-    GEModelFile
-    path = models.CharField(max_length=200, unique=True)
-    format = models.CharField(max_length=50)
-'''
-
-'''
-    GEModel
-    set = models.ForeignKey(GEModelSet)
-    sample = models.ForeignKey(GEModelSample)
-    description = models.TextField(null=True)
-    label = models.CharField(max_length=200)
-    reaction_count = models.IntegerField()
-    metabolite_count = models.IntegerField()
-    enzyme_count = models.IntegerField()
-    files = models.ManyToManyField(GEModelFile, related_name='gem_files')
-    maintained = models.CharField(max_length=200)
-    reference = models.ForeignKey(GEModelReference, null=True)
-'''
 
 def delete_gems():
         # delete all object

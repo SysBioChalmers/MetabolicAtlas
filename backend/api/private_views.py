@@ -21,7 +21,6 @@ class JSONResponse(HttpResponse):
         super(JSONResponse, self).__init__(content, **kwargs)
 
 
-
 @api_view(['POST'])
 @is_model_valid
 def convert_to_reaction_component_ids(request, model, compartment_name=None):
@@ -91,34 +90,88 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
 
 @api_view()
 @is_model_valid
-def get_subsystem_coordinates(request, model, subsystem_name, compartment_name=False):
-    """
-    For a given subsystem name, get the compartment name and X,Y locations in the corresponding SVG map.
-    """
+def search_on_map(request, model, map_type, map_name, term):
+    if not term:
+        return JSONResponse([])
 
-    logging.warn(subsystem_name)
-
-    try:
-        subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=subsystem_name)
-        subsystem_id = subsystem.id
-    except APImodels.Subsystem.DoesNotExist:
+    if map_type not in ['subsystem', 'compartment'] or not map_name:
         return HttpResponse(status=404)
 
-    try:
-        if not compartment_name:
-            tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
-        else:
-            try:
-                compartment = APImodels.CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
-            except CompartmentSvg.DoesNotExist:
-                return HttpResponse(status=404)
-            tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartment)
+    query = Q()
+    reaction_query = Q()
+    query |= Q(id__iexact=term)
+    reaction_query |= Q(id__iexact=term)
+    query |= Q(name__iexact=term)
+    query |= Q(alt_name1__iexact=term)
+    query |= Q(alt_name2__iexact=term)
+    query |= Q(external_id1__iexact=term)
+    query |= Q(external_id2__iexact=term)
+    query |= Q(external_id3__iexact=term)
+    query |= Q(external_id4__iexact=term)
 
-    except APImodels.TileSubsystem.DoesNotExist:
+    mapIDset = None
+    if map_type == 'compartment':
+        try:
+            compartment = APImodels.CompartmentSvg.objects.using(model).get(id=map_name)
+            mapIDsetRC  = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
+                .filter(Q(compartmentsvg=map_name)).values_list('rc_id')
+            mapIDsetReaction = APImodels.ReactionCompartmentSvg.objects.using(model) \
+                .filter(Q(compartmentsvg=map_name)).values_list('reaction_id')
+        except APImodels.CompartmentSvg.DoesNotExist:
+            return HttpResponse(status=404)
+    else:
+        try:
+            subsystem = APImodels.SubsystemSvg.objects.using(model).get(id=map_name)
+            mapIDsetRC  = APImodels.ReactionComponentSubsystemSvg.objects.using(model) \
+                .filter(Q(subsystemsvg=map_name)).values_list('rc_id')
+            mapIDsetReaction = APImodels.ReactionSubsystemSvg.objects.using(model) \
+                .filter(Q(subsystemsvg=map_name)).values_list('reaction_id')
+        except APImodels.SubsystemSvg.DoesNotExist:
+            return HttpResponse(status=404)
+
+    # get the list of component id
+    reaction_component_ids = APImodels.ReactionComponent.objects.using(model).filter(id__in=mapIDsetRC).filter(query).values_list('id', flat=True);
+
+    # get the list of reaction id
+    reaction_ids = APImodels.Reaction.objects.using(model).filter(id__in=mapIDsetReaction).filter(reaction_query).values_list('id', flat=True)
+
+    if not reaction_component_ids.count() and not reaction_ids.count():
         return HttpResponse(status=404)
-    serializer = TileSubsystemSerializer(tileSubsystem)
 
-    return JSONResponse(serializer.data)
+    results = list(chain(reaction_component_ids, reaction_ids))
+    return JSONResponse(results)
+
+
+# @api_view()
+# @is_model_valid
+# def get_subsystem_coordinates(request, model, subsystem_name, compartment_name=False):
+#     """
+#     For a given subsystem name, get the compartment name and X,Y locations in the corresponding SVG map.
+#     """
+
+#     logging.warn(subsystem_name)
+
+#     try:
+#         subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=subsystem_name)
+#         subsystem_id = subsystem.id
+#     except APImodels.Subsystem.DoesNotExist:
+#         return HttpResponse(status=404)
+
+#     try:
+#         if not compartment_name:
+#             tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
+#         else:
+#             try:
+#                 compartment = APImodels.CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
+#             except CompartmentSvg.DoesNotExist:
+#                 return HttpResponse(status=404)
+#             tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartment)
+
+#     except APImodels.TileSubsystem.DoesNotExist:
+#         return HttpResponse(status=404)
+#     serializer = TileSubsystemSerializer(tileSubsystem)
+
+#     return JSONResponse(serializer.data)
 
 
 @api_view()
@@ -127,8 +180,10 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
     if component_name:
         if ctype == 'compartment':
             try:
-                compartment = APImodels.Compartment.objects.using(model).get(name__iexact=component_name)
-            except Subsystem.DoesNotExist:
+                # TODO fix 'cytosol' request
+                compartmentSVG = APImodels.CompartmentSvg.objects.using(model).get(id=component_name)
+                compartment = compartmentSVG.compartment
+            except APImodels.CompartmentSvg.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.ReactionCompartment.objects.using(model). \
@@ -137,8 +192,9 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                 prefetch_related('reactants', 'products', 'modifiers')
         else:
             try:
-                subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=component_name)
-            except Subsystem.DoesNotExist:
+                subsystemSVG = APImodels.SubsystemSvg.objects.using(model).get(id=component_name)
+                subsystem = subsystemSVG.subsystem
+            except APImodels.SubsystemSvg.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.SubsystemReaction.objects.using(model). \
@@ -274,20 +330,9 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 
 #####################################################################################
 
-@api_view(['POST'])
-def get_HPA_xml_content(request):
-    url = request.data['url']
-    r = requests.get(url)
-    if not r.status_code == 200:
-        return HttpResponse(status=r.status_code)
-
-    import gzip
-    ddata = gzip.decompress(r.content)
-
-    return HttpResponse(ddata)
-
 @api_view()
 def HPA_enzyme_info(request, ensembl_id):
+    # TODO provide the model, remove 'hmr2'
     try:
         res = APImodels.ReactionComponent.objects.using('hmr2').get(id=ensembl_id)
         rcid = res.id
@@ -332,31 +377,60 @@ def get_compartment_svg(request, model, compartment_name):
 @api_view()
 @is_model_valid
 def get_compartments_svg(request, model):
-    # TODO put in private url?
     try:
         compartment_svg_info = APImodels.CompartmentSvg.objects.using(model).select_related('compartment').all()
-        compartment_info = APImodels.Compartment.objects.using(model).all()
     except APImodels.CompartmentSvg.DoesNotExist:
         return HttpResponse(status=404)
 
     compartmentSvgSerializer = APIserializer.CompartmentSvgSerializer(compartment_svg_info, many=True)
 
-    # get stats from Compartment and replace it
-    compartmentSerializer = APIserializer.CompartmentSerializer(compartment_info, many=True)
-    d = {}
-    for el in compartmentSerializer.data:
-        d[el['name']] = el
-
-    for el in compartmentSvgSerializer.data:
-        values = d[el['compartment']]
-        el['reaction_count'] = values['reaction_count']
-        el['metabolite_count'] = values['metabolite_count']
-        el['enzyme_count'] = values['enzyme_count']
-        el['subsystem_count'] = values['subsystem_count']
-
     return JSONResponse(compartmentSvgSerializer.data)
 
-##########################################################################################################3
+
+@api_view()
+@is_model_valid
+def get_subsystems_svg(request, model):
+    try:
+        subsystem_svg_info = APImodels.SubsystemSvg.objects.using(model).select_related('subsystem').all()
+    except APImodels.SubsystemSvg.DoesNotExist:
+        return HttpResponse(status=404)
+
+    subsystemSvgSerializer = APIserializer.SubsystemSvgSerializer(subsystem_svg_info, many=True)
+
+    return JSONResponse(subsystemSvgSerializer.data)
+
+
+@api_view()
+@is_model_valid
+def get_data_viewer(request, model):
+    try:
+        compartments = APImodels.Compartment.objects.using(model).all()
+    except APImodels.Compartment.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        compartments_svg = APImodels.CompartmentSvg.objects.using(model).select_related('compartment').all()
+    except APImodels.CompartmentSvg.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        subsystems = APImodels.Subsystem.objects.using(model).all().prefetch_related('compartment')
+    except APImodels.Subsystem.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        subsystems_svg = APImodels.SubsystemSvg.objects.using(model).select_related('subsystem').all()
+    except APImodels.SubsystemSvg.DoesNotExist:
+        return HttpResponse(status=404)
+
+    return JSONResponse({
+            'subsystem': APIserializer.SubsystemSerializer(subsystems, many=True).data,
+            'subsystemsvg': APIserializer.SubsystemSvgSerializer(subsystems_svg, many=True).data,
+            'compartment':  APIserializer.CompartmentSerializer(compartments, many=True).data,
+            'compartmentsvg': APIserializer.CompartmentSvgSerializer(compartments_svg, many=True).data
+        })
+
+##########################################################################################
 
 
 @api_view()
@@ -434,3 +508,51 @@ def connected_metabolites(request, model, id):
 
     return JSONResponse(result)
 
+
+##########################################################################################
+
+@api_view()
+@is_model_valid
+def get_hpa_tissues(request, model):
+    tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
+    return JSONResponse(tissues)
+
+
+@api_view()
+@is_model_valid
+def get_hpa_rna_levels_compartment(request, model, compartment):
+    try:
+        compartment = APImodels.Compartment.objects.using(model).get(name__iexact=compartment)
+    except APImodels.Compartment.DoesNotExist:
+        return HttpResponse(status=404)
+
+    rc_compart = APImodels.ReactionComponentCompartment.objects.using(model). \
+        filter(Q(compartment=compartment)).values_list('rc_id')
+    enzyme_compart = APImodels.ReactionComponent.objects.using(model). \
+        filter(Q(component_type='e') & Q(id__in=rc_compart)).values_list('id')
+
+    levels = APImodels.HpaEnzymeLevel.objects.using(model).filter(rc__in=enzyme_compart).values_list('rc_id', 'levels')
+    tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
+
+    return JSONResponse(
+        { 
+          'tissues': tissues,
+          'levels': levels
+        })
+
+
+@api_view(['POST'])
+@is_model_valid
+def get_hpa_rna_levels(request, model):
+    ensemblIDs = [el.strip() for el in request.data['data'] if len(el) != 0]
+    if not ensemblIDs:
+        return HttpResponse(status=404)
+
+    levels = APImodels.HpaEnzymeLevel.objects.using(model).filter(rc__in=ensemblIDs).values_list('rc_id', 'levels')
+    tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
+
+    return JSONResponse(
+        { 
+          'tissues': tissues,
+          'levels': levels
+        })
