@@ -77,6 +77,7 @@
     <footer id="footer" class="footer">
       <div class="columns">
         <div class="column is-2">
+          <a @click="viewRelaseNotes">v1.0</a>
         </div>
         <div class="column is-8">
           <div class="content has-text-centered">
@@ -92,8 +93,9 @@
           </div>
         </div>
         <div class="column is-2">
-          <div class="is-pulled-right">
-            <a @click="viewRelaseNotes">v1.0</a>
+          <div v-if="!acceptCookies" class="notification is-primary">
+            We use cookies to enhance the usability of our website. <a href='/documentation#gem_data' target='_blank'>More information</a>
+            <button class="delete is-medium" @click="acceptCookies = true">Got it</button>
           </div>
         </div>
       </div>
@@ -132,6 +134,7 @@ export default {
       showExploreInfo: false,
       activeBrowserBut: false,
       activeViewerBut: false,
+      acceptCookies: false,
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
