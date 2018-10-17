@@ -7,26 +7,26 @@
           <a id="logo" class="navbar-item" @click="goToPage('')" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
-          <div class="navbar-burger">
-            <span
-               v-show="false"
-               v-for="menuItem in menuItems"
-               :class="{ 'is-active': isActiveRoute(menuItem) }"
-               @click="goToPage(menuItem)"
-            >{{ menuItem }}</span>
+          <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
+            @click="isMobileMenu = !isMobileMenu;">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
           </div>
         </div>
-        <div class="navbar-menu" id="#nav-menu">
+        <div class="navbar-menu" :class="{ 'is-active': isMobileMenu }" id="#nav-menu">
           <div class="navbar-start" v-if="showExploreInfo">
-            <a
-               class="navbar-item has-text-centered"
+            <a class="navbar-item"
                :class="{ 'is-active': activeBrowserBut }"
-               @click="goToGemsBrowser()"> GEM<br>Browser
+               @click="goToGemsBrowser()">
+               <span class="is-hidden-touch has-text-centered">GEM<br>Browser</span>
+               <span class="is-hidden-desktop">GEM Browser</span>
             </a>
-            <a
-               class="navbar-item has-text-centered"
+            <a class="navbar-item"
                :class="{ 'is-active': activeViewerBut }"
-               @click="goToGemsViewer()"> Map<br>Viewer
+               @click="goToGemsViewer()">
+               <span class="is-hidden-touch has-text-centered">Map<br>Viewer</span>
+               <span class="is-hidden-desktop">Map Viewer</span>
             </a>
             <span id="modelHeader" class="has-text-centered is-unselectable" style="margin: auto">
               <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
@@ -37,13 +37,13 @@
             <template v-for="menuItem, index in menuItems">
               <template v-if="Array.isArray(menuItem)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" 
+                  <a class="navbar-link"
                   :class="{ 'is-active': menuItem[0] === activeDropMenu }"
                   @click="goToPage(menuItem[0])">
                     {{ menuItem[0] }}
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item is-primary is-unselectable" 
+                    <a class="navbar-item is-primary is-unselectable"
                     v-for="submenu, index in menuItem" v-if="index !== 0"
                     @click="goToPage(submenu)">
                       {{ submenu }}
@@ -52,16 +52,15 @@
                 </div>
               </template>
               <template v-else-if="menuItem === 'explore'">
-                  <a
-                   class="navbar-item has-text-centered is-unselectable"
+                  <a class="navbar-item is-unselectable"
                    :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
                    @click="goToPage(menuItem)">
-                   <b>Explore<br>models</b>
+                   <span class="is-hidden-touch has-text-centered"><b>Explore<br>models</b></span>
+                   <span class="is-hidden-desktop"><b>Explore models</b></span>
                  </a>
               </template>
               <template v-else>
-                <a
-                   class="navbar-item has-text-centered is-unselectable"
+                <a class="navbar-item is-unselectable"
                    :class="{ 'is-active': isActiveRoute(menuItem) }"
                    @click="goToPage(menuItem)"
                    v-html="menuItem"></a>
@@ -135,6 +134,7 @@ export default {
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
+      isMobileMenu: false,
     };
   },
   watch: {
@@ -343,5 +343,3 @@ $switch-background: $primary;
 }
 
 </style>
-
-
