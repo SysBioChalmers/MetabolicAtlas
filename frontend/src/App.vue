@@ -7,31 +7,29 @@
           <a id="logo" class="navbar-item" @click="goToPage('')" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
+          <a class="navbar-item"
+             :class="{ 'is-active': activeBrowserBut }"
+             @click="goToGemsBrowser()">
+             GEM<br>Browser
+          </a>
+          <a class="navbar-item"
+             :class="{ 'is-active': activeViewerBut }"
+             @click="goToGemsViewer()">
+             Map<br>Viewer
+          </a>
+          <span id="modelHeader" class="is-unselectable" style="margin: auto 0">
+            <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
+            <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
+          </span>
           <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
-            @click="isMobileMenu = !isMobileMenu;">
+            @click="isMobileMenu = !isMobileMenu">
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
           </div>
         </div>
-        <div class="navbar-menu" :class="{ 'is-active': isMobileMenu }" id="#nav-menu">
-          <div class="navbar-start" v-if="showExploreInfo">
-            <a class="navbar-item"
-               :class="{ 'is-active': activeBrowserBut }"
-               @click="goToGemsBrowser()">
-               <span class="is-hidden-touch has-text-centered">GEM<br>Browser</span>
-               <span class="is-hidden-desktop">GEM Browser</span>
-            </a>
-            <a class="navbar-item"
-               :class="{ 'is-active': activeViewerBut }"
-               @click="goToGemsViewer()">
-               <span class="is-hidden-touch has-text-centered">Map<br>Viewer</span>
-               <span class="is-hidden-desktop">Map Viewer</span>
-            </a>
-            <span id="modelHeader" class="has-text-centered is-unselectable" style="margin: auto">
-              <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
-              <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
-            </span>
+        <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
+          <div class="navbar-start">
           </div>
           <div class="navbar-end">
             <template v-for="menuItem, index in menuItems">
@@ -298,6 +296,14 @@ $switch-background: $primary;
 .navbar-menu {
   a {
     font-size: 1.15em;
+  }
+}
+
+.navbar-brand {
+  a {
+    font-size: 1.15em;
+    font-weight: 400;
+    line-height: 1.5;
   }
 }
 
