@@ -185,7 +185,7 @@ def load_YAML(database, yaml_file, delete=False):
     for letter_code, name in compartments[1]:
         compartment = Compartment.objects.using(database).filter(name__iexact=name)
         if not compartment:     # only add the compartment if it does not already exists...
-            compartment = Compartment(name=name.capitalize(), name_id=idfy_name(name), letter_code=letter_code)
+            compartment = Compartment(name=name, name_id=idfy_name(name), letter_code=letter_code)
             compartment.save(using=database)
         else:
             compartment=compartment[0]
@@ -278,7 +278,7 @@ def load_YAML(database, yaml_file, delete=False):
                     sub = Subsystem.objects.using(database).get(name__iexact=subsystem)
                 except Subsystem.DoesNotExist:
                     # save subsystem, just the name
-                    sub = Subsystem(name=subsystem.capitalize(), name_id=idfy_name(subsystem))
+                    sub = Subsystem(name=subsystem, name_id=idfy_name(subsystem))
                     sub.save(using=database)
                 subsystems_list.append(sub)
 
