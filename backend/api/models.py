@@ -155,7 +155,7 @@ class Reaction(models.Model):
     objective_coefficient = models.FloatField(null=True)
     gene_rule = models.TextField(null=True) # string or/and with gene ID (can be any unique gene ID)
     gene_rule_wname = models.TextField(null=True) # string or/and with gene name
-    subsystem_str = models.CharField(max_length=1000)
+    subsystem_str = models.CharField(max_length=1000, null=True)
     subsystem = models.ManyToManyField('Subsystem', related_name='subsystems', through='SubsystemReaction')
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
@@ -183,7 +183,8 @@ class ReactionReference(models.Model):
 # corresponds to either metabolite or enzyme, should be Serialized with the proper serializer
 class ReactionComponent(models.Model):
     id = models.CharField(max_length=50, primary_key=True) # ID in the SBML/YAML model
-    name = models.CharField(max_length=255)  # gene name for enzyme, or metabolite name with compartment code
+    name = models.CharField(max_length=255)  # gene name for enzyme, or metabolite name
+    full_name = models.CharField(max_length=255)  # metabolite name with compartment letter
     alt_name1 = models.CharField(max_length=255, null=True)  # can be ORF ID in case of yeast, proteine name, metabolite short_name etc
     alt_name2 = models.CharField(max_length=255, null=True)  # can be ORF ID in case of yeast, proteine name, metabolite short_name etc
     aliases = models.CharField(max_length=2000, null=True)  # alias of gene name (including gene short name) or alias of metabolite name, semi-colon separated values
@@ -262,6 +263,7 @@ class CoFactor(models.Model):
 
 class Subsystem(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    name_id = models.CharField(max_length=100, unique=True) # use to request the subsystem by url
     system = models.CharField(max_length=100)
     external_id = models.CharField(max_length=25, null=True)
     external_link = models.CharField(max_length=255, null=True)
@@ -277,10 +279,10 @@ class Subsystem(models.Model):
         db_table = "subsystem"
 
 class SubsystemSvg(models.Model):
-    id = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+    name_id = models.CharField(max_length=100, unique=True) # use to request the subsystem by url
     subsystem = models.OneToOneField(Subsystem,
         related_name='subsystem', db_column='subsystem', on_delete=models.CASCADE)
-    display_name = models.CharField(max_length=100, unique=True)
     filename = models.CharField(max_length=100, unique=True)
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
@@ -298,6 +300,7 @@ class SubsystemSvg(models.Model):
 
 class Compartment(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    name_id = models.CharField(max_length=50, unique=True) # use to request the compartement by url
     letter_code = models.CharField(max_length=3, unique=True)
     subsystem = models.ManyToManyField('Subsystem', related_name='c_subsystems', through='SubsystemCompartment')
     reaction_count = models.IntegerField(default=0)
@@ -313,10 +316,10 @@ class Compartment(models.Model):
         db_table = "compartment"
 
 class CompartmentSvg(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50, unique=True)
+    name_id = models.CharField(max_length=50, unique=True) # use to request the subsystem by url
     compartment = models.ForeignKey('Compartment', on_delete=models.CASCADE)
     subsystem = models.ManyToManyField('Subsystem', related_name='csvg_subsystems', through='SubsystemCompartmentSvg')
-    display_name = models.CharField(max_length=50, unique=True)
     filename = models.CharField(max_length=50, unique=True)
     letter_code = models.CharField(max_length=3, unique=True)
     reaction_count = models.IntegerField(default=0)

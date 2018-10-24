@@ -23,6 +23,7 @@
         <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
       </div>
     </div>
+    <div id="tooltip" ref="tooltip"></div>
   </div>
 </template>
 
@@ -103,6 +104,9 @@ export default {
     },
   },
   created() {
+    EventBus.$off('showSVGmap');
+    EventBus.$off('loadHPARNAlevels');
+
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
       // console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {
@@ -134,7 +138,7 @@ export default {
     .on('mouseup', 'svg', (e) => {
       if (!self.isDragging) {
         const target = $(e.target);
-        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea')) {
+        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') && !target.hasClass('.subsystem')) {
           self.unSelectElement();
         }
       }
@@ -153,6 +157,26 @@ export default {
     $('#svg-wrapper').on('click', '.rea', function f() {
       const id = $(this).attr('id');
       self.selectElement(id, 'reaction');
+    });
+
+    $('#svg-wrapper').on('click', '.subsystem', function f() {
+      const id = $(this).attr('id');
+      self.selectElement(id, 'subsystem');
+    });
+
+    $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
+      const id = $(this).attr('id').split('-')[0].trim();
+      if (id in self.enzymeRNAlevels) {
+        self.$refs.tooltip.innerHTML = `RNA level: ${self.enzymeRNAlevels[id]}`;
+        self.$refs.tooltip.style.top = `${(e.pageY - $('.svgbox').first().offset().top) + 15}px`;
+        self.$refs.tooltip.style.left = `${(e.pageX - $('.svgbox').first().offset().left) + 15}px`;
+        self.$refs.tooltip.style.display = 'block';
+      }
+    });
+
+    $('#svg-wrapper').on('mouseout', '.enz', () => {
+      self.$refs.tooltip.innerHTML = '';
+      self.$refs.tooltip.style.display = 'none';
     });
   },
   methods: {
@@ -239,7 +263,7 @@ export default {
       const newSvgName = currentLoad.filename;
       if (!newSvgName) {
         // TODO remove this when all svg files are available
-        this.$emit('loadComplete', false, 'SVG map not available.');
+        this.$emit('loadComplete', false, this.$t('mapNotFound'));
         return;
       }
 
@@ -267,7 +291,7 @@ export default {
             })
             .catch(() => {
               // TODO: handle error
-              this.$emit('loadComplete', false, 'SVG map not available.');
+              this.$emit('loadComplete', false, this.$t('mapNotFound'));
             });
         }
       } else if (callback) {
@@ -285,7 +309,7 @@ export default {
         this.readHPARNAlevels(tissue);
         return;
       }
-      axios.get(`${this.model}/enzymes/hpa_rna_levels/${this.loadedMap.id}`)
+      axios.get(`${this.model}/enzyme/hpa_rna_levels/${this.loadedMap.name_id}`)
       .then((response) => {
         this.HPARNAlevelsHistory[this.svgName] = response.data;
         setTimeout(() => {
@@ -333,7 +357,7 @@ export default {
         return;
       }
       this.isLoadingSearch = true;
-      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.id}/${term}`)
+      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
         this.ids = response.data;
@@ -350,7 +374,7 @@ export default {
         this.isLoadingSearch = false;
         const status = error.status || error.response.status;
         if (status !== 404) {
-          this.$emit('loadComplete', false, 'An error occurred. Please try again later.');
+          this.$emit('loadComplete', false, this.$t('unknownError'));
           this.searchInputClass = 'is-info';
         } else {
           this.searchInputClass = 'is-danger';
@@ -504,8 +528,12 @@ export default {
         EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
         return;
       }
+      if (type === 'subsystem') {
+        EventBus.$emit('updatePanelSelectionData', { type: 'subsystem', id });
+        return;
+      }
       EventBus.$emit('startSelectedElement');
-      axios.get(`${this.model}/${type}s/${id}`)
+      axios.get(`${this.model}/${type}/${id}`)
       .then((response) => {
         let data = response.data;
         if (type === 'reaction') {
@@ -604,6 +632,16 @@ export default {
       stroke-width: 3;
       display: inline;
     }
+  }
+
+  #tooltip {
+    background: #C4C4C4;
+    color: black;
+    border-radius: 3px;
+    border: 1px solid gray;
+    padding: 8px;
+    position: absolute;
+    display: none;
   }
 
 </style>

@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="navbar-menu" id="#nav-menu">
-          <div class="navbar-start" v-if="showExploreInfo">
+          <div class="navbar-start" v-if="showExploreInfo && model">
             <a
                class="navbar-item has-text-centered"
                :class="{ 'is-active': activeBrowserBut }"
@@ -76,12 +76,10 @@
     </keep-alive>
     <footer id="footer" class="footer">
       <div class="columns">
-        <div class="column is-2">
-        </div>
-        <div class="column is-8">
+        <div class="column container">
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
-            <p style="height: 60px;">
+            <p>
               <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
               <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
               <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
@@ -91,10 +89,8 @@
             </p>
           </div>
         </div>
-        <div class="column is-2">
-          <div class="is-pulled-right">
-            <a @click="viewRelaseNotes">v1.0</a>
-          </div>
+        <div class="is-pulled-right">
+          <a @click="viewRelaseNotes">v1.0</a>
         </div>
       </div>
     </footer>
@@ -167,7 +163,9 @@ export default {
         this.model = this.$route.params.model;
         // this.goToGemsBrowser();
         this.saveBrowserPath();
-      } else if (this.$route.name === 'viewer') {
+      } else if (this.$route.name === 'viewer' ||
+        this.$route.name === 'viewerCompartment' ||
+        this.$route.name === 'viewerSubsystem') {
         this.showExploreInfo = true;
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
@@ -305,7 +303,7 @@ $switch-background: $primary;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 50px;
+    max-height: 35px;
     margin: 0 0.5rem;
   }
   sup {
@@ -320,25 +318,38 @@ $switch-background: $primary;
     margin-bottom: 0.3em;
   }
 
-  .exp-lvl-legend {
-    list-style: none;
-    li {
-      display: inline-block;
-      margin-left: 7px;
-      line-height: 15px;
-      &:first-child {
-        margin-left: 0;
-      }
+  list-style: none;
+  li {
+    line-height: 15px;
+    display: inline-block;
+    &:first-child {
+      margin-left: 0;
+    }
+    span {
+      float: left;
+      margin: 0;
     }
   }
 
   span {
-    float: left;
-    margin: 0 2px 2px 2px;
-    width: 15px;
     height: 15px;
-    display: block;
-    border: 1px solid black;
+    &.boxc {
+      margin: 0 7px;
+      width: 15px;
+      border: 1px solid black;
+    }
+  }
+
+  .exp-lvl-legend {
+    list-style: none;
+    li {
+      span {
+        float: left;
+        margin: 0;
+        width: 1px;
+        border: 0
+      }
+    }
   }
 }
 

@@ -1,21 +1,19 @@
 <template>
   <section :class="{ 'section extended-section' : !showViewer }">
     <div :class="{ 'container': !showViewer }">
-      <template v-if="showBrowser || showViewer || showSearch">
+      <template v-if="currentShowComponent">
         <keep-alive>
-          <gem-browser v-if="showBrowser" :model="model"></gem-browser>
-          <map-viewer v-if="showViewer" :model="model"></map-viewer>
-          <search-table v-if="showSearch"></search-table>
+          <component v-bind:is="currentShowComponent"></component>
         </keep-alive>
       </template>
       <template v-else>
         <div class="columns">
           <div class="column has-text-centered">
-            <h4 class="title is-4">Explore models</h4>[<a @click="">Learn how</a>]
+            <h4 class="is-size-4 has-text-weight-bold">Explore models</h4>[<a @click="">Learn how</a>]
           </div>
         </div>
         <br>
-        <div class="box">
+        <div>
           <div class="columns">
             <div class="column has-text-centered has-text-weight-bold">
               Search metabolites, enzymes, reactions... through all the integrated models
@@ -32,11 +30,11 @@
           </div>
         </div>
         <div class="columns has-text-centered">
-          <div class="column">
-            OR
+          <div class="column has-text-weight-bold">
+            <br>OR<br>
           </div>
         </div>
-        <div class="box">
+        <div>
           <div class="columns has-text-centered">
             <div class="column">
               <div class="has-text-weight-bold">
@@ -76,7 +74,7 @@
                 </header>
                 <div class="card-content">
                   <div class="content">
-                    <a @click="goToGemBrowser()">
+                    <a @click="goToGemBrowser(model)">
                       <img src="../assets/gemBrowser2.png" />
                     </a>
                   </div>
@@ -94,7 +92,7 @@
                 </header>
                 <div class="card-content">
                   <div class="content">
-                    <a @click="goToMapViewer()" class="has-text-centered">
+                    <a @click="goToMapViewer(model)" class="has-text-centered">
                       <img src="../assets/mapViewer2.png" />
                     </a>
                   </div>
@@ -118,6 +116,7 @@ import GemBrowser from 'components/explorer/GemBrowser';
 import MapViewer from 'components/explorer/MapViewer';
 import GlobalSearch from 'components/explorer/GlobalSearch';
 import SearchTable from 'components/explorer/SearchTable';
+import { idfy } from '../helpers/utils';
 import { default as EventBus } from '../event-bus';
 
 
@@ -133,9 +132,8 @@ export default {
     return {
       model: 'hmr2',
       models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
-      showBrowser: false,
       showViewer: false,
-      showSearch: false,
+      currentShowComponent: '',
 
       compartments: {},
       compartmentStats: {},
@@ -170,12 +168,12 @@ export default {
       this.displayBrowser();
     });
 
-    EventBus.$on('navigateTo', (tool, type, id) => {
+    EventBus.$on('navigateTo', (tool, model, type, id) => {
       // console.log(`on explorer navigateTo ${tool} ${type} ${id}`);
       if (tool === 'GEMBrowser') {
-        this.$router.push(`/explore/gem-browser/${this.model}/${type}/${id}`);
+        this.$router.push(`/explore/gem-browser/${model}/${type}/${idfy(id)}`);
       } else if (tool === 'MapViewer') {
-        this.$router.push(`/explore/map-viewer/${this.model}/`);
+        this.$router.push(`/explore/map-viewer/${model}/`);
       }
     });
 
@@ -199,28 +197,29 @@ export default {
   methods: {
     setup() {
       // console.log('exp route', this.$route);
+      this.model = this.$route.params.model || 'hmr2';
       if (this.$route.name === 'search') {
         this.displaySearch();
-      } else if (this.$route.name === 'viewer') {
+      } else if (this.$route.name === 'viewer' ||
+       this.$route.name === 'viewerCompartment' ||
+        this.$route.name === 'viewerSubsystem') {
         this.displayViewer();
       } else if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
         this.displayBrowser();
       } else {
         EventBus.$emit('destroy3Dnetwork');
-        this.showBrowser = false;
         this.showViewer = false;
-        this.showSearch = false;
+        this.currentShowComponent = '';
       }
     },
     loadCompartmentData(model) {
-      axios.get(`${model}/compartments/`)
+      axios.get(`${model}/compartment/`)
       .then((response) => {
-        console.log(response);
         this.compartmentStats = {};
         this.compartmentLetters = {};
         for (const c of response.data) {
-          this.compartmentLetters[c.letter_code] = c.name;
-          this.compartmentStats[c.name] = c;
+          this.compartmentLetters[c.letter_code] = c.name_id;
+          this.compartmentStats[c.name_id] = c;
         }
       })
       .catch((error) => {
@@ -260,25 +259,22 @@ export default {
       EventBus.$emit('modelSelected', this.models[this.model].short_name);
     },
     displayBrowser() {
-      this.showBrowser = true;
       this.showViewer = false;
-      this.showSearch = false;
+      this.currentShowComponent = 'GemBrowser';
     },
     displayViewer() {
-      this.showBrowser = false;
       this.showViewer = true;
-      this.showSearch = false;
+      this.currentShowComponent = 'MapViewer';
     },
     displaySearch() {
-      this.showSearch = true;
-      this.showBrowser = false;
       this.showViewer = false;
+      this.currentShowComponent = 'SearchTable';
     },
-    goToGemBrowser() {
-      this.$router.push(`/explore/gem-browser/${this.model}`);
+    goToGemBrowser(model) {
+      this.$router.push(`/explore/gem-browser/${model}`);
     },
-    goToMapViewer() {
-      this.$router.push(`/explore/map-viewer/${this.model}`);
+    goToMapViewer(model) {
+      this.$router.push(`/explore/map-viewer/${model}`);
     },
     getCompartmentNameFromLetter(l) {
       return this.compartmentLetters[l];
@@ -307,14 +303,20 @@ export default {
         eqArr = reaction.equation.split(' => ');
       }
       const idEqArr = reaction.id_equation.split(' => ');
-      const idReactants = idEqArr[0].split(' + ');
-      const idProducts = idEqArr[1].split(' + ');
-      const reactants = eqArr[0].split(' + ').map(
+      let reactants = '';
+      let products = '';
+      if (idEqArr[0]) {
+        const idReactants = idEqArr[0].split(' + ');
+        reactants = eqArr[0].split(' + ').map(
           (x, i, a) => this.formatSpan(x, i, a, idReactants, addComp)
         ).join(' + ');
-      const products = eqArr[1].split(' + ').map(
+      }
+      if (idEqArr[1]) {
+        const idProducts = idEqArr[1].split(' + ');
+        products = eqArr[1].split(' + ').map(
           (x, i, a) => this.formatSpan(x, i, a, idProducts, addComp)
         ).join(' + ');
+      }
 
       if (reaction.is_reversible) {
         return `${reactants} &#8660; ${products}`;

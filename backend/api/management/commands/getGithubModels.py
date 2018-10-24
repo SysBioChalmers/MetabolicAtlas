@@ -112,25 +112,25 @@ for repo in list_repo:
     # get the paper, multiple papers possible?
     PMID = repo_dict['Pubmed ID']
     res = check_PMID(PMID)
-    if not res:
-        continue
+    if res:
+        DOI, PMID = res
+        title, year = get_info_from_pmid(PMID)
+        reference = {
+            'title': title,
+            'link': 'https://www.ncbi.nlm.nih.gov/pubmed/%s' % PMID,
+            'pubmed': PMID,
+            'year': year
+        }
 
-    DOI, PMID = res
-    title, year = get_info_from_pmid(PMID)
-    reference = {
-        'title': title,
-        'link': 'https://www.ncbi.nlm.nih.gov/pubmed/%s' % PMID,
-        'pubmed': PMID,
-        'year': year
-    }
-
-    if 'reference' in repo_dict and repo_dict['reference']:
-        # '>Kerkhoven EJ, Pomraning KR, Baker SE, Nielsen J (2016) 
-        # "Regulation of amino-acid metabolism controls flux
-        # to lipid accumulation in _Yarrowia lipolytica_."
-        # npj Systems Biology and Applications 2:16005. 
-        # doi:[10.1038/npjsba.2016.5](http://www.nature.com/articles/npjsba20165)
-        reference['title'] = repo_dict['reference'].strip('>').split(' doi:[')[0]
+        if 'reference' in repo_dict and repo_dict['reference']:
+            # '>Kerkhoven EJ, Pomraning KR, Baker SE, Nielsen J (2016) 
+            # "Regulation of amino-acid metabolism controls flux
+            # to lipid accumulation in _Yarrowia lipolytica_."
+            # npj Systems Biology and Applications 2:16005. 
+            # doi:[10.1038/npjsba.2016.5](http://www.nature.com/articles/npjsba20165)
+            reference['title'] = repo_dict['reference'].strip('>').split(' doi:[')[0]
+    else:
+        reference = None
 
     description = repo_dict['Abstract']
     description = description.strip('_')
