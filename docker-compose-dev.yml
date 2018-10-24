@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+
+  db1:
+    volumes:
+      - voldb1:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  db2:
+    volumes:
+      - voldb2:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+      
+  nginx:
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/static:/static
+      - ./nginx/svgs:/svgs
+
+  backend:
+    volumes:
+      - ./backend:/project
+      - ./utils/annotation:/project/annotation
+
+  frontend:
+    command: npm run dev
+    volumes:
+      - ./frontend/src:/project/src
+      - ./frontend/dist:/project/dist
+      - ./frontend/test:/project/test
+
+volumes:
+  voldb1:
+  voldb2:

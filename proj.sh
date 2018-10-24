@@ -1,13 +1,13 @@
 function build-stack {
-    docker-compose -p metabolicatlas build $@
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml build $@
 }
 
 function start-stack {
-    docker-compose -p metabolicatlas up -d
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d
 }
 
 function stop-stack {
-    docker-compose -p metabolicatlas kill
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml kill
 }
 
 function restart-stack {
@@ -15,19 +15,19 @@ function restart-stack {
 }
 
 function logs {
-    docker-compose -p metabolicatlas logs -f $@
+    docker-compose -f docker-compose.yml -f docker-compose-dev.yml logs -f $@
 }
 
 function db-make-migrations {
-    docker exec metabolicatlas_backend_1 python manage.py makemigrations api
+    docker exec backend python manage.py makemigrations api
 }
 
 function db-migrate {
-    docker exec metabolicatlas_backend_1 python manage.py migrate --database=$@
+    docker exec backend python manage.py migrate --database=$@
 }
 
 function create-su {
-    docker exec -it metabolicatlas_backend_1 python manage.py createsuperuser
+    docker exec -it backend python manage.py createsuperuser
 }
 
 
