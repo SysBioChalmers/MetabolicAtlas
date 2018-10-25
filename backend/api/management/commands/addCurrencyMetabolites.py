@@ -29,7 +29,7 @@ def addCurrencyMetabolites(database, currency_metabolite_file):
     reactions = {}
     for el in reactants_count:
         reactant_id = el['reactant_id']
-        sub_reactant_id = reactant_id[:6]
+        sub_reactant_id = reactant_id[:6]  # TODO do not use string index
 
         if sub_reactant_id not in reactions:
             reactions[sub_reactant_id] = set()
@@ -47,7 +47,7 @@ def addCurrencyMetabolites(database, currency_metabolite_file):
     products_count = APImodels.ReactionProduct.objects.using(database).filter(reaction_id__in=reaction_without_transport).values('reaction_id', 'product_id')
     for el in products_count:
         product_id = el['product_id']
-        sub_product_id = product_id[:6]
+        sub_product_id = product_id[:6]  # TODO do not use string index
 
         if sub_product_id not in reactions:
             reactions[sub_product_id] = set()
@@ -65,7 +65,7 @@ def addCurrencyMetabolites(database, currency_metabolite_file):
     # print (sorted(d.items(), key=itemgetter(1)))
     currency_ids = []
     for el in res:
-        if database == 'hmr2' and el[1][0] > 40: # TODO remove hard-coded, must be extract from currency_metabolite_file
+        if database in ['hmr2', 'human1'] and el[1][0] > 40: # TODO remove hard-coded, must be extract from currency_metabolite_file
             currency_ids.append(el[0])
 
     APImodels.ReactionComponent.objects.using(database).filter(is_currency=False)

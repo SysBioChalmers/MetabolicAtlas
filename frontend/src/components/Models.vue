@@ -99,6 +99,7 @@ import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
 import { default as compare } from '../helpers/compare';
+import { default as EventBus } from '../event-bus';
 
 export default {
   name: 'gems',
@@ -148,6 +149,14 @@ export default {
       return this.showMaintained ?
        this.sortedGEMS.filter(el => el.maintained) : this.sortedGEMS;
     },
+  },
+  created() {
+    EventBus.$on('viewGem', (modelID) => {
+      this.getModel(modelID);
+    });
+  },
+  beforeMount() {
+    this.getModels();
   },
   methods: {
     getModel(id) {
@@ -233,12 +242,6 @@ export default {
       }
       return title;
     },
-  },
-  beforeMount() {
-    this.getModels();
-    if (this.$route.params && this.$route.params.id) {
-      this.getModel(this.$route.params.id);
-    }
   },
 };
 

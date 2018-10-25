@@ -31,29 +31,27 @@ class EnzymeSearchSerializer(serializers.ModelSerializer):
 # common serializers, map the name of the db column, should not be serve by swagger queries
 
 class ReactionComponentBasicSerializer(serializers.ModelSerializer):
-    compartment = serializers.SerializerMethodField('compartment')
+    compartment = serializers.SerializerMethodField('read_compartment')
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name', 'aliases', 'formula', 'compartment',)
+        fields = ('id', 'name', 'full_name', 'aliases', 'formula', 'compartment')
 
-    def compartment(self, model):
+    def read_compartment(self, model):
         return model.compartment_str
 
 
 class ReactionComponentLiteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'full_name')
 
 
 class ReactionComponentSerializer(ReactionComponentBasicSerializer):
-
     class Meta(ReactionComponentBasicSerializer.Meta): 
         model = APImodels.ReactionComponent
         fields = ReactionComponentBasicSerializer.Meta.fields + \
-            ('alt_name1', 'alt_name2', 'external_id1', 'external_id2', 'external_id3', 'external_id4',)
+            ('is_currency', 'alt_name1', 'alt_name2', 'external_id1', 'external_id2', 'external_id3', 'external_id4',)
 
 
 class EnzymeReactionComponentSerializer(ReactionComponentSerializer):
@@ -292,7 +290,7 @@ class HmrMetaboliteReactionComponentLiteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'name', 'model_name', 'aliases', 'inchi', 'hmdb_id', 'chebi_id', 'mnxref_id', 'compartment')
+        fields = ('id', 'name', 'model_name', 'aliases', 'inchi', 'hmdb_id', 'chebi_id', 'mnxref_id', 'compartment',  'is_currency')
 
     def read_model_name(self, model):
         return model.alt_name1

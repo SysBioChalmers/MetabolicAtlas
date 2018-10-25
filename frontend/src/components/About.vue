@@ -69,7 +69,7 @@
             <br>
             Human tissue-specific genome-scale metabolic models (GEMs) provide comprehensive understanding of human metabolism, which is of great value to the biomedical research community. To make this kind of data easily accessible to the public, we have designed and deployed the human metabolic atlas (HMA) website (http://www.metabolicatlas.org). This online resource provides comprehensive information about human metabolism, including the results of metabolic network analyses. We hope that it can also serve as an information exchange interface for human metabolism knowledge within the research community. The HMA consists of three major components: Repository, Hreed (Human REaction Entities Database) and Atlas. Repository is a collection of GEMs for specific human cell types and human-related microorganisms in SBML (System Biology Markup Language) format. The current release consists of several types of GEMs: a generic human GEM, 82 GEMs for normal cell types, 16 GEMs for different cancer cell types, 2 curated GEMs and 5 GEMs for human gut bacteria. Hreed contains detailed information about biochemical reactions. A web interface for Hreed facilitates an access to the Hreed reaction data, which can be easily retrieved by using specific keywords or names of related genes, proteins, compounds and cross-references. Atlas web interface can be used for visualization of the GEMs collection overlaid on KEGG metabolic pathway maps with a zoom/pan user interface. The HMA is a unique tool for studying human metabolism, ranging in scope from an individual cell, to a specific organ, to the overall human body. This resource is freely available under a Creative Commons Attribution-NonCommercial 4.0 International License.
             <br><br>
-            Related GEM <a href="gems/HMR2">Human Metabolic Reaction v2.00</a>
+            Related GEM <a @click="viewGem()">Human Metabolic Reaction v2.00</a>
           </p>
           <h2 class="title is-2">Contact</h2>
           <p>
@@ -112,8 +112,16 @@
 
 <script>
 
+import { default as EventBus } from '../event-bus';
+
 export default {
   name: 'about',
+  methods: {
+    viewGem() {
+      EventBus.$emit('viewGem', 'HMR2');
+      this.$router.push({ name: 'gems' });
+    },
+  },
 };
 </script>
 
