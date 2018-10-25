@@ -7,17 +7,17 @@
           <a id="logo" class="navbar-item" @click="goToPage('')" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
-          <a class="navbar-item"
+          <a class="navbar-item" v-if="showExploreInfo"
              :class="{ 'is-active': activeBrowserBut }"
              @click="goToGemsBrowser()">
              GEM<br>Browser
           </a>
-          <a class="navbar-item"
+          <a class="navbar-item" v-if="showExploreInfo"
              :class="{ 'is-active': activeViewerBut }"
              @click="goToGemsViewer()">
              Map<br>Viewer
           </a>
-          <span id="modelHeader" class="is-unselectable" style="margin: auto 0">
+          <span v-if="showExploreInfo" id="modelHeader" class="is-unselectable" style="margin: auto 0">
             <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
             <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
           </span>
