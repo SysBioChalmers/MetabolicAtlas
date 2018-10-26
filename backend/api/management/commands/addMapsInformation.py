@@ -966,10 +966,7 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
                 # get sha
                 sha = hashlib.sha256(file_as_bytes(open(svg_path, 'rb'))).hexdigest()
                 if sha != cinfo.sha:
-                    if inDB:
-                        cinfo.delete() # delete the entry and all rows in foreign tables
-                    cinfo = CompartmentSvg(name_id=ci[0], compartment=compt[0], name=ci[2], filename=ci[3], letter_code=ci[4], sha=sha)
-                    cinfo.save(using=database)
+                    CompartmentSvg.objects.using(database).filter(id=cinfo.id).update(sha=sha)
                     insert_compartment_svg_connectivity_and_stats(database, cinfo, map_directory)
                 else:
                     print("SVG file '%s' is unchanged" % ci[3])
@@ -1008,10 +1005,7 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
                 # get sha
                 sha = hashlib.sha256(file_as_bytes(open(svg_path, 'rb'))).hexdigest()
                 if sha != sinfo.sha:
-                    if inDB:
-                        sinfo.delete() # delete the entry and all rows in foreign tables
-                    sinfo = SubsystemSvg(name_id=si[0], subsystem=sub[0], name=si[2], filename=si[3], sha=sha)
-                    sinfo.save(using=database)
+                    SubsystemSvg.objects.using(database).filter(id=sinfo.id).update(sha=sha)
                     insert_subsystem_svg_connectivity_and_stats(database, sinfo, map_directory)
                 else:
                     print("SVG file '%s' is unchanged" % si[3])
