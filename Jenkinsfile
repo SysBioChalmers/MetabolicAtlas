@@ -7,6 +7,7 @@ pipeline {
           docker stop $(docker ps -a -q) || true
           docker rm $(docker ps -a -q) || true
           docker rmi $(docker images -q) || true
+          docker volume prune --force || true
         '''
         echo 'Deleted all Docker containers and images.'
       }
