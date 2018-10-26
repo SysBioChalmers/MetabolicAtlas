@@ -4,12 +4,12 @@
       <span class="tag is-medium">
         # Reactions: {{ reactions.length }}
       </span>
-      <span class="tag is-medium" v-if="transportReactionCount === 0">
-        # Transport reactions: {{ transportReactionCount }}
-      </span>
-      <span class="tag link is-medium" v-else @click="sortBy('compartment', '=>', 'desc')">
-        # Transport reactions: {{ transportReactionCount }}
-      </span>
+      <template v-if="transportReactionCount !== 0">
+        &nbsp;including&nbsp;
+        <span class="tag link is-medium"  @click="sortBy('compartment', '=>', 'desc')">
+          {{ transportReactionCount }} transport reactions
+        </span>
+      </template>
       <span v-show="reactions.length==200" class="tag is-medium is-warning is-pulled-right">
         {{ $t('tooManyReactionsTable') }}
       </span>
@@ -36,8 +36,11 @@
           </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
-            <a v-for="(s, index) in r.subsystem.split('; ')" v-on:click.prevent="viewSubsystem(s)"
-            >{{ index == 0 ? s : `; ${s}` }}</a></td>
+            <template v-if="r.subsystem">
+              <a v-for="(s, index) in r.subsystem.split('; ')" v-on:click.prevent="viewSubsystem(s)"
+              >{{ index == 0 ? s : `; ${s}` }}</a>
+            </template>
+          </td>
           <td>{{ r.is_reversible ? r.compartment.replace('=>', '&#8660;') : r.compartment.replace('=>', '&#8680;') }}</td>
         </tr>
       </tbody>
@@ -89,12 +92,8 @@ export default {
           if (reaction.is_reversible) {
             reaction.cp = 'reversible';
           } else {
-            let ID = this.selectedElmId;
-            if (reaction.id_equation.indexOf(ID) === -1) {
-              ID = this.selectedElmId.slice(0, -1);
-            }
-            const boolC = reaction.id_equation.split('=>')[0].indexOf(ID) !== -1;
-            const boolP = reaction.id_equation.split('=>')[1].indexOf(ID) !== -1;
+            const boolC = reaction.id_equation.split('=>')[0].indexOf(this.selectedElmId) !== -1;
+            const boolP = reaction.id_equation.split('=>')[1].indexOf(this.selectedElmId) !== -1;
             reaction.cp = '';
             if (boolC) {
               reaction.cp = 'consume';

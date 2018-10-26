@@ -2,7 +2,7 @@
 # subsystem must be a valid name in the subsystem table
 # filename must be a .svg with only [a-zA-Z0-9_] characters
 
-#ID	subsystem	display_name	filename
+#NAME_ID	subsystem name	name	filename
 glucocorticoid_biosynthesis	Glucocorticoid biosynthesis	Glucocorticoid biosynthesis	glucocorticoid_biosynthesis.svg
 glycerophospholipid_metabolism	Glycerophospholipid metabolism	Glycerophospholipid metabolism	glycerophospholipid_metabolism.svg
 glycosphingolipid_biosynthesis_ganglio_series	Glycosphingolipid biosynthesis-ganglio series	Glycosphingolipid biosynthesis-ganglio series	glycosphingolipid_biosynthesis_ganglio_series.svg

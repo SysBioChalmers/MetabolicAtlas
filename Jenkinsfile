@@ -39,14 +39,18 @@ pipeline {
         sh '''
           wget https://chalmersuniversity.box.com/shared/static/q41d7lvcqe18g0gwr9yaar8zoedqvhfl.db -O hmr2.db
           wget https://chalmersuniversity.box.com/shared/static/om86nb6y8ji044wzoiljm8aghmbdvs41.db -O gems.db
+          wget https://chalmersuniversity.box.com/shared/static/yqov4k0r4mript3ybl6x2xq42ud9s535.db -O yeast.db
 
           docker exec -i db1 psql -U postgres -c 'drop database "hmr2"' || true
+          docker exec -i db1 psql -U postgres -c 'drop database "yeast"' || true
           docker exec -i db2 psql -U postgres -c 'drop database "gems"' || true
 
           docker exec -i db1 psql -U postgres < hmr2.db
+          docker exec -i db1 psql -U postgres < yeast.db
           docker exec -i db2 psql -U postgres < gems.db
 
           docker exec backend python manage.py makemigrations
+          docker exec backend python manage.py migrate --database yeast --fake
           docker exec backend python manage.py migrate --database hmr2 --fake
           docker exec backend python manage.py migrate --database gems --fake
         '''

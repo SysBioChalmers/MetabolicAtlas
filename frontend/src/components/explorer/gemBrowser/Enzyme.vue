@@ -48,7 +48,7 @@
             </div>
             <div class="column">
               <div class="box has-text-centered">
-                <div class="button is-info">
+                <div class="button is-info" disabled>
                   <p>View on Map Viewer</p>
                 </div>
                 <br><br>
@@ -56,11 +56,14 @@
                   @click="viewInteractionPartners">
                   View interaction partners
                 </div>
-                <br><br>
-                <div class="button is-info is-inline-block" title="View on Human Protein Atlas" v-if="model === 'hmr2'"
-                  @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
-                  View on proteinAtlas.org
-                </div>
+                <br>
+                <template v-if="model === 'hmr2'">
+                  <br>
+                  <div class="button is-info is-inline-block" title="View on Human Protein Atlas"
+                    @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
+                    View on proteinAtlas.org
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -109,6 +112,13 @@ export default {
           { name: 'function' },
           { name: 'id', display: 'Model&nbsp;ID' },
         ],
+        yeast: [
+          { name: 'enzymeName', display: 'Gene&nbsp;name' },
+          { name: 'prot_name', display: 'Protein&nbsp;name' },
+          { name: 'gene_synonyms', display: 'Synonyms' },
+          { name: 'function' },
+          { name: 'id', display: 'Model&nbsp;ID' },
+        ],
       },
       externalIDTableKey: {
         hmr2: [
@@ -116,6 +126,7 @@ export default {
           { name: 'uniprot_id', display: 'Uniprot ID', link: 'uniprot_link' },
           { name: 'ncbi_id', display: 'NCBI ID', link: 'ncbi_link' },
         ],
+        yeast: [],
       },
       reactions: [],
     };
@@ -153,7 +164,7 @@ export default {
     load() {
       this.loading = true;
       const enzymeId = this.id;
-      axios.get(`${this.model}/enzymes/${enzymeId}/connected_metabolites`)
+      axios.get(`${this.model}/enzyme/${enzymeId}/connected_metabolites`)
         .then((response) => {
           this.loading = false;
           this.errorMessage = null;

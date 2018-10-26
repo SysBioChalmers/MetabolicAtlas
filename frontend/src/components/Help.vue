@@ -153,7 +153,7 @@
             <p>
               The graph shows all the reactions that this protein is modifying as
               large green boxes. On <u>top</u> of each box the name of the reaction,
-              for example R_HMR_7688, and the subsystem that it participates in,
+              for example HMR_7688, and the subsystem that it participates in,
               for example Tyrosine metabolism, is shown.
             </p>
             <p>
