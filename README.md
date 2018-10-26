@@ -57,7 +57,7 @@ The Full models databases are mapping public models (supposedly) inserted into t
 Connect to the corresponding DB docker container (db2)
 
 ```bash
-docker exec -it $(docker ps -qf "name=metabolicatlas_db2_1")  bash
+docker exec -it db2  bash
 ```
 
 To disconnect all sessions open on a database use:
@@ -153,23 +153,23 @@ see the example file [hmr2_compartmentSVG.tsv](/backend/database_generation/exam
 #### Full model databases
 
 ```bash
-docker exec -it $(docker ps -qf "name=metabolicatlas_db_1")  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
+docker exec -it db1  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
 ```
 
 #### GEMs database
 
 ```bash
-docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > gems.db
+docker exec -it db2 pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > gems.db
 ```
 
 ### Import databases
 
 ```bash 
-docker exec -i $(docker ps -qf "name=metabolicatlas_db_1") psql -U postgres hmr2 < PATH_TO_DB_FILE 
+docker exec -it db1 psql -U postgres hmr2 < PATH_TO_DB_FILE 
 ``` 
 
 ```bash
-docker exec -i $(docker ps -qf "name=metabolicatlas_db2_1") psql -U postgres gems < PATH_TO_DB_FILE
+docker exec -it db2 psql -U postgres gems < PATH_TO_DB_FILE
 ```
 
 ### Adding a new model in the website (to be done locally only)
