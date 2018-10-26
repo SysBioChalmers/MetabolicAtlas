@@ -8,13 +8,11 @@
       <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
     </div>
     <div id="svgSearch" class="overlay">
-      <div><span id="st">Search:</span></div>
       <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
         <input id="searchInput" class="input"
-        type="text" 
-        :class="searchInputClass"
-        v-model.trim="searchTerm"
-        v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"/>
+          type="text" :class="searchInputClass" v-model.trim="searchTerm"
+          v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"
+          placeholder="Type to search by id, name, aliases..." />
       </div>
       <div v-show="searchTerm && totalSearchMatch">
         <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
@@ -603,10 +601,6 @@ export default {
     div {
       display: inline-block;
       vertical-align: middle;
-    }
-    #st {
-      display: inline-block;
-      margin-right: 5px;
     }
     span:first-child {
       color: white;
