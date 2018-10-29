@@ -2,7 +2,7 @@
   "name": "metabolic_atlas_frontend",
   "version": "1.0.0",
   "description": "Metabolic Atlas Frontend",
-  "author": "Shan Huang <shan@chalmers.se>",
+  "author": "SysBio.se",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
