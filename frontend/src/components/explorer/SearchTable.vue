@@ -173,6 +173,7 @@ import Loader from 'components/Loader';
 import { GoodTable } from 'vue-good-table';
 import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../../helpers/chemical-formatters';
+import { idfy } from '../../helpers/utils';
 import EventBus from '../../event-bus';
 
 export default {
@@ -610,7 +611,7 @@ export default {
             }
             rows[componentType].push({
               model: el.model,
-              name: `<a href="/explore/gem-browser/${el.model}/subsystem/${el.name}">${el.name}</a>`,
+              name: `<a href="/explore/gem-browser/${el.model}/subsystem/${idfy(el.name)}">${el.name}</a>`,
               system: el.system,
               compartment: el.compartment,
               metaboliteCount: el.metabolite_count,
@@ -724,7 +725,7 @@ export default {
       let s = '';
       if (row.subsystem) {
         for (const subsystem of row.subsystem.split('; ')) {
-          s += `<a href="/explore/gem-browser/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
+          s += `<a href="/explore/gem-browser/${row.model}/subsystem/${idfy(subsystem)}">${subsystem}</a>; `;
         }
         return s.slice(0, -2);
       }

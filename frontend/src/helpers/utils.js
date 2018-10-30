@@ -5,7 +5,7 @@ export function capitalize(value) {
 export function idfy(value) {
   let s = value.toLowerCase().replace(/[^0-9a-z_]/g, '_');
   s = s.replace(/_{2,}/g, '_');
-  return s.trim('_');
+  return s.replace(/^_|_$/, '');
 }
 
 export function replaceUnderscores(value) {
