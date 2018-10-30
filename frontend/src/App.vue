@@ -236,12 +236,10 @@ $body-size: 14px !default
 $desktop: 1192px !default;
 $widescreen: 1384px !default;
 $fullhd: 1576px !default;
-$switch-background: $primary;
 
 
 /* @import "./sass/extensions/_all" FIX ME */
 @import '~bulma';
-@import '~bulma-extensions/bulma-switch/dist/bulma-switch';
 @import './styles/mixins';
 
 @include keyframes(rotating) {
