@@ -356,12 +356,14 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         sub['enzymes'] = APImodels.SubsystemEnzyme.objects.using(model).filter(subsystem_id=sub['id']).values_list('rc_id', flat=True)
         sub['compartments'] = list(compartments)
         sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using(model).filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
-        sub['url'] = "https://ftp.icsb.chalmers.se/.maps/%s/%s.svg" % (model, sub['name_id'])
+        sub['map_url'] = "https://ftp.icsb.chalmers.se/.maps/%s/%s.svg" % (model, sub['name_id'])
+        sub['subsystem_url'] = "https://icsb.chalmers.se/explore/gem-browser/%s/subsystem/%s" % (model, sub['name_id'])
         del sub['id']
         del sub['name_id']
         subsystems.append(sub)
 
     result = {
+        'enzyme_url': "https://icsb.chalmers.se/explore/gem-browser/%s/enzyme/%s" % (model, ensembl_id),
         'subsystems': subsystems,
         'doc': 'Count corresponds to unique IDs in the model',
     }
