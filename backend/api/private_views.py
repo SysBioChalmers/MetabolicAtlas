@@ -348,7 +348,6 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
     subsystems = []
     for sub in subs.all():
         # get the reactions
-        print (sub)
         reactions = APImodels.SubsystemReaction.objects.using(model).filter(subsystem_id=sub['id']).values('reaction_id')
         compartments = APImodels.Compartment.objects.using(model).filter(
             id__in=APImodels.SubsystemCompartment.objects.using(model).filter(subsystem_id=sub['id']).values('compartment_id').distinct()
@@ -358,6 +357,10 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using(model).filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
         sub['map_url'] = "https://ftp.icsb.chalmers.se/.maps/%s/%s.svg" % (model, sub['name_id'])
         sub['subsystem_url'] = "https://icsb.chalmers.se/explore/gem-browser/%s/subsystem/%s" % (model, sub['name_id'])
+        sub['model_metabolite_count'] = sub['unique_metabolite_count']
+        sub['compartment_metabolite_count'] = sub['metabolite_count']
+        del sub['metabolite_count']
+        del sub['unique_metabolite_count']
         del sub['id']
         del sub['name_id']
         subsystems.append(sub)
@@ -365,7 +368,7 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
     result = {
         'enzyme_url': "https://icsb.chalmers.se/explore/gem-browser/%s/enzyme/%s" % (model, ensembl_id),
         'subsystems': subsystems,
-        'doc': 'Count corresponds to unique IDs in the model',
+        'doc': 'A subsystem can contain the same chemical metabolite that comes from different compartments.',
     }
 
     return JSONResponse(result)
@@ -547,7 +550,7 @@ def get_hpa_rna_levels_compartment(request, model, compartment_name_id):
     tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
 
     return JSONResponse(
-        { 
+        {
           'tissues': tissues,
           'levels': levels
         })
@@ -564,7 +567,7 @@ def get_hpa_rna_levels(request, model):
     tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
 
     return JSONResponse(
-        { 
+        {
           'tissues': tissues,
           'levels': levels
         })
