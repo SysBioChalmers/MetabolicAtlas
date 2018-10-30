@@ -37,13 +37,13 @@
             <template v-for="menuItem, index in menuItems">
               <template v-if="Array.isArray(menuItem)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" 
+                  <a class="navbar-link"
                   :class="{ 'is-active': menuItem[0] === activeDropMenu }"
                   @click="goToPage(menuItem[0])">
                     {{ menuItem[0] }}
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item is-primary is-unselectable" 
+                    <a class="navbar-item is-primary is-unselectable"
                     v-for="submenu, index in menuItem" v-if="index !== 0"
                     @click="goToPage(submenu)">
                       {{ submenu }}
@@ -93,9 +93,9 @@
           </div>
         </div>
         <div class="column is-2">
-          <div v-if="!acceptCookies" class="notification is-primary">
+          <div v-if="showCookieMsg" class="notification is-primary">
             We use cookies to enhance the usability of our website. <a href='/documentation#gem_data' target='_blank'>More information</a>
-            <button class="delete is-medium" @click="acceptCookies = true">Got it</button>
+            <button class="delete is-medium" @click="showCookieMsg=false; acceptCookiePolicy()">Got it</button>
           </div>
         </div>
       </div>
@@ -108,6 +108,7 @@ import SvgIcon from './components/SvgIcon';
 import Logo from './assets/logo.svg';
 import router from './router';
 import { default as EventBus } from './event-bus';
+import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'app',
@@ -134,7 +135,8 @@ export default {
       showExploreInfo: false,
       activeBrowserBut: false,
       activeViewerBut: false,
-      acceptCookies: false,
+      showCookieMsg: !isCookiePolicyAccepted(),
+      acceptCookiePolicy,
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
@@ -346,5 +348,3 @@ $switch-background: $primary;
 }
 
 </style>
-
-
