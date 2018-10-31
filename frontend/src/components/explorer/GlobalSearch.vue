@@ -36,16 +36,16 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('interaction', r.id)">
                       Closest interaction partners
                     </span>
-                    <span class="tag is-primary is-medium"
+                    <span class="button is-primary"
                       @click="goToTab('enzyme', r.id)">
                       Enzyme
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'enzyme')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.id, 'enzyme')" disabled>
                       View
                     </span>
                   </div>
@@ -57,16 +57,16 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('interaction', r.id)">
                       Closest interaction partners
                     </span>
-                    <span class="tag is-primary is-medium"
+                    <span class="button is-primary"
                       @click="goToTab('metabolite', r.id)">
                       Metabolite
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'metabolite')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.id, 'metabolite')" disabled>
                       View
                     </span>
                   </div>
@@ -78,12 +78,12 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('reaction', r.id)">
                       Reaction
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'reaction')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.id, 'reaction')" disabled>
                       View
                     </span>
                   </div>
@@ -95,12 +95,12 @@
                 <div class="columns">
                   <div class="column">
                     <span
-                      class="tag is-primary is-medium"
+                      class="button is-primary"
                       @click="goToTab('subsystem', r.name.toLowerCase())">
                       Subsystem
                     </span>
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'subsystem')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'subsystem')" disabled>
                       View
                     </span>
                   </div>
@@ -111,8 +111,8 @@
                 <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
                 <div class="columns">
                   <div class="column">
-                    <span class="tag is-info is-medium is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'compartment')">
+                    <span class="button is-info is-pulled-right"
+                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'compartment')" disabled>
                       View
                     </span>
                   </div>
@@ -178,11 +178,20 @@ export default {
           subsystem: ['name', 'system'],
           compartment: ['name'],
         },
+        yeast: {
+          enzyme: ['gene_name'],
+          reaction: ['id', 'equation'],
+          metabolite: ['name', 'compartment'],
+          subsystem: ['name', 'system'],
+          compartment: ['name'],
+        },
       },
     };
   },
   created() {
     // init the global events
+    EventBus.$off('hideSearchResult');
+
     EventBus.$on('hideSearchResult', () => {
       this.showResults = false;
     });
@@ -251,20 +260,19 @@ export default {
           }
           if (resultsModel.subsystem.length) {
             searchResults.subsystem = searchResults.subsystem.concat(
-              resultsModel.subsystem).map(
+              resultsModel.subsystem.map(
               (e) => {
                 const d = e; d.model = model; return d;
-              });
+              }));
           }
           if (resultsModel.compartment.length) {
             searchResults.compartment = searchResults.compartment.concat(
-              resultsModel.compartment).map(
+              resultsModel.compartment.map(
               (e) => {
                 const d = e; d.model = model; return d;
-              });
+              }));
           }
         }
-
         this.noResult = true;
         for (const k of Object.keys(searchResults)) {
           if (searchResults[k].length) {
@@ -282,6 +290,7 @@ export default {
         }
       })
       .catch(() => {
+        // console.log(error);
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
@@ -305,7 +314,7 @@ export default {
           name = 'cytosol_1';  // eslint-disable-line no-param-reassign
         }
       }
-      EventBus.$emit('navigateTo', 'mapViever', type, name);
+      EventBus.$emit('navigateTo', 'mapViever', this.model, type, name);
     },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {
@@ -390,10 +399,6 @@ export default {
 
   .searchResultSection {
     padding: 0 10px;
-
-    span {
-      cursor: pointer;
-    }
   }
 }
 

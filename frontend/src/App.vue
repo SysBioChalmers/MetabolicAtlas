@@ -7,31 +7,29 @@
           <a id="logo" class="navbar-item" @click="goToPage('')" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
-          <div class="navbar-burger">
-            <span
-               v-show="false"
-               v-for="menuItem in menuItems"
-               :class="{ 'is-active': isActiveRoute(menuItem) }"
-               @click="goToPage(menuItem)"
-            >{{ menuItem }}</span>
+          <a class="navbar-item" v-if="showExploreInfo"
+             :class="{ 'is-active': activeBrowserBut }"
+             @click="goToGemsBrowser()">
+             GEM<br>Browser
+          </a>
+          <a class="navbar-item" v-if="showExploreInfo"
+             :class="{ 'is-active': activeViewerBut }"
+             @click="goToGemsViewer()">
+             Map<br>Viewer
+          </a>
+          <span v-if="showExploreInfo" id="modelHeader" class="is-unselectable" style="margin: auto 0">
+            <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
+            <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
+          </span>
+          <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
+            @click="isMobileMenu = !isMobileMenu">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
           </div>
         </div>
-        <div class="navbar-menu" id="#nav-menu">
-          <div class="navbar-start" v-if="showExploreInfo">
-            <a
-               class="navbar-item has-text-centered"
-               :class="{ 'is-active': activeBrowserBut }"
-               @click="goToGemsBrowser()"> GEM<br>Browser
-            </a>
-            <a
-               class="navbar-item has-text-centered"
-               :class="{ 'is-active': activeViewerBut }"
-               @click="goToGemsViewer()"> Map<br>Viewer
-            </a>
-            <span id="modelHeader" class="has-text-centered is-unselectable" style="margin: auto">
-              <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
-              <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
-            </span>
+        <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
+          <div class="navbar-start">
           </div>
           <div class="navbar-end">
             <template v-for="menuItem, index in menuItems">
@@ -52,16 +50,15 @@
                 </div>
               </template>
               <template v-else-if="menuItem === 'explore'">
-                  <a
-                   class="navbar-item has-text-centered is-unselectable"
+                  <a class="navbar-item is-unselectable"
                    :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
                    @click="goToPage(menuItem)">
-                   <b>Explore<br>models</b>
+                   <span class="is-hidden-touch has-text-centered"><b>Explore<br>models</b></span>
+                   <span class="is-hidden-desktop"><b>Explore models</b></span>
                  </a>
               </template>
               <template v-else>
-                <a
-                   class="navbar-item has-text-centered is-unselectable"
+                <a class="navbar-item is-unselectable"
                    :class="{ 'is-active': isActiveRoute(menuItem) }"
                    @click="goToPage(menuItem)"
                    v-html="menuItem"></a>
@@ -76,13 +73,17 @@
     </keep-alive>
     <footer id="footer" class="footer">
       <div class="columns">
+<<<<<<< HEAD
         <div class="column is-2">
           <a @click="viewRelaseNotes">v1.0</a>
         </div>
         <div class="column is-8">
+=======
+        <div class="column container">
+>>>>>>> develop
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
-            <p style="height: 60px;">
+            <p>
               <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
               <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
               <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
@@ -92,11 +93,16 @@
             </p>
           </div>
         </div>
+<<<<<<< HEAD
         <div class="column is-2">
           <div v-if="showCookieMsg" class="notification is-primary">
             We use cookies to enhance the usability of our website. <a href='/documentation#gem_data' target='_blank'>More information</a>
             <button class="delete is-medium" @click="showCookieMsg=false; acceptCookiePolicy()">Got it</button>
           </div>
+=======
+        <div class="is-pulled-right">
+          <a @click="viewRelaseNotes">v1.0</a>
+>>>>>>> develop
         </div>
       </div>
     </footer>
@@ -140,6 +146,7 @@ export default {
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
+      isMobileMenu: false,
     };
   },
   watch: {
@@ -172,7 +179,9 @@ export default {
         this.model = this.$route.params.model;
         // this.goToGemsBrowser();
         this.saveBrowserPath();
-      } else if (this.$route.name === 'viewer') {
+      } else if (this.$route.name === 'viewer' ||
+        this.$route.name === 'viewerCompartment' ||
+        this.$route.name === 'viewerSubsystem') {
         this.showExploreInfo = true;
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
@@ -306,11 +315,19 @@ $switch-background: $primary;
   }
 }
 
+.navbar-brand {
+  a {
+    font-size: 1.15em;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+}
+
 .footer {
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 50px;
+    max-height: 35px;
     margin: 0 0.5rem;
   }
   sup {
@@ -325,25 +342,38 @@ $switch-background: $primary;
     margin-bottom: 0.3em;
   }
 
-  .exp-lvl-legend {
-    list-style: none;
-    li {
-      display: inline-block;
-      margin-left: 7px;
-      line-height: 15px;
-      &:first-child {
-        margin-left: 0;
-      }
+  list-style: none;
+  li {
+    line-height: 15px;
+    display: inline-block;
+    &:first-child {
+      margin-left: 0;
+    }
+    span {
+      float: left;
+      margin: 0;
     }
   }
 
   span {
-    float: left;
-    margin: 0 2px 2px 2px;
-    width: 15px;
     height: 15px;
-    display: block;
-    border: 1px solid black;
+    &.boxc {
+      margin: 0 7px;
+      width: 15px;
+      border: 1px solid black;
+    }
+  }
+
+  .exp-lvl-legend {
+    list-style: none;
+    li {
+      span {
+        float: left;
+        margin: 0;
+        width: 1px;
+        border: 0
+      }
+    }
   }
 }
 

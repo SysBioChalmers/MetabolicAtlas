@@ -9,7 +9,7 @@
     <div v-show="!showLoader" class="columns">
       <div class="subsystem-table column is-10">
         <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
-          <tr class="m-row" v-for="el in mainTableKey[model]">
+          <tr class="m-row" v-for="el in mainTableKey[model]" v-if="info[el.name]">
             <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
             <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
             <td v-if="info[el.name]">
@@ -54,8 +54,8 @@
       </div>
       <div class="column">
         <div class="box has-text-centered">
-          <div class="button is-info">
-            <p><i class="fa fa-eye"></i> on Metabolic Viewer</p>
+          <div class="button is-info" disabled>
+            <p>View on Map Viewer</p>
           </div>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default {
           break;
         }
         i += 1;
-        l.push(`<span id="${m.id}" class="tag rcm"><a class="is-size-6">${m.name ? m.name : m.id}[${m.id.substr(m.id.length - 1)}]</a></span>`);
+        l.push(`<span id="${m.id}" class="tag rcm"><a class="is-size-6">${m.full_name ? m.full_name : m.id}</a></span>`);
       }
       l.push('</span>');
       return l.join('');
@@ -147,7 +147,7 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model}/subsystems/${this.sName}/`)
+      axios.get(`${this.model}/subsystem/${this.sName}/`)
       .then((response) => {
         this.info = response.data.subsystemAnnotations;
         this.metabolites = response.data.metabolites;

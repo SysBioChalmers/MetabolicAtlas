@@ -399,6 +399,8 @@ def insert_gems(model_set_data, model_data_list):
     set_references = []
     set_references_ids = []
     for reference in model_set_data['reference']:
+        if not reference:
+            continue
         try:
             gr = GEModelReference.objects.get(Q(link=reference['link']) &
                                           Q(pubmed=reference['pubmed']))

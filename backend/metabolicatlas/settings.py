@@ -26,7 +26,6 @@ ALLOWED_HOSTS = [
     'icsb.chalmers.se',
 ]
 
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -73,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'metabolicatlas.wsgi.application'
 
-
 # Database https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 DATABASES = {
     'default': {
@@ -87,6 +85,14 @@ DATABASES = {
     'hmr2': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'hmr2',
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'db1',
+        'PORT': 5432,
+    },
+    'yeast': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yeast',
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db1',
@@ -109,13 +115,11 @@ DATABASE_ROUTERS = [
     'api.routers.ApiRouter'
 ]
 
-
 # CORS https://github.com/ottoyiu/django-cors-headers
 CORS_ORIGIN_WHITELIST = (
     'localhost',
     'icsb.chalmers.se',
 )
-
 
 # Password validation https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
@@ -132,6 +136,9 @@ SWAGGER_SETTINGS = {
     "exclude_namespaces": ["internal_apis"],
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.QueryParameterVersioning',
+}
 
 # Internationalization https://docs.djangoproject.com/en/1.10/topics/i18n/
 LANGUAGE_CODE = 'en-us'
@@ -139,7 +146,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
 
 STATIC_URL = '/static/'
 STATIC_ROOT = './static/'

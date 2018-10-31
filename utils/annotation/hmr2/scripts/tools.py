@@ -1,5 +1,7 @@
 import os
+import collections
 
+# return the header (prefffixed with @) as list
 def get_metadata(file):
     try:
         header = []
@@ -20,7 +22,7 @@ def get_metadata(file):
 
 def file_to_dicts_values(file):
     try:
-        l = []
+        d = collections.OrderedDict()
         IDs = set()
         with open(file, 'r') as fh:
             header = []
@@ -40,14 +42,14 @@ def file_to_dicts_values(file):
                     if new_d['ID'] in IDs:
                         print ("Error: duplicate ID '%s'" % new_d['ID'])
                         exit(1)
-                    l.append(new_d)
+                    d[new_d['ID']] = new_d
     except Exception as e:
         print(e)
         exit(1)
-    return l
+    return d
 
 
-def write_dicts_to_file(list_dicts, file):
+def write_dicts_to_annotation_file(ordered_dict, file):
     if not os.path.isfile(file):
         print ("Error: file '%s' not found")
         exit(1)
@@ -68,7 +70,7 @@ def write_dicts_to_file(list_dicts, file):
                 header = arr
                 header[0] = header[0][1:]
 
-        for row_dict in list_dicts:
+        for row_dict in ordered_dict.values():
             lines.append("\t".join([row_dict[c] if c in row_dict else '' for c in header]))
 
     if lines:
@@ -77,18 +79,19 @@ def write_dicts_to_file(list_dicts, file):
 
 
 def merge_values(file, dict_values_dicts):
-    list_dicts = file_to_dicts_values(file)
+    ordered_dict = file_to_dicts_values(file)
     new_dicts_list = []
     contains_ID = set()
+
+
     # read the row data in the file in order
-    for d in list_dicts:
-        ID = d['ID']
+    for ID, dico in ordered_dict.items():
         if ID not in dict_values_dicts:
             continue
         else:
             # merge dicts_values and dict_file
             dict_values_dicts[ID].pop('ID', None)  # prevent changing the ID
-            d.update(dict_values_dicts[ID])
+            dico.update(dict_values_dicts[ID])
         contains_ID.add(ID)
 
     # add new annotations, for ID not already in the file
@@ -98,8 +101,8 @@ def merge_values(file, dict_values_dicts):
 
         d.pop('ID', None)  # prevent changing the ID
         d['ID'] = ID
-        list_dicts.append(d)  # might not contains all the headercolumns
+        ordered_dict[ID] = d  # might not contains all the headercolumns
 
-    return list_dicts
+    return ordered_dict
 
 

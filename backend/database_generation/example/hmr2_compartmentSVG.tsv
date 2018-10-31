@@ -2,11 +2,11 @@
 # compartment must be a valid name in the compartment table
 # filename must be a .svg with only [a-zA-Z0-9_] characters
 
-#ID	compartment	display_name	filename	letter
+#NAME_ID	compartment name	name	filename	letter
 peroxisome	Peroxisome	Peroxisome	peroxisome.svg	p
 mitochondria	Mitochondria	Mitochondria	mitochondrion.svg	m
 lysosome	Lysosome	Lysosome	lysosome.svg	l
-er	Endoplasmic reticulum	Endoplasmic reticulum	er.svg	r
+endoplasmic_reticulum	Endoplasmic reticulum	Endoplasmic reticulum	er.svg	r
 golgi	Golgi apparatus	Golgi apparatus	golgi.svg	g
 nucleus	Nucleus	Nucleus	nucleus.svg	n
 cytosol_1	Cytosol	Cytosol (part1)	cytosol_1.svg	c1

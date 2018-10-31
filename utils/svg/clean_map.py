@@ -12,8 +12,8 @@ parser.add_argument('output_dir', action="store")
 parser.add_argument('--skip-svgo', action="store_true", default=False, dest="skip_svgo")
 parser.add_argument('--skip-rm-title', action="store_true", default=False, dest="skip_rm_title")
 parser.add_argument('--skip-sed', action="store_true", default=False, dest="skip_sed")
-parser.add_argument('--skip-cp', action="store_true", default=False, dest="skip_clean_path")
-parser.add_argument('--skip-rs', action="store_true", default=False, dest="skip_rs")
+parser.add_argument('--skip-clean-path', action="store_true", default=False, dest="skip_clean_path")
+parser.add_argument('--skip-reformat-shape', action="store_true", default=False, dest="skip_rs")
 
 results = parser.parse_args()
 input_dir = results.input_dir

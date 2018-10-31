@@ -32,6 +32,10 @@ export default {
     };
   },
   created() {
+    EventBus.$off('show3Dnetwork');
+    EventBus.$off('destroy3Dnetwork');
+    EventBus.$off('update3DLoadedComponent');
+
     EventBus.$on('show3Dnetwork', (type, name) => {
       if (name.toLowerCase().substr(0, 7) === 'cytosol') {
         name = 'cytosol'; // eslint-disable-line no-param-reassign

@@ -293,6 +293,8 @@ def insert_annotation(database, component_type, file):
             else:
                 print ("Warning: cannot complete gr_rule for reaction '%s': %s have no name" % (r.id, "; ".join(enzyme_wo_name)))
 
+    print("Annotation inserted for type %s" % component_type)
+
 
 
 class Command(BaseCommand):
@@ -317,7 +319,6 @@ class Command(BaseCommand):
         else:
             if not options['annotation file']:
                 raise ValueError("Error: the following argument is required: annotation file")
-            exit()
             insert_annotation(database, options['type'], options['annotation file'])
 
 
