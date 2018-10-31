@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <nav id="navbar" class="navbar is-light" role="navigation" aria-label="main navigation">
+    <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
           <a id="logo" class="navbar-item" @click="goToPage('')" >
@@ -71,16 +71,12 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer">
+    <footer id="footer" class="footer has-background-light">
       <div class="columns">
-<<<<<<< HEAD
         <div class="column is-2">
           <a @click="viewRelaseNotes">v1.0</a>
         </div>
         <div class="column is-8">
-=======
-        <div class="column container">
->>>>>>> develop
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
             <p>
@@ -93,19 +89,19 @@
             </p>
           </div>
         </div>
-<<<<<<< HEAD
-        <div class="column is-2">
-          <div v-if="showCookieMsg" class="notification is-primary">
-            We use cookies to enhance the usability of our website. <a href='/documentation#gem_data' target='_blank'>More information</a>
-            <button class="delete is-medium" @click="showCookieMsg=false; acceptCookiePolicy()">Got it</button>
-          </div>
-=======
-        <div class="is-pulled-right">
-          <a @click="viewRelaseNotes">v1.0</a>
->>>>>>> develop
-        </div>
       </div>
     </footer>
+    <div id="cookies" class="columns has-background-light">
+      <div class="column is-3">
+      </div>
+      <div class="column is-6 has-text-centered">
+        <div v-if="showCookieMsg" class="notification has-background-grey has-text-white">
+          We use cookies to enhance the usability of our website. <a href='/documentation#gem_data' target='_blank'>More information</a>
+          <button class="button is-small" @click="showCookieMsg=false; acceptCookiePolicy()">Got it</button>
+          <button class="delete is-medium" @click="showCookieMsg=false; acceptCookiePolicy()"></button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -304,11 +300,6 @@ $switch-background: $primary;
   }
 }
 
-/* FIXME .is-light overwritten somewhere */
-.navbar.is-light {
-  background: whitesmoke;
-}
-
 .navbar-menu {
   a {
     font-size: 1.15em;
@@ -377,4 +368,9 @@ $switch-background: $primary;
   }
 }
 
+#cookies {
+  position: sticky;
+  bottom: 0;
+  // z-index:150;
+}
 </style>
