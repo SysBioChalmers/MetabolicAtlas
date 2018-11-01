@@ -91,14 +91,14 @@
         </div>
       </div>
     </footer>
-    <div id="cookies" class="columns has-background-light">
-      <div class="column is-3">
-      </div>
-      <div class="column is-6 has-text-centered">
-        <div v-if="showCookieMsg" class="notification has-background-grey has-text-white">
-          We use cookies to enhance the usability of our website. <a href='/documentation#gem_data' target='_blank'>More information</a>
-          <button class="button is-small" @click="showCookieMsg=false; acceptCookiePolicy()">Got it</button>
-          <button class="delete is-medium" @click="showCookieMsg=false; acceptCookiePolicy()"></button>
+    <div v-if="showCookieMsg" id="cookies" class="columns has-background-grey">
+      <div class="column has-text-centered">
+        <div class="has-text-white">
+          We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
+          <a class="button is-small is-rounded is-success" @click="showCookieMsg=false; acceptCookiePolicy()">
+            <span class="icon is-small"><i class="fa fa-check"></i></span>
+            <span>OKAY</span>
+          </a>
         </div>
       </div>
     </div>
@@ -369,6 +369,7 @@ $switch-background: $primary;
 }
 
 #cookies {
+  margin-top: 5px;
   position: sticky;
   bottom: 0;
   // z-index:150;
