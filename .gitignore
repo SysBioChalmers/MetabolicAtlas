@@ -58,15 +58,11 @@ bh_unicode_properties.cache
 # https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
 
-
-#
 #
 # environment variables
 #
-#
 
 *.env
-
 
 # migration files
 backend/api/migrations/*py
@@ -74,6 +70,7 @@ backend/database_generation/**/*.yml
 backend/database_generation/**/*.tsv
 !backend/database_generation/example/*.tsv
 backend/database_generation/**/*.gz
+*.db
 
 postgres_data/
 frontend/src/assets/svg/
@@ -82,5 +79,5 @@ utils/annotation/**/backup/*
 utils/annotation/**/*txt
 utils/svg/input/*
 utils/svg/output/*
-*pyc
-
+*.pyc
+node_modules/

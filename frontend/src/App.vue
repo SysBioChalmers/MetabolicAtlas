@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <nav id="navbar" class="navbar is-light" role="navigation" aria-label="main navigation">
+    <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
           <a id="logo" class="navbar-item" @click="goToPage('')" >
@@ -71,9 +71,12 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer">
+    <footer id="footer" class="footer has-background-light">
       <div class="columns">
-        <div class="column container">
+        <div class="column is-2">
+          <a @click="viewRelaseNotes">v1.0</a>
+        </div>
+        <div class="column is-8">
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
             <p>
@@ -86,11 +89,19 @@
             </p>
           </div>
         </div>
-        <div class="is-pulled-right">
-          <a @click="viewRelaseNotes">v1.0</a>
-        </div>
       </div>
     </footer>
+    <div v-if="showCookieMsg" id="cookies" class="columns has-background-grey">
+      <div class="column has-text-centered">
+        <div class="has-text-white">
+          We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
+          <a class="button is-small is-rounded is-success" @click="showCookieMsg=false; acceptCookiePolicy()">
+            <span class="icon is-small"><i class="fa fa-check"></i></span>
+            <span>OKAY</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -99,6 +110,7 @@ import SvgIcon from './components/SvgIcon';
 import Logo from './assets/logo.svg';
 import router from './router';
 import { default as EventBus } from './event-bus';
+import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'app',
@@ -125,6 +137,8 @@ export default {
       showExploreInfo: false,
       activeBrowserBut: false,
       activeViewerBut: false,
+      showCookieMsg: !isCookiePolicyAccepted(),
+      acceptCookiePolicy,
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
@@ -286,11 +300,6 @@ $switch-background: $primary;
   }
 }
 
-/* FIXME .is-light overwritten somewhere */
-.navbar.is-light {
-  background: whitesmoke;
-}
-
 .navbar-menu {
   a {
     font-size: 1.15em;
@@ -359,4 +368,10 @@ $switch-background: $primary;
   }
 }
 
+#cookies {
+  margin-top: 5px;
+  position: sticky;
+  bottom: 0;
+  // z-index:150;
+}
 </style>
