@@ -23,7 +23,7 @@ class JSONResponse(HttpResponse):
 
 @api_view(['POST'])
 @is_model_valid
-def convert_to_reaction_component_ids(request, model, compartment_name=None):
+def convert_to_reaction_component_ids(request, model, compartment_name_id=None):
     arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
     if not arrayTerms:
         return JSONResponse({})
@@ -50,7 +50,7 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
     if not reaction_component_ids and not reaction_ids:
         return HttpResponse(status=404)
 
-    if not compartment_name:
+    if not compartment_name_id:
         # get the compartment id for each component id
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
         .filter(Q(rc_id__in=reaction_component_ids)) \
@@ -64,20 +64,20 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
 
     else:
         try:
-            compartment = APImodels.CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
+            compartment = APImodels.CompartmentSvg.objects.using(model).get(name_id=compartment_name_id)
             compartmentID = compartment.compartment
         except APImodels.CompartmentSvg.DoesNotExist:
             return HttpResponse(status=404)
 
         # get the component ids in the input compartment
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model).filter(
-                Q(rc_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartmentID)
+                Q(rc_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartment.id)
             ).select_related('Compartmentsvg') \
             .values_list('compartmentsvg__display_name', 'rc_id')
 
         # get the reaction ids in the input compartment
         rci = APImodels.ReactionCompartmentSvg.objects.using(model).filter(
-            Q(reaction_id__in=reaction_ids) & Q(Compartmentsvg_id=compartmentID)
+            Q(reaction_id__in=reaction_ids) & Q(Compartmentsvg_id=compartment.id)
         ).select_related('Compartmentsvg') \
         .values_list('compartmentsvg__display_name', 'reaction_id')
 
@@ -90,11 +90,11 @@ def convert_to_reaction_component_ids(request, model, compartment_name=None):
 
 @api_view()
 @is_model_valid
-def search_on_map(request, model, map_type, map_name, term):
+def search_on_map(request, model, map_type, map_name_id, term):
     if not term:
         return JSONResponse([])
 
-    if map_type not in ['subsystem', 'compartment'] or not map_name:
+    if map_type not in ['subsystem', 'compartment'] or not map_name_id:
         return HttpResponse(status=404)
 
     query = Q()
@@ -112,20 +112,20 @@ def search_on_map(request, model, map_type, map_name, term):
     mapIDset = None
     if map_type == 'compartment':
         try:
-            compartment = APImodels.CompartmentSvg.objects.using(model).get(id=map_name)
+            compartment = APImodels.CompartmentSvg.objects.using(model).get(name_id=map_name_id)
             mapIDsetRC  = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
-                .filter(Q(compartmentsvg=map_name)).values_list('rc_id')
+                .filter(Q(compartmentsvg=compartment.id)).values_list('rc_id')
             mapIDsetReaction = APImodels.ReactionCompartmentSvg.objects.using(model) \
-                .filter(Q(compartmentsvg=map_name)).values_list('reaction_id')
+                .filter(Q(compartmentsvg=compartment.id)).values_list('reaction_id')
         except APImodels.CompartmentSvg.DoesNotExist:
             return HttpResponse(status=404)
     else:
         try:
-            subsystem = APImodels.SubsystemSvg.objects.using(model).get(id=map_name)
+            subsystem = APImodels.SubsystemSvg.objects.using(model).get(name_id=map_name_id)
             mapIDsetRC  = APImodels.ReactionComponentSubsystemSvg.objects.using(model) \
-                .filter(Q(subsystemsvg=map_name)).values_list('rc_id')
+                .filter(Q(subsystemsvg=subsystem.id)).values_list('rc_id')
             mapIDsetReaction = APImodels.ReactionSubsystemSvg.objects.using(model) \
-                .filter(Q(subsystemsvg=map_name)).values_list('reaction_id')
+                .filter(Q(subsystemsvg=subsystem.id)).values_list('reaction_id')
         except APImodels.SubsystemSvg.DoesNotExist:
             return HttpResponse(status=404)
 
@@ -176,14 +176,14 @@ def search_on_map(request, model, map_type, map_name, term):
 
 @api_view()
 @is_model_valid
-def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False):
-    if component_name:
+def get_db_json(request, model, component_name_id=None, ctype=None, dup_meta=False):
+    if component_name_id:
         if ctype == 'compartment':
             try:
                 # TODO fix 'cytosol' request
-                compartmentSVG = APImodels.CompartmentSvg.objects.using(model).get(id=component_name)
-                compartment = compartmentSVG.compartment
-            except APImodels.CompartmentSvg.DoesNotExist:
+                compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=component_name_id)
+                # compartment = compartmentSVG.compartment
+            except APImodels.Compartment.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.ReactionCompartment.objects.using(model). \
@@ -192,9 +192,9 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
                 prefetch_related('reactants', 'products', 'modifiers')
         else:
             try:
-                subsystemSVG = APImodels.SubsystemSvg.objects.using(model).get(id=component_name)
-                subsystem = subsystemSVG.subsystem
-            except APImodels.SubsystemSvg.DoesNotExist:
+                subsystem = APImodels.Subsystem.objects.using(model).get(name_id__iexact=component_name_id)
+                # subsystem = subsystemSVG.subsystem
+            except APImodels.Subsystem.DoesNotExist:
                 return HttpResponse(status=404)
 
             reactions_id = APImodels.SubsystemReaction.objects.using(model). \
@@ -331,30 +331,45 @@ def get_db_json(request, model, component_name=None, ctype=None, dup_meta=False)
 #####################################################################################
 
 @api_view()
-def HPA_enzyme_info(request, ensembl_id):
+def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
+    model = "hmr2"
     # TODO provide the model, remove 'hmr2'
     try:
-        res = APImodels.ReactionComponent.objects.using('hmr2').get(id=ensembl_id)
+        res = APImodels.ReactionComponent.objects.using(model).get(id=ensembl_id)
         rcid = res.id
     except:
         return JSONResponse([])
 
-    subs = APImodels.Subsystem.objects.using('hmr2').filter(
-            Q(id__in=APImodels.SubsystemEnzyme.objects.using('hmr2').filter(rc_id=rcid).values('subsystem_id')) &
+    subs = APImodels.Subsystem.objects.using(model).filter(
+            Q(id__in=APImodels.SubsystemEnzyme.objects.using(model).filter(rc_id=rcid).values('subsystem_id')) &
             ~Q(system='Collection of reactions')
-        ).values('id', 'name', 'reaction_count', 'enzyme_count', 'metabolite_count', 'unique_metabolite_count')
+        ).values('id', 'name', 'name_id', 'reaction_count', 'enzyme_count', 'metabolite_count', 'unique_metabolite_count')
 
-    result = []
+    subsystems = []
     for sub in subs.all():
         # get the reactions
-        reactions = APImodels.SubsystemReaction.objects.using('hmr2').filter(subsystem_id=sub['id']).values('reaction_id')
-        compartments = APImodels.Compartment.objects.using('hmr2').filter(
-            id__in=APImodels.SubsystemCompartment.objects.using('hmr2').filter(subsystem_id=sub['id']).values('compartment_id').distinct()
+        reactions = APImodels.SubsystemReaction.objects.using(model).filter(subsystem_id=sub['id']).values('reaction_id')
+        compartments = APImodels.Compartment.objects.using(model).filter(
+            id__in=APImodels.SubsystemCompartment.objects.using(model).filter(subsystem_id=sub['id']).values('compartment_id').distinct()
         ).values_list('name', flat=True)
+        sub['enzymes'] = APImodels.SubsystemEnzyme.objects.using(model).filter(subsystem_id=sub['id']).values_list('rc_id', flat=True)
         sub['compartments'] = list(compartments)
-        sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using('hmr2').filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
+        sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using(model).filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
+        sub['map_url'] = "https://ftp.icsb.chalmers.se/maps/%s/%s.svg" % (model, sub['name_id'])
+        sub['subsystem_url'] = "https://icsb.chalmers.se/explore/gem-browser/%s/subsystem/%s" % (model, sub['name_id'])
+        sub['model_metabolite_count'] = sub['unique_metabolite_count']
+        sub['compartment_metabolite_count'] = sub['metabolite_count']
+        del sub['metabolite_count']
+        del sub['unique_metabolite_count']
         del sub['id']
-        result.append(sub)
+        del sub['name_id']
+        subsystems.append(sub)
+
+    result = {
+        'enzyme_url': "https://icsb.chalmers.se/explore/gem-browser/%s/enzyme/%s" % (model, ensembl_id),
+        'subsystems': subsystems,
+        'doc': 'A subsystem can contain the same chemical metabolite that comes from different compartments.',
+    }
 
     return JSONResponse(result)
 
@@ -363,9 +378,9 @@ def HPA_enzyme_info(request, ensembl_id):
 
 @api_view()
 @is_model_valid
-def get_compartment_svg(request, model, compartment_name):
+def get_compartment_svg(request, model, compartment_name_id):
     try:
-        compartment = APImodels.CompartmentSvg.objects.using(model).get(display_name__iexact=compartment_name)
+        compartment = APImodels.CompartmentSvg.objects.using(model).get(name_id__iexact=compartment_name_id)
     except APImodels.CompartmentSvg.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -489,7 +504,7 @@ def connected_metabolites(request, model, id):
     try:
         enzyme = APImodels.ReactionComponent.objects.using(model).get(
                 Q(component_type='e') &
-                (Q(id=id) | Q(name=id))
+                (Q(id__iexact=id) | Q(id__iexact=id))
             )
     except APImodels.ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
@@ -520,9 +535,9 @@ def get_hpa_tissues(request, model):
 
 @api_view()
 @is_model_valid
-def get_hpa_rna_levels_compartment(request, model, compartment):
+def get_hpa_rna_levels_compartment(request, model, compartment_name_id):
     try:
-        compartment = APImodels.Compartment.objects.using(model).get(name__iexact=compartment)
+        compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=compartment_name_id)
     except APImodels.Compartment.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -535,7 +550,7 @@ def get_hpa_rna_levels_compartment(request, model, compartment):
     tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
 
     return JSONResponse(
-        { 
+        {
           'tissues': tissues,
           'levels': levels
         })
@@ -552,7 +567,7 @@ def get_hpa_rna_levels(request, model):
     tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
 
     return JSONResponse(
-        { 
+        {
           'tissues': tissues,
           'levels': levels
         })

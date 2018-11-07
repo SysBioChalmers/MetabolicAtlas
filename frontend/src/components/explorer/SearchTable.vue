@@ -173,6 +173,7 @@ import Loader from 'components/Loader';
 import { GoodTable } from 'vue-good-table';
 import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../../helpers/chemical-formatters';
+import { idfy } from '../../helpers/utils';
 import EventBus from '../../event-bus';
 
 export default {
@@ -224,6 +225,15 @@ export default {
           {
             label: 'Compartment',
             field: 'compartment',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: true,
+          },
+          {
+            label: 'Is currency',
+            field: 'is_currency',
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
@@ -494,32 +504,27 @@ export default {
     fillFilterFields() {
       const filterTypeDropdown = {
         metabolite: {
-          // organism: {},
           model: {},
           compartment: {},
-          // subsystem: [],
+          is_currency: {},
         },
         enzyme: {
-          // organism: {},
           model: {},
           compartment: {},
           subsystem: {},
         },
         reaction: {
-          // organism: {},
           model: {},
           compartment: {},
-          subsystem_str: {},
+          subsystem: {},
           is_transport: {},
         },
         subsystem: {
-          // organism: {},
           model: {},
           system: {},
           compartment: {},
         },
         compartment: {
-          // organism: [],
           model: {},
         },
       };
@@ -542,7 +547,6 @@ export default {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
             }
-
             rows[componentType].push({
               id: el.id,
               model: el.model,
@@ -550,6 +554,7 @@ export default {
               formula: el.formula,
               // subsystem: el.subsystem,
               compartment: el.compartment,
+              is_currency: el.is_currency ? 'Yes' : 'No',
             });
           } else if (componentType === 'enzyme') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
@@ -566,15 +571,16 @@ export default {
             });
           } else if (componentType === 'reaction') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
-              if (field === 'subsystem') {
+              if (field === 'subsystem' && el[field]) {
                 for (const subsystem of el[field].split('; ')) {
                   if (!(subsystem in filterTypeDropdown[componentType][field])) {
                     filterTypeDropdown[componentType][field][subsystem] = 1;
                   }
                 }
-              } else if (field === 'compartment') {
+              } else if (field === 'compartment' && el[field]) {
                 for (const compartment of el[field].split(/[^a-zA-Z0-9 ]+/)) {
-                  if (!(compartment.trim() in filterTypeDropdown[componentType][field])) {
+                  if (compartment.trim() &&
+                    !(compartment.trim() in filterTypeDropdown[componentType][field])) {
                     filterTypeDropdown[componentType][field][compartment.trim()] = 1;
                   }
                 }
@@ -589,7 +595,7 @@ export default {
               ec: el.ec,
               subsystem: el.subsystem,
               compartment: el.compartment,
-              is_transport: el.is_transport,
+              is_transport: el.is_transport ? 'Yes' : 'No',
             });
           } else if (componentType === 'subsystem') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
@@ -605,7 +611,7 @@ export default {
             }
             rows[componentType].push({
               model: el.model,
-              name: `<a href="/explore/gem-browser/${el.model}/subsystem/${el.name}">${el.name}</a>`,
+              name: `<a href="/explore/gem-browser/${el.model}/subsystem/${idfy(el.name)}">${el.name}</a>`,
               system: el.system,
               compartment: el.compartment,
               metaboliteCount: el.metabolite_count,
@@ -637,7 +643,15 @@ export default {
           } else {
             filterTypeDropdown[componentType][field] =
               Object.keys(filterTypeDropdown[componentType][field]).map(
-                (e) => { const d = {}; d.text = e; d.value = e; return d; }
+                (e) => {
+                  const d = {}; let v = e;
+                  if (v === 'true') {
+                    v = 'Yes';
+                  } else if (v === 'false') {
+                    v = 'No';
+                  }
+                  d.text = v; d.value = v; return d;
+                }
             );
           }
         }
@@ -647,6 +661,8 @@ export default {
           filterTypeDropdown.metabolite.model;
       this.columns.metabolite[3].filterOptions.filterDropdownItems =
           filterTypeDropdown.metabolite.compartment;
+      this.columns.metabolite[4].filterOptions.filterDropdownItems =
+          filterTypeDropdown.metabolite.is_currency;
 
       this.columns.enzyme[0].filterOptions.filterDropdownItems =
           filterTypeDropdown.enzyme.model;
@@ -707,10 +723,13 @@ export default {
     },
     formatSubsystemArrCell(row) {
       let s = '';
-      for (const subsystem of row.subsystem.split('; ')) {
-        s += `<a href="/explore/gem-browser/${row.model}/subsystem/${subsystem}">${subsystem}</a>; `;
+      if (row.subsystem) {
+        for (const subsystem of row.subsystem.split('; ')) {
+          s += `<a href="/explore/gem-browser/${row.model}/subsystem/${idfy(subsystem)}">${subsystem}</a>; `;
+        }
+        return s.slice(0, -2);
       }
-      return s.slice(0, -2);
+      return s;
     },
     formatCompartmentArrCell(row) {
       return row.compartment.join('; ');

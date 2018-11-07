@@ -31,6 +31,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     url('^swagger', schema_view_swagger),
-    url(r'^api/', include('api.urls', namespace="public_apis")),
     url(r'^api/', include('api.private_urls', namespace="private_apis")),
+    url(r'^api/', include('api.urls', namespace="public_apis")),
+
 ]

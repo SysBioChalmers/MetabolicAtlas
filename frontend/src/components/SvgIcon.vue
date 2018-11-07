@@ -1,4 +1,4 @@
-<template>  
+<template>
   <svg :class="className" :width="width" :height="height">
     <use :xlink:href="glyph" />
   </svg>
@@ -11,8 +11,8 @@ export default {
 };
 </script>
 
-<style scoped>  
+<style scoped>
 .icon {
   display: inline-block;
 }
-</style>  
+</style>

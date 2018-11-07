@@ -2,7 +2,7 @@
   "name": "metabolic_atlas_frontend",
   "version": "1.0.0",
   "description": "Metabolic Atlas Frontend",
-  "author": "Shan Huang <shan@chalmers.se>",
+  "author": "SysBio.se",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
@@ -35,6 +35,7 @@
     "vue-i18n": "^6.1.1",
     "vue-lodash": "^1.0.3",
     "vue-router": "^2.2.1",
+    "vue-cookie": "^1.1.4",
     "xlsx": "^0.9.12"
   },
   "devDependencies": {

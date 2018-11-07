@@ -1,37 +1,35 @@
 <template>
   <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <nav id="navbar" class="navbar is-light" role="navigation" aria-label="main navigation">
+    <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
           <a id="logo" class="navbar-item" @click="goToPage('')" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </a>
-          <div class="navbar-burger">
-            <span
-               v-show="false"
-               v-for="menuItem in menuItems"
-               :class="{ 'is-active': isActiveRoute(menuItem) }"
-               @click="goToPage(menuItem)"
-            >{{ menuItem }}</span>
+          <a class="navbar-item" v-if="showExploreInfo"
+             :class="{ 'is-active': activeBrowserBut }"
+             @click="goToGemsBrowser()">
+             GEM<br>Browser
+          </a>
+          <a class="navbar-item" v-if="showExploreInfo"
+             :class="{ 'is-active': activeViewerBut }"
+             @click="goToGemsViewer()">
+             Map<br>Viewer
+          </a>
+          <span v-if="showExploreInfo" id="modelHeader" class="is-unselectable" style="margin: auto 0">
+            <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
+            <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
+          </span>
+          <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
+            @click="isMobileMenu = !isMobileMenu">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
           </div>
         </div>
-        <div class="navbar-menu" id="#nav-menu">
-          <div class="navbar-start" v-if="showExploreInfo">
-            <a
-               class="navbar-item has-text-centered"
-               :class="{ 'is-active': activeBrowserBut }"
-               @click="goToGemsBrowser()"> GEM<br>Browser
-            </a>
-            <a
-               class="navbar-item has-text-centered"
-               :class="{ 'is-active': activeViewerBut }"
-               @click="goToGemsViewer()"> Map<br>Viewer
-            </a>
-            <span id="modelHeader" class="has-text-centered is-unselectable" style="margin: auto">
-              <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
-              <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
-            </span>
+        <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
+          <div class="navbar-start">
           </div>
           <div class="navbar-end">
             <template v-for="menuItem, index in menuItems">
@@ -52,16 +50,15 @@
                 </div>
               </template>
               <template v-else-if="menuItem === 'explore'">
-                  <a
-                   class="navbar-item has-text-centered is-unselectable"
+                  <a class="navbar-item is-unselectable"
                    :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
                    @click="goToPage(menuItem)">
-                   <b>Explore<br>models</b>
+                   <span class="is-hidden-touch has-text-centered"><b>Explore<br>models</b></span>
+                   <span class="is-hidden-desktop"><b>Explore models</b></span>
                  </a>
               </template>
               <template v-else>
-                <a
-                   class="navbar-item has-text-centered is-unselectable"
+                <a class="navbar-item is-unselectable"
                    :class="{ 'is-active': isActiveRoute(menuItem) }"
                    @click="goToPage(menuItem)"
                    v-html="menuItem"></a>
@@ -74,14 +71,15 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer">
+    <footer id="footer" class="footer has-background-light">
       <div class="columns">
         <div class="column is-2">
+          <a @click="viewRelaseNotes">v1.0</a>
         </div>
         <div class="column is-8">
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
-            <p style="height: 60px;">
+            <p>
               <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
               <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
               <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
@@ -91,13 +89,19 @@
             </p>
           </div>
         </div>
-        <div class="column is-2">
-          <div class="is-pulled-right">
-            <a @click="viewRelaseNotes">v1.0</a>
-          </div>
-        </div>
       </div>
     </footer>
+    <div v-if="showCookieMsg" id="cookies" class="columns has-background-grey">
+      <div class="column has-text-centered">
+        <div class="has-text-white">
+          We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
+          <a class="button is-small is-rounded is-success" @click="showCookieMsg=false; acceptCookiePolicy()">
+            <span class="icon is-small"><i class="fa fa-check"></i></span>
+            <span>OKAY</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -106,6 +110,7 @@ import SvgIcon from './components/SvgIcon';
 import Logo from './assets/logo.svg';
 import router from './router';
 import { default as EventBus } from './event-bus';
+import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'app',
@@ -132,9 +137,12 @@ export default {
       showExploreInfo: false,
       activeBrowserBut: false,
       activeViewerBut: false,
+      showCookieMsg: !isCookiePolicyAccepted(),
+      acceptCookiePolicy,
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
+      isMobileMenu: false,
     };
   },
   watch: {
@@ -167,7 +175,9 @@ export default {
         this.model = this.$route.params.model;
         // this.goToGemsBrowser();
         this.saveBrowserPath();
-      } else if (this.$route.name === 'viewer') {
+      } else if (this.$route.name === 'viewer' ||
+        this.$route.name === 'viewerCompartment' ||
+        this.$route.name === 'viewerSubsystem') {
         this.showExploreInfo = true;
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
@@ -290,14 +300,17 @@ $switch-background: $primary;
   }
 }
 
-/* FIXME .is-light overwritten somewhere */
-.navbar.is-light {
-  background: whitesmoke;
-}
-
 .navbar-menu {
   a {
     font-size: 1.15em;
+  }
+}
+
+.navbar-brand {
+  a {
+    font-size: 1.15em;
+    font-weight: 400;
+    line-height: 1.5;
   }
 }
 
@@ -305,7 +318,7 @@ $switch-background: $primary;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 50px;
+    max-height: 35px;
     margin: 0 0.5rem;
   }
   sup {
@@ -320,59 +333,71 @@ $switch-background: $primary;
     margin-bottom: 0.3em;
   }
 
-  .exp-lvl-legend {
-    list-style: none;
-    li {
-      display: inline-block;
-      margin-left: 7px;
-      line-height: 15px;
-      &:first-child {
-        margin-left: 0;
-      }
+  list-style: none;
+  li {
+    line-height: 15px;
+    display: inline-block;
+    &:first-child {
+      margin-left: 0;
+    }
+    span {
+      float: left;
+      margin: 0;
     }
   }
 
   span {
-    float: left;
-    margin: 0 2px 2px 2px;
-    width: 15px;
     height: 15px;
-    display: block;
-    border: 1px solid black;
+    &.boxc {
+      margin: 0 7px;
+      width: 15px;
+      border: 1px solid black;
+    }
+  }
+
+  .exp-lvl-legend {
+    list-style: none;
+    li {
+      span {
+        float: left;
+        margin: 0;
+        width: 1px;
+        border: 0
+      }
+    }
   }
 }
 
 #home {
-
   .menu-list {
     ul {
       margin-right: 0;
     }
-
     a {
       color: white;
       border-radius: 0;
     }
-
     a:hover {
       color: black;
       background-color: white;
       border-radius: 0;
     }
-
     .is-active {
       color: black;
       background-color: white;
       border-radius: 0;
     }
-
   }
-
   #panelslide {
     display: flex;
     align-items: center;
   }
+}
 
+#cookies {
+  margin-top: 5px;
+  position: sticky;
+  bottom: 0;
 }
 
 </style>
