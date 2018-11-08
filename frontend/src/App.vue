@@ -95,7 +95,7 @@
       <div class="column has-text-centered">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
-          <a class="button is-small is-rounded is-success" @click="showCookieMsg=false; acceptCookiePolicy()">
+          <a class="button is-small is-rounded is-success has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
             <span class="icon is-small"><i class="fa fa-check"></i></span>
             <span>OKAY</span>
           </a>
@@ -400,4 +400,11 @@ $switch-background: $primary;
   bottom: 0;
 }
 
+.navbar-burger span {
+  height: 2px;
+}
+
+.homepage-submenu {
+  margin-left: 1.25em;
+}
 </style>
