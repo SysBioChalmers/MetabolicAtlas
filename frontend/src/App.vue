@@ -240,6 +240,7 @@ export default {
 <style lang='scss'>
 
 $primary: #4E755A;
+$primary-light: #beccc3;
 $link: #006992;
 $warning: #FFC67D;
 $danger: #FF4D4D;
@@ -369,17 +370,19 @@ $switch-background: $primary;
 }
 
 #home {
-  .menu-list {
-    ul {
-      margin-right: 0;
+  .menu-list li {
+    &:first-child {
+      margin-top: 0.75em;
+    }
+    &:last-child {
+      margin-bottom: 0.75em;
     }
     a {
       color: white;
-      border-radius: 0;
     }
     a:hover {
       color: black;
-      background-color: white;
+      background-color: $primary-light;
       border-radius: 0;
     }
     .is-active {
@@ -388,9 +391,16 @@ $switch-background: $primary;
       border-radius: 0;
     }
   }
-  #panelslide {
-    display: flex;
-    align-items: center;
+  .margin-fix {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 0;
+  }
+  .homepage-submenu {
+    margin-left: 1.25em;
+  }
+  .more-padding {
+    padding: 3rem 3.75rem 3rem 3.75rem;
   }
 }
 
@@ -404,7 +414,4 @@ $switch-background: $primary;
   height: 2px;
 }
 
-.homepage-submenu {
-  margin-left: 1.25em;
-}
 </style>
