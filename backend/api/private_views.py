@@ -369,7 +369,7 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         'enzyme_url': "https://icsb.chalmers.se/explore/gem-browser/%s/enzyme/%s" % (model, ensembl_id),
         'subsystems': subsystems,
         'doc': 'A subsystem can contain the same chemical metabolite that comes from different compartments.',
-    }
+    } if ensembl_id else None
 
     return JSONResponse(result)
 
