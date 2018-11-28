@@ -81,8 +81,6 @@ export default {
       maxZoomLvl: 0.65,
       labelZoomLvl: 0.40,
       nodeZoomLvl: 0.15,
-      allowZoom: true,
-      dragging: false,
 
       svgMapURL: `${window.location.origin}/svgs`, // SEDME
     };
@@ -170,21 +168,6 @@ export default {
           maxZoom: 30,
           zoomScaleSensitivity: 0.2,
           fit: true,
-          beforeZoom: (oldzl, newzl) => {
-            const rzl = this.panZoom.getSizes().realZoom;
-            if (oldzl < newzl && rzl > this.maxZoomLvl + 0.01) {
-              this.allowZoom = false;
-              return false;
-            }
-            return true;
-          },
-          beforePan: () => {
-            if (!this.allowZoom) {
-              this.allowZoom = true;
-              return false;
-            }
-            return true;
-          },
           onZoom: () => {
             const rzl = this.panZoom.getSizes().realZoom;
             if (rzl >= this.labelZoomLvl) {
