@@ -156,12 +156,10 @@ export default {
       const id = $(this).attr('id');
       self.selectElement(id, 'reaction');
     });
-
     $('#svg-wrapper').on('click', '.subsystem', function f() {
       const id = $(this).attr('id');
       self.selectElement(id, 'subsystem');
     });
-
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
       const id = $(this).attr('id').split('-')[0].trim();
       if (id in self.enzymeRNAlevels) {
@@ -171,7 +169,6 @@ export default {
         self.$refs.tooltip.style.display = 'block';
       }
     });
-
     $('#svg-wrapper').on('mouseout', '.enz', () => {
       self.$refs.tooltip.innerHTML = '';
       self.$refs.tooltip.style.display = 'none';
@@ -230,8 +227,6 @@ export default {
     svgfit() {
       $('#svg-wrapper svg').attr('width', '100%');
       const vph = $('.svgbox').first().innerHeight();
-      // console.log('vph', vph);
-
       $('#svg-wrapper svg').attr('height', `${vph}px`);
       if (this.panZoom) {
         this.panZoom.resize(); // update SVG cached size
@@ -491,9 +486,8 @@ export default {
         this.elmHL.push(el);
       }
     },
-    unHighlight() {
+    unHighlight() { // un-highlight elements
       if (this.elmHL) {
-        // un-highlight elements
         for (let i = 0; i < this.elmHL.length; i += 1) {
           $(this.elmHL[i]).removeClass('hl');
         }
@@ -517,7 +511,6 @@ export default {
     },
     showMap(id) {
       if (id) {
-        // const compartment = getCompartmentFromName(compartmentName);
         this.loadSVG(id, null);
       }
     },
