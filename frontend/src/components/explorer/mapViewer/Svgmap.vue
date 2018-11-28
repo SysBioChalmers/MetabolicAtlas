@@ -127,21 +127,6 @@ export default {
   },
   mounted() {
     const self = this;
-    $('#svg-wrapper').on('mousedown', 'svg', () => {
-      self.isDragging = false;
-    })
-    .on('mousemove', 'svg', () => {
-      self.isDragging = true;
-    })
-    .on('mouseup', 'svg', (e) => {
-      if (!self.isDragging) {
-        const target = $(e.target);
-        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') && !target.hasClass('.subsystem')) {
-          self.unSelectElement();
-        }
-      }
-      self.isDragging = false;
-    });
     $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
       const id = $(this).attr('id').split('-')[0].trim();
