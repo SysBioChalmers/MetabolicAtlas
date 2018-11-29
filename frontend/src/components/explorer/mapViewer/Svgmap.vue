@@ -16,8 +16,8 @@
       </div>
       <div v-show="searchTerm && totalSearchMatch">
         <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
-        <span class="button has-text-dark" @click="searchPrevElementOnSVG"><i class="fa fa-angle-left"></i></span>
-        <span class="button has-text-dark" @click="searchNextElementOnSVG"><i class="fa fa-angle-right"></i></span>
+        <span class="button has-text-dark" @click="searchElementOnSVG(-1)"><i class="fa fa-angle-left"></i></span>
+        <span class="button has-text-dark" @click="searchElementOnSVG(1)"><i class="fa fa-angle-right"></i></span>
         <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
       </div>
     </div>
@@ -360,24 +360,15 @@ export default {
       }
       this.isLoadingSearch = false;
     },
-    searchNextElementOnSVG() {
+    searchElementOnSVG(increment) {
       if (this.totalSearchMatch <= 1) {
         return;
       }
-      this.currentSearchMatch += 1;
-      if (this.currentSearchMatch > this.totalSearchMatch) {
-        this.currentSearchMatch = 1;
-      }
-      this.resetZoombox();
-      this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
-    },
-    searchPrevElementOnSVG() {
-      if (this.totalSearchMatch <= 1) {
-        return;
-      }
-      this.currentSearchMatch -= 1;
+      this.currentSearchMatch += increment;
       if (this.currentSearchMatch < 1) {
         this.currentSearchMatch = this.totalSearchMatch;
+      } else if (this.currentSearchMatch > this.totalSearchMatch) {
+        this.currentSearchMatch = 1;
       }
       this.resetZoombox();
       this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
