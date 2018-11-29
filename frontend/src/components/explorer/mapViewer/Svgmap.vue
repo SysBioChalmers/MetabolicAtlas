@@ -373,12 +373,6 @@ export default {
       this.resetZoombox();
       this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
     },
-    updateZoomBoxCoor(coordinate) {
-      this.zoomBox.minX = coordinate.minX;
-      this.zoomBox.maxX = coordinate.maxX;
-      this.zoomBox.minY = coordinate.minY;
-      this.zoomBox.maxY = coordinate.maxY;
-    },
     updateZoomBox(el) {
       /* eslint-disable no-param-reassign */
       const s = $(el).find('.shape')[0];
