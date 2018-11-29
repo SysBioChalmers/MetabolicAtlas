@@ -208,8 +208,6 @@ export default {
       this.$emit('loading');
       // reset some values
       this.searchTerm = '';
-      this.totalSearchMatch = 0;
-      this.searchInputClass = 'is-info';
 
       // if already loaded, just call the callback funtion
       let currentLoad = this.$parent.compartmentsSVG[id];
