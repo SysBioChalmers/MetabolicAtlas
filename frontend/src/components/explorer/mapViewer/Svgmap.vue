@@ -221,7 +221,6 @@ export default {
       }
       const newSvgName = currentLoad.filename;
       if (!newSvgName) {
-        // TODO remove this when all svg files are available
         this.$emit('loadComplete', false, this.$t('mapNotFound'));
         return;
       }
@@ -249,7 +248,6 @@ export default {
               }, 0);
             })
             .catch(() => {
-              // TODO: handle error
               this.$emit('loadComplete', false, this.$t('mapNotFound'));
             });
         }
