@@ -27,12 +27,25 @@
 
 <script>
 
-import $ from 'jquery';
 import axios from 'axios';
-import svgPanZoom from 'svg-pan-zoom';
+import $ from 'jquery';
+import JQPanZoom from 'jquery.panzoom';
+import JQMouseWheel from 'jquery-mousewheel';
 import Loader from 'components/Loader';
 import { default as EventBus } from '../../../event-bus';
 import { getExpressionColor } from '../../../expression-sources/hpa';
+
+// hack: the only way for jquery plugins to play nice with the plugins inside Vue
+$.Panzoom = JQPanZoom;
+$.fn.extend({
+  mousewheel: function fn(options) {
+    return this.each(function f() { return JQMouseWheel.mousewheel(this, options); });
+  },
+  unmousewheel: function fn() {
+    return this.each(function f() { return JQMouseWheel.unmousewheel(this); });
+  },
+});
+
 
 export default {
   name: 'svgmap',
@@ -68,17 +81,6 @@ export default {
       currentSearchMatch: 0,
       totalSearchMatch: 0,
 
-      zoomBox: {
-        minX: 99999,
-        maxX: 0,
-        minY: 99999,
-        maxY: 0,
-        centerX: 0,
-        centerY: 0,
-        h: 0,
-        w: 0,
-      },
-      maxZoomLvl: 0.65,
       labelZoomLvl: 0.40,
       nodeZoomLvl: 0.15,
 
@@ -159,30 +161,43 @@ export default {
   },
   methods: {
     loadSvgPanZoom(callback) {
+      const computedMinScale = $('.svgbox').width()/$('#svg-wrapper svg').width();
+      console.log($('.svgbox').width(), $('#svg-wrapper svg').width(), computedMinScale, 0.1 / computedMinScale);
+      // $('#svg-wrapper svg').width($('.svgbox').width());
+      // $('#svg-wrapper svg').height($('.svgbox').height());
+      // $('#svg-wrapper svg').attr('width', $('.svgbox').width());
+      // $('#svg-wrapper svg').attr('height', $('.svgbox').height());
+      // $('#svg-wrapper svg').attr('viewBox', "0 0 " +  $('.svgbox').width() + " " + $('.svgbox').height());
       // load the lib svgPanZoom on the SVG loaded
       setTimeout(() => {
-        this.panZoom = svgPanZoom('#svg-wrapper svg', {
-          zoomEnabled: true,
-          controlIconsEnabled: false,
-          minZoom: 0.5,
-          maxZoom: 30,
-          zoomScaleSensitivity: 0.2,
-          fit: true,
-          onZoom: () => {
-            const rzl = this.panZoom.getSizes().realZoom;
-            if (rzl >= this.labelZoomLvl) {
-              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'inline');
-            } else {
-              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'none');
-            }
-            if (rzl >= this.nodeZoomLvl) {
-              $('.met, .rea, .enz, .fe, .ee').attr('display', 'inline');
-            } else {
-              $('.met, .rea, .enz, .fe, .ee').attr('display', 'none');
-            }
-          },
+        let $panzoom = $('#svg-wrapper').panzoom({
+          maxScale: 1,
+          minScale: computedMinScale,
+          increment: 0.1,
+          //   if (rzl >= this.labelZoomLvl) {
+          //     $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'inline');
+          //   } else {
+          //     $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'none');
+          //   }
+          //   if (rzl >= this.nodeZoomLvl) {
+          //     $('.met, .rea, .enz, .fe, .ee').attr('display', 'inline');
+          //   } else {
+          //     $('.met, .rea, .enz, .fe, .ee').attr('display', 'none');
+          //   }
         });
-        this.svgfit();
+        $panzoom.on('mousewheel.focal', function(e) {
+          e.preventDefault();
+          const delta = e.delta || e.originalEvent.wheelDelta;
+          const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+          $panzoom.panzoom('zoom', zoomOut, {
+            animate: false,
+            focal: e,
+          });
+        });
+        $panzoom.on('panzoomzoom', function(e, panzoom, scale, opts) {
+          console.log(scale);
+        });
+        // $panzoom.panzoom('zoom', -0.5, { silent: true , animate: false });
         this.unHighlight();
         if (callback) {
           // call findElementsOnSVG
@@ -191,17 +206,6 @@ export default {
           this.$emit('loadComplete', true, '');
         }
       }, 0);
-    },
-    svgfit() {
-      $('#svg-wrapper svg').attr('width', '100%');
-      const vph = $('.svgbox').first().innerHeight();
-      $('#svg-wrapper svg').attr('height', `${vph}px`);
-      if (this.panZoom) {
-        this.panZoom.resize(); // update SVG cached size
-        this.panZoom.fit();
-        this.panZoom.center();
-        this.panZoom.zoomOut(); // tmp fix for iacurate fitting
-      }
     },
     loadSVG(id, callback) {
       // load the svg file from the server
@@ -257,7 +261,6 @@ export default {
         callback();
       } else {
         this.loadedMap = currentLoad;
-        this.svgfit();
         this.$emit('loadComplete', true, '');
       }
     },
@@ -319,7 +322,6 @@ export default {
         this.searchInputClass = 'is-success';
         this.ids = response.data;
         this.findElementsOnSVG();
-        this.resetZoombox();
         setTimeout(() => {
           if (this.elmFound.length !== 0) {
             this.currentSearchMatch = 1;
@@ -366,67 +368,24 @@ export default {
       } else if (this.currentSearchMatch > this.totalSearchMatch) {
         this.currentSearchMatch = 1;
       }
-      this.resetZoombox();
       this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
     },
-    updateZoomBox(el) {
-      /* eslint-disable no-param-reassign */
-      const s = $(el).find('.shape')[0];
-      let t = this.getTransform(el);
-      if (!t) {
-        t = this.getTransform(s);
-      }
-      const x = t[4];
-      const y = t[5];
-      const oldDisplay = el.style.display;
-      el.style.display = 'block';
-      const w = s.getBBox().width;
-      const h = s.getBBox().height;
-      el.style.display = oldDisplay;
-      if (x < this.zoomBox.minX) {
-        this.zoomBox.minX = x;
-      }
-      if (x + w > this.zoomBox.maxX) {
-        this.zoomBox.maxX = x + w;
-      }
-      if (y < this.zoomBox.minY) {
-        this.zoomBox.minY = y;
-      }
-      if (y + h > this.zoomBox.maxY) {
-        this.zoomBox.maxY = y + h;
-      }
-      this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
-      this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
-      this.zoomOnBox();
-    },
-    resetZoombox() {
-      this.zoomBox = {
-        minX: 99999,
-        maxX: 0,
-        minY: 99999,
-        maxY: 0,
-        centerX: 0,
-        centerY: 0,
-        h: 0,
-        w: 0,
-      };
-    },
-    getCenterZoombox() {
-      this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
-      this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
-      this.zoomBox.centerX = this.zoomBox.minX + (this.zoomBox.w / 2.0);
-      this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
-    },
-    getTransform(el) {
-      // read and parse the transform attribut
-      let transform = el.getAttribute('transform');
-      if (transform) {
-        transform = transform.substring(0, transform.length - 1);
-        transform = transform.substring(7, transform.length);
-        return transform.split(',').map(parseFloat);
-      }
-      return null;
-    },
+    // getCenterZoombox() {
+    //   this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
+    //   this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
+    //   this.zoomBox.centerX = this.zoomBox.minX + (this.zoomBox.w / 2.0);
+    //   this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
+    // },
+    // getTransform(el) {
+    //   // read and parse the transform attribut
+    //   let transform = el.getAttribute('transform');
+    //   if (transform) {
+    //     transform = transform.substring(0, transform.length - 1);
+    //     transform = transform.substring(7, transform.length);
+    //     return transform.split(',').map(parseFloat);
+    //   }
+    //   return null;
+    // },
     highlightElementsFound() {
       this.unHighlight();
       this.elmHL = [];
@@ -442,21 +401,6 @@ export default {
         }
         this.elmHL = [];
       }
-    },
-    zoomOnBox() {
-      this.getCenterZoombox();
-      const realZoom = this.panZoom.getSizes().realZoom;
-      this.panZoom.pan({
-        x: -(this.zoomBox.centerX * realZoom) + (this.panZoom.getSizes().width / 2),
-        y: -(this.zoomBox.centerY * realZoom) + (this.panZoom.getSizes().height / 2),
-      });
-      const viewBox = this.panZoom.getSizes().viewBox;
-      let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
-      const maxZoomLvl = (this.maxZoomLvl * this.panZoom.getZoom()) / realZoom;
-      if (newScale > maxZoomLvl) {
-        newScale = maxZoomLvl + 0.01;
-      }
-      this.panZoom.zoom(newScale);
     },
     showMap(id) {
       if (id) {
