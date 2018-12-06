@@ -65,8 +65,7 @@ export default {
       svgBigMapName: 'whole_metabolic_network_without_details',
 
       $panzoom: null,
-      focusX: 0,
-      focusY: 0,
+      currentZoomScale: 1,
 
       ids: [],
       elmFound: [],
@@ -83,9 +82,6 @@ export default {
 
       currentSearchMatch: 0,
       totalSearchMatch: 0,
-
-      labelZoomLvl: 0.40,
-      nodeZoomLvl: 0.15,
 
       svgMapURL: `${window.location.origin}/svgs`, // SEDME
     };
@@ -109,7 +105,6 @@ export default {
     EventBus.$off('loadHPARNAlevels');
 
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
-      // console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {
         this.svgName = '';
       }
@@ -164,51 +159,56 @@ export default {
   },
   methods: {
     toggleGenes() {
-      if ($('.enz, .ee').first().attr('visibility') == 'hidden') {
+      if ($('.enz, .ee').first().attr('visibility') === 'hidden') {
         $('.enz, .ee').attr('visibility', 'visible');
       } else {
         $('.enz, .ee').attr('visibility', 'hidden');
       }
     },
     zoomOut(bool) {
-      this.$panzoom ? this.$panzoom.panzoom('zoom', bool) : '';
+      if (this.$panzoom) {
+        this.$panzoom.panzoom('zoom', bool, {
+          focal: {
+            clientX: this.clientFocusX(),
+            clientY: this.clientFocusY(),
+          },
+        });
+      }
     },
     loadSvgPanZoom(callback) {
-      console.log(this.focusX, this.focusY);
-      const computedMinScale = $('.svgbox').width()/$('#svg-wrapper svg').width();
-      console.log($('.svgbox').width(), $('#svg-wrapper svg').width(), computedMinScale);
-      // $('#svg-wrapper svg').width($('.svgbox').width());
-      // $('#svg-wrapper svg').height($('.svgbox').height());
-      // $('#svg-wrapper svg').attr('width', $('.svgbox').width());
-      // $('#svg-wrapper svg').attr('height', $('.svgbox').height());
-      // $('#svg-wrapper svg').attr('viewBox', "0 0 " +  $('.svgbox').width() + " " + $('.svgbox').height());
       // load the lib svgPanZoom on the SVG loaded
       setTimeout(() => {
+        const minZoomScale = $('.svgbox').width() / $('#svg-wrapper svg').width();
+        if (this.$panzoom) {
+          this.$panzoom.panzoom('reset');
+        }
         this.$panzoom = $('#svg-wrapper').panzoom({
           maxScale: 1,
-          minScale: computedMinScale,
+          minScale: minZoomScale,
           increment: 0.05,
+          animate: false,
         });
-        this.$panzoom.on('mousewheel.focal', function(e) {
+        this.$panzoom.on('mousewheel.focal', (e) => {
           e.preventDefault();
           const delta = e.delta || e.originalEvent.wheelDelta;
           const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
           this.$panzoom.panzoom('zoom', zoomOut, {
-            animate: false,
             focal: e,
           });
         });
-        this.$panzoom.on('panzoompan', function(e, panzoom, x, y) {
-          console.log('pan', x, y);
+        this.$panzoom.on('panzoomzoom', (e, panzoom, scale) => { // ignored opts param
+          this.currentZoomScale = scale;
         });
-        this.$panzoom.on('panzoomzoom', function(e, panzoom, scale, opts) {
-          console.log('zoom', scale);
+        const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
+        const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
+        this.$panzoom.panzoom('pan', -focusX, -focusY);
+        this.$panzoom.panzoom('zoom', true, {
+          increment: 1 - minZoomScale,
+          focal: {
+            clientX: this.clientFocusX(),
+            clientY: this.clientFocusY(),
+          },
         });
-
-        this.focusX = $('#svg-wrapper svg').width()/2;
-        this.focusY = $('#svg-wrapper svg').height()/2;
-        this.$panzoom.panzoom('pan', -this.focusX, -this.focusY, {relative: false});
-        // this.$panzoom.panzoom('zoom', true, {increment: 0.95});
         this.unHighlight();
         if (callback) {
           // call findElementsOnSVG
@@ -336,6 +336,7 @@ export default {
         setTimeout(() => {
           if (this.elmFound.length !== 0) {
             this.currentSearchMatch = 1;
+            this.searchElementOnSVG(0);
           }
         }, 0);
       })
@@ -378,6 +379,24 @@ export default {
       } else if (this.currentSearchMatch > this.totalSearchMatch) {
         this.currentSearchMatch = 1;
       }
+      const currentElem = this.elmFound[this.currentSearchMatch - 1];
+      let coords = this.getSvgElemCoordinates(currentElem);
+      if (!coords) {
+        coords = this.getSvgElemCoordinates($(currentElem).find('.shape')[0]);
+      }
+      const x = coords[4];// - ($('.svgbox').width() / 2);
+      const y = coords[5];// - ($('.svgbox').height() / 2);
+      this.$panzoom.panzoom('pan', -x, -y);
+    },
+    getSvgElemCoordinates(el) {
+      // read and parse the transform attribut
+      let transform = el.getAttribute('transform');
+      if (transform) {
+        transform = transform.substring(0, transform.length - 1);
+        transform = transform.substring(7, transform.length);
+        return transform.split(',').map(parseFloat);
+      }
+      return null;
     },
     highlightElementsFound() {
       this.unHighlight();
@@ -432,6 +451,12 @@ export default {
     },
     unSelectElement() {
       EventBus.$emit('unSelectedElement');
+    },
+    clientFocusX() {
+      return ($('.svgbox').width() / 2) + $('#iSideBar').width();
+    },
+    clientFocusY() {
+      return ($('.svgbox').height() / 2) + $('#navbar').height();
     },
   },
 };
