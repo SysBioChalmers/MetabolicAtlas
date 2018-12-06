@@ -192,12 +192,13 @@ export default {
           e.preventDefault();
           const delta = e.delta || e.originalEvent.wheelDelta;
           const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-          this.$panzoom.panzoom('zoom', zoomOut, {
-            focal: e,
-          });
+          this.$panzoom.panzoom('zoom', zoomOut, { focal: e });
         });
         this.$panzoom.on('panzoomzoom', (e, panzoom, scale) => { // ignored opts param
           this.currentZoomScale = scale;
+        });
+        this.$panzoom.on('panzoompan', (e, panzoom, x, y) => {
+          console.log('pan', x, y);
         });
         const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
         const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
@@ -384,8 +385,8 @@ export default {
       if (!coords) {
         coords = this.getSvgElemCoordinates($(currentElem).find('.shape')[0]);
       }
-      const x = coords[4];// - ($('.svgbox').width() / 2);
-      const y = coords[5];// - ($('.svgbox').height() / 2);
+      const x = coords[4];
+      const y = coords[5];
       this.$panzoom.panzoom('pan', -x, -y);
     },
     getSvgElemCoordinates(el) {
