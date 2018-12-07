@@ -16,8 +16,8 @@
       </div>
       <div v-show="searchTerm && totalSearchMatch">
         <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
-        <span class="button has-text-dark" @click="searchElementOnSVG(-1)"><i class="fa fa-angle-left"></i></span>
-        <span class="button has-text-dark" @click="searchElementOnSVG(1)"><i class="fa fa-angle-right"></i></span>
+        <span class="button has-text-dark" @click="centerElementOnSVG(-1)"><i class="fa fa-angle-left"></i></span>
+        <span class="button has-text-dark" @click="centerElementOnSVG(1)"><i class="fa fa-angle-right"></i></span>
         <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
       </div>
     </div>
@@ -325,34 +325,30 @@ export default {
         this.searchInputClass = 'is-warning';
         return;
       }
-      if (this.totalSearchMatch) {
-        this.searchElementOnSVG(1);
-      } else {
-        this.isLoadingSearch = true;
-        axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
-        .then((response) => {
-          this.searchInputClass = 'is-success';
-          this.ids = response.data;
-          this.findElementsOnSVG();
-          setTimeout(() => {
-            if (this.elmFound.length !== 0) {
-              this.currentSearchMatch = 1;
-              this.searchElementOnSVG(0);
-            }
-          }, 0);
-        })
-        .catch((error) => {
-          this.isLoadingSearch = false;
-          const status = error.status || error.response.status;
-          if (status !== 404) {
-            this.$emit('loadComplete', false, this.$t('unknownError'));
-            this.searchInputClass = 'is-info';
-          } else {
-            this.searchInputClass = 'is-danger';
+      this.isLoadingSearch = true;
+      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
+      .then((response) => {
+        this.searchInputClass = 'is-success';
+        this.ids = response.data;
+        this.findElementsOnSVG();
+        setTimeout(() => {
+          if (this.elmFound.length !== 0) {
+            this.currentSearchMatch = 1;
+            this.centerElementOnSVG(0);
           }
-          return;
-        });
-      }
+        }, 0);
+      })
+      .catch((error) => {
+        this.isLoadingSearch = false;
+        const status = error.status || error.response.status;
+        if (status !== 404) {
+          this.$emit('loadComplete', false, this.$t('unknownError'));
+          this.searchInputClass = 'is-info';
+        } else {
+          this.searchInputClass = 'is-danger';
+        }
+        return;
+      });
     },
     findElementsOnSVG() {
       if (!this.ids) {
@@ -371,7 +367,7 @@ export default {
       }
       this.isLoadingSearch = false;
     },
-    searchElementOnSVG(increment) {
+    centerElementOnSVG(increment) {
       if (this.totalSearchMatch <= 1) {
         return;
       }
@@ -517,7 +513,7 @@ export default {
 
   #svgSearch {
     top: 2.25rem;
-    left: 25%;
+    left: 30%;
     margin: 0;
     padding: 15px;
     div {
@@ -530,7 +526,7 @@ export default {
     #searchInput {
       display: inline-block;
       margin-right: 5px;
-      width: 30vw;
+      width: 20vw;
     }
     #searchResCount {
       input {
