@@ -197,9 +197,6 @@ export default {
         this.$panzoom.on('panzoomzoom', (e, panzoom, scale) => { // ignored opts param
           this.currentZoomScale = scale;
         });
-        this.$panzoom.on('panzoompan', (e, panzoom, x, y) => {
-          console.log('pan', x, y);
-        });
         const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
         const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
         this.$panzoom.panzoom('pan', -focusX, -focusY);
@@ -328,30 +325,34 @@ export default {
         this.searchInputClass = 'is-warning';
         return;
       }
-      this.isLoadingSearch = true;
-      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
-      .then((response) => {
-        this.searchInputClass = 'is-success';
-        this.ids = response.data;
-        this.findElementsOnSVG();
-        setTimeout(() => {
-          if (this.elmFound.length !== 0) {
-            this.currentSearchMatch = 1;
-            this.searchElementOnSVG(0);
+      if (this.totalSearchMatch) {
+        this.searchElementOnSVG(1);
+      } else {
+        this.isLoadingSearch = true;
+        axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
+        .then((response) => {
+          this.searchInputClass = 'is-success';
+          this.ids = response.data;
+          this.findElementsOnSVG();
+          setTimeout(() => {
+            if (this.elmFound.length !== 0) {
+              this.currentSearchMatch = 1;
+              this.searchElementOnSVG(0);
+            }
+          }, 0);
+        })
+        .catch((error) => {
+          this.isLoadingSearch = false;
+          const status = error.status || error.response.status;
+          if (status !== 404) {
+            this.$emit('loadComplete', false, this.$t('unknownError'));
+            this.searchInputClass = 'is-info';
+          } else {
+            this.searchInputClass = 'is-danger';
           }
-        }, 0);
-      })
-      .catch((error) => {
-        this.isLoadingSearch = false;
-        const status = error.status || error.response.status;
-        if (status !== 404) {
-          this.$emit('loadComplete', false, this.$t('unknownError'));
-          this.searchInputClass = 'is-info';
-        } else {
-          this.searchInputClass = 'is-danger';
-        }
-        return;
-      });
+          return;
+        });
+      }
     },
     findElementsOnSVG() {
       if (!this.ids) {
@@ -385,9 +386,7 @@ export default {
       if (!coords) {
         coords = this.getSvgElemCoordinates($(currentElem).find('.shape')[0]);
       }
-      const x = coords[4];
-      const y = coords[5];
-      this.$panzoom.panzoom('pan', -x, -y);
+      this.panToCoords(coords[4], coords[5]);
     },
     getSvgElemCoordinates(el) {
       // read and parse the transform attribut
@@ -458,6 +457,24 @@ export default {
     },
     clientFocusY() {
       return ($('.svgbox').height() / 2) + $('#navbar').height();
+    },
+    panToCoords(panX, panY) {
+      const zoomBackTo = this.currentZoomScale;
+      this.$panzoom.panzoom('zoom', false, {
+        increment: 1 - this.currentZoomScale,
+        focal: {
+          clientX: this.clientFocusX(),
+          clientY: this.clientFocusY(),
+        },
+      });
+      this.$panzoom.panzoom('pan', -panX + ($('.svgbox').width() / 2), -panY + ($('.svgbox').height() / 2));
+      this.$panzoom.panzoom('zoom', true, {
+        increment: 1 - zoomBackTo,
+        focal: {
+          clientX: this.clientFocusX(),
+          clientY: this.clientFocusY(),
+        },
+      });
     },
   },
 };
