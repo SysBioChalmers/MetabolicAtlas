@@ -3,9 +3,9 @@
     <div id="svg-wrapper" v-html="svgContent">
     </div>
     <div id="svgOption" class="overlay">
-      <span class="button" v-on:click="panZoom ? panZoom.zoomIn() : ''"><i class="fa fa-search-plus"></i></span>
-      <span class="button" v-on:click="panZoom ? panZoom.zoomOut(): ''"><i class="fa fa-search-minus"></i></span>
-      <span class="button" v-on:click="svgfit()"><i class="fa fa-arrows-alt"></i></span>
+      <span class="button" v-on:click="zoomOut(false)"><i class="fa fa-search-plus"></i></span>
+      <span class="button" v-on:click="zoomOut(true)"><i class="fa fa-search-minus"></i></span>
+      <span class="button" v-on:click="toggleGenes()"><i class="fa fa-filter"></i></span>
     </div>
     <div id="svgSearch" class="overlay">
       <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
@@ -16,8 +16,8 @@
       </div>
       <div v-show="searchTerm && totalSearchMatch">
         <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
-        <span class="button has-text-dark" @click="searchPrevElementOnSVG"><i class="fa fa-angle-left"></i></span>
-        <span class="button has-text-dark" @click="searchNextElementOnSVG"><i class="fa fa-angle-right"></i></span>
+        <span class="button has-text-dark" @click="centerElementOnSVG(-1)"><i class="fa fa-angle-left"></i></span>
+        <span class="button has-text-dark" @click="centerElementOnSVG(1)"><i class="fa fa-angle-right"></i></span>
         <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
       </div>
     </div>
@@ -27,12 +27,25 @@
 
 <script>
 
-import $ from 'jquery';
 import axios from 'axios';
-import svgPanZoom from 'svg-pan-zoom';
+import $ from 'jquery';
+import JQPanZoom from 'jquery.panzoom';
+import JQMouseWheel from 'jquery-mousewheel';
 import Loader from 'components/Loader';
 import { default as EventBus } from '../../../event-bus';
 import { getExpressionColor } from '../../../expression-sources/hpa';
+
+// hack: the only way for jquery plugins to play nice with the plugins inside Vue
+$.Panzoom = JQPanZoom;
+$.fn.extend({
+  mousewheel: function fn(options) {
+    return this.each(function f() { return JQMouseWheel.mousewheel(this, options); });
+  },
+  unmousewheel: function fn() {
+    return this.each(function f() { return JQMouseWheel.unmousewheel(this); });
+  },
+});
+
 
 export default {
   name: 'svgmap',
@@ -50,7 +63,16 @@ export default {
       svgContentHistory: {},
       svgName: '',
       svgBigMapName: 'whole_metabolic_network_without_details',
-      panZoom: null,
+
+      $panzoom: null,
+      panzoomOptions: {
+        maxScale: 1,
+        minScale: 0.03,
+        increment: 0.03,
+        animate: false,
+        linearZoom: true,
+      },
+      currentZoomScale: 1,
 
       ids: [],
       elmFound: [],
@@ -67,22 +89,6 @@ export default {
 
       currentSearchMatch: 0,
       totalSearchMatch: 0,
-
-      zoomBox: {
-        minX: 99999,
-        maxX: 0,
-        minY: 99999,
-        maxY: 0,
-        centerX: 0,
-        centerY: 0,
-        h: 0,
-        w: 0,
-      },
-      maxZoomLvl: 0.65,
-      labelZoomLvl: 0.40,
-      nodeZoomLvl: 0.15,
-      allowZoom: true,
-      dragging: false,
 
       svgMapURL: `${window.location.origin}/svgs`, // SEDME
     };
@@ -106,7 +112,6 @@ export default {
     EventBus.$off('loadHPARNAlevels');
 
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
-      // console.log(`emit showSVGmap ${type} ${name} ${ids} ${forceReload}`);
       if (forceReload) {
         this.svgName = '';
       }
@@ -127,21 +132,6 @@ export default {
   },
   mounted() {
     const self = this;
-    $('#svg-wrapper').on('mousedown', 'svg', () => {
-      self.isDragging = false;
-    })
-    .on('mousemove', 'svg', () => {
-      self.isDragging = true;
-    })
-    .on('mouseup', 'svg', (e) => {
-      if (!self.isDragging) {
-        const target = $(e.target);
-        if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') && !target.hasClass('.subsystem')) {
-          self.unSelectElement();
-        }
-      }
-      self.isDragging = false;
-    });
     $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
       const id = $(this).attr('id').split('-')[0].trim();
@@ -156,12 +146,10 @@ export default {
       const id = $(this).attr('id');
       self.selectElement(id, 'reaction');
     });
-
     $('#svg-wrapper').on('click', '.subsystem', function f() {
       const id = $(this).attr('id');
       self.selectElement(id, 'subsystem');
     });
-
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
       const id = $(this).attr('id').split('-')[0].trim();
       if (id in self.enzymeRNAlevels) {
@@ -171,53 +159,57 @@ export default {
         self.$refs.tooltip.style.display = 'block';
       }
     });
-
     $('#svg-wrapper').on('mouseout', '.enz', () => {
       self.$refs.tooltip.innerHTML = '';
       self.$refs.tooltip.style.display = 'none';
     });
   },
   methods: {
-    loadSvgPanZoom(callback) {
-      // load the lib svgPanZoom on the SVG loaded
-      setTimeout(() => {
-        this.panZoom = svgPanZoom('#svg-wrapper svg', {
-          zoomEnabled: true,
-          controlIconsEnabled: false,
-          minZoom: 0.5,
-          maxZoom: 30,
-          zoomScaleSensitivity: 0.2,
-          fit: true,
-          beforeZoom: (oldzl, newzl) => {
-            const rzl = this.panZoom.getSizes().realZoom;
-            if (oldzl < newzl && rzl > this.maxZoomLvl + 0.01) {
-              this.allowZoom = false;
-              return false;
-            }
-            return true;
-          },
-          beforePan: () => {
-            if (!this.allowZoom) {
-              this.allowZoom = true;
-              return false;
-            }
-            return true;
-          },
-          onZoom: () => {
-            const rzl = this.panZoom.getSizes().realZoom;
-            if (rzl >= this.labelZoomLvl) {
-              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'inline');
-            } else {
-              $('.met .lbl, .rea .lbl, .enz .lbl').attr('display', 'none');
-            }
-            if (rzl >= this.nodeZoomLvl) {
-              $('.met, .rea, .enz, .fe, .ee').attr('display', 'inline');
-            } else {
-              $('.met, .rea, .enz, .fe, .ee').attr('display', 'none');
-            }
+    toggleGenes() {
+      if ($('.enz, .ee').first().attr('visibility') === 'hidden') {
+        $('.enz, .ee').attr('visibility', 'visible');
+      } else {
+        $('.enz, .ee').attr('visibility', 'hidden');
+      }
+    },
+    zoomOut(bool) {
+      if (this.$panzoom) {
+        this.$panzoom.panzoom('zoom', bool, {
+          focal: {
+            clientX: this.clientFocusX(),
+            clientY: this.clientFocusY(),
           },
         });
-        this.svgfit();
+      }
+    },
+    loadSvgPanZoom(callback) {
+      // load the lib svgPanZoom on the SVG loaded
+      if (!this.panzoom) {
+        this.$panzoom = $('#svg-wrapper').panzoom(this.panzoomOptions);
+      } else {
+        this.$panzoom = $('#svg-wrapper').panzoom('reset', this.panzoomOptions);
+      }
+      setTimeout(() => {
+        const minZoomScale = $('.svgbox').width() / $('#svg-wrapper svg').width();
+        const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
+        const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
+        this.$panzoom.panzoom('pan', -focusX, -focusY);
+        this.$panzoom.panzoom('zoom', true, {
+          increment: 1 - minZoomScale,
+          focal: {
+            clientX: this.clientFocusX(),
+            clientY: this.clientFocusY(),
+          },
+        });
+        this.$panzoom.on('mousewheel.focal', (e) => {
+          e.preventDefault();
+          const delta = e.delta || e.originalEvent.wheelDelta;
+          const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+          this.$panzoom.panzoom('zoom', zoomOut, { focal: e });
+        });
+        this.$panzoom.on('panzoomzoom', (e, panzoom, scale) => { // ignored opts param
+          this.currentZoomScale = scale;
+        });
         this.unHighlight();
         if (callback) {
           // call findElementsOnSVG
@@ -227,26 +219,11 @@ export default {
         }
       }, 0);
     },
-    svgfit() {
-      $('#svg-wrapper svg').attr('width', '100%');
-      const vph = $('.svgbox').first().innerHeight();
-      // console.log('vph', vph);
-
-      $('#svg-wrapper svg').attr('height', `${vph}px`);
-      if (this.panZoom) {
-        this.panZoom.resize(); // update SVG cached size
-        this.panZoom.fit();
-        this.panZoom.center();
-        this.panZoom.zoomOut(); // tmp fix for iacurate fitting
-      }
-    },
     loadSVG(id, callback) {
       // load the svg file from the server
       this.$emit('loading');
       // reset some values
       this.searchTerm = '';
-      this.totalSearchMatch = 0;
-      this.searchInputClass = 'is-info';
 
       // if already loaded, just call the callback funtion
       let currentLoad = this.$parent.compartmentsSVG[id];
@@ -260,7 +237,6 @@ export default {
       }
       const newSvgName = currentLoad.filename;
       if (!newSvgName) {
-        // TODO remove this when all svg files are available
         this.$emit('loadComplete', false, this.$t('mapNotFound'));
         return;
       }
@@ -288,7 +264,6 @@ export default {
               }, 0);
             })
             .catch(() => {
-              // TODO: handle error
               this.$emit('loadComplete', false, this.$t('mapNotFound'));
             });
         }
@@ -298,7 +273,6 @@ export default {
         callback();
       } else {
         this.loadedMap = currentLoad;
-        this.svgfit();
         this.$emit('loadComplete', true, '');
       }
     },
@@ -360,11 +334,10 @@ export default {
         this.searchInputClass = 'is-success';
         this.ids = response.data;
         this.findElementsOnSVG();
-        this.resetZoombox();
         setTimeout(() => {
           if (this.elmFound.length !== 0) {
             this.currentSearchMatch = 1;
-            this.updateZoomBox(this.elmFound[0]);
+            this.centerElementOnSVG(0);
           }
         }, 0);
       })
@@ -397,83 +370,24 @@ export default {
       }
       this.isLoadingSearch = false;
     },
-    searchNextElementOnSVG() {
+    centerElementOnSVG(increment) {
       if (this.totalSearchMatch <= 1) {
         return;
       }
-      this.currentSearchMatch += 1;
-      if (this.currentSearchMatch > this.totalSearchMatch) {
-        this.currentSearchMatch = 1;
-      }
-      this.resetZoombox();
-      this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
-    },
-    searchPrevElementOnSVG() {
-      if (this.totalSearchMatch <= 1) {
-        return;
-      }
-      this.currentSearchMatch -= 1;
+      this.currentSearchMatch += increment;
       if (this.currentSearchMatch < 1) {
         this.currentSearchMatch = this.totalSearchMatch;
+      } else if (this.currentSearchMatch > this.totalSearchMatch) {
+        this.currentSearchMatch = 1;
       }
-      this.resetZoombox();
-      this.updateZoomBox(this.elmFound[this.currentSearchMatch - 1]);
+      const currentElem = this.elmFound[this.currentSearchMatch - 1];
+      let coords = this.getSvgElemCoordinates(currentElem);
+      if (!coords) {
+        coords = this.getSvgElemCoordinates($(currentElem).find('.shape')[0]);
+      }
+      this.panToCoords(coords[4], coords[5]);
     },
-    updateZoomBoxCoor(coordinate) {
-      this.zoomBox.minX = coordinate.minX;
-      this.zoomBox.maxX = coordinate.maxX;
-      this.zoomBox.minY = coordinate.minY;
-      this.zoomBox.maxY = coordinate.maxY;
-    },
-    updateZoomBox(el) {
-      /* eslint-disable no-param-reassign */
-      const s = $(el).find('.shape')[0];
-      let t = this.getTransform(el);
-      if (!t) {
-        t = this.getTransform(s);
-      }
-      const x = t[4];
-      const y = t[5];
-      const oldDisplay = el.style.display;
-      el.style.display = 'block';
-      const w = s.getBBox().width;
-      const h = s.getBBox().height;
-      el.style.display = oldDisplay;
-      if (x < this.zoomBox.minX) {
-        this.zoomBox.minX = x;
-      }
-      if (x + w > this.zoomBox.maxX) {
-        this.zoomBox.maxX = x + w;
-      }
-      if (y < this.zoomBox.minY) {
-        this.zoomBox.minY = y;
-      }
-      if (y + h > this.zoomBox.maxY) {
-        this.zoomBox.maxY = y + h;
-      }
-      this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
-      this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
-      this.zoomOnBox();
-    },
-    resetZoombox() {
-      this.zoomBox = {
-        minX: 99999,
-        maxX: 0,
-        minY: 99999,
-        maxY: 0,
-        centerX: 0,
-        centerY: 0,
-        h: 0,
-        w: 0,
-      };
-    },
-    getCenterZoombox() {
-      this.zoomBox.w = this.zoomBox.maxX - this.zoomBox.minX;
-      this.zoomBox.h = this.zoomBox.maxY - this.zoomBox.minY;
-      this.zoomBox.centerX = this.zoomBox.minX + (this.zoomBox.w / 2.0);
-      this.zoomBox.centerY = this.zoomBox.minY + (this.zoomBox.h / 2.0);
-    },
-    getTransform(el) {
+    getSvgElemCoordinates(el) {
       // read and parse the transform attribut
       let transform = el.getAttribute('transform');
       if (transform) {
@@ -491,33 +405,16 @@ export default {
         this.elmHL.push(el);
       }
     },
-    unHighlight() {
+    unHighlight() { // un-highlight elements
       if (this.elmHL) {
-        // un-highlight elements
         for (let i = 0; i < this.elmHL.length; i += 1) {
           $(this.elmHL[i]).removeClass('hl');
         }
         this.elmHL = [];
       }
     },
-    zoomOnBox() {
-      this.getCenterZoombox();
-      const realZoom = this.panZoom.getSizes().realZoom;
-      this.panZoom.pan({
-        x: -(this.zoomBox.centerX * realZoom) + (this.panZoom.getSizes().width / 2),
-        y: -(this.zoomBox.centerY * realZoom) + (this.panZoom.getSizes().height / 2),
-      });
-      const viewBox = this.panZoom.getSizes().viewBox;
-      let newScale = Math.min(viewBox.width / this.zoomBox.w, viewBox.height / this.zoomBox.h);
-      const maxZoomLvl = (this.maxZoomLvl * this.panZoom.getZoom()) / realZoom;
-      if (newScale > maxZoomLvl) {
-        newScale = maxZoomLvl + 0.01;
-      }
-      this.panZoom.zoom(newScale);
-    },
     showMap(id) {
       if (id) {
-        // const compartment = getCompartmentFromName(compartmentName);
         this.loadSVG(id, null);
       }
     },
@@ -553,6 +450,30 @@ export default {
     },
     unSelectElement() {
       EventBus.$emit('unSelectedElement');
+    },
+    clientFocusX() {
+      return ($('.svgbox').width() / 2) + $('#iSideBar').width();
+    },
+    clientFocusY() {
+      return ($('.svgbox').height() / 2) + $('#navbar').height();
+    },
+    panToCoords(panX, panY) {
+      const zoomBackTo = this.currentZoomScale;
+      this.$panzoom.panzoom('zoom', false, {
+        increment: 1 - this.currentZoomScale,
+        focal: {
+          clientX: this.clientFocusX(),
+          clientY: this.clientFocusY(),
+        },
+      });
+      this.$panzoom.panzoom('pan', -panX + ($('.svgbox').width() / 2), -panY + ($('.svgbox').height() / 2));
+      this.$panzoom.panzoom('zoom', true, {
+        increment: 1 - zoomBackTo,
+        focal: {
+          clientX: this.clientFocusX(),
+          clientY: this.clientFocusY(),
+        },
+      });
     },
   },
 };
@@ -595,7 +516,7 @@ export default {
 
   #svgSearch {
     top: 2.25rem;
-    left: 25%;
+    left: 30%;
     margin: 0;
     padding: 15px;
     div {
@@ -608,7 +529,7 @@ export default {
     #searchInput {
       display: inline-block;
       margin-right: 5px;
-      width: 30vw;
+      width: 20vw;
     }
     #searchResCount {
       input {

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <nav id="navbar" class="navbar is-light" role="navigation" aria-label="main navigation">
+    <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
           <a id="logo" class="navbar-item" @click="goToPage('')" >
@@ -71,9 +71,12 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer">
+    <footer id="footer" class="footer has-background-light">
       <div class="columns">
-        <div class="column container">
+        <div class="column is-2">
+          <a @click="viewRelaseNotes">v1.0</a>
+        </div>
+        <div class="column is-8">
           <div class="content has-text-centered">
             <p v-html="$t('footerText')"></p>
             <p>
@@ -86,11 +89,19 @@
             </p>
           </div>
         </div>
-        <div class="is-pulled-right">
-          <a @click="viewRelaseNotes">v1.0</a>
-        </div>
       </div>
     </footer>
+    <div v-if="showCookieMsg" id="cookies" class="columns has-background-grey">
+      <div class="column has-text-centered">
+        <div class="has-text-white">
+          We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
+          <a class="button is-small is-rounded is-success has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
+            <span class="icon is-small"><i class="fa fa-check"></i></span>
+            <span>OKAY</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -99,6 +110,7 @@ import SvgIcon from './components/SvgIcon';
 import Logo from './assets/logo.svg';
 import router from './router';
 import { default as EventBus } from './event-bus';
+import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'app',
@@ -125,6 +137,8 @@ export default {
       showExploreInfo: false,
       activeBrowserBut: false,
       activeViewerBut: false,
+      showCookieMsg: !isCookiePolicyAccepted(),
+      acceptCookiePolicy,
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
@@ -226,6 +240,7 @@ export default {
 <style lang='scss'>
 
 $primary: #4E755A;
+$primary-light: #beccc3;
 $link: #006992;
 $warning: #FFC67D;
 $danger: #FF4D4D;
@@ -236,12 +251,10 @@ $body-size: 14px !default
 $desktop: 1192px !default;
 $widescreen: 1384px !default;
 $fullhd: 1576px !default;
-$switch-background: $primary;
 
 
 /* @import "./sass/extensions/_all" FIX ME */
 @import '~bulma';
-@import '~bulma-extensions/bulma-switch/dist/bulma-switch';
 @import './styles/mixins';
 
 @include keyframes(rotating) {
@@ -284,11 +297,6 @@ $switch-background: $primary;
   .button {
     width: 8rem;
   }
-}
-
-/* FIXME .is-light overwritten somewhere */
-.navbar.is-light {
-  background: whitesmoke;
 }
 
 .navbar-menu {
@@ -357,6 +365,51 @@ $switch-background: $primary;
       }
     }
   }
+}
+
+#home {
+  .menu-list li {
+    &:first-child {
+      margin-top: 0.75em;
+    }
+    &:last-child {
+      margin-bottom: 0.75em;
+    }
+    a {
+      color: white;
+    }
+    a:hover {
+      color: black;
+      background-color: $primary-light;
+      border-radius: 0;
+    }
+    .is-active {
+      color: black;
+      background-color: white;
+      border-radius: 0;
+    }
+  }
+  .margin-fix {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 0;
+  }
+  .homepage-submenu {
+    margin-left: 1.25em;
+  }
+  .more-padding {
+    padding: 3rem 3.75rem 3rem 3.75rem;
+  }
+}
+
+#cookies {
+  margin-top: 5px;
+  position: sticky;
+  bottom: 0;
+}
+
+.navbar-burger span {
+  height: 2px;
 }
 
 </style>
