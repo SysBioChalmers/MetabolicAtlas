@@ -4,8 +4,8 @@
       <div class="columns">
         <div class="column">
           <div class="card">
-            <header class="card-header">
-              <p class="card-header-title title">BIG BANNER HERE?</p>
+            <header class="card-header has-background-primary">
+              <p class="card-content title has-text-white">METABOLIC ATLAS - THE ATLAS FOR METABOLISM EXPLORATION</p>
             </header>
           </div>
         </div>
@@ -26,7 +26,7 @@
               <div class="column is-full-mobile more-padding">
                 <p class="is-size-5" v-html="currentMenu.text"></p>
               </div>
-              <div class="column is-full-mobile more-padding">
+              <div class="column is-full-mobile more-padding is-v-aligned">
                 <div class="card has-text-centered">
                   <img :src="currentMenu.img" />
                 </div>
@@ -38,8 +38,8 @@
       <div class="columns is-variable is-6">
         <div class="column is-half" v-for="card in cards">
           <div class="card is-size-5">
-            <header class="card-header has-background-primary has-text-white">
-              <p class="card-content has-text-weight-bold">{{ card.title }}</p>
+            <header class="card-header has-background-primary">
+              <p class="card-content has-text-weight-bold has-text-white">{{ card.title }}</p>
             </header>
             <div class="card-content">
               <p v-html="card.text"></p>
@@ -60,7 +60,7 @@ export default {
       menu: [
         { type: '',
           title: 'Welcome',
-          text: '<b>Metabolic Atlas</b> is a hub for genome scale metabolic models (GEMs): it integrates open-source consensus models for easy and visual browsing and analysis; also, it provides access to raw model files.<br><br>Citation goes here ?',
+          text: '<b>Metabolic Atlas</b> is a hub for genome scale metabolic models (GEMs): it integrates open-source consensus models for easy and visual browsing and analysis; also, it provides access to raw model files.<br><br>Citation goes here.',
           img: require('../assets/logo.png') },
         { type: '',
           title: 'Explore integrated models',
@@ -88,11 +88,11 @@ export default {
           img: '' },
         { type: 'homepage-submenu',
           title: 'Compare',
-          text: 'Work in progress<br><br>Before deciding on which GEM to download, use the <i>Compare</i> feature to see how different models overlap.',
+          text: 'Before deciding on which GEM to download, use the <i>Compare</i> feature to see how different models overlap.<br><br>This feature is still undergoing significant development.',
           img: require('../assets/compare.png') },
         { type: 'homepage-submenu',
           title: 'Analyze',
-          text: 'Work in progress',
+          text: 'This feature is still undergoing significant development.',
           img: '' },
         { type: 'homepage-submenu',
           title: 'Download',
@@ -101,15 +101,14 @@ export default {
         { type: '',
           title: 'Resources',
           text: 'Working with metabolic models requires a set of tools and external databases, which we have collected for one-click access.<br>The <b>Metabolic Atlas</b> database is open to further integrations via the API.',
-          img: '',
-        },
+          img: require('../assets/resources.png') },
       ],
       currentMenu: {},
       cards: [
         { title: 'Latest news',
-          text: '<p>28.11.2018 <i>Human1</i> is now integrated<br>23.11.2018 <i>Yeast8</i> is not integrated</p>' },
+          text: '<p> 17.12.2018 MapViewer is speedier at browsing manually curated maps <br> 08.12.2018 New maps for <i>Human1</i> are being created <br> 28.11.2018 <i>Human1</i> is now integrated <br> 23.11.2018 <i>Yeast8</i> is now integrated </p>' },
         { title: 'Community',
-          text: '<p>Sint possimus est aut. Et aliquid temporibus eveniet excepturi. Ducimus natus et facere ipsum voluptatem hic. Eaque quisquam fuga nihil velit alias similique quisquam eum. Eius ab in ex perspiciatis quidem voluptas. <br> Sint possimus est aut. Et aliquid temporibus eveniet excepturi. Ducimus natus et facere ipsum voluptatem hic. Eaque quisquam fuga nihil velit alias similique quisquam eum. Eius ab in ex perspiciatis quidem voluptas.</p>' },
+          text: '<p>One should try to not underestimate the effort put in by scientists all over the world into creating all the knowledge required to assemble high quality genome scale metabolic models. We are grateful to all of them, and are passionate about continuing on this journey of open curation of models.<br>On this note, we would like to invite you to discover the world of GEMs through Metabolic Atlas, hoping this will enhance your interest in this field.</p>' },
       ],
     };
   },
