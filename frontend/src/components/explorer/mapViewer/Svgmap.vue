@@ -65,6 +65,13 @@ export default {
       svgBigMapName: 'whole_metabolic_network_without_details',
 
       $panzoom: null,
+      panzoomOptions: {
+        maxScale: 1,
+        minScale: 0.03,
+        increment: 0.03,
+        animate: false,
+        linearZoom: true,
+      },
       currentZoomScale: 1,
 
       ids: [],
@@ -177,26 +184,13 @@ export default {
     },
     loadSvgPanZoom(callback) {
       // load the lib svgPanZoom on the SVG loaded
+      if (!this.panzoom) {
+        this.$panzoom = $('#svg-wrapper').panzoom(this.panzoomOptions);
+      } else {
+        this.$panzoom = $('#svg-wrapper').panzoom('reset', this.panzoomOptions);
+      }
       setTimeout(() => {
         const minZoomScale = $('.svgbox').width() / $('#svg-wrapper svg').width();
-        if (this.$panzoom) {
-          this.$panzoom.panzoom('reset');
-        }
-        this.$panzoom = $('#svg-wrapper').panzoom({
-          maxScale: 1,
-          minScale: minZoomScale,
-          increment: 0.05,
-          animate: false,
-        });
-        this.$panzoom.on('mousewheel.focal', (e) => {
-          e.preventDefault();
-          const delta = e.delta || e.originalEvent.wheelDelta;
-          const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-          this.$panzoom.panzoom('zoom', zoomOut, { focal: e });
-        });
-        this.$panzoom.on('panzoomzoom', (e, panzoom, scale) => { // ignored opts param
-          this.currentZoomScale = scale;
-        });
         const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
         const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
         this.$panzoom.panzoom('pan', -focusX, -focusY);
@@ -206,6 +200,15 @@ export default {
             clientX: this.clientFocusX(),
             clientY: this.clientFocusY(),
           },
+        });
+        this.$panzoom.on('mousewheel.focal', (e) => {
+          e.preventDefault();
+          const delta = e.delta || e.originalEvent.wheelDelta;
+          const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+          this.$panzoom.panzoom('zoom', zoomOut, { focal: e });
+        });
+        this.$panzoom.on('panzoomzoom', (e, panzoom, scale) => { // ignored opts param
+          this.currentZoomScale = scale;
         });
         this.unHighlight();
         if (callback) {
