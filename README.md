@@ -1,73 +1,53 @@
 # Metabolic Atlas
-
-## Introduction
-
 Welcome to the codebase for the Metabolic Atlas project.
 
-The front-end uses [Vue.js](https://vuejs.org), with help of [webpack](https://webpack.js.org) and [yarn](https://yarnpkg.com/en/).
-
-The back-end uses [Django REST framework](http://www.django-rest-framework.org) with [PostgreSQL](https://www.postgresql.org) as the database.
-
-To learn more about the project, please visit the [wiki](https://github.com/SysBioChalmers/hma-prototype/wiki).
+The front-end uses [Vue.js](https://vuejs.org), with help of [webpack](https://webpack.js.org) and [yarn](https://yarnpkg.com/en/). The back-end uses [Django REST framework](http://www.django-rest-framework.org) with [PostgreSQL](https://www.postgresql.org) as the database.  
+To learn more about the project, please visit the [wiki](https://github.com/SysBioChalmers/MetabolicAtlas/wiki).
 
 ## Prerequisites
-Docker, along with docker-compose, is used to manage the dependencies of this project.
-
-To install docker, download it from [here](https://www.docker.com/products/docker) (docker-compose should be installed along with the process).
-
+Docker, along with docker-compose, is used to manage the dependencies of this project. To install docker, download it from [here](https://www.docker.com/products/docker) (docker-compose should be installed along with the process).
 
 ## Get started
 
 Add a `postgres.env` file based on the `postgres.env.sample` file:
-
 ```bash
 cp postgres.env.sample postgres.env
 ```
+and modify the `postgres.env`.
 
-Modify the `postgres.env`
-
-### To get a list of helper commands
-
+To get a list of helper commands:
 ```bash
 source proj.sh
 ```
 
-### Build and run the project
-
+Build and run the project:
 ```bash
 build-stack
-```
-
-```bash
 start-stack
 ```
 
-The frontend should be available at: `http://localhost/`, for example: `http://localhost/?tab=3&id=E_3396.`
-The backend should be available at: `http://localhost/api/`, for example: `http://localhost/api/reaction_components/E_3379/with_interaction_partners`.
-There is also a swagger UI for browsing the API at: `http://localhost/swagger`.
+The frontend should be available at: `http://localhost/`.
+The backend should be available at: `http://localhost/api/`. There is also a swagger UI for browsing the API at: `http://localhost/swagger`.
 
-If you encounter any problems try running `restart-stack`. or look at the logs `logs backend` / `logs frontend`
+If you encounter any problems try running `restart-stack`, or look at the logs `logs backend` / `logs frontend`
 
 ### Create the databases
 
-The Full models databases are mapping public models (supposedly) inserted into the GEMs database, thus GEMs database should be built prior the Full models databases.
+The integrated models databases are mapping public models (supposedly) inserted into the GEMs database, thus GEMs database should be built prior the Full models databases.
 
 #### GEMs database
 
-Connect to the corresponding DB docker container (db2)
-
+Connect to the corresponding DB docker container (db2):
 ```bash
 docker exec -it db2  bash
 ```
 
 To disconnect all sessions open on a database use:
-
 ```bash
 SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'gems' AND pid <> pg_backend_pid();
 ```
 
-Create the db in psql (-U postgres)
-
+Create the db in psql (-U postgres):
 ```sql
 CREATE DATABASE "gems" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
 ```
@@ -87,11 +67,9 @@ Note: model files are stored in backend/model_files/FTP, removing this folder wi
 
 
 To import **public** models from SysbioChalmers Github organization, run:
-
 ```bash
 python manage.py getGithubModels
 ```
-
 Watch out the API rate limit (https://developer.github.com/v3/rate_limit/).
 
 #### Full model databases
@@ -109,13 +87,11 @@ CREATE DATABASE "hmr2" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US
 ```
 
 To disconnect all sessions open on a database use:
-
 ```bash
 SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'hmr2' AND pid <> pg_backend_pid();
 ```
 
 Then connect to the **backend container** and run:
-
 ```bash
 source postgres.env                               # to load the environment variables
 
@@ -148,27 +124,22 @@ python manage.py addMapsInformation [database] [map type] [map directory] [map m
 see the example file [hmr2_compartmentSVG.tsv](/backend/database_generation/example/hmr2_compartmentSVG.tsv)
 
 
-### dump databases
+### Dump databases
 
-#### Full model databases
-
+Integrated model databases:
 ```bash
 docker exec -it db1  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
 ```
 
-#### GEMs database
-
+GEMs database:
 ```bash
 docker exec -it db2 pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > gems.db
 ```
 
 ### Import databases
 
-```bash 
-docker exec -it db1 psql -U postgres hmr2 < PATH_TO_DB_FILE 
-``` 
-
 ```bash
+docker exec -it db1 psql -U postgres hmr2 < PATH_TO_DB_FILE
 docker exec -it db2 psql -U postgres gems < PATH_TO_DB_FILE
 ```
 
@@ -183,24 +154,24 @@ Make sure the YAML format of the model is available.
 
 Each model is stored in separated database.
 
-2) Create the database as decribes in [Full model databases](#Full_model_databases) section.
+2) Create the database as decribes in [Integrated model databases](#Integrated_model_databases) section.
 
 3) Add the database in the setting.py file with the name used to create the database. e.g.
 
 ```bash
-    ...
-    'yeast': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'yeast',
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db',
-        'PORT': 5432,
-    },
-    ...
+...
+'yeast': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'yeast',
+    'USER': os.getenv('POSTGRES_USER'),
+    'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+    'HOST': 'db',
+    'PORT': 5432,
+},
+...
 ```
 
-4) run makemigrations and migrate the new database as decribes in [Full model databases](#Full_model_databases) section.
+4) run makemigrations and migrate the new database as decribes in [Full model databases](#Integrated_model_databases) section.
 
 5) run populateDB. The 'model label' is extracted/generate when reading the model README file step 1) and is written in the 'gem' table.
   - if you got an error when parsing the YAML file, run python fixYAML.py [model yml file] located in backend/database_generation
@@ -223,15 +194,10 @@ source proj.sh
 ```
 
 Then you will get access to the following commands:
-
-* To bootstrap the project: `$ build-stack`
-* To run the project: `$ start-stack`
-* To display real-time logs: `$ logs`
+* To bootstrap the project: `build-stack`
+* To run the project: `start-stack`
+* To display real-time logs: `logs`
 * To stop the project: `stop-stack`
-* To create new migrationfiles: `db-make-migrations`
+* To create new migration files: `db-make-migrations`
 * To run a database migration: `db-migrate`
-* To create a django superuser: `create-su`
-
-
-## Collaboration
-For details on using github, please visit the [sysbio wiki](http://wiki.sysbio.chalmers.se/mediawiki/index.php/Development_guidelines#Github).
+* To create a Django superuser: `create-su`
