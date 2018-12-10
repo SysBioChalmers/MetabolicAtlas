@@ -184,7 +184,7 @@ export default {
     },
     loadSvgPanZoom(callback) {
       // load the lib svgPanZoom on the SVG loaded
-      if (!this.panzoom) {
+      if (!this.$panzoom) {
         this.$panzoom = $('#svg-wrapper').panzoom(this.panzoomOptions);
       } else {
         this.$panzoom = $('#svg-wrapper').panzoom('reset', this.panzoomOptions);
