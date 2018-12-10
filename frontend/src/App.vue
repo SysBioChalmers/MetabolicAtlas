@@ -377,6 +377,7 @@ $fullhd: 1576px !default;
     }
     a {
       color: white;
+      padding-left: 1.5em;
     }
     a:hover {
       color: black;
@@ -399,6 +400,15 @@ $fullhd: 1576px !default;
   }
   .more-padding {
     padding: 3rem 3.75rem 3rem 3.75rem;
+  }
+  .card-header > .card-content {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+  .is-v-aligned {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
