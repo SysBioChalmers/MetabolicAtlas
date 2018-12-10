@@ -118,7 +118,7 @@
                 <div class="comp">
                   <span>Shape:</span>
                   <div class="select">
-                    <select v-model="nodeDisplayParams.enzymeNodeShape" 
+                    <select v-model="nodeDisplayParams.enzymeNodeShape"
                     v-on:change="redrawGraph()">
                       <option v-for="shape in availableNodeShape">
                       {{ shape }}
@@ -137,7 +137,7 @@
                 <div class="comp">
                   <span>Shape:</span>
                   <div class="select">
-                    <select v-model="nodeDisplayParams.metaboliteNodeShape" 
+                    <select v-model="nodeDisplayParams.metaboliteNodeShape"
                     v-on:change="redrawGraph()">
                       <option v-for="shape in availableNodeShape">
                       {{ shape }}
@@ -174,7 +174,7 @@
                       </div>
                       <br>
                       <div class="select is-fullwidth" :class="{ 'is-loading' : loadingHPA && toggleEnzymeExpLevel}" v-show="toggleEnzymeExpLevel && !disableExpLvl">
-                        <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel" 
+                        <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel"
                         @change.prevent="applyLevels('enzyme', 'HPA', 'RNA', selectedSample)">
                           <optgroup label="HPA - RNA levels - Tissues">
                            <!--  <option value="None">None</option> -->
@@ -199,7 +199,7 @@
                     <header class="card-header">
                       <p class="card-header-title">
                         Highlight&nbsp;
-                        <span class="button has-margin-left" v-on:click="resetHighlight(false)" 
+                        <span class="button has-margin-left" v-on:click="resetHighlight(false)"
                         :disabled="isCompartmentSubsystemHLDisabled()"
                         :class="{'is-disabled': isCompartmentSubsystemHLDisabled() }">
                           <i class="fa fa-eraser"></i>
@@ -231,7 +231,7 @@
                 </div>
               </div>
               <div class="columns">
-                <sidebar id="sidebar" :selectedElm="clickedElm" :view="'interaction'"" :model="model"></sidebar>
+                <sidebar id="sidebar" :selectedElm="clickedElm" :view="'interaction'" :model="model"></sidebar>
               </div>
             </div>
           </div>
