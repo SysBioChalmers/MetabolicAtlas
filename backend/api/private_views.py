@@ -331,6 +331,15 @@ def get_db_json(request, model, component_name_id=None, ctype=None, dup_meta=Fal
 #####################################################################################
 
 @api_view()
+def HPA_all_enzymes(request):
+    model = "hmr2"
+    try:
+        result = APImodels.SubsystemEnzyme.objects.using(model).values_list('rc__id', 'subsystem__name','subsystem__name_id')
+        return JSONResponse(result)
+    except:
+        return JSONResponse({})
+
+@api_view()
 def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
     model = "hmr2"
     # TODO provide the model, remove 'hmr2'
@@ -338,7 +347,7 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         res = APImodels.ReactionComponent.objects.using(model).get(id=ensembl_id)
         rcid = res.id
     except:
-        return JSONResponse([])
+        return JSONResponse({})
 
     subs = APImodels.Subsystem.objects.using(model).filter(
             Q(id__in=APImodels.SubsystemEnzyme.objects.using(model).filter(rc_id=rcid).values('subsystem_id')) &
