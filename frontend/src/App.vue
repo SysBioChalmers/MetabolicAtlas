@@ -7,16 +7,15 @@
           <router-link id="logo" class="navbar-item" to="/" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
           </router-link>
-          <a class="navbar-item" v-if="showExploreInfo"
-             :class="{ 'is-active': activeBrowserBut }"
-             @click="goToGemBrowser()">
-             GEM<br>Browser
+          <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+            :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
+              GEM<br>Browser
           </a>
-          <router-link class="navbar-item" v-if="showExploreInfo" :class="{ 'is-active': activeViewerBut }"
-            :to="{ path: `/explore/map-viewer/${this.model}/compartment/nucleus?dim=2d` }">
-            Map<br>Viewer
-          </router-link>
-          <span v-if="showExploreInfo" id="modelHeader" class="is-unselectable" style="margin: auto 0">
+          <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+            :class="{ 'is-active': activeViewerBut }" @click="goToMapViewer()">
+              Map<br>Viewer
+          </a>
+          <span v-if="activeViewerBut || activeBrowserBut" id="modelHeader" class="is-unselectable" style="margin: auto 0">
             <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
             <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
           </span>
@@ -128,7 +127,6 @@ export default {
         'Documentation': '/documentation',
         'About': '/about',
       },
-      showExploreInfo: false,
       activeBrowserBut: false,
       activeViewerBut: false,
       showCookieMsg: !isCookiePolicyAccepted(),
@@ -136,25 +134,20 @@ export default {
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
+      viewerLastPath: '',
       isMobileMenu: false,
     };
   },
   watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      this.saveBrowserPath();
+    $route: function watchSetup() {
       this.setupButons();
     },
   },
   beforeMount() {
     EventBus.$on('modelSelected', (model) => {
       this.model = model;
-    });
-    EventBus.$on('showExploreInfo', () => {
-      this.showExploreInfo = true;
-    });
-    EventBus.$on('hideExploreInfo', () => {
-      this.showExploreInfo = false;
+      this.viewerLastPath = '';
+      this.browserLastPath = '';
     });
   },
   created() {
@@ -163,21 +156,18 @@ export default {
   methods: {
     setupButons() {
       if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
-        this.showExploreInfo = true;
         this.activeBrowserBut = true;
         this.activeViewerBut = false;
         this.model = this.$route.params.model;
-        // this.goToGemsBrowser();
-        this.saveBrowserPath();
+        this.savePath();
       } else if (this.$route.name === 'viewer' ||
         this.$route.name === 'viewerCompartment' ||
         this.$route.name === 'viewerSubsystem') {
-        this.showExploreInfo = true;
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
         this.model = this.$route.params.model;
+        this.savePath();
       } else {
-        this.showExploreInfo = false;
         this.activeBrowserBut = false;
         this.activeViewerBut = false;
       }
@@ -189,18 +179,25 @@ export default {
       return false;
     },
     goToGemBrowser() {
-      if (this.browserLastPath) {
-        this.$router.push(this.browserLastPath);
-      } else {
-        this.$router.push(`/explore/gem-browser/${this.model}`);
-      }
+      this.$router.push(this.browserLastPath || `/explore/gem-browser/${this.model}`);
     },
-    saveBrowserPath() {
+    savePath() {
       if (this.$route.name === 'browser') {
         this.browserLastPath = this.$route.path;
       } else if (this.$route.name === 'browserRoot') {
         this.browserLastPath = '';
+      } else if (this.$route.name === 'viewerCompartment' || this.$route.name === 'viewerSubsystem') {
+        this.viewerLastPath = this.$route.path;
+      } else if (this.$route.name === 'viewer') {
+        this.viewerLastPath = '';
       }
+    },
+    goToMapViewer() {
+      this.$router.push(this.viewerLastPath || `/explore/map-viewer/${this.model}`);
+    },
+    clearBrowserViewerPaths() {
+      this.viewerLastPath = '';
+      this.browserLastPath = '';
     },
   },
 };
