@@ -331,6 +331,12 @@ def get_db_json(request, model, component_name_id=None, ctype=None, dup_meta=Fal
 #####################################################################################
 
 @api_view()
+def HPA_all_enzymes(request):
+    model = "hmr2"
+    result = APImodels.SubsystemEnzyme.objects.using(model).values_list('rc__id', 'subsystem__name','subsystem__name_id')
+    return JSONResponse(result)
+
+@api_view()
 def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
     model = "hmr2"
     # TODO provide the model, remove 'hmr2'
@@ -338,7 +344,7 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         res = APImodels.ReactionComponent.objects.using(model).get(id=ensembl_id)
         rcid = res.id
     except:
-        return JSONResponse([])
+        return HttpResponse(status=404)
 
     subs = APImodels.Subsystem.objects.using(model).filter(
             Q(id__in=APImodels.SubsystemEnzyme.objects.using(model).filter(rc_id=rcid).values('subsystem_id')) &
@@ -355,7 +361,7 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         sub['enzymes'] = APImodels.SubsystemEnzyme.objects.using(model).filter(subsystem_id=sub['id']).values_list('rc_id', flat=True)
         sub['compartments'] = list(compartments)
         sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using(model).filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
-        sub['map_url'] = "https://ftp.icsb.chalmers.se/maps/%s/%s.svg" % (model, sub['name_id'])
+        sub['map_url'] = "https://ftp.icsb.chalmers.se/.maps/%s/%s.svg" % (model, sub['name_id'])
         sub['subsystem_url'] = "https://icsb.chalmers.se/explore/gem-browser/%s/subsystem/%s" % (model, sub['name_id'])
         sub['model_metabolite_count'] = sub['unique_metabolite_count']
         sub['compartment_metabolite_count'] = sub['metabolite_count']
@@ -369,7 +375,7 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         'enzyme_url': "https://icsb.chalmers.se/explore/gem-browser/%s/enzyme/%s" % (model, ensembl_id),
         'subsystems': subsystems,
         'doc': 'A subsystem can contain the same chemical metabolite that comes from different compartments.',
-    } if ensembl_id else None
+    }
 
     return JSONResponse(result)
 
