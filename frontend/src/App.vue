@@ -4,19 +4,18 @@
     <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
-          <a id="logo" class="navbar-item" @click="goToPage('')" >
+          <router-link id="logo" class="navbar-item" to="/" >
             <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
-          </a>
+          </router-link>
           <a class="navbar-item" v-if="showExploreInfo"
              :class="{ 'is-active': activeBrowserBut }"
              @click="goToGemsBrowser()">
              GEM<br>Browser
           </a>
-          <a class="navbar-item" v-if="showExploreInfo"
-             :class="{ 'is-active': activeViewerBut }"
-             @click="goToGemsViewer()">
-             Map<br>Viewer
-          </a>
+          <router-link class="navbar-item" v-if="showExploreInfo" :class="{ 'is-active': activeViewerBut }"
+            :to="{ path: `/explore/map-viewer/${this.model}/compartment/nucleus?dim=2d` }">
+            Map<br>Viewer
+          </router-link>
           <span v-if="showExploreInfo" id="modelHeader" class="is-unselectable" style="margin: auto 0">
             <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
             <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
@@ -32,36 +31,30 @@
           <div class="navbar-start">
           </div>
           <div class="navbar-end">
-            <template v-for="menuItem, index in menuItems">
-              <template v-if="Array.isArray(menuItem)">
+            <template v-for="(menuPath, menuName) in menuElems">
+              <template v-if="Array.isArray(menuPath)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
                   <a class="navbar-link"
-                  :class="{ 'is-active': menuItem[0] === activeDropMenu }"
-                  @click="goToPage(menuItem[0])">
-                    {{ menuItem[0] }}
+                  :class="{ 'is-active': false }">
+                    {{ menuName}}
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item is-primary is-unselectable"
-                    v-for="submenu, index in menuItem" v-if="index !== 0"
-                    @click="goToPage(submenu)">
-                      {{ submenu }}
-                    </a>
+                    <template v-for="submenu in menuPath">
+                      <template v-for="(submenuPath, submenuName) in submenu">
+                        <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
+                          :class="{ 'is-active': isActiveRoute(submenuPath) }">
+                          {{ submenuName }}
+                        </router-link>
+                      </template>
+                    </template>
                   </div>
                 </div>
               </template>
-              <template v-else-if="menuItem === 'explore'">
-                  <a class="navbar-item is-unselectable"
-                   :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
-                   @click="goToPage(menuItem)">
-                   <span class="is-hidden-touch has-text-centered"><b>Explore<br>models</b></span>
-                   <span class="is-hidden-desktop"><b>Explore models</b></span>
-                 </a>
-              </template>
               <template v-else>
-                <a class="navbar-item is-unselectable"
-                   :class="{ 'is-active': isActiveRoute(menuItem) }"
-                   @click="goToPage(menuItem)"
-                   v-html="menuItem"></a>
+                <router-link class="navbar-item is-unselectable"  :to="{ path: menuPath }"
+                  :class="{ 'is-active': isActiveRoute(menuPath) }">
+                  {{ menuName}}
+                </router-link>
               </template>
             </template>
           </div>
@@ -119,21 +112,23 @@ export default {
   },
   data() {
     return {
+      /* eslint-disable quote-props */
       Logo,
-      menuItems: [
-        'explore',
-        [this.$t('navBut1Title'),
-          this.$t('navBut11Title'),
-          this.$t('navBut12Title'),
+      menuElems: {
+        'Explore models': '/explore',
+        'GEMs': [
+          { 'List of GEMs': '/gems' },
+          { 'Compare': '/gems/compare' },
+          { 'Download': '/gems/download' },
         ],
-        [this.$t('navBut2Title'),
-          this.$t('navBut21Title'),
-          this.$t('navBut22Title'),
-          this.$t('navBut23Title'),
+        'Resources': [
+          { 'Tools': '/resources#tools' },
+          { 'External Databases': '/resources#databases' },
+          { 'API': '/resources#api' },
         ],
-        this.$t('navBut3Title'),
-        this.$t('navBut4Title'),
-      ],
+        'Documentation': '/documentation',
+        'About': '/about',
+      },
       showExploreInfo: false,
       activeBrowserBut: false,
       activeViewerBut: false,
@@ -182,31 +177,15 @@ export default {
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
         this.model = this.$route.params.model;
-        // this.goToGemsViewer();
       } else {
         this.showExploreInfo = false;
         this.activeBrowserBut = false;
         this.activeViewerBut = false;
       }
     },
-    goToPage(name) {
-      if (['tools', 'external databases', 'api'].includes(name.toLowerCase())) {
-        if (name.toLowerCase() === 'external databases') {
-          name = 'databases'; // eslint-disable-line no-param-reassign
-        }
-        router.push(`/resources#${name.toLowerCase()}`);
-      } else if (['compare', 'download'].includes(name.toLowerCase())) {
-        router.push(`/gems/${name.toLowerCase()}`);
-      } else {
-        router.push(`/${name.toLowerCase()}`);
-      }
-    },
     isActiveRoute(name) {
-      if (this.$route.name) {
-        if (Array.isArray(name)) {
-          return name[0].toLowerCase() === this.$route.name.toLowerCase();
-        }
-        return name.toLowerCase() === this.$route.name.toLowerCase();
+      if (this.$route.path) {
+        return name.toLowerCase() === this.$route.path.toLowerCase();
       }
       return false;
     },
@@ -216,9 +195,6 @@ export default {
       } else {
         this.$router.push(`/explore/gem-browser/${this.model}`);
       }
-    },
-    goToGemsViewer() {
-      this.$router.push(`/explore/map-viewer/${this.model}`);
     },
     saveBrowserPath() {
       if (this.$route.name === 'browser') {
