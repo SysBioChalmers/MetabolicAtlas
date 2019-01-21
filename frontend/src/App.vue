@@ -9,7 +9,7 @@
           </router-link>
           <a class="navbar-item" v-if="showExploreInfo"
              :class="{ 'is-active': activeBrowserBut }"
-             @click="goToGemsBrowser()">
+             @click="goToGemBrowser()">
              GEM<br>Browser
           </a>
           <router-link class="navbar-item" v-if="showExploreInfo" :class="{ 'is-active': activeViewerBut }"
@@ -67,7 +67,7 @@
     <footer id="footer" class="footer has-background-light">
       <div class="columns">
         <div class="column is-2">
-          <a @click="viewRelaseNotes">v1.0</a>
+          <router-link to="/about#releaseNotes">v1.0</router-link>
         </div>
         <div class="column is-8">
           <div class="content has-text-centered">
@@ -101,7 +101,6 @@
 <script>
 import SvgIcon from './components/SvgIcon';
 import Logo from './assets/logo.svg';
-import router from './router';
 import { default as EventBus } from './event-bus';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
@@ -189,7 +188,7 @@ export default {
       }
       return false;
     },
-    goToGemsBrowser() {
+    goToGemBrowser() {
       if (this.browserLastPath) {
         this.$router.push(this.browserLastPath);
       } else {
@@ -202,12 +201,6 @@ export default {
       } else if (this.$route.name === 'browserRoot') {
         this.browserLastPath = '';
       }
-    },
-    viewRelaseNotes() {
-      router.push({
-        path: '/About#releaseNotes',
-        query: {},
-      });
     },
   },
 };
