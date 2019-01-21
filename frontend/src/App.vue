@@ -53,7 +53,7 @@
                   <a class="navbar-item is-unselectable"
                    :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
                    @click="goToPage(menuItem)">
-                   <span class="is-hidden-touch has-text-centered"><b>Explore<br>models</b></span>
+                   <span class="is-hidden-touch has-text-centered">Explore<br>models</span>
                    <span class="is-hidden-desktop"><b>Explore models</b></span>
                  </a>
               </template>
@@ -95,7 +95,7 @@
       <div class="column has-text-centered">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
-          <a class="button is-small is-rounded is-success has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
+          <a class="button is-small is-rounded has-background-contrast-light has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
             <span class="icon is-small"><i class="fa fa-check"></i></span>
             <span>OKAY</span>
           </a>
@@ -241,6 +241,9 @@ export default {
 
 $primary: #4E755A;
 $primary-light: #beccc3;
+$contrast: #4a506c;
+$contrast-light: #fbe5ba;
+$high-contrast: #f46036;
 $link: #006992;
 $warning: #FFC67D;
 $danger: #FF4D4D;
@@ -272,10 +275,33 @@ $fullhd: 1576px !default;
   flex: 1;
 }
 
+.has-background-primary-light {
+  background-color: $primary-light;
+}
+
+.has-background-contrast {
+  background-color: $contrast;
+}
+
+.has-background-contrast-light {
+  background-color: $contrast-light;
+}
+
+.has-background-hcontrast {
+  background-color: $high-contrast;
+  border-color: transparent;
+}
+
 #app {
   display: flex;
   min-height: 100vh;
   flex-direction: column
+}
+
+#navbar {
+  .is-active {
+    background-color: $contrast-light;
+  }
 }
 
 #modelHeader {
