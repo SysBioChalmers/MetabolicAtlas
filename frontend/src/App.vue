@@ -113,7 +113,7 @@ export default {
       /* eslint-disable quote-props */
       Logo,
       menuElems: {
-        'Explore models': '/explore',
+        'Explore': '/explore',
         'GEMs': [
           { 'List of GEMs': '/gems' },
           { 'Compare': '/gems/compare' },
