@@ -62,19 +62,20 @@
     </keep-alive>
     <footer id="footer" class="footer has-background-light">
       <div class="columns">
-        <div class="column is-2">
-          <router-link to="/about#releaseNotes">v1.0</router-link>
+        <div class="column is-6">
+          <!-- <router-link to="/about#releaseNotes">v1.0</router-link> -->
+          <p><a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a> | Department of Biology and Biological Engineering</p>
+          <p>Chalmers University of Technology</p>
         </div>
-        <div class="column is-8">
-          <div class="content has-text-centered">
-            <p v-html="$t('footerText')"></p>
+        <div class="column is-6">
+          <div class="content has-text-right">
             <p>
+              <a href="https://www.sysbio.se"><img src="./assets/sysbio-logo.png" /></a>
               <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
               <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
               <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
               <a href="https://nbis.se/"><img src="./assets/nbislogo-green.png" /></a>
               <a href="https://www.scilifelab.se"><img src="./assets/scilifelab-green.png" /></a>
-              <a href="https://www.sysbio.se"><img src="./assets/sysbio-logo.png" /></a>
             </p>
           </div>
         </div>
@@ -284,7 +285,7 @@ $fullhd: 1576px !default;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 32px;
+    max-height: 35px;
     margin: 0 0.5rem;
   }
   sup {

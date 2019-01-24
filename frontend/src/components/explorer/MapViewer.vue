@@ -756,7 +756,7 @@ export default {
 
 <style lang="scss">
 
-$navbar-height: 7rem;
+$navbar-height: 2.5rem;
 $footer-height: 6.5rem;
 
 #mapViewer {
