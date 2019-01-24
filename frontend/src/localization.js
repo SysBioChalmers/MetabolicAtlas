@@ -2,7 +2,6 @@ export default {
   en: {
     searchPlaceholder: 'Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem',
     searchNoResult: 'No results found',
-    footerText: 'Chalmers University of Technology | Department of Biology and Biological Engineering | <a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a>',
     moreInformation: 'More information',
     connectedMetabolites: {
       instructions: 'Click on a reaction component for more details.',
@@ -14,15 +13,6 @@ export default {
     tooManyInteractionPartnerWarn: 'Warning: The query has returned too many interaction partners.<br>The network has not been generated.',
     tooManyInteractionPartnerBut: 'Generate',
     tooManyInteractionPartner: 'There are too many interaction partners to be displayed in a graph.',
-    navBut1Title: 'GEMs',
-    navBut11Title: 'Compare',
-    navBut12Title: 'Download',
-    navBut2Title: 'Resources',
-    navBut21Title: 'Tools',
-    navBut22Title: 'External Databases',
-    navBut23Title: 'API',
-    navBut3Title: 'Documentation',
-    navBut4Title: 'About',
     hmr2: 'HMR 2.0',
     hmr2n: 'HMR 2.0',
     yeast: 'Yeast 8.3.0',

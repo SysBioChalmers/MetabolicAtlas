@@ -5,20 +5,8 @@
       <div class="container">
         <div class="navbar-brand">
           <router-link id="logo" class="navbar-item" to="/" >
-            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
+            <svg-icon width="175" height="50" :glyph="Logo"></svg-icon>
           </router-link>
-          <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
-            :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
-              GEM<br>Browser
-          </a>
-          <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
-            :class="{ 'is-active': activeViewerBut }" @click="goToMapViewer()">
-              Map<br>Viewer
-          </a>
-          <span v-if="activeViewerBut || activeBrowserBut" id="modelHeader" class="is-unselectable" style="margin: auto 0">
-            <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
-            <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
-          </span>
           <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
             @click="isMobileMenu = !isMobileMenu">
             <span aria-hidden="true"></span>
@@ -27,22 +15,30 @@
           </div>
         </div>
         <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
-          <div class="navbar-start">
+          <div class="navbar-start has-text-centered">
+            <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
+              title="Current selected model, click to change your selection">{{ $t(model) }}
+            </router-link>
+            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+              :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
+                GEM<br>Browser
+            </a>
+            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+              :class="{ 'is-active': activeViewerBut }" @click="goToMapViewer()">
+                Map<br>Viewer
+            </a>
           </div>
           <div class="navbar-end">
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="Array.isArray(menuPath)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link"
-                  :class="{ 'is-active': false }">
-                    {{ menuName}}
+                  <a class="navbar-link" :class="{ 'is-active': false }" v-html="menuName">
                   </a>
                   <div class="navbar-dropdown">
                     <template v-for="submenu in menuPath">
                       <template v-for="(submenuPath, submenuName) in submenu">
                         <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
-                          :class="{ 'is-active': isActiveRoute(submenuPath) }">
-                          {{ submenuName }}
+                          :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
                         </router-link>
                       </template>
                     </template>
@@ -51,8 +47,7 @@
               </template>
               <template v-else>
                 <router-link class="navbar-item is-unselectable"  :to="{ path: menuPath }"
-                  :class="{ 'is-active': isActiveRoute(menuPath) }">
-                  {{ menuName}}
+                  :class="{ 'is-active': isActiveRoute(menuPath) }" v-html="menuName">
                 </router-link>
               </template>
             </template>
@@ -63,21 +58,33 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer has-background-light">
+    <footer id="footer" class="footer has-background-light is-size-6">
       <div class="columns">
-        <div class="column is-2">
-          <router-link to="/about#releaseNotes">v1.0</router-link>
+        <div class="column is-6">
+          <!-- <router-link to="/about#releaseNotes">v1.0</router-link> -->
+          <p><a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a> | Department of Biology and Biological Engineering | Chalmers University of Technology</p>
         </div>
-        <div class="column is-8">
-          <div class="content has-text-centered">
-            <p v-html="$t('footerText')"></p>
+        <div class="column is-6">
+          <div class="content has-text-right">
             <p>
-              <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
-              <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
-              <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
-              <a href="https://nbis.se/"><img src="./assets/nbislogo-green.png" /></a>
-              <a href="https://www.scilifelab.se"><img src="./assets/scilifelab-green.png" /></a>
-              <a href="https://www.sysbio.se"><img src="./assets/sysbio-logo.png" /></a>
+              <a href="https://www.sysbio.se" title="SysBio">
+                <img src="./assets/sysbio-logo.png" />
+              </a>
+              <a href="http://www.chalmers.se" title="Chalmers University of Technology">
+                <img src="./assets/chalmers.png" />
+              </a>
+              <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
+                <img src="./assets/wallenberg.gif" />
+              </a>
+              <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
+                <img src="./assets/wpcr.jpg" />
+              </a>
+              <a href="https://nbis.se/">
+                <img src="./assets/nbislogo-green.png" />
+              </a>
+              <a href="https://www.scilifelab.se"title="National Bioinformatics Infrastructure Sweden">
+                <img src="./assets/scilifelab-green.png" />
+              </a>
             </p>
           </div>
         </div>
@@ -113,7 +120,7 @@ export default {
       /* eslint-disable quote-props */
       Logo,
       menuElems: {
-        'Explore models': '/explore',
+        '<b>Explore models</b>': '/explore',
         'GEMs': [
           { 'List of GEMs': '/gems' },
           { 'Compare': '/gems/compare' },
@@ -264,22 +271,6 @@ $fullhd: 1576px !default;
   flex-direction: column
 }
 
-#navbar {
-  .is-active {
-    background-color: $contrast-light;
-  }
-}
-
-#modelHeader {
-  padding: 0.75rem;
-  span {
-    margin-right: 0.15rem;
-  }
-  i {
-    color: gray;
-  }
-}
-
 #metabolicViewer {
   background: whitesmoke;
   overflow: hidden;
@@ -291,17 +282,24 @@ $fullhd: 1576px !default;
   }
 }
 
-.navbar-menu {
-  a {
-    font-size: 1.15em;
+#navbar {
+  .is-active {
+    background-color: $contrast-light;
   }
-}
-
-.navbar-brand {
-  a {
-    font-size: 1.15em;
-    font-weight: 400;
-    line-height: 1.5;
+  .navbar-menu {
+    a {
+      font-size: 1.15em;
+    }
+  }
+  .navbar-brand {
+    a {
+      font-size: 1.15em;
+      font-weight: 400;
+      // line-height: 1.5;
+    }
+  }
+  .navbar-burger span {
+    height: 2px;
   }
 }
 
@@ -309,7 +307,7 @@ $fullhd: 1576px !default;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 35px;
+    max-height: 20px;
     margin: 0 0.5rem;
   }
   sup {
@@ -410,13 +408,8 @@ $fullhd: 1576px !default;
 }
 
 #cookies {
-  margin-top: 5px;
   position: sticky;
   bottom: 0;
-}
-
-.navbar-burger span {
-  height: 2px;
 }
 
 </style>
