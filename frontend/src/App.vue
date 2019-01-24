@@ -58,22 +58,33 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer has-background-light">
+    <footer id="footer" class="footer has-background-light is-size-6">
       <div class="columns">
         <div class="column is-6">
           <!-- <router-link to="/about#releaseNotes">v1.0</router-link> -->
-          <p><a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a> | Department of Biology and Biological Engineering</p>
-          <p>Chalmers University of Technology</p>
+          <p><a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a> | Department of Biology and Biological Engineering | Chalmers University of Technology</p>
         </div>
         <div class="column is-6">
           <div class="content has-text-right">
             <p>
-              <a href="https://www.sysbio.se"><img src="./assets/sysbio-logo.png" /></a>
-              <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
-              <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
-              <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
-              <a href="https://nbis.se/"><img src="./assets/nbislogo-green.png" /></a>
-              <a href="https://www.scilifelab.se"><img src="./assets/scilifelab-green.png" /></a>
+              <a href="https://www.sysbio.se" title="SysBio">
+                <img src="./assets/sysbio-logo.png" />
+              </a>
+              <a href="http://www.chalmers.se" title="Chalmers University of Technology">
+                <img src="./assets/chalmers.png" />
+              </a>
+              <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
+                <img src="./assets/wallenberg.gif" />
+              </a>
+              <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
+                <img src="./assets/wpcr.jpg" />
+              </a>
+              <a href="https://nbis.se/">
+                <img src="./assets/nbislogo-green.png" />
+              </a>
+              <a href="https://www.scilifelab.se"title="National Bioinformatics Infrastructure Sweden">
+                <img src="./assets/scilifelab-green.png" />
+              </a>
             </p>
           </div>
         </div>
@@ -273,7 +284,7 @@ $fullhd: 1576px !default;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 35px;
+    max-height: 20px;
     margin: 0 0.5rem;
   }
   sup {
