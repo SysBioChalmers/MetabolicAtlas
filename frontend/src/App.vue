@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
-        <div class="navbar-brand has-text-centered">
+        <div class="navbar-brand">
           <router-link id="logo" class="navbar-item" to="/" >
             <svg-icon width="175" height="50" :glyph="Logo"></svg-icon>
           </router-link>
@@ -15,13 +15,11 @@
           </div>
         </div>
         <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
-          <div class="navbar-start">
-            <span v-if="activeViewerBut || activeBrowserBut" id="modelHeader" class="is-unselectable" style="margin: auto 0">
-              <router-link :to="{ path: '/explore'}" class="is-size-3 has-text-primary has-text-weight-bold"
-                title="Current selected model, click to change your selection">{{ $t(model) }}
-              </router-link>
-            </span>
-            <a class="navbar-item " v-if="activeViewerBut || activeBrowserBut"
+          <div class="navbar-start has-text-centered">
+            <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
+              title="Current selected model, click to change your selection">{{ $t(model) }}
+            </router-link>
+            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
               :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
                 GEM<br>Browser
             </a>
@@ -240,16 +238,6 @@ $fullhd: 1576px !default;
   display: flex;
   min-height: 100vh;
   flex-direction: column
-}
-
-#modelHeader {
-  padding: 0.75rem;
-  span {
-    margin-right: 0.15rem;
-  }
-  i {
-    color: gray;
-  }
 }
 
 #metabolicViewer {
