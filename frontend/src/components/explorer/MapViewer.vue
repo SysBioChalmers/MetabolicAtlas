@@ -141,7 +141,7 @@
                           <template v-for="item in selectedElementDataKeys[model][selectedElement]"
                             v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
                             <template v-if="item.name === 'external_ids'">
-                              <span class="hd" v-html="capitalize(item.display || item.name) + ':'" 
+                              <span class="hd" v-html="capitalize(item.display || item.name) + ':'"
                               v-if="hasExternalIDs(item.value)"></span>
                               <p v-if="hasExternalIDs(item.value)">
                                 <template v-for="eid in item.value" v-if="selectedElementData[eid[1]] && selectedElementData[eid[2]]">
@@ -226,7 +226,7 @@
                       </template>
                     </div>
                   </div>
-                  <footer class="card-footer" 
+                  <footer class="card-footer"
                     v-if="['metabolite', 'enzyme', 'reaction', 'subsystem'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
                     <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
                   </footer>
@@ -756,8 +756,8 @@ export default {
 
 <style lang="scss">
 
-$navbar-height: 6.5rem;
-$footer-height: 6.5rem;
+$navbar-height: 2.5rem;
+$footer-height: 5.1rem;
 
 #mapViewer {
   /* border: 1px solid black; */

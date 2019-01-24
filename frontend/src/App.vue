@@ -4,23 +4,9 @@
     <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
-          <a id="logo" class="navbar-item" @click="goToPage('')" >
-            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
-          </a>
-          <a class="navbar-item" v-if="showExploreInfo"
-             :class="{ 'is-active': activeBrowserBut }"
-             @click="goToGemsBrowser()">
-             GEM<br>Browser
-          </a>
-          <a class="navbar-item" v-if="showExploreInfo"
-             :class="{ 'is-active': activeViewerBut }"
-             @click="goToGemsViewer()">
-             Map<br>Viewer
-          </a>
-          <span v-if="showExploreInfo" id="modelHeader" class="is-unselectable" style="margin: auto 0">
-            <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
-            <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
-          </span>
+          <router-link id="logo" class="navbar-item" to="/" >
+            <svg-icon width="175" height="50" :glyph="Logo"></svg-icon>
+          </router-link>
           <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
             @click="isMobileMenu = !isMobileMenu">
             <span aria-hidden="true"></span>
@@ -29,39 +15,40 @@
           </div>
         </div>
         <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
-          <div class="navbar-start">
+          <div class="navbar-start has-text-centered">
+            <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
+              title="Current selected model, click to change your selection">{{ $t(model) }}
+            </router-link>
+            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+              :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
+                GEM<br>Browser
+            </a>
+            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+              :class="{ 'is-active': activeViewerBut }" @click="goToMapViewer()">
+                Map<br>Viewer
+            </a>
           </div>
           <div class="navbar-end">
-            <template v-for="menuItem, index in menuItems">
-              <template v-if="Array.isArray(menuItem)">
+            <template v-for="(menuPath, menuName) in menuElems">
+              <template v-if="Array.isArray(menuPath)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link"
-                  :class="{ 'is-active': menuItem[0] === activeDropMenu }"
-                  @click="goToPage(menuItem[0])">
-                    {{ menuItem[0] }}
+                  <a class="navbar-link" :class="{ 'is-active': false }" v-html="menuName">
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item is-primary is-unselectable"
-                    v-for="submenu, index in menuItem" v-if="index !== 0"
-                    @click="goToPage(submenu)">
-                      {{ submenu }}
-                    </a>
+                    <template v-for="submenu in menuPath">
+                      <template v-for="(submenuPath, submenuName) in submenu">
+                        <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
+                          :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
+                        </router-link>
+                      </template>
+                    </template>
                   </div>
                 </div>
               </template>
-              <template v-else-if="menuItem === 'explore'">
-                  <a class="navbar-item is-unselectable"
-                   :class="{ 'is-active': isActiveRoute('ExplorerRoot') }"
-                   @click="goToPage(menuItem)">
-                   <span class="is-hidden-touch has-text-centered"><b>Explore<br>models</b></span>
-                   <span class="is-hidden-desktop"><b>Explore models</b></span>
-                 </a>
-              </template>
               <template v-else>
-                <a class="navbar-item is-unselectable"
-                   :class="{ 'is-active': isActiveRoute(menuItem) }"
-                   @click="goToPage(menuItem)"
-                   v-html="menuItem"></a>
+                <router-link class="navbar-item is-unselectable"  :to="{ path: menuPath }"
+                  :class="{ 'is-active': isActiveRoute(menuPath) }" v-html="menuName">
+                </router-link>
               </template>
             </template>
           </div>
@@ -71,21 +58,33 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer has-background-light">
+    <footer id="footer" class="footer has-background-light is-size-6">
       <div class="columns">
-        <div class="column is-2">
-          <a @click="viewRelaseNotes">v1.0</a>
+        <div class="column is-6">
+          <!-- <router-link to="/about#releaseNotes">v1.0</router-link> -->
+          <p><a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a> | Department of Biology and Biological Engineering | Chalmers University of Technology</p>
         </div>
-        <div class="column is-8">
-          <div class="content has-text-centered">
-            <p v-html="$t('footerText')"></p>
+        <div class="column is-6">
+          <div class="content has-text-right">
             <p>
-              <a href="http://www.chalmers.se"><img src="./assets/chalmers.png" /></a>
-              <a href="https://kaw.wallenberg.org/"><img src="./assets/wallenberg.gif" /></a>
-              <a href="https://www.kth.se/en/bio/centres/wcpr"><img src="./assets/wpcr.jpg" /></a>
-              <a href="https://nbis.se/"><img src="./assets/nbislogo-green.png" /></a>
-              <a href="https://www.scilifelab.se"><img src="./assets/scilifelab-green.png" /></a>
-              <a href="https://www.sysbio.se"><img src="./assets/sysbio-logo.png" /></a>
+              <a href="https://www.sysbio.se" title="SysBio">
+                <img src="./assets/sysbio-logo.png" />
+              </a>
+              <a href="http://www.chalmers.se" title="Chalmers University of Technology">
+                <img src="./assets/chalmers.png" />
+              </a>
+              <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
+                <img src="./assets/wallenberg.gif" />
+              </a>
+              <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
+                <img src="./assets/wpcr.jpg" />
+              </a>
+              <a href="https://nbis.se/">
+                <img src="./assets/nbislogo-green.png" />
+              </a>
+              <a href="https://www.scilifelab.se"title="National Bioinformatics Infrastructure Sweden">
+                <img src="./assets/scilifelab-green.png" />
+              </a>
             </p>
           </div>
         </div>
@@ -108,7 +107,6 @@
 <script>
 import SvgIcon from './components/SvgIcon';
 import Logo from './assets/logo.svg';
-import router from './router';
 import { default as EventBus } from './event-bus';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
@@ -119,22 +117,23 @@ export default {
   },
   data() {
     return {
+      /* eslint-disable quote-props */
       Logo,
-      menuItems: [
-        'explore',
-        [this.$t('navBut1Title'),
-          this.$t('navBut11Title'),
-          this.$t('navBut12Title'),
+      menuElems: {
+        '<b>Explore models</b>': '/explore',
+        'GEMs': [
+          { 'List of GEMs': '/gems' },
+          { 'Compare': '/gems/compare' },
+          { 'Download': '/gems/download' },
         ],
-        [this.$t('navBut2Title'),
-          this.$t('navBut21Title'),
-          this.$t('navBut22Title'),
-          this.$t('navBut23Title'),
+        'Resources': [
+          { 'Tools': '/resources#tools' },
+          { 'External Databases': '/resources#databases' },
+          { 'API': '/resources#api' },
         ],
-        this.$t('navBut3Title'),
-        this.$t('navBut4Title'),
-      ],
-      showExploreInfo: false,
+        'Documentation': '/documentation',
+        'About': '/about',
+      },
       activeBrowserBut: false,
       activeViewerBut: false,
       showCookieMsg: !isCookiePolicyAccepted(),
@@ -142,25 +141,20 @@ export default {
       activeDropMenu: '',
       model: '',
       browserLastPath: '',
+      viewerLastPath: '',
       isMobileMenu: false,
     };
   },
   watch: {
-    /* eslint-disable quote-props */
-    '$route': function watchSetup() {
-      this.saveBrowserPath();
+    $route: function watchSetup() {
       this.setupButons();
     },
   },
   beforeMount() {
     EventBus.$on('modelSelected', (model) => {
       this.model = model;
-    });
-    EventBus.$on('showExploreInfo', () => {
-      this.showExploreInfo = true;
-    });
-    EventBus.$on('hideExploreInfo', () => {
-      this.showExploreInfo = false;
+      this.viewerLastPath = '';
+      this.browserLastPath = '';
     });
   },
   created() {
@@ -169,69 +163,48 @@ export default {
   methods: {
     setupButons() {
       if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
-        this.showExploreInfo = true;
         this.activeBrowserBut = true;
         this.activeViewerBut = false;
         this.model = this.$route.params.model;
-        // this.goToGemsBrowser();
-        this.saveBrowserPath();
+        this.savePath();
       } else if (this.$route.name === 'viewer' ||
         this.$route.name === 'viewerCompartment' ||
         this.$route.name === 'viewerSubsystem') {
-        this.showExploreInfo = true;
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
         this.model = this.$route.params.model;
-        // this.goToGemsViewer();
+        this.savePath();
       } else {
-        this.showExploreInfo = false;
         this.activeBrowserBut = false;
         this.activeViewerBut = false;
       }
     },
-    goToPage(name) {
-      if (['tools', 'external databases', 'api'].includes(name.toLowerCase())) {
-        if (name.toLowerCase() === 'external databases') {
-          name = 'databases'; // eslint-disable-line no-param-reassign
-        }
-        router.push(`/resources#${name.toLowerCase()}`);
-      } else if (['compare', 'download'].includes(name.toLowerCase())) {
-        router.push(`/gems/${name.toLowerCase()}`);
-      } else {
-        router.push(`/${name.toLowerCase()}`);
-      }
-    },
     isActiveRoute(name) {
-      if (this.$route.name) {
-        if (Array.isArray(name)) {
-          return name[0].toLowerCase() === this.$route.name.toLowerCase();
-        }
-        return name.toLowerCase() === this.$route.name.toLowerCase();
+      if (this.$route.path) {
+        return name.toLowerCase() === this.$route.path.toLowerCase();
       }
       return false;
     },
-    goToGemsBrowser() {
-      if (this.browserLastPath) {
-        this.$router.push(this.browserLastPath);
-      } else {
-        this.$router.push(`/explore/gem-browser/${this.model}`);
-      }
+    goToGemBrowser() {
+      this.$router.push(this.browserLastPath || `/explore/gem-browser/${this.model}`);
     },
-    goToGemsViewer() {
-      this.$router.push(`/explore/map-viewer/${this.model}`);
-    },
-    saveBrowserPath() {
+    savePath() {
       if (this.$route.name === 'browser') {
         this.browserLastPath = this.$route.path;
       } else if (this.$route.name === 'browserRoot') {
         this.browserLastPath = '';
+      } else if (this.$route.name === 'viewerCompartment' || this.$route.name === 'viewerSubsystem') {
+        this.viewerLastPath = this.$route.path;
+      } else if (this.$route.name === 'viewer') {
+        this.viewerLastPath = '';
       }
     },
-    viewRelaseNotes() {
-      router.push({
-        path: '/About#releaseNotes',
-        query: {},
-      });
+    goToMapViewer() {
+      this.$router.push(this.viewerLastPath || `/explore/map-viewer/${this.model}`);
+    },
+    clearBrowserViewerPaths() {
+      this.viewerLastPath = '';
+      this.browserLastPath = '';
     },
   },
 };
@@ -278,16 +251,6 @@ $fullhd: 1576px !default;
   flex-direction: column
 }
 
-#modelHeader {
-  padding: 0.75rem;
-  span {
-    margin-right: 0.15rem;
-  }
-  i {
-    color: gray;
-  }
-}
-
 #metabolicViewer {
   background: whitesmoke;
   overflow: hidden;
@@ -299,17 +262,21 @@ $fullhd: 1576px !default;
   }
 }
 
-.navbar-menu {
-  a {
-    font-size: 1.15em;
+#navbar {
+  .navbar-menu {
+    a {
+      font-size: 1.15em;
+    }
   }
-}
-
-.navbar-brand {
-  a {
-    font-size: 1.15em;
-    font-weight: 400;
-    line-height: 1.5;
+  .navbar-brand {
+    a {
+      font-size: 1.15em;
+      font-weight: 400;
+      // line-height: 1.5;
+    }
+  }
+  .navbar-burger span {
+    height: 2px;
   }
 }
 
@@ -317,7 +284,7 @@ $fullhd: 1576px !default;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 35px;
+    max-height: 20px;
     margin: 0 0.5rem;
   }
   sup {
@@ -413,13 +380,8 @@ $fullhd: 1576px !default;
 }
 
 #cookies {
-  margin-top: 5px;
   position: sticky;
   bottom: 0;
-}
-
-.navbar-burger span {
-  height: 2px;
 }
 
 </style>
