@@ -3,22 +3,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
       <div class="container">
-        <div class="navbar-brand">
+        <div class="navbar-brand has-text-centered">
           <router-link id="logo" class="navbar-item" to="/" >
-            <svg-icon width="175" height="75" :glyph="Logo"></svg-icon>
+            <svg-icon width="175" height="50" :glyph="Logo"></svg-icon>
           </router-link>
-          <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
-            :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
-              GEM<br>Browser
-          </a>
-          <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
-            :class="{ 'is-active': activeViewerBut }" @click="goToMapViewer()">
-              Map<br>Viewer
-          </a>
-          <span v-if="activeViewerBut || activeBrowserBut" id="modelHeader" class="is-unselectable" style="margin: auto 0">
-            <span class="is-size-3 has-text-primary has-text-weight-bold">{{ $t(model) }}</span>
-            <i title="Current selected model, click on Explore models to change your selection" class="fa fa-info-circle"></i>
-          </span>
           <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
             @click="isMobileMenu = !isMobileMenu">
             <span aria-hidden="true"></span>
@@ -28,21 +16,31 @@
         </div>
         <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
           <div class="navbar-start">
+            <span v-if="activeViewerBut || activeBrowserBut" id="modelHeader" class="is-unselectable" style="margin: auto 0">
+              <router-link :to="{ path: '/explore'}" class="is-size-3 has-text-primary has-text-weight-bold"
+                title="Current selected model, click to change your selection">{{ $t(model) }}
+              </router-link>
+            </span>
+            <a class="navbar-item " v-if="activeViewerBut || activeBrowserBut"
+              :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
+                GEM<br>Browser
+            </a>
+            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+              :class="{ 'is-active': activeViewerBut }" @click="goToMapViewer()">
+                Map<br>Viewer
+            </a>
           </div>
           <div class="navbar-end">
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="Array.isArray(menuPath)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link"
-                  :class="{ 'is-active': false }">
-                    {{ menuName}}
+                  <a class="navbar-link" :class="{ 'is-active': false }" v-html="menuName">
                   </a>
                   <div class="navbar-dropdown">
                     <template v-for="submenu in menuPath">
                       <template v-for="(submenuPath, submenuName) in submenu">
                         <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
-                          :class="{ 'is-active': isActiveRoute(submenuPath) }">
-                          {{ submenuName }}
+                          :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
                         </router-link>
                       </template>
                     </template>
@@ -51,8 +49,7 @@
               </template>
               <template v-else>
                 <router-link class="navbar-item is-unselectable"  :to="{ path: menuPath }"
-                  :class="{ 'is-active': isActiveRoute(menuPath) }">
-                  {{ menuName}}
+                  :class="{ 'is-active': isActiveRoute(menuPath) }" v-html="menuName">
                 </router-link>
               </template>
             </template>
@@ -113,7 +110,7 @@ export default {
       /* eslint-disable quote-props */
       Logo,
       menuElems: {
-        'Explore': '/explore',
+        '<b>Explore models</b>': '/explore',
         'GEMs': [
           { 'List of GEMs': '/gems' },
           { 'Compare': '/gems/compare' },
@@ -265,17 +262,21 @@ $fullhd: 1576px !default;
   }
 }
 
-.navbar-menu {
-  a {
-    font-size: 1.15em;
+#navbar {
+  .navbar-menu {
+    a {
+      font-size: 1.15em;
+    }
   }
-}
-
-.navbar-brand {
-  a {
-    font-size: 1.15em;
-    font-weight: 400;
-    line-height: 1.5;
+  .navbar-brand {
+    a {
+      font-size: 1.15em;
+      font-weight: 400;
+      // line-height: 1.5;
+    }
+  }
+  .navbar-burger span {
+    height: 2px;
   }
 }
 
@@ -283,7 +284,7 @@ $fullhd: 1576px !default;
   padding-bottom: 1em;
   padding-top: 1em;
   img {
-    max-height: 35px;
+    max-height: 32px;
     margin: 0 0.5rem;
   }
   sup {
@@ -379,13 +380,8 @@ $fullhd: 1576px !default;
 }
 
 #cookies {
-  margin-top: 5px;
   position: sticky;
   bottom: 0;
-}
-
-.navbar-burger span {
-  height: 2px;
 }
 
 </style>
