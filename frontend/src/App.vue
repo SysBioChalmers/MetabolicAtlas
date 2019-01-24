@@ -80,9 +80,9 @@
                 <img src="./assets/wpcr.jpg" />
               </a>
               <a href="https://nbis.se/">
-                <img src="./assets/nbislogo-green.png" />
+                <img src="./assets/nbislogo-green.png" title="National Bioinformatics Infrastructure Sweden"/>
               </a>
-              <a href="https://www.scilifelab.se"title="National Bioinformatics Infrastructure Sweden">
+              <a href="https://www.scilifelab.se" title="Science for Life Laboratory (SciLifeLab)">
                 <img src="./assets/scilifelab-green.png" />
               </a>
             </p>
