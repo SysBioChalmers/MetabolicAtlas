@@ -32,8 +32,7 @@
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="Array.isArray(menuPath)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" :class="{ 'is-active': false }" v-html="menuName">
-                  </a>
+                  <a class="navbar-link" :class="{ 'is-active': false }"> {{ menuName }} </a>
                   <div class="navbar-dropdown">
                     <template v-for="submenu in menuPath">
                       <template v-for="(submenuPath, submenuName) in submenu">
@@ -120,17 +119,13 @@ export default {
       /* eslint-disable quote-props */
       Logo,
       menuElems: {
-        '<b>Explore models</b>': '/explore',
+        'Explore models': '/explore',
         'GEMs': [
           { 'List of GEMs': '/gems' },
           { 'Compare': '/gems/compare' },
           { 'Download': '/gems/download' },
         ],
-        'Resources': [
-          { 'Tools': '/resources#tools' },
-          { 'External Databases': '/resources#databases' },
-          { 'API': '/resources#api' },
-        ],
+        'Resources': '/resources',
         'Documentation': '/documentation',
         'About': '/about',
       },
