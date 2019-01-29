@@ -237,9 +237,9 @@
           </div>
           <div v-show="!showNetworkGraph" class="container columns">
             <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-              <div v-html="$t('tooManyInteractionPartnerWarn')"></div>
+              <div>Warning: The query has returned too many interaction partners.<br>The network has not been generated.</div>
               <span v-show="nodeCount <= maxNodeCount"
-              class="button" v-on:click="generateGraph(fitGraph)">{{ $t('tooManyInteractionPartnerBut') }}</span>
+              class="button" v-on:click="generateGraph(fitGraph)">Generate</span>
             </div>
             <br>
           </div>

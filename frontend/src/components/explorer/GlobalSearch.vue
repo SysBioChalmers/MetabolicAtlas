@@ -3,13 +3,9 @@
     <div class="control">
       <div id="input-wrapper">
         <p class="control has-icons-right">
-        <input
-          id="search"
-          class="input"
-          v-model="searchTermString"
-          @input="searchDebounce"
-          type="text"
-          :placeholder="$t('searchPlaceholder')"
+        <input id="search" class="input" type="text"
+          v-model="searchTermString" @input="searchDebounce"
+          placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
           v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
@@ -23,7 +19,7 @@
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
           <div class="notification is-medium is-paddingless">
-            First 50 results per category from {{ getModelName() }} -&nbsp;<a @click="goToSearchPage">click here to load all</a> 
+            First 50 results per category from {{ getModelName() }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
           </div>
         </div>
         <div class="resList" v-show="!showLoader">

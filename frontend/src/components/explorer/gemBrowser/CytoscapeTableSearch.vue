@@ -2,21 +2,12 @@
   <div class="columns table-search" style="margin-bottom: 0; padding-bottom: 0">
     <div class="column">
       <p class="control">
-        <input
-          v-model="term"
-          @input="search"
-          class="input"
-          type="text"
-          :placeholder="$t('tableSearchPlaceholder')"
-        >
+        <input v-model="term" @input="search"
+          class="input" type="text" placeholder="Search in table">
       </p>
     </div>
     <div class="column is-1">
-      <a
-        :disabled="!isSearching"
-        class="button"
-        @click="clearSearch()"
-      >{{ $t('reset') }}</a>
+      <a :disabled="!isSearching" class="button" @click="clearSearch()">Reset</a>
     </div>
   </div>
 </template>
