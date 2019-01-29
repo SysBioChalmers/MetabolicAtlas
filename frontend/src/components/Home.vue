@@ -4,7 +4,7 @@
       <div class="columns">
         <div class="column">
           <div class="card">
-            <header class="card-header has-background-primary">
+            <header class="card-header has-background-primary has-text-centered" style="justify-content: center;">
               <p class="card-content title has-text-white">METABOLIC ATLAS - THE ATLAS FOR METABOLISM EXPLORATION</p>
             </header>
           </div>
@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div class="columns is-variable is-6">
+      <div id="newsandcommunity" class="columns is-variable is-6">
         <div class="column is-half" v-for="card in cards">
           <div class="card is-size-5">
             <header class="card-header has-background-primary">
@@ -70,17 +70,17 @@ export default {
           url: '/explore' },
         { type: 'homepage-submenu',
           title: 'GEM Browser',
-          text: 'The integrated models are in stored in a database, for powerful query and exploration.',
+          text: 'The integrated models are stored in a database, for powerful query and exploration.',
           img: require('../assets/gemBrowser2.png'),
           url: '/explore' },
         { type: 'homepage-submenu',
           title: 'Map Viewer',
-          text: 'For each of the integrated models <b>Metabolic Atlas</b> can automatically generate 3D maps. The manually curated maps of the <i>human-GEM</i> are also made available, at both compartment and subsystem level.',
+          text: 'For each of the integrated models, <b>Metabolic Atlas</b> can automatically generate 3D maps. The manually curated maps of the <i>human-GEM</i> are also made available, at both compartment and subsystem level.',
           img: require('../assets/mapViewer2.png'),
           url: '/explore' },
         { type: 'homepage-submenu',
           title: 'Search',
-          text: 'Search works either within the slected integrated model or across all models.',
+          text: 'Search works either within the selected integrated model or across all models.',
           img: require('../assets/search.png'),
           url: '/explore/search' },
         { type: 'homepage-submenu',
