@@ -34,6 +34,7 @@ import JQMouseWheel from 'jquery-mousewheel';
 import Loader from 'components/Loader';
 import { default as EventBus } from '../../../event-bus';
 import { getExpressionColor } from '../../../expression-sources/hpa';
+import { default as messages } from '../../../helpers/messages';
 
 // hack: the only way for jquery plugins to play nice with the plugins inside Vue
 $.Panzoom = JQPanZoom;
@@ -237,7 +238,7 @@ export default {
       }
       const newSvgName = currentLoad.filename;
       if (!newSvgName) {
-        this.$emit('loadComplete', false, this.$t('mapNotFound'));
+        this.$emit('loadComplete', false, messages.mapNotFound);
         return;
       }
 
@@ -264,7 +265,7 @@ export default {
               }, 0);
             })
             .catch(() => {
-              this.$emit('loadComplete', false, this.$t('mapNotFound'));
+              this.$emit('loadComplete', false, messages.mapNotFound);
             });
         }
       } else if (callback) {
@@ -345,7 +346,7 @@ export default {
         this.isLoadingSearch = false;
         const status = error.status || error.response.status;
         if (status !== 404) {
-          this.$emit('loadComplete', false, this.$t('unknownError'));
+          this.$emit('loadComplete', false, messages.unknownError);
           this.searchInputClass = 'is-info';
         } else {
           this.searchInputClass = 'is-danger';

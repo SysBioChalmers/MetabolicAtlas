@@ -358,7 +358,7 @@ $fullhd: 1576px !default;
     margin-left: 0;
   }
   .homepage-submenu {
-    margin-left: 1.25em;
+    margin-left: 2em;
   }
   .more-padding {
     padding: 3rem 3.75rem 3rem 3.75rem;
@@ -371,6 +371,11 @@ $fullhd: 1576px !default;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  #newsandcommunity {
+    .card {
+      height: 100%;
+    }
   }
 }
 

@@ -56,7 +56,7 @@
             </div>
           </div>
         </div>
-      </div> 
+      </div>
       <div class="columns">
         <reactome v-show="showReactome" id="metabolite-reactome" :model="this.model" :metaboliteID="metaboliteID"></reactome>
       </div>
@@ -69,6 +69,7 @@ import axios from 'axios';
 import Reactome from 'components/explorer/gemBrowser/Reactome';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
 import { reformatTableKey, reformatStringToLink, addMassUnit } from '../../../helpers/utils';
+import { default as messages } from '../../../helpers/messages';
 
 export default {
   name: 'metabolite',
@@ -154,7 +155,7 @@ export default {
         this.showReactome = true;
       })
       .catch(() => {
-        this.errorMessage = this.$t('notFoundError');
+        this.errorMessage = messages.notFoundError;
         this.showReactome = false;
       });
     },

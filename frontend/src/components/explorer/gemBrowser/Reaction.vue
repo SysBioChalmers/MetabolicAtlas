@@ -61,6 +61,7 @@ import Loader from 'components/Loader';
 import { default as EventBus } from '../../../event-bus';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink, chemicalReaction } from '../../../helpers/chemical-formatters';
 import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink } from '../../../helpers/utils';
+import { default as messages } from '../../../helpers/messages';
 
 export default {
   name: 'reaction',
@@ -134,7 +135,7 @@ export default {
         this.pmids = response.data.pmids;
       })
       .catch(() => {
-        this.errorMessage = this.$t('notFoundError');
+        this.errorMessage = messages.notFoundError;
       });
     },
     reformatTableKey(k) { return reformatTableKey(k); },
