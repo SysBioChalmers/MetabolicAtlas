@@ -100,6 +100,7 @@ import $ from 'jquery';
 import Loader from 'components/Loader';
 import { default as compare } from '../helpers/compare';
 import { default as EventBus } from '../event-bus';
+import { default as messages } from '../helpers/messages';
 
 export default {
   name: 'gems',
@@ -215,7 +216,7 @@ export default {
         this.showLoader = false;
       })
       .catch(() => {
-        this.errorMessage = this.$t('notFoundError');
+        this.errorMessage = messages.notFoundError;
         this.showLoader = false;
       });
     },

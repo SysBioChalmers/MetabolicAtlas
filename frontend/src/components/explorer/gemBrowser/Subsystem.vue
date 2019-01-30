@@ -71,6 +71,7 @@ import axios from 'axios';
 import Loader from 'components/Loader';
 import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import { reformatTableKey } from '../../../helpers/utils';
+import { default as messages } from '../../../helpers/messages';
 
 export default {
   name: 'subsystem',
@@ -156,7 +157,7 @@ export default {
         this.showLoader = false;
       })
       .catch(() => {
-        this.errorMessage = this.$t('notFoundError');
+        this.errorMessage = messages.notFoundError;
       });
     },
     reformatKey(k) { return reformatTableKey(k); },

@@ -122,7 +122,7 @@
           <a class="button is-primary is-inverted is-outlined is-large is-loading"></a>
         </div>
         <div v-show="!showLoader && noResult" class="has-text-centered notification is-marginless">
-          {{ $t('searchNoResult') }}
+          {{ messages.searchNoResult }}
         </div>
       </div>
     </div>
@@ -135,6 +135,7 @@ import Loader from 'components/Loader';
 import _ from 'lodash';
 import { chemicalFormula, chemicalReaction } from '../../helpers/chemical-formatters';
 import { default as EventBus } from '../../event-bus';
+import { default as messages } from '../../helpers/messages';
 
 export default {
   name: 'global-search',
@@ -165,6 +166,7 @@ export default {
       showResults: true,
       showLoader: false,
       noResult: false,
+      messages,
 
       itemKeys: {
         hmr2: {
