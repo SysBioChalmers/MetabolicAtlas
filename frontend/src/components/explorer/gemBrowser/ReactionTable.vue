@@ -11,7 +11,7 @@
         </span>
       </template>
       <span v-show="reactions.length==200" class="tag is-medium is-warning is-pulled-right">
-        {{ $t('tooManyReactionsTable') }}
+        The number of reactions displayed is limited to 200, some may have been discarded.
       </span>
     </div>
     <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">

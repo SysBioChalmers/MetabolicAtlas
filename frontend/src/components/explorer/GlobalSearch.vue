@@ -3,13 +3,9 @@
     <div class="control">
       <div id="input-wrapper">
         <p class="control has-icons-right">
-        <input
-          id="search"
-          class="input"
-          v-model="searchTermString"
-          @input="searchDebounce"
-          type="text"
-          :placeholder="$t('searchPlaceholder')"
+        <input id="search" class="input" type="text"
+          v-model="searchTermString" @input="searchDebounce"
+          placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
           v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
@@ -23,7 +19,7 @@
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
           <div class="notification is-medium is-paddingless">
-            First 50 results per category from {{ getModelName() }} -&nbsp;<a @click="goToSearchPage">click here to load all</a> 
+            First 50 results per category from {{ getModelName() }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
           </div>
         </div>
         <div class="resList" v-show="!showLoader">
@@ -126,7 +122,7 @@
           <a class="button is-primary is-inverted is-outlined is-large is-loading"></a>
         </div>
         <div v-show="!showLoader && noResult" class="has-text-centered notification is-marginless">
-          {{ $t('searchNoResult') }}
+          {{ messages.searchNoResult }}
         </div>
       </div>
     </div>
@@ -139,6 +135,7 @@ import Loader from 'components/Loader';
 import _ from 'lodash';
 import { chemicalFormula, chemicalReaction } from '../../helpers/chemical-formatters';
 import { default as EventBus } from '../../event-bus';
+import { default as messages } from '../../helpers/messages';
 
 export default {
   name: 'global-search',
@@ -169,6 +166,7 @@ export default {
       showResults: true,
       showLoader: false,
       noResult: false,
+      messages,
 
       itemKeys: {
         hmr2: {

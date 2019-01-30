@@ -5,7 +5,7 @@
         <div class="column has-text-centered is-4 is-offset-4">
           <div class="box notification">
             <div class="is-size-1 has-text-weight-bold">404</div>
-            {{ $t('pageNotFound') }}
+            The page requested does not exist.
           </div>
         </div>
       </div>

@@ -11,10 +11,9 @@
       <div class="column is-2" style="padding-bottom: 0">
         <div class="columns">
           <div class="column">
-            <a
-              @click="exportToExcel"
-              class="button is-primary is-pulled-right"
-            >{{ $t('exportButton') }}</a>
+            <a @click="exportToExcel" class="button is-primary is-pulled-right">
+              Export to Excel
+            </a>
           </div>
         </div>
       </div>

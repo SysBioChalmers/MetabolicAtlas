@@ -7,7 +7,7 @@
             Reaction ID: {{ selectedElm.id }}
           </span>
           <span v-else>
-            {{ selectedElm.type === 'enzyme' ? 'Enzyme' : 'Metabolite' }}: 
+            {{ selectedElm.type === 'enzyme' ? 'Enzyme' : 'Metabolite' }}:
             <a v-on:click="viewReactionComponent(selectedElm.type)">
               {{ selectedElm.name }}
             </a>
@@ -28,7 +28,7 @@
           </div>
           <div v-if="!selectedElm.details.function &&
                      !selectedElm.details.catalytic_activity">
-            {{ $t('noInfoAvailable') }}
+            {{ messages.noInfoAvailable }}
           </div>
         </div>
         <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
@@ -56,7 +56,7 @@
                      !selectedElm.formula &&
                      !selectedElm.details.mass &&
                      !selectedElm.details.kegg">
-            {{ $t('noInfoAvailable') }}
+            {{ messages.noInfoAvailable }}
           </div>
         </div>
       </div>
@@ -66,12 +66,12 @@
           <p>{{ selectedElm.subsystem.join(', ') }}</p>
         </div>
         <div v-if="!selectedElm.subsystem">
-          {{ $t('noInfoAvailable') }}
+          {{ messages.noInfoAvailable }}
         </div>
       </div>
       <div v-else>
         <div class="card-content">
-          {{ $t('noInfoAvailable') }}
+          {{ messages.noInfoAvailable }}
         </div>
       </div>
     </div>
@@ -82,12 +82,14 @@
 
 import { default as EventBus } from '../../../event-bus';
 import { chemicalFormula } from '../../../helpers/chemical-formatters';
+import { default as messages } from '../../../helpers/messages';
 
 export default {
   name: 'sidebar',
   props: ['model', 'selectedElm', 'view'],
   data() {
     return {
+      messages,
     };
   },
   computed: {

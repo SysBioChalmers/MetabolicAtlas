@@ -89,6 +89,7 @@ import Loader from 'components/Loader';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
 import { reformatTableKey, reformatStringToLink } from '../../../helpers/utils';
 import { default as visitLink } from '../../../helpers/visit-link';
+import { default as messages } from '../../../helpers/messages';
 
 export default {
   name: 'enzyme',
@@ -179,10 +180,10 @@ export default {
           this.reactions = [];
           switch (error.response.status) {
             case 404:
-              this.errorMessage = this.$t('notFoundError');
+              this.errorMessage = messages.notFoundError;
               break;
             default:
-              this.errorMessage = this.$t('unknownError');
+              this.errorMessage = messages.unknownError;
           }
         });
     },

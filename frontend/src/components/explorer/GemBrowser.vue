@@ -65,6 +65,7 @@ import Reaction from 'components/explorer/gemBrowser/Reaction';
 import Subsystem from 'components/explorer/gemBrowser/Subsystem';
 import { default as EventBus } from '../../event-bus';
 import { idfy } from '../../helpers/utils';
+import { default as messages } from '../../helpers/messages';
 
 
 export default {
@@ -212,7 +213,7 @@ export default {
           // TODO use another way to check the model id is valid
           this.model = '';
           EventBus.$emit('modelSelected', '');
-          this.errorMessage = `Error: ${this.$t('modelNotFound')}`;
+          this.errorMessage = `Error: ${messages.modelNotFound}`;
           return;
         }
         this.selectedType = this.$route.params.type || '';
