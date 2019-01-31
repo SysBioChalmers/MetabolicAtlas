@@ -17,7 +17,7 @@
         <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
           <div class="navbar-start has-text-centered">
             <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
-              title="Current selected model, click to change your selection">{{ $t(model) }}
+              title="Current selected model, click to change your selection">{{ model }}
             </router-link>
             <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
               :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
@@ -32,8 +32,7 @@
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="Array.isArray(menuPath)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" :class="{ 'is-active': false }" v-html="menuName">
-                  </a>
+                  <a class="navbar-link" :class="{ 'is-active': false }"> {{ menuName }} </a>
                   <div class="navbar-dropdown">
                     <template v-for="submenu in menuPath">
                       <template v-for="(submenuPath, submenuName) in submenu">
@@ -120,17 +119,13 @@ export default {
       /* eslint-disable quote-props */
       Logo,
       menuElems: {
-        '<b>Explore models</b>': '/explore',
+        'Explore models': '/explore',
         'GEMs': [
           { 'List of GEMs': '/gems' },
           { 'Compare': '/gems/compare' },
           { 'Download': '/gems/download' },
         ],
-        'Resources': [
-          { 'Tools': '/resources#tools' },
-          { 'External Databases': '/resources#databases' },
-          { 'API': '/resources#api' },
-        ],
+        'Resources': '/resources',
         'Documentation': '/documentation',
         'About': '/about',
       },

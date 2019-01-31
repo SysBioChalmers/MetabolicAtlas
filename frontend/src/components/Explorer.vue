@@ -118,7 +118,7 @@ import GlobalSearch from 'components/explorer/GlobalSearch';
 import SearchTable from 'components/explorer/SearchTable';
 import { idfy } from '../helpers/utils';
 import { default as EventBus } from '../event-bus';
-
+import { default as messages } from '../helpers/messages';
 
 export default {
   name: 'explorer',
@@ -225,7 +225,7 @@ export default {
       .catch((error) => {
         switch (error.response.status) {
           default:
-            this.errorMessage = this.$t('unknownError');
+            this.errorMessage = messages.unknownError;
         }
       });
     },
@@ -240,7 +240,7 @@ export default {
           this.models = models;
         })
         .catch(() => {
-          this.errorMessage = this.$t('unknownError');
+          this.errorMessage = messages.unknownError;
         });
     },
     getModelDescription(model) {
@@ -337,6 +337,6 @@ export default {
       border: solid 1px black;
     }
   }
-} 
+}
 
 </style>

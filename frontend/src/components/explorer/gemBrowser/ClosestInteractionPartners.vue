@@ -237,9 +237,9 @@
           </div>
           <div v-show="!showNetworkGraph" class="container columns">
             <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-              <div v-html="$t('tooManyInteractionPartnerWarn')"></div>
+              <div>Warning: The query has returned too many interaction partners.<br>The network has not been generated.</div>
               <span v-show="nodeCount <= maxNodeCount"
-              class="button" v-on:click="generateGraph(fitGraph)">{{ $t('tooManyInteractionPartnerBut') }}</span>
+              class="button" v-on:click="generateGraph(fitGraph)">Generate</span>
             </div>
             <br>
           </div>
@@ -283,6 +283,8 @@ import { default as visitLink } from '../../../helpers/visit-link';
 import { default as convertGraphML } from '../../../helpers/graph-ml-converter';
 
 import { getExpLvlLegend, getExpressionColor } from '../../../expression-sources/hpa';
+import { default as messages } from '../../../helpers/messages';
+
 
 export default {
   name: 'closest-interaction-partners',
@@ -479,7 +481,7 @@ export default {
         .catch((error) => {
           switch (error.response.status) {
             default:
-              this.errorMessage = this.$t('unknownError');
+              this.errorMessage = messages.unknownError;
           }
         });
     },
@@ -538,13 +540,13 @@ export default {
           // console.log(error);
           switch (error.response.status) {
             case 406:
-              this.errorMessage = this.$t('tooManyInteractionPartner');
+              this.errorMessage = messages.tooManyInteractionPartner;
               break;
             case 404:
-              this.errorMessage = this.$t('notFoundError');
+              this.errorMessage = messages.notFoundError;
               break;
             default:
-              this.errorMessage = this.$t('unknownError');
+              this.errorMessage = messages.unknownError;
           }
         });
     },
@@ -595,16 +597,16 @@ export default {
           this.loading = false;
           switch (error.response.status) {
             case 406:
-              this.errorExpMessage = this.$t('tooManyInteractionPartner');
+              this.errorExpMessage = messages.tooManyInteractionPartner;
               setTimeout(() => {
                 this.errorExpMessage = '';
               }, 3000);
               break;
             case 404:
-              this.errorMessage = this.$t('notFoundError');
+              this.errorMessage = messages.notFoundError;
               break;
             default:
-              this.errorMessage = this.$t('unknownError');
+              this.errorMessage = messages.unknownError;
           }
         });
     },

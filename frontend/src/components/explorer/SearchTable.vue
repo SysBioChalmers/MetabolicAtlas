@@ -13,8 +13,8 @@
         <div>
           <div class="tabs is-boxed is-fullwidth" v-if="showTabType">
             <ul>
-              <li :disabled="resultsCount[tab] === 0" 
-              :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]" 
+              <li :disabled="resultsCount[tab] === 0"
+              :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]"
               v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
                 <a>
                   {{ tab | capitalize }} ({{ resultsCount[tab] }})
@@ -123,7 +123,7 @@
           </div>
           <div v-show="!loading && (!showTabType || searchTerm === '')">
             <div v-if="searchResults.length === 0" class="column is-4 is-offset-4 has-text-centered notification">
-              {{ $t('searchNoResult') }}
+              {{ messages.searchNoResult }}
             </div>
             <div class="columns">
               <div class="column is-6 is-offset-3 content">
@@ -175,6 +175,7 @@ import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../../helpers/chemical-formatters';
 import { idfy } from '../../helpers/utils';
 import EventBus from '../../event-bus';
+import { default as messages } from '../../helpers/messages';
 
 export default {
   name: 'search-table',
@@ -185,6 +186,7 @@ export default {
   },
   data() {
     return {
+      messages,
       tabs: [
         'metabolite',
         'enzyme',
@@ -638,7 +640,7 @@ export default {
           if (field === 'model') {
             filterTypeDropdown[componentType][field] =
               Object.keys(filterTypeDropdown[componentType][field]).map(
-                (e) => { const d = {}; d.text = this.$t(e); d.value = e; return d; }
+                (e) => { const d = {}; d.text = e; d.value = e; return d; }
             );
           } else {
             filterTypeDropdown[componentType][field] =
@@ -709,7 +711,7 @@ export default {
       this.showTabType = '';
     },
     getDisplayModelName(v) {
-      return this.$t(v);
+      return v;
     },
     // TODO use router
     formatMetaboliteNameCell(row) {

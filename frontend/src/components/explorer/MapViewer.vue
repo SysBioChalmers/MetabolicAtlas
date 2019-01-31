@@ -103,7 +103,7 @@
             </div>
             <div v-show="!showSelectedElementPanelLoader">
               <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
-                {{ $t('unknownError') }}
+                {{ messages.unknownError }}
               </div>
               <div v-else-if="currentDisplayedType">
                 <div class="card">
@@ -172,7 +172,7 @@
                             </template>
                           </template>
                           <template v-if="selectedElementHasNoData()">
-                            {{ $t('noInfoAvailable') }}
+                            {{ messages.noInfoAvailable }}
                           </template>
                         </template>
                         <template v-else>
@@ -280,6 +280,7 @@ import { default as EventBus } from '../../event-bus';
 import { capitalize, reformatStringToLink, idfy } from '../../helpers/utils';
 import { chemicalReaction } from '../../helpers/chemical-formatters';
 import { getExpLvlLegend } from '../../expression-sources/hpa';
+import { default as messages } from '../../helpers/messages';
 
 export default {
   name: 'map-viewer',
@@ -453,7 +454,7 @@ export default {
         return;
       }
       if (!this.checkValidRequest(type, name)) {
-        this.handleLoadComplete(false, this.$t('mapNotFound'));
+        this.handleLoadComplete(false, messages.mapNotFound);
         return;
       }
       if (this.show3D) {
@@ -483,7 +484,7 @@ export default {
         // show error
         this.loadErrorMesssage = errorMessage;
         if (!this.loadErrorMesssage) {
-          this.loadErrorMesssage = this.$t('unknownError');
+          this.loadErrorMesssage = messages.unknownError;
         }
         this.showLoader = false;
         this.loadedTissue = '';
@@ -531,7 +532,7 @@ export default {
         // TODO use another way to check the model id is valid
         this.model = '';
         EventBus.$emit('modelSelected', '');
-        this.errorMessage = `Error: ${this.$t('modelNotFound')}`;
+        this.errorMessage = `Error: ${messages.modelNotFound}`;
         return;
       }
       if (model !== this.model) {
@@ -601,7 +602,7 @@ export default {
         // show error
         this.loadErrorMesssage = errorMessage;
         if (!this.loadErrorMesssage) {
-          this.loadErrorMesssage = this.$t('unknownError');
+          this.loadErrorMesssage = messages.unknownError;
         }
         this.showLoader = false;
         this.currentDisplayedType = '';
@@ -689,7 +690,7 @@ export default {
         // console.log(error);
         switch (error.response.status) {
           default:
-            this.errorMessage = this.$t('unknownError');
+            this.errorMessage = messages.unknownError;
         }
       });
     },
@@ -701,7 +702,7 @@ export default {
         .catch((error) => {
           switch (error.response.status) {
             default:
-              this.loadErrorMesssage = this.$t('unknownError');
+              this.loadErrorMesssage = messages.unknownError;
           }
         });
     },
