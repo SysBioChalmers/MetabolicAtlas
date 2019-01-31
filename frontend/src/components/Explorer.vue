@@ -58,43 +58,24 @@
               </div>
             </div>
           </div>
-          <div id="toolsSelect"class="columns">
-            <div class="column">
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                     GEM Browser
-                  </p>
-                </header>
-                <div class="card-content">
-                  <div class="content">
-                    <a @click="goToGemBrowser(model)">
-                      <img src="../assets/gemBrowser2.png" />
-                    </a>
+          <br>
+          <div id="toolsSelect" class="columns">
+            <template v-for="tool in explorerTools">
+              <div class="column">
+                <router-link :to="{ path: `${tool.url}/${model}` }">
+                  <div class="card">
+                    <header class="card-header">
+                      <p class="card-header-title is-size-5">{{ tool.name }}</p>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                          <img :src="tool.img" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <footer class="card-footer">
-                </footer>
+              </router-link>
               </div>
-            </div>
-            <div class="column">
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    Map Viewer
-                  </p>
-                </header>
-                <div class="card-content">
-                  <div class="content">
-                    <a @click="goToMapViewer(model)" class="has-text-centered">
-                      <img src="../assets/mapViewer2.png" />
-                    </a>
-                  </div>
-                </div>
-                <footer class="card-footer">
-                </footer>
-              </div>
-            </div>
+            </template>
           </div>
         </div>
       </template>
@@ -124,6 +105,17 @@ export default {
   },
   data() {
     return {
+      /* eslint-disable global-require*/
+      explorerTools: [
+        { name: 'GEM Browser',
+          img: require('../assets/gemBrowser2.png'),
+          url: '/explore/gem-browser',
+        },
+        { name: 'Map Viewer',
+          img: require('../assets/mapViewer2.png'),
+          url: '/explore/map-viewer',
+        },
+      ],
       model: 'hmr2',
       models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
       showViewer: false,
@@ -264,12 +256,6 @@ export default {
       this.showViewer = false;
       this.currentShowComponent = 'SearchTable';
     },
-    goToGemBrowser(model) {
-      this.$router.push(`/explore/gem-browser/${model}`);
-    },
-    goToMapViewer(model) {
-      this.$router.push(`/explore/map-viewer/${model}`);
-    },
     getCompartmentNameFromLetter(l) {
       return this.compartmentLetters[l];
     },
@@ -325,7 +311,10 @@ export default {
 <style lang="scss">
 
 #toolsSelect {
-  img {
+  .card {
+    p {
+      justify-content: center;
+    }
     border: solid 1px white;
     &:hover {
       border: solid 1px black;
