@@ -5,7 +5,7 @@
       <div class="container">
         <div class="navbar-brand">
           <router-link id="logo" class="navbar-item" to="/" >
-            <svg-icon width="175" height="50" :glyph="Logo"></svg-icon>
+            <img :src="require('./assets/logo.png')"/>
           </router-link>
           <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
             @click="isMobileMenu = !isMobileMenu">
@@ -104,20 +104,14 @@
 </template>
 
 <script>
-import SvgIcon from './components/SvgIcon';
-import Logo from './assets/logo.svg';
 import { default as EventBus } from './event-bus';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'app',
-  components: {
-    SvgIcon,
-  },
   data() {
     return {
       /* eslint-disable quote-props */
-      Logo,
       menuElems: {
         'Explore models': '/explore',
         'GEMs': [
@@ -272,6 +266,9 @@ $fullhd: 1576px !default;
   }
   .navbar-burger span {
     height: 2px;
+  }
+  .navbar-item img {
+    max-height: 3rem;
   }
 }
 
