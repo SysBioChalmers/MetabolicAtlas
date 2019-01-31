@@ -30,25 +30,28 @@
           </div>
           <div class="navbar-end">
             <template v-for="(menuPath, menuName) in menuElems">
-              <template v-if="Array.isArray(menuPath)">
-                <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" :class="{ 'is-active': false }"> {{ menuName }} </a>
-                  <div class="navbar-dropdown">
-                    <template v-for="submenu in menuPath">
-                      <template v-for="(submenuPath, submenuName) in submenu">
-                        <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
-                          :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
-                        </router-link>
-                      </template>
-                    </template>
-                  </div>
-                </div>
-              </template>
-              <template v-else>
+              <template v-if="typeof menuPath === 'string'">
                 <router-link class="navbar-item is-unselectable"  :to="{ path: menuPath }"
                   :class="{ 'is-active': isActiveRoute(menuPath) }" v-html="menuName">
                 </router-link>
               </template>
+              <template v-else>
+                <template v-for="(submenus, menuurl) in menuPath">
+                  <div class="navbar-item has-dropdown is-hoverable is-unselectable">
+                    <a class="navbar-link" :class="{ 'is-active': isActiveRoute(menuurl) }"> {{ menuName }} </a>
+                    <div class="navbar-dropdown">
+                      <template v-for="submenu in submenus">
+                        <template v-for="(submenuPath, submenuName) in submenu">
+                          <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
+                            :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
+                          </router-link>
+                        </template>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+              </template>
+
             </template>
           </div>
         </div>
@@ -120,11 +123,13 @@ export default {
       Logo,
       menuElems: {
         'Explore models': '/explore',
-        'GEMs': [
-          { 'List of GEMs': '/gems' },
-          { 'Compare': '/gems/compare' },
-          { 'Download': '/gems/download' },
-        ],
+        'GEMs': {
+          '/gems/': [
+            { 'List of GEMs': '/gems/list' },
+            { 'Compare': '/gems/compare' },
+            { 'Download': '/gems/download' },
+          ],
+        },
         'Resources': '/resources',
         'Documentation': '/documentation',
         'About': '/about',
@@ -176,7 +181,7 @@ export default {
     },
     isActiveRoute(name) {
       if (this.$route.path) {
-        return name.toLowerCase() === this.$route.path.toLowerCase();
+        return this.$route.path.toLowerCase().includes(name);
       }
       return false;
     },
