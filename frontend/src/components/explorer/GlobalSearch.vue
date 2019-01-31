@@ -1,5 +1,5 @@
 <template>
-  <div class="column is-6">
+  <div class="column is-half-desktop is-three-quarters-tablet is-fullwidth-mobile">
     <div class="control">
       <div id="input-wrapper">
         <p class="control has-icons-right">

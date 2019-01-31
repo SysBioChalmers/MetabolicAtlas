@@ -9,29 +9,23 @@
       <template v-else>
         <div class="columns">
           <div class="column has-text-centered">
-            <h4 class="is-size-4 has-text-weight-bold">Explore models</h4>[<a @click="">Learn how</a>]
+            <h4 class="is-size-3 has-text-weight-bold">Explore models</h4>
           </div>
         </div>
-        <br>
         <div>
           <div class="columns">
             <div class="column has-text-centered has-text-weight-bold">
               Search metabolites, enzymes, reactions... through all the integrated models
             </div>
           </div>
-          <div class="columns">
-            <div class="column is-3">
-            </div>
-            <global-search
-            :quickSearch=false
-            :reroute=true
-            :model="model"
-            ref="globalSearch"></global-search>
+          <div class="columns is-centered">
+            <global-search :quickSearch=false :reroute=true :model="model" ref="globalSearch">
+            </global-search>
           </div>
         </div>
         <div class="columns has-text-centered">
-          <div class="column has-text-weight-bold">
-            <br>OR<br>
+          <div class="column">
+            <h4 class="is-size-4 has-text-weight-bold">OR</h4>
           </div>
         </div>
         <div>
@@ -42,20 +36,20 @@
               </div>
             </div>
           </div>
-          <div class="columns has-text-centered">
-            <div class="column">
+          <div class="columns is-centered">
+            <div class="column is-half-desktop is-three-quarters-tablet is-fullwidth-mobile has-text-centered">
               <div class="dropdown is-hoverable">
                 <div class="dropdown-trigger">
-                  <button class="button is-medium" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <button class="button is-medium is-fullwidth" aria-haspopup="true" aria-controls="dropdown-menu">
                     <span>Model: <a class="tag is-info is-medium">{{ models[model].short_name }}</a></span>
                     <span class="icon is-small">
                       <i class="fa fa-angle-down" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
-                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-menu is-size-2" id="dropdown-menu" role="menu">
                   <div class="dropdown-content">
-                    <a class="dropdown-item"
+                    <a class="dropdown-item has-text-centered is-size-6"
                       v-for="model, k in models"
                       @click="selectModel(model.database_name)" v-html="getModelDescription(model)">
                     </a>
@@ -248,7 +242,7 @@ export default {
       <div class="has-text-grey">
         ${model.reaction_count} reactions -
         ${model.metabolite_count} metabolites -
-        <br>${model.enzyme_count} enzymes
+        ${model.enzyme_count} enzymes
       </div>`;
     },
     selectModel(model) {
@@ -337,6 +331,10 @@ export default {
       border: solid 1px black;
     }
   }
+}
+
+.dropdown, .dropdown-trigger, #dropdown-menu {
+  width: 100%;
 }
 
 </style>
