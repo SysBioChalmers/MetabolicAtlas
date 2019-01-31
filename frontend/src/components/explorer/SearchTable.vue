@@ -640,7 +640,7 @@ export default {
           if (field === 'model') {
             filterTypeDropdown[componentType][field] =
               Object.keys(filterTypeDropdown[componentType][field]).map(
-                (e) => { const d = {}; d.text = this.$t(e); d.value = e; return d; }
+                (e) => { const d = {}; d.text = e; d.value = e; return d; }
             );
           } else {
             filterTypeDropdown[componentType][field] =
@@ -711,7 +711,7 @@ export default {
       this.showTabType = '';
     },
     getDisplayModelName(v) {
-      return this.$t(v);
+      return v;
     },
     // TODO use router
     formatMetaboliteNameCell(row) {

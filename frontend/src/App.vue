@@ -17,7 +17,7 @@
         <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
           <div class="navbar-start has-text-centered">
             <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
-              title="Current selected model, click to change your selection">{{ $t(model) }}
+              title="Current selected model, click to change your selection">{{ model }}
             </router-link>
             <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
               :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
