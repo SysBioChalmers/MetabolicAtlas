@@ -366,7 +366,9 @@ $fullhd: 1576px !default;
     margin-left: 2em;
   }
   .more-padding {
-    padding: 3rem 3.75rem 3rem 3.75rem;
+    @media only screen and (min-width: $desktop) {
+      padding: 3rem 3.75rem 3rem 3.75rem;
+    }
   }
   .card-header > .card-content {
     padding-top: 0.5em;
@@ -376,6 +378,9 @@ $fullhd: 1576px !default;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  #mobileMenu {
+    margin-right: 0;
   }
   #newsandcommunity {
     .card {

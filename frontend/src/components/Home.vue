@@ -13,7 +13,7 @@
       <div class="columns">
         <div class="column">
           <div class="card">
-            <div class="columns is-mobile is-multiline margin-fix">
+            <div id="mobileMenu" class="columns is-mobile is-multiline margin-fix">
               <div class="column is-narrow is-full-mobile has-background-primary has-text-weight-bold is-paddingless">
                 <aside class="menu">
                   <ul class="menu-list is-size-5">
