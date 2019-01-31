@@ -19,7 +19,7 @@
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
           <div class="notification is-medium is-paddingless">
-            First 50 results per category from {{ getModelName() }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
+            First 50 results per category from {{ model }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
           </div>
         </div>
         <div class="resList" v-show="!showLoader">
@@ -356,9 +356,6 @@ export default {
         this.$emit('searchResults');
         this.search(this.searchTermString);
       }
-    },
-    getModelName() {
-      return this.$t(this.model);
     },
     chemicalFormula,
   },

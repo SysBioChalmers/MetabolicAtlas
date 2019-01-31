@@ -8,7 +8,7 @@
     <template v-else>
       <div class="columns" v-if="!selectedType">
         <div class="column container has-text-centered">
-          <h4 class="title is-4">Explore through {{ $t(model) }} with the GEM Browser</h4>
+          <h4 class="title is-4">Explore through {{ model }} with the GEM Browser</h4>
         </div>
       </div>
       <div class="columns">
