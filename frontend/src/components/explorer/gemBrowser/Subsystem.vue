@@ -59,7 +59,7 @@
       </div>
       <div class="column">
         <div class="box has-text-centered">
-          <div class="button is-info" disabled>
+          <div class="button is-info is-fullwidth" disabled>
             <p>View on {{ messages.mapViewerName }}</p>
           </div>
         </div>

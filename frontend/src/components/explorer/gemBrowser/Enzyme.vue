@@ -48,18 +48,17 @@
             </div>
             <div class="column">
               <div class="box has-text-centered">
-                <div class="button is-info" disabled>
+                <div class="button is-info is-fullwidth" disabled>
                   <p>View on {{ messages.mapViewerName }}</p>
                 </div>
-                <br><br>
-                <div class="button is-info"
+                <br>
+                <div class="button is-info is-fullwidth"
                   @click="viewInteractionPartners">
                   View interaction partners
                 </div>
                 <br>
                 <template v-if="model === 'hmr2'">
-                  <br>
-                  <div class="button is-info is-inline-block" title="View on Human Protein Atlas"
+                  <div class="button is-info is-inline-block is-fullwidth" title="View on Human Protein Atlas"
                     @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
                     View on proteinAtlas.org
                   </div>
