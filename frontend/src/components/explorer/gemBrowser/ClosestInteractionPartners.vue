@@ -9,20 +9,8 @@
       </div>
       <div v-show="!errorMessage">
         <div class="container columns">
-          <div class="column is-5">
-            <h3 class="title is-3 is-marginless" v-html="title"></h3>
-          </div>
-          <div class="column is-3">
-            <nav class="breadcrumb is-small is-pulled-right" aria-label="breadcrumbs" v-show="showNetworkGraph">
-              <ul>
-                <li :class="{'is-active' : false }">
-                  <a @click="scrollTo('cip-graph')">Cytoscape graph</a>
-                  </li>
-                <li :class="{'is-active' : false }">
-                  <a @click="scrollTo('cip-table')">Metabolite list</a>
-                  </li>
-              </ul>
-            </nav>
+          <div class="column is-8">
+            <h3 class="title is-3 is-marginless">Interaction partners {{ title }}</h3>
           </div>
           <div class="column">
             <div class="dropdown" id="dropdownMenuExport">
@@ -68,23 +56,6 @@
                 </span>
                </template>
             </template>
-          </div>
-          <div v-show="clickedElm && clickedElm.type === 'enzyme'">
-            <!-- <span class="is-black sep is-paddingless"></span> -->
-            <!-- <span class="button is-dark" v-on:click="viewReactionComponent('enzyme')">Show enzyme</span> -->
-            <!-- <span class="is-black sep is-paddingless"></span> -->
-<!--             <span class="button is-dark" v-on:click='visitLink(clickedElm.hpaLink, true)'>View in HPA &#8599;</span>
-            <span v-show="clickedElm && clickedElm.type === 'enzyme' && clickedElm.details" class="button is-dark"
-            v-on:click='visitLink(clickedElm.details.uniprot_link, true)'>View in Uniprot &#8599;</span> -->
-          </div>
-          <div v-show="clickedElm && clickedElm.type === 'metabolite'">
-            <!-- <span class="is-black sep is-paddingless"></span> -->
-            <!-- <span class="button is-dark" v-on:click="viewReactionComponent('metabolite')">Show metabolite</span> -->
-            <!-- <span class="is-black sep is-paddingless"></span> -->
-<!--             <span v-show="clickedElm && clickedElm.type === 'metabolite' && clickedElm.details" class="button is-dark"
-            v-on:click='visitLink(clickedElm.details.hmdb_link, true)'>View in HMDB &#8599;</span>
-            <span v-show="clickedElm && clickedElm.type === 'metabolite' && clickedElm.details" class="button is-dark"
-            v-on:click='visitLink(clickedElm.details.pubchem_link, true)'>View in PUBCHEM &#8599;</span> -->
           </div>
         </div>
         <div id="cip-graph">
@@ -809,7 +780,7 @@ export default {
         cyt.$('node').css({
           width: dim,
           height: dim,
-          'font-size': dim,
+          'font-size': dim * 1.5,
           'text-opacity': 1,
           'overlay-padding': edgeWidth * 2,
         });

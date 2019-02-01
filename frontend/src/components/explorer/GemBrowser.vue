@@ -8,16 +8,11 @@
     <template v-else>
       <div class="columns" v-if="!selectedType">
         <div class="column container has-text-centered">
-          <h4 class="title is-4">Explore through {{ model }} with the {{ messages.gemBrowserName }}</h4>
+          <h4 class="title is-4">Explore {{ model }} with the {{ messages.gemBrowserName }}</h4>
         </div>
       </div>
-      <div class="columns">
-        <div class="column is-3">
-        </div>
-        <global-search
-        :quickSearch=true
-        :model="model"
-        ref="globalSearch"></global-search>
+      <div class="columns is-centered">
+        <global-search :quickSearch=true :model="model" ref="globalSearch"></global-search>
       </div>
       <div id="homeDiv" class="columns box" v-if="selectedType === '' && starredComponents[model]">
         <div class="column is-4">

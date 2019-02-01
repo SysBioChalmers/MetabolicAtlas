@@ -7,7 +7,7 @@
   <div v-else>
     <div class="columns">
       <div class="column">
-        <h3 class="title is-3">Reaction</h3>
+        <h3 class="title is-3">Reaction {{ reaction.id }}</h3>
       </div>
     </div>
     <div class="columns" v-show="showLoader">

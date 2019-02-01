@@ -8,8 +8,8 @@
     <div v-show="!errorMessage">
       <div class="container columns">
         <div class="column">
-          <h3 class="title is-3 is-inline-block  is-marginless">
-          Enzyme
+          <h3 class="title is-3">
+          Enzyme {{ enzyme.enzymeName }}
           </h3>
         </div>
       </div>
