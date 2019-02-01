@@ -46,7 +46,7 @@
       <div class="column">
         <div class="box has-text-centered">
           <div class="button is-info" disabled>
-            <p>View on Map Viewer</p>
+            <p>View on {{ messages.mapViewerName }}</p>
           </div>
         </div>
       </div>
@@ -71,6 +71,7 @@ export default {
   },
   data() {
     return {
+      messages,
       rId: this.$route.params.id,
       mainTableKey: {
         hmr2: [

@@ -107,11 +107,11 @@ export default {
     return {
       /* eslint-disable global-require*/
       explorerTools: [
-        { name: 'GEM Browser',
+        { name: messages.gemBrowserName,
           img: require('../assets/gemBrowser2.png'),
           url: '/explore/gem-browser',
         },
-        { name: 'Map Viewer',
+        { name: messages.mapViewerName,
           img: require('../assets/mapViewer2.png'),
           url: '/explore/map-viewer',
         },

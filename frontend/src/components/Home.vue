@@ -52,6 +52,9 @@
 </template>
 
 <script>
+
+import { default as messages } from '../helpers/messages';
+
 /* eslint-disable global-require*/
 export default {
   name: 'home',
@@ -69,12 +72,12 @@ export default {
           img: require('../assets/explorer.jpg'),
           url: '/explore' },
         { type: 'homepage-submenu',
-          title: 'GEM Browser',
+          title: messages.gemBrowserName,
           text: 'The integrated models are stored in a database, for powerful query and exploration.',
           img: require('../assets/gemBrowser2.png'),
           url: '/explore' },
         { type: 'homepage-submenu',
-          title: 'Map Viewer',
+          title: messages.mapViewerName,
           text: 'For each of the integrated models, <b>Metabolic Atlas</b> can automatically generate 3D maps. The manually curated maps of the <i>human-GEM</i> are also made available, at both compartment and subsystem level.',
           img: require('../assets/mapViewer2.png'),
           url: '/explore' },

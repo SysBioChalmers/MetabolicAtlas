@@ -49,7 +49,7 @@
             <div class="column">
               <div class="box has-text-centered">
                 <div class="button is-info" disabled>
-                  <p>View on Map Viewer</p>
+                  <p>View on {{ messages.mapViewerName }}</p>
                 </div>
                 <br><br>
                 <div class="button is-info"
@@ -100,6 +100,7 @@ export default {
   props: ['model'],
   data() {
     return {
+      messages,
       loading: true,
       errorMessage: null,
       id: '',
