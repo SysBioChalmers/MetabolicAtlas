@@ -1,2 +1,2 @@
-@ID	name	sbo_id	ec	pmid
-HMR_0030	name of reaction HMR_0030	SBO00001	ec:11232	12054595; 11673457
+@ID	name	sbo_id	ec	pmid	external_id1	external_link1	external_id2	external_link2	external_id3	external_link3	external_id4	external_link4
+HMR_0030	name of reaction HMR_0030	SBO00001	ec:11232	12054595; 11673457								
