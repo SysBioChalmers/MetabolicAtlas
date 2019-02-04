@@ -33,18 +33,7 @@
                   enabled: true,
                   initialSortBy: {field: 'name', type: 'asc'}
                 }"
-                :paginationOptions="{
-                  enabled: true,
-                  perPage: 50,
-                  position: 'both',
-                  perPageDropdown: [25, 50, 100, 200],
-                  dropdownAllowAll: false,
-                  setCurrentPage: 1,
-                  nextLabel: 'next',
-                  prevLabel: 'prev',
-                  rowsPerPageLabel: 'Rows per page',
-                  ofLabel: 'of',
-                }"
+                :paginationOptions="tablePaginationOpts"
                 styleClass="vgt-table striped bordered">
               </good-table>
             </div>
@@ -57,18 +46,7 @@
                   enabled: true,
                   initialSortBy: {field: 'name', type: 'asc'}
                 }"
-                :paginationOptions="{
-                  enabled: true,
-                  perPage: 50,
-                  position: 'both',
-                  perPageDropdown: [25, 50, 100, 200],
-                  dropdownAllowAll: false,
-                  setCurrentPage: 1,
-                  nextLabel: 'next',
-                  prevLabel: 'prev',
-                  rowsPerPageLabel: 'Rows per page',
-                  ofLabel: 'of',
-                }"
+                :paginationOptions="tablePaginationOpts"
                 styleClass="vgt-table striped bordered">
               </good-table>
             </div>
@@ -81,18 +59,7 @@
                   enabled: true,
                   initialSortBy: {field: 'equation', type: 'asc'}
                 }"
-                :paginationOptions="{
-                  enabled: true,
-                  perPage: 50,
-                  position: 'both',
-                  perPageDropdown: [10, 25, 50, 100, 200],
-                  dropdownAllowAll: false,
-                  setCurrentPage: 1,
-                  nextLabel: 'next',
-                  prevLabel: 'prev',
-                  rowsPerPageLabel: 'Rows per page',
-                  ofLabel: 'of',
-                }"
+                :paginationOptions="tablePaginationOpts"
                 styleClass="vgt-table striped bordered">
               </good-table>
             </div>
@@ -187,6 +154,18 @@ export default {
   data() {
     return {
       messages,
+      tablePaginationOpts: {
+        enabled: true,
+        perPage: 50,
+        position: 'both',
+        perPageDropdown: [25, 50, 100, 200],
+        dropdownAllowAll: false,
+        setCurrentPage: 1,
+        nextLabel: 'next',
+        prevLabel: 'prev',
+        rowsPerPageLabel: 'Rows per page',
+        ofLabel: 'of',
+      },
       tabs: [
         'metabolite',
         'enzyme',
