@@ -134,6 +134,7 @@
 
 <script>
 import axios from 'axios';
+import $ from 'jquery';
 import Loader from 'components/Loader';
 import _ from 'lodash';
 import { chemicalFormula, chemicalReaction } from '../../helpers/chemical-formatters';
@@ -207,6 +208,7 @@ export default {
     this.$refs.searchInput.addEventListener('click', (e) => {
       e.stopPropagation();
     });
+    $('#search').focus();
   },
   methods: {
     searchDebounce: _.debounce(function e() {
