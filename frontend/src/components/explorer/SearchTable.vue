@@ -2,8 +2,13 @@
   <section class="extended-section">
     <div class="container">
       <div id="search-table">
-        <div class="container columns is-centered">
-          <global-search            :quickSearch="false" :searchTerm="searchTerm"
+        <div class="columns">
+          <div class="column has-text-centered">
+            <h3 class="title is-3">Advanced search all integrated GEMs: <i>{{ searchTerm }}</i></h3>
+          </div>
+        </div>
+        <div class="columns is-centered">
+          <global-search :quickSearch="false" :searchTerm="searchTerm"
             @updateResults="updateResults" @searchResults="loading=true">
           </global-search>
         </div>
