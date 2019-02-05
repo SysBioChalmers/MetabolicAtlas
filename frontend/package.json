@@ -24,7 +24,7 @@
     "pako": "^1.0.5",
     "vue": "^2.2.0",
     "vue-color": "2.0.9",
-    "vue-good-table": "2.4.1",
+    "vue-good-table": "^2.12.2",
     "vue-lodash": "^1.0.3",
     "vue-router": "^2.2.1",
     "vue-cookie": "^1.1.4",
