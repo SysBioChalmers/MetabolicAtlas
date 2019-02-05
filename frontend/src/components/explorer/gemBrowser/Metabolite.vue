@@ -50,7 +50,7 @@
             <br>
             <router-link class="button is-info is-fullwidth"
               :to="{path: `/explore/gem-browser/${this.model}/interaction/${this.mId}`}">
-              Interaction Partners
+              {{ messages.interPartName }}
             </router-link>
           </div>
         </div>

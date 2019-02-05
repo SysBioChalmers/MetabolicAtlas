@@ -8,4 +8,5 @@ export default {
   noInfoAvailable: 'No information available',
   mapViewerName: 'Map Viewer',
   gemBrowserName: 'GEM Browser',
+  interPartName: 'Interaction Partners',
 };
