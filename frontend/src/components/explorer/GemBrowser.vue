@@ -14,30 +14,13 @@
       <div class="columns is-centered">
         <global-search :quickSearch=true :model="model" ref="globalSearch"></global-search>
       </div>
-      <div id="homeDiv" class="columns box" v-if="selectedType === '' && starredComponents[model]">
-        <div class="column is-4">
-          <h5 class="title is-6 has-text-centered">Metabolites</h5>
-          <a v-for="met in starredComponents[model].metabolites" @click="$router.push(`/explore/gem-browser/${model}/metabolite/${met[1]}`)"
-            v-if="model in starredComponents"
-            class="is-block has-text-centered">
-            {{ met[0] }}
-          </a>
-        </div>
-        <div class="column is-4">
-          <h5 class="title is-6 has-text-centered">Enzymes</h5>
-          <a v-for="enz in starredComponents[model].enzymes" @click="$router.push(`/explore/gem-browser/${model}/enzyme/${enz[1]}`)"
-            v-if="model in starredComponents"
-            class="is-block has-text-centered">
-            {{ enz[0] }}
-          </a>
-        </div>
-        <div class="column is-4">
-          <h5 class="title is-6 has-text-centered">Reactions</h5>
-          <a v-for="rea in starredComponents[model].reactions" @click="$router.push(`/explore/gem-browser/${model}/reaction/${rea[1]}`)"
-            v-if="model in starredComponents"
-            class="is-block has-text-centered">
-            {{ rea[0] }}
-          </a>
+      <div id="homeDiv" class="columns box has-text-centered" v-if="selectedType === '' && starredComponents[model]">
+        <div class="column is-4" v-for="category in ['metabolite', 'enzyme', 'reaction']">
+          <h5 class="title is-capitalized">{{ category }}s</h5>
+          <router-link v-for="row in starredComponents[model][category]" :to="{ path: `/explore/gem-browser/${model}/${category}/${row[1]}` }"
+            v-if="model in starredComponents" class="is-block">
+            {{ row[0] }}
+          </router-link>
         </div>
       </div>
       <div v-else>
@@ -84,7 +67,7 @@ export default {
       model: '',
       starredComponents: {
         hmr2: {
-          metabolites: [
+          metabolite: [
             ['3-carboxy-1-hydroxypropyl-ThPP', 'm00765m'],
             ['acetaldehyde', 'm01249m'],
             ['acetate', 'm01252m'],
@@ -112,7 +95,7 @@ export default {
             ['ubiquinol', 'm03102m'],
             ['ubiquinone', 'm03103m'],
           ],
-          enzymes: [
+          enzyme: [
             ['ACLY', 'ENSG00000131473'],
             ['ACO1', 'ENSG00000122729'],
             ['ACSS3', 'ENSG00000111058'],
@@ -140,7 +123,7 @@ export default {
             ['UEVLD', 'ENSG00000151116'],
             ['ZADH2', 'ENSG00000180011'],
           ],
-          reactions: [
+          reaction: [
             ['HMR_0710', 'HMR_0710'],
             ['HMR_3787', 'HMR_3787'],
             ['HMR_3905', 'HMR_3905'],
@@ -170,9 +153,9 @@ export default {
           ],
         },
         yeast: {
-          metabolites: [],
-          enzymes: [],
-          reactions: [],
+          metabolite: [],
+          enzyme: [],
+          reaction: [],
         },
       },
     };
@@ -184,7 +167,6 @@ export default {
     },
   },
   beforeMount() {
-    this.dBImageSources = require.context('../../assets', false, /\.(png|gif|jpg)$/);
     this.setup();
   },
   created() {
@@ -198,7 +180,7 @@ export default {
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
       // console.log(`on GB navigateTo ${type} ${id} ${idfy(id)}`);
-      this.goToTab(type, idfy(id));
+      this.$router.push(`/explore/gem-browser/${this.model}/${type}/${idfy(id)}`);
     });
   },
   methods: {
@@ -219,17 +201,11 @@ export default {
         }
       }
     },
-    goToTab(type, componentID) {
-      this.$router.push(`/explore/gem-browser/${this.model}/${type}/${componentID}`);
-    },
     showMapViewer() {
       EventBus.$emit('showMapViewer');
     },
     showWholeMap() {
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
-    },
-    imgUrl(path) {
-      return this.dBImageSources(path);
     },
   },
 };

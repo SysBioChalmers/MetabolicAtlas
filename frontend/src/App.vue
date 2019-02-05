@@ -89,7 +89,7 @@
         </div>
       </div>
     </footer>
-    <div v-if="showCookieMsg" id="cookies" class="columns has-background-grey">
+    <div v-if="showCookieMsg" id="cookies" class="has-background-grey">
       <div class="column has-text-centered">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>

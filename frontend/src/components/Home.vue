@@ -28,7 +28,8 @@
               </div>
               <div class="column is-full-mobile more-padding is-v-aligned">
                 <div class="card has-text-centered">
-                  <router-link :to="currentMenu.url"><img :src="currentMenu.img" /></router-link>
+                  <router-link :to="currentMenu.url">
+                    <img :src="currentMenu.img" :alt="currentMenu.title"/></router-link>
                 </div>
               </div>
             </div>
