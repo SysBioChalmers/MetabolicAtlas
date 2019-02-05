@@ -128,82 +128,74 @@
               </div>
             </div>
             <div class="column">
-              <div class="columns" v-if="model === 'hmr2'">
-                <div class="column">
-                  <div class="card">
-                    <header class="card-header">
-                      <p class="card-header-title">
-                        <label class="checkbox is-unselectable">
-                          <input type="checkbox" v-model="toggleEnzymeExpLevel" :disabled="disableExpLvl"
-                          @click="applyLevels('enzyme', 'HPA', 'RNA', selectedSample)">
-                          Enable <a href="https://www.proteinatlas.org/" target="_blank">proteinAtlas.org</a>&nbsp;RNA levels
-                        </label>
-                      </p>
-                    </header>
-                    <div class="card-content" v-show="toggleEnzymeExpLevel">
-                      <div id="graphLegend" v-show="(toggleMetaboliteExpLevel || toggleEnzymeExpLevel) && !disableExpLvl" v-html="legend">
-                      </div>
-                      <br>
-                      <div class="select is-fullwidth" :class="{ 'is-loading' : loadingHPA && toggleEnzymeExpLevel}" v-show="toggleEnzymeExpLevel && !disableExpLvl">
-                        <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel"
-                        @change.prevent="applyLevels('enzyme', 'HPA', 'RNA', selectedSample)">
-                          <optgroup label="HPA - RNA levels - Tissues">
-                           <!--  <option value="None">None</option> -->
-                            <option v-for="tissue in tissues['HPA']" :value="tissue">
-                              {{ tissue }}
-                            </option>
-                          </optgroup>
-                          <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
-                            <option v-for="cellType in cellLines['HPA']" :value="cellType">
-                              {{ cellType }}
-                            </option>
-                          </optgroup>
-                        </select>
-                      </div>
+              <div class="card " v-if="model === 'hmr2'">
+                <header class="card-header">
+                  <p class="card-header-title">
+                    <label class="checkbox is-unselectable">
+                      <input type="checkbox" v-model="toggleEnzymeExpLevel" :disabled="disableExpLvl"
+                      @click="applyLevels('enzyme', 'HPA', 'RNA', selectedSample)">
+                      Enable <a href="https://www.proteinatlas.org/" target="_blank">proteinAtlas.org</a>&nbsp;RNA levels
+                    </label>
+                  </p>
+                </header>
+                <div class="card-content" v-show="toggleEnzymeExpLevel">
+                  <div id="graphLegend" v-show="(toggleMetaboliteExpLevel || toggleEnzymeExpLevel) && !disableExpLvl" v-html="legend">
+                  </div>
+                  <br>
+                  <div class="select is-fullwidth" :class="{ 'is-loading' : loadingHPA && toggleEnzymeExpLevel}" v-show="toggleEnzymeExpLevel && !disableExpLvl">
+                    <select id="enz-select" ref="enzHPAselect" v-model="selectedSample" :disabled="!toggleEnzymeExpLevel"
+                    @change.prevent="applyLevels('enzyme', 'HPA', 'RNA', selectedSample)">
+                      <optgroup label="HPA - RNA levels - Tissues">
+                       <!--  <option value="None">None</option> -->
+                        <option v-for="tissue in tissues['HPA']" :value="tissue">
+                          {{ tissue }}
+                        </option>
+                      </optgroup>
+                      <optgroup label="HPA - RNA levels - Cell-type" v-if="false">
+                        <option v-for="cellType in cellLines['HPA']" :value="cellType">
+                          {{ cellType }}
+                        </option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <br>
+              <div class="card" v-if="compartmentList.length != 0 || subsystemList.length != 0">
+                <header class="card-header">
+                  <p class="card-header-title">
+                    Highlight&nbsp;
+                    <span class="button has-margin-left" v-on:click="resetHighlight(false)"
+                    :disabled="isCompartmentSubsystemHLDisabled()"
+                    :class="{'is-disabled': isCompartmentSubsystemHLDisabled() }">
+                      <i class="fa fa-eraser"></i>
+                    </span>
+                  </p>
+                </header>
+                <div class="card-content">
+                  <div class="select is-fullwidth">
+                    <select v-model="compartmentHL" @change.prevent="highlightCompartment" :disabled="disableCompartmentHL">
+                      <option value="" disabled v-if="!disableCompartmentHL">Select a compartment</option>
+                      <option v-for="compartment in compartmentList" :value="disableCompartmentHL ? '' : compartment">
+                        {{ compartment }}
+                      </option>
+                    </select>
+                  </div>
+                  <div v-show="subsystemList.length != 0">
+                    <br>
+                    <div class="select is-fullwidth">
+                      <select v-model="subsystemHL" @change.prevent="highlightSubsystem">
+                        <option value="" disabled>Select a subsystem</option>
+                        <option v-for="sub in subsystemList" :value="sub">
+                          {{ sub }}
+                        </option>
+                      </select>
                     </div>
                   </div>
-                </div>
+                 </div>
               </div>
-              <div class="columns" v-if="compartmentList.length != 0 || subsystemList.length != 0">
-                <div class="column">
-                  <div class="card">
-                    <header class="card-header">
-                      <p class="card-header-title">
-                        Highlight&nbsp;
-                        <span class="button has-margin-left" v-on:click="resetHighlight(false)"
-                        :disabled="isCompartmentSubsystemHLDisabled()"
-                        :class="{'is-disabled': isCompartmentSubsystemHLDisabled() }">
-                          <i class="fa fa-eraser"></i>
-                        </span>
-                      </p>
-                    </header>
-                     <div class="card-content">
-                        <div class="select is-fullwidth">
-                          <select v-model="compartmentHL" @change.prevent="highlightCompartment" :disabled="disableCompartmentHL">
-                            <option value="" disabled v-if="!disableCompartmentHL">Select a compartment</option>
-                            <option v-for="compartment in compartmentList" :value="disableCompartmentHL ? '' : compartment">
-                              {{ compartment }}
-                            </option>
-                          </select>
-                        </div>
-                        <div v-show="subsystemList.length != 0">
-                          <br>
-                          <div class="select is-fullwidth">
-                            <select v-model="subsystemHL" @change.prevent="highlightSubsystem">
-                              <option value="" disabled>Select a subsystem</option>
-                              <option v-for="sub in subsystemList" :value="sub">
-                                {{ sub }}
-                              </option>
-                            </select>
-                          </div>
-                        </div>
-                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="columns">
-                <sidebar id="sidebar" :selectedElm="clickedElm" :view="'interaction'" :model="model"></sidebar>
-              </div>
+              <br>
+              <sidebar id="sidebar" :selectedElm="clickedElm" :view="'interaction'" :model="model"></sidebar>
             </div>
           </div>
           <div v-show="!showNetworkGraph" class="container columns">
