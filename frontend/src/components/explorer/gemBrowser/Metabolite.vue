@@ -11,8 +11,8 @@
           <h3 class="title is-3">Metabolite {{ info.name }}</h3>
         </div>
       </div>
-      <div class="columns metabolite-table">
-        <div class="column is-10">
+      <div class="columns is-multiline metabolite-table">
+        <div class="column is-10-widescreen is-9-desktop is-full-tablet">
           <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
             <tr v-for="el in mainTableKey[model]">
               <td v-if="el.display" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
@@ -42,7 +42,7 @@
             </table>
           </template>
         </div>
-        <div class="column">
+        <div class="column is-2-widescreen is-3-desktop is-full-tablet">
           <div class="box has-text-centered">
             <div class="button is-info is-fullwidth" disabled>
               <p>View on {{ messages.mapViewerName }}</p>
@@ -50,7 +50,7 @@
             <br>
             <router-link class="button is-info is-fullwidth"
               :to="{path: `/explore/gem-browser/${this.model}/interaction/${this.mId}`}">
-              View interaction partners
+              Interaction Partners
             </router-link>
           </div>
         </div>
