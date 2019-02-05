@@ -1,5 +1,5 @@
 <template>
-  <section class="section extended-section">
+  <section class="extended-section">
     <div class="container">
       <div id="search-table">
         <div class="container columns is-centered">
@@ -48,13 +48,11 @@
               </div>
             </template>
           </div>
-          <div class="columns is-centered" v-show="!loading && (!showTabType || searchTerm === '')">
-            <div v-if="searchResults.length === 0" class="column is-6 has-text-centered notification">
+          <div class="columns is-multiline" v-show="!loading && (!showTabType || searchTerm === '')">
+            <div v-if="searchResults.length === 0" class="column is-offset-3 is-6 has-text-centered notification">
               {{ messages.searchNoResult }}
             </div>
-          </div>
-          <div class="columns is-centered">
-            <div class="column is-6 content">
+            <div class="column is-offset-3 is-6 content">
               <p>You can search metabolites by:</p>
               <ul class="menu-list">
                 <li>ID</li>
