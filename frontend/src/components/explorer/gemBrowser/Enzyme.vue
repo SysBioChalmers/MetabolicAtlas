@@ -15,8 +15,8 @@
       </div>
       <div class="columns">
         <div class="column">
-          <div class="columns">
-            <div id="enzyme-details" class="reaction-table column is-10">
+          <div class="columns is-multiline">
+            <div id="enzyme-details" class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
               <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table is-fullwidth">
                 <tr v-for="el in mainTableKey[model]">
                   <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
@@ -46,7 +46,7 @@
                 </table>
               </template>
             </div>
-            <div class="column">
+            <div class="column is-2-widescreen is-3-desktop is-full-tablet">
               <div class="box has-text-centered">
                 <div class="button is-info is-fullwidth" disabled>
                   <p>View on {{ messages.mapViewerName }}</p>
@@ -54,14 +54,14 @@
                 <br>
                 <div class="button is-info is-fullwidth"
                   @click="viewInteractionPartners">
-                  View interaction partners
+                  {{ messages.interPartName }}
                 </div>
                 <br>
                 <template v-if="model === 'hmr2'">
-                  <div class="button is-info is-inline-block is-fullwidth" title="View on Human Protein Atlas"
-                    @click="visitLink('https://www.proteinatlas.org/' + enzyme.id, true)">
-                    View on proteinAtlas.org
-                  </div>
+                  <a class="button is-info is-fullwidth" title="View on Human Protein Atlas" target="_blank"
+                    :href="`https://www.proteinatlas.org/${enzyme.id}`">
+                    ProteinAtlas.org
+                  </a>
                 </template>
               </div>
             </div>
