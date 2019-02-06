@@ -264,7 +264,6 @@ import Vue from 'vue';
 import axios from 'axios';
 import cytoscape from 'cytoscape';
 import jquery from 'jquery';
-import graphml from 'cytoscape-graphml/src/index';
 import cola from 'cytoscape-cola';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
@@ -451,9 +450,6 @@ export default {
         }
       }
     },
-  },
-  created() {
-    graphml(cytoscape, jquery);
   },
   beforeMount() {
     cytoscape.use(cola);
@@ -873,27 +869,9 @@ export default {
         callback();
       }
     },
-    // TODO: refactor
     exportGraphml: function exportGraphml() {
-      this.cy.graphml({
-        node: {
-          css: true,
-          data: true,
-          position: true,
-          discludeds: [],
-        },
-        edges: {
-          css: true,
-          data: true,
-          discludeds: [],
-        },
-        layoutby: 'concentric',
-      });
-
-      const output = this.cy.graphml();
-      const converted = convertGraphML(output);
-
-      const blob = new Blob([converted], { type: 'text/graphml' });
+      const output = convertGraphML(this.cy);
+      const blob = new Blob([output], { type: 'text/graphml' });
       const filename = `${this.id}_interaction_partners.graphml`;
       FileSaver.saveAs(blob, filename);
     },
