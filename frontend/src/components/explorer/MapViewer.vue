@@ -420,7 +420,7 @@ export default {
         reversible: null, // reas only
         rna_level: null, // enz only
         synonyms: null, // mets and enz only
-        external_ids: null, //[[source, ID, link],]
+        external_ids: null, // [[source, ID, link],]
       },
       isHoverMenuItem: false,
 
