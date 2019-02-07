@@ -32,6 +32,20 @@
             <td v-else> - </td>
           </tr>
         </table>
+         <template v-if="hasExternalID">
+          <br>
+          <span class="subtitle">External IDs</span>
+          <table v-if="reaction && Object.keys(reaction).length != 0" id="ed-table" class="table is-fullwidth">
+            <tr v-for="el in externalIDTableKey[model]" v-if="reaction[el.name] && reaction[el.link]">
+              <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+              <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
+              <td>
+                <span v-html="reformatLink(reaction[el.name], reaction[el.link])">
+                </span>
+              </td>
+            </tr>
+          </table>
+        </template>
       </div>
       <div class="column is-2-widescreen is-3-desktop is-full-tablet">
         <div class="box has-text-centered">
@@ -100,6 +114,12 @@ export default {
           { name: 'subsystem', display: 'Subsystem', modifier: this.reformatSubsystemList },
         ],
       },
+      externalIDTableKey: {
+        hmr2: [
+          { name: 'mnxref_id', display: 'MNXREF ID', link: 'mnxref_link' },
+        ],
+        yeast: [],
+      },
       reaction: {},
       pmids: [],
       errorMessage: '',
@@ -125,6 +145,16 @@ export default {
           this.setup();
         }
       }
+    },
+  },
+  computed: {
+    hasExternalID() {
+      for (const item of this.externalIDTableKey[this.model]) {
+        if (this.reaction[item.name] && this.reaction[item.link]) {
+          return true;
+        }
+      }
+      return false;
     },
   },
   methods: {

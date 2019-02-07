@@ -27,8 +27,7 @@ class ReactionBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.Reaction
         fields = ('id', 'id_equation', 'equation', 'gene_rule', 'name_gene_rule', 'ec', 'lower_bound', 'upper_bound', 'objective_coefficient',
-                'compartment', 'subsystem', 'is_transport', 'is_reversible')
-
+                'compartment', 'subsystem', 'is_transport', 'is_reversible',)
     def read_subsystem(self, model):
         return model.subsystem_str
 
@@ -48,7 +47,7 @@ class HmrReactionBasicSerializer(ReactionBasicSerializer):
         fields = ReactionBasicSerializer.Meta.fields + \
             ('sbo_id',)
 
-# serializer use for reaction table
+# serializer use for reactome table
 class HmrReactionBasicRTSerializer(ReactionBasicSerializer):
     modifiers = APIrcSerializer.ReactionComponentLiteSerializer(many=True)
 
@@ -70,11 +69,20 @@ class ReactionLiteSerializer(ReactionBasicSerializer):
 
 
 class HmrReactionLiteSerializer(ReactionLiteSerializer):
+    # more ids will be added
+    mnxref_id = serializers.SerializerMethodField('read_mnxref')
+    mnxref_link =  serializers.SerializerMethodField('read_mnxref_link')
 
     class Meta(ReactionLiteSerializer.Meta):
         model = APImodels.Reaction
         fields = ReactionLiteSerializer.Meta.fields + \
-            ('sbo_id',)
+            ('sbo_id', 'mnxref_id', 'mnxref_link',)
+
+    def read_mnxref(self, model):
+        return model.external_id1
+
+    def read_mnxref_link(self, model):
+        return model.external_link1
 
 
 class ReactionSerializer(ReactionBasicSerializer):
@@ -90,7 +98,8 @@ class ReactionSerializer(ReactionBasicSerializer):
     class Meta(ReactionBasicSerializer.Meta):
         model = APImodels.Reaction
         fields = ReactionBasicSerializer.Meta.fields + \
-            ('reactants', 'products', 'modifiers')
+            ('reactants', 'products', 'modifiers', 'external_id1', 'external_link1', 'external_id2', 'external_link2',
+                'external_id3', 'external_link3', 'external_id4', 'external_link4',)
 
 
 class HmrReactionSerializer(ReactionBasicSerializer):
@@ -102,11 +111,19 @@ class HmrReactionSerializer(ReactionBasicSerializer):
         read_only=True,
         slug_field='name',
      )
+    mnxref_id = serializers.SerializerMethodField('read_mnxref')
+    mnxref_link =  serializers.SerializerMethodField('read_mnxref_link')
 
     class Meta(ReactionBasicSerializer.Meta):
         model = APImodels.Reaction
         fields = ReactionBasicSerializer.Meta.fields + \
-            ('sbo_id', 'reactants', 'products', 'modifiers')
+            ('sbo_id', 'reactants', 'products', 'modifiers', 'mnxref_id', 'mnxref_link')
+
+    def read_mnxref(self, model):
+        return model.external_id1
+
+    def read_mnxref_link(self, model):
+        return model.external_link1
 
 # =========================================================================================
 

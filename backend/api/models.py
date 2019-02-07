@@ -160,6 +160,14 @@ class Reaction(models.Model):
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
     is_reversible = models.BooleanField(default=False)
+    external_id1 = models.CharField(max_length=50, null=True) # e.g. MNXref, KEGG
+    external_id2 = models.CharField(max_length=50, null=True)
+    external_id3 = models.CharField(max_length=50, null=True)
+    external_id4 = models.CharField(max_length=50, null=True)
+    external_link1 = models.CharField(max_length=50, null=True)
+    external_link2 = models.CharField(max_length=50, null=True)
+    external_link3 = models.CharField(max_length=50, null=True)
+    external_link4 = models.CharField(max_length=50, null=True)
 
     def __str__(self):
         return "<Reaction: {0} {1}>".format(self.id, self.modifiers)
