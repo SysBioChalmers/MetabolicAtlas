@@ -6,4 +6,7 @@ export default {
   notFoundError: 'No matching record(s) found, please check the parameters and try again.',
   unknownError: 'Something went wrong, please try again later or contact us.',
   noInfoAvailable: 'No information available',
+  mapViewerName: 'Map Viewer',
+  gemBrowserName: 'GEM Browser',
+  interPartName: 'Interaction Partners',
 };

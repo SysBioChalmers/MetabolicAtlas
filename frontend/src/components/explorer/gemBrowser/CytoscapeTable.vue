@@ -82,7 +82,7 @@
 
 import CytoscapeTableSearch from 'components/explorer/gemBrowser/CytoscapeTableSearch';
 import { default as compare } from '../../../helpers/compare';
-import { default as downloadFile } from '../../../helpers/excel-export';
+// import { default as downloadFile } from '../../../helpers/excel-export';
 import { default as EventBus } from '../../../event-bus';
 
 export default {
@@ -182,11 +182,11 @@ export default {
       }
     },
     exportToExcel() {
-      try {
-        downloadFile(this.$refs.table, `${this.filename}.xlsx`, this.sheetname);
-      } catch (e) {
-        this.errorMessage = e;
-      }
+      // try {
+      //   downloadFile(this.$refs.table, `${this.filename}.xlsx`, this.sheetname);
+      // } catch (e) {
+      //   this.errorMessage = e;
+      // }
     },
   },
 };

@@ -5,7 +5,7 @@
       <div class="container">
         <div class="navbar-brand">
           <router-link id="logo" class="navbar-item" to="/" >
-            <svg-icon width="175" height="50" :glyph="Logo"></svg-icon>
+            <img :src="require('./assets/logo.png')"/>
           </router-link>
           <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
             @click="isMobileMenu = !isMobileMenu">
@@ -30,26 +30,28 @@
           </div>
           <div class="navbar-end">
             <template v-for="(menuPath, menuName) in menuElems">
-              <template v-if="Array.isArray(menuPath)">
-                <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" :class="{ 'is-active': false }" v-html="menuName">
-                  </a>
-                  <div class="navbar-dropdown">
-                    <template v-for="submenu in menuPath">
-                      <template v-for="(submenuPath, submenuName) in submenu">
-                        <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
-                          :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
-                        </router-link>
-                      </template>
-                    </template>
-                  </div>
-                </div>
-              </template>
-              <template v-else>
+              <template v-if="typeof menuPath === 'string'">
                 <router-link class="navbar-item is-unselectable"  :to="{ path: menuPath }"
                   :class="{ 'is-active': isActiveRoute(menuPath) }" v-html="menuName">
                 </router-link>
               </template>
+              <template v-else>
+                <template v-for="(submenus, menuurl) in menuPath">
+                  <div class="navbar-item has-dropdown is-hoverable is-unselectable">
+                    <a class="navbar-link" :class="{ 'is-active': isActiveRoute(menuurl) }"> {{ menuName }} </a>
+                    <div class="navbar-dropdown">
+                      <template v-for="submenu in submenus">
+                        <template v-for="(submenuPath, submenuName) in submenu">
+                          <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
+                            :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
+                          </router-link>
+                        </template>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+              </template>
+
             </template>
           </div>
         </div>
@@ -80,9 +82,9 @@
                 <img src="./assets/wpcr.jpg" />
               </a>
               <a href="https://nbis.se/">
-                <img src="./assets/nbislogo-green.png" />
+                <img src="./assets/nbislogo-green.png" title="National Bioinformatics Infrastructure Sweden"/>
               </a>
-              <a href="https://www.scilifelab.se"title="National Bioinformatics Infrastructure Sweden">
+              <a href="https://www.scilifelab.se" title="Science for Life Laboratory (SciLifeLab)">
                 <img src="./assets/scilifelab-green.png" />
               </a>
             </p>
@@ -90,14 +92,14 @@
         </div>
       </div>
     </footer>
-    <div v-if="showCookieMsg" id="cookies" class="columns has-background-grey">
+    <div v-if="showCookieMsg" id="cookies" class="has-background-grey">
       <div class="column has-text-centered">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
-          <a class="button is-small is-rounded is-success has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
+          <p class="button is-small is-rounded has-background-hcontrast has-text-white has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
             <span class="icon is-small"><i class="fa fa-check"></i></span>
             <span>OKAY</span>
-          </a>
+          </p>
         </div>
       </div>
     </div>
@@ -105,32 +107,24 @@
 </template>
 
 <script>
-import SvgIcon from './components/SvgIcon';
-import Logo from './assets/logo.svg';
 import { default as EventBus } from './event-bus';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'app',
-  components: {
-    SvgIcon,
-  },
   data() {
     return {
       /* eslint-disable quote-props */
-      Logo,
       menuElems: {
-        '<b>Explore models</b>': '/explore',
-        'GEMs': [
-          { 'List of GEMs': '/gems' },
-          { 'Compare': '/gems/compare' },
-          { 'Download': '/gems/download' },
-        ],
-        'Resources': [
-          { 'Tools': '/resources#tools' },
-          { 'External Databases': '/resources#databases' },
-          { 'API': '/resources#api' },
-        ],
+        'Explore models': '/explore',
+        'GEMs': {
+          '/gems/': [
+            { 'List of GEMs': '/gems/list' },
+            { 'Compare': '/gems/compare' },
+            { 'Download': '/gems/download' },
+          ],
+        },
+        'Resources': '/resources',
         'Documentation': '/documentation',
         'About': '/about',
       },
@@ -181,7 +175,7 @@ export default {
     },
     isActiveRoute(name) {
       if (this.$route.path) {
-        return name.toLowerCase() === this.$route.path.toLowerCase();
+        return this.$route.path.toLowerCase().includes(name);
       }
       return false;
     },
@@ -214,6 +208,9 @@ export default {
 
 $primary: #4E755A;
 $primary-light: #beccc3;
+$contrast: #4a506c;
+$contrast-light: #fcf2de;
+$high-contrast: #f46036;
 $link: #006992;
 $warning: #FFC67D;
 $danger: #FF4D4D;
@@ -245,6 +242,22 @@ $fullhd: 1576px !default;
   flex: 1;
 }
 
+.has-background-primary-light {
+  background-color: $primary-light;
+}
+
+.has-background-contrast {
+  background-color: $contrast;
+}
+
+.has-background-contrast-light {
+  background-color: $contrast-light;
+}
+
+.has-background-hcontrast {
+  background-color: $high-contrast;
+}
+
 #app {
   display: flex;
   min-height: 100vh;
@@ -263,20 +276,36 @@ $fullhd: 1576px !default;
 }
 
 #navbar {
-  .navbar-menu {
-    a {
-      font-size: 1.15em;
-    }
+  a {
+    font-size: 1.15em;
+    color: $black-ter;
+  }
+  a:hover{
+    color: $black;
+  }
+  .is-active {
+    background-color: $contrast-light;
   }
   .navbar-brand {
     a {
-      font-size: 1.15em;
       font-weight: 400;
-      // line-height: 1.5;
     }
   }
-  .navbar-burger span {
-    height: 2px;
+  .navbar-burger{
+    height: 4rem;
+    margin-right: 1.5rem;
+    width: 5rem;
+    padding-left: auto;
+    padding-right: auto;
+    span {
+      height: 2px;
+    }
+  }
+  .navbar-item img {
+    max-height: 3rem;
+  }
+  .navbar-link:not(.is-arrowless)::after {
+    border-color: $grey-darker;
   }
 }
 
@@ -336,6 +365,7 @@ $fullhd: 1576px !default;
 
 #home {
   .menu-list li {
+
     &:first-child {
       margin-top: 0.75em;
     }
@@ -352,8 +382,8 @@ $fullhd: 1576px !default;
       border-radius: 0;
     }
     .is-active {
-      color: black;
-      background-color: white;
+      color: $black;
+      background-color: $contrast-light;
       border-radius: 0;
     }
   }
@@ -392,6 +422,9 @@ $fullhd: 1576px !default;
 #cookies {
   position: sticky;
   bottom: 0;
+  .button:not(:hover) {
+    border-color: transparent;
+  }
 }
 
 </style>

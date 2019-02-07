@@ -29,7 +29,7 @@
           In addition another {{ amountRxnDifMod  }} reactions are the same, but different modifiers are 'indicated' in the two models.</br>
       </div>
     </section>
-  
+
     <section class="section">
       <div class="container">
         <h4 class="title is-4">Ranked affected parts</h4>
@@ -102,13 +102,14 @@
         <h4 class="title is-4" v-if="showAffected == 'lost'">{{ filterableReactions.length }} non-shared (lost) reactions</h4>
         <h4 class="title is-4" v-if="showAffected == 'various'">{{ filterableReactions.length }} shared reactions (VariousModifiers)</h4>
         <h6 class="subtitle is-6">{{ filteredAffectedReactions.length }} filtered, {{ showAffectedReactions.length }} shown</h6>
-              <div class="select">
-                <select v-model="showAffected" class="select">
-                  <option value="all">Show all reactions</option>
-                  <option value="lost">Show lost reactions</option>
-                  <option value="various">Show various modifiers</option>
-                </select>
-              </div>
+          <div class="select">
+            <select v-model="showAffected" class="select">
+              <option value="all">Show all reactions</option>
+              <option value="lost">Show lost reactions</option>
+              <option value="various">Show various modifiers</option>
+            </select>
+          </div>
+          <button class="button is-primary" v-on:click="filterAffectedReactions(filters)">Filter</button>
         <table class="table is-narrow">
           <thead>
             <tr>
@@ -151,7 +152,6 @@
                   </select>
                 </div>
               </th>
-              <th><button class="button is-primary" v-on:click="filterAffectedReactions(filters)">Filter</button></th>
             </tr>
             <tr>
               <th>ID</th>
@@ -159,7 +159,6 @@
               <th>Compartment</th>
               <th>A</th>
               <th>B</th>
-              <th><button class="button is-primary" v-on:click="drawReactions">Draw</button></th>
             </tr>
           </thead>
           <tbody>
@@ -183,7 +182,6 @@
                 </template>
                 <div v-if="rxn.ModifierDiferenceses === null">{{ rxn.FoundInB }}</div>
               </td>
-              <td><input type="checkbox" v-model="reactionsForDraw" v-bind:value="rxn.ReactionId"></td>
             </tr>
           </tbody>
         </table>
@@ -213,7 +211,6 @@ export default {
         filterB: '',
       },
       filteredAffectedReactions: [],
-      reactionsForDraw: [],
     };
   },
   beforeMount() {
@@ -358,9 +355,6 @@ export default {
         }
       }
       this.filteredAffectedReactions = filteredReactions;
-    },
-    drawReactions() {
-      console.log(this.reactionsForDraw);
     },
   },
 };

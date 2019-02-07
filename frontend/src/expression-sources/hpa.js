@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import axios from 'axios';
-import { parseXML, unzipXML } from '../helpers/xml-tools';
+// import { parseXML, unzipXML } from '../helpers/xml-tools';
 
 const notDetectedColor = 'whitesmoke';
 const overExpressedColor = '#ffe945';
