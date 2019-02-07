@@ -170,7 +170,7 @@ export default {
             },
             sortable: true,
           }, {
-            label: 'Is currency',
+            label: 'Currency?',
             field: 'is_currency',
             filterOptions: {
               enabled: true,
@@ -262,7 +262,7 @@ export default {
             },
             sortable: true,
           }, {
-            label: 'Is transport',
+            label: 'Transport?',
             field: 'is_transport',
             filterOptions: {
               enabled: true,
@@ -297,21 +297,21 @@ export default {
             },
             sortable: true,
           }, {
-            label: '# Metabolites',
+            label: 'Metabolites',
             field: 'metaboliteCount',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
           }, {
-            label: '# Enzymes',
+            label: 'Enzymes',
             field: 'enzymeCount',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
           }, {
-            label: '# Reactions',
+            label: 'Reactions',
             field: 'reactionCount',
             filterOptions: {
               enabled: false,
