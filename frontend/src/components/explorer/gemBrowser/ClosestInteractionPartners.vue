@@ -10,7 +10,7 @@
       <div v-show="!errorMessage">
         <div class="container columns">
           <div class="column is-8">
-            <h3 class="title is-3 is-marginless">Interaction partners {{ title }}</h3>
+            <h3 class="title is-3 is-marginless">{{ messages.interPartName }} for {{ title }}</h3>
           </div>
           <div class="column">
             <div class="dropdown" id="dropdownMenuExport">
@@ -39,9 +39,9 @@
         </div>
         <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
           <span v-show="clickedElmId !== id"
-          class="button is-dark" v-on:click="navigate">Load interaction partners</span>
+          class="button is-dark" v-on:click="navigate">Load {{ messages.interPartName }}</span>
           <span v-show="!expandedIds.includes(clickedElmId)"
-          class="button is-dark" v-on:click="loadExpansion">Expand interaction partners</span>
+          class="button is-dark" v-on:click="loadExpansion">Expand {{ messages.interPartName }}</span>
           <div v-show="clickedElm">
             <span class="button is-dark">Highlight reaction:</span>
           </div>
@@ -200,7 +200,7 @@
           </div>
           <div v-show="!showNetworkGraph" class="container columns">
             <div class="column is-4 is-offset-4 notification is-warning has-text-centered">
-              <div>Warning: The query has returned too many interaction partners.<br>The network has not been generated.</div>
+              <div>Warning: The query has returned too many elements to be displayed.<br>The network has not been generated.</div>
               <span v-show="nodeCount <= maxNodeCount"
               class="button" v-on:click="generateGraph(fitGraph)">Generate</span>
             </div>
@@ -389,6 +389,7 @@ export default {
       maxZoom: 10,
       minZoom: 0.1,
       factorZoom: 0.08,
+      messages,
     };
   },
   computed: {
