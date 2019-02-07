@@ -14,9 +14,15 @@
       <div class="columns is-centered">
         <global-search :quickSearch=true :model="model" ref="globalSearch"></global-search>
       </div>
-      <div id="homeDiv" class="columns box has-text-centered" v-if="selectedType === '' && starredComponents[model]">
+      <div class="columns is-centered">
+        <div class="column is-10 is-size-5 has-text-centered">
+          Use the search field above to look for your constituent of interest.
+          Below is a list of popular constituents of {{ model }}.
+        </div>
+      </div>
+      <div class="homeDiv columns has-text-centered" v-if="selectedType === '' && starredComponents[model]">
         <div class="column is-4" v-for="category in ['metabolite', 'enzyme', 'reaction']">
-          <h5 class="title is-capitalized">{{ category }}s</h5>
+          <h5 class="title is-size-5 is-capitalized">{{ category }}s</h5>
           <router-link v-for="row in starredComponents[model][category]" :to="{ path: `/explore/gem-browser/${model}/${category}/${row[1]}` }"
             v-if="model in starredComponents" class="is-block">
             {{ row[0] }}
@@ -214,7 +220,7 @@ export default {
 
 <style lang="scss">
 
-#homeDiv {
+.homeDiv {
   margin-top: 3rem;
 }
 
