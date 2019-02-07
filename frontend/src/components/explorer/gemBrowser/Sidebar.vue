@@ -1,78 +1,76 @@
 <template>
-  <div class="column content">
-    <div v-if="selectedElm && ['enzyme', 'metabolite', 'reaction'].includes(selectedElm.type)" class="card">
-      <header class="card-header">
-        <p class="card-header-title">
-          <span v-if="selectedElm.type === 'reaction'">
-            Reaction ID: {{ selectedElm.id }}
-          </span>
-          <span v-else>
-            {{ selectedElm.type === 'enzyme' ? 'Enzyme' : 'Metabolite' }}:
-            <a v-on:click="viewReactionComponent(selectedElm.type)">
-              {{ selectedElm.name }}
-            </a>
-          </span>
-        </p>
-      </header>
-      <div v-if="selectedElm.details" class="card">
-        <div v-if="selectedElm.type === 'enzyme'" class="card-content">
-          <div v-if="selectedElm.details.function">
-            <p class="label">Function</p>
-            <p>{{ selectedElm.details.function }}</p>
-            <br>
-          </div>
-          <div v-if="selectedElm.details.catalytic_activity">
-            <p class="label">Catalytic Activity</p>
-            <p>{{ selectedElm.details.catalytic_activity }}</p>
-            <br>
-          </div>
-          <div v-if="!selectedElm.details.function &&
-                     !selectedElm.details.catalytic_activity">
-            {{ messages.noInfoAvailable }}
-          </div>
+  <div v-if="selectedElm && ['enzyme', 'metabolite', 'reaction'].includes(selectedElm.type)" class="card">
+    <header class="card-header">
+      <p class="card-header-title">
+        <span v-if="selectedElm.type === 'reaction'">
+          Reaction ID: {{ selectedElm.id }}
+        </span>
+        <span v-else>
+          {{ selectedElm.type === 'enzyme' ? 'Enzyme' : 'Metabolite' }}:
+          <a v-on:click="viewReactionComponent(selectedElm.type)">
+            {{ selectedElm.name }}
+          </a>
+        </span>
+      </p>
+    </header>
+    <div v-if="selectedElm.details" class="card">
+      <div v-if="selectedElm.type === 'enzyme'" class="card-content">
+        <div v-if="selectedElm.details.function">
+          <p class="label">Function</p>
+          <p>{{ selectedElm.details.function }}</p>
+          <br>
         </div>
-        <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
-          <div v-if="selectedElm.details.hmdb_description">
-            <p class="label">Description</p>
-            <p>{{ selectedElm.details.hmdb_description }}</p>
-            <br>
-          </div>
-          <div v-if="selectedElm.formula">
-            <p class="label il">Formula:</p>
-            <span v-html="chemicalFormula(selectedElm.formula)"></span>
-            <br>
-          </div>
-          <div v-if="selectedElm.details.mass">
-            <p class="label il">Molecular mass: </p>
-            <span>{{ selectedElm.details.mass  }} g/mol</span>
-            <br>
-          </div>
-          <div v-if="selectedElm.details.kegg">
-            <p class="label il">Kegg: </p>
-            <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
-            <br>
-          </div>
-          <div v-if="!selectedElm.details.hmdb_description &&
-                     !selectedElm.formula &&
-                     !selectedElm.details.mass &&
-                     !selectedElm.details.kegg">
-            {{ messages.noInfoAvailable }}
-          </div>
+        <div v-if="selectedElm.details.catalytic_activity">
+          <p class="label">Catalytic Activity</p>
+          <p>{{ selectedElm.details.catalytic_activity }}</p>
+          <br>
         </div>
-      </div>
-      <div v-else-if="selectedElm.type === 'reaction'" class="card-content">
-        <div v-if="selectedElm.subsystem">
-          <p class="label">Subsystem</p>
-          <p>{{ selectedElm.subsystem.join(', ') }}</p>
-        </div>
-        <div v-if="!selectedElm.subsystem">
+        <div v-if="!selectedElm.details.function &&
+                   !selectedElm.details.catalytic_activity">
           {{ messages.noInfoAvailable }}
         </div>
       </div>
-      <div v-else>
-        <div class="card-content">
+      <div v-else-if="selectedElm.type === 'metabolite'" class="card-content">
+        <div v-if="selectedElm.details.hmdb_description">
+          <p class="label">Description</p>
+          <p>{{ selectedElm.details.hmdb_description }}</p>
+          <br>
+        </div>
+        <div v-if="selectedElm.formula">
+          <p class="label il">Formula:</p>
+          <span v-html="chemicalFormula(selectedElm.formula)"></span>
+          <br>
+        </div>
+        <div v-if="selectedElm.details.mass">
+          <p class="label il">Molecular mass: </p>
+          <span>{{ selectedElm.details.mass  }} g/mol</span>
+          <br>
+        </div>
+        <div v-if="selectedElm.details.kegg">
+          <p class="label il">Kegg: </p>
+          <a :href="keggLink" target="_blank">{{ selectedElm.details.kegg }}</a>
+          <br>
+        </div>
+        <div v-if="!selectedElm.details.hmdb_description &&
+                   !selectedElm.formula &&
+                   !selectedElm.details.mass &&
+                   !selectedElm.details.kegg">
           {{ messages.noInfoAvailable }}
         </div>
+      </div>
+    </div>
+    <div v-else-if="selectedElm.type === 'reaction'" class="card-content">
+      <div v-if="selectedElm.subsystem">
+        <p class="label">Subsystem</p>
+        <p>{{ selectedElm.subsystem.join(', ') }}</p>
+      </div>
+      <div v-if="!selectedElm.subsystem">
+        {{ messages.noInfoAvailable }}
+      </div>
+    </div>
+    <div v-else>
+      <div class="card-content">
+        {{ messages.noInfoAvailable }}
       </div>
     </div>
   </div>

@@ -9,29 +9,23 @@
       <template v-else>
         <div class="columns">
           <div class="column has-text-centered">
-            <h4 class="is-size-4 has-text-weight-bold">Explore models</h4>[<a @click="">Learn how</a>]
+            <h4 class="is-size-3 has-text-weight-bold">Explore models</h4>
           </div>
         </div>
-        <br>
         <div>
           <div class="columns">
             <div class="column has-text-centered has-text-weight-bold">
               Search metabolites, enzymes, reactions... through all the integrated models
             </div>
           </div>
-          <div class="columns">
-            <div class="column is-3">
-            </div>
-            <global-search
-            :quickSearch=false
-            :reroute=true
-            :model="model"
-            ref="globalSearch"></global-search>
+          <div class="columns is-centered">
+            <global-search :quickSearch=false :reroute=true :model="model" ref="globalSearch">
+            </global-search>
           </div>
         </div>
         <div class="columns has-text-centered">
-          <div class="column has-text-weight-bold">
-            <br>OR<br>
+          <div class="column">
+            <h4 class="is-size-4 has-text-weight-bold">OR</h4>
           </div>
         </div>
         <div>
@@ -42,20 +36,20 @@
               </div>
             </div>
           </div>
-          <div class="columns has-text-centered">
-            <div class="column">
+          <div class="columns is-centered">
+            <div class="column is-half-desktop is-three-quarters-tablet is-fullwidth-mobile has-text-centered">
               <div class="dropdown is-hoverable">
                 <div class="dropdown-trigger">
-                  <button class="button is-medium" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <button class="button is-medium is-fullwidth" aria-haspopup="true" aria-controls="dropdown-menu">
                     <span>Model: <a class="tag is-info is-medium">{{ models[model].short_name }}</a></span>
                     <span class="icon is-small">
                       <i class="fa fa-angle-down" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
-                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-menu is-size-2" id="dropdown-menu" role="menu">
                   <div class="dropdown-content">
-                    <a class="dropdown-item"
+                    <a class="dropdown-item has-text-centered is-size-6"
                       v-for="model, k in models"
                       @click="selectModel(model.database_name)" v-html="getModelDescription(model)">
                     </a>
@@ -64,43 +58,24 @@
               </div>
             </div>
           </div>
-          <div id="toolsSelect"class="columns">
-            <div class="column">
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                     GEM Browser
-                  </p>
-                </header>
-                <div class="card-content">
-                  <div class="content">
-                    <a @click="goToGemBrowser(model)">
-                      <img src="../assets/gemBrowser2.png" />
-                    </a>
+          <br>
+          <div id="toolsSelect" class="columns">
+            <template v-for="tool in explorerTools">
+              <div class="column">
+                <router-link :to="{ path: `${tool.url}/${model}` }">
+                  <div class="card">
+                    <header class="card-header">
+                      <p class="card-header-title is-size-5">{{ tool.name }}</p>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                          <img :src="tool.img" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <footer class="card-footer">
-                </footer>
+              </router-link>
               </div>
-            </div>
-            <div class="column">
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    Map Viewer
-                  </p>
-                </header>
-                <div class="card-content">
-                  <div class="content">
-                    <a @click="goToMapViewer(model)" class="has-text-centered">
-                      <img src="../assets/mapViewer2.png" />
-                    </a>
-                  </div>
-                </div>
-                <footer class="card-footer">
-                </footer>
-              </div>
-            </div>
+            </template>
           </div>
         </div>
       </template>
@@ -130,6 +105,17 @@ export default {
   },
   data() {
     return {
+      /* eslint-disable global-require*/
+      explorerTools: [
+        { name: messages.gemBrowserName,
+          img: require('../assets/gemBrowser2.png'),
+          url: '/explore/gem-browser',
+        },
+        { name: messages.mapViewerName,
+          img: require('../assets/mapViewer2.png'),
+          url: '/explore/map-viewer',
+        },
+      ],
       model: 'hmr2',
       models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
       showViewer: false,
@@ -248,7 +234,7 @@ export default {
       <div class="has-text-grey">
         ${model.reaction_count} reactions -
         ${model.metabolite_count} metabolites -
-        <br>${model.enzyme_count} enzymes
+        ${model.enzyme_count} enzymes
       </div>`;
     },
     selectModel(model) {
@@ -269,12 +255,6 @@ export default {
     displaySearch() {
       this.showViewer = false;
       this.currentShowComponent = 'SearchTable';
-    },
-    goToGemBrowser(model) {
-      this.$router.push(`/explore/gem-browser/${model}`);
-    },
-    goToMapViewer(model) {
-      this.$router.push(`/explore/map-viewer/${model}`);
     },
     getCompartmentNameFromLetter(l) {
       return this.compartmentLetters[l];
@@ -331,12 +311,19 @@ export default {
 <style lang="scss">
 
 #toolsSelect {
-  img {
+  .card {
+    p {
+      justify-content: center;
+    }
     border: solid 1px white;
     &:hover {
       border: solid 1px black;
     }
   }
+}
+
+.dropdown, .dropdown-trigger, #dropdown-menu {
+  width: 100%;
 }
 
 </style>

@@ -5,6 +5,11 @@
     </div>
   </div>
   <div v-else>
+    <div class="columns">
+      <div class="column">
+        <h3 class="title is-3">Subsystem {{ info.name }}</h3>
+      </div>
+    </div>
     <loader v-show="showLoader"></loader>
     <div v-show="!showLoader" class="columns">
       <div class="subsystem-table column is-10">
@@ -54,8 +59,8 @@
       </div>
       <div class="column">
         <div class="box has-text-centered">
-          <div class="button is-info" disabled>
-            <p>View on Map Viewer</p>
+          <div class="button is-info is-fullwidth" disabled>
+            <p>View on {{ messages.mapViewerName }}</p>
           </div>
         </div>
       </div>
@@ -82,6 +87,7 @@ export default {
   props: ['model'],
   data() {
     return {
+      messages,
       sName: this.$route.params.id,
       showLoader: false,
       info: {},

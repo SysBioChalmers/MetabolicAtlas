@@ -1,8 +1,8 @@
 <template>
-  <div class="column is-6">
+  <div class="column is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile">
     <div class="control">
       <div id="input-wrapper">
-        <p class="control has-icons-right">
+        <p class="control has-icons-right has-icons-left">
         <input id="search" class="input" type="text"
           v-model="searchTermString" @input="searchDebounce"
           placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
@@ -13,13 +13,16 @@
           <span class="icon is-small is-right" v-show="showSearchCharAlert" style="width: 250px">
             Type at least 2 characters
           </span>
+          <span class="icon is-medium is-left">
+            <i class="fa fa-search"></i>
+          </span>
         </p>
         <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
           <div class="notification is-medium is-paddingless">
-            First 50 results per category from {{ getModelName() }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
+            First 50 results per category from {{ model }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
           </div>
         </div>
         <div class="resList" v-show="!showLoader">
@@ -131,6 +134,7 @@
 
 <script>
 import axios from 'axios';
+import $ from 'jquery';
 import Loader from 'components/Loader';
 import _ from 'lodash';
 import { chemicalFormula, chemicalReaction } from '../../helpers/chemical-formatters';
@@ -204,6 +208,7 @@ export default {
     this.$refs.searchInput.addEventListener('click', (e) => {
       e.stopPropagation();
     });
+    $('#search').focus();
   },
   methods: {
     searchDebounce: _.debounce(function e() {
@@ -356,9 +361,6 @@ export default {
         this.$emit('searchResults');
         this.search(this.searchTermString);
       }
-    },
-    getModelName() {
-      return this.$t(this.model);
     },
     chemicalFormula,
   },

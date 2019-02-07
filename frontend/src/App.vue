@@ -5,7 +5,7 @@
       <div class="container">
         <div class="navbar-brand">
           <router-link id="logo" class="navbar-item" to="/" >
-            <svg-icon width="175" height="50" :glyph="Logo"></svg-icon>
+            <img :src="require('./assets/logo.png')"/>
           </router-link>
           <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }"
             @click="isMobileMenu = !isMobileMenu">
@@ -17,7 +17,7 @@
         <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
           <div class="navbar-start has-text-centered">
             <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
-              title="Current selected model, click to change your selection">{{ $t(model) }}
+              title="Current selected model, click to change your selection">{{ model }}
             </router-link>
             <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
               :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
@@ -32,8 +32,7 @@
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="Array.isArray(menuPath)">
                 <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                  <a class="navbar-link" :class="{ 'is-active': false }" v-html="menuName">
-                  </a>
+                  <a class="navbar-link" :class="{ 'is-active': false }"> {{ menuName }} </a>
                   <div class="navbar-dropdown">
                     <template v-for="submenu in menuPath">
                       <template v-for="(submenuPath, submenuName) in submenu">
@@ -90,7 +89,7 @@
         </div>
       </div>
     </footer>
-    <div v-if="showCookieMsg" id="cookies" class="columns has-background-grey">
+    <div v-if="showCookieMsg" id="cookies" class="has-background-grey">
       <div class="column has-text-centered">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
@@ -105,32 +104,22 @@
 </template>
 
 <script>
-import SvgIcon from './components/SvgIcon';
-import Logo from './assets/logo.svg';
 import { default as EventBus } from './event-bus';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'app',
-  components: {
-    SvgIcon,
-  },
   data() {
     return {
       /* eslint-disable quote-props */
-      Logo,
       menuElems: {
-        '<b>Explore models</b>': '/explore',
+        'Explore models': '/explore',
         'GEMs': [
           { 'List of GEMs': '/gems' },
           { 'Compare': '/gems/compare' },
           { 'Download': '/gems/download' },
         ],
-        'Resources': [
-          { 'Tools': '/resources#tools' },
-          { 'External Databases': '/resources#databases' },
-          { 'API': '/resources#api' },
-        ],
+        'Resources': '/resources',
         'Documentation': '/documentation',
         'About': '/about',
       },
@@ -277,6 +266,9 @@ $fullhd: 1576px !default;
   }
   .navbar-burger span {
     height: 2px;
+  }
+  .navbar-item img {
+    max-height: 3rem;
   }
 }
 

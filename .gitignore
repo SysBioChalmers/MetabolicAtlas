@@ -71,6 +71,7 @@ backend/database_generation/**/*.tsv
 !backend/database_generation/example/*.tsv
 backend/database_generation/**/*.gz
 *.db
+static/
 
 postgres_data/
 frontend/src/assets/svg/
