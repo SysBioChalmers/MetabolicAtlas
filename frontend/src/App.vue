@@ -256,7 +256,6 @@ $fullhd: 1576px !default;
 
 .has-background-hcontrast {
   background-color: $high-contrast;
-  border-color: transparent;
 }
 
 #app {
@@ -304,6 +303,9 @@ $fullhd: 1576px !default;
   }
   .navbar-item img {
     max-height: 3rem;
+  }
+  .navbar-link:not(.is-arrowless)::after {
+    border-color: $grey-darker;
   }
 }
 
@@ -363,6 +365,7 @@ $fullhd: 1576px !default;
 
 #home {
   .menu-list li {
+
     &:first-child {
       margin-top: 0.75em;
     }
@@ -379,8 +382,8 @@ $fullhd: 1576px !default;
       border-radius: 0;
     }
     .is-active {
-      color: black;
-      background-color: white;
+      color: $black;
+      background-color: $contrast-light;
       border-radius: 0;
     }
   }
@@ -414,6 +417,9 @@ $fullhd: 1576px !default;
 #cookies {
   position: sticky;
   bottom: 0;
+  .button:not(:hover) {
+    border-color: transparent;
+  }
 }
 
 </style>
