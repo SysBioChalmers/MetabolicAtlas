@@ -47,7 +47,7 @@ class HmrReactionBasicSerializer(ReactionBasicSerializer):
         fields = ReactionBasicSerializer.Meta.fields + \
             ('sbo_id',)
 
-# serializer use for reactiome table
+# serializer use for reactome table
 class HmrReactionBasicRTSerializer(ReactionBasicSerializer):
     modifiers = APIrcSerializer.ReactionComponentLiteSerializer(many=True)
 
