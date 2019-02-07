@@ -1,164 +1,95 @@
 <template>
-  <section class="section extended-section">
+  <section class="extended-section">
     <div class="container">
       <div id="search-table">
-        <div class="container columns">
-          <global-search class="is-offset-3"
-          :quickSearch=false
-          :searchTerm=searchTerm
-          @updateResults="updateResults"
-          @searchResults="loading=true">
+        <div class="columns">
+          <div class="column has-text-centered">
+            <h3 class="title is-3">Advanced search all integrated GEMs: <i>{{ searchTerm }}</i></h3>
+          </div>
+        </div>
+        <div class="columns is-centered">
+          <global-search :quickSearch="false" :searchTerm="searchTerm"
+            @updateResults="updateResults" @searchResults="loading=true">
           </global-search>
         </div>
         <div>
           <div class="tabs is-boxed is-fullwidth" v-if="showTabType">
             <ul>
               <li :disabled="resultsCount[tab] === 0"
-              :class="[{'is-active': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]"
+              :class="[{'is-active has-text-weight-semibold': showTab(tab) && resultsCount[tab] !== 0 }, { 'is-disabled': resultsCount[tab] === 0 }]"
               v-for="tab in tabs" @click="resultsCount[tab] !== 0 ? showTabType=tab : ''">
-                <a>
-                  {{ tab | capitalize }} ({{ resultsCount[tab] }})
+                <a class="is-capitalized">
+                  {{ tab }}s&nbsp;
+                  <span v-if="resultsCount[tab] !== 0">({{ resultsCount[tab] }})</span>
                 </a>
               </li>
             </ul>
           </div>
           <loader v-show="loading && searchTerm !== ''"></loader>
           <div v-show="!loading">
-            <div v-show="showTab('metabolite') && resultsCount['metabolite'] !== 0">
-              <good-table
-                :columns="columns['metabolite']"
-                :rows="rows['metabolite']"
-                :lineNumbers="true"
-                :sort-options="{
-                  enabled: true,
-                  initialSortBy: {field: 'name', type: 'asc'}
-                }"
-                :paginationOptions="{
-                  enabled: true,
-                  perPage: 50,
-                  position: 'both',
-                  perPageDropdown: [25, 50, 100, 200],
-                  dropdownAllowAll: false,
-                  setCurrentPage: 1,
-                  nextLabel: 'next',
-                  prevLabel: 'prev',
-                  rowsPerPageLabel: 'Rows per page',
-                  ofLabel: 'of',
-                }"
-                styleClass="vgt-table striped bordered">
-              </good-table>
-            </div>
-            <div v-show="showTab('enzyme') && resultsCount['enzyme'] !== 0">
-              <good-table
-                :columns="columns['enzyme']"
-                :rows="rows['enzyme']"
-                :lineNumbers="true"
-                :sort-options="{
-                  enabled: true,
-                  initialSortBy: {field: 'name', type: 'asc'}
-                }"
-                :paginationOptions="{
-                  enabled: true,
-                  perPage: 50,
-                  position: 'both',
-                  perPageDropdown: [25, 50, 100, 200],
-                  dropdownAllowAll: false,
-                  setCurrentPage: 1,
-                  nextLabel: 'next',
-                  prevLabel: 'prev',
-                  rowsPerPageLabel: 'Rows per page',
-                  ofLabel: 'of',
-                }"
-                styleClass="vgt-table striped bordered">
-              </good-table>
-            </div>
-            <div v-show="showTab('reaction') && resultsCount['reaction'] !== 0">
-              <good-table
-                :columns="columns['reaction']"
-                :rows="rows['reaction']"
-                :lineNumbers="true"
-                :sort-options="{
-                  enabled: true,
-                  initialSortBy: {field: 'equation', type: 'asc'}
-                }"
-                :paginationOptions="{
-                  enabled: true,
-                  perPage: 50,
-                  position: 'both',
-                  perPageDropdown: [10, 25, 50, 100, 200],
-                  dropdownAllowAll: false,
-                  setCurrentPage: 1,
-                  nextLabel: 'next',
-                  prevLabel: 'prev',
-                  rowsPerPageLabel: 'Rows per page',
-                  ofLabel: 'of',
-                }"
-                styleClass="vgt-table striped bordered">
-              </good-table>
-            </div>
-            <div v-show="showTab('subsystem') && resultsCount['subsystem'] !== 0">
-              <good-table
-                :columns="columns['subsystem']"
-                :rows="rows['subsystem']"
-                :lineNumbers="true"
-                :sort-options="{
-                  enabled: true,
-                  initialSortBy: {field: 'name', type: 'asc'}
-                }"
-                styleClass="vgt-table striped bordered">
-              </good-table>
-            </div>
-            <div v-show="showTab('compartment') && resultsCount['compartment'] !== 0">
-              <good-table
-                :columns="columns['compartment']"
-                :rows="rows['compartment']"
-                :lineNumbers="true"
-                :sort-options="{
-                  enabled: true,
-                  initialSortBy: {field: 'name', type: 'asc'}
-                }"
-                styleClass="vgt-table striped bordered">
-              </good-table>
-            </div>
+            <template v-for="header in tabs">
+              <div v-show="showTab(header) && resultsCount[header] !== 0">
+                <vue-good-table
+                  :columns="columns[header]" :rows="rows[header]" :lineNumbers="true"
+                  :sort-options="{ enabled: true }" styleClass="vgt-table striped bordered"
+                  paginationOptions="tablePaginationOpts">
+                  <template slot="table-row" slot-scope="props">
+                    <span v-if="['name', 'id'].includes(props.column.field)">
+                      <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/${header}/${props.row.id}` }">
+                        {{ props.row.name || props.row.id }}
+                      </router-link>
+                    </span>
+                    <span v-else-if="props.column.field == 'subsystem'">
+                      <router-link v-for="sub in props.formattedRow[props.column.field]"
+                      :to="{ path: `/explore/gem-browser/${props.row.model}/subsystem/${idfy(sub)}` }"> {{ sub }}</router-link>
+                    </span>
+                    <span v-else-if="Array.isArray(props.formattedRow[props.column.field])">
+                      {{ props.formattedRow[props.column.field].join("; ") }}
+                    </span>
+                    <span v-else>
+                      {{ props.formattedRow[props.column.field] }}
+                    </span>
+                  </template>
+                </vue-good-table>
+              </div>
+            </template>
           </div>
-          <div v-show="!loading && (!showTabType || searchTerm === '')">
-            <div v-if="searchResults.length === 0" class="column is-4 is-offset-4 has-text-centered notification">
+          <div class="columns is-multiline" v-show="!loading && (!showTabType || searchTerm === '')">
+            <div v-if="searchResults.length === 0" class="column is-offset-3 is-6 has-text-centered notification">
               {{ messages.searchNoResult }}
             </div>
-            <div class="columns">
-              <div class="column is-6 is-offset-3 content">
-                <p>You can search metabolites by:</p>
+            <div class="column is-offset-3 is-6 content">
+              <p>You can search metabolites by:</p>
+              <ul class="menu-list">
+                <li>ID</li>
+                <li>name</li>
+                <li>formula</li>
+                <li>HMDB ID, name</li>
+                <li>KEGG ID</li>
+              </ul>
+              <p>Enzymes by:</p>
+              <ul class="menu-list">
+                <li>ID</li>
+                <li>name</li>
+                <li>Ensembl ID</li>
+                <li>Uniprot ID, name</li>
+                <li>KEGG ID</li>
+              </ul>
+              <p>Reactions by:</p>
+              <ul class="menu-list">
+                <li>ID</li>
+                <li>equation:</li>
                 <ul class="menu-list">
-                  <li>ID</li>
-                  <li>name</li>
-                  <li>formula</li>
-                  <li>HMDB ID, name</li>
-                  <li>KEGG ID</li>
+                  <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
+                  <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
                 </ul>
-                <p>Enzymes by:</p>
-                <ul class="menu-list">
-                  <li>ID</li>
-                  <li>name</li>
-                  <li>Ensembl ID</li>
-                  <li>Uniprot ID, name</li>
-                  <li>KEGG ID</li>
-                </ul>
-                <p>Reactions by:</p>
-                <ul class="menu-list">
-                  <li>ID</li>
-                  <li>equation:</li>
-                  <ul class="menu-list">
-                    <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
-                    <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
-                  </ul>
-                  <li>EC code</li>
-                  <li>SBO ID</li>
-                </ul>
-                <p>Subsystem and compartment by:</p>
-                <ul class="menu-list">
-                  <li>name</li>
-                </ul>
-              </div>
+                <li>EC code</li>
+                <li>SBO ID</li>
+              </ul>
+              <p>Subsystem and compartment by:</p>
+              <ul class="menu-list">
+                <li>name</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -168,13 +99,13 @@
 </template>
 
 <script>
+
 import GlobalSearch from 'components/explorer/GlobalSearch';
 import Loader from 'components/Loader';
-import { GoodTable } from 'vue-good-table';
+import { VueGoodTable } from 'vue-good-table';
 import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../../helpers/chemical-formatters';
 import { idfy } from '../../helpers/utils';
-import EventBus from '../../event-bus';
 import { default as messages } from '../../helpers/messages';
 
 export default {
@@ -182,11 +113,23 @@ export default {
   components: {
     GlobalSearch,
     Loader,
-    GoodTable,
+    VueGoodTable,
   },
   data() {
     return {
       messages,
+      tablePaginationOpts: {
+        enabled: true,
+        perPage: 50,
+        position: 'both',
+        perPageDropdown: [25, 50, 100, 200],
+        dropdownAllowAll: false,
+        setCurrentPage: 1,
+        nextLabel: 'next',
+        prevLabel: 'prev',
+        rowsPerPageLabel: 'Rows per page',
+        ofLabel: 'of',
+      },
       tabs: [
         'metabolite',
         'enzyme',
@@ -203,28 +146,23 @@ export default {
               enabled: true,
               filterDropdownItems: [],
             },
-            formatFn: this.getDisplayModelName,
             sortable: true,
-          },
-          {
+          }, {
             label: 'Name',
-            field: this.formatMetaboliteNameCell,
+            field: 'name',
             filterOptions: {
               enabled: true,
-              filterFn: this.filterLink,
             },
             sortable: true,
             html: true,
-          },
-          {
+          }, {
             label: 'Formula',
             field: 'formula',
             filterOptions: {
               enabled: true,
             },
             sortable: true,
-          },
-          {
+          }, {
             label: 'Compartment',
             field: 'compartment',
             filterOptions: {
@@ -232,9 +170,8 @@ export default {
               filterDropdownItems: [],
             },
             sortable: true,
-          },
-          {
-            label: 'Is currency',
+          }, {
+            label: 'Currency?',
             field: 'is_currency',
             filterOptions: {
               enabled: true,
@@ -244,35 +181,29 @@ export default {
           },
         ],
         enzyme: [
-          {
-            label: 'Model',
+          { label: 'Model',
             field: 'model',
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
             },
-            formatFn: this.getDisplayModelName,
             sortable: true,
-          },
-          {
+          }, {
             label: 'Name',
-            field: this.formatEnzymeNameCell,
-            filterOptions: {
-              enabled: true,
-              filterFn: this.filterLink,
-            },
-            sortable: true,
-            html: true,
-          },
-          {
-            label: 'Uniprot ID',
-            field: 'uniprot',
+            field: 'name',
             filterOptions: {
               enabled: true,
             },
             sortable: true,
-          },
-          {
+          }, {
+            label: 'Subsystem',
+            field: 'subsystem',
+            filterOptions: {
+              enabled: true,
+              filterDropdownItems: [],
+            },
+            sortable: true,
+          }, {
             label: 'Compartment',
             field: 'compartment',
             filterOptions: {
@@ -290,39 +221,32 @@ export default {
               enabled: true,
               filterDropdownItems: [],
             },
-            formatFn: this.getDisplayModelName,
             sortable: true,
-          },
-          {
+          }, {
             label: 'ID',
-            // field: this.formatReactionNameCell,
             field: 'id',
             filterOptions: {
               enabled: true,
-              filterFn: this.filterLink,
             },
             sortable: true,
             html: true,
-          },
-          {
+          }, {
             label: 'Equation',
             field: 'equation',
             filterOptions: {
               enabled: true,
             },
             sortable: false,
-          },
-          {
+          }, {
             label: 'EC',
             field: 'ec',
             filterOptions: {
               enabled: true,
             },
             sortable: false,
-          },
-          {
+          }, {
             label: 'Subsystem',
-            field: this.formatSubsystemArrCell,
+            field: 'subsystem',
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
@@ -330,8 +254,7 @@ export default {
             },
             sortable: true,
             html: true,
-          },
-          {
+          }, {
             label: 'Compartment',
             field: 'compartment',
             filterOptions: {
@@ -339,9 +262,8 @@ export default {
               filterDropdownItems: [],
             },
             sortable: true,
-          },
-          {
-            label: 'Is transport',
+          }, {
+            label: 'Transport?',
             field: 'is_transport',
             filterOptions: {
               enabled: true,
@@ -358,55 +280,39 @@ export default {
               enabled: true,
               filterDropdownItems: [],
             },
-            formatFn: this.getDisplayModelName,
             sortable: true,
-          },
-          {
+          }, {
             label: 'Name',
             field: 'name',
             filterOptions: {
               enabled: true,
-              filterFn: this.filterLink,
             },
             sortable: true,
             html: true,
-          },
-          {
-            label: 'System',
-            field: 'system',
-            filterOptions: {
-              enabled: true,
-              filterDropdownItems: [],
-            },
-            sortable: true,
-          },
-          {
+          }, {
             label: 'Compartment',
-            field: this.formatCompartmentArrCell,
+            field: 'compartment',
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
             },
             sortable: true,
-          },
-          {
-            label: '# Metabolites',
+          }, {
+            label: 'Metabolites',
             field: 'metaboliteCount',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
-          },
-          {
-            label: '# Enzymes',
+          }, {
+            label: 'Enzymes',
             field: 'enzymeCount',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
-          },
-          {
-            label: '# Reactions',
+          }, {
+            label: 'Reactions',
             field: 'reactionCount',
             filterOptions: {
               enabled: false,
@@ -471,7 +377,7 @@ export default {
       searchTerm: '',
       searchResults: {},
       showTabType: '',
-      loading: true,
+      loading: false,
       rows: {
         metabolite: [],
         enzyme: [],
@@ -480,14 +386,6 @@ export default {
         compartment: [],
       },
     };
-  },
-  filters: {
-    capitalize(value) {
-      if (!value) {
-        return '';
-      }
-      return value.charAt(0).toUpperCase() + value.slice(1);
-    },
   },
   methods: {
     formulaFormater(s) {
@@ -512,8 +410,8 @@ export default {
         },
         enzyme: {
           model: {},
-          compartment: {},
           subsystem: {},
+          compartment: {},
         },
         reaction: {
           model: {},
@@ -523,7 +421,6 @@ export default {
         },
         subsystem: {
           model: {},
-          system: {},
           compartment: {},
         },
         compartment: {
@@ -568,16 +465,18 @@ export default {
               id: el.id,
               model: el.model,
               name: el.gene_name,
-              uniprot: el.uniprot,
+              subsystem: el.subsystem,
               compartment: el.compartment,
             });
           } else if (componentType === 'reaction') {
+            const reactionSubsArr = [];
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
               if (field === 'subsystem' && el[field]) {
                 for (const subsystem of el[field].split('; ')) {
                   if (!(subsystem in filterTypeDropdown[componentType][field])) {
                     filterTypeDropdown[componentType][field][subsystem] = 1;
                   }
+                  reactionSubsArr.push(subsystem);
                 }
               } else if (field === 'compartment' && el[field]) {
                 for (const compartment of el[field].split(/[^a-zA-Z0-9 ]+/)) {
@@ -591,11 +490,11 @@ export default {
               }
             }
             rows[componentType].push({
-              id: `<a href="/explore/gem-browser/${el.model}/reaction/${el.id}">${el.id}</a>`,
+              id: el.id,
               model: el.model,
               equation: el.equation,
               ec: el.ec,
-              subsystem: el.subsystem,
+              subsystem: reactionSubsArr,
               compartment: el.compartment,
               is_transport: el.is_transport ? 'Yes' : 'No',
             });
@@ -612,9 +511,9 @@ export default {
               }
             }
             rows[componentType].push({
+              id: el.name_id,
               model: el.model,
-              name: `<a href="/explore/gem-browser/${el.model}/subsystem/${idfy(el.name)}">${el.name}</a>`,
-              system: el.system,
+              name: el.name,
               compartment: el.compartment,
               metaboliteCount: el.metabolite_count,
               enzymeCount: el.enzyme_count,
@@ -627,6 +526,7 @@ export default {
               }
             }
             rows[componentType].push({
+              id: el.name_id,
               model: el.model,
               name: el.name,
               metaboliteCount: el.metabolite_count,
@@ -710,49 +610,13 @@ export default {
       }
       this.showTabType = '';
     },
-    getDisplayModelName(v) {
-      return v;
-    },
-    // TODO use router
-    formatMetaboliteNameCell(row) {
-      return `<a href="/explore/gem-browser/${row.model}/metabolite/${row.id}">${row.name}</a>`;
-    },
-    formatEnzymeNameCell(row) {
-      return `<a href="/explore/gem-browser/${row.model}/enzyme/${row.id}">${row.name}</a>`;
-    },
-    formatReactionNameCell(row) {
-      return `<a href="/explore/gem-browser/${row.model}/reaction/${row.id}">${row.id}</a>`;
-    },
-    formatSubsystemArrCell(row) {
-      let s = '';
-      if (row.subsystem) {
-        for (const subsystem of row.subsystem.split('; ')) {
-          s += `<a href="/explore/gem-browser/${row.model}/subsystem/${idfy(subsystem)}">${subsystem}</a>; `;
-        }
-        return s.slice(0, -2);
-      }
-      return s;
-    },
-    formatCompartmentArrCell(row) {
-      return row.compartment.join('; ');
-    },
-    filterLink(data, s) {
-      return data.split('>')[1].split('<')[0].toLowerCase().indexOf(s.toLowerCase()) !== -1;
-    },
     filterSubsystem(data, s) {
       return data.indexOf(s) !== -1;
     },
     showTab(elementType) {
       return this.showTabType === elementType;
     },
-    viewCompartmentSVG(name) {
-      // not used
-      if (name === 'cytosol') {
-        name = 'cytosol_1';  // eslint-disable-line no-param-reassign
-      }
-      EventBus.$emit('requestViewer', 'compartment', name, [], false);
-    },
-
+    idfy,
   },
   beforeMount() {
     this.searchTerm = this.$route.query.term || '';

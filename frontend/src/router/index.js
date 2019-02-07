@@ -22,7 +22,7 @@ const routes = [
   { path: '/explore/map-viewer/:model/compartment/:id', name: 'viewerCompartment', component: Explorer, props: true },
   { path: '/explore/map-viewer/:model/subsystem/:id', name: 'viewerSubsystem', component: Explorer, props: true },
   { path: '/about', name: 'about', component: About },
-  { path: '/gems', name: 'gems', component: Models },
+  { path: '/gems/list', name: 'gems', component: Models },
   { path: '/gems/download', name: 'gemsDL', component: ModelsFTP },
   { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
