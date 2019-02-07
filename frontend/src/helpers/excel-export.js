@@ -1,4 +1,4 @@
-import { default as XLSX } from 'xlsx';
+// import { default as XLSX } from 'xlsx';
 import { default as FileSaver } from 'file-saver';
 
 const s2ab = (s) => {

@@ -7,14 +7,14 @@
   <div v-else>
     <div class="columns">
       <div class="column">
-        <h3 class="title is-3">Reaction</h3>
+        <h3 class="title is-3">Reaction {{ reaction.id }}</h3>
       </div>
     </div>
     <div class="columns" v-show="showLoader">
       <loader></loader>
     </div>
-    <div class="columns" v-show="!showLoader">
-      <div class="reaction-table column is-10">
+    <div class="columns is-multiline" v-show="!showLoader">
+      <div class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
         <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
           <tr v-for="el in mainTableKey[model]">
             <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
@@ -32,7 +32,18 @@
             <td v-else> - </td>
           </tr>
         </table>
-        <h4 class="title is-4">references</h4>
+      </div>
+      <div class="column is-2-widescreen is-3-desktop is-full-tablet">
+        <div class="box has-text-centered">
+          <div class="button is-info is-fullwidth" disabled>
+            <p>View on {{ messages.mapViewerName }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column">
+        <h4 class="title is-3">References</h4>
         <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
           <tr v-for="ref in reformatRefs(pmids)">
             <a :href="ref.link">
@@ -41,14 +52,7 @@
             </a>
           </tr>
         </table>
-        <div v-else>No references found</div>
-      </div>
-      <div class="column">
-        <div class="box has-text-centered">
-          <div class="button is-info" disabled>
-            <p>View on Map Viewer</p>
-          </div>
-        </div>
+        <div v-else>No PMID references found</div>
       </div>
     </div>
   </div>
@@ -71,6 +75,7 @@ export default {
   },
   data() {
     return {
+      messages,
       rId: this.$route.params.id,
       mainTableKey: {
         hmr2: [
