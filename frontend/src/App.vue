@@ -96,10 +96,10 @@
       <div class="column has-text-centered">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
-          <a class="button is-small is-rounded has-background-contrast-light has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
+          <p class="button is-small is-rounded has-background-hcontrast has-text-white has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
             <span class="icon is-small"><i class="fa fa-check"></i></span>
             <span>OKAY</span>
-          </a>
+          </p>
         </div>
       </div>
     </div>
@@ -209,7 +209,7 @@ export default {
 $primary: #4E755A;
 $primary-light: #beccc3;
 $contrast: #4a506c;
-$contrast-light: #fbe5ba;
+$contrast-light: #fcf2de;
 $high-contrast: #f46036;
 $link: #006992;
 $warning: #FFC67D;
@@ -277,23 +277,30 @@ $fullhd: 1576px !default;
 }
 
 #navbar {
+  a {
+    font-size: 1.15em;
+    color: $black-ter;
+  }
+  a:hover{
+    color: $black;
+  }
   .is-active {
     background-color: $contrast-light;
   }
-  .navbar-menu {
-    a {
-      font-size: 1.15em;
-    }
-  }
   .navbar-brand {
     a {
-      font-size: 1.15em;
       font-weight: 400;
-      // line-height: 1.5;
     }
   }
-  .navbar-burger span {
-    height: 2px;
+  .navbar-burger{
+    height: 4rem;
+    margin-right: 1.5rem;
+    width: 5rem;
+    padding-left: auto;
+    padding-right: auto;
+    span {
+      height: 2px;
+    }
   }
   .navbar-item img {
     max-height: 3rem;
