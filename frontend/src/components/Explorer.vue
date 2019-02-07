@@ -9,44 +9,35 @@
       <template v-else>
         <div class="columns">
           <div class="column has-text-centered">
-            <h4 class="is-size-3 has-text-weight-bold">Explore models</h4>
+            <h4 class="is-size-4 has-text-weight-bold">Advanced search all integrated GEMs</h4>
+            <p class="has-text-weight-bold">Search metabolites, enzymes, reactions... through all the integrated models</p>
           </div>
         </div>
         <div>
-          <div class="columns">
-            <div class="column has-text-centered has-text-weight-bold">
-              Search metabolites, enzymes, reactions... through all the integrated models
-            </div>
-          </div>
           <div class="columns is-centered">
             <global-search :quickSearch=false :reroute=true :model="model" ref="globalSearch">
             </global-search>
           </div>
         </div>
-        <div class="columns has-text-centered">
-          <div class="column">
-            <h4 class="is-size-4 has-text-weight-bold">OR</h4>
-          </div>
-        </div>
+        <br><hr>
         <div>
           <div class="columns has-text-centered">
             <div class="column">
-              <div class="has-text-weight-bold">
+              <h4 class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model }}</i></h4>
+              <p class="has-text-weight-bold">
                 Select a model and start browsing or navigate on the maps
-              </div>
+              </p>
             </div>
           </div>
           <div class="columns is-centered">
-            <div class="column is-half-desktop is-three-quarters-tablet is-fullwidth-mobile has-text-centered">
-              <div class="dropdown is-hoverable">
-                <div class="dropdown-trigger">
-                  <button class="button is-medium is-fullwidth" aria-haspopup="true" aria-controls="dropdown-menu">
-                    <span>Model: <a class="tag is-info is-medium">{{ models[model].short_name }}</a></span>
-                    <span class="icon is-small">
-                      <i class="fa fa-angle-down" aria-hidden="true"></i>
-                    </span>
-                  </button>
-                </div>
+            <div class="column is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile has-text-centered">
+              <div class="dropdown is-hoverable dropdown-trigger">
+                <button class="button is-medium is-fullwidth" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <span>Model: <a class="tag is-primary has-text-weight-bold is-medium">{{ models[model].short_name }}</a></span>
+                  <span class="icon is-small">
+                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                  </span>
+                </button>
                 <div class="dropdown-menu is-size-2" id="dropdown-menu" role="menu">
                   <div class="dropdown-content">
                     <a class="dropdown-item has-text-centered is-size-6"

@@ -4,7 +4,7 @@
       <div class="columns">
         <div class="column">
           <div class="card">
-            <header class="card-header has-background-primary has-text-centered" style="justify-content: center;">
+            <header class="card-header has-background-contrast has-text-centered" style="justify-content: center;">
               <p class="card-content title has-text-white">METABOLIC ATLAS - THE ATLAS FOR METABOLISM EXPLORATION</p>
             </header>
           </div>
