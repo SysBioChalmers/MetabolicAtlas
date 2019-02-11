@@ -758,10 +758,9 @@ export default {
 <style lang="scss">
 
 $navbar-height: 2.5rem;
-$footer-height: 5.1rem;
+$footer-height: 4.55rem;
 
 #mapViewer {
-  /* border: 1px solid black; */
   #iTopBar {
     height: 60px;
 
@@ -879,42 +878,6 @@ $footer-height: 5.1rem;
   .slide-fade-enter, .slide-fade-leave-active {
     transform: translateX(200px);
     opacity: 0;
-  }
-
-  #menu { width: auto; background: #4a4a4a; color: white; position: relative; font-size: 16px; }
-  #menu ul {
-    list-style: none;
-    &.vhs, &.l2 {
-      max-height: 65vh; overflow-y: auto;
-    }
-  }
-  #menu li {
-    padding: 17px 15px 17px 20px;
-    border-bottom: 1px solid gray;
-    user-select: none;
-    &:hover {
-      background: #2a2a2a;
-    }
-    span {
-      position: absolute;
-      right: 10px;
-    }
-    &.clickable {
-        cursor: pointer;
-        &.disable {
-          cursor: not-allowed;
-          background: #4a4a4a;
-          color: gray;
-          pointer-events: none;
-        }
-    }
-  }
-  #menu ul.l1, #menu  ul.l2 {
-    display: none;
-    border-left: 1px solid white;
-    position: absolute; top: 0; left: 100%; width: 100%;
-    background: #4a4a4a; z-index: 11;
-    box-shadow: 5px 5px 5px #222222;
   }
 }
 
