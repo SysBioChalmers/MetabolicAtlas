@@ -91,10 +91,13 @@
             </ul>
           </div>
           <div class="column" v-if="loadedTissue && show2D">
-            <div class="has-text-centered has-text-weight-bold is-small">
-              <p>Selected tissue: {{ loadedTissue }}</p>
-            </div>
-            <div v-html="getExpLvlLegend()">
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">
+                  Selected tissue: {{ loadedTissue }}
+                </p>
+              </header>
+              <div v-html="getExpLvlLegend()"></div>
             </div>
           </div>
           <div id="iSelectedElementPanel">
