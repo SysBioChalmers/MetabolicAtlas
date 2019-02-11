@@ -14,7 +14,7 @@
       <div class="columns is-centered">
         <global-search :quickSearch=true :model="model" ref="globalSearch"></global-search>
       </div>
-      <div class="columns is-centered">
+      <div class="columns is-centered" v-if="selectedType === ''">
         <div class="column is-10 is-size-5 has-text-centered">
           Use the search field above to look for your constituent of interest.
           Below is a list of popular constituents of {{ model }}.
