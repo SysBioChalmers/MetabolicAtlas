@@ -12,7 +12,7 @@
         </div>
       </template>
       <template v-else>
-        <div class="column is-one-fifth is-fullheight" id="iSideBar">
+        <div id="iSideBar" class="column is-one-fifth is-fullheight">
           <div id="menu">
             <ul class="l0">
               <li>Compartments<span>&nbsp;&#9656;</span>
@@ -100,16 +100,15 @@
               <div v-html="getExpLvlLegend()"></div>
             </div>
           </div>
-          <div id="iSelectedElementPanel">
-            <div class="loading" v-show="showSelectedElementPanelLoader">
-              <a class="button is-loading"></a>
-            </div>
-            <div v-show="!showSelectedElementPanelLoader">
-              <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
-                {{ messages.unknownError }}
+          <div class="column">
+              <div class="loading" v-show="showSelectedElementPanelLoader">
+                <a class="button is-loading"></a>
               </div>
-              <div v-else-if="currentDisplayedType">
-                <div class="card">
+              <template v-show="!showSelectedElementPanelLoader">
+                <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
+                  {{ messages.unknownError }}
+                </div>
+                <div class="card" v-else-if="currentDisplayedType">
                   <header class="card-header">
                     <p class="card-header-title">
                       <template v-if="selectedElement">
@@ -134,8 +133,7 @@
                     </p>
                   </header>
                   <div class="card-content">
-                    <!-- TMP fix for overflow on side bar -->
-                    <div class="content" style="max-height: 500px; overflow-y: auto;">
+                    <div class="content">
                       <template v-if="selectedElement">
                         <template v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement)">
                           <p v-if="selectedElementData['rnaLvl'] != null">
@@ -233,9 +231,8 @@
                     <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
                   </footer>
                 </div>
-              </div>
+              </template>
             </div>
-          </div>
         </div>
         <div id="graphframe" class="column is-unselectable">
           <div class="is-fullheight">
@@ -769,7 +766,6 @@ $footer-height: 4.55rem;
 #mapViewer {
   #iTopBar {
     height: 60px;
-
     border-bottom: 1px solid black;
     .column {
       padding-bottom: 0;
@@ -793,9 +789,6 @@ $footer-height: 4.55rem;
     min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    .column {
-      overflow-y: auto;
-    }
   }
 
   #iMainPanel {
@@ -808,24 +801,8 @@ $footer-height: 4.55rem;
   }
 
   #iSideBar {
-    padding: 0;
-    margin: 0;
-    padding-left: 0.75rem;
-    padding-top: 0.75rem;
-    height: 100%;
+    padding: 0.75rem 0 0 0.75rem;
     background: lightgray;
-
-    #iSelectedElementPanel {
-      margin: 0.75rem;
-
-      .content {
-        overflow-y: auto;
-        span.hd {
-          font-weight: bold;
-          margin-right: 5px;
-        }
-      }
-    }
   }
 
   #iLoader {
@@ -854,7 +831,6 @@ $footer-height: 4.55rem;
     height: 100%;
     padding: 0;
     margin: 0;
-    /* border: 1px solid darkgray; */
     overflow: hidden;
   }
 
