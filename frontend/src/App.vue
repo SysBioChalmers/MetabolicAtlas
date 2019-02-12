@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <nav id="navbar" class="navbar has-background-light" role="navigation" aria-label="main navigation">
+    <nav id="navbar" class="navbar has-background-primary-lighter" role="navigation" aria-label="main navigation">
       <div class="container">
         <div class="navbar-brand">
           <router-link id="logo" class="navbar-item" to="/" >
@@ -19,31 +19,30 @@
             <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
               title="Current selected model, click to change your selection">{{ model }}
             </router-link>
-            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+            <a class="navbar-item is-unselectable underline" v-if="activeViewerBut || activeBrowserBut"
               :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
-                GEM<br>Browser
+                GEM Browser
             </a>
-            <a class="navbar-item" v-if="activeViewerBut || activeBrowserBut"
+            <a class="navbar-item is-unselectable underline" v-if="activeViewerBut || activeBrowserBut"
               :class="{ 'is-active': activeViewerBut }" @click="goToMapViewer()">
-                Map<br>Viewer
+                Map Viewer
             </a>
           </div>
           <div class="navbar-end">
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="typeof menuPath === 'string'">
-                <router-link class="navbar-item is-unselectable"  :to="{ path: menuPath }"
+                <router-link class="navbar-item is-unselectable underline"  :to="{ path: menuPath }"
                   :class="{ 'is-active': isActiveRoute(menuPath) }" v-html="menuName">
                 </router-link>
               </template>
               <template v-else>
                 <template v-for="(submenus, menuurl) in menuPath">
-                  <div class="navbar-item has-dropdown is-hoverable is-unselectable">
-                    <a class="navbar-link" :class="{ 'is-active': isActiveRoute(menuurl) }"> {{ menuName }} </a>
-                    <div class="navbar-dropdown">
+                  <div class="navbar-item has-dropdown is-hoverable is-unselectable has-background-primary-lighter">
+                    <a class="navbar-link underline" :class="{ 'is-active': isActiveRoute(menuurl) }"> {{ menuName }} </a>
+                    <div class="navbar-dropdown has-background-primary-lighter">
                       <template v-for="submenu in submenus">
                         <template v-for="(submenuPath, submenuName) in submenu">
-                          <router-link class="navbar-item is-primary is-unselectable" :to="{ path: submenuPath }"
-                            :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
+                          <router-link class="navbar-item is-unselectable has-background-primary-lighter" :to="{ path: submenuPath }" :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
                           </router-link>
                         </template>
                       </template>
@@ -51,7 +50,6 @@
                   </div>
                 </template>
               </template>
-
             </template>
           </div>
         </div>
@@ -60,13 +58,12 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
-    <footer id="footer" class="footer has-background-light is-size-6">
-      <div class="columns">
-        <div class="column is-6">
-          <!-- <router-link to="/about#releaseNotes">v1.0</router-link> -->
+    <footer id="footer" class="footer has-background-primary-lighter is-size-6">
+      <div class="columns is-gapless">
+        <div class="column is-7">
           <p><a href="http://sysbio.se" target="blank">Sys<sup>2</sup>Bio</a> | Department of Biology and Biological Engineering | Chalmers University of Technology</p>
         </div>
-        <div class="column is-6">
+        <div class="column">
           <div class="content has-text-right">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
@@ -96,7 +93,7 @@
       <div class="column has-text-centered">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website. <a class="has-text-white has-text-weight-semibold" href='/documentation#privacy' target='_blank'>More information</a>
-          <p class="button is-small is-rounded has-background-hcontrast has-text-white has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
+          <p class="button is-small is-rounded has-background-danger has-text-white has-text-weight-bold" @click="showCookieMsg=false; acceptCookiePolicy()">
             <span class="icon is-small"><i class="fa fa-check"></i></span>
             <span>OKAY</span>
           </p>
@@ -206,15 +203,13 @@ export default {
 
 <style lang='scss'>
 
-$primary: #4E755A;
-$primary-light: #beccc3;
-$contrast: #4a506c;
-$contrast-light: #fcf2de;
-$high-contrast: #f46036;
+$primary: #25543C;
+$primary-light: #4C735F;
+$primary-lighter: #EEF0EF;
 $link: #006992;
 $warning: #FFC67D;
-$danger: #FF4D4D;
-$info: #006992;
+$danger: #F46036;
+$info: #00549E;
 
 $body-size: 14px !default
 
@@ -242,20 +237,8 @@ $fullhd: 1576px !default;
   flex: 1;
 }
 
-.has-background-primary-light {
-  background-color: $primary-light;
-}
-
-.has-background-contrast {
-  background-color: $contrast;
-}
-
-.has-background-contrast-light {
-  background-color: $contrast-light;
-}
-
-.has-background-hcontrast {
-  background-color: $high-contrast;
+.has-background-primary-lighter {
+  background-color: $primary-lighter;
 }
 
 #app {
@@ -281,10 +264,15 @@ $fullhd: 1576px !default;
     color: $black-ter;
   }
   a:hover{
-    color: $black;
+    color: $black-bis;
+    background-color: $light;
   }
   .is-active {
-    background-color: $contrast-light;
+    color: $black-bis;
+    background-color: $grey-lighter;
+  }
+  .underline.is-active {
+    border-bottom: 1px solid $primary;
   }
   .navbar-brand {
     a {
@@ -373,17 +361,17 @@ $fullhd: 1576px !default;
       margin-bottom: 0.75em;
     }
     a {
-      color: white;
+      color: $white-bis;
       padding-left: 1.5em;
     }
     a:hover {
-      color: black;
+      color: $white-bis;
       background-color: $primary-light;
       border-radius: 0;
     }
     .is-active {
       color: $black;
-      background-color: $contrast-light;
+      background-color: $white;
       border-radius: 0;
     }
   }
@@ -424,6 +412,57 @@ $fullhd: 1576px !default;
   bottom: 0;
   .button:not(:hover) {
     border-color: transparent;
+  }
+}
+
+#mapViewer {
+  #menu {
+    width: auto;
+    background: $primary;
+    color: $white;
+    position: relative;
+    font-size: 16px;
+
+    ul {
+      list-style: none;
+      &.vhs, &.l2 {
+        max-height: 65vh;
+        overflow-y: auto;
+      }
+    }
+
+    ul.l1, ul.l2 {
+      display: none;
+      border-left: 1px solid white;
+      position: absolute;
+      top: 0;
+      left: 100%;
+      width: 100%;
+      background: $primary; z-index: 11;
+      box-shadow: 5px 5px 5px #222222;
+    }
+
+    li {
+      padding: 17px 15px 17px 20px;
+      border-bottom: 1px solid $grey-lighter;
+      user-select: none;
+      &:hover {
+        background: $primary-light;
+      }
+      span {
+        position: absolute;
+        right: 10px;
+      }
+      &.clickable {
+        cursor: pointer;
+        &.disable {
+          cursor: not-allowed;
+          background: $primary;
+          color: $grey;
+          pointer-events: none;
+        }
+      }
+    }
   }
 }
 
