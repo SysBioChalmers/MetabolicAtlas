@@ -37,12 +37,12 @@
               </template>
               <template v-else>
                 <template v-for="(submenus, menuurl) in menuPath">
-                  <div class="navbar-item has-dropdown is-hoverable is-unselectable">
+                  <div class="navbar-item has-dropdown is-hoverable is-unselectable has-background-primary-lighter">
                     <a class="navbar-link underline" :class="{ 'is-active': isActiveRoute(menuurl) }"> {{ menuName }} </a>
-                    <div class="navbar-dropdown">
+                    <div class="navbar-dropdown has-background-primary-lighter">
                       <template v-for="submenu in submenus">
                         <template v-for="(submenuPath, submenuName) in submenu">
-                          <router-link class="navbar-item is-unselectable" :to="{ path: submenuPath }" :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
+                          <router-link class="navbar-item is-unselectable has-background-primary-lighter" :to="{ path: submenuPath }" :class="{ 'is-active': isActiveRoute(submenuPath) }" v-html="submenuName">
                           </router-link>
                         </template>
                       </template>
