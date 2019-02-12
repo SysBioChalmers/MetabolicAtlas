@@ -14,7 +14,7 @@
             <span aria-hidden="true"></span>
           </div>
         </div>
-        <div class="navbar-menu" id="#nav-menu" :class="{ 'is-active': isMobileMenu }">
+        <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
           <div class="navbar-start has-text-centered">
             <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
               title="Current selected model, click to change your selection">{{ model }}
@@ -28,7 +28,7 @@
                 Map Viewer
             </a>
           </div>
-          <div class="navbar-end">
+          <div class="navbar-end has-background-primary-lighter">
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="typeof menuPath === 'string'">
                 <router-link class="navbar-item is-unselectable underline"  :to="{ path: menuPath }"
