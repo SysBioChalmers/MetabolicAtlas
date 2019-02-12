@@ -426,14 +426,18 @@ $fullhd: 1576px !default;
     ul {
       list-style: none;
       &.vhs, &.l2 {
-        max-height: 65vh; overflow-y: auto;
+        max-height: 65vh;
+        overflow-y: auto;
       }
     }
 
     ul.l1, ul.l2 {
       display: none;
       border-left: 1px solid white;
-      position: absolute; top: 0; left: 100%; width: 100%;
+      position: absolute;
+      top: 0;
+      left: 100%;
+      width: 100%;
       background: $primary; z-index: 11;
       box-shadow: 5px 5px 5px #222222;
     }
@@ -450,13 +454,13 @@ $fullhd: 1576px !default;
         right: 10px;
       }
       &.clickable {
-          cursor: pointer;
-          &.disable {
-            cursor: not-allowed;
-            background: $primary;
-            color: white;
-            pointer-events: none;
-          }
+        cursor: pointer;
+        &.disable {
+          cursor: not-allowed;
+          background: $primary;
+          color: $grey;
+          pointer-events: none;
+        }
       }
     }
   }
