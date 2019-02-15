@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'hmr2',
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db1',
+        'HOST': 'db',
         'PORT': 5432,
     },
     'yeast': {
@@ -95,15 +95,15 @@ DATABASES = {
         'NAME': 'yeast',
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db1',
+        'HOST': 'db',
         'PORT': 5432,
     },
     'gems': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB2_GEMS_DB'),
-        'USER': os.getenv('POSTGRES_DB2_USER'),
-        'PASSWORD': os.getenv('POSTGRES_DB2_PASSWORD'),
-        'HOST': 'db2',
+        'NAME': 'gems',
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'db',
         'PORT': 5432,
     }
 }
