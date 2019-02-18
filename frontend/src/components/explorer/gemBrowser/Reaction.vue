@@ -78,7 +78,7 @@ import $ from 'jquery';
 import Loader from 'components/Loader';
 import { default as EventBus } from '../../../event-bus';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink, chemicalReaction } from '../../../helpers/chemical-formatters';
-import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink } from '../../../helpers/utils';
+import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink, reformatStringToLink } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -173,6 +173,7 @@ export default {
         this.errorMessage = messages.notFoundError;
       });
     },
+    reformatLink(s, link) { return reformatStringToLink(s, link); },
     reformatTableKey(k) { return reformatTableKey(k); },
     reformatEquation() { return this.$parent.$parent.reformatChemicalReactionLink(this.reaction); },
     reformatSBOLink(s, link) { return reformatSBOLink(s, link); },
