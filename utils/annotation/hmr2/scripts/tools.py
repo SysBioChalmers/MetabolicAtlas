@@ -1,7 +1,7 @@
 import os
 import collections
 
-# return the header (prefffixed with @) as list
+# return the header (preffixed with @) as list
 def get_metadata(file):
     try:
         header = []
@@ -20,6 +20,7 @@ def get_metadata(file):
         exit(1)
     return header
 
+# read annotation file and return the content as a dict of dict
 def file_to_dicts_values(file):
     try:
         d = collections.OrderedDict()
@@ -27,7 +28,7 @@ def file_to_dicts_values(file):
         with open(file, 'r') as fh:
             header = []
             for line in fh:
-                line = line.strip()
+                line = line.strip('\n')
                 if not line or line[0] == "#":
                     continue
                 arr = line.split('\t')
@@ -48,19 +49,19 @@ def file_to_dicts_values(file):
         exit(1)
     return d
 
-
-def write_dicts_to_annotation_file(ordered_dict, file):
-    if not os.path.isfile(file):
+# write the content of the ordered_dict into the existing file 'annotation_file'
+def write_dicts_to_annotation_file(ordered_dict, annotation_file):
+    if not os.path.isfile(annotation_file):
         print ("Error: file '%s' not found")
         exit(1)
 
     lines = []
-    with open(file, 'r') as fh:
+    with open(annotation_file, 'r') as fh:
         lines = []
         header = []
         # save header, comments etc..
         for line in fh:
-            line = line.strip()
+            line = line.strip('\n')
             if not line or line[0] == "#":
                 lines.append(line)
                 continue
@@ -74,15 +75,14 @@ def write_dicts_to_annotation_file(ordered_dict, file):
             lines.append("\t".join([row_dict[c] if c in row_dict else '' for c in header]))
 
     if lines:
-        with open(file, 'w') as fw:
+        with open(annotation_file, 'w') as fw:
             fw.write('\n'.join(lines))
 
-
-def merge_values(file, dict_values_dicts):
-    ordered_dict = file_to_dicts_values(file)
+# read the annotation file, add the content to the input dict
+def merge_values(annotation_file, dict_values_dicts):
+    ordered_dict = file_to_dicts_values(annotation_file)
     new_dicts_list = []
     contains_ID = set()
-
 
     # read the row data in the file in order
     for ID, dico in ordered_dict.items():
