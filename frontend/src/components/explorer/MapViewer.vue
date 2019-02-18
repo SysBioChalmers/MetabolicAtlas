@@ -427,6 +427,7 @@ export default {
       HPATissue: [],
       requestedTissue: '',
       loadedTissue: '',
+      messages,
     };
   },
   // watch: {
