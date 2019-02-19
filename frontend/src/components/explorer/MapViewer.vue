@@ -427,6 +427,7 @@ export default {
       HPATissue: [],
       requestedTissue: '',
       loadedTissue: '',
+      messages,
     };
   },
   // watch: {
@@ -553,12 +554,12 @@ export default {
       return false;
     },
     selectedElementHasNoData() {
-      if (!(this.selectedElementData.type in this.selectedElementDataKeys)) {
+      if (!(this.selectedElementData.type in this.selectedElementDataKeys[this.model])) {
         return true;
       }
-      for (const k of this.selectedElementDataKeys[this.selectedElementData.type]) {
-        if (k in this.selectedElementData &&
-          this.selectedElementData[this.selectedElementData.type][k]) {
+      for (const k of this.selectedElementDataKeys[this.model][this.selectedElementData.type]) {
+        if (k.name in this.selectedElementData &&
+          this.selectedElementData[k.name]) {
           return false;
         }
       }

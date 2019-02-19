@@ -2,9 +2,9 @@
 import db_tools
 import tools
 
-con = db_tools.connect(db_name='hmr2_bk')
+con = db_tools.connect(db_name='hmr2')
 
-cur = db_tools.execute(con, "select * from reaction_component where component_type = 'enzyme'")
+cur = db_tools.execute(con, "select * from reaction_component where component_type = 'e'")
 
 res = {}
 for r in cur.fetchall():
