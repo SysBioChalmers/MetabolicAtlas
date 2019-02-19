@@ -19,9 +19,11 @@
               <div class="content">
                 Authors: {{ model.authors }}<br>
                 Year: {{ model.year }}<br>
-                # enzymes: {{ model.enzyme_count }}<br>
-                # metabolite: {{ model.metabolite_count }}<br>
-                # reactions: {{ model.reaction_count }}<br>
+                Reactions: {{ model.reaction_count }}<br>
+                Metabolite: {{ model.metabolite_count }}<br>
+                Enzymes: {{ model.enzyme_count }}<br>
+                Publication: <br>
+                GitHub: <br>
               </div>
             </div>
           </div>
@@ -42,9 +44,11 @@
         <br>
         <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
           <div class="modal-background" @click="showModelTable = false"></div>
-          <div class="modal-content">
+          <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white">
             <div id="modal-info" class="model-table">
-              <span class="title is is-primary" v-html="buildHeader()"></span>
+              <h2 class="title">
+                <i>{{ this.selectedModel.organism }}</i>: {{ this.selectedModel.set_name}} - {{ this.selectedModel.label || this.selectedModel.tissue}}
+              </h2>
               {{ selectedModel.description }}<br><br>
               <table class="table main-table">
                 <tbody>
@@ -138,6 +142,7 @@ export default {
           filterOptions: {
             enabled: true,
             filterDropdownItems: [],
+            filterFn: (a, b) => a === b,
           },
           sortable: true,
         }, {
@@ -146,6 +151,7 @@ export default {
           filterOptions: {
             enabled: true,
             filterDropdownItems: [],
+            filterFn: (a, b) => a === b,
           },
           sortable: true,
         }, {
@@ -186,9 +192,9 @@ export default {
         { name: 'tissue', display: 'Tissue' },
         { name: 'cell_type', display: 'Cell&nbsp;type' },
         { name: 'cell_line', display: 'Cell&nbsp;line' },
-        { name: 'reaction_count', display: '#&nbsp;reactions' },
-        { name: 'metabolite_count', display: '#&nbsp;metabolites' },
-        { name: 'enzyme_count', display: '#&nbsp;enzymes/genes' },
+        { name: 'reaction_count', display: 'Reactions' },
+        { name: 'metabolite_count', display: 'Metabolites' },
+        { name: 'enzyme_count', display: 'Enzymes/genes' },
         { name: 'year', display: 'Year' },
         { name: 'maintained', display: 'Maintained' },
       ],
@@ -324,10 +330,14 @@ export default {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #integrated {
   .card {
     height: 100%;
   }
+}
+
+.modal-content {
+  padding: 1rem;
 }
 </style>
