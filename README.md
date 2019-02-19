@@ -37,9 +37,9 @@ The integrated models databases are mapping public models (supposedly) inserted 
 
 #### GEMs database
 
-Connect to the corresponding DB docker container (db2):
+Connect to the corresponding DB docker container (db):
 ```bash
-docker exec -it db2  bash
+docker exec -it db  bash
 ```
 
 To disconnect all sessions open on a database use:
@@ -128,20 +128,20 @@ see the example file [hmr2_compartmentSVG.tsv](/backend/database_generation/exam
 
 Integrated model databases:
 ```bash
-docker exec -it db1  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
+docker exec -it db  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
 ```
 Once imported the database cannot be migrated anymore with django, thus should only be used for production. To create a woking version of the db remove "--create -T 'auth_*' -T 'django_*'"
 
 GEMs database:
 ```bash
-docker exec -it db2 pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > gems.db
+docker exec -it db pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*' > gems.db
 ```
 
 ### Import databases
 
 ```bash
-docker exec -it db1 psql -U postgres hmr2 < PATH_TO_DB_FILE
-docker exec -it db2 psql -U postgres gems < PATH_TO_DB_FILE
+docker exec -it db psql -U postgres hmr2 < PATH_TO_DB_FILE
+docker exec -it db psql -U postgres gems < PATH_TO_DB_FILE
 ```
 
 ### Adding a new model in the website (to be done locally only)

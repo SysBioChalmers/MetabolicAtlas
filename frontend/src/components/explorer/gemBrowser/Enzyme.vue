@@ -39,8 +39,7 @@
                     <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                     <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                     <td>
-                      <span v-html="reformatLink(enzyme[el.name], enzyme[el.link])">
-                      </span>
+                    <a :href="enzyme[el.link]" target="_blank">{{ enzyme[el.name] }}</a>
                     </td>
                   </tr>
                 </table>
@@ -86,7 +85,7 @@ import axios from 'axios';
 import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import Loader from 'components/Loader';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
-import { reformatTableKey, reformatStringToLink } from '../../../helpers/utils';
+import { reformatTableKey } from '../../../helpers/utils';
 import { default as visitLink } from '../../../helpers/visit-link';
 import { default as messages } from '../../../helpers/messages';
 
@@ -161,7 +160,6 @@ export default {
       this.load();
     },
     reformatTableKey(k) { return reformatTableKey(k); },
-    reformatLink(s, link) { return reformatStringToLink(s, link); },
     load() {
       this.loading = true;
       const enzymeId = this.id;

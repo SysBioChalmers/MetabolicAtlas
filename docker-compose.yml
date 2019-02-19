@@ -1,14 +1,8 @@
 version: '3'
 
 services:
-  db1:
-    container_name: db1
-    image: postgres
-    networks:
-      - net-tier
-
-  db2:
-    container_name: db2
+  db:
+    container_name: db
     image: postgres
     networks:
       - net-tier
@@ -29,8 +23,7 @@ services:
   backend:
     container_name: backend
     depends_on:
-      - db1
-      - db2
+      - db
     env_file:
       - postgres.env
     build: ./backend

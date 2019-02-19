@@ -2,18 +2,12 @@ version: '3'
 
 services:
 
-  db1:
+  db:
     volumes:
-      - voldb1:/var/lib/postgresql/data
+      - voldb:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
-  db2:
-    volumes:
-      - voldb2:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-      
   nginx:
     build:
       dockerfile: Dockerfile
@@ -34,5 +28,4 @@ services:
       - ./frontend/test:/project/test
 
 volumes:
-  voldb1:
-  voldb2:
+  voldb:
