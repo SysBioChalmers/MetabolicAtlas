@@ -113,7 +113,8 @@ export default {
           field: 'set_name',
           filterOptions: {
             enabled: true,
-            // filterDropdownItems: [],
+            filterDropdownItems: [],
+            filterFn: (a, b) => a === b,
           },
           sortable: true,
         }, {
@@ -136,6 +137,7 @@ export default {
           field: 'organ_system',
           filterOptions: {
             enabled: true,
+            filterDropdownItems: [],
           },
           sortable: true,
         }, {
@@ -143,6 +145,7 @@ export default {
           field: 'condition',
           filterOptions: {
             enabled: true,
+            filterDropdownItems: [],
           },
           sortable: true,
         }, {
@@ -150,29 +153,14 @@ export default {
           field: 'tissue',
           filterOptions: {
             enabled: true,
+            filterFn: (a, b) => a.toLowerCase().includes(b.toLowerCase().trim()),
           },
           sortable: true,
         }, {
-          label: '# reactions',
-          field: 'reaction_count',
-          filterOptions: {
-            enabled: true,
-          },
-          sortable: true,
-        }, {
-          label: '# metabolites',
-          field: 'metabolite_count',
-          filterOptions: {
-            enabled: true,
-          },
-          sortable: true,
-        }, {
-          label: '# enzymes',
-          field: 'enzyme_count',
-          filterOptions: {
-            enabled: true,
-          },
-          sortable: true,
+          label: 'Stats',
+          field: 'stats',
+          sortable: false,
+          html: true,
         }, {
           label: 'Year',
           field: 'year',
@@ -283,24 +271,33 @@ export default {
       axios.get('gems/')
       .then((response) => {
         this.GEMS = [];
+        const setDropDownFilter = new Set();
+        const systemDropDownFilter = new Set();
+        const conditionDropDownFilter = new Set();
         for (let i = 0; i < response.data.length; i += 1) {
           const gem = response.data[i];
           const sample = gem.sample;
           delete gem.sample;
           const gemex = $.extend(gem, sample);
-          if (gemex.tissue && gemex.cell_type && gemex.cell_line) {
-            gemex.tissue = `${gemex.tissue} - ${gemex.cell_type} - ${gemex.cell_line}`;
-          } else if (gemex.tissue && gemex.cell_line) {
-            gemex.tissue = `${gemex.tissue} - ${gemex.cell_line}`;
-          } else if (gemex.cell_type && gemex.cell_line) {
-            gemex.tissue = `${gemex.cell_type} - ${gemex.cell_line}`;
-          } else if (gemex.cell_type) {
-            gemex.tissue = gemex.cell_type;
-          }
+          gemex.tissue = [gemex.tissue, gemex.cell_type, gemex.cell_line].filter(e => e).join(' ‒ ') || '-';
           delete gemex.cell_type;
+          gemex.stats = `reactions:&nbsp;${gem.reaction_count}<br>metabolites:&nbsp;${gemex.metabolite_count}<br>enzymes:&nbsp;${gemex.enzyme_count}`;
+          delete gemex.reaction_count; delete gemex.enzyme_count; delete gemex.metabolite_count;
           gemex.maintained = gem.maintained ? 'Yes' : 'No';
+          gemex.organ_system = gemex.organ_system || '-';
+          gemex.condition = gemex.condition || '-';
           this.GEMS.push(gemex);
+
+          // setup filters
+          setDropDownFilter.add(gemex.set_name);
+          systemDropDownFilter.add(gemex.organ_system);
+          conditionDropDownFilter.add(gemex.condition);
         }
+        this.columns[0].filterOptions.filterDropdownItems = Array.from(setDropDownFilter).sort();
+        this.columns[3].filterOptions.filterDropdownItems = Array.from(systemDropDownFilter).sort();
+        this.columns[4].filterOptions.filterDropdownItems =
+          Array.from(conditionDropDownFilter).sort();
+
         this.errorMessage = '';
         this.showLoader = false;
       })
