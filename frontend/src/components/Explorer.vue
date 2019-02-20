@@ -165,15 +165,9 @@ export default {
     $('body').on('click', 'span.rce', function f() {
       EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('id'));
     });
-    // document.body.addEventListener('keyup', (e) => {
-    //   if (e.keyCode === 27) {
-    //     this.showMapViewer = false;
-    //   }
-    // });
   },
   methods: {
     setup() {
-      // console.log('exp route', this.$route);
       this.model = this.$route.params.model || 'hmr2';
       if (this.$route.name === 'search') {
         this.displaySearch();

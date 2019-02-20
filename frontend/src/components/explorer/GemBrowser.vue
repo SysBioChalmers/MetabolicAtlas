@@ -185,7 +185,6 @@ export default {
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
-      // console.log(`on GB navigateTo ${type} ${id} ${idfy(id)}`);
       this.$router.push(`/explore/gem-browser/${this.model}/${type}/${idfy(id)}`);
     });
   },
