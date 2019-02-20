@@ -165,6 +165,9 @@ export default {
     $('body').on('click', 'span.rce', function f() {
       EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('id'));
     });
+    $('body').on('click', 'a.cmp', function f() {
+      EventBus.$emit('GBnavigateTo', 'compartment', idfy($(this).html()));
+    });
     // document.body.addEventListener('keyup', (e) => {
     //   if (e.keyCode === 27) {
     //     this.showMapViewer = false;

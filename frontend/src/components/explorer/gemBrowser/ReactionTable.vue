@@ -41,7 +41,7 @@
               >{{ index == 0 ? s : `; ${s}` }}</a>
             </template>
           </td>
-          <td>{{ r.is_reversible ? r.compartment.replace('=>', '&#8660;') : r.compartment.replace('=>', '&#8680;') }}</td>
+          <td v-html="reformatCompEqString(r.compartment).replace('=>', r.is_reversible ? '&#8660;' : '&#8658;')"></td>
         </tr>
       </tbody>
     </table>
@@ -53,6 +53,7 @@ import $ from 'jquery';
 import { default as EventBus } from '../../../event-bus';
 import { default as compare } from '../../../helpers/compare';
 import { chemicalReaction } from '../../../helpers/chemical-formatters';
+import { reformatCompEqString } from '../../../helpers/utils';
 
 export default {
   name: 'reaction-table',
@@ -81,6 +82,7 @@ export default {
       }],
       sortedReactions: [],
       sortAsc: true,
+      reformatCompEqString,
     };
   },
   watch: {
