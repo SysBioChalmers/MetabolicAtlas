@@ -44,7 +44,7 @@
         <br>
         <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
           <div class="modal-background" @click="showModelTable = false"></div>
-          <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white">
+          <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white" v-on:keyup.esc="showModelTable = false" tabindex="0">
             <div id="modal-info" class="model-table">
               <h2 class="title">
                 <i>{{ this.selectedModel.organism }}</i>: {{ this.selectedModel.set_name}} - {{ this.selectedModel.label || this.selectedModel.tissue}}
