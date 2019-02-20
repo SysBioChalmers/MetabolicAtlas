@@ -72,6 +72,8 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
                 return APIserializer.HmrReactionBasicRTSerializer
             return APIserializer.HmrReactionSerializer
         elif type == 'subsystem':
+            if serializer_type == 'lite':
+                return APIserializer.SubsystemLiteSerializer
             return APIserializer.HmrSubsystemSerializer
         elif type == 'interaction partner':
             if serializer_type == 'lite':
@@ -99,7 +101,8 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
                 return APIserializer.HmrReactionBasicRTSerializer
             return APIserializer.ReactionSerializer
         elif type == 'subsystem':
-            return APIserializer.SubsystemSerializer
+            if serializer_type == 'lite':
+                return APIserializer.SubsystemLiteSerializer
         elif type == 'interaction partner':
             if serializer_type == 'lite':
                 return APIserializer.InteractionPartnerLiteSerializer
@@ -559,10 +562,10 @@ def search(request, model, term):
 @is_model_valid
 def get_subsystem(request, model, subsystem_name_id):
     """
-    For a given subsystem name, get all containing metabolites, enzymes, and reactions.
+        For a given subsystem name, get all containing metabolites, enzymes, and reactions.
     """
     try:
-        subsystem = APImodels.Subsystem.objects.using(model).get(name_id__iexact=subsystem_name_id)
+        subsystem = APImodels.Subsystem.objects.using(model).get(Q(name_id__iexact=subsystem_name_id) | Q(name__iexact=subsystem_name_id))
         subsystem_id = subsystem.id
     except APImodels.Subsystem.DoesNotExist:
         return HttpResponse(status=404)
@@ -571,7 +574,6 @@ def get_subsystem(request, model, subsystem_name_id):
         s = APImodels.Subsystem.objects.using(model).get(id=subsystem_id)
     except APImodels.Subsystem.DoesNotExist:
         return HttpResponse(status=404)
-
 
 
     smsQuerySet = APImodels.SubsystemMetabolite.objects.using(model).filter(subsystem_id=subsystem_id).select_related("rc")
@@ -604,7 +606,7 @@ def get_subsystem(request, model, subsystem_name_id):
 @is_model_valid
 def get_subsystems(request, model):
     """
-    List all subsystems/pathways/collection of reactions for the given model.
+        List all subsystems/pathways/collection of reactions for the given model.
     """
     try:
         subsystems = APImodels.Subsystem.objects.using(model).all().prefetch_related('compartment')
@@ -621,7 +623,7 @@ def get_subsystems(request, model):
 @is_model_valid
 def get_compartments(request, model):
     '''
-        list all compartments for the given model.
+        List all compartments for the given model.
     '''
     try:
         compartment = APImodels.Compartment.objects.using(model).all()
@@ -636,18 +638,52 @@ def get_compartments(request, model):
 @api_view()
 @is_model_valid
 def get_compartment(request, model, compartment_name_id):
-    '''
-        return all information for the given compartment's name id.
-    '''
+    """
+        For a given compartment name, get all containing metabolites, enzymes, reactions and subsystems.
+    """
     try:
-        compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=compartment_name_id)
+        compartment = APImodels.Compartment.objects.using(model).get(Q(name_id__iexact=compartment_name_id) | Q(name__iexact=compartment_name_id))
+        compartment_id = compartment.id
     except APImodels.Compartment.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = APIserializer.CompartmentSerializer(compartment)
+    try:
+        c = APImodels.Compartment.objects.using(model).get(id=compartment_id)
+    except APImodels.Compartment.DoesNotExist:
+        return HttpResponse(status=404)
 
-    return JSONResponse(serializer.data)
+    smsQuerySet = APImodels.ReactionComponentCompartment.objects.using(model).filter(compartment_id=compartment_id, rc__component_type='m').select_related("rc")
+    sesQuerySet = APImodels.ReactionComponentCompartment.objects.using(model).filter(compartment_id=compartment_id, rc__component_type='e').select_related("rc")
 
+    subQuerySet = APImodels.SubsystemCompartment.objects.using(model).filter(compartment_id=compartment_id). \
+        prefetch_related('subsystem').distinct()
+
+    reaQuerySet = APImodels.ReactionCompartment.objects.using(model).filter(compartment_id=compartment_id). \
+        prefetch_related('reaction').prefetch_related('reaction__modifiers').distinct()
+
+    reactions = []; sms = []; ses = []; subsystems = [];
+    for r in reaQuerySet:
+        reactions.append(r.reaction)
+    for m in smsQuerySet:
+        sms.append(m.rc)
+    for e in sesQuerySet:
+        ses.append(e.rc)
+    for s in subQuerySet:
+        subsystems.append(s.subsystem)
+
+
+    ReactionSerializerClass= componentDBserializerSelector(model, 'reaction', serializer_type='table', api_version=request.version)
+    SubsystemSerializerClass = componentDBserializerSelector(model, 'subsystem', serializer_type='lite', api_version=request.version)
+
+    results = {
+        'compartmentAnnotations': APIserializer.CompartmentSerializer(c, context={'model': model}).data,
+        'subsystems': SubsystemSerializerClass(subsystems, many=True, context={'model': model}).data,
+        'metabolites': APIrcSerializer.ReactionComponentLiteSerializer(sms, many=True, context={'model': model}).data,
+        'enzymes': APIrcSerializer.ReactionComponentLiteSerializer(ses, many=True, context={'model': model}).data,
+        'reactions': ReactionSerializerClass(reactions, many=True, context={'model': model}).data
+    }
+
+    return JSONResponse(results)
 
 
 #=========================================================================================================
