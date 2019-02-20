@@ -66,7 +66,7 @@
       </div>
     </div>
     <div class="columns" v-show="!showLoader">
-      <reaction-table :reactions="reactions" :showSubsystem="false"></reaction-table>
+      <reaction-table :reactions="reactions" :showSubsystem="false" :model="model"></reaction-table>
     </div>
   </div>
 </template>
