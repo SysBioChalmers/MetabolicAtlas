@@ -1,0 +1,205 @@
+<template>
+  <div v-if="errorMessage" class="columns">
+    <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+      {{ errorMessage }}
+    </div>
+  </div>
+  <div v-else>
+    <div class="columns">
+      <div class="column">
+        <h3 class="title is-3">Compartment {{ info.name }}</h3>
+      </div>
+    </div>
+    <loader v-show="showLoader"></loader>
+    <div v-show="!showLoader" class="columns">
+      <div class="subsystem-table column is-10">
+        <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
+          <tr class="m-row" v-for="el in mainTableKey[model]" v-if="info[el.name]">
+            <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
+            <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
+            <td v-if="info[el.name]">
+              <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+              </span>
+              <span v-else>
+                {{ info[el.name] }}
+              </span>
+            </td>
+            <td v-else> - </td>
+          </tr>
+          <tr>
+            <td class="td-key has-background-primary has-text-white-bis">Subsystems</td>
+             <td>
+              <div v-html="subsystemListHtml"></div>
+              <div v-if="!this.showFullSubsystem && this.subsystems.length > this.limitSubsystem">
+                <br>
+                <button class="is-small button" @click="showFullSubsystem=true">
+                  ... and {{ this.subsystems.length - this.limitSubsystem}} more
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-key has-background-primary has-text-white-bis">Metabolites</td>
+            <td>
+              <div v-html="metabolitesListHtml"></div>
+              <div v-if="!this.showFullMetabolite && this.metabolites.length > this.limitMetabolite">
+                <br>
+                <button class="is-small button" @click="showFullMetabolite=true">
+                  ... and {{ this.metabolites.length - this.limitMetabolite}} more
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="td-key has-background-primary has-text-white-bis">Enzymes</td>
+            <td>
+              <div v-html="enzymesListHtml"></div>
+              <div v-if="!this.showFullEnzyme && this.enzymes.length > this.limitEnzyme">
+                <br>
+                <button class="is-small button" @click="showFullEnzyme=true">
+                  ... and {{ this.enzymes.length - this.limitEnzyme}} more
+                </button>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <h3 class="title is-3">Reactions</h3>
+      </div>
+      <div class="column">
+        <div class="box has-text-centered">
+          <div class="button is-info is-fullwidth" disabled>
+            <p>View on {{ messages.mapViewerName }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="columns" v-show="!showLoader">
+      <reaction-table :reactions="reactions" :showSubsystem="false"></reaction-table>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+import Loader from 'components/Loader';
+import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
+import { reformatTableKey } from '../../../helpers/utils';
+import { default as messages } from '../../../helpers/messages';
+
+export default {
+  name: 'subsystem',
+  components: {
+    ReactionTable,
+    Loader,
+  },
+  props: ['model'],
+  data() {
+    return {
+      messages,
+      cName: this.$route.params.id,
+      showLoader: false,
+      info: {},
+      metabolites: [],
+      enzymes: [],
+      reactions: [],
+      subsystems: [],
+      errorMessage: '',
+      mainTableKey: {
+        hmr2: [
+          { name: 'name', display: 'Name' },
+          { name: 'system' },
+        ],
+      },
+      showFullMetabolite: false,
+      showFullEnzyme: false,
+      showFullSubsystem: false,
+      limitMetabolite: 40,
+      limitEnzyme: 40,
+      limitSubsystem: 30,
+    };
+  },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.$route.path.includes('/compartment/')) {
+        if (this.cName !== this.$route.params.id) {
+          this.setup();
+        }
+      }
+    },
+  },
+  computed: {
+    metabolitesListHtml() {
+      const l = ['<span class="tags">'];
+      this.metabolites.sort((a, b) => (a.name < b.name ? -1 : 1));
+      let i = 0;
+      for (const m of this.metabolites) {
+        if (!this.showFullMetabolite && i === this.limitMetabolite) {
+          break;
+        }
+        i += 1;
+        l.push(`<span id="${m.id}" class="tag rcm"><a class="is-size-6">${m.full_name ? m.full_name : m.id}</a></span>`);
+      }
+      l.push('</span>');
+      return l.join('');
+    },
+    enzymesListHtml() {
+      const l = ['<span class="tags">'];
+      this.enzymes.sort((a, b) => (a.name < b.name ? -1 : 1));
+      let i = 0;
+      for (const e of this.enzymes) {
+        if (!this.showFullEnzyme && i === this.limitEnzyme) {
+          break;
+        }
+        i += 1;
+        l.push(`<span id="${e.id}" class="tag rce"><a class="is-size-6">${e.name ? e.name : e.id}</a></span>`);
+      }
+      l.push('</span>');
+      return l.join('');
+    },
+    subsystemListHtml() {
+      const l = ['<span class="tags">'];
+      this.subsystems.sort((a, b) => (a.name < b.name ? -1 : 1));
+      let i = 0;
+      for (const s of this.subsystems) {
+        if (!this.showFullSubsystem && i === this.limitSubsystem) {
+          break;
+        }
+        i += 1;
+        l.push(`<span id="${s.name_id}" class="tag sub"><a class="is-size-6">${s.name ? s.name : s.id}</a></span>`);
+      }
+      l.push('</span>');
+      return l.join('');
+    },
+  },
+  methods: {
+    setup() {
+      this.cName = this.$route.params.id;
+      this.load();
+    },
+    load() {
+      this.showLoader = true;
+      axios.get(`${this.model}/compartment/${this.cName}/`)
+      .then((response) => {
+        this.info = response.data.compartmentAnnotations;
+        this.metabolites = response.data.metabolites.slice(0, 1000);
+        this.enzymes = response.data.enzymes.slice(0, 1000);
+        this.reactions = response.data.reactions.slice(0, 1000);
+        this.subsystems = response.data.subsystems;
+        this.showLoader = false;
+      })
+      .catch((error) => {
+        console.log(error);
+        this.errorMessage = messages.notFoundError;
+      });
+    },
+    reformatKey(k) { return reformatTableKey(k); },
+  },
+  beforeMount() {
+    this.setup();
+  },
+};
+</script>
+
+<style lang="scss">
+</style>
