@@ -10,30 +10,52 @@
           These models are integrated into the Metabolic Atlas database - the models can be explored via {{ messages.gemBrowserName }}, {{ messages.mapViewerName }} and {{ messages.interPartName }}.
         </span><br><br>
         <div id="integrated" class="columns is-multiline is-variable is-6">
-          <div class="column is-6" v-for="model in models">
+          <div class="column is-half" v-for="model in models">
             <div class="card is-size-5">
-            <header class="card-header has-background-primary">
-              <p class="card-content has-text-weight-bold has-text-white">{{ model.name }}</p>
-            </header>
-            <div class="card-content">
-              <div class="content">
-                Authors: {{ model.authors }}<br>
-                Year: {{ model.year }}<br>
-                Reactions: {{ model.reaction_count }}<br>
-                Metabolite: {{ model.metabolite_count }}<br>
-                Enzymes: {{ model.enzyme_count }}<br>
-                Publication: <br>
-                GitHub: <br>
+              <header class="card-header has-background-primary" @click="getModelData(model.model.id)">
+                <p class="card-content has-text-weight-bold has-text-white">
+                  {{ model.name }} [+]
+                </p>
+              </header>
+              <div class="card-content">
+                <div class="columns is-multiline">
+                  <div class="column is-half">
+                    Reactions: {{ model.reaction_count }}<br>
+                    Metabolites: {{ model.metabolite_count }}<br>
+                    Enzymes: {{ model.enzyme_count }}
+                  </div>
+                  <div class="column is-half">
+                    Explore with<br>
+                    <router-link :to="{ path: `/explore/gem-browser/${model.database_name}` }">
+                      <span class="icon is-medium"><i class="fa fa-search-plus"></i></span>
+                      {{ messages.gemBrowserName }}
+                    </router-link><br>
+                    <router-link :to="{ path: `/explore/map-viewer/${model.database_name}` }">
+                      <span class="icon is-medium"><i class="fa fa-map-o"></i></span>
+                      {{ messages.mapViewerName }}
+                    </router-link><br
+                  </div>
+                  <div class="column is-full">
+                    Date: {{ model.model.last_update }}
+                    <a :href="model.model.repo_name" target="_blank">
+                      <span class="icon is-medium"><i class="fa fa-github"></i></span>
+                      view on GitHub
+                    </a><br>
+                    Publication:
+                    <a v-for='oneRef in model.ref':href="oneRef.link" target="_blank">
+                      {{ oneRef.title}}
+                    </a><br>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
         <span class="title">Genome-Scale Metabolic Models</span><br><br>
         <loader v-show="showLoader"></loader>
         <div v-if="GEMS.length != 0">
           <vue-good-table
-            :columns="columns" :rows="GEMS" :lineNumbers="true"
+            :columns="columns" :rows="GEMS"
             :sort-options="{ enabled: true }" styleClass="vgt-table striped bordered" :paginationOptions="tablePaginationOpts"
             @on-row-click="getModel">
           </vue-good-table>
@@ -168,7 +190,7 @@ export default {
           sortable: false,
           html: true,
         }, {
-          label: 'Year',
+          label: 'Latest publication',
           field: 'year',
           filterOptions: {
             enabled: true,
@@ -232,32 +254,34 @@ export default {
     getModelList() {
       // get models list
       axios.get('models/')
-        .then((response) => {
-          const models = {};
-          for (const model of response.data) {
-            models[model.database_name] = model;
-          }
-          this.models = models;
-        })
-        .catch(() => {
-          this.errorMessage = messages.unknownError;
-        });
+      .then((response) => {
+        const models = {};
+        for (const model of response.data) {
+          models[model.database_name] = model;
+        }
+        this.models = models;
+      })
+      .catch(() => {
+        this.errorMessage = messages.unknownError;
+      });
     },
     getModel(params) {
-      const id = params.row.id;
+      this.getModelData(params.row.id);
+    },
+    getModelData(id) {
       axios.get(`gems/${id}`)
       .then((response) => {
-        let model = response.data;
+        const model = response.data;
         // reformat the dictionnary
         delete model.id;
-        model = $.extend(model, model.sample);
+        $.extend(model, model.sample);
         delete model.sample;
         const setDescription = model.gemodelset.description;
         delete model.gemodelset.description;
         model.gemodelset.set_name = model.gemodelset.name;
         delete model.gemodelset.name;
         delete model.gemodelset.reference;
-        model = $.extend(model, model.gemodelset);
+        $.extend(model, model.gemodelset);
         delete model.gemodelset;
         // model = $.extend(model, model.reference);
         // delete model.reference;

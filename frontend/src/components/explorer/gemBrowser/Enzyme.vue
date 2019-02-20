@@ -110,14 +110,14 @@ export default {
           { name: 'prot_name', display: 'Protein&nbsp;name' },
           { name: 'gene_synonyms', display: 'Synonyms' },
           { name: 'function' },
-          { name: 'id', display: 'Model&nbsp;ID' },
+          { name: 'id', display: 'HMR2.0 ID' },
         ],
         yeast: [
           { name: 'enzymeName', display: 'Gene&nbsp;name' },
           { name: 'prot_name', display: 'Protein&nbsp;name' },
           { name: 'gene_synonyms', display: 'Synonyms' },
           { name: 'function' },
-          { name: 'id', display: 'Model&nbsp;ID' },
+          { name: 'id', display: 'Yeast8.3 ID' },
         ],
       },
       externalIDTableKey: {
