@@ -11,8 +11,8 @@
       <div class="column is-2" style="padding-bottom: 0">
         <div class="columns">
           <div class="column">
-            <a @click="exportToExcel" class="button is-primary is-pulled-right">
-              Export to Excel
+            <a @click="exportToTSV" class="button is-primary is-pulled-right">
+              Export to TSV
             </a>
           </div>
         </div>
@@ -80,9 +80,9 @@
 
 <script>
 
+import { default as FileSaver } from 'file-saver';
 import CytoscapeTableSearch from 'components/explorer/gemBrowser/CytoscapeTableSearch';
 import { default as compare } from '../../../helpers/compare';
-// import { default as downloadFile } from '../../../helpers/excel-export';
 import { default as EventBus } from '../../../event-bus';
 
 export default {
@@ -181,12 +181,19 @@ export default {
         }
       }
     },
-    exportToExcel() {
-      // try {
-      //   downloadFile(this.$refs.table, `${this.filename}.xlsx`, this.sheetname);
-      // } catch (e) {
-      //   this.errorMessage = e;
-      // }
+    exportToTSV() {
+      try {
+        const rows = Array.from(this.$refs.table.rows);
+        const tsvContent = rows.map(e =>
+            Array.from(e.cells).map(f => f.innerText).join('\t')
+          ).join('\n');
+        const blob = new Blob([tsvContent], {
+          type: 'data:text/tsv;charset=utf-8',
+        });
+        FileSaver.saveAs(blob, `${this.filename}.tsv`);
+      } catch (e) {
+        this.errorMessage = e;
+      }
     },
   },
 };
