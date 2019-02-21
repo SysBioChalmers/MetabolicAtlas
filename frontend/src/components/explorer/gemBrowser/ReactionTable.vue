@@ -25,20 +25,19 @@
       <tbody>
         <tr v-for="(r, index) in sortedReactions">
           <td>
-            <a @click="viewReaction(r.id)">{{ r.id }}</a>
+            <router-link :to="{path: `/explore/gem-browser/${model}/reaction/${r.id}` }">{{ r.id }}</router-link>
           </td>
           <td v-html="reformatChemicalReactionHTML(r)"></td>
           <td>
-            <a v-for="(m, index) in r.modifiers" v-on:click.prevent="viewEnzyneReactions(m)">
-              <template v-if="m.name">{{ index == 0 ? m.name : `, ${m.name}` }}</template>
-              <template v-else>{{ index == 0 ? m.id : `, ${m.id}` }}</template>
-            </a>
+            <template v-for="(m, index) in r.modifiers">{{ index == 0 ? '' : ', '}}<router-link :to="{ path: `/explore/gem-browser/${model}/enzyme/${m.id}` }">{{ m.name || m.id }}</router-link>
+            </template
           </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
             <template v-if="r.subsystem">
-              <a v-for="(s, index) in r.subsystem.split('; ')" v-on:click.prevent="viewSubsystem(s)"
-              >{{ index == 0 ? s : `; ${s}` }}</a>
+              <template v-for="(s, index) in r.subsystem.split('; ')">
+              {{ index == 0 ? '' : '; '}}<router-link :to="{ path: `/explore/gem-browser/${model}/subsystem/${idfy(s)}` }">{{ s }}</router-link>
+              </template>
             </template>
           </td>
           <td v-html="reformatCompEqString(r.compartment).replace('=>', r.is_reversible ? '&#8660;' : '&#8658;')"></td>
@@ -50,14 +49,14 @@
 
 <script>
 import $ from 'jquery';
-import { default as EventBus } from '../../../event-bus';
 import { default as compare } from '../../../helpers/compare';
 import { chemicalReaction } from '../../../helpers/chemical-formatters';
 import { reformatCompEqString } from '../../../helpers/utils';
+import { idfy } from '../../../helpers/utils';
 
 export default {
   name: 'reaction-table',
-  props: ['reactions', 'selectedElmId', 'showSubsystem'],
+  props: ['reactions', 'selectedElmId', 'showSubsystem', 'model'],
   data() {
     return {
       showCP: false,
@@ -117,6 +116,7 @@ export default {
     },
   },
   methods: {
+    idfy,
     formatChemicalReaction(v, r) { return chemicalReaction(v, r); },
     reformatChemicalReactionHTML(r) {
       // TODO fix me
@@ -125,13 +125,6 @@ export default {
       }
       return this.$parent.$parent.$parent.$parent.reformatChemicalReactionLink(r);
     },
-    viewEnzyneReactions(modifier) {
-      if (modifier) {
-        EventBus.$emit('GBnavigateTo', 'enzyme', modifier.id);
-      }
-    },
-    viewReaction(id) { EventBus.$emit('GBnavigateTo', 'reaction', id); },
-    viewSubsystem(id) { EventBus.$emit('GBnavigateTo', 'subsystem', id); },
     sortBy(field, pattern, order) {
       const reactions = Array.prototype.slice.call(
       this.sortedReactions); // Do not mutate original elms;

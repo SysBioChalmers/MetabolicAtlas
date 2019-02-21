@@ -176,7 +176,6 @@ export default {
   },
   methods: {
     setup() {
-      // console.log('exp route', this.$route);
       this.model = this.$route.params.model || 'hmr2';
       if (this.$route.name === 'search') {
         this.displaySearch();

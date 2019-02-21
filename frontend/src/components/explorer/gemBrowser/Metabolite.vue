@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="columns">
-        <reactome v-show="showReactome" id="metabolite-reactome" :model="this.model" :metaboliteID="metaboliteID"></reactome>
+        <reactome v-show="showReactome" id="metabolite-reactome" :model="model" :metaboliteID="metaboliteID"></reactome>
       </div>
     </div>
   </div>
