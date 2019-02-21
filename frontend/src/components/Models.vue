@@ -358,10 +358,14 @@ export default {
 #integrated {
   .card {
     height: 100%;
+    .card-header:hover {
+      cursor: pointer;
+    }
   }
 }
 
 .modal-content {
   padding: 1rem;
 }
+
 </style>
