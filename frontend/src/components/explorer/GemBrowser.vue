@@ -14,19 +14,54 @@
       <div class="columns is-centered">
         <global-search :quickSearch=true :model="model" ref="globalSearch"></global-search>
       </div>
-      <div class="columns is-centered" v-if="selectedType === ''">
-        <div class="column is-10 is-size-5 has-text-centered">
-          Use the search field above to look for your constituent of interest.
-          Below is a list of popular constituents of {{ model }}.
+      <div v-if="selectedType === ''">
+        <div class="columns is-centered">
+          <div class="column is-10 is-size-5 has-text-centered">
+            Use the search field above to look for your constituent of interest.<br>
+            Below is a list of popular constituents of {{ model }}.<br><br>
+          </div>
         </div>
-      </div>
-      <div class="homeDiv columns has-text-centered" v-if="selectedType === '' && starredComponents[model]">
-        <div class="column is-4" v-for="category in ['metabolite', 'enzyme', 'reaction']">
-          <h5 class="title is-size-5 is-capitalized">{{ category }}s</h5>
-          <router-link v-for="row in starredComponents[model][category]" :to="{ path: `/explore/gem-browser/${model}/${category}/${row[1]}` }"
-            v-if="model in starredComponents" class="is-block">
-            {{ row[0] }}
-          </router-link>
+        <div class="tile is-ancestor is-size-5">
+          <div class="tile">
+            <div class="tile is-vertical is-9">
+              <div class="tile">
+                <tile type="reaction" :model="model" :data="starredComponents[model].reaction[0]">
+                </tile>
+                <div class="tile is-vertical is-8">
+                  <tile type="subsystem" :model="model" :data="starredComponents[model].subsystem[0]">
+                  </tile>
+                  <div class="tile">
+                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents[model].enzyme[0]">
+                    </tile>
+                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents[model].metabolite[0]">
+                    </tile>
+                  </div>
+                </div>
+              </div>
+              <div class="tile">
+                <div class="tile is-vertical is-8">
+                  <div class="tile">
+                    <tile type="subsystem" :model="model" :data="starredComponents[model].subsystem[1]">
+                    </tile>
+                  </div>
+                  <div class="tile">
+                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents[model].metabolite[1]">
+                    </tile>
+                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents[model].enzyme[1]">
+                    </tile>
+                  </div>
+                </div>
+                <div class="tile is-4">
+                  <tile type="reaction" :model="model" :data="starredComponents[model].reaction[1]">
+                  </tile>
+                </div>
+              </div>
+            </div>
+            <div class="tile is-vertical">
+              <tile type="compartment" :model="model" :data="starredComponents[model].compartment[0]">
+              </tile>
+            </div>
+          </div>
         </div>
       </div>
       <div v-else>
@@ -50,7 +85,7 @@ import Subsystem from 'components/explorer/gemBrowser/Subsystem';
 import { default as EventBus } from '../../event-bus';
 import { idfy } from '../../helpers/utils';
 import { default as messages } from '../../helpers/messages';
-
+import Tile from './Tile';
 
 export default {
   name: 'gem-browser',
@@ -61,6 +96,7 @@ export default {
     Reaction,
     Subsystem,
     GlobalSearch,
+    Tile,
   },
   data() {
     return {
@@ -74,88 +110,70 @@ export default {
       starredComponents: {
         hmr2: {
           metabolite: [
-            ['3-carboxy-1-hydroxypropyl-ThPP', 'm00765m'],
-            ['acetaldehyde', 'm01249m'],
-            ['acetate', 'm01252m'],
-            ['acetoacetate', 'm01253m'],
-            ['acetoacetyl-CoA', 'm01255m'],
-            ['acetyl-CoA', 'm01261m'],
-            ['cis-aconitate', 'm01580m'],
-            ['citrate', 'm01587m'],
-            ['dihydrolipoamide', 'm01701m'],
-            ['fumarate', 'm01862m'],
-            ['glycolaldehyde', 'm01997m'],
-            ['glycolate', 'm01998m'],
-            ['glyoxalate', 'm02007m'],
-            ['hydroxypyruvate', 'm02154m'],
-            ['isocitrate', 'm02183m'],
-            ['lipoamide', 'm02393m'],
-            ['malate', 'm02439m'],
-            ['oxalosuccinate', 'm02662m'],
-            ['pyruvate', 'm02819m'],
-            ['S-acetyldihydrolipoamide', 'm02869m'],
-            ['S-succinyldihydrolipoamide', 'm02934m'],
-            ['succinate', 'm02943m'],
-            ['succinyl-CoA', 'm02944m'],
-            ['thiamin-PP', 'm02984m'],
-            ['ubiquinol', 'm03102m'],
-            ['ubiquinone', 'm03103m'],
+            { name: '3-carboxy-1-hydroxypropyl-ThPP',
+              id: 'm00765m',
+              formula: 'magic formula',
+              reaction_count: 45,
+              compartment: 'cytosol' },
+            { name: 'acetaldehyde',
+              id: 'm01249m',
+              formula: 'magic formula',
+              reaction_count: 54,
+              compartment: 'cytosol' },
           ],
           enzyme: [
-            ['ACLY', 'ENSG00000131473'],
-            ['ACO1', 'ENSG00000122729'],
-            ['ACSS3', 'ENSG00000111058'],
-            ['ACYP1', 'ENSG00000119640'],
-            ['ADH1A', 'ENSG00000187758'],
-            ['BPGM', 'ENSG00000172331'],
-            ['CLYBL', 'ENSG00000125246'],
-            ['CRISP3', 'ENSG00000096006'],
-            ['FBP1', 'ENSG00000165140'],
-            ['GAPDH', 'ENSG00000111640'],
-            ['GRHPR', 'ENSG00000137106'],
-            ['HCN3', 'ENSG00000143630'],
-            ['HKDC1', 'ENSG00000156510'],
-            ['IDH1', 'ENSG00000138413'],
-            ['IREB2', 'ENSG00000136381'],
-            ['KANK1', 'ENSG00000107104'],
-            ['MIA3', 'ENSG00000154305'],
-            ['OGDH', 'ENSG00000105953'],
-            ['OXCT1', 'ENSG00000083720'],
-            ['PDHA1', 'ENSG00000131828'],
-            ['PGK1', 'ENSG00000102144'],
-            ['SUCLA2', 'ENSG00000136143'],
-            ['TMEM54', 'ENSG00000121900'],
-            ['TPI1P2', 'ENSG00000230359'],
-            ['UEVLD', 'ENSG00000151116'],
-            ['ZADH2', 'ENSG00000180011'],
+            { name: 'ACLY',
+              id: 'ENSG00000131473',
+              reactions: 3,
+              sub_count: 2,
+              comp_count: 3 },
+            { name: 'ACO1',
+              id: 'ENSG00000122729',
+              reactions: 3,
+              sub_count: 2,
+              comp_count: 3 },
           ],
           reaction: [
-            ['HMR_0710', 'HMR_0710'],
-            ['HMR_3787', 'HMR_3787'],
-            ['HMR_3905', 'HMR_3905'],
-            ['HMR_3957', 'HMR_3957'],
-            ['HMR_4097', 'HMR_4097'],
-            ['HMR_4108', 'HMR_4108'],
-            ['HMR_4111', 'HMR_4111'],
-            ['HMR_4133', 'HMR_4133'],
-            ['HMR_4209', 'HMR_4209'],
-            ['HMR_4281', 'HMR_4281'],
-            ['HMR_4301', 'HMR_4301'],
-            ['HMR_4388', 'HMR_4388'],
-            ['HMR_4391', 'HMR_4391'],
-            ['HMR_4408', 'HMR_4408'],
-            ['HMR_4521', 'HMR_4521'],
-            ['HMR_4585', 'HMR_4585'],
-            ['HMR_4652', 'HMR_4652'],
-            ['HMR_5294', 'HMR_5294'],
-            ['HMR_6410', 'HMR_6410'],
-            ['HMR_7704', 'HMR_7704'],
-            ['HMR_7745', 'HMR_7745'],
-            ['HMR_8360', 'HMR_8360'],
-            ['HMR_8652', 'HMR_8652'],
-            ['HMR_8757', 'HMR_8757'],
-            ['HMR_8772', 'HMR_8772'],
-            ['HMR_8780', 'HMR_8780'],
+            { name: 'HMR_0710',
+              id: 'HMR_0710',
+              equation: 'isocitrate + NADP+ ⇒ AKG + CO2 + NADPH',
+              sub_count: 2,
+              comp_count: 1,
+              e_count: 0 },
+            { name: 'HMR_3787',
+              id: 'HMR_3787',
+              equation: 'isocitrate + NADP+ ⇒ AKG + CO2 + NADPH',
+              sub_count: 3,
+              comp_count: 2,
+              e_count: 0 },
+          ],
+          subsystem: [
+            { name: 'Valine, leucine, and isoleucine metabolism',
+              id: '',
+              reactions: 42,
+              metabolites: 42,
+              enzymes: 42,
+              comp_count: 3 },
+            { name: 'Phosphatidylinositol phosphate metabolism ',
+              id: '',
+              reactions: 42,
+              metabolites: 42,
+              enzymes: 42,
+              comp_count: 3 },
+          ],
+          compartment: [
+            { name: 'Peroxisome',
+              id: 'peroxisome',
+              reactions: 42,
+              subsystems: [
+                'Valine, leucine, and isoleucine metabolism',
+                'Phosphatidylinositol phosphate metabolism ',
+                'Phosphatidylinositol phosphate metabolism ',
+                'Phosphatidylinositol phosphate metabolism ',
+                'Phosphatidylinositol phosphate metabolism ',
+                'Phosphatidylinositol phosphate metabolism ',
+              ],
+            },
           ],
         },
         yeast: {

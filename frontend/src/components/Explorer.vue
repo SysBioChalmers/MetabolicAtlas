@@ -35,9 +35,9 @@
             </div>
           </div>
           <br>
-          <div id="toolsSelect" class="columns">
+          <div id="toolsSelect" class="columns is-multiline">
             <template v-for="tool in explorerTools">
-              <div class="column">
+              <div class="column is-12-tablet is-half-desktop">
                 <router-link :to="{ path: `${tool.url}/${model}` }">
                   <div class="card">
                     <header class="card-header">
