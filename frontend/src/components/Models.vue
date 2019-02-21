@@ -14,37 +14,36 @@
             <div class="card is-size-5">
               <header class="card-header has-background-primary" @click="getModelData(model.model.id)">
                 <p class="card-content has-text-weight-bold has-text-white">
-                  {{ model.name }} [+]
+                  {{ model.short_name }} - {{ model.name }} [+]
                 </p>
               </header>
               <div class="card-content">
                 <div class="columns is-multiline">
-                  <div class="column is-half">
+                  <div class="column is-4">
                     Reactions: {{ model.reaction_count }}<br>
                     Metabolites: {{ model.metabolite_count }}<br>
                     Enzymes: {{ model.enzyme_count }}
                   </div>
-                  <div class="column is-half">
-                    Explore with<br>
-                    <router-link :to="{ path: `/explore/gem-browser/${model.database_name}` }">
-                      <span class="icon is-medium"><i class="fa fa-search-plus"></i></span>
-                      {{ messages.gemBrowserName }}
-                    </router-link><br>
-                    <router-link :to="{ path: `/explore/map-viewer/${model.database_name}` }">
-                      <span class="icon is-medium"><i class="fa fa-map-o"></i></span>
-                      {{ messages.mapViewerName }}
-                    </router-link><br
+                  <div class="column is-8">
+                    Condition: {{ model.model.condition }}<br>
+                    Tissue/Cell type: {{ model.tissue }}
                   </div>
-                  <div class="column is-full">
-                    Date: {{ model.model.last_update }}
+                  <div class="column is-4">
+                    Date: {{ model.model.last_update || "n/a" }}<br>
                     <a :href="model.model.repo_name" target="_blank">
-                      <span class="icon is-medium"><i class="fa fa-github"></i></span>
-                      view on GitHub
-                    </a><br>
-                    Publication:
-                    <a v-for='oneRef in model.ref':href="oneRef.link" target="_blank">
-                      {{ oneRef.title}}
-                    </a><br>
+                      <span class="icon"><i class="fa fa-github fa-lg"></i></span>
+                      GitHub
+                    </a>
+                  </div>
+                  <div class="column is-8">
+                    <router-link class="button is-info" :to="{ path: `/explore/gem-browser/${model.database_name}` }">
+                      <span>{{ messages.gemBrowserName }}</span>&nbsp;
+                      <span class="icon"><i class="fa fa-search-plus fa-lg"></i></span>
+                    </router-link>
+                    <router-link class="button is-info" :to="{ path: `/explore/map-viewer/${model.database_name}` }">
+                      <span>{{ messages.mapViewerName }}</span>&nbsp;
+                      <span class="icon"><i class="fa fa-map-o fa-lg"></i></span>
+                    </router-link><br
                   </div>
                 </div>
               </div>
@@ -257,6 +256,7 @@ export default {
       .then((response) => {
         const models = {};
         for (const model of response.data) {
+          model.tissue = [model.model.sample.tissue, model.model.sample.cell_type, model.model.sample.cell_line].filter(e => e).join(' ‒ ') || '-';
           models[model.database_name] = model;
         }
         this.models = models;
