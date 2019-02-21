@@ -32,7 +32,7 @@
             <template v-for="(menuPath, menuName) in menuElems">
               <template v-if="typeof menuPath === 'string'">
                 <router-link class="navbar-item is-unselectable underline"  :to="{ path: menuPath }"
-                  :class="{ 'is-active': isActiveRoute(menuPath) }" v-html="menuName">
+                  :class="{ 'is-active': isActiveRoute(menuPath, true) }" v-html="menuName">
                 </router-link>
               </template>
               <template v-else>
@@ -113,7 +113,8 @@ export default {
     return {
       /* eslint-disable quote-props */
       menuElems: {
-        'Explore models': '/explore',
+        '<span class="icon is-large"><i class="fa fa-search"></i></span>': '/explore/search',
+        'Explore': '/explore',
         'GEMs': {
           '/gems/': [
             { 'List of GEMs': '/gems/list' },
@@ -170,8 +171,11 @@ export default {
         this.activeViewerBut = false;
       }
     },
-    isActiveRoute(name) {
+    isActiveRoute(name, mainRoute = false) {
       if (this.$route.path) {
+        if (mainRoute) {
+          return this.$route.path.toLowerCase() === name;
+        }
         return this.$route.path.toLowerCase().includes(name);
       }
       return false;

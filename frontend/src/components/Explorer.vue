@@ -7,26 +7,11 @@
         </keep-alive>
       </template>
       <template v-else>
-        <div class="columns">
-          <div class="column has-text-centered">
-            <h4 class="is-size-4 has-text-weight-bold">Advanced search all integrated GEMs</h4>
-            <p class="has-text-weight-bold">Search metabolites, enzymes, reactions... through all the integrated models</p>
-          </div>
-        </div>
-        <div>
-          <div class="columns is-centered">
-            <global-search :quickSearch=false :reroute=true :model="model" ref="globalSearch">
-            </global-search>
-          </div>
-        </div>
-        <br><hr>
         <div>
           <div class="columns has-text-centered">
             <div class="column">
-              <h4 class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model }}</i></h4>
-              <p class="has-text-weight-bold">
-                Select a model and start browsing or navigate on the maps
-              </p>
+              <h4 class="is-size-4 has-text-weight-bold">Explore a model</h4>
+              Select a model and start browsing or navigate the maps
             </div>
           </div>
           <div class="columns is-centered">
