@@ -362,6 +362,7 @@ export default {
       cursor: pointer;
     }
   }
+  margin-bottom: 2rem;
 }
 
 .modal-content {
