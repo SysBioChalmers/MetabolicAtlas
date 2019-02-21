@@ -234,7 +234,7 @@ class SubsystemSvgSerializer(serializers.ModelSerializer):
     subsystem = serializers.SlugRelatedField(slug_field='name_id', queryset=APImodels.Compartment.objects.all())
     class Meta:
         model = APImodels.SubsystemSvg
-        fields = ('name', 'name_id', 'subsystem', 'filename', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 
+        fields = ('name', 'name_id', 'subsystem', 'filename', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count',
             'reaction_count', 'compartment_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level', 'sha')
 
 # =======================================================================================
@@ -279,7 +279,7 @@ class GEModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.GEModel
-        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'condition', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'ref', 'maintained')
+        fields = ('id', 'gemodelset', 'sample', 'label', 'description', 'condition', 'reaction_count', 'metabolite_count', 'enzyme_count', 'files', 'ref', 'maintained', 'repo_name', 'last_update')
 
 
 class GEModelListSerializer(serializers.ModelSerializer):
@@ -317,10 +317,14 @@ class GEMListSerializer(serializers.ModelSerializer):
     metabolite_count = serializers.SerializerMethodField('get_meta_count')
     enzyme_count = serializers.SerializerMethodField('get_enz_count')
     reaction_count = serializers.SerializerMethodField('get_react_count')
+    details = serializers.SerializerMethodField('get_model_details')
+
+    def get_model_details(self, model):
+        return GEModelListSerializer(model.model).data
 
     class Meta:
         model = APImodels.GEM
-        fields = ('id', 'short_name', 'name', 'database_name', 'authors', 'metabolite_count', 'enzyme_count', 'reaction_count')
+        fields = ('short_name', 'name', 'database_name', 'authors', 'metabolite_count', 'enzyme_count', 'reaction_count', 'details')
 
     def get_meta_count(self, model):
         return model.model.metabolite_count
@@ -339,4 +343,3 @@ class GEMSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.GEM
         fields = ('id', 'short_name', 'name', 'database_name', 'authors', 'model')
-

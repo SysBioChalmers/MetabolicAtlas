@@ -30,9 +30,8 @@
             <template v-for="header in tabs">
               <div v-show="showTab(header) && resultsCount[header] !== 0">
                 <vue-good-table
-                  :columns="columns[header]" :rows="rows[header]" :lineNumbers="true"
-                  :sort-options="{ enabled: true }" styleClass="vgt-table striped bordered"
-                  paginationOptions="tablePaginationOpts">
+                  :columns="columns[header]" :rows="rows[header]"
+                  :sort-options="{ enabled: true }" styleClass="vgt-table striped bordered" :paginationOptions="tablePaginationOpts">
                   <template slot="table-row" slot-scope="props">
                     <span v-if="['name', 'id'].includes(props.column.field)">
                       <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/${header}/${props.row.id}` }">
