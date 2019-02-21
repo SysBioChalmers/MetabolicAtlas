@@ -7,24 +7,16 @@
   <div v-else>
     <div class="columns">
       <div class="column">
-        <h3 class="title is-3">Compartment {{ info.name }}</h3>
+        <h3 class="title is-3">Compartment {{ compartment.name }}</h3>
       </div>
     </div>
     <loader v-show="showLoader"></loader>
     <div v-show="!showLoader" class="columns">
       <div class="subsystem-table column is-10">
-        <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
-          <tr class="m-row" v-for="el in mainTableKey[model]" v-if="info[el.name]">
-            <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
-            <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
-            <td v-if="info[el.name]">
-              <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
-              </span>
-              <span v-else>
-                {{ info[el.name] }}
-              </span>
-            </td>
-            <td v-else> - </td>
+        <table v-if="compartment && Object.keys(compartment).length != 0" class="table main-table is-fullwidth">
+          <tr>
+            <td class="td-key has-background-primary has-text-white-bis">Name</td>
+            <td> {{ this.compartment.name }}</td>
           </tr>
           <tr>
             <td class="td-key has-background-primary has-text-white-bis">Subsystems</td>
@@ -40,15 +32,15 @@
           </tr>
           <tr>
             <td class="td-key has-background-primary has-text-white-bis">Reactions</td>
-            <td> {{ this.info.reaction_count }}</td>
+            <td> {{ this.compartment.reaction_count }}</td>
           </tr>
           <tr>
             <td class="td-key has-background-primary has-text-white-bis">Metabolites</td>
-            <td> {{ this.info.metabolite_count }}</td>
+            <td> {{ this.compartment.metabolite_count }}</td>
           </tr>
           <tr>
             <td class="td-key has-background-primary has-text-white-bis">Enzymes</td>
-            <td> {{ this.info.enzyme_count }}</td>
+            <td> {{ this.compartment.enzyme_count }}</td>
           </tr>
         </table>
         <span>The <a :href="`/api/${this.model}/compartment/${this.cName}/`" target="_blank">complete list</a> of reactions / metabolites / enzymes is available using our <a href="/swagger" target="_blank">API</a></span>
@@ -82,18 +74,9 @@ export default {
       messages,
       cName: this.$route.params.id,
       showLoader: false,
-      info: {},
-      metabolites: [],
-      enzymes: [],
-      reactions: [],
+      compartment: {},
       subsystems: [],
       errorMessage: '',
-      mainTableKey: {
-        hmr2: [
-          { name: 'name', display: 'Name' },
-          { name: 'system' },
-        ],
-      },
       showFullSubsystem: false,
       limitSubsystem: 30,
     };
@@ -133,7 +116,7 @@ export default {
       this.showLoader = true;
       axios.get(`${this.model}/compartment/${this.cName}/stats/`)
       .then((response) => {
-        this.info = response.data.compartmentAnnotations;
+        this.compartment = response.data.compartmentAnnotations;
         this.subsystems = response.data.subsystems;
         this.showLoader = false;
       })
