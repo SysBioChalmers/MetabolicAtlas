@@ -317,11 +317,14 @@ class GEMListSerializer(serializers.ModelSerializer):
     metabolite_count = serializers.SerializerMethodField('get_meta_count')
     enzyme_count = serializers.SerializerMethodField('get_enz_count')
     reaction_count = serializers.SerializerMethodField('get_react_count')
-    model = GEModelSerializer(read_only=True)
+    details = serializers.SerializerMethodField('get_model_details')
+
+    def get_model_details(self, model):
+        return GEModelListSerializer(model.model).data
 
     class Meta:
         model = APImodels.GEM
-        fields = ('id', 'short_name', 'name', 'database_name', 'authors', 'metabolite_count', 'enzyme_count', 'reaction_count', 'model')
+        fields = ('short_name', 'name', 'database_name', 'authors', 'metabolite_count', 'enzyme_count', 'reaction_count', 'details')
 
     def get_meta_count(self, model):
         return model.model.metabolite_count

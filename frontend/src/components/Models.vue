@@ -12,7 +12,7 @@
         <div id="integrated" class="columns is-multiline is-variable is-6">
           <div class="column is-half" v-for="model in models">
             <div class="card is-size-5">
-              <header class="card-header has-background-primary" @click="getModelData(model.model.id)">
+              <header class="card-header has-background-primary" @click="getModelData(model.details.id)">
                 <p class="card-content has-text-weight-bold has-text-white">
                   {{ model.short_name }} - {{ model.name }} [+]
                 </p>
@@ -25,12 +25,12 @@
                     Enzymes: {{ model.enzyme_count }}
                   </div>
                   <div class="column is-8">
-                    Condition: {{ model.model.condition }}<br>
+                    Condition: {{ model.details.condition }}<br>
                     Tissue/Cell type: {{ model.tissue }}
                   </div>
                   <div class="column is-4">
-                    Date: {{ model.model.last_update || "n/a" }}<br>
-                    <a :href="model.model.repo_name" target="_blank">
+                    Date: {{ model.details.last_update || "n/a" }}<br>
+                    <a :href="model.details.repo_name" target="_blank">
                       <span class="icon"><i class="fa fa-github fa-lg"></i></span>
                       GitHub
                     </a>
@@ -256,7 +256,7 @@ export default {
       .then((response) => {
         const models = {};
         for (const model of response.data) {
-          model.tissue = [model.model.sample.tissue, model.model.sample.cell_type, model.model.sample.cell_line].filter(e => e).join(' ‒ ') || '-';
+          model.tissue = [model.details.sample.tissue, model.details.sample.cell_type, model.details.sample.cell_line].filter(e => e).join(' ‒ ') || '-';
           models[model.database_name] = model;
         }
         this.models = models;
