@@ -39,42 +39,28 @@
             </td>
           </tr>
           <tr>
+            <td class="td-key has-background-primary has-text-white-bis">Reactions</td>
+            <td> {{ this.info.reaction_count }}</td>
+          </tr>
+          <tr>
             <td class="td-key has-background-primary has-text-white-bis">Metabolites</td>
-            <td>
-              <div v-html="metabolitesListHtml"></div>
-              <div v-if="!this.showFullMetabolite && this.metabolites.length > this.limitMetabolite">
-                <br>
-                <button class="is-small button" @click="showFullMetabolite=true">
-                  ... and {{ this.metabolites.length - this.limitMetabolite}} more
-                </button>
-              </div>
-            </td>
+            <td> {{ this.info.metabolite_count }}</td>
           </tr>
           <tr>
             <td class="td-key has-background-primary has-text-white-bis">Enzymes</td>
-            <td>
-              <div v-html="enzymesListHtml"></div>
-              <div v-if="!this.showFullEnzyme && this.enzymes.length > this.limitEnzyme">
-                <br>
-                <button class="is-small button" @click="showFullEnzyme=true">
-                  ... and {{ this.enzymes.length - this.limitEnzyme}} more
-                </button>
-              </div>
-            </td>
+            <td> {{ this.info.enzyme_count }}</td>
           </tr>
         </table>
-        <h3 class="title is-3">Reactions</h3>
+        <span>The <a :href="`/api/${this.model}/compartment/${this.cName}/`" target="_blank">complete list</a> of reactions / metabolites / enzymes is available using our <a href="/swagger" target="_blank">API</a></span>
       </div>
       <div class="column">
         <div class="box has-text-centered">
-          <div class="button is-info is-fullwidth" disabled>
-            <p>View on {{ messages.mapViewerName }}</p>
-          </div>
+          <router-link class="button is-info is-fullwidth"
+            :to="{ path: `/explore/map-viewer/${model}/compartment/${this.cName == 'cytosol' ? 'cytosol_1' : this.cName}?dim=2d` }">
+            {{ messages.mapViewerName }}
+          </router-link>
         </div>
       </div>
-    </div>
-    <div class="columns" v-show="!showLoader">
-      <reaction-table :reactions="reactions" :showSubsystem="false"></reaction-table>
     </div>
   </div>
 </template>
@@ -82,14 +68,12 @@
 <script>
 import axios from 'axios';
 import Loader from 'components/Loader';
-import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import { reformatTableKey } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
   name: 'subsystem',
   components: {
-    ReactionTable,
     Loader,
   },
   props: ['model'],
@@ -110,11 +94,7 @@ export default {
           { name: 'system' },
         ],
       },
-      showFullMetabolite: false,
-      showFullEnzyme: false,
       showFullSubsystem: false,
-      limitMetabolite: 40,
-      limitEnzyme: 40,
       limitSubsystem: 30,
     };
   },
@@ -129,44 +109,16 @@ export default {
     },
   },
   computed: {
-    metabolitesListHtml() {
-      const l = ['<span class="tags">'];
-      this.metabolites.sort((a, b) => (a.name < b.name ? -1 : 1));
-      let i = 0;
-      for (const m of this.metabolites) {
-        if (!this.showFullMetabolite && i === this.limitMetabolite) {
-          break;
-        }
-        i += 1;
-        l.push(`<span id="${m.id}" class="tag rcm"><a class="is-size-6">${m.full_name ? m.full_name : m.id}</a></span>`);
-      }
-      l.push('</span>');
-      return l.join('');
-    },
-    enzymesListHtml() {
-      const l = ['<span class="tags">'];
-      this.enzymes.sort((a, b) => (a.name < b.name ? -1 : 1));
-      let i = 0;
-      for (const e of this.enzymes) {
-        if (!this.showFullEnzyme && i === this.limitEnzyme) {
-          break;
-        }
-        i += 1;
-        l.push(`<span id="${e.id}" class="tag rce"><a class="is-size-6">${e.name ? e.name : e.id}</a></span>`);
-      }
-      l.push('</span>');
-      return l.join('');
-    },
     subsystemListHtml() {
       const l = ['<span class="tags">'];
-      this.subsystems.sort((a, b) => (a.name < b.name ? -1 : 1));
+      this.subsystems.sort((a, b) => (a < b ? -1 : 1));
       let i = 0;
       for (const s of this.subsystems) {
         if (!this.showFullSubsystem && i === this.limitSubsystem) {
           break;
         }
         i += 1;
-        l.push(`<span id="${s.name_id}" class="tag sub"><a class="is-size-6">${s.name ? s.name : s.id}</a></span>`);
+        l.push(`<span id="${s}" class="tag sub"><a class="is-size-6">${s}</a></span>`);
       }
       l.push('</span>');
       return l.join('');
@@ -179,17 +131,13 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model}/compartment/${this.cName}/`)
+      axios.get(`${this.model}/compartment/${this.cName}/stats/`)
       .then((response) => {
         this.info = response.data.compartmentAnnotations;
-        this.metabolites = response.data.metabolites.slice(0, 1000);
-        this.enzymes = response.data.enzymes.slice(0, 1000);
-        this.reactions = response.data.reactions.slice(0, 1000);
         this.subsystems = response.data.subsystems;
         this.showLoader = false;
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         this.errorMessage = messages.notFoundError;
       });
     },
