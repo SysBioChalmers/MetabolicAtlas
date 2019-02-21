@@ -40,7 +40,15 @@
               </template>
             </template>
           </td>
-          <td v-html="reformatCompEqString(r.compartment).replace('=>', r.is_reversible ? '&#8660;' : '&#8658;')"></td>
+          <td>
+            <template v-for="(RP, i) in r.compartment.split(' => ')">
+              <template v-if="i != 0">{{ r.is_reversible ? ' &#8660; ' : ' &#8658; ' }}</template>
+              <template v-for="(compo, j) in RP.split(' + ')">
+                <template v-if="j != 0"> + </template>
+                <router-link :to="{ path: `/explore/gem-browser/${model}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
+              </template>
+            </template>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -51,8 +59,7 @@
 import $ from 'jquery';
 import { default as compare } from '../../../helpers/compare';
 import { chemicalReaction } from '../../../helpers/chemical-formatters';
-import { reformatCompEqString } from '../../../helpers/utils';
-import { idfy } from '../../../helpers/utils';
+import { reformatCompEqString, idfy } from '../../../helpers/utils';
 
 export default {
   name: 'reaction-table',

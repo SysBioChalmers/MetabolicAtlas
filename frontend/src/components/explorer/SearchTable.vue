@@ -53,7 +53,7 @@
                         </template>
                       </template>
                       <template v-else-if="header == 'reaction'">
-                        <template v-for="(RP, i) in props.formattedRow[props.column.field].split('=>')">
+                        <template v-for="(RP, i) in props.formattedRow[props.column.field].split(' => ')">
                           <template v-if="i != 0"> => </template>
                             <template v-for="(compo, j) in RP.split(' + ')">
                               <template v-if="j != 0"> + </template>
