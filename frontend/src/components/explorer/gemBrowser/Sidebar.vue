@@ -5,11 +5,11 @@
         <span v-if="selectedElm.type === 'reaction'">
           Reaction ID: {{ selectedElm.id }}
         </span>
-        <span v-else>
-          {{ selectedElm.type === 'enzyme' ? 'Enzyme' : 'Metabolite' }}:
-          <a v-on:click="viewReactionComponent(selectedElm.type)">
+        <span v-else class="is-capitalized">
+          {{ selectedElm.type }}
+          <router-link :to="{ path: `/explore/gem-browser/${this.model}/${selectedElm.type}/${this.selectedElm.real_id || this.selectedElm.id}` }">
             {{ selectedElm.name }}
-          </a>
+          </router-link>
         </span>
       </p>
     </header>
@@ -78,7 +78,6 @@
 
 <script>
 
-import { default as EventBus } from '../../../event-bus';
 import { chemicalFormula } from '../../../helpers/chemical-formatters';
 import { default as messages } from '../../../helpers/messages';
 
@@ -103,10 +102,6 @@ export default {
     },
   },
   methods: {
-    viewReactionComponent(type) {
-      EventBus.$emit('GBnavigateTo', type,
-       this.selectedElm.real_id ? this.selectedElm.real_id : this.selectedElm.id);
-    },
     chemicalFormula,
   },
 };

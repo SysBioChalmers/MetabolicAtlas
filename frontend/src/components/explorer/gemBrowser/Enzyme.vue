@@ -22,7 +22,7 @@
                   <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                   <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                   <td v-if="enzyme[el.name]">
-                    <span v-if="'modifier' in el" v-html=" el.modifier(enzyme)">
+                    <span v-if="'modifier' in el" v-html="el.modifier(enzyme)">
                     </span>
                     <span v-else>
                       {{ enzyme[el.name] }}
@@ -39,7 +39,7 @@
                     <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                     <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                     <td>
-                    <a :href="enzyme[el.link]" target="_blank">{{ enzyme[el.name] }}</a>
+                      <a :href="`http://${enzyme[el.link]}`" target="_blank">{{ enzyme[el.name] }}</a>
                     </td>
                   </tr>
                 </table>
@@ -70,7 +70,7 @@
               <loader v-show="loading"></loader>
               <template v-show="reactions.length > 0">
                 <h4 class="title is-4" v-show="!loading">Reactome</h4>
-                <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true"></reaction-table>
+                <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true" :model="model"></reaction-table>
               </template>
             </div>
           </div>

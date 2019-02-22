@@ -35,6 +35,7 @@
         <metabolite v-if="selectedType==='metabolite'" :model="model"></metabolite>
         <reaction v-if="selectedType==='reaction'" :model="model"></reaction>
         <subsystem v-if="selectedType==='subsystem'" :model="model"></subsystem>
+        <compartment v-if="selectedType==='compartment'" :model="model"></compartment>
       </div>
     </template>
   </div>
@@ -47,6 +48,7 @@ import Enzyme from 'components/explorer/gemBrowser/Enzyme';
 import Metabolite from 'components/explorer/gemBrowser/Metabolite';
 import Reaction from 'components/explorer/gemBrowser/Reaction';
 import Subsystem from 'components/explorer/gemBrowser/Subsystem';
+import Compartment from 'components/explorer/gemBrowser/Compartment';
 import { default as EventBus } from '../../event-bus';
 import { idfy } from '../../helpers/utils';
 import { default as messages } from '../../helpers/messages';
@@ -60,6 +62,7 @@ export default {
     Metabolite,
     Reaction,
     Subsystem,
+    Compartment,
     GlobalSearch,
   },
   data() {
@@ -185,7 +188,6 @@ export default {
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
-      // console.log(`on GB navigateTo ${type} ${id} ${idfy(id)}`);
       this.$router.push(`/explore/gem-browser/${this.model}/${type}/${idfy(id)}`);
     });
   },

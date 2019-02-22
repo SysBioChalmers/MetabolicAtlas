@@ -33,21 +33,43 @@
                   :columns="columns[header]" :rows="rows[header]"
                   :sort-options="{ enabled: true }" styleClass="vgt-table striped bordered" :paginationOptions="tablePaginationOpts">
                   <template slot="table-row" slot-scope="props">
-                    <span v-if="['name', 'id'].includes(props.column.field)">
+                    <template v-if="['name', 'id'].includes(props.column.field)">
                       <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/${header}/${props.row.id}` }">
                         {{ props.row.name || props.row.id }}
                       </router-link>
-                    </span>
-                    <span v-else-if="props.column.field == 'subsystem'">
-                      <router-link v-for="sub in props.formattedRow[props.column.field]"
-                      :to="{ path: `/explore/gem-browser/${props.row.model}/subsystem/${idfy(sub)}` }"> {{ sub }}</router-link>
-                    </span>
-                    <span v-else-if="Array.isArray(props.formattedRow[props.column.field])">
+                    </template>
+                    <template v-else-if="props.column.field == 'subsystem'">
+                      <template v-for="(sub, i) in props.formattedRow[props.column.field]">
+                        <template v-if="i != 0">; </template>
+                        <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/subsystem/${idfy(sub)}` }"> {{ sub }}</router-link>
+                      </template>
+                    </template>
+                    <template v-else-if="props.column.field == 'compartment'">
+                      <template v-if="header == 'subsystem'">
+                        <template v-for="(comp, i) in props.formattedRow[props.column.field]">
+                          <template v-if="i != 0">; </template>
+                          <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/compartment/${idfy(comp)}` }"> {{ comp }}</router-link>
+                        </template>
+                      </template>
+                      <template v-else-if="header == 'reaction'">
+                        <template v-for="(RP, i) in props.formattedRow[props.column.field].split(' => ')">
+                          <template v-if="i != 0"> => </template>
+                            <template v-for="(compo, j) in RP.split(' + ')">
+                              <template v-if="j != 0"> + </template>
+                              <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
+                            </template>
+                        </template>
+                      </template>
+                      <template v-else>
+                         <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/compartment/${idfy(props.formattedRow[props.column.field])}` }"> {{ props.formattedRow[props.column.field] }}</router-link>
+                      </template>
+                    </template>
+                    <template v-else-if="Array.isArray(props.formattedRow[props.column.field])">
                       {{ props.formattedRow[props.column.field].join("; ") }}
-                    </span>
-                    <span v-else>
+                    </template>
+                    <template v-else>
                       {{ props.formattedRow[props.column.field] }}
-                    </span>
+                    </template>
                   </template>
                 </vue-good-table>
               </div>
@@ -616,6 +638,7 @@ export default {
       return this.showTabType === elementType;
     },
     idfy,
+    chemicalFormula,
   },
   beforeMount() {
     this.searchTerm = this.$route.query.term || '';
@@ -626,7 +649,6 @@ export default {
       this.$children[0].search(this.searchTerm);
     }
   },
-  chemicalFormula,
 };
 
 </script>

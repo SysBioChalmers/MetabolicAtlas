@@ -184,17 +184,6 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     reactions = MetaboliteReactionSerializer(many=True)
 
 
-class HmrSubsystemSerializer(serializers.ModelSerializer):
-    compartment = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='name',
-     )
-
-    class Meta:
-        model = APImodels.Subsystem
-        fields = ('name', 'system', 'compartment', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
-
 
 class CompartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -204,7 +193,6 @@ class CompartmentSerializer(serializers.ModelSerializer):
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
     compartment = serializers.SlugRelatedField(slug_field='name_id', queryset=APImodels.Compartment.objects.all())
-    # compartment = CompartmentSerializer()
     subsystem = serializers.SlugRelatedField(
         many=True,
         read_only=True,
@@ -217,7 +205,7 @@ class CompartmentSvgSerializer(serializers.ModelSerializer):
           'max_zoom_level', 'node_zoom_level', 'label_zoom_level', 'sha')
 
 
-class SubsystemSerializer(serializers.ModelSerializer):
+class SubsystemLiteSerializer(serializers.ModelSerializer):
     compartment = serializers.SlugRelatedField(
         many=True,
         read_only=True,
@@ -226,8 +214,20 @@ class SubsystemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = APImodels.Subsystem
-        fields = ('name', 'name_id', 'system', 'external_id', 'external_link', 'description', 'compartment',
-         'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
+        fields = ('name', 'name_id', 'compartment')
+
+class SubsystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = APImodels.Subsystem
+        fields = SubsystemLiteSerializer.Meta.fields + \
+            ('system', 'external_id', 'external_link', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
+
+
+class HmrSubsystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = APImodels.Subsystem
+        fields = SubsystemLiteSerializer.Meta.fields + \
+            ('system', 'external_id', 'external_link', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
 
 
 class SubsystemSvgSerializer(serializers.ModelSerializer):

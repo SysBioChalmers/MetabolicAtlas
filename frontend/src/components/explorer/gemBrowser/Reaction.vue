@@ -40,8 +40,7 @@
               <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
               <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
               <td>
-                <span v-html="reformatLink(reaction[el.name], reaction[el.link])">
-                </span>
+                <a :href="`http://${reaction[el.link]}`" target="_blank">{{ reaction[el.name] }}</a>
               </td>
             </tr>
           </table>
@@ -77,8 +76,8 @@ import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
 import { default as EventBus } from '../../../event-bus';
-import { chemicalFormula, chemicalName, chemicalNameExternalLink, chemicalReaction } from '../../../helpers/chemical-formatters';
-import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink, reformatStringToLink } from '../../../helpers/utils';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
+import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink, reformatCompEqString } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -173,12 +172,7 @@ export default {
         this.errorMessage = messages.notFoundError;
       });
     },
-    reformatLink(s, link) { return reformatStringToLink(s, link); },
-    reformatTableKey(k) { return reformatTableKey(k); },
     reformatEquation() { return this.$parent.$parent.reformatChemicalReactionLink(this.reaction); },
-    reformatSBOLink(s, link) { return reformatSBOLink(s, link); },
-    reformatECLink(s) { return reformatECLink(s); },
-    reformatMass(s) { return addMassUnit(s); },
     reformatModifiers() {
       let newGRnameArr = null;
       if (this.reaction.name_gene_rule) {
@@ -221,7 +215,7 @@ export default {
         if (this.reaction[key] != null) {
           data.push(this.formatQuantFieldName(this.reformatTableKey(key)));
           if (key === 'objective_coefficient') {
-            data.push(this.reformatMass(this.reaction[key]));
+            data.push(addMassUnit(this.reaction[key]));
           } else {
             data.push(this.reaction[key]);
           }
@@ -236,7 +230,7 @@ export default {
     },
     reformatCompartment() {
       const compartmentEq =
-        chemicalReaction(this.reaction.compartment, this.reaction.is_reversible);
+        this.reformatCompEqString(this.reaction.compartment);
       if (this.reaction.is_transport) {
         return `${compartmentEq} (transport reaction)`;
       }
@@ -268,6 +262,10 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameExternalLink,
+    reformatSBOLink,
+    reformatTableKey,
+    reformatECLink,
+    reformatCompEqString,
   },
 };
 </script>

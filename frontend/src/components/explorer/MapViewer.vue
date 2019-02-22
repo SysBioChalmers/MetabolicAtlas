@@ -226,8 +226,7 @@
                       </template>
                     </div>
                   </div>
-                  <footer class="card-footer"
-                    v-if="['metabolite', 'enzyme', 'reaction', 'subsystem'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
+                  <footer class="card-footer">
                     <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
                   </footer>
                 </div>
@@ -566,7 +565,7 @@ export default {
       return true;
     },
     viewOnGemBrowser() {
-      if (this.currentDisplayedType === 'subsystem') {
+      if (this.currentDisplayedType) {
         EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.currentDisplayedType, this.currentDisplayedName);
       } else {
         EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.selectedElementData.type, this.selectedElementData.id);
