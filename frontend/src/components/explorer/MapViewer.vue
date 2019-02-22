@@ -234,16 +234,16 @@
             </div>
           </div>
         </div>
-        <div id="graphframe" class="column">
+        <div id="graphframe" class="column is-unselectable">
           <div class="is-fullheight">
-            <svgmap v-show="show2D"
-            :model="model"
-            @loadComplete="handleLoadComplete"
-            @loading="showLoader=true"></svgmap>
-            <d3dforce v-show="show3D"
-            :model="model"
-            @loadComplete="handleLoadComplete"
-            @loading="showLoader=true"></d3dforce>
+            <svgmap v-show="show2D" :model="model"
+              @loadComplete="handleLoadComplete"
+              @loading="showLoader=true">
+            </svgmap>
+            <d3dforce v-show="show3D" :model="model"
+              @loadComplete="handleLoadComplete"
+              @loading="showLoader=true">
+            </d3dforce>
           </div>
           <div id="iLoader" class="loading" v-show="showLoader">
             <a class="button is-loading"></a>

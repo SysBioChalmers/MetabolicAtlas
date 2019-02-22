@@ -165,17 +165,13 @@ export default {
     $('body').on('click', 'span.rce', function f() {
       EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('id'));
     });
+
     $('body').on('click', 'span.sub', function f() {
       EventBus.$emit('GBnavigateTo', 'subsystem', $(this).attr('id'));
     });
     $('body').on('click', 'a.cmp', function f() {
       EventBus.$emit('GBnavigateTo', 'compartment', idfy($(this).html()));
     });
-    // document.body.addEventListener('keyup', (e) => {
-    //   if (e.keyCode === 27) {
-    //     this.showMapViewer = false;
-    //   }
-    // });
   },
   methods: {
     setup() {

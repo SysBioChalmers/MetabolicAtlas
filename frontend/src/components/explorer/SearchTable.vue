@@ -567,15 +567,15 @@ export default {
             filterTypeDropdown[componentType][field] =
               Object.keys(filterTypeDropdown[componentType][field]).map(
                 (e) => {
-                  const d = {}; let v = e;
+                  let v = e;
                   if (v === 'true') {
                     v = 'Yes';
                   } else if (v === 'false') {
                     v = 'No';
                   }
-                  d.text = v; d.value = v; return d;
+                  return v;
                 }
-            );
+            ).sort();
           }
         }
       }

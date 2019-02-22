@@ -47,6 +47,7 @@
                 <template v-if="j != 0"> + </template>
                 <router-link :to="{ path: `/explore/gem-browser/${model}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
               </template>
+
             </template>
           </td>
         </tr>
