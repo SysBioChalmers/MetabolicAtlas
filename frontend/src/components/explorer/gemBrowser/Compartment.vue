@@ -43,7 +43,7 @@
             <td> {{ this.compartment.enzyme_count }}</td>
           </tr>
         </table>
-        <span>The <a :href="`/api/${this.model}/compartment/${this.cName}/`" target="_blank">complete list</a> of reactions / metabolites / enzymes is available using our <a href="/swagger" target="_blank">API</a></span>
+        <span class="is-size-5">The <a :href="`/api/${this.model}/compartment/${this.cName}/`" target="_blank">complete list in JSON format</a> of reactions / metabolites / enzymes is available using our <a href="/swagger" target="_blank">API</a></span>
       </div>
       <div class="column">
         <div class="box has-text-centered">

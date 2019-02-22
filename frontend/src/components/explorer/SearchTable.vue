@@ -283,7 +283,6 @@ export default {
               enabled: true,
               filterDropdownItems: [],
             },
-            html: true,
             sortable: true,
           }, {
             label: 'Transport?',

@@ -20,6 +20,9 @@
               <td v-if="metabolite[el.name] !== null">
                 <span v-if="el.modifier" v-html="el.modifier(metabolite[el.name])">
                 </span>
+                <span v-else-if="el.name == 'compartment'">
+                  <router-link :to="{ path: `/explore/gem-browser/compartment/${idfy(metabolite[el.name])}` }">{{ metabolite[el.name] }}</router-link>
+                </span>
                 <span v-else>
                   {{ metabolite[el.name] }}
                 </span>
@@ -65,7 +68,7 @@
 import axios from 'axios';
 import Reactome from 'components/explorer/gemBrowser/Reactome';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
-import { reformatTableKey, reformatStringToLink, addMassUnit } from '../../../helpers/utils';
+import { reformatTableKey, reformatStringToLink, addMassUnit, idfy } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -160,6 +163,7 @@ export default {
     reformatTableKey(k) { return reformatTableKey(k); },
     reformatLink(s, link) { return reformatStringToLink(s, link); },
     reformatMass(s) { return addMassUnit(s); },
+    idfy,
   },
   beforeMount() {
     this.setup();
