@@ -29,7 +29,7 @@
           <div v-if="searchResults.length !== 0" class="searchGroupResultSection"
             v-for="k in resultsOrder" >
             <div v-for="r in searchResults[k]" class="searchResultSection">
-              <div @click="goToTab(k, r.id)">
+              <div @click="goToTab(k, r.id || r.name_id || r.name)">
                  <b class="is-capitalized">{{ k }}: </b><label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               </div>
               <hr>
