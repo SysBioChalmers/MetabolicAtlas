@@ -29,98 +29,8 @@
           <div v-if="searchResults.length !== 0" class="searchGroupResultSection"
             v-for="k in resultsOrder" >
             <div v-for="r in searchResults[k]" class="searchResultSection">
-              <div v-if="k === 'enzyme'">
-                <b>Enzyme: </b>
-                <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
-                <div class="columns">
-                  <div class="column">
-                    <span
-                      class="button is-primary"
-                      @click="goToTab('interaction', r.id)">
-                      Closest interaction partners
-                    </span>
-                    <span class="button is-primary"
-                      @click="goToTab('enzyme', r.id)">
-                      Enzyme
-                    </span>
-                    <span class="button is-info is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'enzyme')" disabled>
-                      View
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div v-else-if="k === 'metabolite'">
-                <b>Metabolite: </b>
-                <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
-                <div class="columns">
-                  <div class="column">
-                    <span
-                      class="button is-primary"
-                      @click="goToTab('interaction', r.id)">
-                      Closest interaction partners
-                    </span>
-                    <span class="button is-primary"
-                      @click="goToTab('metabolite', r.id)">
-                      Metabolite
-                    </span>
-                    <span class="button is-info is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'metabolite')" disabled>
-                      View
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div v-else-if="k === 'reaction'">
-                <b>Reaction: </b>
-                <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
-                <div class="columns">
-                  <div class="column">
-                    <span
-                      class="button is-primary"
-                      @click="goToTab('reaction', r.id)">
-                      Reaction
-                    </span>
-                    <span class="button is-info is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.id, 'reaction')" disabled>
-                      View
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div v-else-if="k === 'subsystem'">
-                <b>Subsystem: </b>
-                <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
-                <div class="columns">
-                  <div class="column">
-                    <span
-                      class="button is-primary"
-                      @click="goToTab('subsystem', r.name.toLowerCase())">
-                      Subsystem
-                    </span>
-                    <span class="button is-info is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'subsystem')" disabled>
-                      View
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div v-else-if="k === 'compartment'">
-                <b>Compartment: </b>
-                <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
-                <div class="columns">
-                  <div class="column">
-                    <span
-                      class="button is-primary"
-                      @click="goToTab('compartment', r.name.toLowerCase())">
-                      Compartment
-                    </span>
-                    <span class="button is-info is-pulled-right"
-                      @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'compartment')" disabled>
-                      View
-                    </span>
-                  </div>
-                </div>
+              <div @click="goToTab(k, r.id)">
+                 <b class="is-capitalized">{{ k }}: </b><label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               </div>
               <hr>
             </div>
@@ -179,16 +89,16 @@ export default {
 
       itemKeys: {
         hmr2: {
-          enzyme: ['gene_name'],
+          enzyme: ['id', 'gene_name'],
           reaction: ['id', 'equation'],
-          metabolite: ['name', 'compartment'],
+          metabolite: ['id', 'name', 'compartment'],
           subsystem: ['name', 'system'],
           compartment: ['name'],
         },
         yeast: {
-          enzyme: ['gene_name'],
+          enzyme: ['id', 'gene_name'],
           reaction: ['id', 'equation'],
-          metabolite: ['name', 'compartment'],
+          metabolite: ['id', 'name', 'compartment'],
           subsystem: ['name', 'system'],
           compartment: ['name'],
         },
@@ -294,11 +204,45 @@ export default {
         if (!this.quickSearch) {
           this.$emit('updateResults', this.searchTermString, this.searchResults);
         } else {
+          // sort result by exact matched first, then by alpha order
+          for (const k of Object.keys(searchResults)) {
+            if (searchResults[k].length) {
+              searchResults[k].sort((a, b) => {
+                let matchSizeDiffA = 100;
+                let matchedStringA = '';
+                for (const field of Object.keys(a)) {
+                  if (a[field] && (typeof a[field] === 'string' || a[field] instanceof String) &&
+                      a[field].toLowerCase().includes(this.searchTermString.toLowerCase())) {
+                    const diff = a[field].length - this.searchTermString.length;
+                    if (diff < matchSizeDiffA) {
+                      matchSizeDiffA = diff;
+                      matchedStringA = a[field];
+                    }
+                  }
+                }
+                let matchSizeDiffB = 100;
+                let matchedStringB = '';
+                for (const field of Object.keys(b)) {
+                  if (b[field] && (typeof b[field] === 'string' || b[field] instanceof String) &&
+                      b[field].toLowerCase().includes(this.searchTermString.toLowerCase())) {
+                    const diff = b[field].length - this.searchTermString.length;
+                    if (diff < matchSizeDiffB) {
+                      matchSizeDiffB = diff;
+                      matchedStringB = b[field];
+                    }
+                  }
+                }
+                if (matchSizeDiffA === matchSizeDiffB) {
+                  return matchedStringA.localeCompare(matchedStringB);
+                }
+                return matchSizeDiffA < matchSizeDiffB ? -1 : 1;
+              });
+            }
+          }
           this.$refs.searchResults.scrollTop = 0;
         }
       })
       .catch(() => {
-        // console.log(error);
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
@@ -316,25 +260,19 @@ export default {
     advancedSearch() {
       this.$router.push({ name: 'search' });
     },
-    viewOnMetabolicViewer(name, type) {
-      if (type === 'compartment') {
-        if (name === 'cytosol') {
-          name = 'cytosol_1';  // eslint-disable-line no-param-reassign
-        }
-      }
-      EventBus.$emit('navigateTo', 'mapViever', this.model, type, name);
-    },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {
         return '';
       }
+      const re = new RegExp(`(${searchTerm})`, 'ig');
       let s = '';
       for (const key of this.itemKeys[this.model][type]) {
         if (element[key]) {
           if (key === 'equation') {
-            s = `${s} ‒ ${chemicalReaction(element[key], element.is_reversible)}`;
+            s = `${s} ‒ ${chemicalReaction(element[key].replace(re, '<b>$1</b>'), element.is_reversible)}`;
           } else {
-            s = `${s} ‒ ${element[key]}`;
+            // do not HL the compartment name
+            s = key === 'compartment' ? `${s} ‒ ${element[key]}` : `${s} ‒ ${element[key].replace(re, '<b>$1</b>')}`;
           }
         }
       }
@@ -342,7 +280,7 @@ export default {
         // add info in the label containing the search string
         for (const k of ['hmdb_id', 'uniprot_id', 'ncbi_id', 'formula', 'pubchem_id', 'aliases', 'name']) {
           if (element[k] && element[k].toLowerCase().includes(searchTerm.toLowerCase())) {
-            s = `${s} ‒ ${element[k]}`;
+            s = `${s} ‒ ${element[k].replace(re, '<b>$1</b>')}`;
           }
         }
       }
@@ -395,7 +333,7 @@ export default {
   }
 
   hr {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
   }
 
   .searchGroupResultSection:first-child {
@@ -404,6 +342,10 @@ export default {
 
   .searchResultSection {
     padding: 0 10px;
+    div:hover, label:hover {
+      cursor: pointer;
+      color: #006992; // todo somehow replace it by $link..
+    }
   }
 }
 
