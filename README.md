@@ -130,6 +130,7 @@ Integrated model databases:
 ```bash
 docker exec -it db  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
 ```
+Once imported the database cannot be migrated anymore with django, thus should only be used for production. To create a woking version of the db remove "--create -T 'auth_*' -T 'django_*'"
 
 GEMs database:
 ```bash

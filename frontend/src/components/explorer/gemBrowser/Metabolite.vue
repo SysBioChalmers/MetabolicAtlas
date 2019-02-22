@@ -8,20 +8,23 @@
     <div v-else>
       <div class="columns">
         <div class="column">
-          <h3 class="title is-3">Metabolite {{ info.name }}</h3>
+          <h3 class="title is-3">Metabolite {{ metabolite.name }}</h3>
         </div>
       </div>
       <div class="columns is-multiline metabolite-table">
         <div class="column is-10-widescreen is-9-desktop is-full-tablet">
-          <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
+          <table v-if="metabolite && Object.keys(metabolite).length != 0" class="table main-table is-fullwidth">
             <tr v-for="el in mainTableKey[model]">
               <td v-if="el.display" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
               <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
-              <td v-if="info[el.name] !== null">
-                <span v-if="el.modifier" v-html="el.modifier(info[el.name])">
+              <td v-if="metabolite[el.name] !== null">
+                <span v-if="el.modifier" v-html="el.modifier(metabolite[el.name])">
+                </span>
+                <span v-else-if="el.name == 'compartment'">
+                  <router-link :to="{ path: `/explore/gem-browser/compartment/${idfy(metabolite[el.name])}` }">{{ metabolite[el.name] }}</router-link>
                 </span>
                 <span v-else>
-                  {{ info[el.name] }}
+                  {{ metabolite[el.name] }}
                 </span>
               </td>
               <td v-else> - </td>
@@ -30,13 +33,12 @@
           <template v-if="hasExternalID">
             <br>
             <span class="subtitle">External IDs</span>
-            <table v-if="info && Object.keys(info).length != 0" id="ed-table" class="table is-fullwidth">
-              <tr v-for="el in externalIDTableKey[model]" v-if="info[el.name] && info[el.link]">
+            <table v-if="metabolite && Object.keys(metabolite).length != 0" id="ed-table" class="table is-fullwidth">
+              <tr v-for="el in externalIDTableKey[model]" v-if="metabolite[el.name] && metabolite[el.link]">
                 <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                 <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                 <td>
-                  <span v-html="reformatLink(info[el.name], info[el.link])">
-                  </span>
+                  <a :href="`http://${metabolite[el.link]}`" target="_blank">{{ metabolite[el.name] }}</a>
                 </td>
               </tr>
             </table>
@@ -66,7 +68,7 @@
 import axios from 'axios';
 import Reactome from 'components/explorer/gemBrowser/Reactome';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
-import { reformatTableKey, reformatStringToLink, addMassUnit } from '../../../helpers/utils';
+import { reformatTableKey, reformatStringToLink, addMassUnit, idfy } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -113,7 +115,7 @@ export default {
         yeast: [
         ],
       },
-      info: {},
+      metabolite: {},
       errorMessage: '',
       activePanel: 'table',
       showReactome: false,
@@ -132,7 +134,7 @@ export default {
   computed: {
     hasExternalID() {
       for (const item of this.externalIDTableKey[this.model]) {
-        if (this.info[item.name] && this.info[item.link]) {
+        if (this.metabolite[item.name] && this.metabolite[item.link]) {
           return true;
         }
       }
@@ -150,7 +152,7 @@ export default {
       axios.get(`${this.model}/metabolite/${this.mId}/`)
       .then((response) => {
         this.metaboliteID = this.mId;
-        this.info = response.data;
+        this.metabolite = response.data;
         this.showReactome = true;
       })
       .catch(() => {
@@ -161,6 +163,7 @@ export default {
     reformatTableKey(k) { return reformatTableKey(k); },
     reformatLink(s, link) { return reformatStringToLink(s, link); },
     reformatMass(s) { return addMassUnit(s); },
+    idfy,
   },
   beforeMount() {
     this.setup();

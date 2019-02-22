@@ -23,6 +23,30 @@ export function reformatStringToLink(value, link) {
   return `<a href="${value}" target="_blank">${value}</a>`;
 }
 
+export function reformatCompEqString(value) {
+  if (value === null) {
+    return '';
+  }
+  const eqArr = value.split(' => ');
+  console.log(eqArr, value);
+  let reactants = '';
+  let products = '';
+  if (eqArr[0]) {
+    console.log('0', eqArr[0]);
+    reactants = eqArr[0].split(' + ').map(
+      e => `<a class="cmp">${e}</a>`).join(' + ');
+  }
+  if (eqArr[1]) {
+    console.log('0', eqArr[1]);
+    products = eqArr[1].split(' + ').map(
+      e => `<a class="cmp">${e}</a>`).join(' + ');
+  }
+  if (products) {
+    return `${reactants} => ${products}`;
+  }
+  return reactants;
+}
+
 export function addMassUnit(value) {
   return `${value} g/mol`;
 }
