@@ -178,9 +178,7 @@ export default {
       this.model = this.$route.params.model || 'hmr2';
       if (this.$route.name === 'search') {
         this.displaySearch();
-      } else if (this.$route.name === 'viewer' ||
-       this.$route.name === 'viewerCompartment' ||
-        this.$route.name === 'viewerSubsystem') {
+      } else if (['viewer', 'viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.displayViewer();
       } else if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
         this.displayBrowser();

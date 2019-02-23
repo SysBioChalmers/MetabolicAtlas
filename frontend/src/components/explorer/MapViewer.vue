@@ -618,7 +618,6 @@ export default {
       if (this.show2D) {
         EventBus.$emit('update3DLoadedComponent', null, null);
       }
-      this.$router.push({ path: `/explore/map-viewer/${this.model}/${this.currentDisplayedType}/${this.currentDisplayedName}?dim=${this.show2D ? '2d' : '3d'}` });
       this.showLoader = false;
     },
     loadSubComptData(model) {
@@ -673,9 +672,10 @@ export default {
         }
 
         // load maps from url if contains map_id, the url is then cleaned of the id
-        if (this.$route.name === 'viewerCompartment' || this.$route.name === 'viewerSubsystem') {
-          const type = this.$route.name === 'viewerCompartment' ? 'compartment' : 'subsystem';
+        if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
+          const type = this.$route.name.includes('Compartment') ? 'compartment' : 'subsystem';
           const mapID = this.$route.params.id;
+          const reactionID = this.$route.params.rid;
           if (!this.$route.query.dim) {
             this.show2D = false;
           } else {
@@ -683,7 +683,7 @@ export default {
           }
           this.show3D = !this.show2D;
           this.$nextTick(() => {
-            EventBus.$emit('showAction', type, mapID, [], false);
+            EventBus.$emit('showAction', type, mapID, reactionID ? [reactionID] : [], false);
           });
         }
       })
