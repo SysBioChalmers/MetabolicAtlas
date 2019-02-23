@@ -43,12 +43,12 @@
             <td> {{ this.compartment.enzyme_count }}</td>
           </tr>
         </table>
-        <span class="is-size-5">The <a :href="`/api/${this.model}/compartment/${this.cName}/`" target="_blank">complete list in JSON format</a> of reactions / metabolites / enzymes is available using our <a href="/swagger" target="_blank">API</a></span>
+        <span class="is-size-5">The <a :href="`/api/${model.database_name}/compartment/${this.cName}/`" target="_blank">complete list in JSON format</a> of reactions / metabolites / enzymes is available using our <a href="/swagger" target="_blank">API</a></span>
       </div>
       <div class="column">
         <div class="box has-text-centered">
           <router-link class="button is-info is-fullwidth"
-            :to="{ path: `/explore/map-viewer/${model}/compartment/${this.cName == 'cytosol' ? 'cytosol_1' : this.cName}?dim=2d` }">
+            :to="{ path: `/explore/map-viewer/${model.database_name}/compartment/${this.cName == 'cytosol' ? 'cytosol_1' : this.cName}?dim=2d` }">
             {{ messages.mapViewerName }}
           </router-link>
         </div>
@@ -114,7 +114,7 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model}/compartment/${this.cName}/stats/`)
+      axios.get(`${this.model.database_name}/compartment/${this.cName}/stats/`)
       .then((response) => {
         this.compartment = response.data.compartmentAnnotations;
         this.subsystems = response.data.subsystems;

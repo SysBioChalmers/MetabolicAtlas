@@ -14,14 +14,15 @@
       <div class="columns is-multiline metabolite-table">
         <div class="column is-10-widescreen is-9-desktop is-full-tablet">
           <table v-if="metabolite && Object.keys(metabolite).length != 0" class="table main-table is-fullwidth">
-            <tr v-for="el in mainTableKey[model]">
+            <tr v-for="el in mainTableKey[model.database_name]">
               <td v-if="el.display" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+              <td v-else-if="el.name == 'id'" class="td-key has-background-primary has-text-white-bis">{{ model.short_name }} ID</td>
               <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
               <td v-if="metabolite[el.name] !== null">
                 <span v-if="el.modifier" v-html="el.modifier(metabolite[el.name])">
                 </span>
                 <span v-else-if="el.name == 'compartment'">
-                  <router-link :to="{ path: `/explore/gem-browser/compartment/${idfy(metabolite[el.name])}` }">{{ metabolite[el.name] }}</router-link>
+                  <router-link :to="{ path: `/explore/gem-browser/${model.database_name}/compartment/${idfy(metabolite[el.name])}` }">{{ metabolite[el.name] }}</router-link>
                 </span>
                 <span v-else>
                   {{ metabolite[el.name] }}
@@ -34,7 +35,7 @@
             <br>
             <span class="subtitle">External IDs</span>
             <table v-if="metabolite && Object.keys(metabolite).length != 0" id="ed-table" class="table is-fullwidth">
-              <tr v-for="el in externalIDTableKey[model]" v-if="metabolite[el.name] && metabolite[el.link]">
+              <tr v-for="el in externalIDTableKey[model.database_name]" v-if="metabolite[el.name] && metabolite[el.link]">
                 <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                 <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                 <td>
@@ -51,7 +52,7 @@
             </div>
             <br>
             <router-link class="button is-info is-fullwidth"
-              :to="{path: `/explore/gem-browser/${this.model}/interaction/${this.mId}`}">
+              :to="{path: `/explore/gem-browser/${model.database_name}/interaction/${this.mId}`}">
               {{ messages.interPartName }}
             </router-link>
           </div>
@@ -92,7 +93,7 @@ export default {
           { name: 'charge' },
           { name: 'inchi' },
           { name: 'compartment' },
-          { name: 'id', display: 'Model&nbsp;ID' },
+          { name: 'id' },
         ],
         yeast: [
           { name: 'name' },
@@ -103,7 +104,7 @@ export default {
           { name: 'charge' },
           { name: 'inchi' },
           { name: 'compartment' },
-          { name: 'id', display: 'Model&nbsp;ID' },
+          { name: 'id' },
         ],
       },
       externalIDTableKey: {
@@ -133,7 +134,7 @@ export default {
   },
   computed: {
     hasExternalID() {
-      for (const item of this.externalIDTableKey[this.model]) {
+      for (const item of this.externalIDTableKey[this.model.database_name]) {
         if (this.metabolite[item.name] && this.metabolite[item.link]) {
           return true;
         }
@@ -149,7 +150,7 @@ export default {
       }
     },
     load() {
-      axios.get(`${this.model}/metabolite/${this.mId}/`)
+      axios.get(`${this.model.database_name}/metabolite/${this.mId}/`)
       .then((response) => {
         this.metaboliteID = this.mId;
         this.metabolite = response.data;

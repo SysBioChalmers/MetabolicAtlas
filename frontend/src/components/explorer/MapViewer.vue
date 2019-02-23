@@ -18,13 +18,13 @@
               <li>Compartments<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
                   <template v-if="!has2DCompartmentMaps || show3D">
-                    <li v-for="id in compartmentOrder[model]" class="clickable" v-if="compartments[id]"
+                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="compartments[id]"
                       @click="showCompartment(compartments[id].name_id)">
                       {{ compartments[id].name }} {{ compartments[id].reaction_count != 0 ? `(${compartments[id].reaction_count})` : '' }}
                     </li>
                   </template>
                   <template v-else-if="compartmentsSVG">
-                    <li v-for="id in compartmentOrder[model]" class="clickable" v-if="compartmentsSVG[id]" :class="{ 'disable' : !compartmentsSVG[id].sha }"
+                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="compartmentsSVG[id]" :class="{ 'disable' : !compartmentsSVG[id].sha }"
                       @click="showCompartment(compartmentsSVG[id].name_id)">
                       {{ compartmentsSVG[id].name }} {{ compartmentsSVG[id].reaction_count != 0 ? `(${compartmentsSVG[id].reaction_count})` : '' }}
                     </li>
@@ -34,7 +34,7 @@
               <li>Subsystems<span>&nbsp;&#9656;</span>
                 <template v-if="Object.keys(subsystems).length !== 1">
                   <ul class="l1">
-                    <li v-for="system in systemOrder[model]">{{ system }}<span>&nbsp;&#9656;</span>
+                    <li v-for="system in systemOrder[model.database_name]">{{ system }}<span>&nbsp;&#9656;</span>
                       <ul class="l2" v-if="subsystems[system]">
                         <template v-if="!has2DSubsystemMaps || show3D">
                           <li v-for="subsystem in subsystems[system]" class="clickable"
@@ -138,7 +138,7 @@
                           <p v-if="selectedElementData['rnaLvl'] != null">
                             <span class="hd">RNA&nbsp;level:</span><span>{{ selectedElementData['rnaLvl'] }}</span>
                           </p>
-                          <template v-for="item in selectedElementDataKeys[model][selectedElement]"
+                          <template v-for="item in selectedElementDataKeys[model.database_name][selectedElement]"
                             v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
                             <template v-if="item.name === 'external_ids'">
                               <span class="hd" v-html="capitalize(item.display || item.name) + ':'"
@@ -283,6 +283,7 @@ import { default as messages } from '../../helpers/messages';
 
 export default {
   name: 'map-viewer',
+  props: ['model'],
   components: {
     Svgmap,
     D3dforce,
@@ -290,7 +291,6 @@ export default {
   data() {
     return {
       Logo,
-      model: '',
       errorMessage: '',
       loadErrorMesssage: '',
       show2D: true,
@@ -527,19 +527,13 @@ export default {
   },
   methods: {
     setup() {
-      const model = this.$route.params.model || '';
-      if (!(model in this.selectedElementDataKeys)) {
-        // TODO use another way to check the model id is valid
-        this.model = '';
+      if (!this.model || this.model.database_name !== this.$route.params.model) {
         EventBus.$emit('modelSelected', '');
         this.errorMessage = `Error: ${messages.modelNotFound}`;
         return;
       }
-      if (model !== this.model) {
-        this.loadSubComptData(model);
-        this.loadHPATissue(model);
-      }
-      this.model = model;
+      this.loadSubComptData(this.model);
+      this.loadHPATissue(this.model);
     },
     hideDropleftMenus() {
       $('#menu ul.l1, #menu ul.l2').hide();
@@ -553,10 +547,11 @@ export default {
       return false;
     },
     selectedElementHasNoData() {
-      if (!(this.selectedElementData.type in this.selectedElementDataKeys[this.model])) {
+      if (!(this.selectedElementData.type in
+          this.selectedElementDataKeys[this.model.database_name])) {
         return true;
       }
-      for (const k of this.selectedElementDataKeys[this.model][this.selectedElementData.type]) {
+      for (const k of this.selectedElementDataKeys[this.model.database_name][this.selectedElementData.type]) {  // eslint-disable-line max-len
         if (k.name in this.selectedElementData &&
           this.selectedElementData[k.name]) {
           return false;
@@ -566,9 +561,9 @@ export default {
     },
     viewOnGemBrowser() {
       if (this.currentDisplayedType) {
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.currentDisplayedType, this.currentDisplayedName);
+        EventBus.$emit('navigateTo', 'GEMBrowser', this.model.database_name, this.currentDisplayedType, this.currentDisplayedName);
       } else {
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.selectedElementData.type, this.selectedElementData.id);
+        EventBus.$emit('navigateTo', 'GEMBrowser', this.model.database_name, this.selectedElementData.type, this.selectedElementData.id);
       }
     },
     // globalMapSelected() {
@@ -617,11 +612,11 @@ export default {
       if (this.show2D) {
         EventBus.$emit('update3DLoadedComponent', null, null);
       }
-      this.$router.push({ path: `/explore/map-viewer/${this.model}/${this.currentDisplayedType}/${this.currentDisplayedName}?dim=${this.show2D ? '2d' : '3d'}` });
+      this.$router.push({ path: `/explore/map-viewer/${this.model.database_name}/${this.currentDisplayedType}/${this.currentDisplayedName}?dim=${this.show2D ? '2d' : '3d'}` });
       this.showLoader = false;
     },
     loadSubComptData(model) {
-      axios.get(`${model}/viewer/`)
+      axios.get(`${model.database_name}/viewer/`)
       .then((response) => {
         this.compartments = {};
         for (const c of response.data.compartment) {
@@ -695,7 +690,7 @@ export default {
       });
     },
     loadHPATissue(model) {
-      axios.get(`${model}/enzyme/hpa_tissue/`)
+      axios.get(`${model.database_name}/enzyme/hpa_tissue/`)
         .then((response) => {
           this.HPATissue = response.data;
         })
