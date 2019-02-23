@@ -249,35 +249,35 @@ export default {
             searchResults.metabolite = searchResults.metabolite.concat(
               resultsModel.metabolite.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.enzyme.length) {
             searchResults.enzyme = searchResults.enzyme.concat(
               resultsModel.enzyme.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.reaction.length) {
             searchResults.reaction = searchResults.reaction.concat(
               resultsModel.reaction.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.subsystem.length) {
             searchResults.subsystem = searchResults.subsystem.concat(
               resultsModel.subsystem.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.compartment.length) {
             searchResults.compartment = searchResults.compartment.concat(
               resultsModel.compartment.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
         }
