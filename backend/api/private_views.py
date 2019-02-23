@@ -145,18 +145,17 @@ def search_on_map(request, model, map_type, map_name_id, term):
 
 @api_view()
 @is_model_valid
-def get_available_maps(request, model, component_id):
+def get_available_maps(request, model, reaction_id):
     # get compartment maps
-    # try with reaction
     results = { "count" : 0 }
     compartment_svg = APImodels.ReactionCompartmentSvg.objects.using(model) \
-                .filter(Q(reaction_id=component_id)).select_related('compartmentsvg').values_list('compartmentsvg__name_id', 'compartmentsvg__name')
+                .filter(Q(reaction_id=reaction_id)).select_related('compartmentsvg').values_list('compartmentsvg__name_id', 'compartmentsvg__name')
     if compartment_svg:
         results["compartment"] = compartment_svg
         results["count"] += compartment_svg.count()
 
     subsystem_svg = APImodels.ReactionSubsystemSvg.objects.using(model) \
-                .filter(Q(reaction_id=component_id)).values_list('subsystemsvg__name_id').values_list('subsystemsvg__name_id', 'subsystemsvg__name')
+                .filter(Q(reaction_id=reaction_id)).values_list('subsystemsvg__name_id').values_list('subsystemsvg__name_id', 'subsystemsvg__name')
     if subsystem_svg:
         results["subsystem"] = subsystem_svg
         results["count"] += compartment_svg.count()
