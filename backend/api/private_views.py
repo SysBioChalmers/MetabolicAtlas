@@ -101,6 +101,7 @@ def search_on_map(request, model, map_type, map_name_id, term):
     reaction_query = Q()
     query |= Q(id__iexact=term)
     reaction_query |= Q(id__iexact=term)
+    reaction_query |= Q(name__iexact=term)
     query |= Q(name__iexact=term)
     query |= Q(alt_name1__iexact=term)
     query |= Q(alt_name2__iexact=term)
@@ -142,36 +143,27 @@ def search_on_map(request, model, map_type, map_name_id, term):
     return JSONResponse(results)
 
 
-# @api_view()
-# @is_model_valid
-# def get_subsystem_coordinates(request, model, subsystem_name, compartment_name=False):
-#     """
-#     For a given subsystem name, get the compartment name and X,Y locations in the corresponding SVG map.
-#     """
+@api_view()
+@is_model_valid
+def get_available_maps(request, model, component_id):
+    # get compartment maps
+    # try with reaction
+    results = { "count" : 0 }
+    compartment_svg = APImodels.ReactionCompartmentSvg.objects.using(model) \
+                .filter(Q(reaction_id=component_id)).select_related('compartmentsvg').values_list('compartmentsvg__name_id', 'compartmentsvg__name')
+    if compartment_svg:
+        results["compartment"] = compartment_svg
+        results["count"] += compartment_svg.count()
 
-#     logging.warn(subsystem_name)
+    subsystem_svg = APImodels.ReactionSubsystemSvg.objects.using(model) \
+                .filter(Q(reaction_id=component_id)).values_list('subsystemsvg__name_id').values_list('subsystemsvg__name_id', 'subsystemsvg__name')
+    if subsystem_svg:
+        results["subsystem"] = subsystem_svg
+        results["count"] += compartment_svg.count()
 
-#     try:
-#         subsystem = APImodels.Subsystem.objects.using(model).get(name__iexact=subsystem_name)
-#         subsystem_id = subsystem.id
-#     except APImodels.Subsystem.DoesNotExist:
-#         return HttpResponse(status=404)
-
-#     try:
-#         if not compartment_name:
-#             tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem=subsystem_id, is_main=True)
-#         else:
-#             try:
-#                 compartment = APImodels.CompartmentSvg.objects.using(model).get(name__iexact=compartment_name)
-#             except CompartmentSvg.DoesNotExist:
-#                 return HttpResponse(status=404)
-#             tileSubsystem = APImodels.TileSubsystem.objects.using(model).get(subsystem_id=subsystem_id, compartment=compartment)
-
-#     except APImodels.TileSubsystem.DoesNotExist:
-#         return HttpResponse(status=404)
-#     serializer = TileSubsystemSerializer(tileSubsystem)
-
-#     return JSONResponse(serializer.data)
+    if results["count"] == 0:
+        return HttpResponse(status=404)
+    return JSONResponse(results)
 
 
 @api_view()
