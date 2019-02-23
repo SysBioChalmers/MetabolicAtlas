@@ -37,11 +37,27 @@
         <subsystem v-if="selectedType==='subsystem'" :model="model"></subsystem>
         <compartment v-if="selectedType==='compartment'" :model="model"></compartment>
       </div>
+      <div class="modal" v-bind:class="{ 'is-active': showModal }">
+        <div class="modal-background" @click="showModal = false"></div>
+        <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white" v-on:keyup.esc="showModal = false" tabindex="0">
+          <h3 class="title">
+            Available maps:
+          </h3>
+          <template v-for="comp in mapsAvailable['compartment']" v-if="'compartment' in mapsAvailable">
+            <router-link :to="{ path: `/explore/map-viewer/${model}/compartment/${comp[0]}/${viewOnMapID}?dim=2d` }">{{ comp[1] }}</router-link><br>
+          </template>
+          <template v-for="sub in mapsAvailable['subsystem']" v-if="'subsystem' in mapsAvailable">
+            {{ sub }}
+          </template>
+        </div>
+        <button class="modal-close is-large" @click="showModelTable = false"></button>
+      </div>
     </template>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 import GlobalSearch from 'components/explorer/GlobalSearch';
 import ClosestInteractionPartners from 'components/explorer/gemBrowser/ClosestInteractionPartners';
 import Enzyme from 'components/explorer/gemBrowser/Enzyme';
@@ -74,6 +90,9 @@ export default {
       errorMessage: '',
       componentID: '',
       model: '',
+      showModal: false,
+      mapsAvailable: {},
+      viewOnMapID: null,
       starredComponents: {
         hmr2: {
           metabolite: [
@@ -182,6 +201,7 @@ export default {
     // init the global events
     EventBus.$off('resetView');
     EventBus.$off('GBnavigateTo');
+    EventBus.$off('viewReactionOnMap');
 
     EventBus.$on('resetView', () => {
       this.levelSelected = 'subsystem';
@@ -189,6 +209,22 @@ export default {
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
       this.$router.push(`/explore/gem-browser/${this.model}/${type}/${idfy(id)}`);
+    });
+    EventBus.$on('viewReactionOnMap', (id) => {
+      // get the list of map available for this id
+      axios.get(`${this.model}/available_maps/${id}`)
+      .then((response) => {
+        this.viewOnMapID = id;
+        if (response.data.count !== 1) {
+          this.mapsAvailable = response.data;
+          this.showModal = true;
+        } else {
+          const mapType = 'compartment' in response.data ? 'compartment' : 'subsystem';
+          const mapName = response.data[mapType][0][0];
+          this.$router.push(`/explore/map-viewer/${this.model}/${mapType}/${mapName}/${id}?dim=2d`);
+          EventBus.$emit('requestViewer', mapType, mapName, [id], false);
+        }
+      });
     });
   },
   methods: {
