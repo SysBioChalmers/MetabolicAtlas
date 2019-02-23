@@ -133,6 +133,14 @@ export default {
   },
   mounted() {
     const self = this;
+    $('#svg-wrapper').on('click', 'svg', (e) => {
+      const target = $(e.target);
+      if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') &&
+        !target.hasClass('.subsystem') && !target.parent('.subsystem').length > 0 && // <path>
+        !target.parent().parent('.subsystem').length > 0) { // <text> of subsystem
+        self.unSelectElement();
+      }
+    });
     $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
       const id = $(this).attr('class').split(' ')[1].trim();

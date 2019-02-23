@@ -598,6 +598,7 @@ export default {
     },
     handleLoadComplete(isSuccess, errorMessage) {
       // console.log(`${isSuccess} ${errorMessage}`);
+      this.selectedElement = null;
       if (!isSuccess) {
         // show error
         this.loadErrorMesssage = errorMessage;
@@ -739,10 +740,12 @@ export default {
       return this.requestedName in this.subsystemsStats;
     },
     showCompartment(compartment) {
+      this.selectedElement = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'compartment', compartment, [], false);
     },
     showSubsystem(subsystem) {
+      this.selectedElement = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'subsystem', subsystem, [], false);
     },
