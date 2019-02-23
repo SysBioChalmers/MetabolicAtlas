@@ -41,26 +41,10 @@ def read_map_metabolite(filePath):
         data = myfile.readlines()
         for idx, l in enumerate(data):
             l = l.strip()
-            m = re.match('<g id="(m[^"]+)" class="met ', l)
+            m = re.match('<g class="met ([^" ]+)', l)
             if m:
-                rid = m.group(1).split('-')[0]
+                rid = m.group(1)
                 res.add(rid)
-    return res
-
-
-def read_map_multi_metabolite(filePath):
-    res = set()
-    unique = set()
-    with open(filePath, "r") as myfile:
-        data = myfile.readlines()
-        for idx, l in enumerate(data):
-            l = l.strip()
-            m = re.match('<g id="(m[^"]+)" class="met ', l)
-            if m:
-                rid = m.group(1).split('-')[0]
-                if rid in unique:
-                    res.add(rid)
-                unique.add(rid)
     return res
 
 
@@ -70,9 +54,9 @@ def read_map_enzyme(filePath):
         data = myfile.readlines()
         for idx, l in enumerate(data):
             l = l.strip()
-            m = re.match('<g id="([^"]+)" class="enz ', l)
+            m = re.match('<g class="enz ([^" ]+)', l)
             if m:
-                rid = m.group(1).split('-')[0]
+                rid = m.group(1)
                 res.add(rid)
     return res
 
@@ -781,7 +765,7 @@ def insert_compartment_svg_connectivity_and_stats(database, compartment, map_dir
     subsystem_count = subs.count()
 
     if reaction_count == 0 or metabolite_count == 0 or unique_meta_count == 0 or enzyme_count == 0 or subsystem_count == 0:
-        print ("Error:")
+        print ("Error: compartment '%s'" % subsystem.filename)
         print("reaction_count", reaction_count)
         print("metabolite_count", metabolite_count)
         print("unique metabolite_count", unique_meta_count)
@@ -821,7 +805,7 @@ def insert_subsystem_svg_connectivity_and_stats(database, subsystem, map_directo
     enzyme_count  = rcs.count()
 
     if reaction_count == 0 or metabolite_count == 0 or unique_meta_count == 0 or enzyme_count == 0:
-        print ("Error:")
+        print ("Error: subsystem '%s'" % subsystem.filename)
         print("reaction_count", reaction_count)
         print("metabolite_count", metabolite_count)
         print("unique metabolite_count", unique_meta_count)
@@ -940,7 +924,7 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
                     continue
                 compt = Compartment.objects.using(database).filter(name__iexact=ci[1])
                 if not compt:
-                    print("Error: cannot match the compartment information name " + ci[1] + " to a compartment...")
+                    print("Error: cannot match the compartment name " + ci[1] + " to a compartment in the database")
                     exit(1)
 
                 if not re.match('[0-9a-zA-Z_]+[.]svg$', ci[3]):
@@ -977,9 +961,9 @@ def processData(database, map_type, map_directory, svg_map_metadata_file):
             for si in reader:
                 if not si or si[0][0] == '#':
                     continue
-                sub = Subsystem.objects.using(database).filter(name__iexact=si[1])
+                sub = Subsystem.objects.using(database).filter(name_id=si[1])
                 if not sub:
-                    print("Error: cannot match the subsystem information name " + si[1] + " to a subsystem...")
+                    print("Error: cannot match the subsystem  name " + si[1] + " to a subsystem in the database")
                     exit(1)
 
                 if not re.match('[0-9a-zA-Z_]+[.]svg$', si[3]):
@@ -1022,9 +1006,26 @@ class Command(BaseCommand):
             help="tabular file that describes the name_id/name/letter/.... of the maps")
         parser.add_argument('--write-connectivity-files', action="store_true", default=False, dest='write_connectivity',
             help="Find and write overlaps between compt/sub/reaction/meta into files")
+        parser.add_argument('--delete-compartment-tables', action="store_true", default=False, dest='delete_compartment_tables',
+            help="delete the content of 'svg' compartment tables and quit")
+        parser.add_argument('--delete-subsystem-tables', action="store_true", default=False, dest='delete_subsystem_tables',
+            help="delete the content of 'svg' subsystem tables and quit")
 
 
     def handle(self, *args, **options):
+        if options['delete_compartment_tables']:
+            CompartmentSvg.objects.using(options['database']).all().delete()
+            ReactionCompartmentSvg.objects.using(options['database']).all().delete()
+            ReactionComponentCompartmentSvg.objects.using(options['database']).all().delete()
+            SubsystemCompartmentSvg.objects.using(options['database']).all().delete()
+            return
+
+        if options['delete_subsystem_tables']:
+            SubsystemSvg.objects.using(options['database']).all().delete()
+            ReactionSubsystemSvg.objects.using(options['database']).all().delete()
+            ReactionComponentSubsystemSvg.objects.using(options['database']).all().delete()
+            return
+
         if options['write_connectivity']:
             # get element in subsystem / compt from database
             compt_rme, rme_compt, sub_rme, rme_sub, compt_sub, sub_compt_using_reaction, \

@@ -226,8 +226,7 @@
                       </template>
                     </div>
                   </div>
-                  <footer class="card-footer"
-                    v-if="['metabolite', 'enzyme', 'reaction', 'subsystem'].includes(selectedElement) || currentDisplayedType === 'subsystem'">
+                  <footer class="card-footer">
                     <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
                   </footer>
                 </div>
@@ -554,19 +553,19 @@ export default {
       return false;
     },
     selectedElementHasNoData() {
-      if (!(this.selectedElementData.type in this.selectedElementDataKeys)) {
+      if (!(this.selectedElementData.type in this.selectedElementDataKeys[this.model])) {
         return true;
       }
-      for (const k of this.selectedElementDataKeys[this.selectedElementData.type]) {
-        if (k in this.selectedElementData &&
-          this.selectedElementData[this.selectedElementData.type][k]) {
+      for (const k of this.selectedElementDataKeys[this.model][this.selectedElementData.type]) {
+        if (k.name in this.selectedElementData &&
+          this.selectedElementData[k.name]) {
           return false;
         }
       }
       return true;
     },
     viewOnGemBrowser() {
-      if (this.currentDisplayedType === 'subsystem') {
+      if (this.currentDisplayedType) {
         EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.currentDisplayedType, this.currentDisplayedName);
       } else {
         EventBus.$emit('navigateTo', 'GEMBrowser', this.model, this.selectedElementData.type, this.selectedElementData.id);
@@ -599,6 +598,7 @@ export default {
     },
     handleLoadComplete(isSuccess, errorMessage) {
       // console.log(`${isSuccess} ${errorMessage}`);
+      this.selectedElement = null;
       if (!isSuccess) {
         // show error
         this.loadErrorMesssage = errorMessage;
@@ -740,10 +740,12 @@ export default {
       return this.requestedName in this.subsystemsStats;
     },
     showCompartment(compartment) {
+      this.selectedElement = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'compartment', compartment, [], false);
     },
     showSubsystem(subsystem) {
+      this.selectedElement = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'subsystem', subsystem, [], false);
     },

@@ -235,6 +235,8 @@ def update_reaction(database, row_ann_dict, mapping_model_annotation_dict):
 
 
 def update_subsystem(database, row_ann_dict, mapping_model_annotation_dict):
+    # to tmp fix annotation of hmr2 sub for human1 db: run 
+    # update subsystem set system = '', external_id = 'external_id', external_link = 'external_link', description = 'subsystem description';
     subystem_dict = {}
     for file_column, value in row_ann_dict.items():
         # check if the column in the mapping dict

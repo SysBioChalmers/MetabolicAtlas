@@ -133,14 +133,22 @@ export default {
   },
   mounted() {
     const self = this;
+    $('#svg-wrapper').on('click', 'svg', (e) => {
+      const target = $(e.target);
+      if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') &&
+        !target.hasClass('.subsystem') && !target.parent('.subsystem').length > 0 && // <path>
+        !target.parent().parent('.subsystem').length > 0) { // <text> of subsystem
+        self.unSelectElement();
+      }
+    });
     $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
-      const id = $(this).attr('id').split('-')[0].trim();
+      const id = $(this).attr('class').split(' ')[1].trim();
       self.selectElement(id, 'metabolite');
     });
     $('#svg-wrapper').on('click', '.enz', function f() {
       // exact the real id from the id
-      const id = $(this).attr('id').split('-')[0].trim();
+      const id = $(this).attr('class').split(' ')[1].trim();
       self.selectElement(id, 'enzyme');
     });
     $('#svg-wrapper').on('click', '.rea', function f() {
@@ -152,7 +160,7 @@ export default {
       self.selectElement(id, 'subsystem');
     });
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
-      const id = $(this).attr('id').split('-')[0].trim();
+      const id = $(this).attr('class').split(' ')[1].trim();
       if (id in self.enzymeRNAlevels) {
         self.$refs.tooltip.innerHTML = `RNA level: ${self.enzymeRNAlevels[id]}`;
         self.$refs.tooltip.style.top = `${(e.pageY - $('.svgbox').first().offset().top) + 15}px`;

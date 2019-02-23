@@ -110,6 +110,11 @@
                 <label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
                 <div class="columns">
                   <div class="column">
+                    <span
+                      class="button is-primary"
+                      @click="goToTab('compartment', r.name.toLowerCase())">
+                      Compartment
+                    </span>
                     <span class="button is-info is-pulled-right"
                       @click="viewOnMetabolicViewer(r.name.toLowerCase(), 'compartment')" disabled>
                       View

@@ -499,7 +499,8 @@ def reformat_shapes(input_dir, output_dir):
 
 
 if __name__ == "__main__":
-  # step 1
+  # python clean_map.py input/ output/ --skip-clean-path --skip-reformat-shape --skip-sed
+
   output_dir = os.path.abspath(output_dir)
   step1_dir = os.path.join(output_dir, "STEP1")
   step2_dir = os.path.join(output_dir, "STEP2")

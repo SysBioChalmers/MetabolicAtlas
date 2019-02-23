@@ -28,7 +28,12 @@
           </tr>
           <tr>
             <td class="td-key has-background-primary has-text-white-bis">Compartments</td>
-            <td>{{ info['compartment'].join(', ') }}</td>
+            <td>
+              <template v-for="(c, i) in info['compartment']">
+                <template v-if="i != 0">, </template>
+                <router-link  :to="{ path: `/explore/gem-browser/${model}/compartment/${idfy(c)}` }"> {{ c }}</router-link>
+              </template>
+            </td>
           </tr>
           <tr>
             <td class="td-key has-background-primary has-text-white-bis">Metabolites</td>
@@ -75,7 +80,7 @@
 import axios from 'axios';
 import Loader from 'components/Loader';
 import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
-import { reformatTableKey } from '../../../helpers/utils';
+import { reformatTableKey, idfy } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -105,6 +110,7 @@ export default {
       showFullEnzyme: false,
       limitMetabolite: 40,
       limitEnzyme: 40,
+      idfy,
     };
   },
   watch: {

@@ -70,6 +70,7 @@
         <metabolite v-if="selectedType==='metabolite'" :model="model"></metabolite>
         <reaction v-if="selectedType==='reaction'" :model="model"></reaction>
         <subsystem v-if="selectedType==='subsystem'" :model="model"></subsystem>
+        <compartment v-if="selectedType==='compartment'" :model="model"></compartment>
       </div>
     </template>
   </div>
@@ -82,6 +83,7 @@ import Enzyme from 'components/explorer/gemBrowser/Enzyme';
 import Metabolite from 'components/explorer/gemBrowser/Metabolite';
 import Reaction from 'components/explorer/gemBrowser/Reaction';
 import Subsystem from 'components/explorer/gemBrowser/Subsystem';
+import Compartment from 'components/explorer/gemBrowser/Compartment';
 import { default as EventBus } from '../../event-bus';
 import { idfy } from '../../helpers/utils';
 import { default as messages } from '../../helpers/messages';
@@ -95,6 +97,7 @@ export default {
     Metabolite,
     Reaction,
     Subsystem,
+    Compartment,
     GlobalSearch,
     Tile,
   },

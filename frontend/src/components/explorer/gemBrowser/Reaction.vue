@@ -40,8 +40,7 @@
               <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
               <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
               <td>
-                <span v-html="reformatLink(reaction[el.name], reaction[el.link])">
-                </span>
+                <a :href="`http://${reaction[el.link]}`" target="_blank">{{ reaction[el.name] }}</a>
               </td>
             </tr>
           </table>
@@ -77,8 +76,8 @@ import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
 import { default as EventBus } from '../../../event-bus';
-import { chemicalFormula, chemicalName, chemicalNameExternalLink, chemicalReaction } from '../../../helpers/chemical-formatters';
-import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink } from '../../../helpers/utils';
+import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
+import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink, reformatCompEqString } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -231,7 +230,7 @@ export default {
     },
     reformatCompartment() {
       const compartmentEq =
-        chemicalReaction(this.reaction.compartment, this.reaction.is_reversible);
+        this.reformatCompEqString(this.reaction.compartment);
       if (this.reaction.is_transport) {
         return `${compartmentEq} (transport reaction)`;
       }
@@ -266,6 +265,7 @@ export default {
     reformatSBOLink,
     reformatTableKey,
     reformatECLink,
+    reformatCompEqString,
   },
 };
 </script>
