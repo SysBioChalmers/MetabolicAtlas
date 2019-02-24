@@ -191,13 +191,17 @@ class CompartmentSerializer(serializers.ModelSerializer):
 
 
 class GemBrowserTileCompartmentSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField('fetch_id')
     subsystems = serializers.SerializerMethodField('fetch_subsystems')
     class Meta:
         model = APImodels.Compartment
-        fields = ('name', 'name_id', 'metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count', 'subsystems')
+        fields = ('name', 'id', 'metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count', 'subsystems')
 
     def fetch_subsystems(self, model):
         return model.subsystem.order_by('-reaction_count').values_list('name', flat=True)[:15]
+
+    def fetch_id(self, model):
+        return model.name_id
 
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
@@ -234,9 +238,13 @@ class SubsystemSerializer(serializers.ModelSerializer):
 
 
 class GemBrowserTileSubsystemSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField('fetch_id')
     class Meta:
         model = APImodels.Subsystem
-        fields = ('name', 'name_id', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
+        fields = ('name', 'id', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
+
+    def fetch_id(self, model):
+        return model.name_id
 
 
 class HmrSubsystemSerializer(serializers.ModelSerializer):

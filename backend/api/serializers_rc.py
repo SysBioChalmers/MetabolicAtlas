@@ -417,19 +417,20 @@ class HmrMetaboliteReactionComponentInteractionPartnerSerializer(serializers.Mod
 class GemBrowserTileReactionSerializer(serializers.ModelSerializer):
     compartment_count = serializers.SerializerMethodField('read_compartment_count')
     subsystem_count = serializers.SerializerMethodField('read_subsystem_count')
-    enzymes_count = serializers.SerializerMethodField('read_enzymes_count')
+    enzyme_count = serializers.SerializerMethodField('read_enzyme_count')
 
     class Meta:
         model = APImodels.Reaction
-        fields = ('id', 'equation_wname', 'is_reversible', 'subsystem_count', 'compartment_count', 'enzymes_count')
+        fields = ('id', 'equation_wname', 'is_reversible', 'subsystem_count', 'compartment_count', 'enzyme_count')
 
     def read_compartment_count(self, model):
+        # todo create a many to mnay field for this?
         return len(re.compile(" => | + ").split(model.compartment))
 
     def read_subsystem_count(self, model):
         return model.subsystem.count()
 
-    def read_enzymes_count(self, model):
+    def read_enzyme_count(self, model):
         return model.modifiers.count()
 
 
