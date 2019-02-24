@@ -21,19 +21,19 @@
             Below is a list of popular constituents of {{ model }}.<br><br>
           </div>
         </div>
-        <div class="tile is-ancestor is-size-5">
+        <div class="tile is-ancestor is-size-5" v-if="starredComponents">
           <div class="tile">
             <div class="tile is-vertical is-9">
               <div class="tile">
-                <tile type="reaction" :model="model" :data="starredComponents[model].reaction[0]">
+                <tile type="reaction" :model="model" :data="starredComponents.reactions[0]">
                 </tile>
                 <div class="tile is-vertical is-8">
-                  <tile type="subsystem" :model="model" :data="starredComponents[model].subsystem[0]">
+                  <tile type="subsystem" :model="model" :data="starredComponents.subsystems[0]">
                   </tile>
                   <div class="tile">
-                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents[model].enzyme[0]">
+                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents.enzymes[0]">
                     </tile>
-                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents[model].metabolite[0]">
+                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents.metabolites[0]">
                     </tile>
                   </div>
                 </div>
@@ -41,24 +41,24 @@
               <div class="tile">
                 <div class="tile is-vertical is-8">
                   <div class="tile">
-                    <tile type="subsystem" :model="model" :data="starredComponents[model].subsystem[1]">
+                    <tile type="subsystem" :model="model" :data="starredComponents.subsystems[1]">
                     </tile>
                   </div>
                   <div class="tile">
-                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents[model].metabolite[1]">
+                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents.metabolites[1]">
                     </tile>
-                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents[model].enzyme[1]">
+                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents.enzymes[1]">
                     </tile>
                   </div>
                 </div>
                 <div class="tile is-4">
-                  <tile type="reaction" :model="model" :data="starredComponents[model].reaction[1]">
+                  <tile type="reaction" :model="model" :data="starredComponents.reactions[1]">
                   </tile>
                 </div>
               </div>
             </div>
             <div class="tile is-vertical">
-              <tile type="compartment" :model="model" :data="starredComponents[model].compartment[0]">
+              <tile type="compartment" :model="model" :data="starredComponents.compartments[0]">
               </tile>
             </div>
           </div>
@@ -77,6 +77,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import GlobalSearch from 'components/explorer/GlobalSearch';
 import ClosestInteractionPartners from 'components/explorer/gemBrowser/ClosestInteractionPartners';
 import Enzyme from 'components/explorer/gemBrowser/Enzyme';
@@ -111,81 +112,7 @@ export default {
       errorMessage: '',
       componentID: '',
       model: '',
-      starredComponents: {
-        hmr2: {
-          metabolite: [
-            { name: '3-carboxy-1-hydroxypropyl-ThPP',
-              id: 'm00765m',
-              formula: 'magic formula',
-              reaction_count: 45,
-              compartment: 'cytosol' },
-            { name: 'acetaldehyde',
-              id: 'm01249m',
-              formula: 'magic formula',
-              reaction_count: 54,
-              compartment: 'cytosol' },
-          ],
-          enzyme: [
-            { name: 'ACLY',
-              id: 'ENSG00000131473',
-              reactions: 3,
-              sub_count: 2,
-              comp_count: 3 },
-            { name: 'ACO1',
-              id: 'ENSG00000122729',
-              reactions: 3,
-              sub_count: 2,
-              comp_count: 3 },
-          ],
-          reaction: [
-            { name: 'HMR_0710',
-              id: 'HMR_0710',
-              equation: 'isocitrate + NADP+ ⇒ AKG + CO2 + NADPH',
-              sub_count: 2,
-              comp_count: 1,
-              e_count: 0 },
-            { name: 'HMR_3787',
-              id: 'HMR_3787',
-              equation: 'isocitrate + NADP+ ⇒ AKG + CO2 + NADPH',
-              sub_count: 3,
-              comp_count: 2,
-              e_count: 0 },
-          ],
-          subsystem: [
-            { name: 'Valine, leucine, and isoleucine metabolism',
-              id: '',
-              reactions: 42,
-              metabolites: 42,
-              enzymes: 42,
-              comp_count: 3 },
-            { name: 'Phosphatidylinositol phosphate metabolism ',
-              id: '',
-              reactions: 42,
-              metabolites: 42,
-              enzymes: 42,
-              comp_count: 3 },
-          ],
-          compartment: [
-            { name: 'Peroxisome',
-              id: 'peroxisome',
-              reactions: 42,
-              subsystems: [
-                'Valine, leucine, and isoleucine metabolism',
-                'Phosphatidylinositol phosphate metabolism ',
-                'Phosphatidylinositol phosphate metabolism ',
-                'Phosphatidylinositol phosphate metabolism ',
-                'Phosphatidylinositol phosphate metabolism ',
-                'Phosphatidylinositol phosphate metabolism ',
-              ],
-            },
-          ],
-        },
-        yeast: {
-          metabolite: [],
-          enzyme: [],
-          reaction: [],
-        },
-      },
+      starredComponents: null,
     };
   },
   watch: {
@@ -214,19 +141,24 @@ export default {
     setup() {
       if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
         this.model = this.$route.params.model || '';
-        if (!(this.model in this.starredComponents)) {
-          // TODO use another way to check the model id is valid
-          this.model = '';
-          EventBus.$emit('modelSelected', '');
-          this.errorMessage = `Error: ${messages.modelNotFound}`;
-          return;
-        }
         this.selectedType = this.$route.params.type || '';
         this.componentID = this.$route.params.id || '';
         if (!this.componentID || !this.selectedType) {
           this.$router.push(`/explore/gem-browser/${this.model}`);
+          if (!this.starredComponents) {
+            this.get_tiles_data();
+          }
         }
       }
+    },
+    get_tiles_data() {
+      axios.get(`${this.model}/gem_browser_tiles/`)
+      .then((response) => {
+        this.starredComponents = response.data;
+      })
+      .catch(() => {
+        this.errorMessage = messages.unknownError;
+      });
     },
     showMapViewer() {
       EventBus.$emit('showMapViewer');
