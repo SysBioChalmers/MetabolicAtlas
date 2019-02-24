@@ -22,6 +22,7 @@ urlpatterns = [
     # url(r'^(?P<model>[^/]+)/compartments_svg/?$', private_views.get_compartments_svg),
     # url(r'^(?P<model>[^/]+)/subsystems_svg/?$', private_views.get_subsystems_svg),
     url(r'^(?P<model>[^/]+)/viewer/?$', private_views.get_data_viewer),
+    url(r'^(?P<model>[^/]+)/gem_browser_tiles/?$', private_views.get_tiles_data),
 
     url(r'^(?P<model>[^/]+)/enzyme/(?P<id>[^/]+)/connected_metabolites/?$', private_views.connected_metabolites),
 
