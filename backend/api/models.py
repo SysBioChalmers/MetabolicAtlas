@@ -210,6 +210,11 @@ class ReactionComponent(models.Model):
     reactions_as_product = models.ManyToManyField(Reaction, related_name='products', through='ReactionProduct')
     reactions_as_modifier = models.ManyToManyField(Reaction, related_name='modifiers', through='ReactionModifier')
 
+    subsystem_metabolite = models.ManyToManyField('Subsystem', related_name='metabolites', through='SubsystemMetabolite')
+    subsystem_enzyme = models.ManyToManyField('Subsystem', related_name='enzymes', through='SubsystemEnzyme')
+
+    compartments = models.ManyToManyField('Compartment', related_name='reaction_components', through='ReactionComponentCompartment')
+
     def __str__(self):
         return "<ReactionComponent: {0}>".format(self.id)
 
@@ -371,6 +376,14 @@ class ConnectedMetabolites(object):
         self.enzyme = enzyme
         self.compartment = compartment
         self.reactions = reactions
+
+class GemBrowserTile(object):
+    def __init__(self, compartments, subsystems, reactions, metabolites, enzymes):
+        self.compartments = compartments
+        self.subsystems = subsystems
+        self.reactions = reactions
+        self.metabolites = metabolites
+        self.enzymes = enzymes
 
 #
 # Relationships

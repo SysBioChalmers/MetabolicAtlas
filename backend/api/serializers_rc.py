@@ -1,6 +1,7 @@
 from rest_framework import serializers
 import api.models as APImodels
 from django.db import models
+import re
 
 import logging
 
@@ -412,25 +413,55 @@ class HmrMetaboliteReactionComponentInteractionPartnerSerializer(serializers.Mod
 
 # ==========================================================================================
 
-'''
-class ReactionComponentSerializer(serializers.ModelSerializer):
-    compartment = serializers.StringRelatedField()
-    metabolite = MetaboliteSerializer(read_only=True)
-    enzyme = EnzymeSerializer(read_only=True)
+# custom serializers for the GEM browser Tiles
+class GemBrowserTileReactionSerializer(serializers.ModelSerializer):
+    compartment_count = serializers.SerializerMethodField('read_compartment_count')
+    subsystem_count = serializers.SerializerMethodField('read_subsystem_count')
+    enzymes_count = serializers.SerializerMethodField('read_enzymes_count')
 
-    class Meta: 
-        model = APImodels.ReactionComponent
-        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment', 'metabolite', 'enzyme')
+    class Meta:
+        model = APImodels.Reaction
+        fields = ('id', 'equation_wname', 'is_reversible', 'subsystem_count', 'compartment_count', 'enzymes_count')
+
+    def read_compartment_count(self, model):
+        return len(re.compile(" => | + ").split(model.compartment))
+
+    def read_subsystem_count(self, model):
+        return model.subsystem.count()
+
+    def read_enzymes_count(self, model):
+        return model.modifiers.count()
 
 
-class ReactionComponentSearchSerializer(serializers.ModelSerializer):
-    compartment = serializers.StringRelatedField()
+class GemBrowserTileMetaboliteSerializer(serializers.ModelSerializer):
+    compartment = serializers.SerializerMethodField('read_compartment')
+    reaction_count = serializers.SerializerMethodField('read_reaction_count')
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'short_name', 'long_name', 'component_type', 'organism', 'formula', 'compartment')
+        fields = ('id', 'name', 'formula', 'compartment', 'reaction_count')
 
-class ReactionComponentLiteSerializer(serializers.ModelSerializer):
+    def read_compartment(self, model):
+        return model.compartment_str
+
+    def read_reaction_count(self, model):
+        return model.reactions_as_reactant.count() + model.reactions_as_product.count()
+
+
+class GemBrowserTileEnzymeSerializer(serializers.ModelSerializer):
+    compartment_count = serializers.SerializerMethodField('read_compartment')
+    subsystem_count = serializers.SerializerMethodField('read_subsystem')
+    reaction_count = serializers.SerializerMethodField('read_reaction_count')
+
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'short_name', 'long_name')'''
+        fields = ('id', 'name', 'reaction_count', 'compartment_count', 'subsystem_count')
+
+    def read_compartment(self, model):
+        return model.compartments.count()
+
+    def read_subsystem(self, model):
+        return model.subsystem_enzyme.count()
+
+    def read_reaction_count(self, model):
+        return model.reactions_as_modifier.count()

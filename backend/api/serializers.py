@@ -184,11 +184,20 @@ class ConnectedMetabolitesSerializer(serializers.Serializer):
     reactions = MetaboliteReactionSerializer(many=True)
 
 
-
 class CompartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.Compartment
         fields = ('name', 'name_id', 'letter_code', 'metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count')
+
+
+class GemBrowserTileCompartmentSerializer(serializers.ModelSerializer):
+    subsystems = serializers.SerializerMethodField('fetch_subsystems')
+    class Meta:
+        model = APImodels.Compartment
+        fields = ('name', 'name_id', 'metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count', 'subsystems')
+
+    def fetch_subsystems(self, model):
+        return model.subsystem.order_by('-reaction_count').values_list('name', flat=True)[:15]
 
 
 class CompartmentSvgSerializer(serializers.ModelSerializer):
@@ -216,11 +225,18 @@ class SubsystemLiteSerializer(serializers.ModelSerializer):
         model = APImodels.Subsystem
         fields = ('name', 'name_id', 'compartment')
 
+
 class SubsystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.Subsystem
         fields = SubsystemLiteSerializer.Meta.fields + \
             ('system', 'external_id', 'external_link', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
+
+
+class GemBrowserTileSubsystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = APImodels.Subsystem
+        fields = ('name', 'name_id', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
 
 
 class HmrSubsystemSerializer(serializers.ModelSerializer):
@@ -236,6 +252,15 @@ class SubsystemSvgSerializer(serializers.ModelSerializer):
         model = APImodels.SubsystemSvg
         fields = ('name', 'name_id', 'subsystem', 'filename', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count',
             'reaction_count', 'compartment_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level', 'sha')
+
+
+class GemBrowserTileSerializer(serializers.Serializer):
+    compartments = GemBrowserTileCompartmentSerializer(many=True)
+    subsystems = GemBrowserTileSubsystemSerializer(many=True)
+    reactions = APIrcSerializer.GemBrowserTileReactionSerializer(many=True)
+    metabolites = APIrcSerializer.GemBrowserTileMetaboliteSerializer(many=True)
+    enzymes = APIrcSerializer.GemBrowserTileEnzymeSerializer(many=True)
+
 
 # =======================================================================================
 # models database
