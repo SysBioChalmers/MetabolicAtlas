@@ -84,10 +84,11 @@ import Metabolite from 'components/explorer/gemBrowser/Metabolite';
 import Reaction from 'components/explorer/gemBrowser/Reaction';
 import Subsystem from 'components/explorer/gemBrowser/Subsystem';
 import Compartment from 'components/explorer/gemBrowser/Compartment';
+import Tile from 'components/explorer/gemBrowser/Tile';
+import { default as messages } from '../../helpers/messages';
 import { default as EventBus } from '../../event-bus';
 import { idfy } from '../../helpers/utils';
-import { default as messages } from '../../helpers/messages';
-import Tile from './Tile';
+
 
 export default {
   name: 'gem-browser',
