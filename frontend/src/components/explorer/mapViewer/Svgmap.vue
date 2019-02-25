@@ -121,7 +121,6 @@ export default {
       if (type === 'compartment' || type === 'subsystem') {
         if (name) {
           this.ids = ids;
-          console.log(ids);
           const callback = ids.length !== 0 ? this.findElementsOnSVG : null;
           this.loadSVG(name, callback);
         }
@@ -140,9 +139,7 @@ export default {
     const self = this;
     $('#svg-wrapper').on('click', 'svg', (e) => {
       const target = $(e.target);
-      if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') &&
-        !target.hasClass('.subsystem') && !target.parent('.subsystem').length > 0 && // <path>
-        !target.parent().parent('.subsystem').length > 0) { // <text> of subsystem
+      if (!target.parents('.met, .enz, .rea, .subsystem').length > 0) {
         self.unSelectElement();
       }
     });
