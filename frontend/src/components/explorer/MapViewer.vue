@@ -178,50 +178,50 @@
                         </template>
                         <template v-else>
                           <template v-if="show3D">
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['compartment_count'] }}<br>
                           </template>
                           <template v-else>
                             <!-- show the stats of the model not the maps -->
                             <span class="hd">Total model stats:</span><br>
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['compartment_count'] }}<br>
                           </template>
                         </template>
                       </template>
                       <template v-else>
                         <template v-if="currentDisplayedType === 'compartment'">
                           <template v-if="show3D">
-                            <span class="hd"># reactions:</span> {{ compartments[currentDisplayedName]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ compartments[currentDisplayedName]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ compartments[currentDisplayedName]['enzyme_count'] }}<br>
-                            <span class="hd"># subsystems:</span> {{ compartments[currentDisplayedName]['subsystem_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ compartments[currentDisplayedName]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ compartments[currentDisplayedName]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ compartments[currentDisplayedName]['enzyme_count'] }}<br>
+                            <span class="hd">Subsystems:</span> {{ compartments[currentDisplayedName]['subsystem_count'] }}<br>
                           </template>
                           <template v-else>
                             <!-- show the stats of the model not the maps -->
-                            <span class="hd"># reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
-                            <span class="hd"># subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
+                            <span class="hd">Subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
                           </template>
                         </template>
                         <template v-else>
                           <template v-if="show3D">
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[currentDisplayedName]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[currentDisplayedName]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[currentDisplayedName]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[currentDisplayedName]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[currentDisplayedName]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[currentDisplayedName]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[currentDisplayedName]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[currentDisplayedName]['compartment_count'] }}<br>
                           </template>
                           <template v-else>
                             <!-- show the stats of the model not the maps -->
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
                           </template>
                         </template>
                       </template>
