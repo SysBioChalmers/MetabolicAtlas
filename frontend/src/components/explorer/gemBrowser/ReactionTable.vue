@@ -25,18 +25,18 @@
       <tbody>
         <tr v-for="(r, index) in sortedReactions">
           <td>
-            <router-link :to="{path: `/explore/gem-browser/${model}/reaction/${r.id}` }">{{ r.id }}</router-link>
+            <router-link :to="{path: `/explore/gem-browser/${model.database_name}/reaction/${r.id}` }">{{ r.id }}</router-link>
           </td>
           <td v-html="reformatChemicalReactionHTML(r)"></td>
           <td>
-            <template v-for="(m, index) in r.modifiers">{{ index == 0 ? '' : ', '}}<router-link :to="{ path: `/explore/gem-browser/${model}/enzyme/${m.id}` }">{{ m.name || m.id }}</router-link>
+            <template v-for="(m, index) in r.modifiers">{{ index == 0 ? '' : ', '}}<router-link :to="{ path: `/explore/gem-browser/${model.database_name}/enzyme/${m.id}` }">{{ m.name || m.id }}</router-link>
             </template
           </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
             <template v-if="r.subsystem">
               <template v-for="(s, index) in r.subsystem.split('; ')">
-              {{ index == 0 ? '' : '; '}}<router-link :to="{ path: `/explore/gem-browser/${model}/subsystem/${idfy(s)}` }">{{ s }}</router-link>
+              {{ index == 0 ? '' : '; '}}<router-link :to="{ path: `/explore/gem-browser/${model.database_name}/subsystem/${idfy(s)}` }">{{ s }}</router-link>
               </template>
             </template>
           </td>
@@ -45,8 +45,9 @@
               <template v-if="i != 0">{{ r.is_reversible ? ' &#8660; ' : ' &#8658; ' }}</template>
               <template v-for="(compo, j) in RP.split(' + ')">
                 <template v-if="j != 0"> + </template>
-                <router-link :to="{ path: `/explore/gem-browser/${model}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
+                <router-link :to="{ path: `/explore/gem-browser/${model.database_name}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
               </template>
+
             </template>
           </td>
         </tr>

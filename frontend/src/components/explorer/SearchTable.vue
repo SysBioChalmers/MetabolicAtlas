@@ -33,22 +33,25 @@
                   :columns="columns[header]" :rows="rows[header]"
                   :sort-options="{ enabled: true }" styleClass="vgt-table striped bordered" :paginationOptions="tablePaginationOpts">
                   <template slot="table-row" slot-scope="props">
-                    <template v-if="['name', 'id'].includes(props.column.field)">
-                      <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/${header}/${props.row.id}` }">
+                    <template v-if="props.column.field == 'model'">
+                      {{ props.formattedRow[props.column.field].name }}
+                    </template>
+                    <template v-else-if="['name', 'id'].includes(props.column.field)">
+                      <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/${header}/${props.row.id}` }">
                         {{ props.row.name || props.row.id }}
                       </router-link>
                     </template>
                     <template v-else-if="props.column.field == 'subsystem'">
                       <template v-for="(sub, i) in props.formattedRow[props.column.field]">
                         <template v-if="i != 0">; </template>
-                        <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/subsystem/${idfy(sub)}` }"> {{ sub }}</router-link>
+                        <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/subsystem/${idfy(sub)}` }"> {{ sub }}</router-link>
                       </template>
                     </template>
                     <template v-else-if="props.column.field == 'compartment'">
                       <template v-if="header == 'subsystem'">
                         <template v-for="(comp, i) in props.formattedRow[props.column.field]">
                           <template v-if="i != 0">; </template>
-                          <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/compartment/${idfy(comp)}` }"> {{ comp }}</router-link>
+                          <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(comp)}` }"> {{ comp }}</router-link>
                         </template>
                       </template>
                       <template v-else-if="header == 'reaction'">
@@ -56,12 +59,12 @@
                           <template v-if="i != 0"> => </template>
                             <template v-for="(compo, j) in RP.split(' + ')">
                               <template v-if="j != 0"> + </template>
-                              <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
+                              <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
                             </template>
                         </template>
                       </template>
                       <template v-else>
-                         <router-link :to="{ path: `/explore/gem-browser/${props.row.model}/compartment/${idfy(props.formattedRow[props.column.field])}` }"> {{ props.formattedRow[props.column.field] }}</router-link>
+                         <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(props.formattedRow[props.column.field])}` }"> {{ props.formattedRow[props.column.field] }}</router-link>
                       </template>
                     </template>
                     <template v-else-if="Array.isArray(props.formattedRow[props.column.field])">
@@ -75,11 +78,11 @@
               </div>
             </template>
           </div>
-          <div class="columns is-multiline" v-show="!loading && (!showTabType || searchTerm === '')">
+          <div class="columns is-multiline" v-show="!loading">
             <div v-if="searchResults.length === 0" class="column is-offset-3 is-6 has-text-centered notification">
               {{ messages.searchNoResult }}
             </div>
-            <div class="column is-offset-3 is-6 content">
+            <div v-else-if="!showTabType || searchTerm === ''" class="column is-offset-3 is-6 content">
               <p>You can search metabolites by:</p>
               <ul class="menu-list">
                 <li>ID</li>
@@ -166,6 +169,7 @@ export default {
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
+              filterFn: (e, s) => e.id === s,
             },
             sortable: true,
           }, {
@@ -207,6 +211,7 @@ export default {
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
+              filterFn: (e, s) => e.id === s,
             },
             sortable: true,
           }, {
@@ -241,6 +246,7 @@ export default {
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
+              filterFn: (e, s) => e.id === s,
             },
             sortable: true,
           }, {
@@ -300,6 +306,7 @@ export default {
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
+              filterFn: (e, s) => e.id === s,
             },
             sortable: true,
           }, {
@@ -348,6 +355,7 @@ export default {
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
+              filterFn: (e, s) => e.id === s,
             },
             formatFn: this.getDisplayModelName,
             sortable: true,
@@ -463,7 +471,9 @@ export default {
         for (const el of compoList) { // e.g. results list for metabolites
           if (componentType === 'metabolite') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
-              if (!(el[field] in filterTypeDropdown[componentType][field])) {
+              if (field === 'model') {
+                filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
+              } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
             }
@@ -478,7 +488,9 @@ export default {
             });
           } else if (componentType === 'enzyme') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
-              if (!(el[field] in filterTypeDropdown[componentType][field])) {
+              if (field === 'model') {
+                filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
+              } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
             }
@@ -506,6 +518,8 @@ export default {
                     filterTypeDropdown[componentType][field][compartment.trim()] = 1;
                   }
                 }
+              } else if (field === 'model') {
+                filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
               } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
@@ -527,6 +541,8 @@ export default {
                     filterTypeDropdown[componentType][field][compartment] = 1;
                   }
                 }
+              } else if (field === 'model') {
+                filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
               } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
@@ -542,7 +558,9 @@ export default {
             });
           } else if (componentType === 'compartment') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
-              if (!(el[field] in filterTypeDropdown[componentType][field])) {
+              if (field === 'model') {
+                filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
+              } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
             }
@@ -561,21 +579,21 @@ export default {
           if (field === 'model') {
             filterTypeDropdown[componentType][field] =
               Object.keys(filterTypeDropdown[componentType][field]).map(
-                (e) => { const d = {}; d.text = e; d.value = e; return d; }
+                (e) => { const d = {}; d.value = e; d.text = filterTypeDropdown[componentType][field][e]; return d; } // eslint-disable-line
             );
           } else {
             filterTypeDropdown[componentType][field] =
               Object.keys(filterTypeDropdown[componentType][field]).map(
                 (e) => {
-                  const d = {}; let v = e;
+                  let v = e;
                   if (v === 'true') {
                     v = 'Yes';
                   } else if (v === 'false') {
                     v = 'No';
                   }
-                  d.text = v; d.value = v; return d;
+                  return v;
                 }
-            );
+            ).sort();
           }
         }
       }

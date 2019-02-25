@@ -1,9 +1,9 @@
 <template>
-  <section :class="{ 'section extended-section' : !showViewer }">
-    <div :class="{ 'container': !showViewer }">
+  <section :class="{ 'section extended-section' : !extendWindow }">
+    <div :class="{ 'container': !extendWindow }">
       <template v-if="currentShowComponent">
         <keep-alive>
-          <component v-bind:is="currentShowComponent"></component>
+          <component v-bind:is="currentShowComponent" :model="model"></component>
         </keep-alive>
       </template>
       <template v-else>
@@ -23,7 +23,7 @@
         <div>
           <div class="columns has-text-centered">
             <div class="column">
-              <h4 class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model }}</i></h4>
+              <h4 v-if="model" class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model.short_name || '' }}</i></h4>
               <p class="has-text-weight-bold">
                 Select a model and start browsing or navigate on the maps
               </p>
@@ -32,8 +32,8 @@
           <div class="columns is-centered">
             <div class="column is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile has-text-centered">
               <div class="dropdown is-hoverable dropdown-trigger">
-                <button class="button is-medium is-fullwidth" aria-haspopup="true" aria-controls="dropdown-menu">
-                  <span>Model: <a class="tag is-primary has-text-weight-bold is-medium">{{ models[model].short_name }}</a></span>
+                <button v-if="model" class="button is-medium is-fullwidth" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <span>Model: <a class="tag is-primary has-text-weight-bold is-medium">{{ model.short_name || '' }}</a></span>
                   <span class="icon is-small">
                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                   </span>
@@ -42,7 +42,7 @@
                   <div class="dropdown-content">
                     <a class="dropdown-item has-text-centered is-size-6"
                       v-for="model, k in models"
-                      @click="selectModel(model.database_name)" v-html="getModelDescription(model)">
+                      @click="selectModel(model)" v-html="getModelDescription(model)">
                     </a>
                   </div>
                 </div>
@@ -53,7 +53,7 @@
           <div id="toolsSelect" class="columns">
             <template v-for="tool in explorerTools">
               <div class="column">
-                <router-link :to="{ path: `${tool.url}/${model}` }">
+                <router-link v-if="model" :to="{ path: `${tool.url}/${model.database_name}` }">
                   <div class="card">
                     <header class="card-header">
                       <p class="card-header-title is-size-5">{{ tool.name }}</p>
@@ -107,9 +107,9 @@ export default {
           url: '/explore/map-viewer',
         },
       ],
-      model: 'hmr2',
+      model: null,
       models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
-      showViewer: false,
+      extendWindow: false,
       currentShowComponent: '',
 
       compartments: {},
@@ -132,7 +132,6 @@ export default {
   created() {
     this.setup();
     this.getModelList();
-    this.loadCompartmentData(this.model);
 
     EventBus.$on('requestViewer', (type, name, ids, forceReload) => {
       this.displayViewer();
@@ -145,12 +144,12 @@ export default {
       this.displayBrowser();
     });
 
-    EventBus.$on('navigateTo', (tool, model, type, id) => {
-      // console.log(`on explorer navigateTo ${tool} ${type} ${id}`);
+    EventBus.$on('navigateTo', (tool, modelName, type, id) => {
+      // console.log('on explorer navigate to', tool, modelName, type, id);
       if (tool === 'GEMBrowser') {
-        this.$router.push(`/explore/gem-browser/${model}/${type}/${idfy(id)}`);
+        this.$router.push(`/explore/gem-browser/${modelName}/${type}/${idfy(id)}`);
       } else if (tool === 'MapViewer') {
-        this.$router.push(`/explore/map-viewer/${model}/`);
+        this.$router.push(`/explore/map-viewer/${modelName}/`);
       }
     });
 
@@ -165,37 +164,40 @@ export default {
     $('body').on('click', 'span.rce', function f() {
       EventBus.$emit('GBnavigateTo', 'enzyme', $(this).attr('id'));
     });
+
     $('body').on('click', 'span.sub', function f() {
       EventBus.$emit('GBnavigateTo', 'subsystem', $(this).attr('id'));
     });
     $('body').on('click', 'a.cmp', function f() {
       EventBus.$emit('GBnavigateTo', 'compartment', idfy($(this).html()));
     });
-    // document.body.addEventListener('keyup', (e) => {
-    //   if (e.keyCode === 27) {
-    //     this.showMapViewer = false;
-    //   }
-    // });
   },
   methods: {
     setup() {
-      this.model = this.$route.params.model || 'hmr2';
       if (this.$route.name === 'search') {
         this.displaySearch();
-      } else if (this.$route.name === 'viewer' ||
-       this.$route.name === 'viewerCompartment' ||
+        EventBus.$emit('destroy3Dnetwork');
+        this.extendWindow = false;
+        return;
+      } else if (!this.model) {
+        // do not redirect on url change unless the model is already loaded
+        return;
+      }
+      // but redirect even if the model url do not match the model loaded
+      if (this.$route.name === 'viewer' ||
+        this.$route.name === 'viewerCompartment' ||
         this.$route.name === 'viewerSubsystem') {
         this.displayViewer();
       } else if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
         this.displayBrowser();
       } else {
         EventBus.$emit('destroy3Dnetwork');
-        this.showViewer = false;
+        this.extendWindow = false;
         this.currentShowComponent = '';
       }
     },
     loadCompartmentData(model) {
-      axios.get(`${model}/compartment/`)
+      axios.get(`${model.database_name}/compartment/`)
       .then((response) => {
         this.compartmentStats = {};
         this.compartmentLetters = {};
@@ -212,7 +214,7 @@ export default {
       });
     },
     getModelList() {
-      // get models list
+      // get integrated models list
       axios.get('models/')
         .then((response) => {
           const models = {};
@@ -220,6 +222,8 @@ export default {
             models[model.database_name] = model;
           }
           this.models = models;
+          this.selectModel(this.models.hmr2); // todo get the first?
+          this.setup();
         })
         .catch(() => {
           this.errorMessage = messages.unknownError;
@@ -234,22 +238,22 @@ export default {
       </div>`;
     },
     selectModel(model) {
-      if (model !== this.model) {
+      if (!this.model || model.database_name !== this.model.database_name) {
         this.loadCompartmentData(model);
+        this.model = model;
+        EventBus.$emit('modelSelected', this.model);
       }
-      this.model = model;
-      EventBus.$emit('modelSelected', this.models[this.model].short_name);
     },
     displayBrowser() {
-      this.showViewer = false;
+      this.extendWindow = false;
       this.currentShowComponent = 'GemBrowser';
     },
     displayViewer() {
-      this.showViewer = true;
+      this.extendWindow = true;
       this.currentShowComponent = 'MapViewer';
     },
     displaySearch() {
-      this.showViewer = false;
+      this.extendWindow = false;
       this.currentShowComponent = 'SearchTable';
     },
     getCompartmentNameFromLetter(l) {

@@ -118,39 +118,36 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#idarea {
+  height: 100px;
+}
 
+#table-res {
+  margin-top: 1rem;
+}
 
-
-  #idarea {
-    height: 100px;
+tr.m-tr {
+  cursor: pointer;
+  td {
+      padding: 0.3em 0.5em;
   }
+}
 
-  #table-res {
-    margin-top: 1rem;
-  }
-
-  tr.m-tr {
+tr.hm-tr {
+  .tag {
     cursor: pointer;
-    td {
-        padding: 0.3em 0.5em;
-    }
   }
+  &.hover {
+    background-color: #fff;
+  }
+  div {
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 10rem;
+  }
+}
 
-  tr.hm-tr {
-    .tag {
-      cursor: pointer;
-    }
-    &.hover {
-      background-color: #fff;
-    }
-    div {
-      overflow-x: hidden;
-      overflow-y: auto;
-      max-height: 10rem;
-    }
-  }
-
-  tr.sel-tr {
-    background: #eee;
-  }
+tr.sel-tr {
+  background: #eee;
+}
 </style>

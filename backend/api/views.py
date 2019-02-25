@@ -458,21 +458,30 @@ def search(request, model, term):
         return HttpResponse("Invalid query, term must be at least 2 characters long", status=400)
 
     results = {}
+    models_dict = {}
     if model == 'all':
         models = [k for k in settings.DATABASES if k not in ['default', 'gems']]
         limit = 10000
     else:
         try:
-            APImodels.GEM.objects.get(database_name=model)
+            m = APImodels.GEM.objects.get(database_name=model)
         except APImodels.GEM.DoesNotExist:
             return HttpResponse("Invalid model name '%s'" % model, status=404)
         models = [model]
+        limit = 50
+
+    for model_db_name in models:
+        m = APImodels.GEM.objects.get(database_name=model_db_name)
+        models_dict[model_db_name] = m.short_name
         limit = 50
 
     match_found = False
     for model in models:
         if model not in results:
             results[model] = {}
+
+        m = APImodels.GEM.objects.get(database_name=model)
+        model_short_name = m.short_name
 
         compartments = APImodels.Compartment.objects.using(model).filter(name__icontains=term)
 
@@ -549,6 +558,7 @@ def search(request, model, term):
         results[model]['compartment'] = compartmentSerializer.data
         results[model]['subsystem'] = subsystemSerializer.data
         results[model]['reaction'] = reactionSerializer.data
+        results[model]['name'] = model_short_name
 
         response = JSONResponse(results)
 
