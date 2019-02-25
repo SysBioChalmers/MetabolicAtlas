@@ -412,7 +412,8 @@ export default {
     },
     getSvgElemCoordinates(el) {
       // read and parse the transform attribut
-      let transform = el.attr('transform');
+      const node = $(el);
+      let transform = node.attr('transform');
       if (transform) {
         transform = transform.substring(0, transform.length - 1);
         transform = transform.substring(7, transform.length);
