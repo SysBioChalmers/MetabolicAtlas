@@ -12,7 +12,7 @@
         </div>
       </template>
       <template v-else>
-        <div class="column is-one-fifth is-fullheight" id="iSideBar">
+        <div id="iSideBar" class="column is-one-fifth is-fullheight">
           <div id="menu">
             <ul class="l0">
               <li>Compartments<span>&nbsp;&#9656;</span>
@@ -91,22 +91,24 @@
             </ul>
           </div>
           <div class="column" v-if="loadedTissue && show2D">
-            <div class="has-text-centered has-text-weight-bold is-small">
-              <p>Selected tissue: {{ loadedTissue }}</p>
-            </div>
-            <div v-html="getExpLvlLegend()">
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">
+                  Selected tissue: {{ loadedTissue }}
+                </p>
+              </header>
+              <div v-html="getExpLvlLegend()"></div>
             </div>
           </div>
-          <div id="iSelectedElementPanel">
-            <div class="loading" v-show="showSelectedElementPanelLoader">
-              <a class="button is-loading"></a>
-            </div>
-            <div v-show="!showSelectedElementPanelLoader">
-              <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
-                {{ messages.unknownError }}
+          <div class="column">
+              <div class="loading" v-show="showSelectedElementPanelLoader">
+                <a class="button is-loading"></a>
               </div>
-              <div v-else-if="currentDisplayedType">
-                <div class="card">
+              <template v-show="!showSelectedElementPanelLoader">
+                <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
+                  {{ messages.unknownError }}
+                </div>
+                <div class="card" v-else-if="currentDisplayedType">
                   <header class="card-header">
                     <p class="card-header-title">
                       <template v-if="selectedElement">
@@ -131,8 +133,7 @@
                     </p>
                   </header>
                   <div class="card-content">
-                    <!-- TMP fix for overflow on side bar -->
-                    <div class="content" style="max-height: 500px; overflow-y: auto;">
+                    <div class="content">
                       <template v-if="selectedElement">
                         <template v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement)">
                           <p v-if="selectedElementData['rnaLvl'] != null">
@@ -177,50 +178,50 @@
                         </template>
                         <template v-else>
                           <template v-if="show3D">
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['compartment_count'] }}<br>
                           </template>
                           <template v-else>
                             <!-- show the stats of the model not the maps -->
                             <span class="hd">Total model stats:</span><br>
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['compartment_count'] }}<br>
                           </template>
                         </template>
                       </template>
                       <template v-else>
                         <template v-if="currentDisplayedType === 'compartment'">
                           <template v-if="show3D">
-                            <span class="hd"># reactions:</span> {{ compartments[currentDisplayedName]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ compartments[currentDisplayedName]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ compartments[currentDisplayedName]['enzyme_count'] }}<br>
-                            <span class="hd"># subsystems:</span> {{ compartments[currentDisplayedName]['subsystem_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ compartments[currentDisplayedName]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ compartments[currentDisplayedName]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ compartments[currentDisplayedName]['enzyme_count'] }}<br>
+                            <span class="hd">Subsystems:</span> {{ compartments[currentDisplayedName]['subsystem_count'] }}<br>
                           </template>
                           <template v-else>
                             <!-- show the stats of the model not the maps -->
-                            <span class="hd"># reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
-                            <span class="hd"># subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
+                            <span class="hd">Subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
                           </template>
                         </template>
                         <template v-else>
                           <template v-if="show3D">
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[currentDisplayedName]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[currentDisplayedName]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[currentDisplayedName]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[currentDisplayedName]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[currentDisplayedName]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[currentDisplayedName]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[currentDisplayedName]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[currentDisplayedName]['compartment_count'] }}<br>
                           </template>
                           <template v-else>
                             <!-- show the stats of the model not the maps -->
-                            <span class="hd"># reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
-                            <span class="hd"># metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
-                            <span class="hd"># enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
-                            <span class="hd"># compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
+                            <span class="hd">Reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
+                            <span class="hd">Metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
+                            <span class="hd">Enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
+                            <span class="hd">Compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
                           </template>
                         </template>
                       </template>
@@ -230,9 +231,8 @@
                     <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
                   </footer>
                 </div>
-              </div>
+              </template>
             </div>
-          </div>
         </div>
         <div id="graphframe" class="column is-unselectable">
           <div class="is-fullheight">
@@ -766,7 +766,6 @@ $footer-height: 4.55rem;
 #mapViewer {
   #iTopBar {
     height: 60px;
-
     border-bottom: 1px solid black;
     .column {
       padding-bottom: 0;
@@ -790,9 +789,6 @@ $footer-height: 4.55rem;
     min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    .column {
-      overflow-y: auto;
-    }
   }
 
   #iMainPanel {
@@ -805,24 +801,8 @@ $footer-height: 4.55rem;
   }
 
   #iSideBar {
-    padding: 0;
-    margin: 0;
-    padding-left: 0.75rem;
-    padding-top: 0.75rem;
-    height: 100%;
+    padding: 0.75rem 0 0 0.75rem;
     background: lightgray;
-
-    #iSelectedElementPanel {
-      margin: 0.75rem;
-
-      .content {
-        overflow-y: auto;
-        span.hd {
-          font-weight: bold;
-          margin-right: 5px;
-        }
-      }
-    }
   }
 
   #iLoader {
@@ -851,7 +831,6 @@ $footer-height: 4.55rem;
     height: 100%;
     padding: 0;
     margin: 0;
-    /* border: 1px solid darkgray; */
     overflow: hidden;
   }
 

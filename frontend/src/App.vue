@@ -422,7 +422,6 @@ $fullhd: 1576px !default;
     color: $white;
     position: relative;
     font-size: 16px;
-
     ul {
       list-style: none;
       &.vhs, &.l2 {
@@ -438,7 +437,8 @@ $fullhd: 1576px !default;
       top: 0;
       left: 100%;
       width: 100%;
-      background: $primary; z-index: 11;
+      background: $primary;
+      z-index: 11;
       box-shadow: 5px 5px 5px #222222;
     }
 
