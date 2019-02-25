@@ -18,8 +18,9 @@
           <div class="columns is-multiline">
             <div id="enzyme-details" class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
               <table v-if="enzyme && Object.keys(enzyme).length != 0" class="table main-table is-fullwidth">
-                <tr v-for="el in mainTableKey[model]">
+                <tr v-for="el in mainTableKey[model.database_name]">
                   <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+                  <td v-else-if="el.name == 'id'" class="td-key has-background-primary has-text-white-bis">{{ model.short_name }} ID</td>
                   <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                   <td v-if="enzyme[el.name]">
                     <span v-if="'modifier' in el" v-html="el.modifier(enzyme)">
@@ -35,7 +36,7 @@
                 <br>
                 <span class="subtitle">External IDs</span>
                 <table v-if="enzyme && Object.keys(enzyme).length != 0" id="ed-table" class="table is-fullwidth">
-                  <tr v-for="el in externalIDTableKey[model]" v-if="enzyme[el.name] && enzyme[el.link]">
+                  <tr v-for="el in externalIDTableKey[model.database_name]" v-if="enzyme[el.name] && enzyme[el.link]">
                     <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                     <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                     <td>
@@ -56,7 +57,7 @@
                   {{ messages.interPartName }}
                 </div>
                 <br>
-                <template v-if="model === 'hmr2'">
+                <template v-if="model.database_name === 'hmr2'">
                   <a class="button is-info is-fullwidth" title="View on Human Protein Atlas" target="_blank"
                     :href="`https://www.proteinatlas.org/${enzyme.id}`">
                     ProteinAtlas.org
@@ -101,7 +102,7 @@ export default {
       messages,
       loading: true,
       errorMessage: null,
-      id: '',
+      eId: '',
       enzyme: {},
       enzymeName: '',
       mainTableKey: {
@@ -110,14 +111,14 @@ export default {
           { name: 'prot_name', display: 'Protein&nbsp;name' },
           { name: 'gene_synonyms', display: 'Synonyms' },
           { name: 'function' },
-          { name: 'id', display: 'HMR2.0 ID' },
+          { name: 'id' },
         ],
         yeast: [
           { name: 'enzymeName', display: 'Gene&nbsp;name' },
           { name: 'prot_name', display: 'Protein&nbsp;name' },
           { name: 'gene_synonyms', display: 'Synonyms' },
           { name: 'function' },
-          { name: 'id', display: 'Yeast8.3 ID' },
+          { name: 'id' },
         ],
       },
       externalIDTableKey: {
@@ -135,7 +136,7 @@ export default {
     /* eslint-disable quote-props */
     '$route': function watchSetup() {
       if (this.$route.path.includes('/enzyme/')) {
-        if (this.id !== this.$route.params.id) {
+        if (this.eId !== this.$route.params.id) {
           this.setup();
         }
       }
@@ -146,7 +147,7 @@ export default {
       return `ma_catalyzed_reaction_${this.enzymeName}`;
     },
     hasExternalID() {
-      for (const item of this.externalIDTableKey[this.model]) {
+      for (const item of this.externalIDTableKey[this.model.database_name]) {
         if (this.enzyme[item.name] && this.enzyme[item.link]) {
           return true;
         }
@@ -156,18 +157,20 @@ export default {
   },
   methods: {
     setup() {
-      this.id = this.$route.params.id;
-      this.load();
+      this.eId = this.$route.params.id;
+      if (this.eId) {
+        this.load();
+      }
     },
     reformatTableKey(k) { return reformatTableKey(k); },
     load() {
       this.loading = true;
-      const enzymeId = this.id;
-      axios.get(`${this.model}/enzyme/${enzymeId}/connected_metabolites`)
+      // const enzymeId = this.eid;
+      axios.get(`${this.model.database_name}/enzyme/${this.eId}/connected_metabolites`)
         .then((response) => {
           this.loading = false;
           this.errorMessage = null;
-          this.id = response.data.enzyme.id;
+          this.eId = response.data.enzyme.id;
           this.enzymeName = response.data.enzyme.gene_name || response.data.enzyme.id;
           this.enzyme = response.data.enzyme;
           this.enzyme.enzymeName = this.enzymeName;
@@ -186,7 +189,7 @@ export default {
         });
     },
     viewInteractionPartners() {
-      this.$router.push(`/explore/gem-browser/${this.model}/interaction/${this.enzyme.id}`);
+      this.$router.push(`/explore/gem-browser/${this.model.database_name}/interaction/${this.enzyme.id}`);
     },
     chemicalFormula,
     chemicalName,

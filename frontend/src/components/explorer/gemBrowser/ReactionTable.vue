@@ -20,23 +20,24 @@
           <th class="is-unselectable"
           v-for="f in fields" v-show="showCol(f.name)"
             @click="sortBy(f.name, null, null)" v-html="f.display"></th>
+          <th class="is-unselectable">Map</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(r, index) in sortedReactions">
           <td>
-            <router-link :to="{path: `/explore/gem-browser/${model}/reaction/${r.id}` }">{{ r.id }}</router-link>
+            <router-link :to="{path: `/explore/gem-browser/${model.database_name}/reaction/${r.id}` }">{{ r.id }}</router-link>
           </td>
           <td v-html="reformatChemicalReactionHTML(r)"></td>
           <td>
-            <template v-for="(m, index) in r.modifiers">{{ index == 0 ? '' : ', '}}<router-link :to="{ path: `/explore/gem-browser/${model}/enzyme/${m.id}` }">{{ m.name || m.id }}</router-link>
+            <template v-for="(m, index) in r.modifiers">{{ index == 0 ? '' : ', '}}<router-link :to="{ path: `/explore/gem-browser/${model.database_name}/enzyme/${m.id}` }">{{ m.name || m.id }}</router-link>
             </template
           </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
             <template v-if="r.subsystem">
               <template v-for="(s, index) in r.subsystem.split('; ')">
-              {{ index == 0 ? '' : '; '}}<router-link :to="{ path: `/explore/gem-browser/${model}/subsystem/${idfy(s)}` }">{{ s }}</router-link>
+              {{ index == 0 ? '' : '; '}}<router-link :to="{ path: `/explore/gem-browser/${model.database_name}/subsystem/${idfy(s)}` }">{{ s }}</router-link>
               </template>
             </template>
           </td>
@@ -45,10 +46,14 @@
               <template v-if="i != 0">{{ r.is_reversible ? ' &#8660; ' : ' &#8658; ' }}</template>
               <template v-for="(compo, j) in RP.split(' + ')">
                 <template v-if="j != 0"> + </template>
-                <router-link :to="{ path: `/explore/gem-browser/${model}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
+                <router-link :to="{ path: `/explore/gem-browser/${model.database_name}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
               </template>
-
             </template>
+          </td>
+          <td>
+            <button class="button" @click="viewReactionOnMap(r.id)">
+              <span class="fa fa-eye"></span>
+            </button>
           </td>
         </tr>
       </tbody>
@@ -58,6 +63,7 @@
 
 <script>
 import $ from 'jquery';
+import { default as EventBus } from '../../../event-bus';
 import { default as compare } from '../../../helpers/compare';
 import { chemicalReaction } from '../../../helpers/chemical-formatters';
 import { reformatCompEqString, idfy } from '../../../helpers/utils';
@@ -151,6 +157,9 @@ export default {
         return false;
       }
       return true;
+    },
+    viewReactionOnMap(reactionID) {
+      EventBus.$emit('viewReactionOnMap', reactionID);
     },
   },
   updated() {

@@ -15,9 +15,9 @@
           </div>
         </div>
         <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
-          <div class="navbar-start has-text-centered">
+          <div class="navbar-start has-text-centered" v-show="model">
             <router-link v-if="activeViewerBut || activeBrowserBut" :to="{ path: '/explore'}" class="navbar-item is-size-3 has-text-primary has-text-weight-bold is-unselectable"
-              title="Current selected model, click to change your selection">{{ model }}
+              title="Current selected model, click to change your selection">{{ model ? model.short_name : '' }}
             </router-link>
             <a class="navbar-item is-unselectable underline" v-if="activeViewerBut || activeBrowserBut"
               :class="{ 'is-active': activeBrowserBut }" @click="goToGemBrowser()">
@@ -131,7 +131,7 @@ export default {
       showCookieMsg: !isCookiePolicyAccepted(),
       acceptCookiePolicy,
       activeDropMenu: '',
-      model: '',
+      model: null,
       browserLastPath: '',
       viewerLastPath: '',
       isMobileMenu: false,
@@ -157,14 +157,12 @@ export default {
       if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
         this.activeBrowserBut = true;
         this.activeViewerBut = false;
-        this.model = this.$route.params.model;
         this.savePath();
       } else if (this.$route.name === 'viewer' ||
         this.$route.name === 'viewerCompartment' ||
         this.$route.name === 'viewerSubsystem') {
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
-        this.model = this.$route.params.model;
         this.savePath();
       } else {
         this.activeBrowserBut = false;
@@ -181,7 +179,7 @@ export default {
       return false;
     },
     goToGemBrowser() {
-      this.$router.push(this.browserLastPath || `/explore/gem-browser/${this.model}`);
+      this.$router.push(this.browserLastPath || `/explore/gem-browser/${this.$route.params.model}`);
     },
     savePath() {
       if (this.$route.name === 'browser') {
@@ -195,11 +193,7 @@ export default {
       }
     },
     goToMapViewer() {
-      this.$router.push(this.viewerLastPath || `/explore/map-viewer/${this.model}`);
-    },
-    clearBrowserViewerPaths() {
-      this.viewerLastPath = '';
-      this.browserLastPath = '';
+      this.$router.push(this.viewerLastPath || `/explore/map-viewer/${this.$route.params.model}`);
     },
   },
 };
@@ -426,7 +420,6 @@ $fullhd: 1576px !default;
     color: $white;
     position: relative;
     font-size: 16px;
-
     ul {
       list-style: none;
       &.vhs, &.l2 {
@@ -442,7 +435,8 @@ $fullhd: 1576px !default;
       top: 0;
       left: 100%;
       width: 100%;
-      background: $primary; z-index: 11;
+      background: $primary;
+      z-index: 11;
       box-shadow: 5px 5px 5px #222222;
     }
 

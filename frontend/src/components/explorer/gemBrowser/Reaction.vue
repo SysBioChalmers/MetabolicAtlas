@@ -16,8 +16,9 @@
     <div class="columns is-multiline" v-show="!showLoader">
       <div class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
         <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
-          <tr v-for="el in mainTableKey[model]">
+          <tr v-for="el in mainTableKey[model.database_name]">
             <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
+            <td v-else-if="el.name == 'id'" class="td-key has-background-primary has-text-white-bis">{{ model.short_name }} ID</td>
             <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
             <td v-if="'isComposite' in el">
               <span v-html="el.modifier()"></span>
@@ -36,7 +37,7 @@
           <br>
           <span class="subtitle">External IDs</span>
           <table v-if="reaction && Object.keys(reaction).length != 0" id="ed-table" class="table is-fullwidth">
-            <tr v-for="el in externalIDTableKey[model]" v-if="reaction[el.name] && reaction[el.link]">
+            <tr v-for="el in externalIDTableKey[model.database_name]" v-if="reaction[el.name] && reaction[el.link]">
               <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
               <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
               <td>
@@ -48,7 +49,7 @@
       </div>
       <div class="column is-2-widescreen is-3-desktop is-full-tablet">
         <div class="box has-text-centered">
-          <div class="button is-info is-fullwidth" disabled>
+          <div class="button is-info is-fullwidth" @click="viewReactionOnMap(rId)">
             <p>View on {{ messages.mapViewerName }}</p>
           </div>
         </div>
@@ -92,7 +93,7 @@ export default {
       rId: this.$route.params.id,
       mainTableKey: {
         hmr2: [
-          { name: 'id', display: 'Model&nbsp;ID' },
+          { name: 'id' },
           { name: 'equation', modifier: this.reformatEquation },
           { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
           { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
@@ -103,7 +104,7 @@ export default {
           { name: 'sbo_id', display: 'SBO', modifier: this.reformatSBOLink },
         ],
         yeast: [
-          { name: 'id', display: 'Model&nbsp;ID' },
+          { name: 'id' },
           { name: 'equation', modifier: this.reformatEquation },
           { name: 'is_reversible', display: 'Reversible', isComposite: true, modifier: this.reformatReversible },
           { name: 'quantitative', isComposite: true, modifier: this.reformatQuant },
@@ -148,7 +149,7 @@ export default {
   },
   computed: {
     hasExternalID() {
-      for (const item of this.externalIDTableKey[this.model]) {
+      for (const item of this.externalIDTableKey[this.model.database_name]) {
         if (this.reaction[item.name] && this.reaction[item.link]) {
           return true;
         }
@@ -162,7 +163,7 @@ export default {
       this.load();
     },
     load() {
-      axios.get(`${this.model}/reaction/${this.rId}/`)
+      axios.get(`${this.model.database_name}/reaction/${this.rId}/`)
       .then((response) => {
         this.showLoader = false;
         this.reaction = response.data.reaction;
@@ -258,6 +259,9 @@ export default {
         outrefs.push(formattedref);
       }
       return outrefs;
+    },
+    viewReactionOnMap(reactionID) {
+      EventBus.$emit('viewReactionOnMap', reactionID);
     },
     chemicalFormula,
     chemicalName,
