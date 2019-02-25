@@ -127,7 +127,9 @@ export default {
       searchResults: [],
       errorMessage: '',
       componentID: '',
+      mapsAvailable: {},
       starredComponents: null,
+      showModal: false,
     };
   },
   watch: {
@@ -154,7 +156,7 @@ export default {
     });
     EventBus.$on('viewReactionOnMap', (id) => {
       // get the list of map available for this id
-      axios.get(`${this.model}/available_maps/${id}`)
+      axios.get(`${this.model.database_name}/available_maps/${id}`)
       .then((response) => {
         this.viewOnMapID = id;
         if (response.data.count !== 1) {
@@ -187,7 +189,7 @@ export default {
       }
     },
     get_tiles_data() {
-      axios.get(`${this.model}/gem_browser_tiles/`)
+      axios.get(`${this.model.database_name}/gem_browser_tiles/`)
       .then((response) => {
         this.starredComponents = response.data;
       })
@@ -197,9 +199,6 @@ export default {
     },
     showMapViewer() {
       EventBus.$emit('showMapViewer');
-    },
-    showWholeMap() {
-      EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     },
   },
 };

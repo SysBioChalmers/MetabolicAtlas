@@ -10,7 +10,7 @@
         <div>
           <div class="columns has-text-centered">
             <div class="column">
-              <h4 v-if="model" class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model.short_name || '' }}</i></h4>
+              <h4 v-if="model" class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model.short_name }}</i></h4>
               <p class="has-text-weight-bold">
                 Select a model and start browsing or navigate on the maps
               </p>
@@ -20,7 +20,7 @@
             <div class="column is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile has-text-centered">
               <div class="dropdown is-hoverable dropdown-trigger">
                 <button v-if="model" class="button is-medium is-fullwidth" aria-haspopup="true" aria-controls="dropdown-menu">
-                  <span>Model: <a class="tag is-primary has-text-weight-bold is-medium">{{ model.short_name || '' }}</a></span>
+                  <span>Model: <a class="tag is-primary has-text-weight-bold is-medium">{{ model.short_name }}</a></span>
                   <span class="icon is-small">
                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                   </span>
@@ -38,9 +38,9 @@
           </div>
           <br>
           <div id="toolsSelect" class="columns is-multiline">
-            <template v-for="tool in explorerTools">
+            <template v-if="model" v-for="tool in explorerTools">
               <div class="column is-12-tablet is-half-desktop">
-                <router-link :to="{ path: `${tool.url}/${modeldatabase_name }` }">
+                <router-link :to="{ path: `${tool.url}/${model.database_name }` }">
                   <div class="card">
                     <header class="card-header">
                       <p class="card-header-title is-size-5">{{ tool.name }}</p>
