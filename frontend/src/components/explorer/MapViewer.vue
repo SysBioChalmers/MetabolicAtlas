@@ -104,11 +104,11 @@
               <div class="loading" v-show="showSelectedElementPanelLoader">
                 <a class="button is-loading"></a>
               </div>
-              <template v-show="!showSelectedElementPanelLoader">
+              <template>
                 <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
                   {{ messages.unknownError }}
                 </div>
-                <div class="card" v-else-if="currentDisplayedType">
+                <div class="card" v-else-if="currentDisplayedType && !showSelectedElementPanelLoader">
                   <header class="card-header">
                     <p class="card-header-title">
                       <template v-if="selectedElement">
