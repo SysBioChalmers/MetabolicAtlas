@@ -20,6 +20,7 @@
           <th class="is-unselectable"
           v-for="f in fields" v-show="showCol(f.name)"
             @click="sortBy(f.name, null, null)" v-html="f.display"></th>
+          <th class="is-unselectable">Map</th>
         </tr>
       </thead>
       <tbody>
@@ -47,8 +48,12 @@
                 <template v-if="j != 0"> + </template>
                 <router-link :to="{ path: `/explore/gem-browser/${model.database_name}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
               </template>
-
             </template>
+          </td>
+          <td>
+            <button class="button" @click="viewReactionOnMap(r.id)">
+              <span class="fa fa-eye"></span>
+            </button>
           </td>
         </tr>
       </tbody>
@@ -58,6 +63,7 @@
 
 <script>
 import $ from 'jquery';
+import { default as EventBus } from '../../../event-bus';
 import { default as compare } from '../../../helpers/compare';
 import { chemicalReaction } from '../../../helpers/chemical-formatters';
 import { reformatCompEqString, idfy } from '../../../helpers/utils';
@@ -151,6 +157,9 @@ export default {
         return false;
       }
       return true;
+    },
+    viewReactionOnMap(reactionID) {
+      EventBus.$emit('viewReactionOnMap', reactionID);
     },
   },
   updated() {

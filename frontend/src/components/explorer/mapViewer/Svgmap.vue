@@ -119,7 +119,12 @@ export default {
       // set the type, even if might fail to load the map?
       this.loadedMapType = type;
       if (type === 'compartment' || type === 'subsystem') {
-        this.showMap(name);
+        if (name) {
+          this.ids = ids;
+          console.log(ids);
+          const callback = ids.length !== 0 ? this.findElementsOnSVG : null;
+          this.loadSVG(name, callback);
+        }
       } else if (type === 'find') {
         this.hlElements(name, ids);
       } else if (!this.svgName || type === 'wholemap') {
@@ -221,8 +226,10 @@ export default {
         });
         this.unHighlight();
         if (callback) {
-          // call findElementsOnSVG
-          callback();
+          if (callback === this.findElementsOnSVG) {
+            callback(true);
+            this.$emit('loadComplete', true, '');
+          }
         } else {
           this.$emit('loadComplete', true, '');
         }
@@ -278,7 +285,6 @@ export default {
         }
       } else if (callback) {
         this.loadedMap = currentLoad;
-        // call findElementsOnSVG
         callback();
       } else {
         this.loadedMap = currentLoad;
@@ -362,7 +368,7 @@ export default {
         return;
       });
     },
-    findElementsOnSVG() {
+    findElementsOnSVG(center) {
       if (!this.ids) {
         return;
       }
@@ -378,6 +384,9 @@ export default {
         }
       }
       this.isLoadingSearch = false;
+      if (center) {
+        this.centerElementOnSVG(1);
+      }
     },
     centerElementOnSVG(increment) {
       if (this.totalSearchMatch <= 1) {
@@ -422,11 +431,6 @@ export default {
         this.elmHL = [];
       }
     },
-    showMap(id) {
-      if (id) {
-        this.loadSVG(id, null);
-      }
-    },
     selectElement(id, type) {
       if (this.selectedItemHistory[id]) {
         EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
@@ -467,22 +471,16 @@ export default {
       return ($('.svgbox').height() / 2) + $('#navbar').height();
     },
     panToCoords(panX, panY) {
-      const zoomBackTo = this.currentZoomScale;
-      this.$panzoom.panzoom('zoom', false, {
+      // TODO re-add zoomOut?
+      this.$panzoom.panzoom('zoom', 1.0, {
         increment: 1 - this.currentZoomScale,
+        transition: false,
         focal: {
           clientX: this.clientFocusX(),
           clientY: this.clientFocusY(),
         },
       });
       this.$panzoom.panzoom('pan', -panX + ($('.svgbox').width() / 2), -panY + ($('.svgbox').height() / 2));
-      this.$panzoom.panzoom('zoom', true, {
-        increment: 1 - zoomBackTo,
-        focal: {
-          clientX: this.clientFocusX(),
-          clientY: this.clientFocusY(),
-        },
-      });
     },
   },
 };

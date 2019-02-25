@@ -49,7 +49,7 @@
       </div>
       <div class="column is-2-widescreen is-3-desktop is-full-tablet">
         <div class="box has-text-centered">
-          <div class="button is-info is-fullwidth" disabled>
+          <div class="button is-info is-fullwidth" @click="viewReactionOnMap(rId)">
             <p>View on {{ messages.mapViewerName }}</p>
           </div>
         </div>
@@ -259,6 +259,9 @@ export default {
         outrefs.push(formattedref);
       }
       return outrefs;
+    },
+    viewReactionOnMap(reactionID) {
+      EventBus.$emit('viewReactionOnMap', reactionID);
     },
     chemicalFormula,
     chemicalName,
