@@ -121,7 +121,6 @@ export default {
       if (type === 'compartment' || type === 'subsystem') {
         if (name) {
           this.ids = ids;
-          console.log(ids);
           const callback = ids.length !== 0 ? this.findElementsOnSVG : null;
           this.loadSVG(name, callback);
         }
@@ -140,25 +139,27 @@ export default {
     const self = this;
     $('#svg-wrapper').on('click', 'svg', (e) => {
       const target = $(e.target);
-      if (!target.hasClass('.met') && !target.hasClass('.enz') && !target.hasClass('.rea') &&
-        !target.hasClass('.subsystem') && !target.parent('.subsystem').length > 0 && // <path>
-        !target.parent().parent('.subsystem').length > 0) { // <text> of subsystem
+      if (!target.parents('.met, .enz, .rea, .subsystem').length > 0) {
         self.unSelectElement();
+        self.unHighlight();
       }
     });
     $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
       const id = $(this).attr('class').split(' ')[1].trim();
       self.selectElement(id, 'metabolite');
+      self.highlight([$(this)]);
     });
     $('#svg-wrapper').on('click', '.enz', function f() {
       // exact the real id from the id
       const id = $(this).attr('class').split(' ')[1].trim();
       self.selectElement(id, 'enzyme');
+      self.highlight([$(this)]);
     });
     $('#svg-wrapper').on('click', '.rea', function f() {
       const id = $(this).attr('id');
       self.selectElement(id, 'reaction');
+      self.highlight([$(this)]);
     });
     $('#svg-wrapper').on('click', '.subsystem', function f() {
       const id = $(this).attr('id');
@@ -375,12 +376,16 @@ export default {
       this.elmFound = [];
       for (let i = 0; i < this.ids.length; i += 1) {
         const id = this.ids[i].trim();
-        const idname = `#svg-wrapper #${id}, #svg-wrapper .rea.${id}, #svg-wrapper .met.${id}, #svg-wrapper .enz.${id}`;
-        const elms = $(idname);
+        const rselector = `#svg-wrapper .rea#${id}`;
+        let elms = $(rselector);
+        if (elms.length < 1) {
+          const selectors = `#svg-wrapper .met.${id}, #svg-wrapper .enz.${id}`;
+          elms = $(selectors);
+        }
         this.totalSearchMatch = elms.length;
         this.currentSearchMatch = 0;
         for (let j = 0; j < elms.length; j += 1) {
-          this.elmFound.push(elms[j]);
+          this.elmFound.push($(elms[j]));
         }
       }
       this.isLoadingSearch = false;
@@ -389,7 +394,7 @@ export default {
       }
     },
     centerElementOnSVG(increment) {
-      if (this.totalSearchMatch <= 1) {
+      if (this.totalSearchMatch === 0) {
         return;
       }
       this.currentSearchMatch += increment;
@@ -407,7 +412,7 @@ export default {
     },
     getSvgElemCoordinates(el) {
       // read and parse the transform attribut
-      let transform = el.getAttribute('transform');
+      let transform = el.attr('transform');
       if (transform) {
         transform = transform.substring(0, transform.length - 1);
         transform = transform.substring(7, transform.length);
@@ -416,11 +421,22 @@ export default {
       return null;
     },
     highlightElementsFound() {
+      this.highlight(this.elmFound);
+    },
+    highlight(elements) {
       this.unHighlight();
       this.elmHL = [];
-      for (const el of this.elmFound) {
+      for (const el of elements) {
         $(el).addClass('hl');
         this.elmHL.push(el);
+        if (el.hasClass('rea')) {
+          const selectors = `#svg-wrapper .enz.${el.attr('id')}, #svg-wrapper .met.${el.attr('id')}`;
+          const elms = $(selectors);
+          for (const con of elms) {
+            $(con).addClass('hl');
+            this.elmHL.push(con);
+          }
+        }
       }
     },
     unHighlight() { // un-highlight elements
