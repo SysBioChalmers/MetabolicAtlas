@@ -444,6 +444,23 @@ def get_data_viewer(request, model):
 
 ##########################################################################################
 
+@api_view()
+@is_model_valid
+def get_tiles_data(request, model):
+
+    # l = logging.getLogger('django.db.backends')
+    # l.setLevel(logging.DEBUG)
+    # l.addHandler(logging.StreamHandler())
+
+    # TODO optimize the queries or use raw()
+    compartments = APImodels.Compartment.objects.using(model).all().order_by('?').prefetch_related('subsystem')[:10]
+    subsystems = APImodels.Subsystem.objects.using(model).all().order_by('?')[:10]
+    reactions = APImodels.Reaction.objects.using(model).all().order_by('?')[:10]
+    metabolites = APImodels.ReactionComponent.objects.using(model).filter(component_type='m').order_by('?')[:10]
+    enzymes = APImodels.ReactionComponent.objects.using(model).filter(component_type='e').order_by('?')[:10]
+    res = APImodels.GemBrowserTile(compartments, subsystems, reactions, metabolites, enzymes)
+    return JSONResponse(APIserializer.GemBrowserTileSerializer(res).data)
+
 
 @api_view()
 @is_model_valid

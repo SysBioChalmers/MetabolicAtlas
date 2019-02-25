@@ -28,16 +28,13 @@ export function reformatCompEqString(value) {
     return '';
   }
   const eqArr = value.split(' => ');
-  console.log(eqArr, value);
   let reactants = '';
   let products = '';
   if (eqArr[0]) {
-    console.log('0', eqArr[0]);
     reactants = eqArr[0].split(' + ').map(
       e => `<a class="cmp">${e}</a>`).join(' + ');
   }
   if (eqArr[1]) {
-    console.log('0', eqArr[1]);
     products = eqArr[1].split(' + ').map(
       e => `<a class="cmp">${e}</a>`).join(' + ');
   }

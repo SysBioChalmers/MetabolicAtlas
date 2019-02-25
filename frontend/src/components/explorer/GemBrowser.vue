@@ -14,19 +14,54 @@
       <div class="columns is-centered">
         <global-search :quickSearch=true :model="model" ref="globalSearch"></global-search>
       </div>
-      <div class="columns is-centered" v-if="selectedType === ''">
-        <div class="column is-10 is-size-5 has-text-centered">
-          Use the search field above to look for your constituent of interest.
-          Below is a list of popular constituents of {{ model.short_name }}.
+      <div v-if="selectedType === ''">
+        <div class="columns is-centered">
+          <div class="column is-10 is-size-5 has-text-centered">
+            Use the search field above to look for your constituent of interest.<br>
+            Below is a list of popular constituents of {{ model.short_name }}.<br><br>
+          </div>
         </div>
-      </div>
-      <div class="homeDiv columns has-text-centered" v-if="selectedType === '' && starredComponents[model.database_name]">
-        <div class="column is-4" v-for="category in ['metabolite', 'enzyme', 'reaction']">
-          <h5 class="title is-size-5 is-capitalized">{{ category }}s</h5>
-          <router-link v-for="row in starredComponents[model.database_name][category]" :to="{ path: `/explore/gem-browser/${model.database_name}/${category}/${row[1]}` }"
-            v-if="model.database_name in starredComponents" class="is-block">
-            {{ row[0] }}
-          </router-link>
+        <div class="tile is-ancestor is-size-5" v-if="starredComponents">
+          <div class="tile">
+            <div class="tile is-vertical is-9">
+              <div class="tile">
+                <tile type="reaction" :model="model" :data="starredComponents.reactions[0]">
+                </tile>
+                <div class="tile is-vertical is-8">
+                  <tile type="subsystem" :model="model" :data="starredComponents.subsystems[0]">
+                  </tile>
+                  <div class="tile">
+                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents.enzymes[0]">
+                    </tile>
+                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents.metabolites[0]">
+                    </tile>
+                  </div>
+                </div>
+              </div>
+              <div class="tile">
+                <div class="tile is-vertical is-8">
+                  <div class="tile">
+                    <tile type="subsystem" :model="model" :data="starredComponents.subsystems[1]">
+                    </tile>
+                  </div>
+                  <div class="tile">
+                    <tile type="metabolite" size="is-6" :model="model" :data="starredComponents.metabolites[1]">
+                    </tile>
+                    <tile type="enzyme" size="is-6" :model="model" :data="starredComponents.enzymes[1]">
+                    </tile>
+                  </div>
+                </div>
+                <div class="tile is-4">
+                  <tile type="reaction" :model="model" :data="starredComponents.reactions[1]">
+                  </tile>
+                </div>
+              </div>
+            </div>
+            <div class="tile is-vertical">
+              <tile type="compartment" :model="model" :data="starredComponents.compartments[0]">
+              </tile>
+            </div>
+          </div>
         </div>
       </div>
       <div v-else>
@@ -65,9 +100,10 @@ import Metabolite from 'components/explorer/gemBrowser/Metabolite';
 import Reaction from 'components/explorer/gemBrowser/Reaction';
 import Subsystem from 'components/explorer/gemBrowser/Subsystem';
 import Compartment from 'components/explorer/gemBrowser/Compartment';
+import Tile from 'components/explorer/gemBrowser/Tile';
+import { default as messages } from '../../helpers/messages';
 import { default as EventBus } from '../../event-bus';
 import { idfy } from '../../helpers/utils';
-import { default as messages } from '../../helpers/messages';
 
 
 export default {
@@ -81,6 +117,7 @@ export default {
     Subsystem,
     Compartment,
     GlobalSearch,
+    Tile,
   },
   data() {
     return {
@@ -90,102 +127,9 @@ export default {
       searchResults: [],
       errorMessage: '',
       componentID: '',
-      showModal: false,
       mapsAvailable: {},
-      viewOnMapID: null,
-      starredComponents: {
-        hmr2: {
-          metabolite: [
-            ['3-carboxy-1-hydroxypropyl-ThPP', 'm00765m'],
-            ['acetaldehyde', 'm01249m'],
-            ['acetate', 'm01252m'],
-            ['acetoacetate', 'm01253m'],
-            ['acetoacetyl-CoA', 'm01255m'],
-            ['acetyl-CoA', 'm01261m'],
-            ['cis-aconitate', 'm01580m'],
-            ['citrate', 'm01587m'],
-            ['dihydrolipoamide', 'm01701m'],
-            ['fumarate', 'm01862m'],
-            ['glycolaldehyde', 'm01997m'],
-            ['glycolate', 'm01998m'],
-            ['glyoxalate', 'm02007m'],
-            ['hydroxypyruvate', 'm02154m'],
-            ['isocitrate', 'm02183m'],
-            ['lipoamide', 'm02393m'],
-            ['malate', 'm02439m'],
-            ['oxalosuccinate', 'm02662m'],
-            ['pyruvate', 'm02819m'],
-            ['S-acetyldihydrolipoamide', 'm02869m'],
-            ['S-succinyldihydrolipoamide', 'm02934m'],
-            ['succinate', 'm02943m'],
-            ['succinyl-CoA', 'm02944m'],
-            ['thiamin-PP', 'm02984m'],
-            ['ubiquinol', 'm03102m'],
-            ['ubiquinone', 'm03103m'],
-          ],
-          enzyme: [
-            ['ACLY', 'ENSG00000131473'],
-            ['ACO1', 'ENSG00000122729'],
-            ['ACSS3', 'ENSG00000111058'],
-            ['ACYP1', 'ENSG00000119640'],
-            ['ADH1A', 'ENSG00000187758'],
-            ['BPGM', 'ENSG00000172331'],
-            ['CLYBL', 'ENSG00000125246'],
-            ['CRISP3', 'ENSG00000096006'],
-            ['FBP1', 'ENSG00000165140'],
-            ['GAPDH', 'ENSG00000111640'],
-            ['GRHPR', 'ENSG00000137106'],
-            ['HCN3', 'ENSG00000143630'],
-            ['HKDC1', 'ENSG00000156510'],
-            ['IDH1', 'ENSG00000138413'],
-            ['IREB2', 'ENSG00000136381'],
-            ['KANK1', 'ENSG00000107104'],
-            ['MIA3', 'ENSG00000154305'],
-            ['OGDH', 'ENSG00000105953'],
-            ['OXCT1', 'ENSG00000083720'],
-            ['PDHA1', 'ENSG00000131828'],
-            ['PGK1', 'ENSG00000102144'],
-            ['SUCLA2', 'ENSG00000136143'],
-            ['TMEM54', 'ENSG00000121900'],
-            ['TPI1P2', 'ENSG00000230359'],
-            ['UEVLD', 'ENSG00000151116'],
-            ['ZADH2', 'ENSG00000180011'],
-          ],
-          reaction: [
-            ['HMR_0710', 'HMR_0710'],
-            ['HMR_3787', 'HMR_3787'],
-            ['HMR_3905', 'HMR_3905'],
-            ['HMR_3957', 'HMR_3957'],
-            ['HMR_4097', 'HMR_4097'],
-            ['HMR_4108', 'HMR_4108'],
-            ['HMR_4111', 'HMR_4111'],
-            ['HMR_4133', 'HMR_4133'],
-            ['HMR_4209', 'HMR_4209'],
-            ['HMR_4281', 'HMR_4281'],
-            ['HMR_4301', 'HMR_4301'],
-            ['HMR_4388', 'HMR_4388'],
-            ['HMR_4391', 'HMR_4391'],
-            ['HMR_4408', 'HMR_4408'],
-            ['HMR_4521', 'HMR_4521'],
-            ['HMR_4585', 'HMR_4585'],
-            ['HMR_4652', 'HMR_4652'],
-            ['HMR_5294', 'HMR_5294'],
-            ['HMR_6410', 'HMR_6410'],
-            ['HMR_7704', 'HMR_7704'],
-            ['HMR_7745', 'HMR_7745'],
-            ['HMR_8360', 'HMR_8360'],
-            ['HMR_8652', 'HMR_8652'],
-            ['HMR_8757', 'HMR_8757'],
-            ['HMR_8772', 'HMR_8772'],
-            ['HMR_8780', 'HMR_8780'],
-          ],
-        },
-        yeast: {
-          metabolite: [],
-          enzyme: [],
-          reaction: [],
-        },
-      },
+      starredComponents: null,
+      showModal: false,
     };
   },
   watch: {
@@ -212,7 +156,7 @@ export default {
     });
     EventBus.$on('viewReactionOnMap', (id) => {
       // get the list of map available for this id
-      axios.get(`${this.model}/available_maps/${id}`)
+      axios.get(`${this.model.database_name}/available_maps/${id}`)
       .then((response) => {
         this.viewOnMapID = id;
         if (response.data.count !== 1) {
@@ -221,8 +165,7 @@ export default {
         } else {
           const mapType = 'compartment' in response.data ? 'compartment' : 'subsystem';
           const mapName = response.data[mapType][0][0];
-          this.$router.push(`/explore/map-viewer/${this.model}/${mapType}/${mapName}/${id}?dim=2d`);
-          EventBus.$emit('requestViewer', mapType, mapName, [id], false);
+          this.$router.push(`/explore/map-viewer/${this.model.database_name}/${mapType}/${mapName}/${id}?dim=2d`);
         }
       });
     });
@@ -230,7 +173,6 @@ export default {
   methods: {
     setup() {
       if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
-        // const modelDbNameURL = this.$route.params.model || '';
         if (!this.model || this.model.database_name !== this.$route.params.model) {
           EventBus.$emit('modelSelected', '');
           this.errorMessage = `Error: ${messages.modelNotFound}`;
@@ -240,14 +182,23 @@ export default {
         this.componentID = this.$route.params.id || '';
         if (!this.componentID || !this.selectedType) {
           this.$router.push(`/explore/gem-browser/${this.model.database_name}`);
+          if (!this.starredComponents) {
+            this.get_tiles_data();
+          }
         }
       }
     },
+    get_tiles_data() {
+      axios.get(`${this.model.database_name}/gem_browser_tiles/`)
+      .then((response) => {
+        this.starredComponents = response.data;
+      })
+      .catch(() => {
+        this.errorMessage = messages.unknownError;
+      });
+    },
     showMapViewer() {
       EventBus.$emit('showMapViewer');
-    },
-    showWholeMap() {
-      EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     },
   },
 };
