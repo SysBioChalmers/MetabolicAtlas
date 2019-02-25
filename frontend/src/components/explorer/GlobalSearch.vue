@@ -21,8 +21,8 @@
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
-          <div class="notification is-medium is-paddingless">
-            First 50 results per category from {{ model }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
+          <div v-if="model" class="notification is-medium is-paddingless">
+            First 50 results per category from {{ model.short_name }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
           </div>
         </div>
         <div class="resList" v-show="!showLoader">
@@ -232,7 +232,7 @@ export default {
       if (this.searchTermString !== searchTerm) {
         this.searchTermString = searchTerm;
       }
-      const url = this.quickSearch ? `${this.model}/search/${searchTerm}` : `all/search/${searchTerm}`;
+      const url = this.quickSearch ? `${this.model.database_name}/search/${searchTerm}` : `all/search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
         const searchResults = {
@@ -249,35 +249,35 @@ export default {
             searchResults.metabolite = searchResults.metabolite.concat(
               resultsModel.metabolite.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.enzyme.length) {
             searchResults.enzyme = searchResults.enzyme.concat(
               resultsModel.enzyme.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.reaction.length) {
             searchResults.reaction = searchResults.reaction.concat(
               resultsModel.reaction.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.subsystem.length) {
             searchResults.subsystem = searchResults.subsystem.concat(
               resultsModel.subsystem.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
           if (resultsModel.compartment.length) {
             searchResults.compartment = searchResults.compartment.concat(
               resultsModel.compartment.map(
               (e) => {
-                const d = e; d.model = model; return d;
+                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
               }));
           }
         }
@@ -298,7 +298,6 @@ export default {
         }
       })
       .catch(() => {
-        // console.log(error);
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
@@ -322,14 +321,14 @@ export default {
           name = 'cytosol_1';  // eslint-disable-line no-param-reassign
         }
       }
-      EventBus.$emit('navigateTo', 'mapViever', this.model, type, name);
+      EventBus.$emit('navigateTo', 'mapViever', this.model.short_name, type, name);
     },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {
         return '';
       }
       let s = '';
-      for (const key of this.itemKeys[this.model][type]) {
+      for (const key of this.itemKeys[this.model.database_name][type]) {
         if (element[key]) {
           if (key === 'equation') {
             s = `${s} ‒ ${chemicalReaction(element[key], element.is_reversible)}`;

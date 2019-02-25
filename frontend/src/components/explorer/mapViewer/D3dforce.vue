@@ -72,7 +72,7 @@ export default {
   methods: {
     getJson() {
       this.$emit('loading');
-      axios.get(`/${this.model}/json/${this.loadedComponentType}/${this.loadedComponentName}`)
+      axios.get(`/${this.model.database_name}/json/${this.loadedComponentType}/${this.loadedComponentName}`)
         .then((response) => {
           this.network = response.data;
           setTimeout(() => {

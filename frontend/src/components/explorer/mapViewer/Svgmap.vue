@@ -259,7 +259,7 @@ export default {
             this.loadSvgPanZoom(callback);
           }, 0);
         } else {
-          const svgLink = `${this.svgMapURL}/${this.model}/${newSvgName}`;
+          const svgLink = `${this.svgMapURL}/${this.model.database_name}/${newSvgName}`;
           axios.get(svgLink)
             .then((response) => {
               this.svgContent = response.data;
@@ -290,7 +290,7 @@ export default {
         this.readHPARNAlevels(tissue);
         return;
       }
-      axios.get(`${this.model}/enzyme/hpa_rna_levels/${this.loadedMap.name_id}`)
+      axios.get(`${this.model.database_name}/enzyme/hpa_rna_levels/${this.loadedMap.name_id}`)
       .then((response) => {
         this.HPARNAlevelsHistory[this.svgName] = response.data;
         setTimeout(() => {
@@ -338,7 +338,7 @@ export default {
         return;
       }
       this.isLoadingSearch = true;
-      axios.get(`${this.model}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
+      axios.get(`${this.model.database_name}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
         this.ids = response.data;
@@ -437,7 +437,7 @@ export default {
         return;
       }
       EventBus.$emit('startSelectedElement');
-      axios.get(`${this.model}/${type}/${id}`)
+      axios.get(`${this.model.database_name}/${type}/${id}`)
       .then((response) => {
         let data = response.data;
         if (type === 'reaction') {
