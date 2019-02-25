@@ -7,7 +7,7 @@
   <div v-else>
     <div class="columns">
       <div class="column">
-        <h3 class="title is-3">Subsystem {{ info.name }}</h3>
+        <h3 class="title is-3">Subsystem {{ !showLoader ? info.name : '' }}</h3>
       </div>
     </div>
     <loader v-show="showLoader"></loader>
