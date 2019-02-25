@@ -7,14 +7,14 @@
   <div v-else>
     <div class="columns">
       <div class="column">
-        <h3 class="title is-3">Subsystem {{ info.name }}</h3>
+        <h3 class="title is-3">Subsystem {{ !showLoader ? info.name : '' }}</h3>
       </div>
     </div>
     <loader v-show="showLoader"></loader>
     <div v-show="!showLoader" class="columns">
       <div class="subsystem-table column is-10">
         <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
-          <tr class="m-row" v-for="el in mainTableKey[model]" v-if="info[el.name]">
+          <tr class="m-row" v-for="el in mainTableKey[model.database_name]" v-if="info[el.name]">
             <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
             <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatKey(el.name) }}</td>
             <td v-if="info[el.name]">
@@ -31,7 +31,7 @@
             <td>
               <template v-for="(c, i) in info['compartment']">
                 <template v-if="i != 0">, </template>
-                <router-link  :to="{ path: `/explore/gem-browser/${model}/compartment/${idfy(c)}` }"> {{ c }}</router-link>
+                <router-link  :to="{ path: `/explore/gem-browser/${model.database_name}/compartment/${idfy(c)}` }"> {{ c }}</router-link>
               </template>
             </td>
           </tr>
@@ -160,7 +160,7 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model}/subsystem/${this.sName}/`)
+      axios.get(`${this.model.database_name}/subsystem/${this.sName}/`)
       .then((response) => {
         this.info = response.data.subsystemAnnotations;
         this.metabolites = response.data.metabolites;

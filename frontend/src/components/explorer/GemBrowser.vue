@@ -8,7 +8,7 @@
     <template v-else>
       <div class="columns" v-if="!selectedType">
         <div class="column container has-text-centered">
-          <h4 class="title is-4">Explore {{ model }} with the {{ messages.gemBrowserName }}</h4>
+          <h4 class="title is-4">Explore {{ model.short_name }} with the {{ messages.gemBrowserName }}</h4>
         </div>
       </div>
       <div class="columns is-centered">
@@ -17,14 +17,14 @@
       <div class="columns is-centered" v-if="selectedType === ''">
         <div class="column is-10 is-size-5 has-text-centered">
           Use the search field above to look for your constituent of interest.
-          Below is a list of popular constituents of {{ model }}.
+          Below is a list of popular constituents of {{ model.short_name }}.
         </div>
       </div>
-      <div class="homeDiv columns has-text-centered" v-if="selectedType === '' && starredComponents[model]">
+      <div class="homeDiv columns has-text-centered" v-if="selectedType === '' && starredComponents[model.database_name]">
         <div class="column is-4" v-for="category in ['metabolite', 'enzyme', 'reaction']">
           <h5 class="title is-size-5 is-capitalized">{{ category }}s</h5>
-          <router-link v-for="row in starredComponents[model][category]" :to="{ path: `/explore/gem-browser/${model}/${category}/${row[1]}` }"
-            v-if="model in starredComponents" class="is-block">
+          <router-link v-for="row in starredComponents[model.database_name][category]" :to="{ path: `/explore/gem-browser/${model.database_name}/${category}/${row[1]}` }"
+            v-if="model.database_name in starredComponents" class="is-block">
             {{ row[0] }}
           </router-link>
         </div>
@@ -72,6 +72,7 @@ import { default as messages } from '../../helpers/messages';
 
 export default {
   name: 'gem-browser',
+  props: ['model'],
   components: {
     ClosestInteractionPartners,
     Enzyme,
@@ -89,7 +90,6 @@ export default {
       searchResults: [],
       errorMessage: '',
       componentID: '',
-      model: '',
       showModal: false,
       mapsAvailable: {},
       viewOnMapID: null,
@@ -208,7 +208,7 @@ export default {
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
-      this.$router.push(`/explore/gem-browser/${this.model}/${type}/${idfy(id)}`);
+      this.$router.push(`/explore/gem-browser/${this.$route.params.model}/${type}/${idfy(id)}`);
     });
     EventBus.$on('viewReactionOnMap', (id) => {
       // get the list of map available for this id
@@ -230,10 +230,8 @@ export default {
   methods: {
     setup() {
       if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
-        this.model = this.$route.params.model || '';
-        if (!(this.model in this.starredComponents)) {
-          // TODO use another way to check the model id is valid
-          this.model = '';
+        // const modelDbNameURL = this.$route.params.model || '';
+        if (!this.model || this.model.database_name !== this.$route.params.model) {
           EventBus.$emit('modelSelected', '');
           this.errorMessage = `Error: ${messages.modelNotFound}`;
           return;
@@ -241,7 +239,7 @@ export default {
         this.selectedType = this.$route.params.type || '';
         this.componentID = this.$route.params.id || '';
         if (!this.componentID || !this.selectedType) {
-          this.$router.push(`/explore/gem-browser/${this.model}`);
+          this.$router.push(`/explore/gem-browser/${this.model.database_name}`);
         }
       }
     },
