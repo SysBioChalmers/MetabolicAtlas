@@ -1,10 +1,8 @@
 <template>
-  <div id="banner">
-    <div id="banner-text" class="is-unselectable"><span>METABOLIC ATLAS</span></div>
-    <div id="banner-text2" class="is-unselectable"><span>THE ATLAS FOR METABOLIC EXPLORATION</span></div>
-    <div id="particle-canvas">
-      
-    </div>
+  <div class="is-unselectable">
+    <div id="banner-text" >METABOLIC ATLAS</div>
+    <div id="banner-text2">THE ATLAS FOR METABOLIC EXPLORATION</div>
+    <div id="particle-canvas"></div>
   </div>
 </template>
 
@@ -50,14 +48,12 @@ export default {
     width: 100%;
     height: 200px;
     overflow: hidden;
-    border-bottom: 3px solid #25543C;
   }
   #banner-text {
     position: absolute; top: 6rem; left: 3rem; z-index:100;
     color: white;
     font-size: 80px;
     text-shadow: -1px 0 gray, 0 1px gray, 1px 0 gray, 0 -1px gray;
-
   }
   #banner-text2 {
     position: absolute; top: 13.5rem; right: 3rem; z-index:100;
