@@ -306,7 +306,7 @@ export default {
     }
     border: solid 1px white;
     &:hover {
-      border: solid 1px black;
+      border: solid 1px gray;
     }
   }
 }
