@@ -16,9 +16,13 @@ import collections
 def make_meta_dict(info):
     d = {}
     for key, value in info:
-        if key in ['id', 'name', 'compartment']:
+        if key in ['id', 'name', 'formula', 'charge', 'compartment']:
             d[key] = value
-    if len(d) != 3:
+    if 'formula' not in d:
+        d['formula'] = None
+    if 'charge' not in d:
+        d['charge'] = None
+    if len(d) != 5:
         print ("Error: missing id, name or compartment for metabolite %s" % info)
         exit(1)
     return d
@@ -80,12 +84,12 @@ def insert_subsystem_stats(database):
     for s in subsystems:
         subsystem = Subsystem.objects.using(database).get(name=s.name)
 
-        # from SBML
         smsQuerySet = SubsystemMetabolite.objects.using(database). \
             filter(subsystem_id=subsystem).values_list('rc_id', flat=True)
-        unique_meta = set()
-        for meta_id in smsQuerySet:
-            unique_meta.add(meta_id[:-1])
+
+        uniqueMetQuerySet = ReactionComponent.objects.using(database).distinct(). \
+            filter(component_type='m', id__in=smsQuerySet).values_list('name', flat=True)
+
         sesQuerySet = SubsystemEnzyme.objects.using(database). \
             filter(subsystem_id=subsystem).values_list('rc_id', flat=True)
         srsQuerySet = SubsystemReaction.objects.using(database). \
@@ -129,7 +133,7 @@ def insert_subsystem_stats(database):
 
         Subsystem.objects.using(database). \
             filter(id=subsystem.id).update(reaction_count=srsQuerySet.count(), compartment_count=len(set(compartment_meta)), \
-             metabolite_count=smsQuerySet.count(), unique_metabolite_count=len(unique_meta), enzyme_count=sesQuerySet.count())
+             metabolite_count=smsQuerySet.count(), unique_metabolite_count=uniqueMetQuerySet.count(), enzyme_count=sesQuerySet.count())
 
 
 def insert_compartment_stats(database):
@@ -147,9 +151,8 @@ def insert_compartment_stats(database):
         smsQuerySet = ReactionComponent.objects.using(database). \
             filter(component_type='m', id__in=sesRC).values_list('id', flat=True)
 
-        unique_meta = set()
-        for meta_id in smsQuerySet:
-            unique_meta.add(meta_id[:-1])
+        uniqueMetQuerySet = ReactionComponent.objects.using(database).distinct(). \
+            filter(component_type='m', id__in=sesRC).values_list('name', flat=True)
 
         subCompartQuerySet = SubsystemCompartment.objects.using(database). \
             filter(compartment_id=compartment.id).values_list('subsystem_id', flat=True)
@@ -165,7 +168,7 @@ def insert_compartment_stats(database):
         # stats display on the HMR web site are the one that correspond to the model file
         Compartment.objects.using(database). \
             filter(id=compartment.id).update(reaction_count=srsQuerySet.count(), subsystem_count=subCompartQuerySet.count(), \
-             metabolite_count=smsQuerySet.count(), unique_metabolite_count=len(unique_meta), enzyme_count=sesQuerySet.count())
+             metabolite_count=smsQuerySet.count(), unique_metabolite_count=uniqueMetQuerySet.count(), enzyme_count=sesQuerySet.count())
 
 """
     read YAML model files and insert the strict minimum information
@@ -203,11 +206,16 @@ def load_YAML(database, yaml_file, delete=False):
             compartment = compartment_dict[dict_metabolite['compartment']]
             full_name = "%s[%s]" % (dict_metabolite['name'], dict_metabolite['compartment'])
             rc = ReactionComponent(id=dict_metabolite['id'], name=dict_metabolite['name'], full_name=full_name,
-                component_type='m', compartment=compartment, compartment_str=compartment.name)
+                component_type='m', formula=dict_metabolite['formula'], compartment=compartment, compartment_str=compartment.name)
             rc.save(using=database)
 
             rcc = ReactionComponentCompartment(rc=rc, compartment=rc.compartment)
             rcc.save(using=database)
+
+            if dict_metabolite['charge'] is not None:
+                ## add Metabolite object, with the charge
+                met = Metabolite(rc=rc, charge=dict_metabolite['charge'])
+                met.save(using=database)
         else:
             rc = rc[0]
 
@@ -239,9 +247,12 @@ def load_YAML(database, yaml_file, delete=False):
         equation_compartment = equation.get_equation_compartment()
 
         # extract additional info
+
         is_transport = False
-        for meta_id in [a[:6] for a,b, in dict_rxn['reactant']]:
-            if meta_id in [a[:6] for a,b in dict_rxn['product']]:
+        for id, meta_name in [(a, rc_dict[a].name) for a,b, in dict_rxn['reactant']]:
+            if not meta_name:
+                print("no name for met" + a + "(" + meta_name + ")")
+            if meta_name in [rc_dict[a].name for a,b in dict_rxn['product']]:
                 is_transport = True
                 break
 
@@ -342,7 +353,7 @@ def load_YAML(database, yaml_file, delete=False):
                     rm = ReactionModifier(reaction=r, modifier=rc)
                     rm.save(using=database)
 
-                # save subsystem/enzyme relationship
+                # save subsystem/modifiers relationship
                 for sub in subsystems_list:
                     se = SubsystemEnzyme.objects.using(database).filter(rc=rc, subsystem=sub)
                     if not se:

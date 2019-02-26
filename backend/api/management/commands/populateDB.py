@@ -104,7 +104,7 @@ def populate_database(database, yaml_file, model_label, model_pmid=None, delete=
 
             python manage.py addNumberOfInteractionPartners %s
 
-        Add HPA tissue/enzyme RNA levels with:
+        if applicable, Add HPA tissue/enzyme RNA levels with:
 
             python manage.py addHPAexpression %s
 

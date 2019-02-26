@@ -87,11 +87,11 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
         elif type == 'metabolite':
             if serializer_type in ['lite', 'basic']:
                 return APIrcSerializer.ReactionComponentSerializer
-            return APIrcSerializer.ReactionComponentSerializer
+            return APIrcSerializer.MetaboliteReactionComponentSerializer
         elif type == 'enzyme':
             if serializer_type in ['lite', 'basic']:
                 return APIrcSerializer.ReactionComponentSerializer
-            return APIrcSerializer.ReactionComponentSerializer
+            return APIrcSerializer.EnzymeReactionComponentSerializer
         elif type == 'reaction':
             if serializer_type == 'basic':
                 return APIserializer.ReactionBasicSerializer    
@@ -103,6 +103,7 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
         elif type == 'subsystem':
             if serializer_type == 'lite':
                 return APIserializer.SubsystemLiteSerializer
+            return APIserializer.SubsystemSerializer
         elif type == 'interaction partner':
             if serializer_type == 'lite':
                 return APIserializer.InteractionPartnerLiteSerializer
