@@ -207,7 +207,11 @@ export default {
             models[model.database_name] = model;
           }
           this.models = models;
-          this.selectModel(this.models.hmr2); // todo get the first?
+          let defaultModel = this.models.hmr2; // // todo get the first key?
+          if (this.$route.params.model && this.$route.params.model in this.models) {
+            defaultModel = this.models[this.$route.params.model];
+          }
+          this.selectModel(defaultModel);
           this.setup();
         })
         .catch(() => {
