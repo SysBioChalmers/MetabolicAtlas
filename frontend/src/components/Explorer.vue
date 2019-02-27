@@ -171,6 +171,9 @@ export default {
         return;
       }
       // but redirect even if the model url do not match the model loaded
+      if (this.$route.params.model && this.$route.params.model in this.models) {
+        this.selectModel(this.models[this.$route.params.model]);
+      }
       if (['viewer', 'viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.displayViewer();
       } else if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
