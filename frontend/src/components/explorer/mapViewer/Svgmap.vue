@@ -80,6 +80,7 @@ export default {
       elmsHL: [],
       // TODO handle multi model history
       selectedItemHistory: {},
+      selectElementID: null,
 
       HPARNAlevelsHistory: {},
       enzymeRNAlevels: {}, // enz id as key, current tissue level as value
@@ -137,29 +138,29 @@ export default {
   },
   mounted() {
     const self = this;
-    $('#svg-wrapper').on('click', 'svg', (e) => {
-      const target = $(e.target);
-      if (!target.parents('.met, .enz, .rea, .subsystem').length > 0) {
-        self.unSelectElement();
-        self.unHighlight();
-      }
-    });
+    // $('#svg-wrapper').on('click', 'svg', (e) => {
+    //   const target = $(e.target);
+    //   if (!target.parents('.met, .enz, .rea, .subsystem').length > 0) {
+    //     self.unSelectElement();
+    //     self.unHighlight();
+    //   }
+    // });
     $('#svg-wrapper').on('click', '.met', function f() {
       // exact the real id from the id
       const id = $(this).attr('class').split(' ')[1].trim();
-      self.selectElement(id, 'metabolite');
       self.highlight([$(this)]);
+      self.selectElement(id, 'metabolite');
     });
     $('#svg-wrapper').on('click', '.enz', function f() {
       // exact the real id from the id
       const id = $(this).attr('class').split(' ')[1].trim();
-      self.selectElement(id, 'enzyme');
       self.highlight([$(this)]);
+      self.selectElement(id, 'enzyme');
     });
     $('#svg-wrapper').on('click', '.rea', function f() {
       const id = $(this).attr('id');
-      self.selectElement(id, 'reaction');
       self.highlight([$(this)]);
+      self.selectElement(id, 'reaction');
     });
     $('#svg-wrapper').on('click', '.subsystem', function f() {
       const id = $(this).attr('id');
@@ -449,6 +450,12 @@ export default {
       }
     },
     selectElement(id, type) {
+      if (this.selectElementID === id) {
+        this.unSelectElement();
+        return;
+      }
+
+      this.selectElementID = id;
       if (this.selectedItemHistory[id]) {
         EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
         return;
@@ -479,6 +486,8 @@ export default {
       });
     },
     unSelectElement() {
+      this.unHighlight();
+      this.selectElementID = null;
       EventBus.$emit('unSelectedElement');
     },
     clientFocusX() {
