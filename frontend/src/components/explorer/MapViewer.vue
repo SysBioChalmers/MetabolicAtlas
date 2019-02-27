@@ -560,10 +560,16 @@ export default {
       return true;
     },
     viewOnGemBrowser() {
-      if (this.currentDisplayedType) {
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.model.database_name, this.currentDisplayedType, this.currentDisplayedName);
-      } else {
+      if (this.selectedElementData.id) {
         EventBus.$emit('navigateTo', 'GEMBrowser', this.model.database_name, this.selectedElementData.type, this.selectedElementData.id);
+      } else if (this.currentDisplayedType) {
+        let nameID = null;
+        if (this.currentDisplayedType === 'compartment') {
+          nameID = this.compartmentsSVG[this.currentDisplayedName].compartment;
+        } else {
+          nameID = this.subsystemsSVG[this.currentDisplayedName].subsystem;
+        }
+        EventBus.$emit('navigateTo', 'GEMBrowser', this.model.database_name, this.currentDisplayedType, nameID);
       }
     },
     // globalMapSelected() {
