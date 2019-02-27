@@ -1,9 +1,22 @@
 <template>
-  <section>
-    <section>
-      <banner></banner>
+  <div>
+    <section class="hero video container" style="max-width:100%; width:100%;">
+      <div class="hero-video is-transparent">
+        <video poster="img/bgimg.jpg" playsinline autoplay muted loop>
+          <source src="http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_stereo.ogg" type="video/ogg">
+          <source src="vid/BGvid.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="is-size-1 title has-text-primary">METABOLIC ATLAS</h1>
+          <h3 class="is-size-3 subtitle has-text-gray">
+            Atlas for Metabolism Exploration
+          </h3>
+        </div>
+      </div>
     </section>
-    <section class="section extended-section">
+    <section class="section">
       <div id="home" class="container">
         <div class="columns">
           <div class="column">
@@ -47,19 +60,15 @@
         </div>
       </div>
     </section>
-  </section>
+  </div>
 </template>
 
 <script>
-import Banner from 'components/Banner';
 import { default as messages } from '../helpers/messages';
 
 /* eslint-disable global-require*/
 export default {
   name: 'home',
-  components: {
-    Banner,
-  },
   data() {
     return {
       menu: [
@@ -153,4 +162,3 @@ export default {
 </script>
 <style lang="scss">
 </style>
-

@@ -528,6 +528,10 @@ export default {
     height:100%;
   }
 
+  #svg-wrapper svg {
+    background: whitesmoke;
+  }
+
   #svgOption {
     position: absolute;
     top: 2.25rem;
