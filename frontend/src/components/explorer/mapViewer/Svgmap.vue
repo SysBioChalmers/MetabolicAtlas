@@ -75,7 +75,7 @@ export default {
       },
       currentZoomScale: 1,
 
-      ids: [],
+      idsFound: [],
       elmFound: [],
       elmsHL: [],
       // TODO handle multi model history
@@ -121,7 +121,7 @@ export default {
       this.loadedMapType = type;
       if (type === 'compartment' || type === 'subsystem') {
         if (name) {
-          this.ids = ids;
+          this.idsFound = ids;
           const callback = ids.length !== 0 ? this.findElementsOnSVG : null;
           this.loadSVG(name, callback);
         }
@@ -138,33 +138,18 @@ export default {
   },
   mounted() {
     const self = this;
-    // $('#svg-wrapper').on('click', 'svg', (e) => {
-    //   const target = $(e.target);
-    //   if (!target.parents('.met, .enz, .rea, .subsystem').length > 0) {
-    //     self.unSelectElement();
-    //     self.unHighlight();
-    //   }
-    // });
     $('#svg-wrapper').on('click', '.met', function f() {
-      // exact the real id from the id
-      const id = $(this).attr('class').split(' ')[1].trim();
-      self.highlight([$(this)]);
-      self.selectElement(id, 'metabolite');
+      self.selectElement($(this));
     });
     $('#svg-wrapper').on('click', '.enz', function f() {
-      // exact the real id from the id
-      const id = $(this).attr('class').split(' ')[1].trim();
-      self.highlight([$(this)]);
-      self.selectElement(id, 'enzyme');
+      self.selectElement($(this));
     });
     $('#svg-wrapper').on('click', '.rea', function f() {
-      const id = $(this).attr('id');
-      self.highlight([$(this)]);
-      self.selectElement(id, 'reaction');
+      // self.highlight([$(this)]);
+      self.selectElement($(this));
     });
     $('#svg-wrapper').on('click', '.subsystem', function f() {
-      const id = $(this).attr('id');
-      self.selectElement(id, 'subsystem');
+      self.selectElement($(this));
     });
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
       const id = $(this).attr('class').split(' ')[1].trim();
@@ -349,14 +334,8 @@ export default {
       axios.get(`${this.model.database_name}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
-        this.ids = response.data;
-        this.findElementsOnSVG();
-        setTimeout(() => {
-          if (this.elmFound.length !== 0) {
-            this.currentSearchMatch = 1;
-            this.centerElementOnSVG(0);
-          }
-        }, 0);
+        this.idsFound = response.data;
+        this.findElementsOnSVG(true);
       })
       .catch((error) => {
         this.isLoadingSearch = false;
@@ -370,13 +349,13 @@ export default {
         return;
       });
     },
-    findElementsOnSVG(center) {
-      if (!this.ids) {
+    findElementsOnSVG(zoomOn) {
+      if (!this.idsFound) {
         return;
       }
       this.elmFound = [];
-      for (let i = 0; i < this.ids.length; i += 1) {
-        const id = this.ids[i].trim();
+      for (let i = 0; i < this.idsFound.length; i += 1) {
+        const id = this.idsFound[i].trim();
         const rselector = `#svg-wrapper .rea#${id}`;
         let elms = $(rselector);
         if (elms.length < 1) {
@@ -390,7 +369,7 @@ export default {
         }
       }
       this.isLoadingSearch = false;
-      if (center) {
+      if (zoomOn) {
         this.centerElementOnSVG(1);
       }
     },
@@ -405,6 +384,10 @@ export default {
         this.currentSearchMatch = 1;
       }
       const currentElem = this.elmFound[this.currentSearchMatch - 1];
+
+      this.unSelectElement();
+      this.selectElement(currentElem);
+
       let coords = this.getSvgElemCoordinates(currentElem);
       if (!coords) {
         coords = this.getSvgElemCoordinates($(currentElem).find('.shape')[0]);
@@ -449,13 +432,25 @@ export default {
         this.elmHL = [];
       }
     },
-    selectElement(id, type) {
+    getElementIdAndType(element) {
+      if (element.hasClass('rea')) {
+        return [element.attr('id'), 'reaction'];
+      } else if (element.hasClass('enz')) {
+        return [element.attr('class').split(' ')[1], 'enzymes'];
+      } else if (element.hasClass('met')) {
+        return [element.attr('class').split(' ')[1], 'metabolite'];
+      }
+      return [element.attr('id'), 'subsystem'];
+    },
+    selectElement(element) {
+      const [id, type] = this.getElementIdAndType(element);
       if (this.selectElementID === id) {
         this.unSelectElement();
         return;
       }
 
       this.selectElementID = id;
+      this.highlight([element]);
       if (this.selectedItemHistory[id]) {
         EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
         return;
