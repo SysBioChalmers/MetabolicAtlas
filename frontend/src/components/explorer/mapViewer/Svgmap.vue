@@ -69,7 +69,7 @@ export default {
       panzoomOptions: {
         maxScale: 1,
         minScale: 0.03,
-        increment: 0.03,
+        increment: 0.02,
         animate: false,
         linearZoom: true,
       },
@@ -488,7 +488,6 @@ export default {
       return ($('.svgbox').height() / 2) + $('#navbar').height();
     },
     panToCoords(panX, panY) {
-      // TODO re-add zoomOut?
       this.$panzoom.panzoom('zoom', 1.0, {
         increment: 1 - this.currentZoomScale,
         transition: false,
