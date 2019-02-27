@@ -158,9 +158,7 @@ export default {
         this.activeBrowserBut = true;
         this.activeViewerBut = false;
         this.savePath();
-      } else if (this.$route.name === 'viewer' ||
-        this.$route.name === 'viewerCompartment' ||
-        this.$route.name === 'viewerSubsystem') {
+      } else if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
         this.savePath();
@@ -186,7 +184,7 @@ export default {
         this.browserLastPath = this.$route.path;
       } else if (this.$route.name === 'browserRoot') {
         this.browserLastPath = '';
-      } else if (this.$route.name === 'viewerCompartment' || this.$route.name === 'viewerSubsystem') {
+      } else if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.viewerLastPath = this.$route.path;
       } else if (this.$route.name === 'viewer') {
         this.viewerLastPath = '';
