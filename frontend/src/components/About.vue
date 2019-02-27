@@ -68,7 +68,7 @@ export default {
   methods: {
     viewGem() {
       this.$router.push({ name: 'gems' });
-      EventBus.$emit('viewGem', 'human1');
+      EventBus.$emit('viewGem', 'Human1');
     },
   },
 };
