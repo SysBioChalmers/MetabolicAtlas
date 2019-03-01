@@ -237,6 +237,10 @@ $fullhd: 1576px !default;
   background-color: $primary-lighter;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 #app {
   display: flex;
   min-height: 100vh;
@@ -450,7 +454,6 @@ $fullhd: 1576px !default;
         right: 10px;
       }
       &.clickable {
-        cursor: pointer;
         &.disable {
           cursor: not-allowed;
           background: $primary;

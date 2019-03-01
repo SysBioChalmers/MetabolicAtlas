@@ -227,9 +227,9 @@ export default {
       this.$emit('loading');
       // reset some values
       this.searchTerm = '';
-      let mapInfo = this.mapsData.compartmentsSVG[id];
+      let mapInfo = this.mapsData.compartments[id];
       if (!mapInfo) {
-        mapInfo = this.mapsData.subsystemsSVG[id];
+        mapInfo = this.mapsData.subsystems[id];
         if (!mapInfo) {
           this.loadedMapType = null;
           this.$emit('loadComplete', false, '');

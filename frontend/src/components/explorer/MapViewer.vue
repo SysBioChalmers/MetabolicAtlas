@@ -18,37 +18,37 @@
               <li>Compartments<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
                   <template v-if="!has2DCompartmentMaps || show3D">
-                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="mapsData.compartments[id]"
-                      @click="showCompartment(mapsData.compartments[id].name_id)">
-                      {{ mapsData.compartments[id].name }} {{ mapsData.compartments[id].reaction_count != 0 ? `(${mapsData.compartments[id].reaction_count})` : '' }}
+                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="mapsData3D.compartments[id]"
+                      @click="showCompartment(mapsData3D.compartments[id].name_id)">
+                      {{ mapsData3D.compartments[id].name }} {{ mapsData3D.compartments[id].reaction_count != 0 ? `(${mapsData3D.compartments[id].reaction_count})` : '' }}
                     </li>
                   </template>
-                  <template v-else-if="mapsData.compartmentsSVG">
-                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="mapsData.compartmentsSVG[id]" :class="{ 'disable' : !mapsData.compartmentsSVG[id].sha }"
-                      @click="showCompartment(mapsData.compartmentsSVG[id].name_id)">
-                      {{ mapsData.compartmentsSVG[id].name }} {{ mapsData.compartmentsSVG[id].reaction_count != 0 ? `(${mapsData.compartmentsSVG[id].reaction_count})` : '' }}
+                  <template v-else-if="mapsData2D.compartments">
+                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="mapsData2D.compartments[id]" :class="{ 'disable' : !mapsData2D.compartments[id].sha }"
+                      @click="showCompartment(mapsData2D.compartments[id].name_id)">
+                      {{ mapsData2D.compartments[id].name }} {{ mapsData2D.compartments[id].reaction_count != 0 ? `(${mapsData2D.compartments[id].reaction_count})` : '' }}
                     </li>
                   </template>
                 </ul>
               </li>
               <li>Subsystems<span>&nbsp;&#9656;</span>
-                <template v-if="Object.keys(mapsData.subsystems).length !== 1">
+                <template v-if="Object.keys(mapsData3D.subsystems).length !== 1">
                   <ul class="l1">
                     <li v-for="system in systemOrder[model.database_name]">{{ system }}<span>&nbsp;&#9656;</span>
-                      <ul class="l2" v-if="mapsData.subsystems[system]">
+                      <ul class="l2" v-if="mapsData3D.subsystems[system]">
                         <template v-if="!has2DSubsystemMaps || show3D">
-                          <li v-for="subsystem in mapsData.subsystems[system]" class="clickable"
-                            v-if="system !== 'Collection of reactions' && mapsData.subsystems[system]" @click="showSubsystem(subsystem.name_id)">
-                              {{ subsystem.name }} {{ mapsData.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData.subsystems[subsystem.name_id].reaction_count})` : '' }}
+                          <li v-for="subsystem in mapsData3D.subsystems[system]" class="clickable"
+                            v-if="system !== 'Collection of reactions' && mapsData3D.subsystems[system]" @click="showSubsystem(subsystem.name_id)">
+                              {{ subsystem.name }} {{ mapsData3D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData3D.subsystems[subsystem.name_id].reaction_count})` : '' }}
                           </li>
                           <li v-else class="clickable disable">
                              {{ subsystem.name }}
                           </li>
                         </template>
-                        <template v-else-if="mapsData.subsystemsSVG">
-                          <li v-for="subsystem in mapsData.subsystems[system]" class="clickable" :class="{ 'disable' : !mapsData.subsystemsSVG[subsystem.name_id].sha }"
-                            v-if="system !== 'Collection of reactions' && mapsData.subsystemsSVG[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
-                              {{ subsystem.name }} {{ mapsData.subsystemsSVG[subsystem.name_id].reaction_count != 0 ? `(${mapsData.subsystemsSVG[subsystem.name_id].reaction_count})` : '' }}
+                        <template v-else-if="mapsData2D.subsystems">
+                          <li v-for="subsystem in mapsData3D.subsystems[system]" class="clickable" :class="{ 'disable' : !mapsData2D.subsystems[subsystem.name_id].sha }"
+                            v-if="system !== 'Collection of reactions' && mapsData2D.subsystems[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
+                              {{ subsystem.name }} {{ mapsData2D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData2D.subsystems[subsystem.name_id].reaction_count})` : '' }}
                           </li>
                           <li v-else class="clickable disable">
                              {{ subsystem.name }}
@@ -60,17 +60,17 @@
                 </template>
                 <template v-else>
                   <!-- the model no do contains 'system' annoation for subsystems -->
-                  <ul class="vhs l1" v-if="mapsData.subsystems['']">
+                  <ul class="vhs l1" v-if="mapsData3D.subsystems['']">
                     <template v-if="!has2DSubsystemMaps || show3D">
-                      <li v-for="subsystem in mapsData.subsystems['']" class="clickable"
+                      <li v-for="subsystem in mapsData3D.subsystems['']" class="clickable"
                         @click="showSubsystem(subsystem.name_id)">
-                          {{ subsystem.name }} {{ mapsData.subsystemsStats[subsystem.name_id].reaction_count != 0 ? `(${mapsData.subsystemsStats[subsystem.name_id].reaction_count})` : '' }}
+                          {{ subsystem.name }} {{ mapsData3D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData3D.subsystems[subsystem.name_id].reaction_count})` : '' }}
                       </li>
                     </template>
-                    <template v-else-if="mapsData.subsystemsSVG">
-                      <li v-for="subsystem in mapsData.subsystems['']" class="clickable" :class="{ 'disable' : !mapsData.subsystemsSVG[subsystem.name_id].sha }"
-                        v-if="mapsData.subsystemsSVG[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
-                          {{ subsystem.name }} {{ mapsData.subsystemsSVG[subsystem.name_id].reaction_count != 0 ? `(${mapsData.subsystemsSVG[subsystem.name_id].reaction_count})` : '' }}
+                    <template v-else-if="mapsData2D.subsystems">
+                      <li v-for="subsystem in mapsData3D.subsystems['']" class="clickable" :class="{ 'disable' : !mapsData2D.subsystems[subsystem.name_id].sha }"
+                        v-if="mapsData2D.subsystems[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
+                          {{ subsystem.name }} {{ mapsData2D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData2D.subsystems[subsystem.name_id].reaction_count})` : '' }}
                       </li>
                       <li v-else class="clickable disable">
                          {{ subsystem.name }}
@@ -90,19 +90,19 @@
               </li>
             </ul>
           </div>
-            <sidebar-data-panels 
-            :model="model" 
-            :dim="show2D ? '2d' : '3d'" 
+            <sidebar-data-panels
+            :model="model"
+            :dim="show2D ? '2d' : '3d'"
             :tissue="loadedTissue"
             :mapType="currentDisplayedType"
             :mapName="currentDisplayedName"
-            :mapsData="mapsData"
+            :mapsData="show2D ? mapsData2D : mapsData3D"
             :selectionData="selectionData"
             :loading="showSelectionLoader"></sidebar-data-panels>
         </div>
         <div id="graphframe" class="column is-unselectable">
           <div class="is-fullheight">
-            <svgmap v-show="show2D" :model="model" :mapsData="mapsData"
+            <svgmap v-show="show2D" :model="model" :mapsData="show2D ? mapsData2D : mapsData3D"
               @loadComplete="handleLoadComplete"
               @loading="showLoader=true">
             </svgmap>
@@ -167,12 +167,13 @@ export default {
       has2DSubsystemMaps: false,
       showLoader: false,
 
-      mapsData: {
+      mapsData2D: {
         compartments: {},
-        compartmentsSVG: {},
         subsystems: {},
-        subsystemsStats: {},
-        subsystemsSVG: {},
+      },
+      mapsData3D: {
+        compartments: {},
+        subsystems: {},
       },
 
       compartmentOrder: {
@@ -383,47 +384,24 @@ export default {
     getSubComptData(model) {
       axios.get(`${model.database_name}/viewer/`)
       .then((response) => {
-        this.mapsData.compartments = {};
+        this.mapsData3D.compartments = {};
         for (const c of response.data.compartment) {
-          this.mapsData.compartments[c.name_id] = c;
+          this.mapsData3D.compartments[c.name_id] = c;
         }
-        this.mapsData.compartmentsSVG = {};
+        this.mapsData2D.compartments = {};
         for (const c of response.data.compartmentsvg) {
-          this.mapsData.compartmentsSVG[c.name_id] = c;
+          this.mapsData2D.compartments[c.name_id] = c;
         }
-        this.has2DCompartmentMaps = Object.keys(this.mapsData.compartmentsSVG).length !== 0;
-        this.mapsData.subsystemsStats = {};
+        this.has2DCompartmentMaps = Object.keys(this.mapsData2D.compartments).length !== 0;
+        this.mapsData3D.subsystems = {};
         for (const s of response.data.subsystem) {
-          this.mapsData.subsystemsStats[s.name_id] = s;
+          this.mapsData3D.subsystems[s.name_id] = s;
         }
-        this.mapsData.subsystemsSVG = {};
+        this.mapsData2D.subsystems = {};
         for (const s of response.data.subsystemsvg) {
-          this.mapsData.subsystemsSVG[s.name_id] = s;
-          // if (s.subsystem) {
-          //   this.subsystemsStats[s.subsystem].id = s.id;
-          // } else {
-          //   this.subsystemsStats[s.id].id = s.id;
-          // }
+          this.mapsData2D.subsystems[s.name_id] = s;
         }
-        this.has2DSubsystemMaps = Object.keys(this.mapsData.subsystemsSVG).length !== 0;
-        const systems = response.data.subsystem.reduce((subarray, el) => {
-          const arr = subarray;
-          if (!arr[el.system]) { arr[el.system] = []; }
-          el.id = this.mapsData.subsystemsStats[el.name_id].id; // eslint-disable-line no-param-reassign, max-len
-          arr[el.system].push(el);
-          return arr;
-        }, {});
-        this.mapsData.subsystems = systems;
-        for (const k of Object.keys(this.mapsData.systems)) {
-          this.mapsData.subsystems[k] = this.mapsData.subsystems[k].sort(
-            (a, b) => {
-              if (a.name > b.name) {
-                return 1;
-              }
-              return a.name < b.name ? -1 : 0;
-            }
-          );
-        }
+        this.has2DSubsystemMaps = Object.keys(this.mapsData2D.subsystems).length !== 0;
 
         if (!this.has2DCompartmentMaps && !this.has2DSubsystemMaps) {
           this.disabled2D = true;
@@ -490,14 +468,14 @@ export default {
       }
       if (this.show2D) {
         if (displayType === 'compartment') {
-          return this.requestedName in this.mapsData.compartmentsSVG;
+          return this.requestedName in this.mapsData2D.compartments;
         }
-        return this.requestedName in this.mapsData.subsystemsSVG;
+        return this.requestedName in this.mapsData2D.subsystems;
       }
       if (displayType === 'compartment') {
-        return this.requestedName in this.mapsData.compartments;
+        return this.requestedName in this.mapsData3D.compartments;
       }
-      return this.requestedName in this.mapsData.subsystemsStats;
+      return this.requestedName in this.mapsData3D.subsystems;
     },
     showCompartment(compartment) {
       this.selectionData.data = null;

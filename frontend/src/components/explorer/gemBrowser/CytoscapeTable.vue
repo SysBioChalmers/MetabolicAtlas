@@ -34,7 +34,7 @@
         <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
           <thead>
             <tr style="background: #F8F4F4">
-              <th class="is-unselectable"
+              <th class="is-unselectable clickable"
                 v-for="s in structure"
                 @click="sortBy(s.field)"
               >{{ s.colName }}</th>
@@ -203,10 +203,6 @@ export default {
 <style lang="scss">
 
 .cytoscape-table {
-  th {
-    cursor: pointer;
-  }
-
   tr.highlight {
     background-color: #C5F4DD !important;
   }

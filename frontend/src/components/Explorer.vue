@@ -131,15 +131,6 @@ export default {
       this.displayBrowser();
     });
 
-    EventBus.$on('navigateTo', (tool, modelName, type, id) => {
-      // console.log('on explorer navigate to', tool, modelName, type, id);
-      if (tool === 'GEMBrowser') {
-        this.$router.push(`/explore/gem-browser/${modelName}/${type}/${idfy(id)}`);
-      } else if (tool === 'MapViewer') {
-        this.$router.push(`/explore/map-viewer/${modelName}/`);
-      }
-    });
-
     $('body').on('click', 'td m', function f() {
       if (!($(this).hasClass('cms'))) {
         EventBus.$emit('GBnavigateTo', 'metabolite', $(this).attr('class'));

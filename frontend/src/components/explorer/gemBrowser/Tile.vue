@@ -1,6 +1,6 @@
 <template>
   <div class="tile is-parent" :class="size" @click="navigate()">
-    <div class="tile is-child box">
+    <div class="tile is-child clickable box">
       <p class="is-capitalized title has-text-primary">{{ type }}</p>
       <template v-if="type == 'metabolite'">
         <span class="is-capitalized"><b>{{ data.name }}</b></span> with {{ model.short_name }} ID <b>{{ data.id}}</b> is in the <b>{{ data.compartment }}</b> compartment.
@@ -52,7 +52,6 @@ export default {
 
 .tile.is-child {
   &:hover {
-    cursor: pointer;
     box-shadow: 0 2px 3px gray, 0 0 0 1px gray;
   }
   ul {
