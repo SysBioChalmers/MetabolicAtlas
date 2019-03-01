@@ -242,7 +242,7 @@ export default {
   },
   created() {
     EventBus.$on('viewGem', (modelID) => {
-      this.getModel(modelID);
+      this.getModelData(modelID);
     });
   },
   beforeMount() {
