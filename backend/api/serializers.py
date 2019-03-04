@@ -214,8 +214,7 @@ class CompartmentSvgSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.CompartmentSvg
         fields = ('name', 'name_id', 'compartment', 'filename', 'letter_code', 'subsystem', 'metabolite_count',
-         'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count', 'min_zoom_level',
-          'max_zoom_level', 'node_zoom_level', 'label_zoom_level', 'sha')
+         'unique_metabolite_count', 'enzyme_count', 'reaction_count', 'subsystem_count', 'sha')
 
 
 class SubsystemLiteSerializer(serializers.ModelSerializer):
@@ -241,7 +240,7 @@ class GemBrowserTileSubsystemSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField('fetch_id')
     class Meta:
         model = APImodels.Subsystem
-        fields = ('name', 'id', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
+        fields = ('id', 'name', 'metabolite_count', 'enzyme_count', 'reaction_count', 'compartment_count')
 
     def fetch_id(self, model):
         return model.name_id
@@ -259,7 +258,7 @@ class SubsystemSvgSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.SubsystemSvg
         fields = ('name', 'name_id', 'subsystem', 'filename', 'metabolite_count', 'unique_metabolite_count', 'enzyme_count',
-            'reaction_count', 'compartment_count', 'min_zoom_level', 'max_zoom_level', 'node_zoom_level', 'label_zoom_level', 'sha')
+            'reaction_count', 'compartment_count', 'sha')
 
 
 class GemBrowserTileSerializer(serializers.Serializer):

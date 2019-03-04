@@ -169,6 +169,8 @@ class Reaction(models.Model):
     external_link3 = models.CharField(max_length=50, null=True)
     external_link4 = models.CharField(max_length=50, null=True)
 
+    metabolites = models.ManyToManyField('ReactionComponent', related_name='reactions_as_metabolite', through='ReactionMetabolite')
+
     def __str__(self):
         return "<Reaction: {0} {1}>".format(self.id, self.modifiers)
 
@@ -288,6 +290,8 @@ class Subsystem(models.Model):
     enzyme_count = models.IntegerField(default=0)
     compartment_count = models.IntegerField(default=0)
 
+    compounds = models.ManyToManyField('ReactionComponent', related_name='subsystems', through='SubsystemReactionComponent')
+
     class Meta:
         db_table = "subsystem"
 
@@ -303,10 +307,10 @@ class SubsystemSvg(models.Model):
     enzyme_count = models.IntegerField(default=0)
     compartment_count = models.IntegerField(default=0)
     sha = models.CharField(max_length=256, unique=True, null=True)
-    min_zoom_level = models.FloatField(default=0)
-    max_zoom_level = models.FloatField(default=0)
-    node_zoom_level = models.FloatField(default=0)
-    label_zoom_level = models.FloatField(default=0)
+    # min_zoom_level = models.FloatField(default=0)
+    # max_zoom_level = models.FloatField(default=0)
+    # node_zoom_level = models.FloatField(default=0)
+    # label_zoom_level = models.FloatField(default=0)
 
     class Meta:
         db_table = "subsystemsvg"
@@ -341,10 +345,10 @@ class CompartmentSvg(models.Model):
     unique_metabolite_count = models.IntegerField(default=0)
     enzyme_count = models.IntegerField(default=0)
     sha = models.CharField(max_length=256, unique=True, null=True)
-    min_zoom_level = models.FloatField(default=0)
-    max_zoom_level = models.FloatField(default=0)
-    node_zoom_level = models.FloatField(default=0)
-    label_zoom_level = models.FloatField(default=0)
+    # min_zoom_level = models.FloatField(default=0)
+    # max_zoom_level = models.FloatField(default=0)
+    # node_zoom_level = models.FloatField(default=0)
+    # label_zoom_level = models.FloatField(default=0)
 
     class Meta:
         db_table = "compartmentsvg"
@@ -404,6 +408,7 @@ class ReactionReactant(models.Model):
 
     class Meta:
         db_table = "reaction_reactant"
+        unique_together = (('reaction', 'reactant'),)
 
 class ReactionProduct(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
@@ -411,6 +416,8 @@ class ReactionProduct(models.Model):
 
     class Meta:
         db_table = "reaction_product"
+        unique_together = (('reaction', 'product'),)
+
 
 class ReactionModifier(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
@@ -418,6 +425,15 @@ class ReactionModifier(models.Model):
 
     class Meta:
         db_table = "reaction_modifier"
+        unique_together = (('reaction', 'modifier'),)
+
+class ReactionMetabolite(models.Model):
+    reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
+    rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "reaction_metabolite"
+        unique_together = (('reaction', 'rc'),)
 
 class CurrencyMetaboliteCompartment(models.Model):
     rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
@@ -449,6 +465,14 @@ class SubsystemEnzyme(models.Model):
 
     class Meta:
         db_table = "subsystem_enzyme"
+        unique_together = (('rc', 'subsystem'),)
+
+class SubsystemReactionComponent(models.Model):
+    rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subsystem_rc"
         unique_together = (('rc', 'subsystem'),)
 
 class SubsystemCompartment(models.Model):
