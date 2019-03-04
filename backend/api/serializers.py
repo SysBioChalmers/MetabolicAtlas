@@ -56,6 +56,18 @@ class HmrReactionBasicRTSerializer(ReactionBasicSerializer):
         fields = ReactionBasicSerializer.Meta.fields + \
             ('modifiers',)
 
+# serializer use for searchTable table
+class ReactionSearchSerializer(serializers.ModelSerializer):
+    subsystem = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+     )
+
+    class Meta:
+        model = APImodels.Reaction
+        fields = ('id', 'equation_wname', 'subsystem', 'compartment', 'is_transport')
+
 
 class ReactionLiteSerializer(ReactionBasicSerializer):
     reactants = APIrcSerializer.ReactionComponentLiteSerializer(many=True)
@@ -223,10 +235,20 @@ class SubsystemLiteSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name',
      )
-
     class Meta:
         model = APImodels.Subsystem
         fields = ('name', 'name_id', 'compartment')
+
+
+class SubsystemSearchSerializer(serializers.ModelSerializer):
+    compartment = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+     )
+    class Meta:
+        model = APImodels.Subsystem
+        fields = ('name', 'name_id', 'compartment', 'reaction_count', 'metabolite_count', 'enzyme_count')
 
 
 class SubsystemSerializer(serializers.ModelSerializer):

@@ -46,9 +46,9 @@ class IsModelValid(permissions.BasePermission):
 
 
 def componentDBserializerSelector(database, type, serializer_type=None, api_version=None):
-    serializer_choice = ['basic', 'lite', 'table', None]
+    serializer_choice = ['basic', 'lite', 'table', 'search', None]
     if serializer_type not in serializer_choice:
-        raise ValueError("Error serializer type, choices are %s" % ", ".join(serializer_choice))
+        raise ValueError("Error serializer type, choices are %s" % ", ".join([str(e) for e in serializer_choice]))
 
     if database in ['hmr2', 'hmr2n', 'hmr3']:
         if type == 'reaction component':
@@ -58,10 +58,14 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
         elif type == 'metabolite':
             if serializer_type in ['lite', 'basic']:
                 return APIrcSerializer.HmrMetaboliteReactionComponentLiteSerializer
+            if serializer_type in ['search']:
+                return APIrcSerializer.MetaboliteReactionComponentSearchSerializer
             return APIrcSerializer.HmrMetaboliteReactionComponentSerializer
         elif type == 'enzyme':
             if serializer_type in ['lite', 'basic']:
                 return APIrcSerializer.HmrEnzymeReactionComponentLiteSerializer
+            elif serializer_type in ['search']:
+                return APIrcSerializer.EnzymeReactionComponentSearchSerializer
             return APIrcSerializer.HmrEnzymeReactionComponentSerializer
         elif type == 'reaction':
             if serializer_type == 'basic':
@@ -70,10 +74,14 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
                 return APIserializer.HmrReactionLiteSerializer
             if serializer_type == 'table':
                 return APIserializer.HmrReactionBasicRTSerializer
+            if serializer_type == 'search':
+                return APIserializer.ReactionSearchSerializer
             return APIserializer.HmrReactionSerializer
         elif type == 'subsystem':
             if serializer_type == 'lite':
                 return APIserializer.SubsystemLiteSerializer
+            elif serializer_type == 'search':
+                return APIserializer.SubsystemSearchSerializer
             return APIserializer.HmrSubsystemSerializer
         elif type == 'interaction partner':
             if serializer_type == 'lite':
@@ -87,10 +95,14 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
         elif type == 'metabolite':
             if serializer_type in ['lite', 'basic']:
                 return APIrcSerializer.ReactionComponentSerializer
+            elif serializer_type in ['search']:
+                return APIrcSerializer.MetaboliteReactionComponentSearchSerializer
             return APIrcSerializer.MetaboliteReactionComponentSerializer
         elif type == 'enzyme':
             if serializer_type in ['lite', 'basic']:
                 return APIrcSerializer.ReactionComponentSerializer
+            if serializer_type in ['search']:
+                return APIrcSerializer.EnzymeReactionComponentSearchSerializer
             return APIrcSerializer.EnzymeReactionComponentSerializer
         elif type == 'reaction':
             if serializer_type == 'basic':
@@ -99,10 +111,14 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
                 return APIserializer.ReactionLiteSerializer
             if serializer_type == 'table':
                 return APIserializer.HmrReactionBasicRTSerializer
+            if serializer_type == 'search':
+                return APIserializer.ReactionSearchSerializer
             return APIserializer.ReactionSerializer
         elif type == 'subsystem':
             if serializer_type == 'lite':
                 return APIserializer.SubsystemLiteSerializer
+            elif serializer_type =='search':
+                return APIserializer.SubsystemSearchSerializer
             return APIserializer.SubsystemSerializer
         elif type == 'interaction partner':
             if serializer_type == 'lite':
@@ -543,10 +559,10 @@ def search(request, model, term):
         if (metabolites.count() + enzymes.count() + compartments.count() + subsystems.count() + reactions.count()) != 0:
             match_found = True
 
-        MetaboliteSerializerClass = componentDBserializerSelector(model, 'metabolite', serializer_type='lite', api_version=request.version)
-        EnzymeSerializerClass = componentDBserializerSelector(model, 'enzyme', serializer_type='lite', api_version=request.version)
-        ReactionSerializerClass= componentDBserializerSelector(model, 'reaction', serializer_type='basic', api_version=request.version)
-        SubsystemSerializerClass = componentDBserializerSelector(model, 'subsystem', serializer_type='lite', api_version=request.version)
+        MetaboliteSerializerClass = componentDBserializerSelector(model, 'metabolite', serializer_type='lite' if quickSearch else 'search', api_version=request.version)
+        EnzymeSerializerClass = componentDBserializerSelector(model, 'enzyme', serializer_type='lite' if quickSearch else 'search', api_version=request.version)
+        ReactionSerializerClass= componentDBserializerSelector(model, 'reaction', serializer_type='basic' if quickSearch else 'search', api_version=request.version)
+        SubsystemSerializerClass = componentDBserializerSelector(model, 'subsystem', serializer_type='lite' if quickSearch else 'search', api_version=request.version)
 
         metaboliteSerializer = MetaboliteSerializerClass(metabolites, many=True)
         enzymeSerializer = EnzymeSerializerClass(enzymes, many=True)

@@ -55,6 +55,46 @@ class ReactionComponentSerializer(ReactionComponentBasicSerializer):
             ('is_currency', 'alt_name1', 'alt_name2', 'external_id1', 'external_id2', 'external_id3', 'external_id4',)
 
 
+class EnzymeReactionComponentSearchSerializer(serializers.ModelSerializer):
+    gene_name = serializers.SerializerMethodField('read_gene_name')
+    subsystem = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+        source='subsystem_enzyme'
+    )
+    compartment = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+        source='compartments',
+     )
+
+    class Meta:
+        model = APImodels.ReactionComponent
+        fields = ('id', 'gene_name', 'subsystem', 'compartment')
+
+    def read_gene_name(self, model):
+        return model.name if model.name else None
+
+
+class MetaboliteReactionComponentSearchSerializer(serializers.ModelSerializer):
+    compartment = serializers.SerializerMethodField('read_compartment')
+    subsystem = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+        source='subsystem_metabolite'
+    )
+
+    class Meta:
+        model = APImodels.ReactionComponent
+        fields = ('id', 'name', 'formula', 'subsystem', 'compartment')
+
+    def read_compartment(self, model):
+        return model.compartment_str
+
+
 class EnzymeReactionComponentSerializer(ReactionComponentSerializer):
     function1 = serializers.SerializerMethodField('read_function1')
     function2 = serializers.SerializerMethodField('read_function2')
