@@ -41,7 +41,7 @@
               <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
               <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
               <td>
-                <a :href="`http://${reaction[el.link]}`" target="_blank">{{ reaction[el.name] }}</a>
+                <a :href="`${reaction[el.link]}`" target="_blank">{{ reaction[el.name] }}</a>
               </td>
             </tr>
           </table>

@@ -13,12 +13,15 @@ for r in cur.fetchall():
     IDS.add(eid)
 
 res = {}
-with open('/project/annotation/hmr2/scripts/enzyme_name_human.txt', 'r') as fh:
+with open('/project/annotation/hmr2/scripts/ensembl_ID_mapping.tsv', 'r') as fh:
     for line in fh:
+        if line[0] == '#' or line[:4].lower() == "gene":
+            continue
         line = line.split('\t')
         eid = line[0]
-        if eid in IDS:
+        if eid in IDS and eid not in res:
             res[eid] = {'ID': eid, 'name': line[4]}
+            res[eid]['name_link'] = 'https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=%s' % eid
 
 enzyme_file = '/project/annotation/hmr2/ENZYMES.txt'
 ld = tools.merge_values(enzyme_file, res)
