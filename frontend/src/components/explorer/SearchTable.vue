@@ -48,7 +48,7 @@
                       </template>
                     </template>
                     <template v-else-if="props.column.field == 'compartment'">
-                      <template v-if="header == 'subsystem'">
+                      <template v-if="['subsystem', 'enzyme'].includes(header)">
                         <template v-for="(comp, i) in props.formattedRow[props.column.field]">
                           <template v-if="i != 0">; </template>
                           <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(comp)}` }"> {{ comp }}</router-link>
@@ -62,6 +62,9 @@
                               <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(compo)}` }"> {{ compo }}</router-link>
                             </template>
                         </template>
+                      </template>
+                      <template v-else-if="Array.isArray(props.formattedRow[props.column.field])">
+                        {{ props.formattedRow[props.column.field].join("; ") }}
                       </template>
                       <template v-else>
                          <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(props.formattedRow[props.column.field])}` }"> {{ props.formattedRow[props.column.field] }}</router-link>
@@ -179,7 +182,6 @@ export default {
               enabled: true,
             },
             sortable: true,
-            html: true,
           }, {
             label: 'Formula',
             field: 'formula',
@@ -188,16 +190,16 @@ export default {
             },
             sortable: true,
           }, {
-            label: 'Compartment',
-            field: 'compartment',
+            label: 'Subsystem',
+            field: 'subsystem',
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
             },
             sortable: true,
           }, {
-            label: 'Currency?',
-            field: 'is_currency',
+            label: 'Compartment',
+            field: 'compartment',
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
@@ -256,17 +258,9 @@ export default {
               enabled: true,
             },
             sortable: true,
-            html: true,
           }, {
             label: 'Equation',
             field: 'equation',
-            filterOptions: {
-              enabled: true,
-            },
-            sortable: false,
-          }, {
-            label: 'EC',
-            field: 'ec',
             filterOptions: {
               enabled: true,
             },
@@ -277,10 +271,8 @@ export default {
             filterOptions: {
               enabled: true,
               filterDropdownItems: [],
-              filterFn: this.filterSubsystem,
             },
             sortable: true,
-            html: true,
           }, {
             label: 'Compartment',
             field: 'compartment',
@@ -316,7 +308,6 @@ export default {
               enabled: true,
             },
             sortable: true,
-            html: true,
           }, {
             label: 'Compartment',
             field: 'compartment',
@@ -327,21 +318,21 @@ export default {
             sortable: true,
           }, {
             label: 'Metabolites',
-            field: 'metaboliteCount',
+            field: 'metabolite_count',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
           }, {
             label: 'Enzymes',
-            field: 'enzymeCount',
+            field: 'enzyme_count',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
           }, {
             label: 'Reactions',
-            field: 'reactionCount',
+            field: 'reaction_count',
             filterOptions: {
               enabled: false,
             },
@@ -369,7 +360,7 @@ export default {
             sortable: true,
           },
           {
-            label: '# Metabolites',
+            label: 'Metabolites',
             field: 'metaboliteCount',
             filterOptions: {
               enabled: false,
@@ -377,7 +368,7 @@ export default {
             sortable: true,
           },
           {
-            label: '# Enzymes',
+            label: 'Enzymes',
             field: 'enzymeCount',
             filterOptions: {
               enabled: false,
@@ -385,7 +376,7 @@ export default {
             sortable: true,
           },
           {
-            label: '# Reactions',
+            label: 'Reactions',
             field: 'reactionCount',
             filterOptions: {
               enabled: false,
@@ -393,7 +384,7 @@ export default {
             sortable: true,
           },
           {
-            label: '# Subsystems',
+            label: 'Subsystems',
             field: 'subsystemCount',
             filterOptions: {
               enabled: false,
@@ -434,18 +425,18 @@ export default {
       const filterTypeDropdown = {
         metabolite: {
           model: {},
+          // subsystem: {},
           compartment: {},
-          is_currency: {},
         },
         enzyme: {
           model: {},
-          subsystem: {},
+          // subsystem: {},
           compartment: {},
         },
         reaction: {
           model: {},
           compartment: {},
-          subsystem: {},
+          // subsystem: {},
           is_transport: {},
         },
         subsystem: {
@@ -473,6 +464,12 @@ export default {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
               if (field === 'model') {
                 filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
+              } else if (field === 'subsystem') {
+                for (const v of el[field]) {
+                  if (!(v in filterTypeDropdown[componentType][field])) {
+                    filterTypeDropdown[componentType][field][v] = 1;
+                  }
+                }
               } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
@@ -482,14 +479,19 @@ export default {
               model: el.model,
               name: el.name,
               formula: el.formula,
-              // subsystem: el.subsystem,
+              subsystem: el.subsystem,
               compartment: el.compartment,
-              is_currency: el.is_currency ? 'Yes' : 'No',
             });
           } else if (componentType === 'enzyme') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
               if (field === 'model') {
                 filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
+              } else if (['compartment', 'subsystem'].includes(field)) {
+                for (const v of el[field]) {
+                  if (!(v in filterTypeDropdown[componentType][field])) {
+                    filterTypeDropdown[componentType][field][v] = 1;
+                  }
+                }
               } else if (!(el[field] in filterTypeDropdown[componentType][field])) {
                 filterTypeDropdown[componentType][field][el[field]] = 1;
               }
@@ -502,14 +504,12 @@ export default {
               compartment: el.compartment,
             });
           } else if (componentType === 'reaction') {
-            const reactionSubsArr = [];
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
               if (field === 'subsystem' && el[field]) {
-                for (const subsystem of el[field].split('; ')) {
-                  if (!(subsystem in filterTypeDropdown[componentType][field])) {
-                    filterTypeDropdown[componentType][field][subsystem] = 1;
+                for (const v of el[field]) {
+                  if (!(v in filterTypeDropdown[componentType][field])) {
+                    filterTypeDropdown[componentType][field][v] = 1;
                   }
-                  reactionSubsArr.push(subsystem);
                 }
               } else if (field === 'compartment' && el[field]) {
                 for (const compartment of el[field].split(/[^a-zA-Z0-9 ]+/)) {
@@ -527,9 +527,8 @@ export default {
             rows[componentType].push({
               id: el.id,
               model: el.model,
-              equation: el.equation,
-              ec: el.ec,
-              subsystem: reactionSubsArr,
+              equation: el.equation_wname,
+              subsystem: el.subsystem,
               compartment: el.compartment,
               is_transport: el.is_transport ? 'Yes' : 'No',
             });
@@ -552,9 +551,9 @@ export default {
               model: el.model,
               name: el.name,
               compartment: el.compartment,
-              metaboliteCount: el.metabolite_count,
-              enzymeCount: el.enzyme_count,
-              reactionCount: el.reaction_count,
+              metabolite_count: el.metabolite_count,
+              enzyme_count: el.enzyme_count,
+              reaction_count: el.reaction_count,
             });
           } else if (componentType === 'compartment') {
             for (const field of Object.keys(filterTypeDropdown[componentType])) {
@@ -601,9 +600,9 @@ export default {
       this.columns.metabolite[0].filterOptions.filterDropdownItems =
           filterTypeDropdown.metabolite.model;
       this.columns.metabolite[3].filterOptions.filterDropdownItems =
-          filterTypeDropdown.metabolite.compartment;
+          filterTypeDropdown.metabolite.subsystem;
       this.columns.metabolite[4].filterOptions.filterDropdownItems =
-          filterTypeDropdown.metabolite.is_currency;
+          filterTypeDropdown.metabolite.compartment;
 
       this.columns.enzyme[0].filterOptions.filterDropdownItems =
           filterTypeDropdown.enzyme.model;
@@ -612,11 +611,11 @@ export default {
 
       this.columns.reaction[0].filterOptions.filterDropdownItems =
           filterTypeDropdown.reaction.model;
+      // this.columns.reaction[3].filterOptions.filterDropdownItems =
+      //     filterTypeDropdown.reaction.subsystem;
       this.columns.reaction[4].filterOptions.filterDropdownItems =
-          filterTypeDropdown.reaction.subsystem_str;
-      this.columns.reaction[5].filterOptions.filterDropdownItems =
           filterTypeDropdown.reaction.compartment;
-      this.columns.reaction[6].filterOptions.filterDropdownItems =
+      this.columns.reaction[5].filterOptions.filterDropdownItems =
           filterTypeDropdown.reaction.is_transport;
 
       this.columns.subsystem[0].filterOptions.filterDropdownItems =
@@ -648,9 +647,6 @@ export default {
         }
       }
       this.showTabType = '';
-    },
-    filterSubsystem(data, s) {
-      return data.indexOf(s) !== -1;
     },
     showTab(elementType) {
       return this.showTabType === elementType;
