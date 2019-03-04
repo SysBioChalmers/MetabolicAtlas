@@ -32,4 +32,6 @@ urlpatterns = [
     url(r'^(?P<model>[^/]+)/enzyme/hpa_tissue/?$', private_views.get_hpa_tissues),
 
     url(r'^(?P<model>[^/]+)/compartment/(?P<compartment_name_id>[^/]+)/stats/?$', views.get_compartment, {'stats_only': True}),
+
+    url(r'^(?P<model>[^/]+)/search/(?P<term>[^/]+)/?$', private_views.search),
 ]

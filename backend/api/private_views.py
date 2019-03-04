@@ -1,5 +1,6 @@
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.db.models import Q
+from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
@@ -9,9 +10,8 @@ import api.serializers as APIserializer
 import api.serializers_rc as APIrcSerializer
 from api.views import is_model_valid
 from api.views import componentDBserializerSelector
+from functools import reduce
 
-import requests
-import re
 import logging
 
 class JSONResponse(HttpResponse):
@@ -584,3 +584,269 @@ def get_hpa_rna_levels(request, model):
           'tissues': tissues,
           'levels': levels
         })
+
+
+@api_view()
+def search(request, model, term):
+    """
+        Searches for the term in metabolites, enzymes, reactions, subsystems and compartments.
+        Current search rules:
+        
+        =: exact match, case insensitive
+        ~: contain in, case insensitive
+
+        compartment:
+            ~name
+        subsystem:
+            ~name
+            =external_id
+        reaction:
+            =id
+            ~name
+            ~equation
+            ~name_equation
+            ~ec
+            =sbo
+        metabolite:
+            =id
+            ~full_name
+            ~alt_name1
+            ~alt_name2
+            ~aliases
+            =external_id1
+            =external_id2
+            =external_id3
+            =external_id4
+            ~formula
+        enzyme:
+            same as metabolite, but name instead of full_name
+    """
+
+    # l = logging.getLogger('django.db.backends')
+    # l.setLevel(logging.DEBUG)
+    # l.addHandler(logging.StreamHandler())
+
+    term = term.replace(";", "#") # to avoid match list of aliases
+    term = term.strip()
+
+    if len(term) < 2:
+        return HttpResponse("Invalid query, term must be at least 2 characters long", status=400)
+
+    results = {}
+    models_dict = {}
+    quickSearch = model != 'all'
+    if not quickSearch:
+        models = [k for k in settings.DATABASES if k not in ['default', 'gems']]
+        limit = 10000
+    else:
+        try:
+            m = APImodels.GEM.objects.get(database_name=model)
+        except APImodels.GEM.DoesNotExist:
+            return HttpResponse("Invalid model name '%s'" % model, status=404)
+        models = [model]
+        limit = 50
+
+    for model_db_name in models:
+        m = APImodels.GEM.objects.get(database_name=model_db_name)
+        models_dict[model_db_name] = m.short_name
+
+    match_found = False
+    for model in models:
+        if model not in results:
+            results[model] = {}
+
+        m = APImodels.GEM.objects.get(database_name=model)
+        model_short_name = m.short_name
+
+        term = term.replace("→", "=>")
+        term = term.replace("⇒", "=>")
+        term = term.replace("⇔", "=>")
+        term = term.replace("->", "=>")
+
+        print('test0')
+
+        reactions = APImodels.Reaction.objects.using(model).none()
+        metabolites = APImodels.ReactionComponent.objects.using(model).none()
+        enzymes = APImodels.ReactionComponent.objects.using(model).none()
+        compartments = APImodels.Compartment.objects.using(model).none()
+        subsystems = APImodels.Subsystem.objects.using(model).none()
+
+        print('test0')
+
+
+        if '=>' in term and term.count('=>') == 1:
+            if not term.strip() == '=>':
+                dr = {}
+                reactants, products = term.split('=>')
+                reactants_mets_terms = [rm.strip() for rm in reactants.split(" + ") if rm.strip()]
+                if reactants_mets_terms:
+                    reactants = APImodels.ReactionComponent.objects.using(model).filter(
+                        Q(component_type__exact='m') &
+                        (reduce(lambda x, y: x | y, [Q(id__iexact=w) for w in reactants_mets_terms]) |
+                        reduce(lambda x, y: x | y, [Q(name__iexact=w) for w in reactants_mets_terms]) |
+                        reduce(lambda x, y: x | y, [Q(full_name__iexact=w) for w in reactants_mets_terms]))
+                    )[:limit]
+                    # convert into dicts of list
+                    for m in reactants:
+                        if m.name not in dr:
+                            dr[m.name] = []
+                        dr[m.name].append(m.id)
+
+                dp = {}
+                products_mets_terms = [pm.strip() for pm in products.split(" + ") if pm.strip()]
+                if products_mets_terms:
+                    products = APImodels.ReactionComponent.objects.using(model).filter(
+                        Q(component_type__exact='m') &
+                        (reduce(lambda x, y: x | y, [Q(id__iexact=w) for w in products_mets_terms]) |
+                        reduce(lambda x, y: x | y, [Q(name__iexact=w) for w in products_mets_terms]) |
+                        reduce(lambda x, y: x | y, [Q(full_name__iexact=w) for w in products_mets_terms]))
+                    )[:limit]
+                    # convert into dicts of list
+                    for m in products:
+                        if m.name not in dp:
+                            dp[m.name] = []
+                        dp[m.name].append(m.id)
+
+                if dr and len(dr) == len(reactants_mets_terms) and dp and len(dp) == len(products_mets_terms):
+                    reactions = APImodels.Reaction.objects.using(model) \
+                    .prefetch_related('subsystem').filter(
+                        reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionReactant.objects.filter(reactant_id__in=l) \
+                            .values_list('reaction_id', flat=True)) for l in dr.values()]), \
+                        reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionProduct.objects.filter(product_id__in=l) \
+                            .values_list('reaction_id', flat=True)) for l in dp.values()]), \
+                        )
+                elif dr and len(dr) == len(reactants_mets_terms):
+                    reactions = APImodels.Reaction.objects.using(model) \
+                    .prefetch_related('subsystem').filter(
+                        reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionReactant.objects.filter(reactant_id__in=l) \
+                            .values_list('reaction_id', flat=True)) for l in dr.values()]) \
+                        )
+                elif dp and len(dp) == len(products_mets_terms):
+                    reactions = APImodels.Reaction.objects.using(model) \
+                    .prefetch_related('subsystem').filter(
+                        reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionProduct.objects.filter(product_id__in=l) \
+                            .values_list('reaction_id', flat=True)) for l in dp.values()]) \
+                        )
+
+        elif " + " in term:
+            mets_terms = [m.strip() for m in term.split(" + ") if m.strip()]
+            if mets_terms:
+                mets = APImodels.ReactionComponent.objects.using(model).filter(
+                    Q(component_type__exact='m') &
+                    (reduce(lambda x, y: x | y, [Q(id__iexact=w) for w in mets_terms]) |
+                    reduce(lambda x, y: x | y, [Q(name__iexact=w) for w in mets_terms]) |
+                    reduce(lambda x, y: x | y, [Q(full_name__iexact=w) for w in mets_terms]))
+                ).distinct()[:limit]
+                d = {}
+                for m in mets:
+                    if m.name not in d:
+                        d[m.name] = []
+                    d[m.name].append(m.id)
+
+                if len(d) == len(mets_terms):
+                    reactions = APImodels.Reaction.objects.using(model).filter(
+                        reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionMetabolite.objects.filter(rc_id__in=l).values_list('reaction_id', flat=True)) \
+                         for l in d.values()])).prefetch_related('subsystem')
+
+        else:
+            print('test1')
+
+            compartments = APImodels.Compartment.objects.using(model).filter(name__icontains=term)
+
+            print('test2')
+
+
+            subsystems = APImodels.Subsystem.objects.using(model).prefetch_related('compartment').filter(
+                Q(name__icontains=term) |
+                Q(external_id__iexact=term)
+            )
+
+            print('test3')
+
+
+            metabolites = APImodels.ReactionComponent.objects.using(model).select_related('metabolite').prefetch_related('subsystem_metabolite').filter(
+                Q(component_type__exact='m') &
+                (Q(id__iexact=term) |
+                Q(full_name__icontains=term) |
+                Q(alt_name1__icontains=term) |
+                Q(alt_name2__icontains=term) |
+                Q(aliases__icontains=term) |
+                Q(external_id1__iexact=term) |
+                Q(external_id2__iexact=term) |
+                Q(external_id3__iexact=term) |
+                Q(external_id4__iexact=term) |
+                Q(formula__icontains=term))
+            )[:limit]
+
+            print('test4')
+
+
+            exact_metabolites = APImodels.ReactionComponent.objects.using(model).filter(
+                Q(component_type__exact='m') &
+                (Q(id__iexact=term) |
+                Q(name__iexact=term) |
+                Q(full_name__iexact=term))
+            )[:limit]
+
+            print('test5')
+
+
+            reactions = APImodels.Reaction.objects.using(model).prefetch_related('subsystem').filter(Q(metabolites__in=exact_metabolites))
+            reactions |= APImodels.Reaction.objects.using(model).prefetch_related('subsystem').filter(
+                Q(id__iexact=term) |
+                Q(name__icontains=term) |
+                Q(ec__icontains=term) |
+                Q(sbo_id__iexact=term) |
+                Q(external_id1__iexact=term) |
+                Q(external_id2__iexact=term) |
+                Q(external_id3__iexact=term) |
+                Q(external_id4__iexact=term)
+            )[:limit]
+            reactions = reactions.distinct()
+
+            print('test6')
+
+
+            enzymes = APImodels.ReactionComponent.objects.using(model).select_related('enzyme').prefetch_related('subsystem_enzyme', 'compartments').filter(
+                Q(component_type__exact='e') &
+                (Q(id__iexact=term) |
+                Q(name__icontains=term) |
+                Q(alt_name1__icontains=term) |
+                Q(alt_name2__icontains=term) |
+                Q(aliases__icontains=term) |
+                Q(external_id1__iexact=term) |
+                Q(external_id2__iexact=term) |
+                Q(external_id3__iexact=term) |
+                Q(external_id4__iexact=term))
+            )[:limit]
+
+            print('test7')
+
+
+        if (metabolites.count() + enzymes.count() + compartments.count() + subsystems.count() + reactions.count()) != 0:
+            match_found = True
+
+        MetaboliteSerializerClass = componentDBserializerSelector(model, 'metabolite', serializer_type='lite' if quickSearch else 'search', api_version=request.version)
+        EnzymeSerializerClass = componentDBserializerSelector(model, 'enzyme', serializer_type='lite' if quickSearch else 'search', api_version=request.version)
+        ReactionSerializerClass= componentDBserializerSelector(model, 'reaction', serializer_type='basic' if quickSearch else 'search', api_version=request.version)
+        SubsystemSerializerClass = componentDBserializerSelector(model, 'subsystem', serializer_type='lite' if quickSearch else 'search', api_version=request.version)
+
+        metaboliteSerializer = MetaboliteSerializerClass(metabolites, many=True)
+        enzymeSerializer = EnzymeSerializerClass(enzymes, many=True)
+        compartmentSerializer = APIserializer.CompartmentSerializer(compartments, many=True)
+        subsystemSerializer = SubsystemSerializerClass(subsystems, many=True, context={'model': model})
+        reactionSerializer = ReactionSerializerClass(reactions, many=True, context={'model': model})
+
+        results[model]['metabolite'] = metaboliteSerializer.data
+        results[model]['enzyme'] = enzymeSerializer.data
+        results[model]['compartment'] = compartmentSerializer.data
+        results[model]['subsystem'] = subsystemSerializer.data
+        results[model]['reaction'] = reactionSerializer.data
+        results[model]['name'] = model_short_name
+
+        response = JSONResponse(results)
+
+    if not match_found:
+        return HttpResponse(status=404)
+
+    return response
