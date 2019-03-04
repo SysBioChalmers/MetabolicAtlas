@@ -264,7 +264,7 @@ export default {
       if (reaction === null) {
         return '';
       }
-      const addComp = reaction.compartment.includes('=>');
+      const addComp = reaction.compartment.includes('=>') || reaction.is_transport;
       let eqArr = null;
       if (reaction.is_reversible) {
         eqArr = reaction.equation.split(' &#8660; ');

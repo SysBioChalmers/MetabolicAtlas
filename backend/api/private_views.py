@@ -34,6 +34,7 @@ def convert_to_reaction_component_ids(request, model, compartment_name_id=None):
         query |= Q(id__iexact=term)
         reaction_query |= Q(id__iexact=term)
         query |= Q(name__iexact=term)
+        query |= Q(full_name__iexact=term)
         query |= Q(alt_name1__iexact=term)
         query |= Q(alt_name2__iexact=term)
         query |= Q(external_id1__iexact=term)
@@ -103,12 +104,14 @@ def search_on_map(request, model, map_type, map_name_id, term):
     reaction_query |= Q(id__iexact=term)
     reaction_query |= Q(name__iexact=term)
     query |= Q(name__iexact=term)
+    query |= Q(full_name__iexact=term)
     query |= Q(alt_name1__iexact=term)
     query |= Q(alt_name2__iexact=term)
     query |= Q(external_id1__iexact=term)
     query |= Q(external_id2__iexact=term)
     query |= Q(external_id3__iexact=term)
     query |= Q(external_id4__iexact=term)
+    query |= Q(formula__iexact=term)
 
     mapIDset = None
     if map_type == 'compartment':
@@ -331,6 +334,7 @@ def HPA_all_enzymes(request):
 def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
     model = "hmr2"
     # TODO provide the model, remove 'hmr2'
+    # remove 'Collection of reactions' subsystems
     try:
         res = APImodels.ReactionComponent.objects.using(model).get(id=ensembl_id)
         rcid = res.id
@@ -470,7 +474,7 @@ def get_component_with_interaction_partners(request, model, id):
     supply an id (for example M_m01954g or E_3640)
     """
     try:
-        component = APImodels.ReactionComponent.objects.using(model).get(Q(id__iexact=id) | Q(name__iexact=id))
+        component = APImodels.ReactionComponent.objects.using(model).get(Q(id__iexact=id) | Q(full_name__iexact=id))
     except APImodels.ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
@@ -480,25 +484,20 @@ def get_component_with_interaction_partners(request, model, id):
         RCSerializerClass = componentDBserializerSelector(model, 'metabolite')
 
     component_serializer = RCSerializerClass(component, context={'model': model})
-    reactions_count = component.reactions_as_reactant.count() + \
-            component.reactions_as_product.count() + \
-            component.reactions_as_modifier.count()
+    reactions_count = component.reactions_as_metabolite.count() + \
+        component.reactions_as_modifier.count()
 
     if reactions_count > 100:
         return HttpResponse(status=406)
 
     reactions = list(chain(
-        component.reactions_as_reactant. \
-        prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
-            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
-            'reactants__compartment', 'products__compartment', 'modifiers__compartment').all(),
-        component.reactions_as_product. \
-        prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
-            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+        component.reactions_as_metabolite. \
+        prefetch_related('reactants', 'products', 'modifiers', 'reactants__metabolite', \
+            'products__metabolite', 'modifiers__enzyme', \
             'reactants__compartment', 'products__compartment', 'modifiers__compartment').all(),
         component.reactions_as_modifier. \
-        prefetch_related('reactants', 'products', 'modifiers', 'reactants__enzyme', 'reactants__metabolite', \
-            'products__enzyme', 'products__metabolite', 'modifiers__enzyme', 'modifiers__metabolite', \
+        prefetch_related('reactants', 'products', 'modifiers', 'reactants__metabolite', \
+            'products__metabolite', 'modifiers__enzyme', \
             'reactants__compartment', 'products__compartment', 'modifiers__compartment').all()
     ))
     InteractionPartnerSerializerClass = componentDBserializerSelector(model, 'interaction partner')
