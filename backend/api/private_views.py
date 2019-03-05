@@ -663,16 +663,11 @@ def search(request, model, term):
         term = term.replace("⇔", "=>")
         term = term.replace("->", "=>")
 
-        print('test0')
-
         reactions = APImodels.Reaction.objects.using(model).none()
         metabolites = APImodels.ReactionComponent.objects.using(model).none()
         enzymes = APImodels.ReactionComponent.objects.using(model).none()
         compartments = APImodels.Compartment.objects.using(model).none()
         subsystems = APImodels.Subsystem.objects.using(model).none()
-
-        print('test0')
-
 
         if '=>' in term and term.count('=>') == 1:
             if not term.strip() == '=>':
@@ -715,13 +710,21 @@ def search(request, model, term):
                         reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionProduct.objects.filter(product_id__in=l) \
                             .values_list('reaction_id', flat=True)) for l in dp.values()]), \
                         )
-                elif dr and len(dr) == len(reactants_mets_terms):
+                    if set((r.id for r in reactants)) != set((p.id for p in products)):
+                        reactions |= APImodels.Reaction.objects.using(model) \
+                        .prefetch_related('subsystem').filter(Q(is_reversible=True) &
+                            reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionReactant.objects.filter(reactant_id__in=l) \
+                                .values_list('reaction_id', flat=True)) for l in dp.values()]), \
+                            reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionProduct.objects.filter(product_id__in=l) \
+                                .values_list('reaction_id', flat=True)) for l in dr.values()]), \
+                            )
+                elif dr and len(dr) == len(reactants_mets_terms) and not products_mets_terms:
                     reactions = APImodels.Reaction.objects.using(model) \
                     .prefetch_related('subsystem').filter(
                         reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionReactant.objects.filter(reactant_id__in=l) \
                             .values_list('reaction_id', flat=True)) for l in dr.values()]) \
                         )
-                elif dp and len(dp) == len(products_mets_terms):
+                elif dp and len(dp) == len(products_mets_terms) and not reactants_mets_terms:
                     reactions = APImodels.Reaction.objects.using(model) \
                     .prefetch_related('subsystem').filter(
                         reduce(lambda x, y: x & y, [Q(id__in=APImodels.ReactionProduct.objects.filter(product_id__in=l) \
@@ -749,20 +752,12 @@ def search(request, model, term):
                          for l in d.values()])).prefetch_related('subsystem')
 
         else:
-            print('test1')
-
             compartments = APImodels.Compartment.objects.using(model).filter(name__icontains=term)
-
-            print('test2')
-
 
             subsystems = APImodels.Subsystem.objects.using(model).prefetch_related('compartment').filter(
                 Q(name__icontains=term) |
                 Q(external_id__iexact=term)
             )
-
-            print('test3')
-
 
             metabolites = APImodels.ReactionComponent.objects.using(model).select_related('metabolite').prefetch_related('subsystem_metabolite').filter(
                 Q(component_type__exact='m') &
@@ -778,18 +773,12 @@ def search(request, model, term):
                 Q(formula__icontains=term))
             )[:limit]
 
-            print('test4')
-
-
             exact_metabolites = APImodels.ReactionComponent.objects.using(model).filter(
                 Q(component_type__exact='m') &
                 (Q(id__iexact=term) |
                 Q(name__iexact=term) |
                 Q(full_name__iexact=term))
             )[:limit]
-
-            print('test5')
-
 
             reactions = APImodels.Reaction.objects.using(model).prefetch_related('subsystem').filter(Q(metabolites__in=exact_metabolites))
             reactions |= APImodels.Reaction.objects.using(model).prefetch_related('subsystem').filter(
@@ -804,9 +793,6 @@ def search(request, model, term):
             )[:limit]
             reactions = reactions.distinct()
 
-            print('test6')
-
-
             enzymes = APImodels.ReactionComponent.objects.using(model).select_related('enzyme').prefetch_related('subsystem_enzyme', 'compartments').filter(
                 Q(component_type__exact='e') &
                 (Q(id__iexact=term) |
@@ -819,9 +805,6 @@ def search(request, model, term):
                 Q(external_id3__iexact=term) |
                 Q(external_id4__iexact=term))
             )[:limit]
-
-            print('test7')
-
 
         if (metabolites.count() + enzymes.count() + compartments.count() + subsystems.count() + reactions.count()) != 0:
             match_found = True
