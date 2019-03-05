@@ -138,19 +138,11 @@ export default {
   },
   mounted() {
     const self = this;
-    $('#svg-wrapper').on('click', '.met', function f() {
-      self.selectElement($(this));
-    });
-    $('#svg-wrapper').on('click', '.enz', function f() {
-      self.selectElement($(this));
-    });
-    $('#svg-wrapper').on('click', '.rea', function f() {
-      // self.highlight([$(this)]);
-      self.selectElement($(this));
-    });
-    $('#svg-wrapper').on('click', '.subsystem', function f() {
-      self.selectElement($(this));
-    });
+    for (const aClass of ['.met', '.enz', '.rea', '.subsystem']) {
+      $('#svg-wrapper').on('click', aClass, function f() {
+        self.selectElement($(this));
+      });
+    }
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
       const id = $(this).attr('class').split(' ')[1].trim();
       if (id in self.enzymeRNAlevels) {
