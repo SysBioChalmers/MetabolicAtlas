@@ -3,8 +3,8 @@
     <div class="column" v-if="tissue && dim === '2d'">
       <div class="card">
         <header class="card-header clickabled" @click.prevent="showLvlCardContent = !showLvlCardContent">
-          <p class="card-header-title">
-            Selected tissue: {{ tissue }}
+          <p class="card-header-title is-inline">
+            RNA levels for&nbsp;<i class="is-capitalized">{{ tissue }}</i>
           </p>
           <a href="#" class="card-header-icon" aria-label="more options">
             <span class="icon">
@@ -18,14 +18,8 @@
     <div class="column" v-if="mapName">
       <div class="card">
         <header class="card-header" @click.prevent="showMapCardContent = !showMapCardContent">
-          <p class="card-header-title">
-            {{ capitalize(mapType) }}:
-            <template v-if="mapType === 'compartment'">
-              {{ mapsData.compartments[mapName].name }}
-            </template>
-            <template v-else-if="mapType === 'subsystem'">
-              {{ mapsData.subsystems[mapName].name }}
-            </template>
+          <p class="card-header-title is-capitalized is-inline">
+            {{ capitalize(mapType) }}: <i>{{ mapsData.compartments[mapName].name || mapsData.subsystems[mapName].name }}</i>
           </p>
         </header>
         <footer class="card-footer">
@@ -42,8 +36,8 @@
       <div class="column" v-if="selectionData.data">
         <div class="card">
           <header class="card-header clickable" v-if="!selectionData.error" @click.prevent="showSelectionCardContent = !showSelectionCardContent">
-            <p class="card-header-title">
-              {{ capitalize(selectionData.type) }}: {{ selectionData.data.id }}
+            <p class="card-header-title is-capitalized is-inline">
+              {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
             </p>
             <a href="#" class="card-header-icon" aria-label="more options">
               <span class="icon">
@@ -51,7 +45,7 @@
               </span>
             </a>
           </header>
-          <div class="card-content" v-show="showSelectionCardContent">
+          <div class="card-content card-content-compact" v-show="showSelectionCardContent">
             <div class="content" v-if="!selectionData.error && ['metabolite', 'enzyme', 'reaction'].includes(selectionData.type)">
               <p v-if="selectionData.data['rnaLvl'] != null">
                 <span class="has-text-weight-bold">RNA&nbsp;level:</span><span>{{ selectionData.data['rnaLvl'] }}</span>
@@ -97,6 +91,11 @@
                   {{ messages.unknownError }}
                 </div>
               </template>
+            </div>
+            <div v-else class="content">
+              This subsystem is spread across
+              <b>{{ mapsData.subsystems[idfy(selectionData.data.id)].compartment_count }}</b>
+              compartments(s).
             </div>
           </div>
           <footer class="card-footer" v-if="!selectionData.error">

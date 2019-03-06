@@ -83,7 +83,7 @@
                 <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
                 <ul class="vhs l1">
                   <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')"><i>Clear selection</i></li>
-                  <li v-for="tissue in HPATissue" class="clickable" @click="loadHPARNAlevels(tissue)">
+                  <li v-for="tissue in HPATissue" class="clickable is-capitalized" @click="loadHPARNAlevels(tissue)">
                     {{ tissue }}
                   </li>
                 </ul>

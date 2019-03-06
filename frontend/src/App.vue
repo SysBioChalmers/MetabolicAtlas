@@ -241,6 +241,10 @@ $fullhd: 1576px !default;
   cursor: pointer;
 }
 
+.card-content-compact {
+  padding: 0.75rem;
+}
+
 #app {
   display: flex;
   min-height: 100vh;
