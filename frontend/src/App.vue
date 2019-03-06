@@ -457,13 +457,11 @@ $fullhd: 1576px !default;
         position: absolute;
         right: 10px;
       }
-      &.clickable {
-        &.disable {
-          cursor: not-allowed;
-          background: $primary;
-          color: $grey;
-          pointer-events: none;
-        }
+      &.disable {
+        cursor: not-allowed;
+        background: $primary;
+        color: $grey;
+        pointer-events: none;
       }
     }
   }

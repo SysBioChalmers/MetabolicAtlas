@@ -17,67 +17,38 @@
             <ul class="l0">
               <li>Compartments<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
-                  <template v-if="!has2DCompartmentMaps || show3D">
-                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="mapsData3D.compartments[id]"
-                      @click="showCompartment(mapsData3D.compartments[id].name_id)">
-                      {{ mapsData3D.compartments[id].name }} {{ mapsData3D.compartments[id].reaction_count != 0 ? `(${mapsData3D.compartments[id].reaction_count})` : '' }}
+                  <div v-show="!has2DCompartmentMaps || show3D">
+                    <li v-for="compartment in mapsData3D.compartments" class="clickable"
+                      @click="showCompartment(compartment.name_id)">
+                      {{ compartment.name }} {{ compartment.reaction_count != 0 ? `(${compartment.reaction_count})` : '' }}
                     </li>
-                  </template>
-                  <template v-else-if="mapsData2D.compartments">
-                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="mapsData2D.compartments[id]" :class="{ 'disable' : !mapsData2D.compartments[id].sha }"
-                      @click="showCompartment(mapsData2D.compartments[id].name_id)">
-                      {{ mapsData2D.compartments[id].name }} {{ mapsData2D.compartments[id].reaction_count != 0 ? `(${mapsData2D.compartments[id].reaction_count})` : '' }}
+                  </div>
+                  <div v-show="has2DCompartmentMaps && show2D">
+                    <li v-for="compartment in mapsData2D.compartments" class="clickable"
+                      :class="{ 'disable' : !compartment.sha }" @click="showCompartment(compartment.name_id)">
+                      {{ compartment.name }} {{ compartment.reaction_count != 0 ? `(${compartment.reaction_count})` : '' }}
                     </li>
-                  </template>
+                  </div>
                 </ul>
               </li>
               <li>Subsystems<span>&nbsp;&#9656;</span>
-                <template v-if="Object.keys(mapsData3D.subsystems).length !== 1">
-                  <ul class="l1">
-                    <li v-for="system in systemOrder[model.database_name]">{{ system }}<span>&nbsp;&#9656;</span>
-                      <ul class="l2" v-if="mapsData3D.subsystems[system]">
-                        <template v-if="!has2DSubsystemMaps || show3D">
-                          <li v-for="subsystem in mapsData3D.subsystems[system]" class="clickable"
-                            v-if="system !== 'Collection of reactions' && mapsData3D.subsystems[system]" @click="showSubsystem(subsystem.name_id)">
-                              {{ subsystem.name }} {{ mapsData3D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData3D.subsystems[subsystem.name_id].reaction_count})` : '' }}
-                          </li>
-                          <li v-else class="clickable disable">
-                             {{ subsystem.name }}
-                          </li>
-                        </template>
-                        <template v-else-if="mapsData2D.subsystems">
-                          <li v-for="subsystem in mapsData3D.subsystems[system]" class="clickable" :class="{ 'disable' : !mapsData2D.subsystems[subsystem.name_id].sha }"
-                            v-if="system !== 'Collection of reactions' && mapsData2D.subsystems[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
-                              {{ subsystem.name }} {{ mapsData2D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData2D.subsystems[subsystem.name_id].reaction_count})` : '' }}
-                          </li>
-                          <li v-else class="clickable disable">
-                             {{ subsystem.name }}
-                          </li>
-                        </template>
-                      </ul>
+                <ul class="vhs l1">
+                  <div v-show="!has2DSubsystemMaps || show3D">
+                    <li v-for="subsystem in mapsData3D.subsystems" class="clickable"
+                      @click="showSubsystem(subsystem.name_id)">
+                        {{ subsystem.name }} {{ subsystem.reaction_count != 0 ? `(${subsystem.reaction_count})` : '' }}
                     </li>
-                  </ul>
-                </template>
-                <template v-else>
-                  <!-- the model no do contains 'system' annoation for subsystems -->
-                  <ul class="vhs l1" v-if="mapsData3D.subsystems['']">
-                    <template v-if="!has2DSubsystemMaps || show3D">
-                      <li v-for="subsystem in mapsData3D.subsystems['']" class="clickable"
-                        @click="showSubsystem(subsystem.name_id)">
-                          {{ subsystem.name }} {{ mapsData3D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData3D.subsystems[subsystem.name_id].reaction_count})` : '' }}
-                      </li>
-                    </template>
-                    <template v-else-if="mapsData2D.subsystems">
-                      <li v-for="subsystem in mapsData3D.subsystems['']" class="clickable" :class="{ 'disable' : !mapsData2D.subsystems[subsystem.name_id].sha }"
-                        v-if="mapsData2D.subsystems[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
-                          {{ subsystem.name }} {{ mapsData2D.subsystems[subsystem.name_id].reaction_count != 0 ? `(${mapsData2D.subsystems[subsystem.name_id].reaction_count})` : '' }}
-                      </li>
-                      <li v-else class="clickable disable">
-                         {{ subsystem.name }}
-                      </li>
-                    </template>
-                  </ul>
-                </template>
+                  </div>
+                  <div v-show="has2DSubsystemMaps && mapsData2D.subsystems">
+                    <li v-for="subsystem in mapsData2D.subsystems" class="clickable"
+                      v-if="subsystem.name_id && subsystem.sha" @click="showSubsystem(subsystem.name_id)">
+                        {{ subsystem.name }} {{ subsystem.reaction_count != 0 ? `(${subsystem.reaction_count})` : '' }}
+                    </li>
+                    <li v-else class="disable">
+                       {{ subsystem.name }}
+                    </li>
+                  </div>
+                </ul>
               </li>
               <li :class="{'clickable' : true, 'disable' : !currentDisplayedName || HPATissue.length === 0 }" >RNA levels from <i style="color: lightblue">proteinAtlas.org</i>
                 <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
@@ -176,52 +147,6 @@ export default {
         subsystems: {},
       },
 
-      compartmentOrder: {
-        hmr2: [
-          'endoplasmic_reticulum',
-          'golgi',
-          'lysosome',
-          'mitochondria',
-          'nucleus',
-          'peroxisome',
-          'cytosol',
-          'cytosol_1',
-          'cytosol_2',
-          'cytosol_3',
-          'cytosol_4',
-          'cytosol_5',
-          'cytosol_6',
-        ],
-        yeast: [
-          'cytoplasm',
-          'cell_envelope',
-          'extracellular',
-          'endoplasmic_reticulum',
-          'endoplasmic_reticulum_membrane',
-          'golgi',
-          'golgi_membrane',
-          'lipid_particle',
-          'mitochondrion',
-          'mitochondrial_membrane',
-          'nucleus',
-          'peroxisome',
-          'vacuole',
-          'vacuolar_membrane',
-        ],
-      },
-      systemOrder: {
-        hmr2: [
-          'Cholesterol biosynthesis',
-          'Carnitine shuttle',
-          'Glycosphingolipid biosynthesis/metabolism',
-          'Amino Acid metabolism',
-          'Fatty acid',
-          'Vitamin metabolism',
-          'Other metabolism',
-          'Other',
-          'Collection of reactions',
-        ],
-      },
       selectionData: {
         type: '',
         data: null,
@@ -393,6 +318,7 @@ export default {
           this.mapsData2D.compartments[c.name_id] = c;
         }
         this.has2DCompartmentMaps = Object.keys(this.mapsData2D.compartments).length !== 0;
+        // this.mapsData2D.compartments.sort();
         this.mapsData3D.subsystems = {};
         for (const s of response.data.subsystem) {
           this.mapsData3D.subsystems[s.name_id] = s;
