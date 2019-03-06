@@ -17,226 +17,63 @@
             <ul class="l0">
               <li>Compartments<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
-                  <template v-if="!has2DCompartmentMaps || show3D">
-                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="compartments[id]"
-                      @click="showCompartment(compartments[id].name_id)">
-                      {{ compartments[id].name }} {{ compartments[id].reaction_count != 0 ? `(${compartments[id].reaction_count})` : '' }}
+                  <div v-show="!has2DCompartmentMaps || show3D">
+                    <li v-for="compartment in mapsData3D.compartments" class="clickable"
+                      @click="showCompartment(compartment.name_id)">
+                      {{ compartment.name }} {{ compartment.reaction_count != 0 ? `(${compartment.reaction_count})` : '' }}
                     </li>
-                  </template>
-                  <template v-else-if="compartmentsSVG">
-                    <li v-for="id in compartmentOrder[model.database_name]" class="clickable" v-if="compartmentsSVG[id]" :class="{ 'disable' : !compartmentsSVG[id].sha }"
-                      @click="showCompartment(compartmentsSVG[id].name_id)">
-                      {{ compartmentsSVG[id].name }} {{ compartmentsSVG[id].reaction_count != 0 ? `(${compartmentsSVG[id].reaction_count})` : '' }}
+                  </div>
+                  <div v-show="has2DCompartmentMaps && show2D">
+                    <li v-for="compartment in mapsData2D.compartments" class="clickable"
+                      :class="{ 'disable' : !compartment.sha }" @click="showCompartment(compartment.name_id)">
+                      {{ compartment.name }} {{ compartment.reaction_count != 0 ? `(${compartment.reaction_count})` : '' }}
                     </li>
-                  </template>
+                  </div>
                 </ul>
               </li>
               <li>Subsystems<span>&nbsp;&#9656;</span>
-                <template v-if="Object.keys(subsystems).length !== 1">
-                  <ul class="l1">
-                    <li v-for="system in systemOrder[model.database_name]">{{ system }}<span>&nbsp;&#9656;</span>
-                      <ul class="l2" v-if="subsystems[system]">
-                        <template v-if="!has2DSubsystemMaps || show3D">
-                          <li v-for="subsystem in subsystems[system]" class="clickable"
-                            v-if="system !== 'Collection of reactions' && subsystems[system]" @click="showSubsystem(subsystem.name_id)">
-                              {{ subsystem.name }} {{ subsystems[subsystem.name_id].reaction_count != 0 ? `(${subsystems[subsystem.name_id].reaction_count})` : '' }}
-                          </li>
-                          <li v-else class="clickable disable">
-                             {{ subsystem.name }}
-                          </li>
-                        </template>
-                        <template v-else-if="subsystemsSVG">
-                          <li v-for="subsystem in subsystems[system]" class="clickable" :class="{ 'disable' : !subsystemsSVG[subsystem.name_id].sha }"
-                            v-if="system !== 'Collection of reactions' && subsystemsSVG[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
-                              {{ subsystem.name }} {{ subsystemsSVG[subsystem.name_id].reaction_count != 0 ? `(${subsystemsSVG[subsystem.name_id].reaction_count})` : '' }}
-                          </li>
-                          <li v-else class="clickable disable">
-                             {{ subsystem.name }}
-                          </li>
-                        </template>
-                      </ul>
+                <ul class="vhs l1">
+                  <div v-show="!has2DSubsystemMaps || show3D">
+                    <li v-for="subsystem in mapsData3D.subsystems" class="clickable"
+                      @click="showSubsystem(subsystem.name_id)">
+                        {{ subsystem.name }} {{ subsystem.reaction_count != 0 ? `(${subsystem.reaction_count})` : '' }}
                     </li>
-                  </ul>
-                </template>
-                <template v-else>
-                  <!-- the model no do contains 'system' annoation for subsystems -->
-                  <ul class="vhs l1" v-if="subsystems['']">
-                    <template v-if="!has2DSubsystemMaps || show3D">
-                      <li v-for="subsystem in subsystems['']" class="clickable"
-                        @click="showSubsystem(subsystem.name_id)">
-                          {{ subsystem.name }} {{ subsystemsStats[subsystem.name_id].reaction_count != 0 ? `(${subsystemsStats[subsystem.name_id].reaction_count})` : '' }}
-                      </li>
-                    </template>
-                    <template v-else-if="subsystemsSVG">
-                      <li v-for="subsystem in subsystems['']" class="clickable" :class="{ 'disable' : !subsystemsSVG[subsystem.name_id].sha }"
-                        v-if="subsystemsSVG[subsystem.name_id]" @click="showSubsystem(subsystem.name_id)">
-                          {{ subsystem.name }} {{ subsystemsSVG[subsystem.name_id].reaction_count != 0 ? `(${subsystemsSVG[subsystem.name_id].reaction_count})` : '' }}
-                      </li>
-                      <li v-else class="clickable disable">
-                         {{ subsystem.name }}
-                      </li>
-                    </template>
-                  </ul>
-                </template>
+                  </div>
+                  <div v-show="has2DSubsystemMaps && mapsData2D.subsystems">
+                    <li v-for="subsystem in mapsData2D.subsystems" class="clickable"
+                      v-if="subsystem.name_id && subsystem.sha" @click="showSubsystem(subsystem.name_id)">
+                        {{ subsystem.name }} {{ subsystem.reaction_count != 0 ? `(${subsystem.reaction_count})` : '' }}
+                    </li>
+                    <li v-else class="disable">
+                       {{ subsystem.name }}
+                    </li>
+                  </div>
+                </ul>
               </li>
               <li :class="{'clickable' : true, 'disable' : !currentDisplayedName || HPATissue.length === 0 }" >RNA levels from <i style="color: lightblue">proteinAtlas.org</i>
                 <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
                 <ul class="vhs l1">
-                  <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')">None</li>
-                  <li v-for="tissue in HPATissue" class="clickable" @click="loadHPARNAlevels(tissue)">
+                  <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')"><i>Clear selection</i></li>
+                  <li v-for="tissue in HPATissue" class="clickable is-capitalized" @click="loadHPARNAlevels(tissue)">
                     {{ tissue }}
                   </li>
                 </ul>
               </li>
             </ul>
           </div>
-          <div class="column" v-if="loadedTissue && show2D">
-            <div class="card">
-              <header class="card-header">
-                <p class="card-header-title">
-                  Selected tissue: {{ loadedTissue }}
-                </p>
-              </header>
-              <div v-html="getExpLvlLegend()"></div>
-            </div>
-          </div>
-          <div class="column">
-              <div class="loading" v-show="showSelectedElementPanelLoader">
-                <a class="button is-loading"></a>
-              </div>
-              <template>
-                <div class="has-text-centered has-text-danger" v-if="showSelectedElementPanelError">
-                  {{ messages.unknownError }}
-                </div>
-                <div class="card" v-else-if="currentDisplayedType && !showSelectedElementPanelLoader">
-                  <header class="card-header">
-                    <p class="card-header-title">
-                      <template v-if="selectedElement">
-                        {{ capitalize(selectedElementData.type) }}: {{ selectedElementData.id }}
-                      </template>
-                      <template v-else-if="currentDisplayedType === 'compartment'">
-                        <template v-if="show3D">
-                          {{ capitalize(currentDisplayedType) }}: {{ compartments[currentDisplayedName].name }}
-                        </template>
-                        <template v-else>
-                          {{ capitalize(currentDisplayedType) }}: {{ compartmentsSVG[currentDisplayedName].name }}
-                        </template>
-                      </template>
-                      <template v-else-if="currentDisplayedType === 'subsystem'">
-                        <template v-if="show3D">
-                          {{ capitalize(currentDisplayedType) }}: {{ subsystemsStats[currentDisplayedName].name }}
-                        </template>
-                        <template v-else>
-                          {{ capitalize(currentDisplayedType) }}: {{ subsystemsSVG[currentDisplayedName].name }}
-                        </template>
-                      </template>
-                    </p>
-                  </header>
-                  <div class="card-content">
-                    <div class="content">
-                      <template v-if="selectedElement">
-                        <template v-if="['metabolite', 'enzyme', 'reaction'].includes(selectedElement)">
-                          <p v-if="selectedElementData['rnaLvl'] != null">
-                            <span class="hd">RNA&nbsp;level:</span><span>{{ selectedElementData['rnaLvl'] }}</span>
-                          </p>
-                          <template v-for="item in selectedElementDataKeys[model.database_name][selectedElement]"
-                            v-if="selectedElementData[item.name] != null || item.name === 'external_ids'" >
-                            <template v-if="item.name === 'external_ids'">
-                              <span class="hd" v-html="capitalize(item.display || item.name) + ':'"
-                              v-if="hasExternalIDs(item.value)"></span>
-                              <p v-if="hasExternalIDs(item.value)">
-                                <template v-for="eid in item.value" v-if="selectedElementData[eid[1]] && selectedElementData[eid[2]]">
-                                  <span class="hd">{{ capitalize(eid[0]) }}:</span>
-                                  <span v-html="reformatStringToLink(selectedElementData[eid[1]], selectedElementData[eid[2]])"></span><br>
-                                </template>
-                              </p v-if="hasExternalIDs(item.value)">
-                            </template>
-                            <template v-else-if="['aliases', 'subsystem'].includes(item.name)">
-                              <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
-                              <template v-for="s in selectedElementData[item.name].split('; ')">
-                                &ndash;&nbsp;{{ s }}<br>
-                              </template></p>
-                            </template>
-                            <template v-else-if="['reactants', 'products'].includes(item.name)">
-                              <span class="hd">{{ capitalize(item.display || item.name) }}:</span><p>
-                              <template v-for="s in selectedElementData[item.name]">
-                                &ndash;&nbsp;{{ s.name }}<br>
-                              </template></p>
-                            </template>
-                            <template v-else-if="item.name === 'equation'">
-                              <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span><br>
-                              <span v-html="chemicalReaction(selectedElementData[item.name], selectedElementData['is_reversible'])"></span></p>
-                            </template>
-                            <template v-else>
-                              <p><span class="hd" v-html="capitalize(item.display || item.name) + ':'"></span>
-                              {{ selectedElementData[item.name] }}</p>
-                            </template>
-                          </template>
-                          <template v-if="selectedElementHasNoData()">
-                            {{ messages.noInfoAvailable }}
-                          </template>
-                        </template>
-                        <template v-else>
-                          <template v-if="show3D">
-                            <span class="hd">Reactions:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['reaction_count'] }}<br>
-                            <span class="hd">Metabolites:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['metabolite_count'] }}<br>
-                            <span class="hd">Enzymes:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['enzyme_count'] }}<br>
-                            <span class="hd">Compartments:</span> {{ subsystemsStats[idfy(selectedElementData.id)]['compartment_count'] }}<br>
-                          </template>
-                          <template v-else>
-                            <!-- show the stats of the model not the maps -->
-                            <span class="hd">Total model stats:</span><br>
-                            <span class="hd">Reactions:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['reaction_count'] }}<br>
-                            <span class="hd">Metabolites:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['metabolite_count'] }}<br>
-                            <span class="hd">Enzymes:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['enzyme_count'] }}<br>
-                            <span class="hd">Compartments:</span> {{ subsystemsStats[subsystemsSVG[idfy(selectedElementData.id)].subsystem]['compartment_count'] }}<br>
-                          </template>
-                        </template>
-                      </template>
-                      <template v-else>
-                        <template v-if="currentDisplayedType === 'compartment'">
-                          <template v-if="show3D">
-                            <span class="hd">Reactions:</span> {{ compartments[currentDisplayedName]['reaction_count'] }}<br>
-                            <span class="hd">Metabolites:</span> {{ compartments[currentDisplayedName]['metabolite_count'] }}<br>
-                            <span class="hd">Enzymes:</span> {{ compartments[currentDisplayedName]['enzyme_count'] }}<br>
-                            <span class="hd">Subsystems:</span> {{ compartments[currentDisplayedName]['subsystem_count'] }}<br>
-                          </template>
-                          <template v-else>
-                            <!-- show the stats of the model not the maps -->
-                            <span class="hd">Reactions:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['reaction_count'] }}<br>
-                            <span class="hd">Metabolites:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['metabolite_count'] }}<br>
-                            <span class="hd">Enzymes:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['enzyme_count'] }}<br>
-                            <span class="hd">Subsystems:</span> {{ compartments[compartmentsSVG[currentDisplayedName].compartment]['subsystem_count'] }}<br>
-                          </template>
-                        </template>
-                        <template v-else>
-                          <template v-if="show3D">
-                            <span class="hd">Reactions:</span> {{ subsystemsStats[currentDisplayedName]['reaction_count'] }}<br>
-                            <span class="hd">Metabolites:</span> {{ subsystemsStats[currentDisplayedName]['metabolite_count'] }}<br>
-                            <span class="hd">Enzymes:</span> {{ subsystemsStats[currentDisplayedName]['enzyme_count'] }}<br>
-                            <span class="hd">Compartments:</span> {{ subsystemsStats[currentDisplayedName]['compartment_count'] }}<br>
-                          </template>
-                          <template v-else>
-                            <!-- show the stats of the model not the maps -->
-                            <span class="hd">Reactions:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['reaction_count'] }}<br>
-                            <span class="hd">Metabolites:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['metabolite_count'] }}<br>
-                            <span class="hd">Enzymes:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['enzyme_count'] }}<br>
-                            <span class="hd">Compartments:</span> {{ subsystemsStats[subsystemsSVG[currentDisplayedName].subsystem]['compartment_count'] }}<br>
-                          </template>
-                        </template>
-                      </template>
-                    </div>
-                  </div>
-                  <footer class="card-footer">
-                    <a class="card-footer-item has has-text-centered" @click="viewOnGemBrowser()">View more on the Browser</a>
-                  </footer>
-                </div>
-              </template>
-            </div>
+            <sidebar-data-panels
+            :model="model"
+            :dim="show2D ? '2d' : '3d'"
+            :tissue="loadedTissue"
+            :mapType="currentDisplayedType"
+            :mapName="currentDisplayedName"
+            :mapsData="show2D ? mapsData2D : mapsData3D"
+            :selectionData="selectionData"
+            :loading="showSelectionLoader"></sidebar-data-panels>
         </div>
         <div id="graphframe" class="column is-unselectable">
           <div class="is-fullheight">
-            <svgmap v-show="show2D" :model="model"
+            <svgmap v-show="show2D" :model="model" :mapsData="show2D ? mapsData2D : mapsData3D"
               @loadComplete="handleLoadComplete"
               @loading="showLoader=true">
             </svgmap>
@@ -272,25 +109,22 @@
 <script>
 import $ from 'jquery';
 import axios from 'axios';
+import SidebarDataPanels from 'components/explorer/mapViewer/SidebarDataPanels';
 import Svgmap from 'components/explorer/mapViewer/Svgmap';
 import D3dforce from 'components/explorer/mapViewer/D3dforce';
-import Logo from '../../assets/logo.svg';
 import { default as EventBus } from '../../event-bus';
-import { capitalize, reformatStringToLink, idfy } from '../../helpers/utils';
-import { chemicalReaction } from '../../helpers/chemical-formatters';
-import { getExpLvlLegend } from '../../expression-sources/hpa';
 import { default as messages } from '../../helpers/messages';
 
 export default {
   name: 'map-viewer',
   props: ['model'],
   components: {
+    SidebarDataPanels,
     Svgmap,
     D3dforce,
   },
   data() {
     return {
-      Logo,
       errorMessage: '',
       loadErrorMesssage: '',
       show2D: true,
@@ -302,125 +136,23 @@ export default {
       currentDisplayedName: '',
       has2DCompartmentMaps: false,
       has2DSubsystemMaps: false,
-      initialEmit: false,
       showLoader: false,
 
-      compartments: {},
-      compartmentsSVG: {},
-      compartmentOrder: {
-        hmr2: [
-          'endoplasmic_reticulum',
-          'golgi',
-          'lysosome',
-          'mitochondria',
-          'nucleus',
-          'peroxisome',
-          'cytosol',
-          'cytosol_1',
-          'cytosol_2',
-          'cytosol_3',
-          'cytosol_4',
-          'cytosol_5',
-          'cytosol_6',
-        ],
-        yeast: [
-          'cytoplasm',
-          'cell_envelope',
-          'extracellular',
-          'endoplasmic_reticulum',
-          'endoplasmic_reticulum_membrane',
-          'golgi',
-          'golgi_membrane',
-          'lipid particle',
-          'mitochondrion',
-          'mitochondrial_membrane',
-          'nucleus',
-          'peroxisome',
-          'vacuole',
-          'vacuolar_membrane',
-        ],
+      mapsData2D: {
+        compartments: {},
+        subsystems: {},
       },
-      subsystems: {},
-      subsystemsStats: {},
-      subsystemsSVG: {},
-      systemOrder: {
-        hmr2: [
-          'Cholesterol biosynthesis',
-          'Carnitine shuttle',
-          'Glycosphingolipid biosynthesis/metabolism',
-          'Amino Acid metabolism',
-          'Fatty acid',
-          'Vitamin metabolism',
-          'Other metabolism',
-          'Other',
-          'Collection of reactions',
-        ],
+      mapsData3D: {
+        compartments: {},
+        subsystems: {},
       },
 
-      selectedElement: null,
-      showSelectedElementPanelLoader: false,
-      showSelectedElementPanelError: false,
-      selectedElementDataKeys: {
-        hmr2: {
-          metabolite: [
-            { name: 'name' },
-            { name: 'model_name', display: 'Model&nbsp;name' },
-            { name: 'formula' },
-            { name: 'compartment' },
-            { name: 'aliases', display: 'Synonyms' },
-            {
-              name: 'external_ids',
-              display: 'External&nbsp;IDs',
-              value: [
-                ['HMDB', 'hmdb_id', 'hmdb_link'],
-                ['chebi', 'chebi_id', 'chebi_link'],
-                ['mnxref', 'mnxref_id', 'mnxref_link'],
-              ],
-            },
-          ],
-          enzyme: [
-            { name: 'gene_name', display: 'Gene&nbsp;name' },
-            { name: 'gene_synonyms', display: 'Synonyms' },
-            {
-              name: 'external_ids',
-              display: 'External&nbsp;IDs',
-              value: [
-                ['Uniprot', 'uniprot_id', 'uniprot_link'],
-                ['NCBI', 'ncbi_id', 'ncbi_link'],
-                ['Ensembl', 'id', 'name_link'],
-              ],
-            },
-          ],
-          reaction: [
-            { name: 'equation' },
-            { name: 'gene_rule', display: 'GPR' },
-            { name: 'subsystem', display: 'Subsystems' },
-            { name: 'reactants' },
-            { name: 'products' },
-          ],
-        },
-        yeast: {
-          metabolite: [],
-          enzyme: [],
-          reaction: [],
-        },
+      selectionData: {
+        type: '',
+        data: null,
+        error: false,
       },
-
-      selectedElementData: {
-        type: null,
-        id: null,
-        description: null,
-        name: null,
-        compartment: null, // mets only
-        subsystems: null, // mets and reas only, ARRAY
-        formula: null, // mets only
-        equation: null, // reas only
-        gpr: null, // reas only
-        reversible: null, // reas only
-        rna_level: null, // enz only
-        synonyms: null, // mets and enz only
-        external_ids: null, // [[source, ID, link],]
-      },
+      showSelectionLoader: false,
       isHoverMenuItem: false,
 
       HPATissue: [],
@@ -429,12 +161,6 @@ export default {
       messages,
     };
   },
-  // watch: {
-  //   /* eslint-disable quote-props */
-  //   '$route': function watchSetup() {
-  //     this.setup();
-  //   },
-  // },
   computed: {
     activeSwitch() {
       return !this.showLoader;
@@ -465,19 +191,19 @@ export default {
     });
 
     EventBus.$on('updatePanelSelectionData', (data) => {
-      this.selectedElement = data.type;
-      this.selectedElementData = data;
+      this.selectionData = data;
     });
     EventBus.$on('unSelectedElement', () => {
-      this.selectedElement = null;
-      this.selectedElementData = null;
+      this.selectionData.error = false;
+      this.selectionData.data = null;
     });
     EventBus.$on('startSelectedElement', () => {
-      this.showSelectedElementPanelLoader = true;
+      this.showSelectionLoader = true;
     });
     EventBus.$on('endSelectedElement', (isSuccess) => {
-      this.showSelectedElementPanelLoader = false;
-      this.showSelectedElementPanelError = !isSuccess;
+      this.showSelectionLoader = false;
+      this.selectionData.error = !isSuccess;
+      // this.showSelectedElementPanelError = !isSuccess;
     });
     EventBus.$on('loadRNAComplete', (isSuccess, errorMessage) => {
       if (!isSuccess) {
@@ -532,51 +258,12 @@ export default {
         this.errorMessage = `Error: ${messages.modelNotFound}`;
         return;
       }
-      this.loadSubComptData(this.model);
-      this.loadHPATissue(this.model);
+      this.getSubComptData(this.model);
+      this.getHPATissue(this.model);
     },
     hideDropleftMenus() {
       $('#menu ul.l1, #menu ul.l2').hide();
     },
-    hasExternalIDs(keys) {
-      for (const eid of keys) {
-        if (this.selectedElementData[eid[1]] && this.selectedElementData[eid[2]]) {
-          return true;
-        }
-      }
-      return false;
-    },
-    selectedElementHasNoData() {
-      if (!(this.selectedElementData.type in
-          this.selectedElementDataKeys[this.model.database_name])) {
-        return true;
-      }
-      for (const k of this.selectedElementDataKeys[this.model.database_name][this.selectedElementData.type]) {  // eslint-disable-line max-len
-        if (k.name in this.selectedElementData &&
-          this.selectedElementData[k.name]) {
-          return false;
-        }
-      }
-      return true;
-    },
-    viewOnGemBrowser() {
-      if (this.selectedElementData.id) {
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.model.database_name, this.selectedElementData.type, this.selectedElementData.id);
-      } else if (this.currentDisplayedType) {
-        let nameID = null;
-        if (this.currentDisplayedType === 'compartment') {
-          nameID = this.compartmentsSVG[this.currentDisplayedName].compartment;
-        } else {
-          nameID = this.subsystemsSVG[this.currentDisplayedName].subsystem;
-        }
-        EventBus.$emit('navigateTo', 'GEMBrowser', this.model.database_name, this.currentDisplayedType, nameID);
-      }
-    },
-    // globalMapSelected() {
-    //   this.accordionLevelSelected = 'wholemap';
-    //   this.switch3Dimension(false);
-    //   EventBus.$emit('showSVGmap', 'wholemap', null, []);
-    // },
     switchDimension() {
       if (!this.activeSwitch || this.disabled2D) {
         return;
@@ -598,10 +285,8 @@ export default {
       }
     },
     handleLoadComplete(isSuccess, errorMessage) {
-      // console.log(`${isSuccess} ${errorMessage}`);
-      this.selectedElement = null;
+      this.selectionData.data = null;
       if (!isSuccess) {
-        // show error
         this.loadErrorMesssage = errorMessage;
         if (!this.loadErrorMesssage) {
           this.loadErrorMesssage = messages.unknownError;
@@ -621,50 +306,28 @@ export default {
       }
       this.showLoader = false;
     },
-    loadSubComptData(model) {
+    getSubComptData(model) {
       axios.get(`${model.database_name}/viewer/`)
       .then((response) => {
-        this.compartments = {};
+        this.mapsData3D.compartments = {};
         for (const c of response.data.compartment) {
-          this.compartments[c.name_id] = c;
+          this.mapsData3D.compartments[c.name_id] = c;
         }
-        this.compartmentsSVG = {};
+        this.mapsData2D.compartments = {};
         for (const c of response.data.compartmentsvg) {
-          this.compartmentsSVG[c.name_id] = c;
+          this.mapsData2D.compartments[c.name_id] = c;
         }
-        this.has2DCompartmentMaps = Object.keys(this.compartmentsSVG).length !== 0;
-        this.subsystemsStats = {};
+        this.has2DCompartmentMaps = Object.keys(this.mapsData2D.compartments).length !== 0;
+        // this.mapsData2D.compartments.sort();
+        this.mapsData3D.subsystems = {};
         for (const s of response.data.subsystem) {
-          this.subsystemsStats[s.name_id] = s;
+          this.mapsData3D.subsystems[s.name_id] = s;
         }
-        this.subsystemsSVG = {};
+        this.mapsData2D.subsystems = {};
         for (const s of response.data.subsystemsvg) {
-          this.subsystemsSVG[s.name_id] = s;
-          // if (s.subsystem) {
-          //   this.subsystemsStats[s.subsystem].id = s.id;
-          // } else {
-          //   this.subsystemsStats[s.id].id = s.id;
-          // }
+          this.mapsData2D.subsystems[s.name_id] = s;
         }
-        this.has2DSubsystemMaps = Object.keys(this.subsystemsSVG).length !== 0;
-        const systems = response.data.subsystem.reduce((subarray, el) => {
-          const arr = subarray;
-          if (!arr[el.system]) { arr[el.system] = []; }
-          el.id = this.subsystemsStats[el.name_id].id; // eslint-disable-line no-param-reassign
-          arr[el.system].push(el);
-          return arr;
-        }, {});
-        this.subsystems = systems;
-        for (const k of Object.keys(systems)) {
-          this.subsystems[k] = this.subsystems[k].sort(
-            (a, b) => {
-              if (a.name > b.name) {
-                return 1;
-              }
-              return a.name < b.name ? -1 : 0;
-            }
-          );
-        }
+        this.has2DSubsystemMaps = Object.keys(this.mapsData2D.subsystems).length !== 0;
 
         if (!this.has2DCompartmentMaps && !this.has2DSubsystemMaps) {
           this.disabled2D = true;
@@ -696,7 +359,7 @@ export default {
         }
       });
     },
-    loadHPATissue(model) {
+    getHPATissue(model) {
       axios.get(`${model.database_name}/enzyme/hpa_tissue/`)
         .then((response) => {
           this.HPATissue = response.data;
@@ -731,30 +394,25 @@ export default {
       }
       if (this.show2D) {
         if (displayType === 'compartment') {
-          return this.requestedName in this.compartmentsSVG;
+          return this.requestedName in this.mapsData2D.compartments;
         }
-        return this.requestedName in this.subsystemsSVG;
+        return this.requestedName in this.mapsData2D.subsystems;
       }
       if (displayType === 'compartment') {
-        return this.requestedName in this.compartments;
+        return this.requestedName in this.mapsData3D.compartments;
       }
-      return this.requestedName in this.subsystemsStats;
+      return this.requestedName in this.mapsData3D.subsystems;
     },
     showCompartment(compartment) {
-      this.selectedElement = null;
+      this.selectionData.data = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'compartment', compartment, [], false);
     },
     showSubsystem(subsystem) {
-      this.selectedElement = null;
+      this.selectionData.data = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'subsystem', subsystem, [], false);
     },
-    capitalize,
-    reformatStringToLink,
-    chemicalReaction,
-    getExpLvlLegend,
-    idfy,
   },
 };
 </script>
@@ -765,27 +423,6 @@ $navbar-height: 2.5rem;
 $footer-height: 4.55rem;
 
 #mapViewer {
-  #iTopBar {
-    height: 60px;
-    border-bottom: 1px solid black;
-    .column {
-      padding-bottom: 0;
-    }
-  }
-
-  #iLogo {
-    margin-top: 5px;
-  }
-
-  #iTitle {
-    font-size: 2em;
-    font-style: bold;
-  }
-
-  #iHideBut {
-    margin: 10px;
-  }
-
   .is-fullheight {
     min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     max-height: calc(100vh - #{$navbar-height} - #{$footer-height});

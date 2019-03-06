@@ -6,7 +6,7 @@
       </span>
       <template v-if="transportReactionCount !== 0">
         &nbsp;including&nbsp;
-        <span class="tag link is-medium"  @click="sortBy('compartment', '=>', 'desc')">
+        <span class="tag is-medium clickable" @click="sortBy('compartment', '=>', 'desc')">
           {{ transportReactionCount }} transport reactions
         </span>
       </template>
@@ -184,10 +184,6 @@ export default {
       color: rgb(54, 54, 54);
       cursor: default;
     }
-  }
-
-  th, m, span.sc, .tag.link {
-    cursor: pointer;
   }
 
   span.sc {

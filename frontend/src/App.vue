@@ -237,6 +237,14 @@ $fullhd: 1576px !default;
   background-color: $primary-lighter;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
+.card-content-compact {
+  padding: 0.75rem;
+}
+
 #app {
   display: flex;
   min-height: 100vh;
@@ -449,14 +457,11 @@ $fullhd: 1576px !default;
         position: absolute;
         right: 10px;
       }
-      &.clickable {
-        cursor: pointer;
-        &.disable {
-          cursor: not-allowed;
-          background: $primary;
-          color: $grey;
-          pointer-events: none;
-        }
+      &.disable {
+        cursor: not-allowed;
+        background: $primary;
+        color: $grey;
+        pointer-events: none;
       }
     }
   }

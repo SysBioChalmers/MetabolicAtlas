@@ -97,7 +97,7 @@
                     </select>
                   </div>
                   <span>Color:</span>
-                  <span class="color-span"
+                  <span class="color-span clickable"
                     v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
                     v-on:click="showColorPickerEnz = !showColorPickerEnz">
                     <compact-picker v-show="showColorPickerEnz"
@@ -116,7 +116,7 @@
                     </select>
                   </div>
                   <span>Color:</span>
-                   <span class="color-span"
+                   <span class="color-span clickable"
                     v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
                     v-on:click="showColorPickerMeta = !showColorPickerMeta">
                     <compact-picker v-show="showColorPickerMeta"
@@ -1126,10 +1126,6 @@ export default {
       vertical-align: middle;
       margin-right: 15px;
       margin-bottom: 5px;
-    }
-
-    span.color-span:hover {
-      cursor: pointer;
     }
   }
 
