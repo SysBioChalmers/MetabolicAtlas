@@ -128,7 +128,7 @@
               </div>
             </div>
             <div class="column">
-              <div class="card " v-if="model === 'hmr2'">
+              <div class="card " v-if="model.database_name === 'hmr2'">
                 <header class="card-header">
                   <p class="card-header-title">
                     <label class="checkbox is-unselectable">

@@ -158,7 +158,7 @@ export default {
         this.activeBrowserBut = true;
         this.activeViewerBut = false;
         this.savePath();
-      } else if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
+      } else if (['viewer', 'viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
         this.savePath();

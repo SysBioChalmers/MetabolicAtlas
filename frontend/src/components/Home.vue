@@ -5,7 +5,7 @@
         <div class="column">
           <div class="card">
             <header class="card-header has-background-grey has-text-centered" style="justify-content: center;">
-              <p class="card-content title has-text-white">METABOLIC ATLAS - THE ATLAS FOR METABOLISM EXPLORATION</p>
+              <p class="card-content title has-text-white">METABOLIC ATLAS - THE ATLAS FOR EXPLORATION OF METABOLISM</p>
             </header>
           </div>
         </div>
