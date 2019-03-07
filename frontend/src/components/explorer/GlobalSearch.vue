@@ -19,13 +19,13 @@
         </p>
         <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
       </div>
-      <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
+      <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResultsRef">
         <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
           <div v-if="model" class="notification is-medium is-paddingless">
             First 50 results per category from {{ model.short_name }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
           </div>
         </div>
-        <div class="resList" v-show="!showLoader">
+        <div class="resList" v-show="!showLoader" ref="resultsList">
           <div v-if="searchResults.length !== 0" class="searchGroupResultSection"
             v-for="k in resultsOrder" >
             <div v-for="r in searchResults[k]" class="searchResultSection">
@@ -117,7 +117,7 @@ export default {
     });
   },
   mounted() {
-    this.$refs.searchResults.addEventListener('click', (e) => {
+    this.$refs.searchResultsRef.addEventListener('click', (e) => {
       e.stopPropagation();
     });
     this.$refs.searchInput.addEventListener('click', (e) => {
@@ -140,6 +140,7 @@ export default {
     }, 700),
     search(searchTerm) {
       if (this.searchTermString !== searchTerm) {
+        this.$refs.resultsList.scrollTop = 0;
         this.searchTermString = searchTerm;
       }
       const url = this.quickSearch ? `${this.model.database_name}/search/${searchTerm}` : `all/search/${searchTerm}`;
@@ -239,7 +240,7 @@ export default {
               });
             }
           }
-          this.$refs.searchResults.scrollTop = 0;
+          this.$refs.resultsList.scrollTop = 0;
         }
       })
       .catch(() => {
@@ -290,6 +291,8 @@ export default {
       return s;
     },
     goToSearchPage() {
+      this.searchTerm = '';
+      this.searchTermString = '';
       this.$router.push({
         name: 'search',
         query: {
