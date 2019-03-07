@@ -47,10 +47,6 @@
         </div>
         <div class="column is-2-widescreen is-3-desktop is-full-tablet">
           <div class="box has-text-centered">
-            <div class="button is-info is-fullwidth" disabled>
-              <p>View on {{ messages.mapViewerName }}</p>
-            </div>
-            <br>
             <router-link class="button is-info is-fullwidth"
               :to="{path: `/explore/gem-browser/${model.database_name}/interaction/${this.mId}`}">
               {{ messages.interPartName }}
