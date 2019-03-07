@@ -19,20 +19,21 @@
         </p>
         <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
       </div>
-      <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResultsRef">
-        <div class="has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
-          <div v-if="model" class="notification is-medium is-paddingless">
-            First 50 results per category from {{ model.short_name }} -&nbsp;<a @click="goToSearchPage">click here to load all</a>
+      <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
+        <div class="has-text-right" v-show="searchResults.length !== 0 && !showLoader">
+          <div id="asn" v-if="model" class="notification is-large clickable is-unselectable" @click="goToSearchPage">
+            Limited to the first 50 results per category from {{ model.short_name }}<br><u>Click here to get all the results</u>
           </div>
         </div>
-        <div class="resList" v-show="!showLoader" ref="resultsList">
+        <div class="resList" v-show="!showLoader">
           <div v-if="searchResults.length !== 0" class="searchGroupResultSection"
-            v-for="k in resultsOrder" >
-            <div v-for="r in searchResults[k]" class="searchResultSection">
-              <div @click="goToTab(k, r.id || r.name_id || r.name)">
+            v-for="(k, i1) in resultsOrder">
+            <hr class="bhr" v-if="i1 != 0 && searchResults[k].length != 0 && (i1 != 0 && searchResults[resultsOrder[i1-1]].length != 0)">
+            <div v-for="(r, i2) in searchResults[k]" class="searchResultSection">
+              <hr class="is-marginless" v-if="i2 != 0">
+              <div class="clickable" @click="goToTab(k, r.id || r.name_id || r.name)">
                  <b class="is-capitalized">{{ k }}: </b><label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               </div>
-              <hr>
             </div>
           </div>
         </div>
@@ -117,7 +118,7 @@ export default {
     });
   },
   mounted() {
-    this.$refs.searchResultsRef.addEventListener('click', (e) => {
+    this.$refs.searchResults.addEventListener('click', (e) => {
       e.stopPropagation();
     });
     this.$refs.searchInput.addEventListener('click', (e) => {
@@ -140,7 +141,6 @@ export default {
     }, 700),
     search(searchTerm) {
       if (this.searchTermString !== searchTerm) {
-        this.$refs.resultsList.scrollTop = 0;
         this.searchTermString = searchTerm;
       }
       const url = this.quickSearch ? `${this.model.database_name}/search/${searchTerm}` : `all/search/${searchTerm}`;
@@ -240,7 +240,7 @@ export default {
               });
             }
           }
-          this.$refs.resultsList.scrollTop = 0;
+          this.$refs.searchResults.scrollTop = 0;
         }
       })
       .catch(() => {
@@ -330,23 +330,29 @@ export default {
   margin-top: -2px;
   z-index: 30;
 
+  #asn {
+    padding: 4px;
+  }
+
   .resList {
       max-height: 22rem;
       overflow-y: auto;
   }
 
   hr {
-    margin: 0.5rem 0;
-  }
-
-  .searchGroupResultSection:first-child {
-    padding-top: 15px;
+    &.bhr {
+      margin: 5px 7px;
+      padding: 0;
+      border-top: 3px double #000000;
+    }
   }
 
   .searchResultSection {
-    padding: 0 10px;
+    padding: 0px 10px;
+    div {
+      padding: 7px 0px;
+    }
     div:hover, label:hover {
-      cursor: pointer;
       color: #006992; // todo somehow replace it by $link..
     }
   }
