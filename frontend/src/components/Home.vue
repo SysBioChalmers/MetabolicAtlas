@@ -1,18 +1,17 @@
 <template>
-  <div>
+  <div class="extended-section">
     <section class="hero video container" style="max-width:100%; width:100%;">
       <div class="hero-video is-transparent">
-        <video poster="img/bgimg.jpg" playsinline autoplay muted loop>
-          <source src="http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_stereo.ogg" type="video/ogg">
-          <source src="vid/BGvid.mp4" type="video/mp4">
+        <video poster="http://ftp.icsb.chalmers.se/.static/banner_video.jpg" playsinline autoplay muted loop>
+          <source src="http://ftp.icsb.chalmers.se/.static/banner_video.mp4" type="video/mp4">
         </video>
       </div>
       <div class="hero-body">
         <div class="container has-text-centered">
           <h1 class="is-size-1 title has-text-primary">METABOLIC ATLAS</h1>
-          <h3 class="is-size-3 subtitle has-text-gray">
+          <h2 class="is-size-2 subtitle has-text-gray">
             Atlas for Metabolism Exploration
-          </h3>
+          </h2>
         </div>
       </div>
     </section>
@@ -74,7 +73,7 @@ export default {
       menu: [
         { type: '',
           title: 'Welcome',
-          text: 'The <b>Metabolic Atlas</b> is a hub for genome scale metabolic models (GEMs): it integrates open-source consensus models for easy and visual browsing and analysis; also, it provides access to raw model files.<br><br>Citation goes here.',
+          text: 'The <b>Metabolic Atlas</b> integrates open source consensus models of human and yeast for easy browsing and analysis. Also, it provides access to raw model files.<br><br>Article under consideration.',
           img: require('../assets/logo.png'),
           url: '/about' },
         { type: '',
