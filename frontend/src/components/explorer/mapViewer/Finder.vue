@@ -23,13 +23,13 @@
             <tr class="m-tr" @click="selectedRow=k">
               <td>{{ k }}</td>
               <td>{{ v.length }}
-                <span class="tag" @click="zoomOnElements(k, v)">View</span>
+                <span class="tag clickable" @click="zoomOnElements(k, v)">View</span>
               </td>
             </tr>
             <tr class="hm-tr"v-show="selectedRow===k">
               <td colspan="2">
                 <div class="tags">
-                  <span v-for="id in v" class="tag" @click="zoomOnElements(k, [id])">{{ id }}</span>
+                  <span v-for="id in v" class="tag clickable" @click="zoomOnElements(k, [id])">{{ id }}</span>
                 </div>
               </td>
             </tr>
@@ -127,16 +127,12 @@ export default {
 }
 
 tr.m-tr {
-  cursor: pointer;
   td {
       padding: 0.3em 0.5em;
   }
 }
 
 tr.hm-tr {
-  .tag {
-    cursor: pointer;
-  }
   &.hover {
     background-color: #fff;
   }

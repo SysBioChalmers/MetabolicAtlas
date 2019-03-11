@@ -50,7 +50,7 @@ $.fn.extend({
 
 export default {
   name: 'svgmap',
-  props: ['model'],
+  props: ['model', 'mapsData'],
   components: {
     Loader,
   },
@@ -138,19 +138,11 @@ export default {
   },
   mounted() {
     const self = this;
-    $('#svg-wrapper').on('click', '.met', function f() {
-      self.selectElement($(this));
-    });
-    $('#svg-wrapper').on('click', '.enz', function f() {
-      self.selectElement($(this));
-    });
-    $('#svg-wrapper').on('click', '.rea', function f() {
-      // self.highlight([$(this)]);
-      self.selectElement($(this));
-    });
-    $('#svg-wrapper').on('click', '.subsystem', function f() {
-      self.selectElement($(this));
-    });
+    for (const aClass of ['.met', '.enz', '.rea', '.subsystem']) {
+      $('#svg-wrapper').on('click', aClass, function f() {
+        self.selectElement($(this));
+      });
+    }
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
       const id = $(this).attr('class').split(' ')[1].trim();
       if (id in self.enzymeRNAlevels) {
@@ -227,18 +219,16 @@ export default {
       this.$emit('loading');
       // reset some values
       this.searchTerm = '';
-
-      // if already loaded, just call the callback funtion
-      let currentLoad = this.$parent.compartmentsSVG[id];
-      if (!currentLoad) {
-        currentLoad = this.$parent.subsystemsSVG[id];
-        if (!currentLoad) {
+      let mapInfo = this.mapsData.compartments[id];
+      if (!mapInfo) {
+        mapInfo = this.mapsData.subsystems[id];
+        if (!mapInfo) {
           this.loadedMapType = null;
           this.$emit('loadComplete', false, '');
           return;
         }
       }
-      const newSvgName = currentLoad.filename;
+      const newSvgName = mapInfo.filename;
       if (!newSvgName) {
         this.$emit('loadComplete', false, messages.mapNotFound);
         return;
@@ -258,9 +248,9 @@ export default {
             .then((response) => {
               this.svgContent = response.data;
               this.svgName = newSvgName;
-              this.loadedMap = currentLoad;
+              this.loadedMap = mapInfo;
               this.svgContentHistory[this.svgName] = response.data;
-              this.loadedMapHistory[this.svgName] = currentLoad;
+              this.loadedMapHistory[this.svgName] = mapInfo;
               setTimeout(() => {
                 // this.showLoader = false;
                 this.loadSvgPanZoom(callback);
@@ -271,10 +261,11 @@ export default {
             });
         }
       } else if (callback) {
-        this.loadedMap = currentLoad;
+        // if already loaded, just call the callback funtion
+        this.loadedMap = mapInfo;
         callback();
       } else {
-        this.loadedMap = currentLoad;
+        this.loadedMap = mapInfo;
         this.$emit('loadComplete', true, '');
       }
     },
@@ -436,7 +427,7 @@ export default {
       if (element.hasClass('rea')) {
         return [element.attr('id'), 'reaction'];
       } else if (element.hasClass('enz')) {
-        return [element.attr('class').split(' ')[1], 'enzymes'];
+        return [element.attr('class').split(' ')[1], 'enzyme'];
       } else if (element.hasClass('met')) {
         return [element.attr('class').split(' ')[1], 'metabolite'];
       }
@@ -449,14 +440,18 @@ export default {
         return;
       }
 
+      const selectionData = { type, data: null, error: false };
+
       this.selectElementID = id;
       this.highlight([element]);
       if (this.selectedItemHistory[id]) {
-        EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
+        selectionData.data = this.selectedItemHistory[id];
+        EventBus.$emit('updatePanelSelectionData', selectionData);
         return;
       }
       if (type === 'subsystem') {
-        EventBus.$emit('updatePanelSelectionData', { type: 'subsystem', id });
+        selectionData.data = { id };
+        EventBus.$emit('updatePanelSelectionData', selectionData);
         return;
       }
       EventBus.$emit('startSelectedElement');
@@ -471,9 +466,9 @@ export default {
             data.rnaLvl = this.enzymeRNAlevels[id];
           }
         }
-        data.type = type;
-        EventBus.$emit('updatePanelSelectionData', data);
-        this.selectedItemHistory[id] = data;
+        selectionData.data = data;
+        EventBus.$emit('updatePanelSelectionData', selectionData);
+        this.selectedItemHistory[id] = selectionData.data;
         EventBus.$emit('endSelectedElement', true);
       })
       .catch(() => {

@@ -12,7 +12,7 @@
         <div id="integrated" class="columns is-multiline is-variable is-6">
           <div class="column is-half" v-for="model in models">
             <div class="card is-size-5">
-              <header class="card-header has-background-primary" @click="getModelData(model.details.id)">
+              <header class="card-header clickable has-background-primary" @click="getModelData(model.details.id)">
                 <p class="card-content has-text-weight-bold has-text-white">
                   {{ model.short_name }} - {{ model.name }} [+]
                 </p>
@@ -242,7 +242,7 @@ export default {
   },
   created() {
     EventBus.$on('viewGem', (modelID) => {
-      this.getModel(modelID);
+      this.getModelData(modelID);
     });
   },
   beforeMount() {
@@ -358,9 +358,6 @@ export default {
 #integrated {
   .card {
     height: 100%;
-    .card-header:hover {
-      cursor: pointer;
-    }
   }
   margin-bottom: 2rem;
 }
