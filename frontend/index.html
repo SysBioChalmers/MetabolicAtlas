@@ -20,6 +20,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
+
+    <div id="loading">
+      <h3>Loading Metabolic Atlas</h3>
+      <!-- source https://codepen.io/camdenfoucht/pen/BVxawq -->
+      <div class="multi-spinner-container">
+        <div class="multi-spinner">
+          <div class="multi-spinner">
+            <div class="multi-spinner">
+              <div class="multi-spinner">
+                <div class="multi-spinner">
+                  <div class="multi-spinner">
+                    <div class="multi-spinner">
+                      <div class="multi-spinner">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      #loading {
+        text-align: center;
+      }
+      /* MULTI SPINNER */
+      .multi-spinner-container {
+        width: 250px;
+        height: 250px;
+        position: relative;
+        margin: 30px auto;
+      }
+      .multi-spinner {
+        position: absolute;
+        width: calc(100%);
+        height: calc(100%);
+        border: 5px solid transparent;
+        border-top-color: #25543C;
+        border-radius: 50%;
+        -webkit-animation: spin 8s linear infinite;
+        animation: spin 8s linear infinite;
+      }
+
+      @-webkit-keyframes rotate {
+        100% {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes rotate {
+        100% {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+
+      -webkit-@keyframes spin {
+        -webkit-from {
+          -webkit-transform: rotate(0deg);
+          -ms-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        -webkit-to {
+          -webkit-transform: rotate(360deg);
+          -ms-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+      @-webkit-keyframes spin {
+        from {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        to {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes spin {
+        from {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        to {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+
+      @-webkit-keyframes spinBorder {
+        0% {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+          border-width: 15px;
+        }
+        50% {
+          -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+          border-width: 3px;
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+          border-width: 15px;
+        }
+      }
+      @keyframes spinBorder {
+        0% {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+          border-width: 15px;
+        }
+        50% {
+          -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+          border-width: 3px;
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+          border-width: 15px;
+        }
+      }
+    </style>
     <div id="app"></div>
     <!-- built files will be auto injected -->
     <noscript>
