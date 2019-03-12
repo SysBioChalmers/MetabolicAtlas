@@ -94,7 +94,7 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
             return APIrcSerializer.EnzymeReactionComponentSerializer
         elif type == 'reaction':
             if serializer_type == 'basic':
-                return APIserializer.ReactionBasicSerializer    
+                return APIserializer.ReactionBasicSerializer
             if serializer_type == 'lite':
                 return APIserializer.ReactionLiteSerializer
             if serializer_type == 'table':
@@ -705,7 +705,7 @@ def get_model(request, model_id):
     Return all known information for a given model available on the GemsExplorer, supply its ID (int) or database_name e.g. 'hmr3'
     """
 
-    try: 
+    try:
         int(model_id)
         is_int = True
     except ValueError:
@@ -742,7 +742,7 @@ def get_gemodel(request, gem_id):
     For a given Genome-scale metabolic model ID or label, pull out everything we know about it.
     """
 
-    try: 
+    try:
         int(gem_id)
         is_int = True
     except ValueError:
@@ -752,8 +752,6 @@ def get_gemodel(request, gem_id):
          model = APImodels.GEModel.objects.filter(id=gem_id). \
          prefetch_related('files', 'ref')
     else:
-         if gem_id == "HMR2":
-             gem_id = "HMR 2.0" # TODO fix . in url
          model = APImodels.GEModel.objects.filter(label__iexact=gem_id). \
              prefetch_related('files', 'ref')
 
