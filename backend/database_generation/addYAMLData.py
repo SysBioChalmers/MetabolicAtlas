@@ -76,7 +76,7 @@ def idfy_name(name):
     return name.strip('_')
 
 def insert_subsystem_stats(database):
-    subsystems = Subsystem.objects.using(database).exclude(system='Collection of reactions')
+    subsystems = Subsystem.objects.using(database).all()
     subsystem_stat_dict = {}
     compart_stat_dict = {}
 
@@ -126,7 +126,7 @@ def insert_subsystem_stats(database):
 
         # print ("SS:", s.name)
         # print ("Metabolites: ", smsQuerySet.count())
-        # print ("Unique metabolites: ", len(set(unique_meta)))
+        # print ("Unique metabolites: ", uniqueMetQuerySet.count())
         # print ("Enzymes: ", sesQuerySet.count())
         # print ("Reactions: ", srsQuerySet.count())
         # print ("Compartment: ", len(set(compartment_meta)))
@@ -159,13 +159,12 @@ def insert_compartment_stats(database):
 
         # print ("C:", compartment.name)
         # print ("Metabolites: ", smsQuerySet.count())
-        # print ("Unique metabolites: ", len(set(unique_meta)))
+        # print ("Unique metabolites: ", uniqueMetQuerySet.count())
         # print ("Enzymes: ", sesQuerySet.count())
         # print ("Reactions: ", srsQuerySet.count())
         # print ("Compartment: ", subCompartQuerySet.count())
 
         # update the stats
-        # stats display on the HMR web site are the one that correspond to the model file
         Compartment.objects.using(database). \
             filter(id=compartment.id).update(reaction_count=srsQuerySet.count(), subsystem_count=subCompartQuerySet.count(), \
              metabolite_count=smsQuerySet.count(), unique_metabolite_count=uniqueMetQuerySet.count(), enzyme_count=sesQuerySet.count())
@@ -307,12 +306,23 @@ def load_YAML(database, yaml_file, delete=False):
                 rr = ReactionReactant(reaction=r, reactant=rc)
                 rr.save(using=database)
 
+            rm = ReactionMetabolite.objects.using(database).filter(reaction=r, rc=rc)
+            if not rm:
+                rm = ReactionMetabolite(reaction=r, rc=rc)
+                rm.save(using=database)
+
             # save subsystem/metabolite relationship for reactants
             for sub in subsystems_list:
                 sm = SubsystemMetabolite.objects.using(database).filter(rc=rc, subsystem=sub)
                 if not sm:
                     sm = SubsystemMetabolite(rc=rc, subsystem=sub)
                     sm.save(using=database)
+
+            for sub in subsystems_list:
+                src= SubsystemReactionComponent.objects.using(database).filter(rc=rc, subsystem=sub)
+                if not src:
+                    src = SubsystemReactionComponent(rc=rc, subsystem=sub)
+                    src.save(using=database)
 
             # add reaction/compartment relationship using reactants
             rcompt = ReactionCompartment.objects.using(database).filter(reaction=r, compartment=rc.compartment)
@@ -328,12 +338,23 @@ def load_YAML(database, yaml_file, delete=False):
                 rr = ReactionProduct(reaction=r, product=rc)
                 rr.save(using=database)
 
+            rm = ReactionMetabolite.objects.using(database).filter(reaction=r, rc=rc)
+            if not rm:
+                rm = ReactionMetabolite(reaction=r, rc=rc)
+                rm.save(using=database)
+
             # save subsystem/metabolite relationship for products
             for sub in subsystems_list:
                 sm = SubsystemMetabolite.objects.using(database).filter(rc=rc, subsystem=sub)
                 if not sm:
                     sm = SubsystemMetabolite(rc=rc, subsystem=sub)
                     sm.save(using=database)
+
+            for sub in subsystems_list:
+                src = SubsystemReactionComponent.objects.using(database).filter(rc=rc, subsystem=sub)
+                if not src:
+                    src = SubsystemReactionComponent(rc=rc, subsystem=sub)
+                    src.save(using=database)
 
             # add reaction/compartment relationship using products
             rcompt = ReactionCompartment.objects.using(database).filter(reaction=r, compartment=rc.compartment)
@@ -359,6 +380,12 @@ def load_YAML(database, yaml_file, delete=False):
                     if not se:
                         se = SubsystemEnzyme(rc=rc, subsystem=sub)
                         se.save(using=database)
+
+                for sub in subsystems_list:
+                    sm = SubsystemReactionComponent.objects.using(database).filter(rc=rc, subsystem=sub)
+                    if not sm:
+                        sm = SubsystemReactionComponent(rc=rc, subsystem=sub)
+                        sm.save(using=database)
 
             # add compartment/modifiers relationship
             r_compts = ReactionCompartment.objects.select_related('compartment').using(database).filter(reaction=r)
@@ -427,7 +454,7 @@ class Equation(object):
         elif len(reactants_set) == len(reactants_list) and len(products_set) == len(products_list):
             return "{0} => {1}".format(reactants_list_string, products_list_string)
         else:
-            # remove consecutive. duplicates in list
+            # beautiful code to remove consecutive compartment name
             reactants_list = [e for i, e in enumerate(reactants_list) if i == 0 or (i != len(reactants_list) and reactants_list[i] != reactants_list[i-1])]
             products_list = [e for i, e in enumerate(products_list) if i == 0 or (i != len(products_list) and products_list[i] != products_list[i-1])]
             if len(reactants_set) == len(reactants_list) and len(products_set) == len(products_list):
