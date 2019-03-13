@@ -39,7 +39,7 @@
                 <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
                 <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
                 <td>
-                  <a :href="`http://${metabolite[el.link]}`" target="_blank">{{ metabolite[el.name] }}</a>
+                  <a :href="`${metabolite[el.link]}`" target="_blank">{{ metabolite[el.name] }}</a>
                 </td>
               </tr>
             </table>
@@ -47,10 +47,6 @@
         </div>
         <div class="column is-2-widescreen is-3-desktop is-full-tablet">
           <div class="box has-text-centered">
-            <div class="button is-info is-fullwidth" disabled>
-              <p>View on {{ messages.mapViewerName }}</p>
-            </div>
-            <br>
             <router-link class="button is-info is-fullwidth"
               :to="{path: `/explore/gem-browser/${model.database_name}/interaction/${this.mId}`}">
               {{ messages.interPartName }}

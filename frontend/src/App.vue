@@ -104,6 +104,8 @@
 </template>
 
 <script>
+
+import $ from 'jquery';
 import { default as EventBus } from './event-bus';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
@@ -151,6 +153,7 @@ export default {
   },
   created() {
     this.setupButons();
+    $('#loading').css('display', 'none');
   },
   methods: {
     setupButons() {
@@ -464,6 +467,19 @@ $fullhd: 1576px !default;
         pointer-events: none;
       }
     }
+  }
+}
+
+#integrated {
+  .card {
+    height: 100%;
+  }
+  margin-bottom: 2rem;
+}
+
+#gem-list-modal {
+  .modal-content {
+    padding: 2rem;
   }
 }
 
