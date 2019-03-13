@@ -50,7 +50,7 @@ $.fn.extend({
 
 export default {
   name: 'svgmap',
-  props: ['model'],
+  props: ['model', 'mapsData'],
   components: {
     Loader,
   },
@@ -69,17 +69,18 @@ export default {
       panzoomOptions: {
         maxScale: 1,
         minScale: 0.03,
-        increment: 0.03,
+        increment: 0.02,
         animate: false,
         linearZoom: true,
       },
       currentZoomScale: 1,
 
-      ids: [],
+      idsFound: [],
       elmFound: [],
       elmsHL: [],
       // TODO handle multi model history
       selectedItemHistory: {},
+      selectElementID: null,
 
       HPARNAlevelsHistory: {},
       enzymeRNAlevels: {}, // enz id as key, current tissue level as value
@@ -120,7 +121,7 @@ export default {
       this.loadedMapType = type;
       if (type === 'compartment' || type === 'subsystem') {
         if (name) {
-          this.ids = ids;
+          this.idsFound = ids;
           const callback = ids.length !== 0 ? this.findElementsOnSVG : null;
           this.loadSVG(name, callback);
         }
@@ -137,34 +138,11 @@ export default {
   },
   mounted() {
     const self = this;
-    $('#svg-wrapper').on('click', 'svg', (e) => {
-      const target = $(e.target);
-      if (!target.parents('.met, .enz, .rea, .subsystem').length > 0) {
-        self.unSelectElement();
-        self.unHighlight();
-      }
-    });
-    $('#svg-wrapper').on('click', '.met', function f() {
-      // exact the real id from the id
-      const id = $(this).attr('class').split(' ')[1].trim();
-      self.selectElement(id, 'metabolite');
-      self.highlight([$(this)]);
-    });
-    $('#svg-wrapper').on('click', '.enz', function f() {
-      // exact the real id from the id
-      const id = $(this).attr('class').split(' ')[1].trim();
-      self.selectElement(id, 'enzyme');
-      self.highlight([$(this)]);
-    });
-    $('#svg-wrapper').on('click', '.rea', function f() {
-      const id = $(this).attr('id');
-      self.selectElement(id, 'reaction');
-      self.highlight([$(this)]);
-    });
-    $('#svg-wrapper').on('click', '.subsystem', function f() {
-      const id = $(this).attr('id');
-      self.selectElement(id, 'subsystem');
-    });
+    for (const aClass of ['.met', '.enz', '.rea', '.subsystem']) {
+      $('#svg-wrapper').on('click', aClass, function f() {
+        self.selectElement($(this));
+      });
+    }
     $('#svg-wrapper').on('mouseover', '.enz', function f(e) {
       const id = $(this).attr('class').split(' ')[1].trim();
       if (id in self.enzymeRNAlevels) {
@@ -241,18 +219,16 @@ export default {
       this.$emit('loading');
       // reset some values
       this.searchTerm = '';
-
-      // if already loaded, just call the callback funtion
-      let currentLoad = this.$parent.compartmentsSVG[id];
-      if (!currentLoad) {
-        currentLoad = this.$parent.subsystemsSVG[id];
-        if (!currentLoad) {
+      let mapInfo = this.mapsData.compartments[id];
+      if (!mapInfo) {
+        mapInfo = this.mapsData.subsystems[id];
+        if (!mapInfo) {
           this.loadedMapType = null;
           this.$emit('loadComplete', false, '');
           return;
         }
       }
-      const newSvgName = currentLoad.filename;
+      const newSvgName = mapInfo.filename;
       if (!newSvgName) {
         this.$emit('loadComplete', false, messages.mapNotFound);
         return;
@@ -272,9 +248,9 @@ export default {
             .then((response) => {
               this.svgContent = response.data;
               this.svgName = newSvgName;
-              this.loadedMap = currentLoad;
+              this.loadedMap = mapInfo;
               this.svgContentHistory[this.svgName] = response.data;
-              this.loadedMapHistory[this.svgName] = currentLoad;
+              this.loadedMapHistory[this.svgName] = mapInfo;
               setTimeout(() => {
                 // this.showLoader = false;
                 this.loadSvgPanZoom(callback);
@@ -285,10 +261,11 @@ export default {
             });
         }
       } else if (callback) {
-        this.loadedMap = currentLoad;
+        // if already loaded, just call the callback funtion
+        this.loadedMap = mapInfo;
         callback();
       } else {
-        this.loadedMap = currentLoad;
+        this.loadedMap = mapInfo;
         this.$emit('loadComplete', true, '');
       }
     },
@@ -348,14 +325,8 @@ export default {
       axios.get(`${this.model.database_name}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
-        this.ids = response.data;
-        this.findElementsOnSVG();
-        setTimeout(() => {
-          if (this.elmFound.length !== 0) {
-            this.currentSearchMatch = 1;
-            this.centerElementOnSVG(0);
-          }
-        }, 0);
+        this.idsFound = response.data;
+        this.findElementsOnSVG(true);
       })
       .catch((error) => {
         this.isLoadingSearch = false;
@@ -369,13 +340,13 @@ export default {
         return;
       });
     },
-    findElementsOnSVG(center) {
-      if (!this.ids) {
+    findElementsOnSVG(zoomOn) {
+      if (!this.idsFound) {
         return;
       }
       this.elmFound = [];
-      for (let i = 0; i < this.ids.length; i += 1) {
-        const id = this.ids[i].trim();
+      for (let i = 0; i < this.idsFound.length; i += 1) {
+        const id = this.idsFound[i].trim();
         const rselector = `#svg-wrapper .rea#${id}`;
         let elms = $(rselector);
         if (elms.length < 1) {
@@ -389,7 +360,7 @@ export default {
         }
       }
       this.isLoadingSearch = false;
-      if (center) {
+      if (zoomOn) {
         this.centerElementOnSVG(1);
       }
     },
@@ -404,6 +375,10 @@ export default {
         this.currentSearchMatch = 1;
       }
       const currentElem = this.elmFound[this.currentSearchMatch - 1];
+
+      this.unSelectElement();
+      this.selectElement(currentElem);
+
       let coords = this.getSvgElemCoordinates(currentElem);
       if (!coords) {
         coords = this.getSvgElemCoordinates($(currentElem).find('.shape')[0]);
@@ -448,13 +423,35 @@ export default {
         this.elmHL = [];
       }
     },
-    selectElement(id, type) {
+    getElementIdAndType(element) {
+      if (element.hasClass('rea')) {
+        return [element.attr('id'), 'reaction'];
+      } else if (element.hasClass('enz')) {
+        return [element.attr('class').split(' ')[1], 'enzyme'];
+      } else if (element.hasClass('met')) {
+        return [element.attr('class').split(' ')[1], 'metabolite'];
+      }
+      return [element.attr('id'), 'subsystem'];
+    },
+    selectElement(element) {
+      const [id, type] = this.getElementIdAndType(element);
+      if (this.selectElementID === id) {
+        this.unSelectElement();
+        return;
+      }
+
+      const selectionData = { type, data: null, error: false };
+
+      this.selectElementID = id;
+      this.highlight([element]);
       if (this.selectedItemHistory[id]) {
-        EventBus.$emit('updatePanelSelectionData', this.selectedItemHistory[id]);
+        selectionData.data = this.selectedItemHistory[id];
+        EventBus.$emit('updatePanelSelectionData', selectionData);
         return;
       }
       if (type === 'subsystem') {
-        EventBus.$emit('updatePanelSelectionData', { type: 'subsystem', id });
+        selectionData.data = { id };
+        EventBus.$emit('updatePanelSelectionData', selectionData);
         return;
       }
       EventBus.$emit('startSelectedElement');
@@ -469,9 +466,9 @@ export default {
             data.rnaLvl = this.enzymeRNAlevels[id];
           }
         }
-        data.type = type;
-        EventBus.$emit('updatePanelSelectionData', data);
-        this.selectedItemHistory[id] = data;
+        selectionData.data = data;
+        EventBus.$emit('updatePanelSelectionData', selectionData);
+        this.selectedItemHistory[id] = selectionData.data;
         EventBus.$emit('endSelectedElement', true);
       })
       .catch(() => {
@@ -479,6 +476,8 @@ export default {
       });
     },
     unSelectElement() {
+      this.unHighlight();
+      this.selectElementID = null;
       EventBus.$emit('unSelectedElement');
     },
     clientFocusX() {
@@ -488,7 +487,6 @@ export default {
       return ($('.svgbox').height() / 2) + $('#navbar').height();
     },
     panToCoords(panX, panY) {
-      // TODO re-add zoomOut?
       this.$panzoom.panzoom('zoom', 1.0, {
         increment: 1 - this.currentZoomScale,
         transition: false,

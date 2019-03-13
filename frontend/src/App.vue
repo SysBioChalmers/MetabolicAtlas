@@ -104,6 +104,8 @@
 </template>
 
 <script>
+
+import $ from 'jquery';
 import { default as EventBus } from './event-bus';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
@@ -151,6 +153,7 @@ export default {
   },
   created() {
     this.setupButons();
+    $('#loading').css('display', 'none');
   },
   methods: {
     setupButons() {
@@ -158,9 +161,7 @@ export default {
         this.activeBrowserBut = true;
         this.activeViewerBut = false;
         this.savePath();
-      } else if (this.$route.name === 'viewer' ||
-        this.$route.name === 'viewerCompartment' ||
-        this.$route.name === 'viewerSubsystem') {
+      } else if (['viewer', 'viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.activeBrowserBut = false;
         this.activeViewerBut = true;
         this.savePath();
@@ -186,7 +187,7 @@ export default {
         this.browserLastPath = this.$route.path;
       } else if (this.$route.name === 'browserRoot') {
         this.browserLastPath = '';
-      } else if (this.$route.name === 'viewerCompartment' || this.$route.name === 'viewerSubsystem') {
+      } else if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.viewerLastPath = this.$route.path;
       } else if (this.$route.name === 'viewer') {
         this.viewerLastPath = '';
@@ -237,6 +238,14 @@ $fullhd: 1576px !default;
 
 .has-background-primary-lighter {
   background-color: $primary-lighter;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.card-content-compact {
+  padding: 0.75rem;
 }
 
 #app {
@@ -456,16 +465,26 @@ $fullhd: 1576px !default;
         position: absolute;
         right: 10px;
       }
-      &.clickable {
-        cursor: pointer;
-        &.disable {
-          cursor: not-allowed;
-          background: $primary;
-          color: $grey;
-          pointer-events: none;
-        }
+      &.disable {
+        cursor: not-allowed;
+        background: $primary;
+        color: $grey;
+        pointer-events: none;
       }
     }
+  }
+}
+
+#integrated {
+  .card {
+    height: 100%;
+  }
+  margin-bottom: 2rem;
+}
+
+#gem-list-modal {
+  .modal-content {
+    padding: 2rem;
   }
 }
 

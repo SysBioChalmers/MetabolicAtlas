@@ -10,7 +10,7 @@
         <div class="container has-text-centered">
           <h1 class="is-size-1 title has-text-primary">METABOLIC ATLAS</h1>
           <h2 class="is-size-2 subtitle has-text-gray">
-            Atlas for Metabolism Exploration
+            THE ATLAS FOR EXPLORATION OF METABOLISM
           </h2>
         </div>
       </div>

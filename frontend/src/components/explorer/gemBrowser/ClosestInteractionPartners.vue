@@ -97,7 +97,7 @@
                     </select>
                   </div>
                   <span>Color:</span>
-                  <span class="color-span"
+                  <span class="color-span clickable"
                     v-bind:style="{ background: nodeDisplayParams.enzymeNodeColor.hex }"
                     v-on:click="showColorPickerEnz = !showColorPickerEnz">
                     <compact-picker v-show="showColorPickerEnz"
@@ -116,7 +116,7 @@
                     </select>
                   </div>
                   <span>Color:</span>
-                   <span class="color-span"
+                   <span class="color-span clickable"
                     v-bind:style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
                     v-on:click="showColorPickerMeta = !showColorPickerMeta">
                     <compact-picker v-show="showColorPickerMeta"
@@ -128,7 +128,7 @@
               </div>
             </div>
             <div class="column">
-              <div class="card " v-if="model === 'hmr2'">
+              <div class="card " v-if="model.database_name === 'hmr2'">
                 <header class="card-header">
                   <p class="card-header-title">
                     <label class="checkbox is-unselectable">
@@ -209,7 +209,7 @@
         </div>
         <div id="cip-table">
           <cytoscape-table
-            :structure="tableStructure[model]"
+            :structure="tableStructure[model.database_name]"
             :elms="elms"
             :selected-elm-id="clickedElmId"
             :filename="filename"
@@ -431,10 +431,10 @@ export default {
       this.reactionHL = null;
       this.compartmentHL = '';
       this.subsystemHL = '';
-      this.$router.push(`/explore/gem-browser/${this.model}/interaction/${this.clickedElmId}`);
+      this.$router.push(`/explore/gem-browser/${this.model.database_name}/interaction/${this.clickedElmId}`);
     },
     loadHPATissue() {
-      axios.get(`${this.model}/enzyme/hpa_tissue/`)
+      axios.get(`${this.model.database_name}/enzyme/hpa_tissue/`)
         .then((response) => {
           Vue.set(this.tissues, 'HPA', response.data);
         })
@@ -446,7 +446,7 @@ export default {
         });
     },
     load() {
-      axios.get(`${this.model}/reaction_components/${this.id}/with_interaction_partners`)
+      axios.get(`${this.model.database_name}/reaction_components/${this.id}/with_interaction_partners`)
         .then((response) => {
           this.loading = false;
           this.showGraphContextMenu = false;
@@ -511,7 +511,7 @@ export default {
         });
     },
     loadExpansion() {
-      axios.get(`${this.model}/reaction_components/${this.clickedElmId}/with_interaction_partners`)
+      axios.get(`${this.model.database_name}/reaction_components/${this.clickedElmId}/with_interaction_partners`)
         .then((response) => {
           this.reactionHL = null;
           this.loading = false;
@@ -957,7 +957,7 @@ export default {
       const enzymes = Object.keys(rawElms).filter(el => rawElms[el].type === 'enzyme');
       const enzymeIDs = enzymes.map(k => rawElms[k].id);
 
-      axios.post(`${this.model}/enzyme/hpa_rna_levels/`, { data: enzymeIDs })
+      axios.post(`${this.model.database_name}/enzyme/hpa_rna_levels/`, { data: enzymeIDs })
       .then((response) => {
         const matLevels = response.data.levels;
         for (let i = 0; i < matLevels.length; i += 1) {
@@ -1126,10 +1126,6 @@ export default {
       vertical-align: middle;
       margin-right: 15px;
       margin-bottom: 5px;
-    }
-
-    span.color-span:hover {
-      cursor: pointer;
     }
   }
 

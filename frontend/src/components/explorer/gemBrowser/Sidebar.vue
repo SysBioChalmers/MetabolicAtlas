@@ -7,7 +7,7 @@
         </span>
         <span v-else class="is-capitalized">
           {{ selectedElm.type }}
-          <router-link :to="{ path: `/explore/gem-browser/${this.model}/${selectedElm.type}/${this.selectedElm.real_id || this.selectedElm.id}` }">
+          <router-link :to="{ path: `/explore/gem-browser/${this.model.database_name}/${selectedElm.type}/${this.selectedElm.real_id || this.selectedElm.id}` }">
             {{ selectedElm.name }}
           </router-link>
         </span>

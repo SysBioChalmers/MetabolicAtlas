@@ -131,15 +131,6 @@ export default {
       this.displayBrowser();
     });
 
-    EventBus.$on('navigateTo', (tool, modelName, type, id) => {
-      // console.log('on explorer navigate to', tool, modelName, type, id);
-      if (tool === 'GEMBrowser') {
-        this.$router.push(`/explore/gem-browser/${modelName}/${type}/${idfy(id)}`);
-      } else if (tool === 'MapViewer') {
-        this.$router.push(`/explore/map-viewer/${modelName}/`);
-      }
-    });
-
     $('body').on('click', 'td m', function f() {
       if (!($(this).hasClass('cms'))) {
         EventBus.$emit('GBnavigateTo', 'metabolite', $(this).attr('class'));
@@ -171,6 +162,9 @@ export default {
         return;
       }
       // but redirect even if the model url do not match the model loaded
+      if (this.$route.params.model && this.$route.params.model in this.models) {
+        this.selectModel(this.models[this.$route.params.model]);
+      }
       if (['viewer', 'viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
         this.displayViewer();
       } else if (this.$route.name === 'browser' || this.$route.name === 'browserRoot') {
@@ -261,7 +255,7 @@ export default {
       if (reaction === null) {
         return '';
       }
-      const addComp = reaction.compartment.includes('=>');
+      const addComp = reaction.compartment.includes('=>') || reaction.is_transport;
       let eqArr = null;
       if (reaction.is_reversible) {
         eqArr = reaction.equation.split(' &#8660; ');

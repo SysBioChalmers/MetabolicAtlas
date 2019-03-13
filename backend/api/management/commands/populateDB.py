@@ -114,7 +114,7 @@ def populate_database(database, yaml_file, model_label, model_pmid=None, delete=
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        #  python manage.py populateDB hmr2 database_generation/hmr2/model.yml "HMR 2.0" 24419221
+        #  python manage.py populateDB hmr2 database_generation/hmr2/model.yml "HMR 2.0" --model-pmid 24419221
         parser.add_argument('database', type=str)
         parser.add_argument('yaml file', type=str)
         parser.add_argument('model label', type=str)

@@ -12,7 +12,7 @@
         <div id="integrated" class="columns is-multiline is-variable is-6">
           <div class="column is-half" v-for="model in models">
             <div class="card is-size-5">
-              <header class="card-header has-background-primary" @click="getModelData(model.details.id)">
+              <header class="card-header clickable has-background-primary" @click="getModelData(model.details.id)">
                 <p class="card-content has-text-weight-bold has-text-white">
                   {{ model.short_name }} - {{ model.name }} [+]
                 </p>
@@ -63,12 +63,12 @@
           <span v-if="!showLoader">No models available</span>
         </div>
         <br>
-        <div class="modal" v-bind:class="{ 'is-active': showModelTable }">
+        <div id="gem-list-modal" class="modal" v-bind:class="{ 'is-active': showModelTable }">
           <div class="modal-background" @click="showModelTable = false"></div>
           <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white" v-on:keyup.esc="showModelTable = false" tabindex="0">
             <div id="modal-info" class="model-table">
               <h2 class="title">
-                <i>{{ this.selectedModel.organism }}</i>: {{ this.selectedModel.set_name}} - {{ this.selectedModel.label || this.selectedModel.tissue}}
+                {{ selectedModel.set_name}} - {{ selectedModel.label || selectedModel.tissue}}
               </h2>
               {{ selectedModel.description }}<br><br>
               <table class="table main-table">
@@ -76,20 +76,22 @@
                   <tr v-for="field in model_fields" v-if="selectedModel[field.name]">
                     <td v-html="field.display" class="td-key has-background-primary has-text-white-bis"></td>
                     <td v-if="typeof(selectedModel[field.name]) === 'boolean'">
-                      {{ selectedModel[field.name] ? 'yes' : 'No' }}
+                      {{ selectedModel[field.name] ? 'Yes' : 'No' }}
                     </td>
                     <td v-else>
                       {{ selectedModel[field.name] }}
                     </td>
                   </tr>
                   <tr v-if="selectedModel.ref && selectedModel.ref.length !== 0">
-                    <td class="td-key">Reference</td>
-                    <td v-if="selectedModel.ref[0].link">
-                      <a :href="selectedModel.ref[0].link" target="_blank" v-html="getReferenceLink(selectedModel.ref[0])">
-                      </a>
-                    </td>
-                    <td v-else>
-                        {{ selectedModel.ref.title }}
+                    <td class="td-key has-background-primary has-text-white-bis">Reference(s)</td>
+                    <td>
+                      <template v-for="oneRef in selectedModel.ref">
+                        <p v-if="!oneRef.link">{{ oneRef.title }}</p>
+                        <a v-else :href="oneRef.link" target="_blank">
+                          {{ oneRef.title }} (PMID {{ oneRef.pubmed }})
+                        </a>
+                        <br>
+                      </template>
                     </td>
                   </tr>
                 </tbody>
@@ -242,7 +244,7 @@ export default {
   },
   created() {
     EventBus.$on('viewGem', (modelID) => {
-      this.getModel(modelID);
+      this.getModelData(modelID);
     });
   },
   beforeMount() {
@@ -280,11 +282,12 @@ export default {
         delete model.gemodelset.description;
         model.gemodelset.set_name = model.gemodelset.name;
         delete model.gemodelset.name;
+        if (model.ref.length === 0) {
+          model.ref = model.gemodelset.reference;
+        }
         delete model.gemodelset.reference;
         $.extend(model, model.gemodelset);
         delete model.gemodelset;
-        // model = $.extend(model, model.reference);
-        // delete model.reference;
         if (!model.description) {
           model.description = setDescription;
         }
@@ -342,31 +345,9 @@ export default {
       }
       return ` <i>${this.selectedModel.organism}</i>: ${this.selectedModel.set_name} - ${this.selectedModel.tissue}`;
     },
-    getReferenceLink(ref) {
-      const title = ref.title.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-      if (ref.pubmed) {
-        return `${title} (PMID: ${ref.pubmed})`;
-      }
-      return title;
-    },
   },
 };
 
 </script>
 
-<style lang="scss" scoped>
-#integrated {
-  .card {
-    height: 100%;
-    .card-header:hover {
-      cursor: pointer;
-    }
-  }
-  margin-bottom: 2rem;
-}
-
-.modal-content {
-  padding: 1rem;
-}
-
-</style>
+<style lang="scss"></style>
