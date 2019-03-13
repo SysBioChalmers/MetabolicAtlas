@@ -470,4 +470,17 @@ $fullhd: 1576px !default;
   }
 }
 
+#integrated {
+  .card {
+    height: 100%;
+  }
+  margin-bottom: 2rem;
+}
+
+#gem-list-modal {
+  .modal-content {
+    padding: 2rem;
+  }
+}
+
 </style>
