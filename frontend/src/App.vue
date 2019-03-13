@@ -395,6 +395,11 @@ $fullhd: 1576px !default;
       padding: 3rem 3.75rem 3rem 3.75rem;
     }
   }
+  .more-less-padding {
+    @media only screen and (min-width: $desktop) {
+      padding: 1.5rem 2rem 1.5rem 2rem;
+    }
+  }
   .card-header > .card-content {
     padding-top: 0.5em;
     padding-bottom: 0.5em;

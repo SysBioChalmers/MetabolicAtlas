@@ -1,59 +1,68 @@
 <template>
-  <section class="section extended-section">
-    <div class="container" id="home">
-      <div class="columns">
-        <div class="column">
-          <div class="card">
-            <header class="card-header has-background-grey has-text-centered" style="justify-content: center;">
-              <p class="card-content title has-text-white">METABOLIC ATLAS - THE ATLAS FOR EXPLORATION OF METABOLISM</p>
-            </header>
-          </div>
+  <div class="extended-section">
+    <section class="hero video container" style="max-width:100%; width:100%;">
+      <div class="hero-video is-transparent">
+        <video poster="http://ftp.icsb.chalmers.se/.static/banner_video.jpg" playsinline autoplay muted loop>
+          <source src="http://ftp.icsb.chalmers.se/.static/banner_video.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="is-size-1 title has-text-primary">METABOLIC ATLAS</h1>
+          <h2 class="is-size-2 subtitle has-text-gray">
+            THE ATLAS FOR EXPLORATION OF METABOLISM
+          </h2>
         </div>
       </div>
-      <div class="columns">
-        <div class="column">
-          <div class="card">
-            <div id="mobileMenu" class="columns is-mobile is-multiline margin-fix">
-              <div class="column is-narrow is-full-mobile has-background-primary has-text-weight-bold is-paddingless">
-                <aside class="menu">
-                  <ul class="menu-list is-size-5">
-                    <li v-for="menuItem in menu">
-                      <a @click="selectMenu(menuItem)" :class="[ {'is-active' : menuItem.title === currentMenu.title}, menuItem.type]">{{ menuItem.title}}</a>
-                    </li>
-                  </ul>
-                </aside>
-              </div>
-              <div class="column is-full-mobile more-padding">
-                <p class="is-size-5" v-html="currentMenu.text"></p>
-              </div>
-              <div class="column is-full-mobile more-padding is-v-aligned">
-                <div class="card has-text-centered">
-                  <router-link :to="currentMenu.url">
-                    <img :src="currentMenu.img" :alt="currentMenu.title"/></router-link>
+    </section>
+    <section class="section">
+      <div id="home" class="container">
+        <div class="columns">
+          <div class="column">
+            <div class="card">
+              <div id="mobileMenu" class="columns is-mobile is-multiline margin-fix">
+                <div class="column is-narrow is-full-mobile has-background-primary has-text-weight-bold is-paddingless">
+                  <aside class="menu">
+                    <ul class="menu-list is-size-5">
+                      <li v-for="menuItem in menu">
+                        <a @click="selectMenu(menuItem)" :class="[ {'is-active' : menuItem.title === currentMenu.title}, menuItem.type]">{{ menuItem.title}}</a>
+                      </li>
+                    </ul>
+                  </aside>
+                </div>
+                <div class="column is-full-mobile more-less-padding">
+                  <p class="is-size-5" v-html="currentMenu.text"></p>
+                </div>
+                <div class="column is-full-mobile more-padding is-v-aligned">
+                  <div class="card has-text-centered">
+                    <router-link :to="currentMenu.url">
+                      <img :src="currentMenu.img" :alt="currentMenu.title"/></router-link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div id="newsandcommunity" class="columns is-variable is-6">
-        <div class="column is-half" v-for="card in cards">
-          <div class="card is-size-5">
-            <header class="card-header has-background-primary">
-              <p class="card-content has-text-weight-bold has-text-white">{{ card.title }}</p>
-            </header>
-            <div class="card-content">
-              <p v-html="card.text"></p>
+        <div id="newsandcommunity" class="columns is-variable is-6">
+          <div class="column is-half" v-for="card in cards">
+            <div class="card is-size-5">
+              <header class="card-header has-background-primary">
+                <p class="card-content has-text-weight-bold has-text-white">{{ card.title }}</p>
+              </header>
+              <div class="card-content">
+                <p v-for="el in card.text">
+                  <span v-if="el[0]"><b>{{ el[0] }}</b> - </span><span v-html="el[1]"></span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </template>
 
 <script>
-
 import { default as messages } from '../helpers/messages';
 
 /* eslint-disable global-require*/
@@ -64,7 +73,7 @@ export default {
       menu: [
         { type: '',
           title: 'Welcome',
-          text: '<b>Metabolic Atlas</b> is a hub for genome scale metabolic models (GEMs): it integrates open-source consensus models for easy and visual browsing and analysis; also, it provides access to raw model files.<br><br>Citation goes here.',
+          text: 'The <b>Metabolic Atlas</b> integrates open source consensus models of human and yeast for easy browsing and analysis. Also, it provides access to raw model files.<br><br>Article under consideration.',
           img: require('../assets/logo.png'),
           url: '/about' },
         { type: '',
@@ -126,9 +135,16 @@ export default {
       currentMenu: {},
       cards: [
         { title: 'Latest news',
-          text: '<p> 17.12.2018 MapViewer is speedier at browsing manually curated maps <br> 08.12.2018 New maps for <i>Human1</i> are being created <br> 28.11.2018 <i>Human1</i> is now integrated <br> 23.11.2018 <i>Yeast8</i> is now integrated </p>' },
+          text: [
+            ['2018.12.17', 'MapViewer is speedier at browsing manually curated maps'],
+            ['2018.12.08', 'New maps for <i>Human1</i> are being created'],
+            ['2018.11.28', 'The <i>Human1</i> model is now integrated'],
+            ['2018.11.23', 'The <i>Yeast8</i> model is now integrated'],
+          ],
+        },
         { title: 'Community',
-          text: '<p>One should try to not underestimate the effort put in by scientists all over the world into creating all the knowledge required to assemble high quality genome scale metabolic models. We are grateful to all of them, and are passionate about continuing on this journey of open curation of models.<br>On this note, we would like to invite you to discover the world of GEMs through Metabolic Atlas, hoping this will enhance your interest in this field.</p>' },
+          text: [['', '<p>We are grateful for the efforts of scientists all over the world into in creating the knowledge required to assemble high quality genome scale metabolic models and are passionate about continuing on this journey of open curation of models.<br><br>We invite you to explore the world of GEMs through Metabolic Atlas, and hope it will enhance your interest in this field.</p>']],
+        },
       ],
     };
   },
@@ -143,3 +159,5 @@ export default {
 };
 
 </script>
+<style lang="scss">
+</style>
