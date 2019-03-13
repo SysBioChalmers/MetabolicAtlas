@@ -155,20 +155,11 @@ def get_reaction(request, model, id):
     ReactionSerializerClass = componentDBserializerSelector(model, 'reaction', serializer_type='lite', api_version=request.version)
     reactionserializer = ReactionSerializerClass(reaction, context={'model': model})
 
-    # TODO move that in the javascript
-    pmids = APImodels.ReactionReference.objects.using(model).filter(reaction_id=id)
-    if pmids.count():
-        pmidserializer = APIserializer.ReactionReferenceSerializer(pmids, many=True)
-        url = ('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi'
-               '?db=pubmed&retmode=json&id={}'.format(
-                   ','.join([x['pmid'].replace('PMID:', '')
-                             for x in pmidserializer.data])))
-        pmidsresponse = requests.get(url).json()['result']
-    else:
-        pmidsresponse = {}
+    pmids = APImodels.ReactionReference.objects.using(model).filter(reaction_id=reaction.id)
+    pmidserializer = APIserializer.ReactionReferenceSerializer(pmids, many=True)
 
     return JSONResponse({'reaction': reactionserializer.data,
-                         'pmids': pmidsresponse})
+                         'pmids': pmidserializer.data})
 
 
 @api_view()

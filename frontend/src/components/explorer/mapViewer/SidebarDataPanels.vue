@@ -19,11 +19,12 @@
       <div class="card">
         <header class="card-header" @click.prevent="showMapCardContent = !showMapCardContent">
           <p class="card-header-title is-capitalized is-inline">
-            {{ capitalize(mapType) }}: <i>{{ mapsData.compartments[mapName].name || mapsData.subsystems[mapName].name }}</i>
+            {{ capitalize(mapType) }}:
+            <i>{{ (mapsData.compartments[mapName] && mapsData.compartments[mapName].name) || mapsData.subsystems[mapName].name }}</i>
           </p>
         </header>
         <footer class="card-footer">
-          <router-link class="card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${mapType}/${mapsData.compartments[mapName].compartment || mapsData.subsystems[mapName].subsystem}`}">View on {{ messages.gemBrowserName }}</router-link>
+          <router-link class="card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${mapType}/${ (mapsData.compartments[mapName] && mapsData.compartments[mapName].compartment) || mapsData.subsystems[mapName].subsystem}`}">View on {{ messages.gemBrowserName }}</router-link>
         </footer>
       </div>
     </div>
