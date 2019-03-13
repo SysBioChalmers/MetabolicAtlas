@@ -7,7 +7,7 @@
   <div v-else>
     <div class="columns">
       <div class="column">
-        <h3 class="title is-3">Reaction {{ reaction.id }}</h3>
+        <h3 class="title is-size-3">Reaction {{ reaction.id }}</h3>
       </div>
     </div>
     <div class="columns" v-show="showLoader">
@@ -33,9 +33,9 @@
             <td v-else> - </td>
           </tr>
         </table>
-         <template v-if="hasExternalID">
+        <template v-if="hasExternalID">
           <br>
-          <span class="subtitle">External IDs</span>
+          <h4 class="title is-size-4">External IDs</h4>
           <table v-if="reaction && Object.keys(reaction).length != 0" id="ed-table" class="table is-fullwidth">
             <tr v-for="el in externalIDTableKey[model.database_name]" v-if="reaction[el.name] && reaction[el.link]">
               <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
@@ -46,6 +46,27 @@
             </tr>
           </table>
         </template>
+        <br>
+        <template v-if="formattedRef.length != 0">
+          <h4 class="title is-size-4">References (PMID)</h4>
+          <table class="main-table table">
+            <tr v-for="oneRef in formattedRef">
+              <td v-if="oneRef.title" class="td-key has-background-primary has-text-white-bis">{{ oneRef.pmid }}</td>
+              <a :href="oneRef.link" target="_blank">
+                <td>
+                  <template v-for="author in oneRef.authors">
+                    {{ author }},
+                  </template>
+                  {{ oneRef.year }}. <i>{{ oneRef.title }}</i>
+                  {{ oneRef.journal }}
+                </td>
+              </a>
+            </tr>
+          </table>
+        </template>
+        <template v-else>
+          <p>No PMID references found</p>
+        </template>
       </div>
       <div class="column is-2-widescreen is-3-desktop is-full-tablet">
         <div class="box has-text-centered">
@@ -53,20 +74,6 @@
             <p>View on {{ messages.mapViewerName }}</p>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="columns">
-      <div class="column">
-        <h4 class="title is-3">References</h4>
-        <table v-if="pmids && Object.keys(pmids).length != 0" id="main-table" class="table">
-          <tr v-for="ref in reformatRefs(pmids)">
-            <a :href="ref.link">
-              <td v-if="ref.title" class="td-key has-background-primary has-text-white-bis">{{ ref.pmid }}</td>
-              <td v-if="ref.formatted">{{ ref.formatted }}</td>
-            </a>
-          </tr>
-        </table>
-        <div v-else>No PMID references found</div>
       </div>
     </div>
   </div>
@@ -121,9 +128,9 @@ export default {
         yeast: [],
       },
       reaction: {},
-      pmids: [],
       errorMessage: '',
       showLoader: true,
+      formattedRef: [],
     };
   },
   created() {
@@ -167,7 +174,7 @@ export default {
       .then((response) => {
         this.showLoader = false;
         this.reaction = response.data.reaction;
-        this.pmids = response.data.pmids;
+        this.reformatRefs(response.data.pmids);
       })
       .catch(() => {
         this.errorMessage = messages.notFoundError;
@@ -239,26 +246,28 @@ export default {
     },
     reformatReversible() { return this.reaction.is_reversible ? 'Yes' : 'No'; },
     reformatRefs(refs) {
-      const outrefs = [];
-      for (const key of Object.keys(refs)) {
-        const formattedref = {};
-        const ref = refs[key];
-        formattedref.pmid = key;
-        formattedref.link = `http://pubmed.com/${key}`;
-        const text = [];
-        if (ref.pubdate) {
-          ref.pubyear = ref.pubdate.substring(0, 4);
-        }
-        const fields = ['sortfirstauthor', 'lastauthor', 'pubyear', 'fulljournalname', 'title'];
-        for (const field of fields) {
-          if (ref[field]) {
-            text.push(ref[field]);
+      for (const i of refs) {
+        axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=json&id=${i.pmid}`)
+        .then((response) => {
+          const details = response.data.result[i.pmid];
+          console.log(details);
+          const newRef = {};
+          // [i.pmid] = response.data.result;
+          newRef.pmid = i.pmid;
+          newRef.link = `http://pubmed.com/${i.pmid}`;
+          if (details.pubdate) {
+            newRef.year = details.pubdate.substring(0, 4);
           }
-        }
-        formattedref.formatted = text.join(', ');
-        outrefs.push(formattedref);
+          newRef.authors = details.authors.map(e => (e.authtype === 'Author' ? e.name : null));
+          newRef.journal = details.fulljournalname;
+          newRef.title = details.title;
+          this.formattedRef.push(newRef);
+        })
+        .catch((e) => {
+          console.log(e);
+          this.errorMessage = messages.notFoundError;
+        });
       }
-      return outrefs;
     },
     viewReactionOnMap(reactionID) {
       EventBus.$emit('viewReactionOnMap', reactionID);
@@ -274,5 +283,4 @@ export default {
 };
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>
