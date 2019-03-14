@@ -21,7 +21,7 @@
             Below are some random constituents of {{ model.short_name }}.<br><br>
           </div>
         </div>
-        <div class="tile is-ancestor is-size-5" v-if="starredComponents">
+        <div id="gem-browser-tiles" class="tile is-ancestor is-size-5" v-if="starredComponents">
           <div class="tile">
             <div class="tile is-vertical is-9">
               <div class="tile">

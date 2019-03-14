@@ -1,5 +1,6 @@
 <template>
-  <div class="tile is-parent" :class="size" @click="navigate()">
+  <router-link class="tile is-parent" :class="size"
+  :to="{ path: `/explore/gem-browser/${this.model.database_name}/${this.type}/${this.data.id}`}">
     <div class="tile is-child clickable box">
       <p class="is-capitalized title has-text-primary">{{ type }}</p>
       <template v-if="type == 'metabolite'">
@@ -26,7 +27,7 @@
       </template>
       <slot></slot>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script>
@@ -34,32 +35,8 @@
 export default {
   name: 'tile',
   props: ['type', 'data', 'size', 'model'],
-  data() {
-    return {
-      // name,
-    };
-  },
-  methods: {
-    navigate() {
-      this.$router.push(`/explore/gem-browser/${this.model.database_name}/${this.type}/${this.data.id}`);
-    },
-  },
 };
 
 </script>
 
-<style lang="scss" scoped>
-
-.tile.is-child {
-  &:hover {
-    box-shadow: 0 2px 3px gray, 0 0 0 1px gray;
-  }
-  ul {
-    list-style-type: disc;
-    margin-left: 2rem;
-  }
-}
-.box {
-  box-shadow: 0 2px 3px lightgray, 0 0 0 1px lightgray;
-}
-</style>
+<style lang="scss"></style>
