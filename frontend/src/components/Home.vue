@@ -89,7 +89,7 @@ export default {
         { type: 'homepage-submenu',
           title: messages.interPartName,
           text: `Via the Interaction Partners, one can interact with a restricted part of the metabolic network by expanding and rearraging the network nodes. The layout and aspect can be customized and exported.<br>This feature is only accessible via the ${messages.gemBrowserName}.`,
-          img: '',
+          img: require('../assets/interaction.png'),
           url: '/explore' },
         { type: 'homepage-submenu',
           title: messages.mapViewerName,
