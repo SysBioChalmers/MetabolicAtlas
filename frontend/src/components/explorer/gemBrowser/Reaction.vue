@@ -250,9 +250,7 @@ export default {
         axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=json&id=${i.pmid}`)
         .then((response) => {
           const details = response.data.result[i.pmid];
-          console.log(details);
           const newRef = {};
-          // [i.pmid] = response.data.result;
           newRef.pmid = i.pmid;
           newRef.link = `http://pubmed.com/${i.pmid}`;
           if (details.pubdate) {
@@ -264,7 +262,6 @@ export default {
           this.formattedRef.push(newRef);
         })
         .catch((e) => {
-          console.log(e);
           this.errorMessage = messages.notFoundError;
         });
       }

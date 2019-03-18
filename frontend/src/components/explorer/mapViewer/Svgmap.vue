@@ -9,16 +9,18 @@
     </div>
     <div id="svgSearch" class="overlay">
       <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
-        <input id="searchInput" class="input"
-          type="text" :class="searchInputClass" v-model.trim="searchTerm"
+        <input id="searchInput" title="Exact search by id, name, alias. Press Enter for results"
+          class="input" type="text" :class="searchInputClass" v-model.trim="searchTerm"
           v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"
-          placeholder="Type to search by id, name, aliases..." />
+          placeholder="Exact search by id, name, alias"/>
       </div>
       <div v-show="searchTerm && totalSearchMatch">
-        <span id="searchResCount"><input type="text" v-model="searchResultCountText" readonly disabled /></span>
-        <span class="button has-text-dark" @click="centerElementOnSVG(-1)"><i class="fa fa-angle-left"></i></span>
-        <span class="button has-text-dark" @click="centerElementOnSVG(1)"><i class="fa fa-angle-right"></i></span>
-        <span class="button has-text-dark" @click="highlightElementsFound">Highlight all</span>
+        <span id="searchResCount" class="button has-text-dark" @click="centerElementOnSVG(0)" title="Click to center on current match">
+          {{ this.currentSearchMatch }} of {{this.totalSearchMatch }}
+        </span>
+        <span class="button has-text-dark" @click="centerElementOnSVG(-1)" title="Go to previous"><i class="fa fa-angle-left"></i></span>
+        <span class="button has-text-dark" @click="centerElementOnSVG(1)" title="Go to next"><i class="fa fa-angle-right"></i></span>
+        <span class="button has-text-dark" @click="highlightElementsFound" title="Highlight all matches">Highlight all</span>
       </div>
     </div>
     <div id="tooltip" ref="tooltip"></div>
@@ -94,11 +96,6 @@ export default {
 
       svgMapURL: `${window.location.origin}/svgs`, // SEDME
     };
-  },
-  computed: {
-    searchResultCountText() {
-      return `${this.currentSearchMatch}/${this.totalSearchMatch}`;
-    },
   },
   watch: {
     searchTerm() {
@@ -532,7 +529,7 @@ export default {
 
   #svgOption {
     position: absolute;
-    top: 2.25rem;
+    top: 7.25rem;
     left: 2.25rem;
     span:not(:last-child) {
       display: inline-block;
@@ -556,12 +553,6 @@ export default {
       display: inline-block;
       margin-right: 5px;
       width: 20vw;
-    }
-    #searchResCount {
-      input {
-        width: 60px;
-        text-align: center;
-      }
     }
   }
 

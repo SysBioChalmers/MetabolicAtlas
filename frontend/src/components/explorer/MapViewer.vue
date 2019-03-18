@@ -88,7 +88,7 @@
           </div>
           <div id="iSwitch" class="overlay">
             <span class="button" @click="switchDimension" :disabled="disabled2D && show3D">
-              {{ show3D ? 'See in 2D' : 'See in 3D' }}
+              See in&nbsp;<b>{{ show3D ? '2D' : '3D' }}</b>
             </span>
           </div>
           <transition name="slide-fade">
@@ -435,7 +435,7 @@ $footer-height: 4.55rem;
   }
 
   #iSwitch {
-    right: 2.25rem;
+    left: 2.25rem;
     top:  2.25rem;
   }
 
