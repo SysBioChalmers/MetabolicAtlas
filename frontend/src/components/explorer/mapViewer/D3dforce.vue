@@ -1,8 +1,6 @@
 <template>
-  <div>
-    <div ref="graphParent">
-      <div id="3d-graph"></div>
-    </div>
+  <div ref="graphParent">
+    <div id="3d-graph"></div>
   </div>
 </template>
 
