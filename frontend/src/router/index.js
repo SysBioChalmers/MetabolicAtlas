@@ -4,7 +4,7 @@ import Home from 'components/Home';
 import Explorer from 'components/Explorer';
 import Resources from 'components/Resources';
 import About from 'components/About';
-import Help from 'components/Help';
+import Documentation from 'components/Documentation';
 import Models from 'components/Models';
 import ModelsFTP from 'components/ModelsFTP';
 import CompareModels from 'components/CompareModels';
@@ -28,7 +28,7 @@ const routes = [
   { path: '/gems/download', name: 'gemsDL', component: ModelsFTP },
   { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
-  { path: '/documentation', name: 'documentation', component: Help },
+  { path: '/documentation', name: 'documentation', component: Documentation },
   { path: '/*', name: 'notFound', component: NotFound },
 ];
 

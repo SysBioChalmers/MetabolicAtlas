@@ -360,7 +360,6 @@ $fullhd: 1576px !default;
 
 #home {
   .menu-list li {
-
     &:first-child {
       margin-top: 0.75em;
     }

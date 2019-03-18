@@ -261,7 +261,7 @@ export default {
           newRef.title = details.title;
           this.formattedRef.push(newRef);
         })
-        .catch((e) => {
+        .catch(() => {
           this.errorMessage = messages.notFoundError;
         });
       }
