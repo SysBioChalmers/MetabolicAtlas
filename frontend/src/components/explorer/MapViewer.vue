@@ -61,7 +61,7 @@
               </li>
             </ul>
           </div>
-            <sidebar-data-panels
+          <sidebar-data-panels
             :model="model"
             :dim="show2D ? '2d' : '3d'"
             :tissue="loadedTissue"
@@ -69,11 +69,12 @@
             :mapName="currentDisplayedName"
             :mapsData="show2D ? mapsData2D : mapsData3D"
             :selectionData="selectionData"
-            :loading="showSelectionLoader"></sidebar-data-panels>
+            :loading="showSelectionLoader">
+          </sidebar-data-panels>
         </div>
         <div id="graphframe" class="column is-unselectable">
           <div class="is-fullheight">
-            <svgmap v-show="show2D" :model="model" :mapsData="show2D ? mapsData2D : mapsData3D"
+            <svgmap v-show="show2D" :model="model" :mapsData="mapsData2D"
               @loadComplete="handleLoadComplete"
               @loading="showLoader=true">
             </svgmap>
@@ -87,7 +88,7 @@
           </div>
           <div id="iSwitch" class="overlay">
             <span class="button" @click="switchDimension" :disabled="disabled2D && show3D">
-              {{ show3D ? '2D' : '3D' }}
+              {{ show3D ? 'See in 2D' : 'See in 3D' }}
             </span>
           </div>
           <transition name="slide-fade">

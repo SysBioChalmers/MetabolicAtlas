@@ -3,9 +3,9 @@
     <div id="svg-wrapper" v-html="svgContent">
     </div>
     <div id="svgOption" class="overlay">
-      <span class="button" v-on:click="zoomOut(false)"><i class="fa fa-search-plus"></i></span>
-      <span class="button" v-on:click="zoomOut(true)"><i class="fa fa-search-minus"></i></span>
-      <span class="button" v-on:click="toggleGenes()"><i class="fa fa-filter"></i></span>
+      <span class="button" v-on:click="zoomOut(false)" title="Zoom in"><i class="fa fa-search-plus"></i></span>
+      <span class="button" v-on:click="zoomOut(true)" title="Zoom out"><i class="fa fa-search-minus"></i></span>
+      <span class="button" v-on:click="toggleGenes()" title="Show/Hide genes"><i class="fa fa-filter"></i></span>
     </div>
     <div id="svgSearch" class="overlay">
       <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
