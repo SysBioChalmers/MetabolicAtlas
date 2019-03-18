@@ -24,7 +24,7 @@
           </p>
         </header>
         <footer class="card-footer">
-          <router-link class="card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${mapType}/${ (mapsData.compartments[mapName] && mapsData.compartments[mapName].compartment) || mapsData.subsystems[mapName].subsystem}`}">View on {{ messages.gemBrowserName }}</router-link>
+          <router-link class="card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${mapType}/${ (mapsData.compartments[mapName] && mapsData.compartments[mapName].compartment) || (mapsData.subsystems[mapName] && mapsData.subsystems[mapName].subsystem) }`}">View on {{ messages.gemBrowserName }}</router-link>
         </footer>
       </div>
     </div>
