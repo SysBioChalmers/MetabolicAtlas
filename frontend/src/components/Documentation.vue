@@ -36,7 +36,7 @@
         <div class="column">
           <h3 id="search" class="title is-size-3">Search</h3>
 
-          <h4 class="title is-4">Search bar</h4>
+          <h5 class="title is-size-5">Search bar</h5>
           <b>Searches</b> for the term in metabolites, enzymes, subsystems, reactions, and reaction_components. </br>
             &nbsp;<u>Metabolites</u>: kegg_id, hmdb_id, hmdb_name contains </br>
             &nbsp;<u>Enzymes</u>: (uniprot_acc) </br>
@@ -228,13 +228,13 @@
           </p>
 
           <br><br>
-          <h4 id="gem_data" class="title is-size-4">GEM data</h4>
+          <h3 id="gem_data" class="title is-size-3">GEM data</h3>
           <p>
             For information about the genome-scale metabolic models that are integrated into the database, please refer to the <router-link :to="{ name: 'gems'}">GEM List</router-link> page.
           </p>
 
           <br><br>
-          <h4 id="privacy" class="title is-size-4">Privacy statement</h4>
+          <h3 id="privacy" class="title is-size-3">Privacy statement</h3>
           <p>
             The Metabolic Atlas gathers information about users solely to improve the usability and usefulness of the site. There are two types of cookie that are set by the Metabolic Atlas:<br>
             <strong>Functionality cookies</strong> are used to personalize the appearence of the Metabolic Atlas.<br>
