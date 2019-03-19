@@ -83,7 +83,6 @@ import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import Loader from 'components/Loader';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
 import { reformatTableKey } from '../../../helpers/utils';
-import { default as visitLink } from '../../../helpers/visit-link';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -190,7 +189,6 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameExternalLink,
-    visitLink,
   },
   beforeMount() {
     this.setup();
