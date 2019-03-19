@@ -2,36 +2,39 @@
   <section class="section extended-section">
     <div class="container">
       <h2 class="title is-2">Documentation</h2>
-      <div class="columns is-multiline help-div">
-        <div class="column is-3-desktop is-4-tablet is-full-mobile">
-          <p class="menu-label">
-            Table of Contents
-          </p>
-          <ul class="menu-list">
-            <li><a href="#">Top level</a>
-            <ul>
+      <br>
+      <div class="columns is-variable is-8">
+        <div class="column is-narrow">
+          <aside class="menu">
+            <p class="menu-label">
+              Table of Contents
+            </p>
+            <ul class="menu-list">
+              <li><a href="#">Top level</a>
+              <ul>
+                <li>
+                  <a href="#">Sub level</a>
+                  <ul class="menu-list">
+                    <li><a href="#">Sub sub levels</a></li>
+                  </ul>
+                </li>
+              </ul>
+              <br>
+              <b>Sample:</b>
+              <li><a href="#models">Models</a></li>
               <li>
-                <a href="#">Sub level</a>
+                <a class="is-active" href="#resources">Resources</a>
                 <ul class="menu-list">
-                  <li><a href="#">Sub sub levels</a></li>
+                  <li><a href="#tools">Tools</a></li>
+                  <li><a href="#databases">Databases</a></li>
+                  <li><a href="#api">API</a></li>
+                  <li><a href="#hreed_atlas">Hreed and Atlas</a></li>
                 </ul>
               </li>
+              <li><a href="#gem_data">GEM data</a></li>
+              <li><a href="#gem_data">Privacy statement</a></li>
             </ul>
-            <br>
-            <b>Sample:</b>
-            <li><a href="#models">Models</a></li>
-            <li>
-              <a href="#resources">Resources</a>
-              <ul class="menu-list">
-                <li><a href="#tools">Tools</a></li>
-                <li><a href="#databases">Databases</a></li>
-                <li><a href="#api">API</a></li>
-                <li><a href="#hreed_atlas">Hreed and Atlas</a></li>
-              </ul>
-            </li>
-            <li><a href="#gem_data">GEM data</a></li>
-            <li><a href="#gem_data">Privacy statement</a></li>
-          </ul>
+          </aside>
         </div>
         <div class="column">
           <h3 id="search" class="title is-size-3">Search</h3>
@@ -260,20 +263,20 @@ export default {
 </script>
 
 <style lang="scss">
-.help-div {
-  .menu-list {
-    li {
-      a {
-        padding-top: 0.1em;
-        padding-bottom: 0.1em;
-        padding-left: 0.2em;
-      }
-      ul {
-        margin-top: 0.1em;
-        margin-bottom: 0.1em;
-        margin-left: 0.2em;
-      }
-    }
-  }
-}
+// .help-div {
+//   .menu-list {
+//     li {
+//       a {
+//         padding-top: 0.1em;
+//         padding-bottom: 0.1em;
+//         padding-left: 0.2em;
+//       }
+//       ul {
+//         margin-top: 0.1em;
+//         margin-bottom: 0.1em;
+//         margin-left: 0.2em;
+//       }
+//     }
+//   }
+// }
 </style>

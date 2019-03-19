@@ -11,8 +11,8 @@
       </div>
     </div>
     <loader v-show="showLoader"></loader>
-    <div v-show="!showLoader" class="columns">
-      <div class="subsystem-table column is-10">
+    <div v-show="!showLoader" class="columns is-multiline is-variable is-8">
+      <div class="subsystem-table column is-10-widescreen is-9-desktop is-full-tablet">
         <table v-if="info && Object.keys(info).length != 0" class="table main-table is-fullwidth">
           <tr class="m-row" v-for="el in mainTableKey[model.database_name]" v-if="info[el.name]">
             <td v-if="el.display" class="td-key has-background-primary has-text-white-bis">{{ el.display }}</td>
@@ -60,16 +60,16 @@
             </td>
           </tr>
         </table>
-        <h3 class="title is-3">Reactions</h3>
       </div>
-      <div class="column">
-        <div class="box has-text-centered">
-          <div class="button is-info is-fullwidth" disabled>
-            <p>View on {{ messages.mapViewerName }}</p>
-          </div>
-        </div>
+      <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
+        <router-link class="button is-info is-fullwidth is-outlined"
+          :to="{ path: `/explore/map-viewer/${model.database_name}/subsystem/${idfy(sName)}?dim=2d` }">
+          <span class="icon is-large"><i class="fa fa-map-o"></i></span>
+          <span>{{ messages.mapViewerName }}</span>
+        </router-link>
       </div>
     </div>
+    <h3 class="title is-3">Reactions</h3>
     <div class="columns" v-show="!showLoader">
       <reaction-table :reactions="reactions" :showSubsystem="false" :model="model"></reaction-table>
     </div>
