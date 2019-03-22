@@ -24,7 +24,7 @@ const routes = [
   { path: '/explore/map-viewer/:model/compartment/:id/:rid', name: 'viewerCompartmentRea', component: Explorer, props: true },
   { path: '/explore/map-viewer/:model/subsystem/:id/:rid', name: 'viewerSubsystemRea', component: Explorer, props: true },
   { path: '/about', name: 'about', component: About },
-  { path: '/gems/list', name: 'gems', component: Models },
+  { path: '/gems/repository', name: 'gems', component: Models },
   { path: '/gems/download', name: 'gemsDL', component: ModelsFTP },
   { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },

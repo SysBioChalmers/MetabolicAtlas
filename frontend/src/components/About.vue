@@ -25,12 +25,13 @@
         <div class="column is-half has-text-justified">
           <div class="box">
             <h4 class="subtitle is-size-4 has-text-primary has-text-centered">Citing the Metabolic Atlas</h4>
-            <p>
+            <p>Paper under consideration</p>
+            <!-- <p>
               <a href="" target="_blank">APA style reference with DOI</a><br><br>
               Abstract here
               <br><br>
               Genome scale metabolic model in the publication <a @click="viewGem()">Human1</a>
-            </p>
+            </p> -->
           </div>
         </div>
       </div>
