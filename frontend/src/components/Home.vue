@@ -35,7 +35,7 @@
                 </div>
                 <div class="column is-full-mobile more-padding is-v-aligned">
                   <router-link :to="currentMenu.url">
-                    <div class="card">
+                    <div class="card card-selectable">
                       <img :src="currentMenu.img" :alt="currentMenu.title"/>
                       <template v-if="currentMenu.cardLink">
                         <footer class="card-footer has-text-centered has-background-primary-lighter">

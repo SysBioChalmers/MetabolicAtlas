@@ -14,7 +14,7 @@
             <div class="card is-size-5">
               <header class="card-header clickable has-background-primary" @click="getModelData(model.details.id)">
                 <p class="card-content has-text-weight-bold has-text-white">
-                  {{ model.short_name }} - {{ model.name }} [+]
+                  {{ model.name }} - {{ model.short_name }} [+]
                 </p>
               </header>
               <div class="card-content">

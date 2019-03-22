@@ -238,6 +238,12 @@ $fullhd: 1576px !default;
   height: 100%;
 }
 
+.card-selectable {
+  &:hover {
+    border: solid 1px gray;
+  }
+}
+
 #app {
   display: flex;
   min-height: 100vh;
