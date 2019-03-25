@@ -234,6 +234,11 @@ $fullhd: 1576px !default;
   padding: 0.75rem;
 }
 
+
+.content h1,h2,h3,h4,h5,h6 {
+  margin-top: 1em;
+}
+
 .card-fullheight {
   height: 100%;
 }
