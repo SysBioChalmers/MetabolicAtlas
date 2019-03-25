@@ -14,7 +14,7 @@
             <div class="card is-size-5">
               <header class="card-header clickable has-background-primary" @click="getModelData(model.details.id)">
                 <p class="card-content has-text-weight-bold has-text-white">
-                  {{ model.short_name }} - {{ model.name }} [+]
+                  {{ model.name }} - {{ model.short_name }} [+]
                 </p>
               </header>
               <div class="card-content">
@@ -36,14 +36,14 @@
                     </a>
                   </div>
                   <div class="column is-8">
-                    <router-link class="button is-info" :to="{ path: `/explore/gem-browser/${model.database_name}` }">
-                      <span>{{ messages.gemBrowserName }}</span>&nbsp;
-                      <span class="icon"><i class="fa fa-search-plus fa-lg"></i></span>
+                    <router-link class="button is-info is-medium is-outlined" :to="{ path: `/explore/gem-browser/${model.database_name}` }">
+                      <span class="icon is-large"><i class="fa fa-search-plus"></i></span>
+                      <span>{{ messages.gemBrowserName }}</span>
                     </router-link>
-                    <router-link class="button is-info" :to="{ path: `/explore/map-viewer/${model.database_name}` }">
-                      <span>{{ messages.mapViewerName }}</span>&nbsp;
-                      <span class="icon"><i class="fa fa-map-o fa-lg"></i></span>
-                    </router-link><br
+                    <router-link class="button is-info is-medium is-outlined" :to="{ path: `/explore/map-viewer/${model.database_name}` }">
+                      <span class="icon is-large"><i class="fa fa-map-o"></i></span>
+                      <span>{{ messages.mapViewerName }}</span>
+                    </router-link>
                   </div>
                 </div>
               </div>

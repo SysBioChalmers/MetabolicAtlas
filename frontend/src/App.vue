@@ -115,13 +115,12 @@ export default {
     return {
       /* eslint-disable quote-props */
       menuElems: {
-        '<span class="icon is-large"><i class="fa fa-search"></i></span>': '/explore/search',
+        '<span class="icon is-large"><i class="fa fa-search fa-lg"></i></span>': '/explore/search',
         'Explore': '/explore',
-        'GEMs': {
+        'GEM': {
           '/gems/': [
-            { 'List of GEMs': '/gems/list' },
-            { 'Compare': '/gems/compare' },
-            { 'Download': '/gems/download' },
+            { 'Repository': '/gems/repository' },
+            { 'Comparison': '/gems/comparison' },
           ],
         },
         'Resources': '/resources',
@@ -217,20 +216,7 @@ $widescreen: 1384px !default;
 $fullhd: 1576px !default;
 
 
-/* @import "./sass/extensions/_all" FIX ME */
 @import '~bulma';
-@import './styles/mixins';
-
-@include keyframes(rotating) {
-  0% {
-    transform: rotate(0deg);
-    transform-origin: center center;
-  }
-  100% {
-    transform: rotate(360deg);
-    transform-origin: center center;
-  }
-}
 
 .extended-section {
   flex: 1;
@@ -248,15 +234,25 @@ $fullhd: 1576px !default;
   padding: 0.75rem;
 }
 
+
+.content h1,h2,h3,h4,h5,h6 {
+  margin-top: 1em;
+}
+
+.card-fullheight {
+  height: 100%;
+}
+
+.card-selectable {
+  &:hover {
+    border: solid 1px gray;
+  }
+}
+
 #app {
   display: flex;
   min-height: 100vh;
   flex-direction: column
-}
-
-#metabolicViewer {
-  background: whitesmoke;
-  overflow: hidden;
 }
 
 .has-addons {
@@ -360,16 +356,16 @@ $fullhd: 1576px !default;
 
 #home {
   .menu-list li {
-
     &:first-child {
-      margin-top: 0.75em;
+      margin-top: 1em;
     }
     &:last-child {
-      margin-bottom: 0.75em;
+      margin-bottom: 1em;
     }
     a {
       color: $white-bis;
       padding-left: 1.5em;
+      line-height: 2;
     }
     a:hover {
       color: $white-bis;
@@ -387,15 +383,7 @@ $fullhd: 1576px !default;
     margin-bottom: 1rem;
     margin-left: 0;
   }
-  .homepage-submenu {
-    margin-left: 2em;
-  }
   .more-padding {
-    @media only screen and (min-width: $desktop) {
-      padding: 3rem 3.75rem 3rem 3.75rem;
-    }
-  }
-  .more-less-padding {
     @media only screen and (min-width: $desktop) {
       padding: 1.5rem 2rem 1.5rem 2rem;
     }
@@ -411,11 +399,6 @@ $fullhd: 1576px !default;
   }
   #mobileMenu {
     margin-right: 0;
-  }
-  #newsandcommunity {
-    .card {
-      height: 100%;
-    }
   }
 }
 

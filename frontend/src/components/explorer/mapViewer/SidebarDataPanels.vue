@@ -30,7 +30,7 @@
     </div>
     <template v-if="loading">
       <div class="loading">
-        <a class="button is-loading"></a>
+        <a class="button is-large is-loading"></a>
       </div>
     </template>
     <template v-else>

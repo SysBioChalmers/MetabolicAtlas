@@ -4,9 +4,8 @@ import Home from 'components/Home';
 import Explorer from 'components/Explorer';
 import Resources from 'components/Resources';
 import About from 'components/About';
-import Help from 'components/Help';
+import Documentation from 'components/Documentation';
 import Models from 'components/Models';
-import ModelsFTP from 'components/ModelsFTP';
 import CompareModels from 'components/CompareModels';
 import NotFound from 'components/NotFound';
 
@@ -24,11 +23,10 @@ const routes = [
   { path: '/explore/map-viewer/:model/compartment/:id/:rid', name: 'viewerCompartmentRea', component: Explorer, props: true },
   { path: '/explore/map-viewer/:model/subsystem/:id/:rid', name: 'viewerSubsystemRea', component: Explorer, props: true },
   { path: '/about', name: 'about', component: About },
-  { path: '/gems/list', name: 'gems', component: Models },
-  { path: '/gems/download', name: 'gemsDL', component: ModelsFTP },
+  { path: '/gems/repository', name: 'gems', component: Models },
   { path: '/gems/compare', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
-  { path: '/documentation', name: 'documentation', component: Help },
+  { path: '/documentation', name: 'documentation', component: Documentation },
   { path: '/*', name: 'notFound', component: NotFound },
 ];
 

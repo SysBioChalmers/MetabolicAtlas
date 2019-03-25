@@ -13,7 +13,7 @@
     <div class="columns" v-show="showLoader">
       <loader></loader>
     </div>
-    <div class="columns is-multiline" v-show="!showLoader">
+    <div class="columns is-multiline is-variable is-8" v-show="!showLoader">
       <div class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
         <table v-if="reaction && Object.keys(reaction).length != 0" class="table main-table is-fullwidth">
           <tr v-for="el in mainTableKey[model.database_name]">
@@ -68,11 +68,10 @@
           <p>No PMID references found</p>
         </template>
       </div>
-      <div class="column is-2-widescreen is-3-desktop is-full-tablet">
-        <div class="box has-text-centered">
-          <div class="button is-info is-fullwidth" @click="viewReactionOnMap(rId)">
-            <p>View on {{ messages.mapViewerName }}</p>
-          </div>
+      <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
+        <div class="button is-info is-fullwidth is-outlined" @click="viewReactionOnMap(rId)">
+          <span class="icon is-large"><i class="fa fa-map-o"></i></span>
+          <span>{{ messages.mapViewerName }}</span>
         </div>
       </div>
     </div>

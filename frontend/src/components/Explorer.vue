@@ -41,7 +41,7 @@
             <template v-if="model" v-for="tool in explorerTools">
               <div class="column is-12-tablet is-half-desktop">
                 <router-link :to="{ path: `${tool.url}/${model.database_name }` }">
-                  <div class="card">
+                  <div class="card card-fullheight card-selectable has-text-justified">
                     <header class="card-header">
                       <p class="card-header-title is-size-5">{{ tool.name }}</p>
                     </header>
@@ -86,11 +86,11 @@ export default {
       /* eslint-disable global-require*/
       explorerTools: [
         { name: messages.gemBrowserName,
-          img: require('../assets/gemBrowser2.png'),
+          img: require('../assets/gemBrowser.jpg'),
           url: '/explore/gem-browser',
         },
         { name: messages.mapViewerName,
-          img: require('../assets/mapViewer2.png'),
+          img: require('../assets/mapViewer.jpg'),
           url: '/explore/map-viewer',
         },
       ],
@@ -292,18 +292,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-#toolsSelect {
-  .card {
-    p {
-      justify-content: center;
-    }
-    border: solid 1px white;
-    &:hover {
-      border: solid 1px gray;
-    }
-  }
-}
 
 .dropdown, .dropdown-trigger, #dropdown-menu {
   width: 100%;
