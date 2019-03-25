@@ -6,8 +6,8 @@
 peroxisome	Peroxisome	Peroxisome	peroxisome.svg	p
 mitochondria	Mitochondria	Mitochondria	mitochondria.svg	m
 lysosome	Lysosome	Lysosome	lysosome.svg	l
-endoplasmic_reticulum	Endoplasmic reticulum	Endoplasmic reticulum	er.svg	r
-golgi	Golgi apparatus	Golgi apparatus	golgi.svg	g
+endoplasmic_reticulum	Endoplasmic reticulum	Endoplasmic reticulum	endoplasmic_reticulum.svg	r
+golgi_apparatus	Golgi apparatus	Golgi apparatus	golgi_apparatus.svg	g
 nucleus	Nucleus	Nucleus	nucleus.svg	n
 cytosol_1	Cytosol	Cytosol (part1)	cytosol_1.svg	c1
 cytosol_2	Cytosol	Cytosol (part2)	cytosol_2.svg	c2
