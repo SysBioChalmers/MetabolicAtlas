@@ -241,7 +241,6 @@ import { default as transform } from '../../../data-mappers/hmr-closest-interact
 import { default as graph } from '../../../graph-stylers/hmr-closest-interaction-partners';
 
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
-import { default as visitLink } from '../../../helpers/visit-link';
 import { default as convertGraphML } from '../../../helpers/graph-ml-converter';
 
 import { getExpLvlLegend, getExpressionColor } from '../../../expression-sources/hpa';
@@ -1011,7 +1010,6 @@ export default {
     chemicalFormula,
     chemicalName,
     chemicalNameExternalLink,
-    visitLink,
   },
 };
 </script>
