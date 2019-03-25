@@ -335,36 +335,40 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
     model = "hmr2"
     # TODO provide the model, remove 'hmr2'
     # remove 'Collection of reactions' subsystems
+
+    # l = logging.getLogger('django.db.backends')
+    # l.setLevel(logging.DEBUG)
+    # l.addHandler(logging.StreamHandler())
+
     try:
         res = APImodels.ReactionComponent.objects.using(model).get(id=ensembl_id)
         rcid = res.id
-    except:
+    except APImodels.ReactionComponent.DoesNotExist:
         return HttpResponse(status=404)
 
     subs = APImodels.Subsystem.objects.using(model).filter(
             Q(id__in=APImodels.SubsystemEnzyme.objects.using(model).filter(rc_id=rcid).values('subsystem_id')) &
             ~Q(system='Collection of reactions')
-        ).values('id', 'name', 'name_id', 'reaction_count', 'enzyme_count', 'metabolite_count', 'unique_metabolite_count')
+        ).select_related('subsystem_svg').prefetch_related('reactions', 'compartment', 'enzymes')
 
     subsystems = []
     for sub in subs.all():
+        sub_dict = {}
         # get the reactions
-        reactions = APImodels.SubsystemReaction.objects.using(model).filter(subsystem_id=sub['id']).values('reaction_id')
-        compartments = APImodels.Compartment.objects.using(model).filter(
-            id__in=APImodels.SubsystemCompartment.objects.using(model).filter(subsystem_id=sub['id']).values('compartment_id').distinct()
-        ).values_list('name', flat=True)
-        sub['enzymes'] = APImodels.SubsystemEnzyme.objects.using(model).filter(subsystem_id=sub['id']).values_list('rc_id', flat=True)
-        sub['compartments'] = list(compartments)
-        sub['reactions_catalysed'] = APImodels.ReactionModifier.objects.using(model).filter(Q(reaction__in=reactions) & Q(modifier_id=rcid)).count()
-        sub['map_url'] = "https://ftp.icsb.chalmers.se/.maps/%s/%s.svg" % (model, sub['name_id'])
-        sub['subsystem_url'] = "https://icsb.chalmers.se/explore/gem-browser/%s/subsystem/%s" % (model, sub['name_id'])
-        sub['model_metabolite_count'] = sub['unique_metabolite_count']
-        sub['compartment_metabolite_count'] = sub['metabolite_count']
-        del sub['metabolite_count']
-        del sub['unique_metabolite_count']
-        del sub['id']
-        del sub['name_id']
-        subsystems.append(sub)
+        sub_dict['reactions'] = sub.reactions.all().values_list('id', flat=True)
+        sub_dict['compartments'] = sub.compartment.values_list('name', flat=True)
+        sub_dict['enzymes'] = sub.enzymes.all().values_list('id', flat=True)
+        # sub['compartments'] = list(compartments)
+        sub_dict['reactions_catalysed'] = APImodels.ReactionModifier.objects.using(model).filter(Q(reaction__in=sub.reactions.all()) & Q(modifier_id=rcid)).count()
+        if sub.subsystem_svg.sha:
+            sub_dict['map_url'] = "https://ftp.icsb.chalmers.se/.maps/%s/%s.svg" % (model, sub.name_id)
+        else:
+            sub_dict['map_url'] = ""
+        sub_dict['subsystem_url'] = "https://icsb.chalmers.se/explore/gem-browser/%s/subsystem/%s" % (model, sub.name_id)
+        sub_dict['model_metabolite_count'] = sub.unique_metabolite_count
+        sub_dict['compartment_metabolite_count'] = sub.metabolite_count
+
+        subsystems.append(sub_dict)
 
     result = {
         'enzyme_url': "https://icsb.chalmers.se/explore/gem-browser/%s/enzyme/%s" % (model, ensembl_id),

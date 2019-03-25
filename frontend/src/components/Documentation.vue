@@ -12,12 +12,11 @@
             <ul class="menu-list">
               <li>
                 <a href="#Explore"><b>Explore integrated models</b></a>
-                <li><a href="#Global search">Global search</a></li>
                 <ul class="menu-list">
                   <li><a href="#GEM Browser">GEM Browser</a></li>
                   <ul class="menu-list">
-                    <li><a href="#Interaction Partners">Interaction Partners</a></li>
                     <li><a href="#GEM Browser Search">Search</a></li>
+                    <li><a href="#Interaction Partners">Interaction Partners</a></li>
                   </ul>
                   <li><a href="#Map Viewer">Map Viewer</a></li>
                   <ul class="menu-list">
@@ -25,6 +24,7 @@
                     <li><a href="#3D Viewer">3D Viewer</a></li>
                   </ul>
                   <li><a href="#API">API</a></li>
+                  <li><a href="#Global search">Global search</a></li>
                 </ul>
               </li>
               <li>
