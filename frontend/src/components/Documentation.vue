@@ -73,8 +73,7 @@
           It is possible to change shape and color for the proteins and the metabolites shown in the graph.
           This is done by pressing the <b>Options</b> button.<br>
           Here you are presented with a number of options for what to do with your Enzymes and Metabolite.<br>
-          If you want to show Expression levels see the
-          <a href="#expressionlevels">expression levels</a> section below.
+          If you want to show RNA expression levels see the <a href="#expressionlevels">expression levels</a> section below.
 
           <h6 id="" class="title is-size-6">Zoom in and out</h6>
           Simply press either the <b>+</b> or <b>-</b> button to zoom in the graph.
@@ -84,10 +83,7 @@
 
           <br>
           <h6 id="" class="title is-size-6">Expression levels</h6>
-          <p>To show expression levels:<br>
-            First click the <b>Options</b> button, then click in the "Show expression levels" tick box. This will at the moment, go to HPA and pull in the expression levels for all
-            the proteins in the current graph, and then the drop-down box will be enabled, and here all the HPA tissue RNA-seq data is then available. The moment you select one tissue it will color the proteins according to that.
-          </p>
+          To show expression levels: first click the <b>Options</b> button, then click in the "Show expression levels" tick box. This will at the moment, go to HPA and pull in the expression levels for all the proteins in the current graph, and then the drop-down box will be enabled, and here all the HPA tissue RNA-seq data is then available. The moment you select one tissue it will color the proteins according to that.
 
           <div id="" v-html="getExpLvlLegend()"></div>
           <h6 id="" class="title is-size-6">Export graph</h6>
@@ -139,6 +135,19 @@
 
           <h5 id="" class="title is-size-5">Comparison</h5>
           <h5 id="" class="title is-size-5">FTP Download</h5>
+          Genome-Scale Metabolic Models - FTP access<br>
+          <h6 class="title is-size-6">Downloading from a web browser</h6>
+          Model files can be downloaded from <a href="http://ftp.icsb.chalmers.se">ftp.icsb.chalmers.se</a>
+          <br><br>
+          <h6 class="title is-size-6">Downloading from a FTP client</h6>
+          Connect to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>)
+          <br>
+          <span class="has-text-weight-bold lab">Host:</span> ftp.icsb.chalmers.se<br>
+          <span class="has-text-weight-bold lab">Login:</span> (leave it empty)<br>
+          <span class="has-text-weight-bold lab">Password:</span> (leave it empty)<br>
+          <span class="has-text-weight-bold lab">Port:</span> 21
+
+
           <h3 id="" class="title is-size-3">Resources</h3>
           Some of the most relevant software tools and algorithms that the group have published could be found here, for example STIG-met, Kiwi, and Raven.
           Some of the databases that the group have generated are linked from here, for example Human Cancer Secretome Database (HCSD) and stress response in yeast (yStreX).
@@ -148,6 +157,8 @@
           <strong>Functionality cookies</strong> are used to personalize the appearence of the Metabolic Atlas.<br>
           <strong>Tracking cookies</strong> are used via private analytics to track the users on our website. We use them to anonymously observe the behaviour on our website in order to improve it. This information is not shared with any third party.
 
+          <br><br>
+          <br><br>
           <br><br>
           <br><br>
           <br><br>

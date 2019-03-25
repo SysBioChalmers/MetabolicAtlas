@@ -121,7 +121,6 @@ export default {
           '/gems/': [
             { 'List of GEMs': '/gems/list' },
             { 'Compare': '/gems/compare' },
-            { 'Download': '/gems/download' },
           ],
         },
         'Resources': '/resources',
