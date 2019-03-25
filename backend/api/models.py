@@ -145,7 +145,7 @@ class GEMAuthor(models.Model):
 
 class Reaction(models.Model):
     id = models.CharField(max_length=50, primary_key=True) # ID in the SBML/YAML model
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=255)
     sbo_id = models.CharField(max_length=50)
     equation = models.TextField(blank=False) # string or/and with metabolite ID (should be meta model ID, e.g M_m0125c)
     equation_wname = models.TextField(blank=False)
@@ -156,7 +156,7 @@ class Reaction(models.Model):
     gene_rule = models.TextField(null=True) # string or/and with gene ID (can be any unique gene ID)
     gene_rule_wname = models.TextField(null=True) # string or/and with gene name
     subsystem_str = models.CharField(max_length=1000, null=True)
-    subsystem = models.ManyToManyField('Subsystem', related_name='subsystems', through='SubsystemReaction')
+    subsystem = models.ManyToManyField('Subsystem', related_name='reactions', through='SubsystemReaction')
     compartment = models.CharField(max_length=255)
     is_transport = models.BooleanField(default=False)
     is_reversible = models.BooleanField(default=False)
@@ -256,7 +256,7 @@ class Enzyme(models.Model):
         related_name='enzyme', db_column='rc', on_delete=models.CASCADE)
     function1 = models.CharField(max_length=3000, null=True)
     function2 = models.CharField(max_length=3000, null=True)
-    ec = models.CharField(max_length=100, null=True)
+    ec = models.CharField(max_length=255, null=True)
     catalytic_activity = models.CharField(max_length=2000, null=True)
     cofactor = models.CharField(max_length=255, null=True)
     name_link = models.CharField(max_length=255, null=True)
@@ -280,9 +280,9 @@ class Subsystem(models.Model):
     name = models.CharField(max_length=100, unique=True)
     name_id = models.CharField(max_length=100, unique=True) # use to request the subsystem by url
     system = models.CharField(max_length=100)
-    external_id = models.CharField(max_length=25, null=True)
+    external_id = models.CharField(max_length=50, null=True)
     external_link = models.CharField(max_length=255, null=True)
-    description = models.CharField(max_length=2000, null=True)
+    description = models.CharField(max_length=3000, null=True)
     compartment = models.ManyToManyField('Compartment', related_name='s_compartments', through='SubsystemCompartment')
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
@@ -299,7 +299,7 @@ class SubsystemSvg(models.Model):
     name = models.CharField(max_length=100, unique=True)
     name_id = models.CharField(max_length=100, unique=True) # use to request the subsystem by url
     subsystem = models.OneToOneField(Subsystem,
-        related_name='subsystem', db_column='subsystem', on_delete=models.CASCADE)
+        related_name='subsystem_svg', db_column='subsystem', on_delete=models.CASCADE)
     filename = models.CharField(max_length=100, unique=True)
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
