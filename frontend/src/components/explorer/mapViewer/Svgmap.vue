@@ -403,7 +403,7 @@ export default {
         $(el).addClass('hl');
         this.elmHL.push(el);
         if (el.hasClass('rea')) {
-          const selectors = `#svg-wrapper .enz.${el.attr('id')}, #svg-wrapper .met.${el.attr('id')}`;
+          const selectors = `#svg-wrapper .met.${el.attr('id')}`;
           const elms = $(selectors);
           for (const con of elms) {
             $(con).addClass('hl');
@@ -440,7 +440,9 @@ export default {
       const selectionData = { type, data: null, error: false };
 
       this.selectElementID = id;
-      this.highlight([element]);
+      if (!element.hasClass('subsystem')) {
+        this.highlight([element]);
+      }
       if (this.selectedItemHistory[id]) {
         selectionData.data = this.selectedItemHistory[id];
         EventBus.$emit('updatePanelSelectionData', selectionData);

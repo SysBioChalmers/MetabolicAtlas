@@ -12,21 +12,21 @@
         </div>
       </template>
       <template v-else>
-        <div id="iSideBar" class="column is-one-fifth is-fullheight">
+        <div id="iSideBar" class="column is-one-fifth-widescreen is-one-quarter-desktop is-one-quarter-tablet is-half-mobile is-fullheight">
           <div id="menu">
             <ul class="l0">
               <li>Compartments<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
                   <div v-show="!has2DCompartmentMaps || show3D">
-                    <li v-for="compartment in mapsData3D.compartments" class="clickable"
-                      @click="showCompartment(compartment.name_id)">
-                      {{ compartment.name }} {{ compartment.reaction_count != 0 ? `(${compartment.reaction_count})` : '' }}
+                    <li v-for="cKey in Object.keys(mapsData3D.compartments).sort()" class="clickable"
+                      @click="showCompartment(mapsData3D.compartments[cKey].name_id)">
+                      {{ mapsData3D.compartments[cKey].name }} {{ mapsData3D.compartments[cKey].reaction_count != 0 ? `(${mapsData3D.compartments[cKey].reaction_count})` : '' }}
                     </li>
                   </div>
                   <div v-show="has2DCompartmentMaps && show2D">
-                    <li v-for="compartment in mapsData2D.compartments" class="clickable"
-                      :class="{ 'disable' : !compartment.sha }" @click="showCompartment(compartment.name_id)">
-                      {{ compartment.name }} {{ compartment.reaction_count != 0 ? `(${compartment.reaction_count})` : '' }}
+                    <li v-for="cKey in Object.keys(mapsData2D.compartments).sort()" class="clickable"
+                      :class="{ 'disable' : !mapsData2D.compartments[cKey].sha }" @click="showCompartment(mapsData2D.compartments[cKey].name_id)">
+                      {{ mapsData2D.compartments[cKey].name }} {{ mapsData2D.compartments[cKey].reaction_count != 0 ? `(${mapsData2D.compartments[cKey].reaction_count})` : '' }}
                     </li>
                   </div>
                 </ul>
@@ -34,18 +34,18 @@
               <li>Subsystems<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
                   <div v-show="!has2DSubsystemMaps || show3D">
-                    <li v-for="subsystem in mapsData3D.subsystems" class="clickable"
-                      @click="showSubsystem(subsystem.name_id)">
-                        {{ subsystem.name }} {{ subsystem.reaction_count != 0 ? `(${subsystem.reaction_count})` : '' }}
+                    <li v-for="sKey in Object.keys(mapsData3D.subsystems).sort()" class="clickable"
+                      @click="showSubsystem(mapsData3D.subsystems[sKey].name_id)">
+                        {{ mapsData3D.subsystems[sKey].name }} {{ mapsData3D.subsystems[sKey].reaction_count != 0 ? `(${mapsData3D.subsystems[sKey].reaction_count})` : '' }}
                     </li>
                   </div>
                   <div v-show="has2DSubsystemMaps && mapsData2D.subsystems">
-                    <li v-for="subsystem in mapsData2D.subsystems" class="clickable"
-                      v-if="subsystem.name_id && subsystem.sha" @click="showSubsystem(subsystem.name_id)">
-                        {{ subsystem.name }} {{ subsystem.reaction_count != 0 ? `(${subsystem.reaction_count})` : '' }}
+                    <li v-for="sKey in Object.keys(mapsData2D.subsystems).sort()" class="clickable"
+                      v-if="mapsData2D.subsystems[sKey].name_id && mapsData2D.subsystems[sKey].sha" @click="showSubsystem(mapsData2D.subsystems[sKey].name_id)">
+                        {{ mapsData2D.subsystems[sKey].name }} {{ mapsData2D.subsystems[sKey].reaction_count != 0 ? `(${mapsData2D.subsystems[sKey].reaction_count})` : '' }}
                     </li>
                     <li v-else class="disable">
-                       {{ subsystem.name }}
+                       {{ mapsData2D.subsystems[sKey].name }}
                     </li>
                   </div>
                 </ul>
@@ -88,7 +88,7 @@
           </div>
           <div id="iSwitch" class="overlay">
             <span class="button" @click="switchDimension" :disabled="disabled2D && show3D">
-              See in&nbsp;<b>{{ show3D ? '2D' : '3D' }}</b>
+              Switch to&nbsp;<b>{{ show3D ? '2D' : '3D' }}</b>
             </span>
           </div>
           <transition name="slide-fade">
