@@ -301,6 +301,7 @@ export default {
         this.showLoader = false;
         this.currentDisplayedType = '';
         this.currentDisplayedName = '';
+        this.overviewScreen = true;
         setTimeout(() => {
           this.loadErrorMesssage = '';
         }, 3000);
