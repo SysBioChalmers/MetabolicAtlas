@@ -355,7 +355,7 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
     for sub in subs.all():
         sub_dict = {}
         # get the reactions
-        sub_dict['reactions'] = sub.reactions.all().values_list('id', flat=True)
+        sub_dict['name'] = sub.name
         sub_dict['compartments'] = sub.compartment.values_list('name', flat=True)
         sub_dict['enzymes'] = sub.enzymes.all().values_list('id', flat=True)
         # sub['compartments'] = list(compartments)
@@ -367,6 +367,8 @@ def HPA_enzyme_info(request, ensembl_id): # ENSG00000110921
         sub_dict['subsystem_url'] = "https://icsb.chalmers.se/explore/gem-browser/%s/subsystem/%s" % (model, sub.name_id)
         sub_dict['model_metabolite_count'] = sub.unique_metabolite_count
         sub_dict['compartment_metabolite_count'] = sub.metabolite_count
+        sub_dict['reaction_count'] = sub.reaction_count
+        sub_dict['enzyme_count'] = sub.enzyme_count
 
         subsystems.append(sub_dict)
 
