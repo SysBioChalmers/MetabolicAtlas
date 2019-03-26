@@ -17,15 +17,16 @@
             <ul class="l0">
               <li>Compartments<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
+                  <li @click="showMap()"><i>Clear selection</i></li>
                   <div v-show="!has2DCompartmentMaps || show3D">
                     <li v-for="cKey in Object.keys(mapsData3D.compartments).sort()" class="clickable"
-                      @click="showCompartment(mapsData3D.compartments[cKey].name_id)">
+                      @click="showMap(mapsData3D.compartments[cKey].name_id)">
                       {{ mapsData3D.compartments[cKey].name }} {{ mapsData3D.compartments[cKey].reaction_count != 0 ? `(${mapsData3D.compartments[cKey].reaction_count})` : '' }}
                     </li>
                   </div>
                   <div v-show="has2DCompartmentMaps && show2D">
                     <li v-for="cKey in Object.keys(mapsData2D.compartments).sort()" class="clickable"
-                      :class="{ 'disable' : !mapsData2D.compartments[cKey].sha }" @click="showCompartment(mapsData2D.compartments[cKey].name_id)">
+                      :class="{ 'disable' : !mapsData2D.compartments[cKey].sha }" @click="showMap(mapsData2D.compartments[cKey].name_id)">
                       {{ mapsData2D.compartments[cKey].name }} {{ mapsData2D.compartments[cKey].reaction_count != 0 ? `(${mapsData2D.compartments[cKey].reaction_count})` : '' }}
                     </li>
                   </div>
@@ -33,15 +34,16 @@
               </li>
               <li>Subsystems<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
+                  <li @click="showMap()"><i>Clear selection</i></li>
                   <div v-show="!has2DSubsystemMaps || show3D">
                     <li v-for="sKey in Object.keys(mapsData3D.subsystems).sort()" class="clickable"
-                      @click="showSubsystem(mapsData3D.subsystems[sKey].name_id)">
+                      @click="showMap(mapsData3D.subsystems[sKey].name_id, 'subsystem')">
                         {{ mapsData3D.subsystems[sKey].name }} {{ mapsData3D.subsystems[sKey].reaction_count != 0 ? `(${mapsData3D.subsystems[sKey].reaction_count})` : '' }}
                     </li>
                   </div>
                   <div v-show="has2DSubsystemMaps && mapsData2D.subsystems">
                     <li v-for="sKey in Object.keys(mapsData2D.subsystems).sort()" class="clickable"
-                      v-if="mapsData2D.subsystems[sKey].name_id && mapsData2D.subsystems[sKey].sha" @click="showSubsystem(mapsData2D.subsystems[sKey].name_id)">
+                      v-if="mapsData2D.subsystems[sKey].name_id && mapsData2D.subsystems[sKey].sha" @click="showMap(mapsData2D.subsystems[sKey].name_id, 'subsystem')">
                         {{ mapsData2D.subsystems[sKey].name }} {{ mapsData2D.subsystems[sKey].reaction_count != 0 ? `(${mapsData2D.subsystems[sKey].reaction_count})` : '' }}
                     </li>
                     <li v-else class="disable">
@@ -72,13 +74,16 @@
             :loading="showSelectionLoader">
           </sidebar-data-panels>
         </div>
-        <div id="graphframe" class="column is-unselectable">
+        <div v-show="overviewScreen" class="column">
+          <p class="is-size-5">Load a map from the menu</p>
+        </div>
+        <div id="graphframe" v-show="!overviewScreen" class="column is-unselectable">
           <div class="is-fullheight">
-            <svgmap v-show="show2D" :model="model" :mapsData="mapsData2D"
+            <svgmap v-show="!overviewScreen && show2D" :model="model" :mapsData="mapsData2D"
               @loadComplete="handleLoadComplete"
               @loading="showLoader=true">
             </svgmap>
-            <d3dforce v-show="show3D" :model="model"
+            <d3dforce v-show="!overviewScreen && show3D" :model="model"
               @loadComplete="handleLoadComplete"
               @loading="showLoader=true">
             </d3dforce>
@@ -86,7 +91,7 @@
           <div id="iLoader" class="loading" v-show="showLoader">
             <a class="button is-loading"></a>
           </div>
-          <div id="iSwitch" class="overlay">
+          <div id="iSwitch" v-show="!overviewScreen" class="overlay">
             <span class="button" @click="switchDimension" :disabled="disabled2D && show3D">
               Switch to&nbsp;<b>{{ show3D ? '2D' : '3D' }}</b>
             </span>
@@ -128,6 +133,7 @@ export default {
     return {
       errorMessage: '',
       loadErrorMesssage: '',
+      overviewScreen: true,
       show2D: true,
       show3D: false,
       disabled2D: false,
@@ -286,8 +292,8 @@ export default {
       }
     },
     handleLoadComplete(isSuccess, errorMessage) {
-      this.selectionData.data = null;
       if (!isSuccess) {
+        this.selectionData.data = null;
         this.loadErrorMesssage = errorMessage;
         if (!this.loadErrorMesssage) {
           this.loadErrorMesssage = messages.unknownError;
@@ -404,15 +410,18 @@ export default {
       }
       return this.requestedName in this.mapsData3D.subsystems;
     },
-    showCompartment(compartment) {
+    showMap(compartmentOrSubsystemID, type = 'compartment') {
       this.selectionData.data = null;
+      this.currentDisplayedName = null;
+      this.currentDisplayedType = null;
+      this.tissue = null;
       this.hideDropleftMenus();
-      EventBus.$emit('showAction', 'compartment', compartment, [], false);
-    },
-    showSubsystem(subsystem) {
-      this.selectionData.data = null;
-      this.hideDropleftMenus();
-      EventBus.$emit('showAction', 'subsystem', subsystem, [], false);
+      if (compartmentOrSubsystemID) {
+        this.overviewScreen = false;
+        EventBus.$emit('showAction', type, compartmentOrSubsystemID, [], false);
+      } else {
+        this.overviewScreen = true;
+      }
     },
   },
 };
