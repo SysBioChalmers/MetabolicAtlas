@@ -17,7 +17,7 @@
             <ul class="l0">
               <li>Compartments<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
-                  <li @click="showMap()"><i>Clear selection</i></li>
+                    <li @click="showMap()" class="has-background-grey-dark clickable"><i>Clear selection</i></li>
                   <div v-show="!has2DCompartmentMaps || show3D">
                     <li v-for="cKey in Object.keys(mapsData3D.compartments).sort()" class="clickable"
                       @click="showMap(mapsData3D.compartments[cKey].name_id)">
@@ -34,7 +34,7 @@
               </li>
               <li>Subsystems<span>&nbsp;&#9656;</span>
                 <ul class="vhs l1">
-                  <li @click="showMap()"><i>Clear selection</i></li>
+                  <li @click="showMap()" class="has-background-grey-dark clickable"><i>Clear selection</i></li>
                   <div v-show="!has2DSubsystemMaps || show3D">
                     <li v-for="sKey in Object.keys(mapsData3D.subsystems).sort()" class="clickable"
                       @click="showMap(mapsData3D.subsystems[sKey].name_id, 'subsystem')">
@@ -55,7 +55,7 @@
               <li :class="{'clickable' : true, 'disable' : !currentDisplayedName || HPATissue.length === 0 }" >RNA levels from <i style="color: lightblue">proteinAtlas.org</i>
                 <span v-show="HPATissue.length !== 0">&nbsp;&#9656;</span>
                 <ul class="vhs l1">
-                  <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')"><i>Clear selection</i></li>
+                  <li v-show="HPATissue.length !== 0" @click="loadHPARNAlevels('None')"  class="has-background-grey-dark clickable"><i>Clear selection</i></li>
                   <li v-for="tissue in HPATissue" class="clickable is-capitalized" @click="loadHPARNAlevels(tissue)">
                     {{ tissue }}
                   </li>
