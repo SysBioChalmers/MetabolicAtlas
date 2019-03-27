@@ -67,6 +67,7 @@ GitHub.sublime-settings
 # migration files
 backend/api/migrations/*py
 backend/database_generation/**/*.yml
+backend/database_generation/**/*.yaml
 backend/database_generation/**/*.tsv
 !backend/database_generation/example/*.tsv
 backend/database_generation/**/*.gz
