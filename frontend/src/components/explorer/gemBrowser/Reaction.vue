@@ -34,8 +34,7 @@
           </tr>
         </table>
         <template v-if="hasExternalID">
-          <br>
-          <h4 class="title is-size-4">External IDs</h4>
+          <h4 class="title is-4">External links</h4>
           <table v-if="reaction && Object.keys(reaction).length != 0" id="ed-table" class="table is-fullwidth">
             <tr v-for="el in externalIDTableKey[model.database_name]" v-if="reaction[el.name] && reaction[el.link]">
               <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
@@ -46,7 +45,6 @@
             </tr>
           </table>
         </template>
-        <br>
         <template v-if="formattedRef.length != 0">
           <h4 class="title is-size-4">References (PMID)</h4>
           <table class="main-table table">
@@ -122,7 +120,7 @@ export default {
       },
       externalIDTableKey: {
         hmr2: [
-          { name: 'mnxref_id', display: 'MNXREF ID', link: 'mnxref_link' },
+          { name: 'mnxref_id', display: 'Mnxref', link: 'mnxref_link' },
         ],
         yeast: [],
       },

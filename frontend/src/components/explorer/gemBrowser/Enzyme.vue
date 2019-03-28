@@ -33,8 +33,7 @@
                 </tr>
               </table>
               <template v-if="hasExternalID">
-                <br>
-                <span class="subtitle">External IDs</span>
+                <h4 class="title is-4">External links</h4>
                 <table v-if="enzyme && Object.keys(enzyme).length != 0" id="ed-table" class="table is-fullwidth">
                   <tr v-for="el in externalIDTableKey[model.database_name]" v-if="enzyme[el.name] && enzyme[el.link]">
                     <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
@@ -109,9 +108,10 @@ export default {
       },
       externalIDTableKey: {
         hmr2: [
-          { name: 'id', display: 'Ensembl ID', link: 'name_link' },
-          { name: 'uniprot_id', display: 'Uniprot ID', link: 'uniprot_link' },
-          { name: 'ncbi_id', display: 'NCBI ID', link: 'ncbi_link' },
+          { name: 'id', display: 'Ensembl', link: 'name_link' },
+          { name: 'hpa_id', display: 'Protein Atlas', link: 'hpa_link' },
+          { name: 'uniprot_id', display: 'Uniprot', link: 'uniprot_link' },
+          { name: 'ncbi_id', display: 'NCBI', link: 'ncbi_link' },
         ],
         yeast: [],
       },
@@ -186,9 +186,4 @@ export default {
 </script>
 
 <style lang="scss">
-
-h1, h2 {
-  font-weight: normal;
-}
-
 </style>
