@@ -383,7 +383,9 @@ export default {
         this.loadedTissue = '';
       }
       if (this.show2D) {
-        EventBus.$emit('loadHPARNAlevels', tissue);
+        EventBus.$emit('load2DHPARNAlevels', this.currentDisplayedType, tissue);
+      } else {
+        EventBus.$emit('load3DHPARNAlevels', this.currentDisplayedType, tissue);
       }
     },
     checkValidRequest(displayType, displayName) {
