@@ -69,9 +69,11 @@
         </router-link>
       </div>
     </div>
-    <h3 class="title is-3">Reactions</h3>
+    <h4 class="title is-4">Reactions</h4>
     <div class="columns" v-show="!showLoader">
-      <reaction-table :reactions="reactions" :showSubsystem="false" :model="model"></reaction-table>
+      <div class="column">
+        <reaction-table :reactions="reactions" :showSubsystem="false" :model="model"></reaction-table>
+      </div>
     </div>
   </div>
 </template>
@@ -103,7 +105,6 @@ export default {
       mainTableKey: {
         hmr2: [
           { name: 'name', display: 'Name' },
-          { name: 'system' },
         ],
       },
       showFullMetabolite: false,
@@ -181,7 +182,4 @@ export default {
 </script>
 
 <style lang="scss">
-
-
-
 </style>

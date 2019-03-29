@@ -145,9 +145,11 @@ export default {
   },
   beforeMount() {
     EventBus.$on('modelSelected', (model) => {
+      if (this.model) {
+        this.viewerLastPath = '';
+        this.browserLastPath = '';
+      }
       this.model = model;
-      this.viewerLastPath = '';
-      this.browserLastPath = '';
     });
   },
   created() {
@@ -226,7 +228,7 @@ $fullhd: 1576px !default;
   background-color: $primary-lighter;
 }
 
-.clickable {
+m, .clickable {
   cursor: pointer;
 }
 
@@ -309,6 +311,12 @@ $fullhd: 1576px !default;
   }
   sup {
     vertical-align: top;
+  }
+}
+
+.metabolite-table, .model-table, .reaction-table, .subsystem-table {
+  .main-table tr td.td-key, #ed-table tr td.td-key {
+    width: 150px;
   }
 }
 

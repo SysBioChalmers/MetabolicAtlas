@@ -34,8 +34,7 @@
           </tr>
         </table>
         <template v-if="hasExternalID">
-          <br>
-          <h4 class="title is-size-4">External IDs</h4>
+          <h4 class="title is-4">External links</h4>
           <table v-if="reaction && Object.keys(reaction).length != 0" id="ed-table" class="table is-fullwidth">
             <tr v-for="el in externalIDTableKey[model.database_name]" v-if="reaction[el.name] && reaction[el.link]">
               <td v-if="'display' in el" class="td-key has-background-primary has-text-white-bis" v-html="el.display"></td>
@@ -46,7 +45,6 @@
             </tr>
           </table>
         </template>
-        <br>
         <template v-if="formattedRef.length != 0">
           <h4 class="title is-size-4">References (PMID)</h4>
           <table class="main-table table">
@@ -122,7 +120,7 @@ export default {
       },
       externalIDTableKey: {
         hmr2: [
-          { name: 'mnxref_id', display: 'MNXREF ID', link: 'mnxref_link' },
+          { name: 'mnxref_id', display: 'Mnxref', link: 'mnxref_link' },
         ],
         yeast: [],
       },
@@ -183,25 +181,26 @@ export default {
     reformatModifiers() {
       let newGRnameArr = null;
       if (this.reaction.name_gene_rule) {
-        newGRnameArr = this.reaction.name_gene_rule.split(/ and | or /).map(
+        newGRnameArr = this.reaction.name_gene_rule.split(/ +/).map(
         e => e.replace(/^\(+|\)+$/g, '')
         );
       }
-
       let newGR = this.reaction.gene_rule;
       if (newGR) {
-        const newGRArr = newGR.split(/ and | or /).map(
-          e => e.replace(/^\(+|\)+$/g, '')
-          );
-        for (let i = 0, l = newGRArr.length; i < l; i += 1) {
-          let e;
-          if (newGRnameArr) {
-            e = `<span class="tag"><a class="e is-size-6" name="${newGRArr[i]}">${newGRnameArr[i]}</a></span>`;
-          } else {
-            e = `<span class="tag"><a class="e is-size-6" name="${newGRArr[i]}">${newGRArr[i]}</a></span>`;
-          }
-          newGR = newGR.replace(newGRArr[i], e);
-        }
+        let i = -1;
+        const newGRArr = newGR.split(/ +/).map(
+          (e) => {
+            i += 1;
+            if (e === 'or' || e === 'and') {
+              return e;
+            }
+            const prefix = e[0] === '(' ? '(' : '';
+            const suffix = e.slice(-1) === ')' ? ')' : '';
+            const newE = e.replace(/^\(+|\)+$/g, '');
+            const tag = newGRnameArr ? newGRnameArr[i] : newE;
+            return `${prefix}<span class="tag"><a class="e is-size-6" name="${newE}">${tag}</a></span>${suffix}`;
+          });
+        newGR = newGRArr.join(' ');
       }
       return newGR;
     },
