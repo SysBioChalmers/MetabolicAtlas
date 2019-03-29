@@ -181,25 +181,26 @@ export default {
     reformatModifiers() {
       let newGRnameArr = null;
       if (this.reaction.name_gene_rule) {
-        newGRnameArr = this.reaction.name_gene_rule.split(/ and | or /).map(
+        newGRnameArr = this.reaction.name_gene_rule.split(/ +/).map(
         e => e.replace(/^\(+|\)+$/g, '')
         );
       }
-
       let newGR = this.reaction.gene_rule;
       if (newGR) {
-        const newGRArr = newGR.split(/ and | or /).map(
-          e => e.replace(/^\(+|\)+$/g, '')
-          );
-        for (let i = 0, l = newGRArr.length; i < l; i += 1) {
-          let e;
-          if (newGRnameArr) {
-            e = `<span class="tag"><a class="e is-size-6" name="${newGRArr[i]}">${newGRnameArr[i]}</a></span>`;
-          } else {
-            e = `<span class="tag"><a class="e is-size-6" name="${newGRArr[i]}">${newGRArr[i]}</a></span>`;
-          }
-          newGR = newGR.replace(newGRArr[i], e);
-        }
+        let i = -1;
+        const newGRArr = newGR.split(/ +/).map(
+          (e) => {
+            i += 1;
+            if (e === 'or' || e === 'and') {
+              return e;
+            }
+            const prefix = e[0] === '(' ? '(' : '';
+            const suffix = e.slice(-1) === ')' ? ')' : '';
+            const newE = e.replace(/^\(+|\)+$/g, '');
+            const tag = newGRnameArr ? newGRnameArr[i] : newE;
+            return `${prefix}<span class="tag"><a class="e is-size-6" name="${newE}">${tag}</a></span>${suffix}`;
+          });
+        newGR = newGRArr.join(' ');
       }
       return newGR;
     },
