@@ -562,20 +562,45 @@ def get_hpa_tissues(request, model):
 
 @api_view()
 @is_model_valid
-def get_hpa_rna_levels_compartment(request, model, compartment_name_id):
-    try:
-        compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=compartment_name_id)
-    except APImodels.Compartment.DoesNotExist:
+def get_hpa_rna_levels_map(request, model, map_type, dim, name_id):
+    if map_type == "compartment":
+        if dim == "2d":
+            try:
+                compartment = APImodels.CompartmentSvg.objects.using(model).get(name_id__iexact=name_id)
+            except APImodels.CompartmentSvg.DoesNotExist:
+                return HttpResponse(status=404)
+            levels = APImodels.HpaEnzymeLevel.objects.using(model). \
+                filter(rc__in=APImodels.CompartmentSvgEnzyme.objects.filter(compartmentsvg=compartment).values('rc')).values_list('rc_id', 'levels')
+        elif dim == "3d":
+            try:
+                compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=name_id)
+            except APImodels.Compartment.DoesNotExist:
+                return HttpResponse(status=404)
+            levels = APImodels.HpaEnzymeLevel.objects.using(model). \
+                filter(rc__in=APImodels.CompartmentEnzyme.objects.filter(compartment=compartment).values('rc')).values_list('rc_id', 'levels')
+        else:
+            return HttpResponse(status=404)
+    elif map_type == "subsystem":
+        if dim == "2d":
+            try:
+                subsystem = APImodels.SubsystemSvg.objects.using(model).get(name_id__iexact=name_id)
+            except APImodels.SubsystemSvg.DoesNotExist:
+                return HttpResponse(status=404)
+            levels = APImodels.HpaEnzymeLevel.objects.using(model). \
+                filter(rc__in=APImodels.SubsystemSvgEnzyme.objects.filter(subsystemsvg=subsystem).values('rc')).values_list('rc_id', 'levels')
+        elif dim == "3d":
+            try:
+                subsystem = APImodels.Subsystem.objects.using(model).get(name_id__iexact=name_id)
+            except APImodels.Subsystem.DoesNotExist:
+                return HttpResponse(status=404)
+            levels = APImodels.HpaEnzymeLevel.objects.using(model). \
+                filter(rc__in=APImodels.SubsystemEnzyme.objects.filter(subsystem=subsystem).values('rc')).values_list('rc_id', 'levels')
+        else:
+            return HttpResponse(status=404)
+    else:
         return HttpResponse(status=404)
 
-    rc_compart = APImodels.ReactionComponentCompartment.objects.using(model). \
-        filter(Q(compartment=compartment)).values_list('rc_id')
-    enzyme_compart = APImodels.ReactionComponent.objects.using(model). \
-        filter(Q(component_type='e') & Q(id__in=rc_compart)).values_list('id')
-
-    levels = APImodels.HpaEnzymeLevel.objects.using(model).filter(rc__in=enzyme_compart).values_list('rc_id', 'levels')
     tissues = APImodels.HpaTissue.objects.using(model).all().values_list('tissue', flat=True)
-
     return JSONResponse(
         {
           'tissues': tissues,
