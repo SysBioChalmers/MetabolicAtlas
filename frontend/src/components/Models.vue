@@ -23,24 +23,20 @@
                 </div>
               </header>
               <div class="card-content">
-                <div class="columns is-multiline">
-                  <div class="column is-4">
+                <div class="columns">
+                  <div class="column is-narrow">
                     Reactions: {{ model.reaction_count }}<br>
                     Metabolites: {{ model.metabolite_count }}<br>
-                    Enzymes: {{ model.enzyme_count }}
-                  </div>
-                  <div class="column is-8">
-                    Condition: {{ model.details.condition }}<br>
-                    Tissue/Cell type: {{ model.tissue }}
-                  </div>
-                  <div class="column is-4">
+                    Enzymes: {{ model.enzyme_count }}<br><br>
                     Date: {{ model.details.last_update || "n/a" }}<br>
                     <a :href="model.details.repo_name" target="_blank">
                       <span class="icon"><i class="fa fa-github fa-lg"></i></span>
                       GitHub
                     </a>
                   </div>
-                  <div class="column is-8">
+                  <div class="column">
+                    Condition: {{ model.details.condition }}<br>
+                    Tissue/Cell type: {{ model.tissue }}<br><br>
                     <router-link class="button is-info is-medium is-outlined" :to="{ path: `/explore/gem-browser/${model.database_name}` }">
                       <span class="icon is-large"><i class="fa fa-search-plus"></i></span>
                       <span>{{ messages.gemBrowserName }}</span>

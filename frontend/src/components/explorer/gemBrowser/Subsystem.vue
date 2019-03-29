@@ -71,7 +71,9 @@
     </div>
     <h4 class="title is-4">Reactions</h4>
     <div class="columns" v-show="!showLoader">
-      <reaction-table :reactions="reactions" :showSubsystem="false" :model="model"></reaction-table>
+      <div class="column">
+        <reaction-table :reactions="reactions" :showSubsystem="false" :model="model"></reaction-table>
+      </div>
     </div>
   </div>
 </template>
