@@ -145,9 +145,11 @@ export default {
   },
   beforeMount() {
     EventBus.$on('modelSelected', (model) => {
+      if (this.model) {
+        this.viewerLastPath = '';
+        this.browserLastPath = '';
+      }
       this.model = model;
-      this.viewerLastPath = '';
-      this.browserLastPath = '';
     });
   },
   created() {
