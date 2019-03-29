@@ -196,11 +196,13 @@ export default {
         this.handleLoadComplete(false, messages.mapNotFound);
         return;
       }
+      this.selectionData.data = null;
       if (this.show3D) {
         EventBus.$emit('show3Dnetwork', this.requestedType, this.requestedName);
       } else {
         EventBus.$emit('showSVGmap', this.requestedType, this.requestedName, ids, forceReload);
       }
+      this.disabled2D = false;
     });
 
     EventBus.$on('updatePanelSelectionData', (data) => {
@@ -278,24 +280,34 @@ export default {
       $('#menu ul.l1, #menu ul.l2').hide();
     },
     switchDimension() {
-      if (!this.activeSwitch || this.disabled2D) {
+      if (!this.activeSwitch || (this.show3D && this.disabled2D)) {
         return;
       }
       this.show3D = !this.show3D;
       this.show2D = !this.show2D;
       this.selectedElement = null;
+      this.selectionData.data = null;
       this.requestedTissue = '';
       this.loadedTissue = '';
       if (!this.currentDisplayedType || !this.currentDisplayedName) {
         return;
       }
 
-      if (this.show3D) {
-        EventBus.$emit('show3Dnetwork', this.currentDisplayedType, this.currentDisplayedName);
+      if (!this.checkValidRequest(this.currentDisplayedType, this.currentDisplayedName)) {
+        // this.handleLoadComplete(false, messages.mapNotFound);
+        this.show3D = !this.show3D;
+        this.show2D = !this.show2D;
+        if (this.show3D) {
+          this.disabled2D = true;
+        }
+        return;
+      }
+
       if (this.show3D) {
         this.URLID = null;
         EventBus.$emit('show3Dnetwork', this.requestedType, this.requestedName);
       } else {
+        this.disabled2D = false;
         EventBus.$emit('destroy3Dnetwork');
         EventBus.$emit('showSVGmap', this.requestedType, this.requestedName, [], true);
       }
@@ -319,10 +331,13 @@ export default {
       this.currentDisplayedType = this.requestedType;
       this.currentDisplayedName = this.requestedName;
       if (this.show2D) {
-        EventBus.$emit('update3DLoadedComponent', null, null);
+        EventBus.$emit('update3DLoadedComponent', null, null); // reset 3d viewer param
       }
       this.updateURL(this.currentDisplayedType, this.currentDisplayedName, this.URLID);
       this.showLoader = false;
+      if (this.loadedTissue) {
+        this.loadHPARNAlevels(this.loadedTissue);
+      }
     },
     getSubComptData(model) {
       axios.get(`${model.database_name}/viewer/`)
@@ -423,10 +438,10 @@ export default {
       // correct special cytosol id, due to map split
       this.requestedType = displayType;
       this.requestedName = displayName;
-      if (!displayType === 'compartment') {
-        if (displayName === 'cytosol') {
+      if (displayType === 'compartment') {
+        if (this.show2D && displayName === 'cytosol') {
           this.requestedName = 'cytosol_1';
-        } else if (displayName === 'cytosol_1') {
+        } else if (this.show3D && displayName.includes('cytosol')) {
           this.requestedName = 'cytosol';
         }
       }
@@ -434,7 +449,8 @@ export default {
         if (displayType === 'compartment') {
           return this.requestedName in this.mapsData2D.compartments;
         }
-        return this.requestedName in this.mapsData2D.subsystems;
+        return this.requestedName in this.mapsData2D.subsystems &&
+         this.mapsData2D.subsystems[this.requestedName].sha;
       }
       if (displayType === 'compartment') {
         return this.requestedName in this.mapsData3D.compartments;
@@ -442,12 +458,10 @@ export default {
       return this.requestedName in this.mapsData3D.subsystems;
     },
     showCompartment(compartment) {
-      this.selectionData.data = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'compartment', compartment, [], false);
     },
     showSubsystem(subsystem) {
-      this.selectionData.data = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'subsystem', subsystem, [], false);
     },
@@ -513,7 +527,7 @@ $footer-height: 4.55rem;
   .overlay {
     position: absolute;
     z-index: 10;
-    padding: 15px;
+    padding: 10px;
     border-radius: 5px;
     background: rgba(22, 22, 22, 0.8);
   }

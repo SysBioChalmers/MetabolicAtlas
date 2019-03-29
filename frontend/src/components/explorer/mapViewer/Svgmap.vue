@@ -456,6 +456,10 @@ export default {
     },
     selectElement(element) {
       const [id, type] = this.getElementIdAndType(element);
+      if (type === 'subsystem' && this.loadedMapType === 'subsystem') {
+        return;
+      }
+
       if (this.selectElementID === id) {
         this.unSelectElement();
         return;
