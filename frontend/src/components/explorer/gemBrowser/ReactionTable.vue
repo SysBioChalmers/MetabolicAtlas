@@ -1,5 +1,5 @@
 <template>
-  <div class="container reaction-table">
+  <div class="reaction-table">
     <div class="field">
       <span class="tag is-medium">
         # Reactions: {{ reactions.length }}

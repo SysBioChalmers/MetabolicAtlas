@@ -1,6 +1,6 @@
 <template>
   <div class="reactome column" v-show="showTable">
-    <h4 class="title is-4">Reactome</h4>
+    <h4 class="title is-4">Reactions</h4>
     <div class="container">
       <div v-show="false" id="diagram"></div>
       <p class="control field">

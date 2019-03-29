@@ -219,9 +219,4 @@ export default {
 </script>
 
 <style lang="scss">
-
-.homeDiv {
-  margin-top: 3rem;
-}
-
 </style>

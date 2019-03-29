@@ -49,7 +49,7 @@
           <h6 id="">Metabolite page</h6>
           Show the description of the current selected metabolite. This is a combination of annotations from the model, in-house annotations, and relevant information from external sources (e.g. HMDB for human data). The same metabolite can, and often will, participate multiple times in this table as it, for example, will be produced by one reaction and then consumed by another.
 
-          <h6 id="">Reactome table</h6>
+          <h6 id="">Reactions table</h6>
           Here all the reactions that the current metabolite participates in, either as a reactant or a product, are listed. <br>
           Please note that a metabolite is identified by the compartment in which it is found in (the last letter of the id), therefore you will only see reactions that occur in the current compartment, <u>unless</u> you press the <i>Expand to all compartments</i> button.<br>
           <i>Please note</i> that the number of reactions will be limited to 200, no matter what.
