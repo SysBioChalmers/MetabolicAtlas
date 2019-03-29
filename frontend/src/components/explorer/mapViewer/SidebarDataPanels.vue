@@ -50,7 +50,7 @@
               <span>{{ messages.gemBrowserName }}</span>
             </router-link>
             <div class="button is-primary is-medium is-outlined card-footer-item has-text-centered"
-              @click="showSubsystem(idfy(selectionData.data.id))"
+              @click="(mapsData.subsystems[idfy(selectionData.data.id)] && mapsData.subsystems[idfy(selectionData.data.id)].sha) && showSubsystem(idfy(selectionData.data.id))"
               :disabled="!mapsData.subsystems[idfy(selectionData.data.id)] || !mapsData.subsystems[idfy(selectionData.data.id)].sha">
               <span class="icon is-large"><i class="fa fa-map-o"></i></span>
               <span>Load map</span>
