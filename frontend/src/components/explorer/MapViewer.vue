@@ -138,6 +138,8 @@ export default {
       has2DCompartmentMaps: false,
       has2DSubsystemMaps: false,
       showLoader: false,
+      watchURL: true,
+      URLID: null,
 
       mapsData2D: {
         compartments: {},
@@ -167,6 +169,16 @@ export default {
       return !this.showLoader;
     },
   },
+  watch: {
+    /* eslint-disable quote-props */
+    '$route': function watchSetup() {
+      if (this.watchURL) {
+        this.checkRoute();
+      } else {
+        this.watchURL = true;
+      }
+    },
+  },
   created() {
     EventBus.$off('showAction');
     EventBus.$off('updatePanelSelectionData');
@@ -184,11 +196,13 @@ export default {
         this.handleLoadComplete(false, messages.mapNotFound);
         return;
       }
+      this.selectionData.data = null;
       if (this.show3D) {
-        EventBus.$emit('show3Dnetwork', type, name);
+        EventBus.$emit('show3Dnetwork', this.requestedType, this.requestedName);
       } else {
-        EventBus.$emit('showSVGmap', type, name, ids, forceReload);
+        EventBus.$emit('showSVGmap', this.requestedType, this.requestedName, ids, forceReload);
       }
+      this.disabled2D = false;
     });
 
     EventBus.$on('updatePanelSelectionData', (data) => {
@@ -266,24 +280,38 @@ export default {
       $('#menu ul.l1, #menu ul.l2').hide();
     },
     switchDimension() {
-      if (!this.activeSwitch || this.disabled2D) {
+      if (!this.activeSwitch || (this.show3D && this.disabled2D)) {
         return;
       }
       this.show3D = !this.show3D;
       this.show2D = !this.show2D;
       this.selectedElement = null;
+      this.selectionData.data = null;
       this.requestedTissue = '';
       this.loadedTissue = '';
       if (!this.currentDisplayedType || !this.currentDisplayedName) {
         return;
       }
 
-      if (this.show3D) {
-        EventBus.$emit('show3Dnetwork', this.currentDisplayedType, this.currentDisplayedName);
-      } else {
-        EventBus.$emit('destroy3Dnetwork');
-        EventBus.$emit('showSVGmap', this.currentDisplayedType, this.currentDisplayedName, [], true);
+      if (!this.checkValidRequest(this.currentDisplayedType, this.currentDisplayedName)) {
+        // this.handleLoadComplete(false, messages.mapNotFound);
+        this.show3D = !this.show3D;
+        this.show2D = !this.show2D;
+        if (this.show3D) {
+          this.disabled2D = true;
+        }
+        return;
       }
+
+      if (this.show3D) {
+        this.URLID = null;
+        EventBus.$emit('show3Dnetwork', this.requestedType, this.requestedName);
+      } else {
+        this.disabled2D = false;
+        EventBus.$emit('destroy3Dnetwork');
+        EventBus.$emit('showSVGmap', this.requestedType, this.requestedName, [], true);
+      }
+      this.updateURL(this.requestedType, this.requestedName, this.URLID);
     },
     handleLoadComplete(isSuccess, errorMessage) {
       this.selectionData.data = null;
@@ -303,9 +331,13 @@ export default {
       this.currentDisplayedType = this.requestedType;
       this.currentDisplayedName = this.requestedName;
       if (this.show2D) {
-        EventBus.$emit('update3DLoadedComponent', null, null);
+        EventBus.$emit('update3DLoadedComponent', null, null); // reset 3d viewer param
       }
+      this.updateURL(this.currentDisplayedType, this.currentDisplayedName, this.URLID);
       this.showLoader = false;
+      if (this.loadedTissue) {
+        this.loadHPARNAlevels(this.loadedTissue);
+      }
     },
     getSubComptData(model) {
       axios.get(`${model.database_name}/viewer/`)
@@ -313,20 +345,24 @@ export default {
         this.mapsData3D.compartments = {};
         for (const c of response.data.compartment) {
           this.mapsData3D.compartments[c.name_id] = c;
+          this.mapsData3D.compartments[c.name_id].model_id = c.name_id;
         }
         this.mapsData2D.compartments = {};
         for (const c of response.data.compartmentsvg) {
           this.mapsData2D.compartments[c.name_id] = c;
+          this.mapsData2D.compartments[c.name_id].model_id = c.compartment;
         }
         this.has2DCompartmentMaps = Object.keys(this.mapsData2D.compartments).length !== 0;
         // this.mapsData2D.compartments.sort();
         this.mapsData3D.subsystems = {};
         for (const s of response.data.subsystem) {
           this.mapsData3D.subsystems[s.name_id] = s;
+          this.mapsData3D.subsystems[s.name_id].model_id = s.name_id;
         }
         this.mapsData2D.subsystems = {};
         for (const s of response.data.subsystemsvg) {
           this.mapsData2D.subsystems[s.name_id] = s;
+          this.mapsData2D.subsystems[s.name_id].model_id = s.subsystem;
         }
         this.has2DSubsystemMaps = Object.keys(this.mapsData2D.subsystems).length !== 0;
 
@@ -336,29 +372,43 @@ export default {
           this.show2D = false;
         }
 
-        // load maps from url if contains map_id, the url is then cleaned of the id
-        if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
-          const type = this.$route.name.includes('Compartment') ? 'compartment' : 'subsystem';
-          const mapID = this.$route.params.id;
-          const reactionID = this.$route.params.rid;
-          if (!this.$route.query.dim) {
-            this.show2D = false;
-          } else {
-            this.show2D = this.$route.query.dim === '2d' && !this.disabled2D;
-          }
-          this.show3D = !this.show2D;
-          this.$nextTick(() => {
-            EventBus.$emit('showAction', type, mapID, reactionID ? [reactionID] : [], false);
-          });
-        }
+        this.checkRoute();
       })
       .catch((error) => {
-        // console.log(error);
+        console.log(error);
         switch (error.response.status) {
           default:
             this.errorMessage = messages.unknownError;
         }
       });
+    },
+    checkRoute() {
+      // load maps from url if contains map_id, the url is then cleaned of the id
+      if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
+        const type = this.$route.name.includes('Compartment') ? 'compartment' : 'subsystem';
+        const mapID = this.$route.params.id;
+        this.URLID = this.$route.params.rid;
+        if (!this.$route.query.dim) {
+          this.show2D = false;
+        } else {
+          this.show2D = this.$route.query.dim === '2d' && !this.disabled2D;
+        }
+        this.show3D = !this.show2D;
+        this.$nextTick(() => {
+          EventBus.$emit('showAction', type, mapID, this.URLID ? [this.URLID] : [], false);
+        });
+        this.updateURL(type, mapID, this.URLID);
+      }
+    },
+    updateURL(type, mapID, URLID) {
+      this.watchURL = false;
+      const dim = this.show2D ? '2d' : '3d';
+      if (URLID && false) {
+        // no reaction id in url for now
+        this.$router.push(`/explore/map-viewer/${this.model.database_name}/${type}/${mapID}/${URLID}?dim=${dim}`);
+      } else {
+        this.$router.push(`/explore/map-viewer/${this.model.database_name}/${type}/${mapID}?dim=${dim}`);
+      }
     },
     getHPATissue(model) {
       axios.get(`${model.database_name}/enzyme/hpa_tissue/`)
@@ -379,17 +429,19 @@ export default {
         this.loadedTissue = '';
       }
       if (this.show2D) {
-        EventBus.$emit('loadHPARNAlevels', tissue);
+        EventBus.$emit('load2DHPARNAlevels', this.currentDisplayedType, tissue);
+      } else {
+        EventBus.$emit('load3DHPARNAlevels', this.currentDisplayedType, tissue);
       }
     },
     checkValidRequest(displayType, displayName) {
       // correct special cytosol id, due to map split
       this.requestedType = displayType;
       this.requestedName = displayName;
-      if (!displayType === 'compartment') {
-        if (displayName === 'cytosol') {
+      if (displayType === 'compartment') {
+        if (this.show2D && displayName === 'cytosol') {
           this.requestedName = 'cytosol_1';
-        } else if (displayName === 'cytosol_1') {
+        } else if (this.show3D && displayName.includes('cytosol')) {
           this.requestedName = 'cytosol';
         }
       }
@@ -397,7 +449,8 @@ export default {
         if (displayType === 'compartment') {
           return this.requestedName in this.mapsData2D.compartments;
         }
-        return this.requestedName in this.mapsData2D.subsystems;
+        return this.requestedName in this.mapsData2D.subsystems &&
+         this.mapsData2D.subsystems[this.requestedName].sha;
       }
       if (displayType === 'compartment') {
         return this.requestedName in this.mapsData3D.compartments;
@@ -405,12 +458,10 @@ export default {
       return this.requestedName in this.mapsData3D.subsystems;
     },
     showCompartment(compartment) {
-      this.selectionData.data = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'compartment', compartment, [], false);
     },
     showSubsystem(subsystem) {
-      this.selectionData.data = null;
       this.hideDropleftMenus();
       EventBus.$emit('showAction', 'subsystem', subsystem, [], false);
     },
@@ -476,7 +527,7 @@ $footer-height: 4.55rem;
   .overlay {
     position: absolute;
     z-index: 10;
-    padding: 15px;
+    padding: 10px;
     border-radius: 5px;
     background: rgba(22, 22, 22, 0.8);
   }

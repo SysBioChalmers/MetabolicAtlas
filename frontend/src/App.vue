@@ -189,7 +189,7 @@ export default {
       } else if (this.$route.name === 'browserRoot') {
         this.browserLastPath = '';
       } else if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
-        this.viewerLastPath = this.$route.path;
+        this.viewerLastPath = this.$route.fullPath;
       } else if (this.$route.name === 'viewer') {
         this.viewerLastPath = '';
       }
