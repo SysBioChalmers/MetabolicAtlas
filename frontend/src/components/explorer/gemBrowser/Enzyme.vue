@@ -56,7 +56,7 @@
             <div class="column">
               <loader v-show="loading"></loader>
               <template v-show="reactions.length > 0">
-                <h4 class="title is-4" v-show="!loading">Reactome</h4>
+                <h4 class="title is-4" v-show="!loading">Reactions</h4>
                 <reaction-table v-show="!loading" :reactions="reactions" :showSubsystem="true" :model="model"></reaction-table>
               </template>
             </div>
