@@ -71,7 +71,7 @@ export default {
       panzoomOptions: {
         maxScale: 1,
         minScale: 0.03,
-        increment: 0.02,
+        increment: 0.025,
         animate: false,
         linearZoom: true,
       },
@@ -95,6 +95,7 @@ export default {
       totalSearchMatch: 0,
 
       svgMapURL: `${window.location.origin}/svgs`, // SEDME
+      defaultEnzymeColor: '#feb',
     };
   },
   watch: {
@@ -178,9 +179,12 @@ export default {
         this.$panzoom = $('#svg-wrapper').panzoom(this.panzoomOptions);
       } else {
         this.$panzoom = $('#svg-wrapper').panzoom('reset', this.panzoomOptions);
+        this.$panzoom.off('mousewheel.focal');
+        this.$panzoom.off('panzoomzoom');
       }
       setTimeout(() => {
-        const minZoomScale = $('.svgbox').width() / $('#svg-wrapper svg').width();
+        const minZoomScale = Math.min($('.svgbox').width() / $('#svg-wrapper svg').width(),
+                                 $('.svgbox').height() / $('#svg-wrapper svg').height());
         const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
         const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
         this.$panzoom.panzoom('pan', -focusX, -focusY);
@@ -285,7 +289,7 @@ export default {
     },
     readHPARNAlevels(tissue) {
       if (tissue === 'None') {
-        $('#svg-wrapper .enz .shape').attr('fill', '#fa0');
+        $('#svg-wrapper .enz .shape').attr('fill', this.defaultEnzymeColor);
         this.enzymeRNAlevels = {};
         return;
       }
