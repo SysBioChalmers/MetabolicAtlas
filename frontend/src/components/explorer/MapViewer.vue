@@ -313,20 +313,24 @@ export default {
         this.mapsData3D.compartments = {};
         for (const c of response.data.compartment) {
           this.mapsData3D.compartments[c.name_id] = c;
+          this.mapsData3D.compartments[c.name_id].model_id = c.name_id;
         }
         this.mapsData2D.compartments = {};
         for (const c of response.data.compartmentsvg) {
           this.mapsData2D.compartments[c.name_id] = c;
+          this.mapsData2D.compartments[c.name_id].model_id = c.compartment;
         }
         this.has2DCompartmentMaps = Object.keys(this.mapsData2D.compartments).length !== 0;
         // this.mapsData2D.compartments.sort();
         this.mapsData3D.subsystems = {};
         for (const s of response.data.subsystem) {
           this.mapsData3D.subsystems[s.name_id] = s;
+          this.mapsData3D.subsystems[s.name_id].model_id = s.name_id;
         }
         this.mapsData2D.subsystems = {};
         for (const s of response.data.subsystemsvg) {
           this.mapsData2D.subsystems[s.name_id] = s;
+          this.mapsData2D.subsystems[s.name_id].model_id = s.subsystem;
         }
         this.has2DSubsystemMaps = Object.keys(this.mapsData2D.subsystems).length !== 0;
 
