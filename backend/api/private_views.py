@@ -157,19 +157,38 @@ def search_on_map(request, model, map_type, map_name_id, term):
 @api_view()
 @is_model_valid
 def get_available_maps(request, model, reaction_id):
-    # get compartment maps
-    results = { "count" : 0 }
+    # return only 2D maps for now, TODO complete when 3D viewer ready
+    try:
+        reaction = APImodels.Reaction.objects.using(model).get(id__iexact=reaction_id)
+    except APImodels.Reaction.DoesNotExist:
+        return HttpResponse(status=404)
+
+    results = { "count" : 0,
+                "2d" : {
+                    "compartment" : [],
+                    "subsystem" : [],
+                    "count" : 0,
+                },
+                "3d" : {
+                    "compartment" : [],
+                    "subsystem" : [],
+                    "count" : 0,
+                },
+                'default' : None  # is there is only one 2D map it's there
+              }
     compartment_svg = APImodels.ReactionCompartmentSvg.objects.using(model) \
-                .filter(Q(reaction_id=reaction_id)).select_related('compartmentsvg').values_list('compartmentsvg__name_id', 'compartmentsvg__name')
+                .filter(Q(reaction_id=reaction.id)).select_related('compartmentsvg').values_list('compartmentsvg__name_id', 'compartmentsvg__name')
     if compartment_svg:
-        results["compartment"] = compartment_svg
+        results["2d"]["compartment"] = compartment_svg
+        results["2d"]["count"] += compartment_svg.count()
         results["count"] += compartment_svg.count()
 
     subsystem_svg = APImodels.ReactionSubsystemSvg.objects.using(model) \
-                .filter(Q(reaction_id=reaction_id)).values_list('subsystemsvg__name_id').values_list('subsystemsvg__name_id', 'subsystemsvg__name')
+                .filter(Q(reaction_id=reaction.id)).select_related('subsystemsvg').values_list('subsystemsvg__name_id', 'subsystemsvg__name')
     if subsystem_svg:
-        results["subsystem"] = subsystem_svg
-        results["count"] += compartment_svg.count()
+        results["2d"]["subsystem"] = subsystem_svg
+        results["2d"]["count"] += subsystem_svg.count()
+        results["count"] += subsystem_svg.count()
 
     if results["count"] == 0:
         return HttpResponse(status=404)
