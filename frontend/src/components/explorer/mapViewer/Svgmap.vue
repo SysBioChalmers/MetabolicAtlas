@@ -298,19 +298,28 @@ export default {
         EventBus.$emit('loadRNAComplete', false, '');
         return;
       }
+
       const levels = this.HPARNAlevelsHistory[this.svgName].levels;
-      $('#svg-wrapper .enz .shape').attr('fill', 'whitesmoke'); // init to NA
       for (const array of levels) {
         const enzID = array[0];
         let level = Math.log2(parseFloat(array[1].split(',')[index]) + 1);
         level = Math.round((level + 0.00001) * 100) / 100;
         this.enzymeRNAlevels[enzID] = level;
-        const classs = `#svg-wrapper .enz.${enzID} .shape`;
-        $(classs).attr('fill', getExpressionColor(level));
       }
+
+      const allEnzymes = $('#svg-wrapper .enz');
+      for (const oneEnz of allEnzymes) {
+        const ID = oneEnz.classList[1];
+        if (this.enzymeRNAlevels[ID] !== undefined) {
+          oneEnz.children[0].setAttribute('fill', getExpressionColor(this.enzymeRNAlevels[ID]));
+        } else {
+          oneEnz.children[0].setAttribute('fill', 'whitesmoke');
+        }
+      }
+
       // update cached selected elements
       for (const id of Object.keys(this.selectedItemHistory)) {
-        if (this.enzymeRNAlevels[id]) {
+        if (this.enzymeRNAlevels[id] !== undefined) {
           this.selectedItemHistory[id].rnaLvl = this.enzymeRNAlevels[id];
         }
       }
