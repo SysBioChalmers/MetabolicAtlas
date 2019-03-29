@@ -488,8 +488,8 @@ def get_compartment(request, model, compartment_name_id, stats_only=False):
             'subsystems': subsystems,
         }
     else:
-        sms = APImodels.ReactionComponentCompartment.objects.using(model).filter(compartment_id=compartment_id, rc__component_type='m').select_related("rc").values_list('rc_id', flat=True)
-        ses = APImodels.ReactionComponentCompartment.objects.using(model).filter(compartment_id=compartment_id, rc__component_type='e').select_related("rc").values_list('rc_id', flat=True)
+        sms = APImodels.ReactionComponentCompartment.objects.using(model).filter(compartment_id=compartment_id).values_list('rc_id', flat=True)
+        ses = APImodels.CompartmentEnzyme.objects.using(model).filter(compartment_id=compartment_id).values_list('rc_id', flat=True)
         reactions = APImodels.ReactionCompartment.objects.using(model).filter(compartment_id=compartment_id).values_list('reaction_id', flat=True)
 
         results = {

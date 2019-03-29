@@ -24,6 +24,7 @@ class JSONResponse(HttpResponse):
 @api_view(['POST'])
 @is_model_valid
 def convert_to_reaction_component_ids(request, model, compartment_name_id=None):
+    # not used
     arrayTerms = [el.strip() for el in request.data['data'] if len(el) != 0]
     if not arrayTerms:
         return JSONResponse({})
@@ -53,6 +54,7 @@ def convert_to_reaction_component_ids(request, model, compartment_name_id=None):
 
     if not compartment_name_id:
         # get the compartment id for each component id
+        # TODO FIXME not work for enzyme, use CompartmentEnzymeSvg
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
         .filter(Q(rc_id__in=reaction_component_ids)) \
         .select_related('Compartmentsvg') \
@@ -71,6 +73,7 @@ def convert_to_reaction_component_ids(request, model, compartment_name_id=None):
             return HttpResponse(status=404)
 
         # get the component ids in the input compartment
+        # TODO FIXME not work for enzyme, use CompartmentEnzymeSvg
         rcci = APImodels.ReactionComponentCompartmentSvg.objects.using(model).filter(
                 Q(rc_id__in=reaction_component_ids) & Q(Compartmentsvg_id=compartment.id)
             ).select_related('Compartmentsvg') \
@@ -117,7 +120,9 @@ def search_on_map(request, model, map_type, map_name_id, term):
     if map_type == 'compartment':
         try:
             compartment = APImodels.CompartmentSvg.objects.using(model).get(name_id=map_name_id)
-            mapIDsetRC  = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
+            mapIDsetMet = APImodels.ReactionComponentCompartmentSvg.objects.using(model) \
+                .filter(Q(compartmentsvg=compartment.id)).values_list('rc_id')
+            mapIDsetEnz = APImodels.CompartmentSvgEnzyme.objects.using(model) \
                 .filter(Q(compartmentsvg=compartment.id)).values_list('rc_id')
             mapIDsetReaction = APImodels.ReactionCompartmentSvg.objects.using(model) \
                 .filter(Q(compartmentsvg=compartment.id)).values_list('reaction_id')
@@ -126,15 +131,18 @@ def search_on_map(request, model, map_type, map_name_id, term):
     else:
         try:
             subsystem = APImodels.SubsystemSvg.objects.using(model).get(name_id=map_name_id)
-            mapIDsetRC  = APImodels.ReactionComponentSubsystemSvg.objects.using(model) \
+            mapIDsetMet = APImodels.ReactionComponentSubsystemSvg.objects.using(model) \
+                .filter(Q(subsystemsvg=subsystem.id)).values_list('rc_id')
+            mapIDsetEnz = APImodels.SubsystemSvgEnzyme.objects.using(model) \
                 .filter(Q(subsystemsvg=subsystem.id)).values_list('rc_id')
             mapIDsetReaction = APImodels.ReactionSubsystemSvg.objects.using(model) \
                 .filter(Q(subsystemsvg=subsystem.id)).values_list('reaction_id')
         except APImodels.SubsystemSvg.DoesNotExist:
             return HttpResponse(status=404)
 
+    # TODO merge requests?
     # get the list of component id
-    reaction_component_ids = APImodels.ReactionComponent.objects.using(model).filter(id__in=mapIDsetRC).filter(query).values_list('id', flat=True);
+    reaction_component_ids = APImodels.ReactionComponent.objects.using(model).filter(Q(id__in=mapIDsetMet) | Q(id__in=mapIDsetEnz)).filter(query).values_list('id', flat=True);
 
     # get the list of reaction id
     reaction_ids = APImodels.Reaction.objects.using(model).filter(id__in=mapIDsetReaction).filter(reaction_query).values_list('id', flat=True)
@@ -817,7 +825,7 @@ def search(request, model, term):
                 reactions = list(chain(reactions, reactions_mets))
 
 
-            enzymes = APImodels.ReactionComponent.objects.using(model).select_related('enzyme').prefetch_related('subsystem_enzyme', 'compartments').filter(
+            enzymes = APImodels.ReactionComponent.objects.using(model).select_related('enzyme').prefetch_related('subsystem_enzyme', 'compartment_enzyme').filter(
                 Q(component_type__exact='e') &
                 (Q(id__iexact=term) |
                 Q(name__icontains=term) |
