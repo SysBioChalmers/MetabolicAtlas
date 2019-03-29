@@ -11,7 +11,7 @@
       <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
         <input id="searchInput" title="Exact search by id, name, alias. Press Enter for results"
           class="input" type="text" :class="searchInputClass" v-model.trim="searchTerm"
-          v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"
+          v-on:keyup.enter="searchComponentIDs()" :disabled="!loadedMap"
           placeholder="Exact search by id, name, alias"/>
       </div>
       <div v-show="searchTerm && totalSearchMatch">
@@ -120,8 +120,12 @@ export default {
       if (type === 'compartment' || type === 'subsystem') {
         if (name) {
           this.idsFound = ids;
-          const callback = ids.length !== 0 ? this.findElementsOnSVG : null;
-          this.loadSVG(name, callback);
+          if (ids.length === 1) {
+            this.searchTerm = ids[0];
+            this.loadSVG(name, this.searchComponentIDs);
+          } else {
+            this.loadSVG(name, null);
+          }
         }
       } else if (type === 'find') {
         this.hlElements(name, ids);
@@ -208,7 +212,8 @@ export default {
         if (callback) {
           if (callback === this.findElementsOnSVG) {
             callback(true);
-            this.$emit('loadComplete', true, '');
+          } else if (callback === this.searchComponentIDs) {
+            callback();
           }
         } else {
           this.$emit('loadComplete', true, '');
@@ -218,8 +223,12 @@ export default {
     loadSVG(id, callback) {
       // load the svg file from the server
       this.$emit('loading');
-      // reset some values
-      this.searchTerm = '';
+
+      if (!callback) {
+        // reset some values
+        this.searchTerm = '';
+      }
+
       let mapInfo = this.mapsData.compartments[id];
       if (!mapInfo) {
         mapInfo = this.mapsData.subsystems[id];
@@ -325,14 +334,14 @@ export default {
       }
       EventBus.$emit('loadRNAComplete', true, '');
     },
-    searchComponentIDs(term) {
+    searchComponentIDs() {
       // get the correct IDs from the backend
       if (!this.searchTerm) {
         this.searchInputClass = 'is-warning';
         return;
       }
       this.isLoadingSearch = true;
-      axios.get(`${this.model.database_name}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
+      axios.get(`${this.model.database_name}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${this.searchTerm}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
         this.idsFound = response.data;
@@ -372,6 +381,8 @@ export default {
       this.isLoadingSearch = false;
       if (zoomOn) {
         this.centerElementOnSVG(1);
+      } else {
+        this.$emit('loadComplete', true, '');
       }
     },
     centerElementOnSVG(increment) {
@@ -508,6 +519,7 @@ export default {
         },
       });
       this.$panzoom.panzoom('pan', -panX + ($('.svgbox').width() / 2), -panY + ($('.svgbox').height() / 2));
+      this.$emit('loadComplete', true, '');
     },
   },
 };
