@@ -72,34 +72,6 @@
         <subsystem v-if="selectedType==='subsystem'" :model="model"></subsystem>
         <compartment v-if="selectedType==='compartment'" :model="model"></compartment>
       </div>
-      <div class="modal" v-bind:class="{ 'is-active': showModal }">
-        <div class="modal-background" @click="showModal = false"></div>
-        <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white" v-on:keyup.esc="showModal = false" tabindex="0">
-          <h4 class="title">
-            Available maps:
-          </h4>
-          <div class="columns" v-if="mapsAvailable">
-            <div class="column is-half">
-              <h5 class="title is-5">2D maps</h5>
-              <template v-for="comp in mapsAvailable['2d']['compartment']" v-if="'compartment' in mapsAvailable['2d']">
-                <router-link :to="{ path: `/explore/map-viewer/${model.database_name}/compartment/${comp[0]}/${viewOnMapID}?dim=2d` }"
-                @click.native="showModal = false"
-                >{{ comp[1] }}</router-link><br>
-              </template>
-              <template v-for="sub in mapsAvailable['2d']['subsystem']" v-if="'subsystem' in mapsAvailable['2d']">
-                <router-link :to="{ path: `/explore/map-viewer/${model.database_name}/subsystem/${sub[0]}/${viewOnMapID}?dim=2d` }"
-                @click.native="showModal = false"
-                >{{ sub[1] }}</router-link><br>
-              </template>
-            </div>
-            <div class="column is-half">
-            <h5 class="title is-5">3D maps</h5>
-              <p>Currently not available</p>
-            </div>
-          </div>
-        </div>
-        <button class="modal-close is-large" @click="showModal = false"></button>
-      </div>
     </template>
   </div>
 </template>
@@ -142,7 +114,6 @@ export default {
       componentID: '',
       mapsAvailable: null,
       starredComponents: null,
-      showModal: false,
     };
   },
   watch: {
@@ -166,21 +137,6 @@ export default {
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
       this.$router.push(`/explore/gem-browser/${this.$route.params.model}/${type}/${idfy(id)}`);
-    });
-    EventBus.$on('viewReactionOnMap', (id) => {
-      // get the list of maps available for this id
-      axios.get(`${this.model.database_name}/available_maps/${id}`)
-      .then((response) => {
-        this.viewOnMapID = id;
-        if (response.data.count !== 1) {
-          this.mapsAvailable = response.data;
-          this.showModal = true;
-        } else {
-          const mapType = response.data['2d'].compartment.length !== 0 ? 'compartment' : 'subsystem';
-          const mapName = response.data['2d'][mapType][0][0];
-          this.$router.push(`/explore/map-viewer/${this.model.database_name}/${mapType}/${mapName}/${id}?dim=2d`);
-        }
-      });
     });
   },
   methods: {

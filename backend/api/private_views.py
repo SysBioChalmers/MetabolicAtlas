@@ -156,63 +156,120 @@ def search_on_map(request, model, map_type, map_name_id, term):
 
 @api_view()
 @is_model_valid
-def get_available_maps(request, model, reaction_id):
-    try:
-        reaction = APImodels.Reaction.objects.using(model).get(id__iexact=reaction_id)
-    except APImodels.Reaction.DoesNotExist:
-        return HttpResponse(status=404)
+def get_available_maps(request, model, component_type, component_id):
 
     results = { "count" : 0,
-                "2d" : {
-                    "compartment" : [],
-                    "subsystem" : [],
-                    "count" : 0,
-                },
-                "3d" : {
-                    "compartment" : [],
-                    "subsystem" : [],
-                    "count" : 0,
-                },
-                'default' : None  # is there is only one map it's there
-              }
+            "2d" : {
+                "compartment" : [],
+                "subsystem" : [],
+                "count" : 0,
+            },
+            "3d" : {
+                "compartment" : [],
+                "subsystem" : [],
+                "count" : 0,
+            },
+            'default' : None  # is there is only one map it's there
+          }
 
-    # check 2D maps
-    compartment_svg = APImodels.ReactionCompartmentSvg.objects.using(model) \
-                .filter(Q(reaction_id=reaction.id)).select_related('compartmentsvg').extra(select = {'type': "'compartment'"}). \
-                values_list('compartmentsvg__name_id', 'compartmentsvg__name', 'type')
-    if compartment_svg:
-        results["2d"]["compartment"] = compartment_svg
-        results["2d"]["count"] += compartment_svg.count()
-        results["count"] += compartment_svg.count()
-        results["default"] = compartment_svg[0]
+    if component_type not in ['reaction', 'compartment', 'subsystem']:
+        return HttpResponse(status=404)
 
-    subsystem_svg = APImodels.ReactionSubsystemSvg.objects.using(model) \
-                .filter(Q(reaction_id=reaction.id)).select_related('subsystemsvg').extra(select = {'type': "'subsystem'"}). \
-                values_list('subsystemsvg__name_id', 'subsystemsvg__name', 'type')
-    if subsystem_svg:
-        results["2d"]["subsystem"] = subsystem_svg
-        results["2d"]["count"] += subsystem_svg.count()
-        results["count"] += subsystem_svg.count()
-        results["default"] = subsystem_svg[0]
+    if component_type == 'reaction':
+        try:
+            reaction = APImodels.Reaction.objects.using(model).get(id__iexact=component_id)
+        except APImodels.Reaction.DoesNotExist:
+            return HttpResponse(status=404)
 
-    #check 3D maps
-    compartment = APImodels.ReactionCompartment.objects.using(model) \
-                .filter(Q(reaction_id=reaction.id)).select_related('compartment').extra(select = {'type': "'compartment'"}). \
-                values_list('compartment__name_id', 'compartment__name', 'type')
-    if compartment:
-        results["3d"]["compartment"] = compartment
-        results["3d"]["count"] += compartment.count()
-        results["count"] += compartment.count()
-        results["default"] = compartment[0]
+        # check 2D maps
+        compartment_svg = APImodels.ReactionCompartmentSvg.objects.using(model) \
+                    .filter(Q(reaction_id=reaction.id)).select_related('compartmentsvg').order_by("compartmentsvg__name").extra(select = {'type': "'compartment'"}). \
+                    values_list('compartmentsvg__name_id', 'compartmentsvg__name', 'type')
+        if compartment_svg:
+            results["2d"]["compartment"] = compartment_svg
+            results["2d"]["count"] += compartment_svg.count()
+            results["count"] += compartment_svg.count()
+            results["default"] = compartment_svg[0]
 
-    subsystem = APImodels.SubsystemReaction.objects.using(model) \
-                .filter(Q(reaction_id=reaction.id)).select_related('subsystem').extra(select = {'type': "'subsystem'"}). \
-                values_list('subsystem__name_id', 'subsystem__name', 'type')
-    if subsystem:
-        results["3d"]["subsystem"] = subsystem
-        results["3d"]["count"] += subsystem.count()
-        results["count"] += subsystem.count()
-        results["default"] = subsystem[0]
+        subsystem_svg = APImodels.ReactionSubsystemSvg.objects.using(model) \
+                    .filter(Q(reaction_id=reaction.id)).select_related('subsystemsvg').order_by("subsystemsvg__name").extra(select = {'type': "'subsystem'"}). \
+                    values_list('subsystemsvg__name_id', 'subsystemsvg__name', 'type')
+        if subsystem_svg:
+            results["2d"]["subsystem"] = subsystem_svg
+            results["2d"]["count"] += subsystem_svg.count()
+            results["count"] += subsystem_svg.count()
+            results["default"] = subsystem_svg[0]
+
+        #check 3D maps
+        compartment = APImodels.ReactionCompartment.objects.using(model) \
+                    .filter(Q(reaction_id=reaction.id)).select_related('compartment').order_by("compartment__name").extra(select = {'type': "'compartment'"}). \
+                    values_list('compartment__name_id', 'compartment__name', 'type')
+        if compartment:
+            results["3d"]["compartment"] = compartment
+            results["3d"]["count"] += compartment.count()
+            results["count"] += compartment.count()
+            results["default"] = compartment[0]
+
+        subsystem = APImodels.SubsystemReaction.objects.using(model) \
+                    .filter(Q(reaction_id=reaction.id)).select_related('subsystem').order_by("subsystem__name").extra(select = {'type': "'subsystem'"}). \
+                    values_list('subsystem__name_id', 'subsystem__name', 'type')
+        if subsystem:
+            results["3d"]["subsystem"] = subsystem
+            results["3d"]["count"] += subsystem.count()
+            results["count"] += subsystem.count()
+            results["default"] = subsystem[0]
+
+    elif component_type == 'compartment':
+        try:
+            compartment = APImodels.Compartment.objects.using(model).get(name_id__iexact=component_id)
+        except APImodels.Compartment.DoesNotExist:
+            return HttpResponse(status=404)
+
+        # check 2D maps
+        compartment_svg = APImodels.CompartmentSvg.objects.using(model) \
+                    .filter(Q(compartment=compartment.id)).order_by("name").extra(select = {'type': "'compartment'"}). \
+                    values_list('name_id', 'name', 'type')
+        if compartment_svg:
+            results["2d"]["compartment"] = compartment_svg
+            results["2d"]["count"] += compartment_svg.count()
+            results["count"] += compartment_svg.count()
+            results["default"] = compartment_svg[0]
+
+        #check 3D maps
+        compartment = APImodels.Compartment.objects.using(model).filter(name_id__iexact=component_id). \
+                order_by("name").extra(select = {'type': "'compartment'"}).values_list('name_id', 'name', 'type')
+
+        if compartment:
+            results["3d"]["compartment"] = compartment
+            results["3d"]["count"] = compartment.count() # should be 1
+            results["count"] = compartment.count()
+            results["default"] = compartment[0]
+
+    elif component_type == 'subsystem':
+        try:
+            subsystem = APImodels.Subsystem.objects.using(model).get(name_id__iexact=component_id)
+        except APImodels.Subsystem.DoesNotExist:
+            return HttpResponse(status=404)
+
+        # check 2D maps
+        subsystem_svg = APImodels.SubsystemSvg.objects.using(model) \
+                    .filter(Q(subsystem=subsystem.id) & Q(sha__isnull=False)).order_by("name").extra(select = {'type': "'subsystem'"}). \
+                    values_list('name_id', 'name', 'type')
+        if subsystem_svg:
+            results["2d"]["compartment"] = subsystem_svg
+            results["2d"]["count"] += subsystem_svg.count()
+            results["count"] += subsystem_svg.count()
+            results["default"] = subsystem_svg[0]
+
+        #check 3D maps
+        subsystem = APImodels.Subsystem.objects.using(model).filter(name_id__iexact=component_id). \
+                order_by("name").extra(select = {'type': "'subsystem'"}).values_list('name_id', 'name', 'type')
+
+        if subsystem:
+            results["3d"]["compartment"] = subsystem
+            results["3d"]["count"] = subsystem.count()  # should be 1
+            results["count"] = subsystem.count()
+            results["default"] = subsystem[0]
 
     if results["count"] == 0:
         return HttpResponse(status=404)

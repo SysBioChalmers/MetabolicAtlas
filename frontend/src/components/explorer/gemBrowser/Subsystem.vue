@@ -62,11 +62,7 @@
         </table>
       </div>
       <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
-        <router-link class="button is-info is-fullwidth is-outlined"
-          :to="{ path: `/explore/map-viewer/${model.database_name}/subsystem/${idfy(sName)}?dim=2d` }">
-          <span class="icon is-large"><i class="fa fa-map-o"></i></span>
-          <span>{{ messages.mapViewerName }}</span>
-        </router-link>
+        <maps-available :model="model" :type="'subsystem'" :id="sName" :elementID="''"></maps-available>
       </div>
     </div>
     <h4 class="title is-4">Reactions</h4>
@@ -81,6 +77,7 @@
 <script>
 import axios from 'axios';
 import Loader from 'components/Loader';
+import MapsAvailable from 'components/explorer/gemBrowser/MapsAvailable';
 import ReactionTable from 'components/explorer/gemBrowser/ReactionTable';
 import { reformatTableKey, idfy } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
@@ -88,6 +85,7 @@ import { default as messages } from '../../../helpers/messages';
 export default {
   name: 'subsystem',
   components: {
+    MapsAvailable,
     ReactionTable,
     Loader,
   },
