@@ -946,7 +946,7 @@ def search(request, model, term):
                 Q(external_id4__iexact=term)
             )[:limit]
             if reactions.count() < limit:
-                reactions_mets = APImodels.Reaction.objects.using(model).prefetch_related('subsystem').filter(
+                reactions_mets = APImodels.Reaction.objects.using(model).prefetch_related('subsystem').distinct().filter(
                     Q(metabolites__in=exact_metabolites) & ~Q(id__in=reactions.values_list('id', flat=True)))[:(limit - reactions.count())]
                 reactions = list(chain(reactions, reactions_mets))
 
