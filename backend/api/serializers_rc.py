@@ -67,7 +67,7 @@ class EnzymeReactionComponentSearchSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field='name',
-        source='compartments',
+        source='compartment_enzyme',
      )
 
     class Meta:
@@ -511,7 +511,7 @@ class GemBrowserTileEnzymeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'reaction_count', 'compartment_count', 'subsystem_count')
 
     def read_compartment(self, model):
-        return model.compartments.count()
+        return model.compartment_enzyme.count()
 
     def read_subsystem(self, model):
         return model.subsystem_enzyme.count()

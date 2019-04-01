@@ -754,7 +754,7 @@ def insert_compartment_svg_connectivity_and_stats(database, compartment, map_dir
 
     rcs = ReactionComponent.objects.using(database).filter(id__in=compt_rme_svg['enzyme'])
     for rc in rcs:
-        add = ReactionComponentCompartmentSvg(rc=rc, compartmentsvg=compartment)
+        add = CompartmentSvgEnzyme(rc=rc, compartmentsvg=compartment)
         add.save(using=database)
     enzyme_count  = rcs.count()
 
@@ -800,7 +800,7 @@ def insert_subsystem_svg_connectivity_and_stats(database, subsystem, map_directo
 
     rcs = ReactionComponent.objects.using(database).filter(id__in=sub_rme_svg['enzyme'])
     for rc in rcs:
-        add = ReactionComponentSubsystemSvg(rc=rc, subsystemsvg=subsystem)
+        add = SubsystemSvgEnzyme(rc=rc, subsystemsvg=subsystem)
         add.save(using=database)
     enzyme_count  = rcs.count()
 

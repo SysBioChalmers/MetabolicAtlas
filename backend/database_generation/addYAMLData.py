@@ -145,8 +145,8 @@ def insert_compartment_stats(database):
         sesRC = ReactionComponentCompartment.objects.using(database). \
             filter(compartment_id=compartment).values_list('rc_id', flat=True)
 
-        sesQuerySet = ReactionComponent.objects.using(database). \
-            filter(component_type='e', id__in=sesRC).values_list('id', flat=True)
+        sesQuerySet = CompartmentEnzyme.objects.using(database). \
+            filter(compartment_id=compartment).values_list('rc_id', flat=True)
 
         smsQuerySet = ReactionComponent.objects.using(database). \
             filter(component_type='m', id__in=sesRC).values_list('id', flat=True)
@@ -392,9 +392,9 @@ def load_YAML(database, yaml_file, delete=False):
             for m in modifiers:
                 rc = rc_dict[m]
                 for r_compt in r_compts:
-                    rccompt = ReactionComponentCompartment.objects.using(database).filter(rc=rc, compartment=r_compt.compartment)
+                    rccompt = CompartmentEnzyme.objects.using(database).filter(compartment=r_compt.compartment, rc=rc)
                     if not rccompt:
-                        rccompt = ReactionComponentCompartment(rc=rc, compartment=r_compt.compartment)
+                        rccompt = CompartmentEnzyme(compartment=r_compt.compartment, rc=rc)
                         rccompt.save(using=database)
 
         # save the connection subsystem / compartement base on the reaction

@@ -215,7 +215,7 @@ class ReactionComponent(models.Model):
     subsystem_metabolite = models.ManyToManyField('Subsystem', related_name='metabolites', through='SubsystemMetabolite')
     subsystem_enzyme = models.ManyToManyField('Subsystem', related_name='enzymes', through='SubsystemEnzyme')
 
-    compartments = models.ManyToManyField('Compartment', related_name='reaction_components', through='ReactionComponentCompartment')
+    compartment_enzyme = models.ManyToManyField('Compartment', related_name='enzymes', through='CompartmentEnzyme')
 
     def __str__(self):
         return "<ReactionComponent: {0}>".format(self.id)
@@ -443,6 +443,16 @@ class CurrencyMetaboliteCompartment(models.Model):
         db_table = "currency_metabolite_compartment"
         unique_together = (('rc', 'compartment'),)
 
+
+class CompartmentEnzyme(models.Model):
+    compartment = models.ForeignKey(Compartment, on_delete=models.CASCADE)
+    rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "compartment_enzyme"
+        unique_together = (('compartment', 'rc'),)
+
+
 class SubsystemReaction(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
     subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE)
@@ -498,6 +508,14 @@ class ReactionComponentCompartment(models.Model):
         db_table = "rc_compartment"
         unique_together = (('rc', 'compartment'),)
 
+class CompartmentSvgEnzyme(models.Model):
+    compartmentsvg = models.ForeignKey(CompartmentSvg, on_delete=models.CASCADE)
+    rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "compartmentsvg_enzyme"
+        unique_together = (('compartmentsvg', 'rc'),)
+
 class ReactionCompartmentSvg(models.Model):
     reaction = models.ForeignKey(Reaction, on_delete=models.CASCADE)
     compartmentsvg = models.ForeignKey(CompartmentSvg, on_delete=models.CASCADE)
@@ -522,7 +540,6 @@ class ReactionSubsystemSvg(models.Model):
         db_table = "reaction_subsystemsvg"
         unique_together = (('reaction', 'subsystemsvg'),)
 
-# corresponds to SubsystemEnzyme ans SubsystemMetabolite for subsystem in the model
 class ReactionComponentSubsystemSvg(models.Model):
     rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
     subsystemsvg = models.ForeignKey(SubsystemSvg, on_delete=models.CASCADE)
@@ -530,6 +547,14 @@ class ReactionComponentSubsystemSvg(models.Model):
     class Meta:
         db_table = "rc_subsystemsvg"
         unique_together = (('rc', 'subsystemsvg'),)
+
+class SubsystemSvgEnzyme(models.Model):
+    subsystemsvg = models.ForeignKey(SubsystemSvg, on_delete=models.CASCADE)
+    rc = models.ForeignKey(ReactionComponent, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "subsystemsvg_enzyme"
+        unique_together = (('subsystemsvg', 'rc'),)
 
 # relation subsystem / compartment in SVGs was previously found in TilesSubsystems
 class SubsystemCompartmentSvg(models.Model):
