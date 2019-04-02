@@ -46,10 +46,10 @@
           </table>
         </template>
         <template v-if="formattedRef.length != 0">
-          <h4 class="title is-size-4">References (PMID)</h4>
+          <h4 class="title is-size-4">References</h4>
           <table class="main-table table">
             <tr v-for="oneRef in formattedRef">
-              <td v-if="oneRef.title" class="td-key has-background-primary has-text-white-bis">{{ oneRef.pmid }}</td>
+              <td v-if="oneRef.title" class="td-key has-background-primary has-text-white-bis" title="PMID">{{ oneRef.pmid }}</td>
               <a :href="oneRef.link" target="_blank">
                 <td>
                   <template v-for="author in oneRef.authors">
@@ -251,7 +251,7 @@ export default {
           const details = response.data.result[i.pmid];
           const newRef = {};
           newRef.pmid = i.pmid;
-          newRef.link = `http://pubmed.com/${i.pmid}`;
+          newRef.link = `https://www.ncbi.nlm.nih.gov/pubmed/${i.pmid}`;
           if (details.pubdate) {
             newRef.year = details.pubdate.substring(0, 4);
           }
