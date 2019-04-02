@@ -46,10 +46,10 @@
           </table>
         </template>
         <template v-if="formattedRef.length != 0">
-          <h4 class="title is-size-4">References (PMID)</h4>
+          <h4 class="title is-size-4">References</h4>
           <table class="main-table table">
             <tr v-for="oneRef in formattedRef">
-              <td v-if="oneRef.title" class="td-key has-background-primary has-text-white-bis">{{ oneRef.pmid }}</td>
+              <td v-if="oneRef.title" class="td-key has-background-primary has-text-white-bis" title="PMID">{{ oneRef.pmid }}</td>
               <a :href="oneRef.link" target="_blank">
                 <td>
                   <template v-for="author in oneRef.authors">
@@ -67,46 +67,7 @@
         </template>
       </div>
       <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
-        <div class="card">
-          <header class="card-header has-text-centered">
-            <p class="card-header-title has-text-primary has-text-weight-bold is-size-5">
-              <span class="icon is-medium"><i class="fa fa-map-o"></i></span>&nbsp;
-              <span>{{ messages.mapViewerName }}</span>
-            </p>
-            <a href="#" class="card-header-icon" aria-label="more options">
-            </a>
-          </header>
-          <div class="card-content" style="padding: 0.5rem;">
-            <div class="content has-text-left is-paddingless" v-if="Object.keys(mapsAvailable).length !== 0">
-              <ul> 2D maps
-                <template v-for="map in mapsAvailable['2d']['compartment']">
-                  <li><router-link  :to="{ path: `/explore/map-viewer/${model.database_name}/${map[2]}/${map[0]}/${rId}?dim=2d` }">
-                    {{ map[1] }}
-                  </router-link></li>
-                </template>
-                <template v-for="map in mapsAvailable['2d']['subsystem']">
-                  <li><router-link  :to="{ path: `/explore/map-viewer/${model.database_name}/${map[2]}/${map[0]}/${rId}?dim=2d` }">
-                    {{ map[1] }}
-                  </router-link></li>
-                </template>
-              </ul>
-              <ul>3D maps
-                 <template v-for="map in mapsAvailable['3d']['compartment']">
-                  <li><router-link :to="{ path: `/explore/map-viewer/${model.database_name}/${map[2]}/${map[0]}/${rId}?dim=3d` }">
-                    {{ map[1] }}
-                  </router-link></li>
-                </template>
-                <template v-for="map in mapsAvailable['3d']['subsystem']">
-                  <li><router-link :to="{ path: `/explore/map-viewer/${model.database_name}/${map[2]}/${map[0]}/${rId}?dim=3d` }">
-                    {{ map[1] }}
-                  </router-link></li>
-                </template>
-              </ul>
-            </div>
-          </div>
-          <footer class="card-footer">
-          </footer>
-        </div>
+        <maps-available :model="model" :type="'reaction'" :id="rId" :elementID="rId"></maps-available>
       </div>
     </div>
   </div>
@@ -116,6 +77,7 @@
 import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
+import MapsAvailable from 'components/explorer/gemBrowser/MapsAvailable';
 import { default as EventBus } from '../../../event-bus';
 import { chemicalFormula, chemicalName, chemicalNameExternalLink } from '../../../helpers/chemical-formatters';
 import { reformatTableKey, addMassUnit, reformatSBOLink, reformatECLink, reformatCompEqString } from '../../../helpers/utils';
@@ -126,6 +88,7 @@ export default {
   props: ['model'],
   components: {
     Loader,
+    MapsAvailable,
   },
   data() {
     return {
@@ -215,13 +178,6 @@ export default {
         this.errorMessage = messages.notFoundError;
       });
     },
-    getAvailableMaps() {
-      axios.get(`${this.model.database_name}/available_maps/${this.rId}`)
-      .then((response) => {
-        this.mapsAvailable = response.data;
-      }).catch(() => {
-      });
-    },
     reformatEquation() { return this.$parent.$parent.reformatChemicalReactionLink(this.reaction); },
     reformatModifiers() {
       let newGRnameArr = null;
@@ -295,7 +251,7 @@ export default {
           const details = response.data.result[i.pmid];
           const newRef = {};
           newRef.pmid = i.pmid;
-          newRef.link = `http://pubmed.com/${i.pmid}`;
+          newRef.link = `https://www.ncbi.nlm.nih.gov/pubmed/${i.pmid}`;
           if (details.pubdate) {
             newRef.year = details.pubdate.substring(0, 4);
           }
