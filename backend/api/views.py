@@ -485,8 +485,8 @@ def get_compartments(request, model):
 
 @api_view()
 @is_model_valid
-def get_compartment(request, model, compartment_name_id, stats_only=False):
-    # stats only is true when this function is called form the compartment page
+def get_compartment(request, model, compartment_name_id, api=True):
+    # api is false when this function is called from the compartment page
     # false when called using the swagger api
     """
         For a given compartment name, get all containing metabolites, enzymes, reactions and subsystems.
@@ -497,17 +497,12 @@ def get_compartment(request, model, compartment_name_id, stats_only=False):
     except APImodels.Compartment.DoesNotExist:
         return HttpResponse(status=404)
 
-    try:
-        c = APImodels.Compartment.objects.using(model).get(id=compartment_id)
-    except APImodels.Compartment.DoesNotExist:
-        return HttpResponse(status=404)
-
     subsystems = APImodels.SubsystemCompartment.objects.using(model).filter(compartment_id=compartment_id). \
         prefetch_related('subsystem').distinct().values_list('subsystem__name', flat=True)
 
-    if stats_only:
+    if not api:
         results = {
-            'compartmentAnnotations': APIserializer.CompartmentSerializer(c, context={'model': model}).data,
+            'info': APIserializer.CompartmentSerializer(compartment, context={'model': model}).data,
             'subsystems': subsystems,
         }
     else:
@@ -515,13 +510,12 @@ def get_compartment(request, model, compartment_name_id, stats_only=False):
         ses = APImodels.CompartmentEnzyme.objects.using(model).filter(compartment_id=compartment_id).values_list('rc_id', flat=True)
         reactions = APImodels.ReactionCompartment.objects.using(model).filter(compartment_id=compartment_id).values_list('reaction_id', flat=True)
 
-        results = {
-            'compartmentAnnotations': APIserializer.CompartmentSerializer(c, context={'model': model}).data,
-            'subsystems': subsystems,
-            'metabolites': sms,
-            'enzymes': ses,
-            'reactions': reactions,
-        }
+        results = {}
+        results.update(APIserializer.CompartmentSerializer(compartment, context={'model': model}).data)
+        results['metabolite'] = sms
+        results['enzymes'] = ses
+        results['reactions'] = reactions
+
     return JSONResponse(results)
 
 

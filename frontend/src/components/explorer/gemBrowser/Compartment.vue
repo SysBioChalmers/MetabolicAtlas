@@ -111,9 +111,9 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model.database_name}/compartment/${this.cName}/stats/`)
+      axios.get(`${this.model.database_name}/compartment/${this.cName}/summary/`)
       .then((response) => {
-        this.compartment = response.data.compartmentAnnotations;
+        this.compartment = response.data.info;
         this.subsystems = response.data.subsystems;
         this.showLoader = false;
       })
