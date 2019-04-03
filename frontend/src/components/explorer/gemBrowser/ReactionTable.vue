@@ -1,7 +1,7 @@
 <template>
   <div class="reaction-table">
     <div class="field">
-      <span class="tag is-medium">
+      <span class="tag is-medium" :class="reactions.length == limit ? 'is-warning' : ''">
         # Reactions: {{ reactions.length }}
       </span>
       <template v-if="transportReactionCount !== 0">
@@ -10,14 +10,14 @@
           {{ transportReactionCount }} transport reactions
         </span>
       </template>
-      <span v-show="reactions.length==200" class="tag is-medium is-warning is-pulled-right">
-        The number of reactions displayed is limited to 200, some may have been discarded.
+      <span v-show="reactions.length == limit" class="tag is-medium is-warning is-pulled-right">
+        The number of reactions displayed is limited to {{ limit }}.
       </span>
     </div>
     <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
       <thead>
         <tr class="has-background-white-ter">
-          <th class="is-unselectable"
+          <th class="is-unselectable clickable"
           v-for="f in fields" v-show="showCol(f.name)"
             @click="sortBy(f.name, null, null)" v-html="f.display"></th>
         </tr>
@@ -63,7 +63,7 @@ import { reformatCompEqString, idfy } from '../../../helpers/utils';
 
 export default {
   name: 'reaction-table',
-  props: ['reactions', 'selectedElmId', 'showSubsystem', 'model'],
+  props: ['reactions', 'selectedElmId', 'showSubsystem', 'model', 'limit'],
   data() {
     return {
       showCP: false,

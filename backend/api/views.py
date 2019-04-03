@@ -385,9 +385,9 @@ def get_enzyme_reactions(request, model, id):
 
 @api_view()
 @is_model_valid
-def get_subsystem(request, model, subsystem_name_id):
+def get_subsystem(request, model, subsystem_name_id, api=True):
     """
-        For a given subsystem name, get all containing metabolites, enzymes, and reactions.
+        For a given subsystem name, get all containing metabolites, enzymes.
     """
     try:
         subsystem = APImodels.Subsystem.objects.using(model).get(Q(name_id__iexact=subsystem_name_id) | Q(name__iexact=subsystem_name_id))
@@ -395,35 +395,58 @@ def get_subsystem(request, model, subsystem_name_id):
     except APImodels.Subsystem.DoesNotExist:
         return HttpResponse(status=404)
 
+    SubsystemSerializerClass = componentDBserializerSelector(model, 'subsystem', serializer_type='lite', api_version=request.version)
+    if not api:
+        limit = 1000
+        smsQuerySet = APImodels.ReactionComponent.objects.using(model).filter(subsystem_metabolite__id=subsystem_id)[:limit]
+        sesQuerySet = APImodels.ReactionComponent.objects.using(model).filter(subsystem_enzyme__id=subsystem_id)[:limit]
+        results = {
+            'info': SubsystemSerializerClass(subsystem, context={'model': model}).data,
+            'metabolites': APIrcSerializer.ReactionComponentLiteSerializer(smsQuerySet, many=True, context={'model': model}).data,
+            'enzymes': APIrcSerializer.ReactionComponentLiteSerializer(sesQuerySet, many=True, context={'model': model}).data,
+            'limit': limit
+         }
+    else:
+        smsQuerySet = APImodels.SubsystemMetabolite.objects.using(model). \
+            filter(subsystem_id=subsystem_id).values_list('rc_id', flat=True)
+        sesQuerySet = APImodels.SubsystemEnzyme.objects.using(model). \
+            filter(subsystem_id=subsystem_id).values_list('rc_id', flat=True)
+
+        results = {}
+        results.update(SubsystemSerializerClass(s, context={'model': model}).data)
+        results['metabolites'] =  smsQuerySet
+        results['enzymes'] =  sesQuerySet
+
+    return JSONResponse(results)
+
+
+@api_view()
+@is_model_valid
+def get_subsystem_reactions(request, model, subsystem_name_id, api=True):
+    """
+        For a given subsystem name, get all containing reactions.
+    """
     try:
-        s = APImodels.Subsystem.objects.using(model).get(id=subsystem_id)
+        subsystem = APImodels.Subsystem.objects.using(model).get(Q(name_id__iexact=subsystem_name_id) | Q(name__iexact=subsystem_name_id))
+        subsystem_id = subsystem.id
     except APImodels.Subsystem.DoesNotExist:
         return HttpResponse(status=404)
 
-
-    smsQuerySet = APImodels.SubsystemMetabolite.objects.using(model).filter(subsystem_id=subsystem_id).select_related("rc")
-    sesQuerySet = APImodels.SubsystemEnzyme.objects.using(model).filter(subsystem_id=subsystem_id).select_related("rc")
-
-    r = APImodels.Reaction.objects.using(model).filter(subsystem=subsystem_id). \
-    prefetch_related('modifiers').distinct()
-
-    sms = []; ses = [];
-    for m in smsQuerySet:
-        sms.append(m.rc)
-    for e in sesQuerySet:
-        ses.append(e.rc)
-
+    if api:
+        r = APImodels.Reaction.objects.using(model).filter(subsystem=subsystem_id). \
+            prefetch_related('modifiers').distinct()
+    else:
+        r = APImodels.Reaction.objects.using(model).filter(subsystem=subsystem_id). \
+            prefetch_related('modifiers').distinct()[:1000]
 
     ReactionSerializerClass= componentDBserializerSelector(model, 'reaction', serializer_type='table', api_version=request.version)
-    SubsystemSerializerClass = componentDBserializerSelector(model, 'subsystem', serializer_type='lite', api_version=request.version)
-
     results = {
-        'subsystemAnnotations': SubsystemSerializerClass(s, context={'model': model}).data,
-        'metabolites': APIrcSerializer.ReactionComponentLiteSerializer(sms, many=True, context={'model': model}).data,
-        'enzymes': APIrcSerializer.ReactionComponentLiteSerializer(ses, many=True, context={'model': model}).data,
-        'reactions': ReactionSerializerClass(r, many=True, context={'model': model}).data
+        'reactions': ReactionSerializerClass(r, many=True, context={'model': model}).data,
+        'limit': 1000,
     }
 
+    if api:
+        return JSONResponse(results['reactions'])
     return JSONResponse(results)
 
 
