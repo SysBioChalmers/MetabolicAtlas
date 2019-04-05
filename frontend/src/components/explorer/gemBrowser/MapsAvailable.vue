@@ -54,6 +54,11 @@ export default {
       messages,
     };
   },
+  watch: {
+    id() {
+      this.getAvailableMaps();
+    },
+  },
   created() {
     this.getAvailableMaps();
   },
