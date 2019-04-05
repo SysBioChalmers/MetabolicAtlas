@@ -4,6 +4,9 @@ from api import views
 
 app_name = 'private_apis'
 urlpatterns = [
+    url(r'^gems/?$', private_views.get_gemodels),
+    url(r'^gems/(?P<gem_id>[^/]+)/?$', private_views.get_gemodel),
+
     url(r'^hpa/enzyme/(?P<ensembl_id>[^/]+)/?$', private_views.HPA_enzyme_info),
     url(r'^hpa/enzymes/$', private_views.HPA_all_enzymes),
 
