@@ -6,18 +6,18 @@
         <input id="search" class="input" type="text"
           v-model="searchTermString" @input="searchDebounce"
           placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
-          v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
+          v-on:keyup.enter="validateSearch()"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
-          <span class="icon is-small is-right" v-show="showSearchCharAlert" style="width: 250px">
+          <span class="has-text-info icon is-small is-right" v-show="showSearchCharAlert" style="width: 200px">
             Type at least 2 characters
           </span>
           <span class="icon is-medium is-left">
             <i class="fa fa-search"></i>
           </span>
         </p>
-        <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
+        <router-link v-if="quickSearch" :to="{ name: 'search' }">Global search</router-link>
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-right" v-show="searchResults.length !== 0 && !showLoader">
@@ -61,9 +61,6 @@ export default {
   name: 'global-search',
   props: {
     quickSearch: {
-      default: false,
-    },
-    reroute: {
       default: false,
     },
     searchTerm: {
@@ -140,9 +137,7 @@ export default {
       }
     }, 700),
     search(searchTerm) {
-      if (this.searchTermString !== searchTerm) {
-        this.searchTermString = searchTerm;
-      }
+      this.searchTermString = searchTerm;
       const url = this.quickSearch ? `${this.model.database_name}/search/${searchTerm}` : `all/search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
@@ -203,7 +198,7 @@ export default {
         this.searchResults = searchResults;
         this.showLoader = false;
         if (!this.quickSearch) {
-          this.$emit('updateResults', this.searchTermString, this.searchResults);
+          this.$emit('updateSearch', this.searchTermString, this.searchResults);
         } else {
           // sort result by exact matched first, then by alpha order
           for (const k of Object.keys(searchResults)) {
@@ -248,7 +243,7 @@ export default {
         this.noResult = true;
         this.showLoader = false;
         if (!this.quickSearch) {
-          this.$emit('updateResults', this.searchTermString, this.searchResults);
+          this.$emit('updateSearch', this.searchTermString, this.searchResults);
         }
       });
     },
@@ -257,9 +252,6 @@ export default {
       this.searchTermString = '';
       this.searchResults = [];
       EventBus.$emit('GBnavigateTo', type, id);
-    },
-    advancedSearch() {
-      this.$router.push({ name: 'search' });
     },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {
@@ -291,8 +283,6 @@ export default {
       return s;
     },
     goToSearchPage() {
-      this.searchTerm = '';
-      this.searchTermString = '';
       this.$router.push({
         name: 'search',
         query: {
@@ -301,11 +291,13 @@ export default {
       });
     },
     validateSearch() {
-      if (this.quickSearch || this.reroute) {
+      if (this.quickSearch) {
         this.goToSearchPage();
-      } else if (this.searchTermString.length >= 2) {
+      } else if (this.searchTermString.length > 1) {
         this.$emit('searchResults');
         this.search(this.searchTermString);
+      } else {
+        this.$emit('updateSearch', this.searchTermString, []);
       }
     },
     chemicalFormula,

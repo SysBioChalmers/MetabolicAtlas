@@ -4,12 +4,12 @@
       <div id="search-table">
         <div class="columns">
           <div class="column has-text-centered">
-            <h3 class="title is-3">Advanced search all integrated GEMs: <i>{{ searchTerm }}</i></h3>
+            <h3 class="title is-3">Global search all integrated GEMs for <i>{{ searchTerm }}</i></h3>
           </div>
         </div>
         <div class="columns is-centered">
           <global-search :quickSearch="false" :searchTerm="searchTerm"
-            @updateResults="updateResults" @searchResults="loading=true">
+            @updateSearch="updateSearch" @searchResults="loading=true">
           </global-search>
         </div>
         <div>
@@ -27,6 +27,45 @@
           </div>
           <loader v-show="loading && searchTerm !== ''"></loader>
           <div v-show="!loading">
+            <div v-if="searchResults.length === 0" class="column is-offset-3 is-6">
+              <div v-if="searchTerm !== ''" class=" has-text-centered notification">
+                {{ messages.searchNoResult }}
+              </div>
+              <div class="content">
+                <p>This page provides search by the following parameters:</p>
+                <p>Metabolites by:</p>
+                <ul class="menu-list">
+                  <li>ID</li>
+                  <li>name</li>
+                  <li>formula</li>
+                  <li>HMDB ID, name</li>
+                  <li>KEGG ID</li>
+                </ul>
+                <p>Enzymes by:</p>
+                <ul class="menu-list">
+                  <li>ID</li>
+                  <li>name</li>
+                  <li>Ensembl ID</li>
+                  <li>Uniprot ID, name</li>
+                  <li>KEGG ID</li>
+                </ul>
+                <p>Reactions by:</p>
+                <ul class="menu-list">
+                  <li>ID</li>
+                  <li>equation:</li>
+                  <ul class="menu-list">
+                    <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
+                    <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
+                  </ul>
+                  <li>EC code</li>
+                  <li>SBO ID</li>
+                </ul>
+                <p>Subsystem and compartment by:</p>
+                <ul class="menu-list">
+                  <li>name</li>
+                </ul>
+              </div>
+            </div>
             <template v-for="header in tabs">
               <div v-show="showTab(header) && resultsCount[header] !== 0">
                 <vue-good-table
@@ -80,44 +119,6 @@
                 </vue-good-table>
               </div>
             </template>
-          </div>
-          <div class="columns is-multiline" v-show="!loading">
-            <div v-if="searchResults.length === 0" class="column is-offset-3 is-6 has-text-centered notification">
-              {{ messages.searchNoResult }}
-            </div>
-            <div v-else-if="!showTabType || searchTerm === ''" class="column is-offset-3 is-6 content">
-              <p>You can search metabolites by:</p>
-              <ul class="menu-list">
-                <li>ID</li>
-                <li>name</li>
-                <li>formula</li>
-                <li>HMDB ID, name</li>
-                <li>KEGG ID</li>
-              </ul>
-              <p>Enzymes by:</p>
-              <ul class="menu-list">
-                <li>ID</li>
-                <li>name</li>
-                <li>Ensembl ID</li>
-                <li>Uniprot ID, name</li>
-                <li>KEGG ID</li>
-              </ul>
-              <p>Reactions by:</p>
-              <ul class="menu-list">
-                <li>ID</li>
-                <li>equation:</li>
-                <ul class="menu-list">
-                  <li>e.g. malonyl-CoA[c] => acetyl-CoA[c] + CO2[c]</li>
-                  <li>without specifying compartment e.g 2 ADP => AMP + ATP</li>
-                </ul>
-                <li>EC code</li>
-                <li>SBO ID</li>
-              </ul>
-              <p>Subsystem and compartment by:</p>
-              <ul class="menu-list">
-                <li>name</li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
@@ -395,7 +396,7 @@ export default {
       },
       resultsCount: {},
       searchTerm: '',
-      searchResults: {},
+      searchResults: [],
       showTabType: '',
       loading: false,
       rows: {
@@ -629,12 +630,17 @@ export default {
           filterTypeDropdown.subsystem.model;
       this.rows = rows;
     },
-    updateResults(term, val) {
-      this.loading = false;
+    updateSearch(term, results) {
       this.searchTerm = term;
+      this.$router.push({
+        name: 'search',
+        query: {
+          term: this.searchTerm,
+        },
+      });
+      this.loading = false;
       this.searchResultsFiltered = {};
-      this.searchResults = val;
-
+      this.searchResults = results;
       // count types
       this.countResults();
       // get filters
