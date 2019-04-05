@@ -9,7 +9,7 @@
         </div>
         <div class="columns is-centered">
           <global-search :quickSearch="false" :searchTerm="searchTerm"
-            @updateResults="updateResults" @searchResults="loading=true">
+            @updateSearch="updateSearch" @searchResults="loading=true">
           </global-search>
         </div>
         <div>
@@ -630,12 +630,17 @@ export default {
           filterTypeDropdown.subsystem.model;
       this.rows = rows;
     },
-    updateResults(term, val) {
-      this.loading = false;
+    updateSearch(term, results) {
       this.searchTerm = term;
+      this.$router.push({
+        name: 'search',
+        query: {
+          term: this.searchTerm,
+        },
+      });
+      this.loading = false;
       this.searchResultsFiltered = {};
-      this.searchResults = val;
-
+      this.searchResults = results;
       // count types
       this.countResults();
       // get filters

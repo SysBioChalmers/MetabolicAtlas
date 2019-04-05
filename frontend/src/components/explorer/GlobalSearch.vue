@@ -10,14 +10,14 @@
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
-          <span class="has-text-info icon is-small is-right" v-show="showSearchCharAlert" style="width: 250px">
+          <span class="has-text-info icon is-small is-right" v-show="showSearchCharAlert" style="width: 200px">
             Type at least 2 characters
           </span>
           <span class="icon is-medium is-left">
             <i class="fa fa-search"></i>
           </span>
         </p>
-        <a v-if="quickSearch" @click="globalSearch">Global search</a>
+        <router-link v-if="quickSearch" :to="{ name: 'search' }">Global search</router-link>
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-right" v-show="searchResults.length !== 0 && !showLoader">
@@ -137,9 +137,7 @@ export default {
       }
     }, 700),
     search(searchTerm) {
-      if (this.searchTermString !== searchTerm) {
-        this.searchTermString = searchTerm;
-      }
+      this.searchTermString = searchTerm;
       const url = this.quickSearch ? `${this.model.database_name}/search/${searchTerm}` : `all/search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
@@ -200,7 +198,7 @@ export default {
         this.searchResults = searchResults;
         this.showLoader = false;
         if (!this.quickSearch) {
-          this.$emit('updateResults', this.searchTermString, this.searchResults);
+          this.$emit('updateSearch', this.searchTermString, this.searchResults);
         } else {
           // sort result by exact matched first, then by alpha order
           for (const k of Object.keys(searchResults)) {
@@ -245,7 +243,7 @@ export default {
         this.noResult = true;
         this.showLoader = false;
         if (!this.quickSearch) {
-          this.$emit('updateResults', this.searchTermString, this.searchResults);
+          this.$emit('updateSearch', this.searchTermString, this.searchResults);
         }
       });
     },
@@ -254,9 +252,6 @@ export default {
       this.searchTermString = '';
       this.searchResults = [];
       EventBus.$emit('GBnavigateTo', type, id);
-    },
-    globalSearch() {
-      this.$router.push({ name: 'search' });
     },
     formatSearchResultLabel(type, element, searchTerm) {
       if (!this.quickSearch) {
@@ -288,8 +283,6 @@ export default {
       return s;
     },
     goToSearchPage() {
-      this.searchTerm = '';
-      this.searchTermString = '';
       this.$router.push({
         name: 'search',
         query: {
@@ -304,7 +297,7 @@ export default {
         this.$emit('searchResults');
         this.search(this.searchTermString);
       } else {
-        this.$emit('updateResults', '', []);
+        this.$emit('updateSearch', this.searchTermString, []);
       }
     },
     chemicalFormula,
