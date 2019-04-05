@@ -6,18 +6,18 @@
         <input id="search" class="input" type="text"
           v-model="searchTermString" @input="searchDebounce"
           placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
-          v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
+          v-on:keyup.enter="validateSearch()"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
-          <span class="icon is-small is-right" v-show="showSearchCharAlert" style="width: 250px">
+          <span class="has-text-info icon is-small is-right" v-show="showSearchCharAlert" style="width: 250px">
             Type at least 2 characters
           </span>
           <span class="icon is-medium is-left">
             <i class="fa fa-search"></i>
           </span>
         </p>
-        <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
+        <a v-if="quickSearch" @click="globalSearch">Global search</a>
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-right" v-show="searchResults.length !== 0 && !showLoader">
@@ -61,9 +61,6 @@ export default {
   name: 'global-search',
   props: {
     quickSearch: {
-      default: false,
-    },
-    reroute: {
       default: false,
     },
     searchTerm: {
@@ -258,7 +255,7 @@ export default {
       this.searchResults = [];
       EventBus.$emit('GBnavigateTo', type, id);
     },
-    advancedSearch() {
+    globalSearch() {
       this.$router.push({ name: 'search' });
     },
     formatSearchResultLabel(type, element, searchTerm) {
@@ -301,11 +298,13 @@ export default {
       });
     },
     validateSearch() {
-      if (this.quickSearch || this.reroute) {
+      if (this.quickSearch) {
         this.goToSearchPage();
-      } else if (this.searchTermString.length >= 2) {
+      } else if (this.searchTermString.length > 1) {
         this.$emit('searchResults');
         this.search(this.searchTermString);
+      } else {
+        this.$emit('updateResults', '', []);
       }
     },
     chemicalFormula,
