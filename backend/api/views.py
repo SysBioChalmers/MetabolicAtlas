@@ -348,7 +348,7 @@ def get_metabolite_reactions(request, model, id, all_compartment=False):
         # reactions_as_products = c.reactions_as_product.using(model). \
         # prefetch_related('reactants', 'products', 'modifiers').distinct()
         reactions |= reactions_as_met
-    
+
     reactions = reactions.distinct()
     ReactionSerializerClass= componentDBserializerSelector(model, 'reaction', serializer_type='table', api_version=request.version)
     serializer = ReactionSerializerClass(reactions[:200], many=True, context={'model': model})
@@ -536,43 +536,4 @@ def get_model(request, model_id):
         return HttpResponse(status=404)
 
     serializer = APIserializer.GEMSerializer(model)
-    return JSONResponse(serializer.data)
-
-
-@api_view()
-def get_gemodels(request):
-    """
-    List all GEMs that the group have made
-    """
-    # get models from database
-
-    serializer = APIserializer.GEModelListSerializer(APImodels.GEModel.objects.all(). \
-        prefetch_related('gemodelset__reference', 'ref').select_related('gemodelset', 'sample'), many=True)
-
-    return JSONResponse(serializer.data)
-
-
-@api_view()
-def get_gemodel(request, gem_id):
-    """
-    For a given Genome-scale metabolic model ID or label, pull out everything we know about it.
-    """
-
-    try:
-        int(gem_id)
-        is_int = True
-    except ValueError:
-        is_int = False
-
-    if is_int:
-         model = APImodels.GEModel.objects.filter(id=gem_id). \
-         prefetch_related('files', 'ref')
-    else:
-         model = APImodels.GEModel.objects.filter(label__iexact=gem_id). \
-             prefetch_related('files', 'ref')
-
-    if not model:
-        return HttpResponse(status=404)
-
-    serializer = APIserializer.GEModelSerializer(model[0])
     return JSONResponse(serializer.data)

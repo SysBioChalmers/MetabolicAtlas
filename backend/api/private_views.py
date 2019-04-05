@@ -20,6 +20,43 @@ class JSONResponse(HttpResponse):
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
+@api_view()
+def get_gemodels(request):
+    """
+    List all GEMs that the group have made
+    """
+    # get models from database
+
+    serializer = APIserializer.GEModelListSerializer(APImodels.GEModel.objects.all(). \
+        prefetch_related('gemodelset__reference', 'ref').select_related('gemodelset', 'sample'), many=True)
+
+    return JSONResponse(serializer.data)
+
+
+@api_view()
+def get_gemodel(request, gem_id):
+    """
+    For a given Genome-scale metabolic model ID or label, pull out everything we know about it.
+    """
+
+    try:
+        int(gem_id)
+        is_int = True
+    except ValueError:
+        is_int = False
+
+    if is_int:
+         model = APImodels.GEModel.objects.filter(id=gem_id). \
+         prefetch_related('files', 'ref')
+    else:
+         model = APImodels.GEModel.objects.filter(label__iexact=gem_id). \
+             prefetch_related('files', 'ref')
+
+    if not model:
+        return HttpResponse(status=404)
+
+    serializer = APIserializer.GEModelSerializer(model[0])
+    return JSONResponse(serializer.data)
 
 @api_view(['POST'])
 @is_model_valid
@@ -731,7 +768,7 @@ def search(request, model, term):
     """
         Searches for the term in metabolites, enzymes, reactions, subsystems and compartments.
         Current search rules:
-        
+
         =: exact match, case insensitive
         ~: contain in, case insensitive
 
