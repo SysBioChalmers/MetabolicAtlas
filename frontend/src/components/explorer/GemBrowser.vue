@@ -136,7 +136,11 @@ export default {
       EventBus.$emit('showSVGmap', 'wholemap', null, [], false);
     });
     EventBus.$on('GBnavigateTo', (type, id) => {
-      this.$router.push(`/explore/gem-browser/${this.$route.params.model}/${type}/${idfy(id)}`);
+      let ID = id;
+      if (type === 'subsystem' || type === 'compartment') {
+        ID = idfy(id);
+      }
+      this.$router.push(`/explore/gem-browser/${this.$route.params.model}/${type}/${ID}`);
     });
   },
   methods: {
