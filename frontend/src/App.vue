@@ -115,7 +115,7 @@ export default {
     return {
       /* eslint-disable quote-props */
       menuElems: {
-        '<span class="icon is-large"><i class="fa fa-search fa-lg"></i></span>': '/search',
+        '<span class="icon is-large"><i class="fa fa-search fa-lg"></i></span>': '/search?term=',
         'Explore': '/explore',
         'GEM': {
           '/gems/': [

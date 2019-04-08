@@ -8,9 +8,20 @@
           </div>
         </div>
         <div class="columns is-centered">
-          <global-search :quickSearch="false" :searchTerm="searchTerm"
-            @updateSearch="updateSearch" @searchResults="loading=true">
-          </global-search>
+          <div class="column is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile control">
+            <div id="input-wrapper">
+              <p class="control has-icons-right has-icons-left">
+                <input id="search" class="input" type="text" v-model="searchTerm"
+                  placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem" v-on:keyup.enter="updateSearch()">
+                <span class="has-text-info icon is-small is-right" v-show="this.showSearchCharAlert" style="width: 200px">
+                  Type at least 2 characters
+                </span>
+                <span class="icon is-medium is-left">
+                  <i class="fa fa-search"></i>
+                </span>
+              </p>
+            </div>
+          </div>
         </div>
         <div>
           <div class="tabs is-boxed is-fullwidth" v-if="showTabType">
@@ -128,6 +139,7 @@
 
 <script>
 
+import axios from 'axios';
 import GlobalSearch from 'components/explorer/GlobalSearch';
 import Loader from 'components/Loader';
 import { VueGoodTable } from 'vue-good-table';
@@ -397,6 +409,7 @@ export default {
       resultsCount: {},
       searchTerm: '',
       searchResults: [],
+      showSearchCharAlert: false,
       showTabType: '',
       loading: false,
       rows: {
@@ -408,9 +421,18 @@ export default {
       },
     };
   },
-  // created() {
-  //   EventBus.$emit('destroy3Dnetwork');
-  // },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.setSearchTerm(to.query.term);
+      vm.validateSearch();
+      next();
+    });
+  },
+  beforeRouteUpdate(to, from, next) {
+    this.setSearchTerm(to.query.term);
+    this.validateSearch();
+    next();
+  },
   methods: {
     formulaFormater(s) {
       return chemicalFormula(s);
@@ -429,18 +451,15 @@ export default {
       const filterTypeDropdown = {
         metabolite: {
           model: {},
-          // subsystem: {},
           compartment: {},
         },
         enzyme: {
           model: {},
-          // subsystem: {},
           compartment: {},
         },
         reaction: {
           model: {},
           compartment: {},
-          // subsystem: {},
           is_transport: {},
         },
         subsystem: {
@@ -615,8 +634,6 @@ export default {
 
       this.columns.reaction[0].filterOptions.filterDropdownItems =
           filterTypeDropdown.reaction.model;
-      // this.columns.reaction[3].filterOptions.filterDropdownItems =
-      //     filterTypeDropdown.reaction.subsystem;
       this.columns.reaction[4].filterOptions.filterDropdownItems =
           filterTypeDropdown.reaction.compartment;
       this.columns.reaction[5].filterOptions.filterDropdownItems =
@@ -633,17 +650,14 @@ export default {
           filterTypeDropdown.subsystem.model;
       this.rows = rows;
     },
-    updateSearch(term, results) {
-      this.searchTerm = term;
+    updateSearch() {
       this.$router.push({
         name: 'search',
         query: {
           term: this.searchTerm,
         },
       });
-      this.loading = false;
       this.searchResultsFiltered = {};
-      this.searchResults = results;
       // count types
       this.countResults();
       // get filters
@@ -660,17 +674,55 @@ export default {
     showTab(elementType) {
       return this.showTabType === elementType;
     },
+    validateSearch() {
+      if (this.searchTerm.length > 1) {
+        this.showSearchCharAlert = false;
+        this.search();
+      } else if (this.searchTerm !== '') {
+        this.showSearchCharAlert = true;
+      }
+    },
+    search() {
+      this.loading = true;
+      const url = `all/search/${this.searchTerm}`;
+      axios.get(url)
+      .then((response) => {
+        const localResults = {
+          metabolite: [],
+          enzyme: [],
+          reaction: [],
+          subsystem: [],
+          compartment: [],
+        };
+
+        for (const model of Object.keys(response.data)) {
+          const resultsModel = response.data[model];
+          for (const resultType of ['metabolite', 'enzyme', 'reaction', 'subsystem', 'compartment']) {
+            if (resultsModel[resultType]) {
+              localResults[resultType] = localResults[resultType].concat(
+                resultsModel[resultType].map(
+                (e) => {
+                  const d = e; d.model = { id: model, name: resultsModel.name }; return d;
+                })
+              );
+            }
+          }
+        }
+        this.searchResults = localResults;
+      })
+      .catch(() => {
+        this.searchResults = [];
+      })
+      .then(() => {
+        this.loading = false;
+        this.updateSearch();
+      });
+    },
+    setSearchTerm(term) {
+      this.searchTerm = term;
+    },
     idfy,
     chemicalFormula,
-  },
-  beforeMount() {
-    this.searchTerm = this.$route.query.term || '';
-  },
-  mounted() {
-    if (this.searchTerm) {
-      // trigger the search in child component (globalSearch)
-      this.$children[0].search(this.searchTerm);
-    }
   },
 };
 

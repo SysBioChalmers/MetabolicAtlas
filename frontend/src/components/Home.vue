@@ -100,7 +100,7 @@ export default {
           text: 'The menu bar contains a shortcut to the <b>Global search</b> function, which enables users to easily search cellular components across all the integrated models. Further filtering is also available, based on result type (e.g. metabolite) and its parameters (e.g. compartment).<br><br>For retrieving larger subsets of the model, model we recommend experienced users to use our the API. Alternatively, models can be downloaded from the <b>GEM repository</b> page or from their original repository on GitHub.<br><br>',
           img: require('../assets/search.jpg'),
           cardLink: 'Global search',
-          url: { name: 'search' } },
+          url: { name: 'search', query: { term: '' } } },
         { title: 'Export',
           text: '<b>Metabolic Atlas</b> provides open access to the models and associated annotations. Most of the data provided on <b>Metabolic Atlas</b> is convenient to export, look for export buttons.<br><br>For the ones interested in extracting data in JSON format, we have documented our API. When using images or files obtained from our website, use the following reference:<br><br><i>Article under consideration</i>',
           img: require('../assets/export.jpg'),
