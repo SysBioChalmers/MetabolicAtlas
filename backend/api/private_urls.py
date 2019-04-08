@@ -23,8 +23,6 @@ urlpatterns = [
     url(r'^(?P<model>[^/]+)/json/subsystem/(?P<component_name_id>[^/]+)/duplicate/?$', private_views.get_db_json, {'ctype': 'subsystem', 'dup_meta': True}),
 
     url(r'^(?P<model>[^/]+)/reaction_components/(?P<id>[^/]+)/with_interaction_partners/?$', private_views.get_component_with_interaction_partners),
-    # url(r'^(?P<model>[^/]+)/compartments_svg/?$', private_views.get_compartments_svg),
-    # url(r'^(?P<model>[^/]+)/subsystems_svg/?$', private_views.get_subsystems_svg),
     url(r'^(?P<model>[^/]+)/viewer/?$', private_views.get_data_viewer),
     url(r'^(?P<model>[^/]+)/gem_browser_tiles/?$', private_views.get_tiles_data),
 
@@ -34,7 +32,9 @@ urlpatterns = [
     url(r'^(?P<model>[^/]+)/enzyme/hpa_rna_levels/?$', private_views.get_hpa_rna_levels),
     url(r'^(?P<model>[^/]+)/enzyme/hpa_tissue/?$', private_views.get_hpa_tissues),
 
-    url(r'^(?P<model>[^/]+)/compartment/(?P<compartment_name_id>[^/]+)/stats/?$', views.get_compartment, {'stats_only': True}),
+    url(r'^(?P<model>[^/]+)/compartment/(?P<compartment_name_id>[^/]+)/summary/?$', views.get_compartment, {'api': False}),
+    url(r'^(?P<model>[^/]+)/subsystem/(?P<subsystem_name_id>[^/]+)/summary/?$', views.get_subsystem, {'api': False}),
+    url(r'^(?P<model>[^/]+)/subsystem/(?P<subsystem_name_id>[^/]+)/reaction_list/?$', views.get_subsystem_reactions, {'api': False}),
 
     url(r'^(?P<model>[^/]+)/search/(?P<term>[^/]+)/?$', private_views.search),
 ]

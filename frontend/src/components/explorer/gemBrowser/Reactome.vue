@@ -11,9 +11,9 @@
           </button>
       </p>
       <reaction-table v-show="!showLoader && !expandAllCompartment"
-      :reactions="reactions" :selectedElmId="ID" :showSubsystem="true" :model="model"></reaction-table>
+      :reactions="reactions" :selectedElmId="ID" :showSubsystem="true" :model="model" :limit="200"></reaction-table>
       <reaction-table v-show="!showLoader && expandAllCompartment"
-      :reactions="reactionsAllcompartment" :selectedElmId="ID" :showSubsystem="true" :model="model"></reaction-table>
+      :reactions="reactionsAllcompartment" :selectedElmId="ID" :showSubsystem="true" :model="model" :limit="200"></reaction-table>
       <div v-if="errorMessage" class="columns">
         <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
           {{ errorMessage }}

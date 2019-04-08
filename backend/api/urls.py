@@ -25,6 +25,7 @@ urlpatterns = [
 
     url(r'^(?P<model>[^/]+)/subsystem/?$', views.get_subsystems),
     url(r'^(?P<model>[^/]+)/subsystem/(?P<subsystem_name_id>[^/]+)/?$', views.get_subsystem),
+    url(r'^(?P<model>[^/]+)/subsystem/(?P<subsystem_name_id>[^/]+)/reactions/?$', views.get_subsystem_reactions),
     url(r'^(?P<model>[^/]+)/compartment/?$', views.get_compartments),
     url(r'^(?P<model>[^/]+)/compartment/(?P<compartment_name_id>[^/]+)/?$', views.get_compartment),
 ]
