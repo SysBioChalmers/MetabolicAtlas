@@ -6,7 +6,7 @@
         <input id="search" class="input" type="text"
           v-model="searchTermString" @input="searchDebounce"
           placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
-          v-on:keyup.enter="validateSearch()"
+          v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
@@ -21,8 +21,8 @@
       </div>
       <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
         <div class="has-text-right" v-show="searchResults.length !== 0 && !showLoader">
-          <div id="asn" v-if="model" class="notification is-large clickable is-unselectable" @click="goToSearchPage">
-            Limited to the first 50 results per category from {{ model.short_name }}<br><u>Click here to get all the results</u>
+          <div id="asn" v-if="model" class="notification is-large clickable is-unselectable has-text-centered" @click="goToSearchPage">
+            Limited to the first 50 results per category<br><u>Click here to get more results from all integrated GEMs</u>
           </div>
         </div>
         <div class="resList" v-show="!showLoader">
