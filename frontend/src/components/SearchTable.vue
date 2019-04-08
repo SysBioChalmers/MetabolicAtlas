@@ -4,7 +4,7 @@
       <div id="search-table">
         <div class="columns">
           <div class="column has-text-centered">
-            <h3 class="title is-3">Global search all integrated GEMs for <i>{{ searchTerm }}</i></h3>
+            <h3 class="title is-3">Global search all integrated GEMs <span v-if="searchTerm"> for <i>{{ searchTerm }}</i></span></h3>
           </div>
         </div>
         <div class="columns is-centered">
@@ -27,7 +27,7 @@
           </div>
           <loader v-show="loading && searchTerm !== ''"></loader>
           <div v-show="!loading">
-            <div v-if="searchResults.length === 0" class="column is-offset-3 is-6">
+            <div v-if="Object.keys(searchResults).length === 0" class="column is-offset-3 is-6">
               <div v-if="searchTerm !== ''" class=" has-text-centered notification">
                 {{ messages.searchNoResult }}
               </div>
@@ -132,9 +132,9 @@ import GlobalSearch from 'components/explorer/GlobalSearch';
 import Loader from 'components/Loader';
 import { VueGoodTable } from 'vue-good-table';
 import 'vue-good-table/dist/vue-good-table.css';
-import { chemicalFormula } from '../../helpers/chemical-formatters';
-import { idfy } from '../../helpers/utils';
-import { default as messages } from '../../helpers/messages';
+import { chemicalFormula } from '../helpers/chemical-formatters';
+import { idfy } from '../helpers/utils';
+import { default as messages } from '../helpers/messages';
 
 export default {
   name: 'search-table',
@@ -408,6 +408,9 @@ export default {
       },
     };
   },
+  // created() {
+  //   EventBus.$emit('destroy3Dnetwork');
+  // },
   methods: {
     formulaFormater(s) {
       return chemicalFormula(s);
