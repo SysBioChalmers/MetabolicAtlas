@@ -142,7 +142,6 @@ export default {
   },
   computed: {
     metabolitesListHtml() {
-      console.log(this.showFullMetabolite, this.limitMetabolite);
       const l = ['<span class="tags">'];
       this.metabolites.sort((a, b) => (a.name < b.name ? -1 : 1));
       let i = 0;
