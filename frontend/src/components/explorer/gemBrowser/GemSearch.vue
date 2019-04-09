@@ -52,12 +52,12 @@ import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
 import _ from 'lodash';
-import { chemicalFormula, chemicalReaction } from '../../helpers/chemical-formatters';
-import { default as EventBus } from '../../event-bus';
-import { default as messages } from '../../helpers/messages';
+import { chemicalFormula, chemicalReaction } from '../../../helpers/chemical-formatters';
+import { default as EventBus } from '../../../event-bus';
+import { default as messages } from '../../../helpers/messages';
 
 export default {
-  name: 'global-search',
+  name: 'gem-search',
   props: {
     searchTerm: {
       default: '',

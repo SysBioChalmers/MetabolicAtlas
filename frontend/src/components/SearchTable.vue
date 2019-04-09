@@ -13,7 +13,7 @@
               <p class="control has-icons-right has-icons-left">
                 <input id="search" class="input" type="text" v-model="searchTerm"
                   placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem" v-on:keyup.enter="updateSearch()">
-                <span class="has-text-info icon is-small is-right" v-show="this.showSearchCharAlert" style="width: 200px">
+                <span class="has-text-danger icon is-small is-right" v-show="this.showSearchCharAlert" style="width: 200px">
                   Type at least 2 characters
                 </span>
                 <span class="icon is-medium is-left">
@@ -39,7 +39,7 @@
           <loader v-show="loading && searchTerm !== ''"></loader>
           <div v-show="!loading">
             <div v-if="Object.keys(searchResults).length === 0" class="column is-offset-3 is-6">
-              <div v-if="searchTerm !== ''" class=" has-text-centered notification">
+              <div v-if="searchTerm.length > 1" class=" has-text-centered notification">
                 {{ messages.searchNoResult }}
               </div>
               <div class="content">
@@ -140,7 +140,6 @@
 <script>
 
 import axios from 'axios';
-import GlobalSearch from 'components/explorer/GlobalSearch';
 import Loader from 'components/Loader';
 import { VueGoodTable } from 'vue-good-table';
 import 'vue-good-table/dist/vue-good-table.css';
@@ -151,7 +150,6 @@ import { default as messages } from '../helpers/messages';
 export default {
   name: 'search-table',
   components: {
-    GlobalSearch,
     Loader,
     VueGoodTable,
   },
@@ -422,15 +420,15 @@ export default {
     };
   },
   beforeRouteEnter(to, from, next) {
+    console.log('beforeRouteEnter');
     next((vm) => {
-      vm.setSearchTerm(to.query.term);
-      vm.validateSearch();
+      vm.validateSearch(to.query.term);
       next();
     });
   },
   beforeRouteUpdate(to, from, next) {
-    this.setSearchTerm(to.query.term);
-    this.validateSearch();
+    console.log('beforeRouteUpdate');
+    this.validateSearch(to.query.term);
     next();
   },
   methods: {
@@ -657,32 +655,28 @@ export default {
           term: this.searchTerm,
         },
       });
-      this.searchResultsFiltered = {};
-      // count types
-      this.countResults();
-      // get filters
-      this.fillFilterFields();
-      // select the active tab
-      for (const key of Object.keys(this.resultsCount)) {
-        if (this.resultsCount[key] !== 0) {
-          this.showTabType = key;
-          return;
-        }
-      }
-      this.showTabType = '';
     },
     showTab(elementType) {
       return this.showTabType === elementType;
     },
-    validateSearch() {
+    validateSearch(term) {
+      console.log('got term ', term);
+      this.searchTerm = term;
+      this.showSearchCharAlert = false;
+      this.searchResults = [];
+      this.showTabType = '';
+      this.searchResultsFiltered = {};
       if (this.searchTerm.length > 1) {
-        this.showSearchCharAlert = false;
+        console.log('going to search term ', this.searchTerm);
         this.search();
-      } else if (this.searchTerm !== '') {
+      } else if (this.searchTerm.length === 1) {
+        console.log('short term ', this.searchTerm);
         this.showSearchCharAlert = true;
       }
+      console.log('end of validateSearch');
     },
     search() {
+      console.log('searching term ', this.searchTerm);
       this.loading = true;
       const url = `all/search/${this.searchTerm}`;
       axios.get(url)
@@ -715,11 +709,18 @@ export default {
       })
       .then(() => {
         this.loading = false;
-        this.updateSearch();
+        // count types
+        this.countResults();
+        // get filters
+        this.fillFilterFields();
+        // select the active tab
+        for (const key of Object.keys(this.resultsCount)) {
+          if (this.resultsCount[key] !== 0) {
+            this.showTabType = key;
+            return;
+          }
+        }
       });
-    },
-    setSearchTerm(term) {
-      this.searchTerm = term;
     },
     idfy,
     chemicalFormula,
