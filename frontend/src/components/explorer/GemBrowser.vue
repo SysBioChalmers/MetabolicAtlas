@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="columns is-centered">
-        <global-search :quickSearch="true" :model="model" ref="globalSearch"></global-search>
+        <global-search :model="model" ref="globalSearch"></global-search>
       </div>
       <div v-if="selectedType === ''">
         <div class="columns is-centered">
