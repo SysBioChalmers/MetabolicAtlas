@@ -30,7 +30,7 @@
           <td v-html="reformatChemicalReactionHTML(r)"></td>
           <td>
             <template v-for="(m, index) in r.modifiers">{{ index == 0 ? '' : ', '}}<router-link :to="{ path: `/explore/gem-browser/${model.database_name}/enzyme/${m.id}` }">{{ m.name || m.id }}</router-link>
-            </template
+            </template>
           </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">

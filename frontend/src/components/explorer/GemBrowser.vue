@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="columns is-centered">
-        <global-search :quickSearch="true" :model="model" ref="globalSearch"></global-search>
+        <gem-search :model="model" ref="gemSearch"></gem-search>
       </div>
       <div v-if="selectedType === ''">
         <div class="columns is-centered">
@@ -78,7 +78,7 @@
 
 <script>
 import axios from 'axios';
-import GlobalSearch from 'components/explorer/GlobalSearch';
+import GemSearch from 'components/explorer/gemBrowser/GemSearch';
 import ClosestInteractionPartners from 'components/explorer/gemBrowser/ClosestInteractionPartners';
 import Enzyme from 'components/explorer/gemBrowser/Enzyme';
 import Metabolite from 'components/explorer/gemBrowser/Metabolite';
@@ -101,7 +101,7 @@ export default {
     Reaction,
     Subsystem,
     Compartment,
-    GlobalSearch,
+    GemSearch,
     Tile,
   },
   data() {

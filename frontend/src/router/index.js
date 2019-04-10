@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from 'components/Home';
 import Explorer from 'components/Explorer';
+import SearchTable from 'components/SearchTable';
 import Resources from 'components/Resources';
 import About from 'components/About';
 import Documentation from 'components/Documentation';
@@ -14,7 +15,7 @@ Vue.use(VueRouter);
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/explore', name: 'explorerRoot', component: Explorer, props: true },
-  { path: '/explore/search', name: 'search', component: Explorer },
+  { path: '/search', name: 'search', component: SearchTable },
   { path: '/explore/gem-browser/:model', name: 'browserRoot', component: Explorer, props: true },
   { path: '/explore/gem-browser/:model/:type/:id', name: 'browser', component: Explorer, props: true },
   { path: '/explore/map-viewer/:model', name: 'viewer', component: Explorer, props: true },

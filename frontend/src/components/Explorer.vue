@@ -67,8 +67,6 @@ import axios from 'axios';
 import $ from 'jquery';
 import GemBrowser from 'components/explorer/GemBrowser';
 import MapViewer from 'components/explorer/MapViewer';
-import GlobalSearch from 'components/explorer/GlobalSearch';
-import SearchTable from 'components/explorer/SearchTable';
 import { idfy } from '../helpers/utils';
 import { default as EventBus } from '../event-bus';
 import { default as messages } from '../helpers/messages';
@@ -78,8 +76,6 @@ export default {
   components: {
     GemBrowser,
     MapViewer,
-    GlobalSearch,
-    SearchTable,
   },
   data() {
     return {
@@ -152,12 +148,7 @@ export default {
   },
   methods: {
     setup() {
-      if (this.$route.name === 'search') {
-        this.displaySearch();
-        EventBus.$emit('destroy3Dnetwork');
-        this.extendWindow = false;
-        return;
-      } else if (!this.model) {
+      if (!this.model) {
         // do not redirect on url change unless the model is already loaded
         return;
       }
@@ -235,10 +226,6 @@ export default {
       this.extendWindow = true;
       this.currentShowComponent = 'MapViewer';
     },
-    displaySearch() {
-      this.extendWindow = false;
-      this.currentShowComponent = 'SearchTable';
-    },
     getCompartmentNameFromLetter(l) {
       return this.compartmentLetters[l];
     },
@@ -255,7 +242,7 @@ export default {
       if (reaction === null) {
         return '';
       }
-      const addComp = reaction.compartment.includes('=>') || reaction.is_transport;
+      const addComp = reaction.is_transport || reaction.compartment.includes('=>');
       let eqArr = null;
       if (reaction.is_reversible) {
         eqArr = reaction.equation.split(' &#8660; ');
