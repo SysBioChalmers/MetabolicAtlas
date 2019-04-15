@@ -46,11 +46,7 @@
         <span class="is-size-5">The <a :href="`/api/${model.database_name}/compartment/${this.cName}/`" target="_blank">complete list in JSON format</a> of reactions / metabolites / enzymes is available using our <a href="/swagger" target="_blank">API</a></span>
       </div>
       <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
-        <router-link class="button is-info is-fullwidth is-outlined"
-          :to="{ path: `/explore/map-viewer/${model.database_name}/compartment/${this.cName == 'cytosol' ? 'cytosol_1' : this.cName}?dim=2d` }">
-          <span class="icon is-large"><i class="fa fa-map-o"></i></span>
-          <span>{{ messages.mapViewerName }}</span>
-        </router-link>
+        <maps-available :model="model" :type="'compartment'" :id="cName" :elementID="''"></maps-available>
       </div>
     </div>
   </div>
@@ -59,6 +55,7 @@
 <script>
 import axios from 'axios';
 import Loader from 'components/Loader';
+import MapsAvailable from 'components/explorer/gemBrowser/MapsAvailable';
 import { reformatTableKey } from '../../../helpers/utils';
 import { default as messages } from '../../../helpers/messages';
 
@@ -66,6 +63,7 @@ export default {
   name: 'subsystem',
   components: {
     Loader,
+    MapsAvailable,
   },
   props: ['model'],
   data() {
@@ -113,9 +111,9 @@ export default {
     },
     load() {
       this.showLoader = true;
-      axios.get(`${this.model.database_name}/compartment/${this.cName}/stats/`)
+      axios.get(`${this.model.database_name}/compartment/${this.cName}/summary/`)
       .then((response) => {
-        this.compartment = response.data.compartmentAnnotations;
+        this.compartment = response.data.info;
         this.subsystems = response.data.subsystems;
         this.showLoader = false;
       })

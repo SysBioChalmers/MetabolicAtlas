@@ -1,26 +1,25 @@
 <template>
-  <div class="container reaction-table">
+  <div class="reaction-table">
     <div class="field">
-      <span class="tag is-medium">
+      <span class="tag is-medium" :class="reactions.length == limit ? 'is-warning' : ''">
         # Reactions: {{ reactions.length }}
       </span>
       <template v-if="transportReactionCount !== 0">
         &nbsp;including&nbsp;
-        <span class="tag is-medium clickable" @click="sortBy('compartment', '=>', 'desc')">
+        <span class="tag is-medium clickable" @click="sortTable('is_transport', null, 'desc')">
           {{ transportReactionCount }} transport reactions
         </span>
       </template>
-      <span v-show="reactions.length==200" class="tag is-medium is-warning is-pulled-right">
-        The number of reactions displayed is limited to 200, some may have been discarded.
+      <span v-show="reactions.length == limit" class="tag is-medium is-warning is-pulled-right">
+        The number of reactions displayed is limited to {{ limit }}.
       </span>
     </div>
     <table class="table is-bordered is-striped is-narrow is-fullwidth" ref="table">
       <thead>
         <tr class="has-background-white-ter">
-          <th class="is-unselectable"
+          <th class="is-unselectable clickable"
           v-for="f in fields" v-show="showCol(f.name)"
-            @click="sortBy(f.name, null, null)" v-html="f.display"></th>
-          <th class="is-unselectable">Map</th>
+            @click="sortTable(f.name, null, null)" v-html="f.display"></th>
         </tr>
       </thead>
       <tbody>
@@ -31,7 +30,7 @@
           <td v-html="reformatChemicalReactionHTML(r)"></td>
           <td>
             <template v-for="(m, index) in r.modifiers">{{ index == 0 ? '' : ', '}}<router-link :to="{ path: `/explore/gem-browser/${model.database_name}/enzyme/${m.id}` }">{{ m.name || m.id }}</router-link>
-            </template
+            </template>
           </td>
           <td v-show="showCP">{{ r.cp }}</td>
           <td v-show="showSubsystem">
@@ -50,11 +49,6 @@
               </template>
             </template>
           </td>
-          <td>
-            <button class="button" @click="viewReactionOnMap(r.id)">
-              <span class="fa fa-eye"></span>
-            </button>
-          </td>
         </tr>
       </tbody>
     </table>
@@ -63,14 +57,13 @@
 
 <script>
 import $ from 'jquery';
-import { default as EventBus } from '../../../event-bus';
 import { default as compare } from '../../../helpers/compare';
 import { chemicalReaction } from '../../../helpers/chemical-formatters';
 import { reformatCompEqString, idfy } from '../../../helpers/utils';
 
 export default {
   name: 'reaction-table',
-  props: ['reactions', 'selectedElmId', 'showSubsystem', 'model'],
+  props: ['reactions', 'selectedElmId', 'showSubsystem', 'model', 'limit'],
   data() {
     return {
       showCP: false,
@@ -93,13 +86,21 @@ export default {
         display: 'Compartment',
         name: 'compartment',
       }],
-      sortedReactions: [],
-      sortAsc: true,
+      // sortedReactions: [],
+      sortOrder: 'asc',
+      sortBy: 'id',
+      sortPattern: '',
       reformatCompEqString,
     };
   },
-  watch: {
-    reactions() {
+  computed: {
+    transportReactionCount() {
+      return this.reactions.filter(r => r.is_transport).length;
+    },
+    sortedReactions() {
+      if (this.reactions.length === 0) {
+        return [];
+      }
       // create consume/produce column
       if (this.selectedElmId) {
         this.showCP = true;
@@ -121,12 +122,8 @@ export default {
           }
         }
       }
-      this.sortedReactions = this.reactions;
-    },
-  },
-  computed: {
-    transportReactionCount() {
-      return this.reactions.filter(r => r.is_transport).length;
+      return this.reactions.sort(
+         compare(this.sortBy, this.sortPattern, this.sortOrder));
     },
   },
   methods: {
@@ -139,16 +136,16 @@ export default {
       }
       return this.$parent.$parent.$parent.$parent.reformatChemicalReactionLink(r);
     },
-    sortBy(field, pattern, order) {
-      const reactions = Array.prototype.slice.call(
-      this.sortedReactions); // Do not mutate original elms;
-      let sortOrder = order;
-      if (!order) {
-        sortOrder = this.sortAsc ? 'asc' : 'desc';
+    sortTable(field, pattern, order) {
+      if (order) {
+        this.sortOrder = order;
+      } else if (field !== this.sortBy) {
+        this.sortOrder = 'asc';
+      } else {
+        this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
       }
-      this.sortedReactions = reactions.sort(
-        compare(field, pattern, sortOrder));
-      this.sortAsc = !this.sortAsc;
+      this.sortBy = field;
+      this.sortPattern = pattern;
     },
     showCol(name) {
       if (name === 'cp' && !this.showCP) {
@@ -157,9 +154,6 @@ export default {
         return false;
       }
       return true;
-    },
-    viewReactionOnMap(reactionID) {
-      EventBus.$emit('viewReactionOnMap', reactionID);
     },
   },
   updated() {

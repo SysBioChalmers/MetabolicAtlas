@@ -67,7 +67,7 @@ class EnzymeReactionComponentSearchSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field='name',
-        source='compartments',
+        source='compartment_enzyme',
      )
 
     class Meta:
@@ -207,12 +207,13 @@ class HmrEnzymeReactionComponentLiteSerializer(serializers.ModelSerializer):
     short_name = serializers.SerializerMethodField('read_short_name')
     gene_synonyms = serializers.SerializerMethodField('read_gene_synonyms')
     ec =  serializers.SerializerMethodField('read_ec')
+    hpa_id = serializers.SerializerMethodField('read_hpa')
     uniprot_id = serializers.SerializerMethodField('read_uniprot')
     ncbi_id = serializers.SerializerMethodField('read_ncbi')
 
     class Meta:
         model = APImodels.ReactionComponent
-        fields = ('id', 'gene_name', 'short_name', 'gene_synonyms', 'ec', 'uniprot_id', 'ncbi_id',)
+        fields = ('id', 'gene_name', 'short_name', 'gene_synonyms', 'ec', 'hpa_id', 'uniprot_id', 'ncbi_id',)
 
     def read_gene_name(self, model):
         return model.name if model.name else None
@@ -226,11 +227,14 @@ class HmrEnzymeReactionComponentLiteSerializer(serializers.ModelSerializer):
     def read_ec(self, model):
         return model.enzyme.ec if hasattr(model, 'enzyme') else None
 
-    def read_uniprot(self, model):
+    def read_hpa(self, model):
         return model.external_id1
 
-    def read_ncbi(self, model):
+    def read_uniprot(self, model):
         return model.external_id2
+
+    def read_ncbi(self, model):
+        return model.external_id3
 
 
 class HmrEnzymeReactionComponentSerializer(serializers.ModelSerializer):
@@ -241,6 +245,8 @@ class HmrEnzymeReactionComponentSerializer(serializers.ModelSerializer):
     ec =  serializers.SerializerMethodField('read_ec')
     catalytic_activity =  serializers.SerializerMethodField('read_catalytic_activity')
     cofactor = serializers.SerializerMethodField('read_cofactor')
+    hpa_id = serializers.SerializerMethodField('read_hpa')
+    hpa_link =  serializers.SerializerMethodField('read_hpa_link')
     uniprot_id = serializers.SerializerMethodField('read_uniprot')
     uniprot_link =  serializers.SerializerMethodField('read_uniprot_link')
     ncbi_id = serializers.SerializerMethodField('read_ncbi')
@@ -251,7 +257,7 @@ class HmrEnzymeReactionComponentSerializer(serializers.ModelSerializer):
     class Meta:
         model = APImodels.ReactionComponent
         fields = ('id', 'gene_name', 'prot_name', 'gene_synonyms') + \
-        ('function', 'ec', 'catalytic_activity', 'cofactor') + \
+        ('function', 'ec', 'catalytic_activity', 'cofactor', 'hpa_id', 'hpa_link') + \
         ('uniprot_id', 'uniprot_link', 'ncbi_id', 'ncbi_link', 'ensembl_link', 'name_link')
 
     def read_gene_name(self, model):
@@ -276,16 +282,22 @@ class HmrEnzymeReactionComponentSerializer(serializers.ModelSerializer):
         return model.enzyme.cofactor if hasattr(model, 'enzyme') else None
 
     def read_uniprot(self, model):
-        return model.external_id1
+        return model.external_id2
 
     def read_uniprot_link(self, model):
+        return model.enzyme.external_link2 if hasattr(model, 'enzyme') else None
+
+    def read_hpa(self, model):
+        return model.external_id1
+
+    def read_hpa_link(self, model):
         return model.enzyme.external_link1 if hasattr(model, 'enzyme') else None
 
     def read_ncbi(self, model):
-        return model.external_id2
+        return model.external_id3
 
     def read_ncbi_link(self, model):
-        return model.enzyme.external_link2 if hasattr(model, 'enzyme') else None
+        return model.enzyme.external_link3 if hasattr(model, 'enzyme') else None
 
     def read_ensembl_link(self, model):
         return model.enzyme.name_link if hasattr(model, 'enzyme') else None
@@ -499,7 +511,7 @@ class GemBrowserTileEnzymeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'reaction_count', 'compartment_count', 'subsystem_count')
 
     def read_compartment(self, model):
-        return model.compartments.count()
+        return model.compartment_enzyme.count()
 
     def read_subsystem(self, model):
         return model.subsystem_enzyme.count()

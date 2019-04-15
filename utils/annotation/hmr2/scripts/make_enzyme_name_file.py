@@ -22,6 +22,8 @@ with open('/project/annotation/hmr2/scripts/ensembl_ID_mapping.tsv', 'r') as fh:
         if eid in IDS and eid not in res:
             res[eid] = {'ID': eid, 'name': line[4]}
             res[eid]['name_link'] = 'https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=%s' % eid
+            res[eid]['external_id1'] = eid
+            res[eid]['external_link1'] = "https://www.proteinatlas.org/%s/cell" % eid
 
 enzyme_file = '/project/annotation/hmr2/ENZYMES.txt'
 ld = tools.merge_values(enzyme_file, res)

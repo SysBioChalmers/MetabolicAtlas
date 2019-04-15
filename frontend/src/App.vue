@@ -115,7 +115,7 @@ export default {
     return {
       /* eslint-disable quote-props */
       menuElems: {
-        '<span class="icon is-large"><i class="fa fa-search fa-lg"></i></span>': '/explore/search',
+        '<span class="icon is-large"><i class="fa fa-search fa-lg"></i></span>': '/search?term=',
         'Explore': '/explore',
         'GEM': {
           '/gems/': [
@@ -145,9 +145,11 @@ export default {
   },
   beforeMount() {
     EventBus.$on('modelSelected', (model) => {
+      if (this.model) {
+        this.viewerLastPath = '';
+        this.browserLastPath = '';
+      }
       this.model = model;
-      this.viewerLastPath = '';
-      this.browserLastPath = '';
     });
   },
   created() {
@@ -187,7 +189,7 @@ export default {
       } else if (this.$route.name === 'browserRoot') {
         this.browserLastPath = '';
       } else if (['viewerCompartment', 'viewerCompartmentRea', 'viewerSubsystem', 'viewerSubsystemRea'].includes(this.$route.name)) {
-        this.viewerLastPath = this.$route.path;
+        this.viewerLastPath = this.$route.fullPath;
       } else if (this.$route.name === 'viewer') {
         this.viewerLastPath = '';
       }
@@ -226,7 +228,7 @@ $fullhd: 1576px !default;
   background-color: $primary-lighter;
 }
 
-.clickable {
+m, .clickable {
   cursor: pointer;
 }
 
@@ -309,6 +311,12 @@ $fullhd: 1576px !default;
   }
   sup {
     vertical-align: top;
+  }
+}
+
+.metabolite-table, .model-table, .reaction-table, .subsystem-table {
+  .main-table tr td.td-key, #ed-table tr td.td-key {
+    width: 150px;
   }
 }
 

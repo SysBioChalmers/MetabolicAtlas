@@ -6,24 +6,23 @@
         <input id="search" class="input" type="text"
           v-model="searchTermString" @input="searchDebounce"
           placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
-          v-on:keyup.enter="!quickSearch ? validateSearch() : ''"
           v-on:keyup.esc="showResults = false"
           v-on:focus="showResults = true"
           ref="searchInput">
-          <span class="icon is-small is-right" v-show="showSearchCharAlert" style="width: 250px">
+          <span class="has-text-info icon is-small is-right" v-show="showSearchCharAlert" style="width: 200px">
             Type at least 2 characters
           </span>
           <span class="icon is-medium is-left">
             <i class="fa fa-search"></i>
           </span>
         </p>
-        <a v-if="quickSearch" @click="advancedSearch">Advanced search</a>
+        <router-link :to="{ name: 'search', query: { term: this.searchTermString } }">Global search</router-link>
       </div>
-      <div id="searchResults" v-show="quickSearch && showResults && searchTermString.length > 1" ref="searchResults">
-        <div class="has-text-right" v-show="searchResults.length !== 0 && !showLoader">
-          <div id="asn" v-if="model" class="notification is-large clickable is-unselectable" @click="goToSearchPage">
-            Limited to the first 50 results per category from {{ model.short_name }}<br><u>Click here to get all the results</u>
-          </div>
+      <div id="searchResults" v-show="showResults && searchTermString.length > 1" ref="searchResults">
+        <div id="asn" class="notification is-large is-unselectable has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
+          <router-link  v-if="model" :to="{ name: 'search', query: { term: this.searchTermString } }">
+            Limited to 50 results per type. Click to search all integrated GEMs
+          </router-link>
         </div>
         <div class="resList" v-show="!showLoader">
           <div v-if="searchResults.length !== 0" class="searchGroupResultSection"
@@ -53,19 +52,13 @@ import axios from 'axios';
 import $ from 'jquery';
 import Loader from 'components/Loader';
 import _ from 'lodash';
-import { chemicalFormula, chemicalReaction } from '../../helpers/chemical-formatters';
-import { default as EventBus } from '../../event-bus';
-import { default as messages } from '../../helpers/messages';
+import { chemicalFormula, chemicalReaction } from '../../../helpers/chemical-formatters';
+import { default as EventBus } from '../../../event-bus';
+import { default as messages } from '../../../helpers/messages';
 
 export default {
-  name: 'global-search',
+  name: 'gem-search',
   props: {
-    quickSearch: {
-      default: false,
-    },
-    reroute: {
-      default: false,
-    },
     searchTerm: {
       default: '',
     },
@@ -130,9 +123,6 @@ export default {
     searchDebounce: _.debounce(function e() {
       this.noResult = false;
       this.showSearchCharAlert = this.searchTermString.length === 1;
-      if (!this.quickSearch) {
-        return;
-      }
       this.showLoader = true;
       if (this.searchTermString.length > 1) {
         this.showResults = true;
@@ -140,13 +130,11 @@ export default {
       }
     }, 700),
     search(searchTerm) {
-      if (this.searchTermString !== searchTerm) {
-        this.searchTermString = searchTerm;
-      }
-      const url = this.quickSearch ? `${this.model.database_name}/search/${searchTerm}` : `all/search/${searchTerm}`;
+      this.searchTermString = searchTerm;
+      const url = `${this.model.database_name}/search/${searchTerm}`;
       axios.get(url)
       .then((response) => {
-        const searchResults = {
+        const localResults = {
           metabolite: [],
           enzyme: [],
           reaction: [],
@@ -156,100 +144,69 @@ export default {
 
         for (const model of Object.keys(response.data)) {
           const resultsModel = response.data[model];
-          if (resultsModel.metabolite.length) {
-            searchResults.metabolite = searchResults.metabolite.concat(
-              resultsModel.metabolite.map(
-              (e) => {
-                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
-              }));
-          }
-          if (resultsModel.enzyme.length) {
-            searchResults.enzyme = searchResults.enzyme.concat(
-              resultsModel.enzyme.map(
-              (e) => {
-                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
-              }));
-          }
-          if (resultsModel.reaction.length) {
-            searchResults.reaction = searchResults.reaction.concat(
-              resultsModel.reaction.map(
-              (e) => {
-                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
-              }));
-          }
-          if (resultsModel.subsystem.length) {
-            searchResults.subsystem = searchResults.subsystem.concat(
-              resultsModel.subsystem.map(
-              (e) => {
-                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
-              }));
-          }
-          if (resultsModel.compartment.length) {
-            searchResults.compartment = searchResults.compartment.concat(
-              resultsModel.compartment.map(
-              (e) => {
-                const d = e; d.model = { id: model, name: resultsModel.name }; return d;
-              }));
+          for (const resultType of ['metabolite', 'enzyme', 'reaction', 'subsystem', 'compartment']) {
+            if (resultsModel[resultType]) {
+              localResults[resultType] = localResults[resultType].concat(
+                resultsModel[resultType].map(
+                (e) => {
+                  const d = e; d.model = { id: model, name: resultsModel.name }; return d;
+                })
+              );
+            }
           }
         }
+        this.searchResults = localResults;
+
         this.noResult = true;
-        for (const k of Object.keys(searchResults)) {
-          if (searchResults[k].length) {
+        for (const k of Object.keys(this.searchResults)) {
+          if (this.searchResults[k].length) {
             this.showSearchCharAlert = false;
             this.noResult = false;
             break;
           }
         }
-        this.searchResults = searchResults;
         this.showLoader = false;
-        if (!this.quickSearch) {
-          this.$emit('updateResults', this.searchTermString, this.searchResults);
-        } else {
-          // sort result by exact matched first, then by alpha order
-          for (const k of Object.keys(searchResults)) {
-            if (searchResults[k].length) {
-              searchResults[k].sort((a, b) => {
-                let matchSizeDiffA = 100;
-                let matchedStringA = '';
-                for (const field of Object.keys(a)) {
-                  if (a[field] && (typeof a[field] === 'string' || a[field] instanceof String) &&
-                      a[field].toLowerCase().includes(this.searchTermString.toLowerCase())) {
-                    const diff = a[field].length - this.searchTermString.length;
-                    if (diff < matchSizeDiffA) {
-                      matchSizeDiffA = diff;
-                      matchedStringA = a[field];
-                    }
+        // sort result by exact matched first, then by alpha order
+        for (const k of Object.keys(localResults)) {
+          if (localResults[k].length) {
+            localResults[k].sort((a, b) => {
+              let matchSizeDiffA = 100;
+              let matchedStringA = '';
+              for (const field of Object.keys(a)) {
+                if (a[field] && (typeof a[field] === 'string' || a[field] instanceof String) &&
+                    a[field].toLowerCase().includes(this.searchTermString.toLowerCase())) {
+                  const diff = a[field].length - this.searchTermString.length;
+                  if (diff < matchSizeDiffA) {
+                    matchSizeDiffA = diff;
+                    matchedStringA = a[field];
                   }
                 }
-                let matchSizeDiffB = 100;
-                let matchedStringB = '';
-                for (const field of Object.keys(b)) {
-                  if (b[field] && (typeof b[field] === 'string' || b[field] instanceof String) &&
-                      b[field].toLowerCase().includes(this.searchTermString.toLowerCase())) {
-                    const diff = b[field].length - this.searchTermString.length;
-                    if (diff < matchSizeDiffB) {
-                      matchSizeDiffB = diff;
-                      matchedStringB = b[field];
-                    }
+              }
+              let matchSizeDiffB = 100;
+              let matchedStringB = '';
+              for (const field of Object.keys(b)) {
+                if (b[field] && (typeof b[field] === 'string' || b[field] instanceof String) &&
+                    b[field].toLowerCase().includes(this.searchTermString.toLowerCase())) {
+                  const diff = b[field].length - this.searchTermString.length;
+                  if (diff < matchSizeDiffB) {
+                    matchSizeDiffB = diff;
+                    matchedStringB = b[field];
                   }
                 }
-                if (matchSizeDiffA === matchSizeDiffB) {
-                  return matchedStringA.localeCompare(matchedStringB);
-                }
-                return matchSizeDiffA < matchSizeDiffB ? -1 : 1;
-              });
-            }
+              }
+              if (matchSizeDiffA === matchSizeDiffB) {
+                return matchedStringA.localeCompare(matchedStringB);
+              }
+              return matchSizeDiffA < matchSizeDiffB ? -1 : 1;
+            });
           }
-          this.$refs.searchResults.scrollTop = 0;
         }
+        this.$refs.searchResults.scrollTop = 0;
       })
       .catch(() => {
         this.searchResults = [];
         this.noResult = true;
         this.showLoader = false;
-        if (!this.quickSearch) {
-          this.$emit('updateResults', this.searchTermString, this.searchResults);
-        }
       });
     },
     goToTab(type, id) {
@@ -258,13 +215,7 @@ export default {
       this.searchResults = [];
       EventBus.$emit('GBnavigateTo', type, id);
     },
-    advancedSearch() {
-      this.$router.push({ name: 'search' });
-    },
     formatSearchResultLabel(type, element, searchTerm) {
-      if (!this.quickSearch) {
-        return '';
-      }
       const re = new RegExp(`(${searchTerm})`, 'ig');
       let s = '';
       for (const key of this.itemKeys[this.model.database_name][type]) {
@@ -289,24 +240,6 @@ export default {
         return s.slice(2);
       }
       return s;
-    },
-    goToSearchPage() {
-      this.searchTerm = '';
-      this.searchTermString = '';
-      this.$router.push({
-        name: 'search',
-        query: {
-          term: this.searchTermString,
-        },
-      });
-    },
-    validateSearch() {
-      if (this.quickSearch || this.reroute) {
-        this.goToSearchPage();
-      } else if (this.searchTermString.length >= 2) {
-        this.$emit('searchResults');
-        this.search(this.searchTermString);
-      }
     },
     chemicalFormula,
   },
@@ -357,6 +290,5 @@ export default {
     }
   }
 }
-
 
 </style>

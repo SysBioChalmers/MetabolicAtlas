@@ -1,3 +1,38 @@
-@ID	name	name_link	alt_name1	alt_name2	aliases	external_id1	external_link1	external_id2	external_link2	external_id3	external_link3	external_id4	external_link4	function1	function2	ec	catalytic_activity	cofactor
-ENSG00000108839	CREBBP	ENSG00000108839.com	CREBBP alt_name1	prot name	GENE1; GENE2; GENE3	ENZY00001	www.enzyme.com/ENZY00001	NCBI0001	www.ncbi.com/NCBI00001					function1	function2	ec:11232	catalytic activity is cool	cofactor1; cofactor2
-ENSG00000012779	TEST42	ENSG00000108839.com	TEST42 alt_name1	prot name	GENE1; GENE2; GENE3	ENZY00001	www.enzyme.com/ENZY00001	NCBI0001	www.ncbi.com/NCBI00001					function1	function2	ec:11232	catalytic activity is cool	cofactor1; cofactor2
+# TO BE USED TO INSERT MODEL ANNOTATIONS IN METABOLIC ATLAS DATABASE
+# for GENES/ENZYMES ONLY
+# annotations will be visible in the GEM browser pages and some can be used by the search engine
+
+# some rules:
+# this is a TAB separated file, thus TABs are not allowed in any field values
+# each line added must have exactly 17 columns to be parsed properly
+# do not modify the @ line
+# column 'ID' is mandatory, other columns are optional
+# external_id / external_link must be filled as pair to be valid
+# be consistent with external ids: e.g. if a UNIPROT ID has been provided as external_id1 for gene #1, you must provide a UNIPROT ID as external_id1 for gene #2 as well
+# follow the max size limits
+
+# columns description:
+# column name        | max size | description
+# ---------------------------------------------
+# name               | 255      | primary name of the gene
+# name_link          | 255      | ID URL, if the model ID is from an external database
+# alt_name1          | 255      | long name or full name of the gene
+# alt_name2          | 255      | another commonly use name or protein name
+# aliases            | 2000     | list of aliases, semi-colon separated values
+# external_id1       | 50       | the identifier (only) in a external database or model
+# external_link1     | 255      | full URL to associate with the ‘external_id1’ column
+# external_id2       | 50       | the identifier (only) in a external database or model
+# external_link2     | 255      | full URL to associate with the ‘external_id2’ column
+# external_id3       | 50       | the identifier (only) in a external database  or model
+# external_link3     | 255      | full URL to associate with the ‘external_id3’ column
+# external_id4       | 50       | the identifier (only) in a external database  or model
+# external_link4     | 255      | full URL to associate with the ‘external_id4’ column
+# function           | 3000     | some text about the function, can describe multiple functions
+# ec                 | 255      | EC code, semi-colon separated values
+# catalytic_activity | 2000     | some text about the catalytic activity
+
+# In this line specify the name of external databases used for name_link and external_id columns:		[name_link]				[external_id1]		[external_id2]		[external_id3]		[external_id4]			
+# e.g. replace [external_id2] with "UNIPROT" if the 'external_id2' column contains UNIPROT IDs and the 'external_link2' column UNIPROT links.
+
+@ID	name	name_link	alt_name1	alt_name2	aliases	external_id1	external_link1	external_id2	external_link2	external_id3	external_link3	external_id4	external_link4	function	ec	catalytic_activity
+[start here]

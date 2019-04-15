@@ -20,11 +20,14 @@
         <header class="card-header" @click.prevent="showMapCardContent = !showMapCardContent">
           <p class="card-header-title is-capitalized is-inline">
             {{ mapType }}:
-            <i>{{ (mapsData.compartments[mapName] && mapsData.compartments[mapName].name) || mapsData.subsystems[mapName].name }}</i>
+            <i>{{ mapsData.compartments[mapName] ? mapsData.compartments[mapName].name : mapsData.subsystems[mapName] ? mapsData.subsystems[mapName].name : '' }}</i>
           </p>
         </header>
         <footer class="card-footer">
-          <router-link class="card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${mapType}/${ (mapsData.compartments[mapName] && mapsData.compartments[mapName].compartment) || (mapsData.subsystems[mapName] && mapsData.subsystems[mapName].subsystem) }`}">View on {{ messages.gemBrowserName }}</router-link>
+          <router-link class="button is-info is-medium is-outlined card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${mapType}/${ mapsData.compartments[mapName] ? mapsData.compartments[mapName].model_id : mapsData.subsystems[mapName] ? mapsData.subsystems[mapName].model_id : '' }`}">
+            <span class="icon is-large"><i class="fa fa-search-plus"></i></span>
+            <span>{{ messages.gemBrowserName }}</span>
+          </router-link>
         </footer>
       </div>
     </div>
@@ -34,8 +37,27 @@
       </div>
     </template>
     <template v-else>
-      <div class="column" v-if="selectionData.data">
-        <div class="card">
+      <div class="column">
+        <div class="card" v-if="selectionData.data && mapType !== 'subsystem' && selectionData.type == 'subsystem'">
+          <header class="card-header">
+            <p class="card-header-title is-capitalized is-inline">
+              {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
+            </p>
+          </header>
+          <footer class="card-footer" v-if="!selectionData.error">
+            <router-link class="button is-info is-medium is-outlined card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${selectionData.type}/${idfy(selectionData.data.id)}`}">
+              <span class="icon is-large"><i class="fa fa-search-plus"></i></span>
+              <span>{{ messages.gemBrowserName }}</span>
+            </router-link>
+            <div class="button is-primary is-medium is-outlined card-footer-item has-text-centered"
+              @click="(mapsData.subsystems[idfy(selectionData.data.id)] && mapsData.subsystems[idfy(selectionData.data.id)].sha) && showSubsystem(idfy(selectionData.data.id))"
+              :disabled="!mapsData.subsystems[idfy(selectionData.data.id)] || !mapsData.subsystems[idfy(selectionData.data.id)].sha">
+              <span class="icon is-large"><i class="fa fa-map-o"></i></span>
+              <span>Load map</span>
+            </div>
+          </footer>
+        </div>
+        <div class="card" v-else-if="selectionData.data && ['metabolite', 'enzyme', 'reaction'].includes(selectionData.type)">
           <header class="card-header clickable" v-if="!selectionData.error" @click.prevent="showSelectionCardContent = !showSelectionCardContent">
             <p class="card-header-title is-capitalized is-inline">
               {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
@@ -47,9 +69,9 @@
             </a>
           </header>
           <div class="card-content card-content-compact" v-show="showSelectionCardContent">
-            <div class="content" v-if="!selectionData.error && ['metabolite', 'enzyme', 'reaction'].includes(selectionData.type)">
+            <div class="content" v-if="!selectionData.error">
               <p v-if="selectionData.data['rnaLvl'] != null">
-                <span class="has-text-weight-bold">RNA&nbsp;level:</span><span>{{ selectionData.data['rnaLvl'] }}</span>
+                <span class="has-text-weight-bold">RNA&nbsp;level:&nbsp;</span><span>{{ selectionData.data['rnaLvl'] }}</span>
               </p>
               <template v-for="item in selectedElementDataKeys[model.database_name][selectionData.type]"
                 v-if="selectionData.data[item.name] != null || item.name === 'external_ids'" >
@@ -88,19 +110,18 @@
                 {{ messages.noInfoAvailable }}
               </template>
               <template v-else-if="selectionData.error">
+                <!-- TODO FIXME  unreachable code -->
                 <div class="has-text-danger">
                   {{ messages.unknownError }}
                 </div>
               </template>
             </div>
-            <div v-else class="content">
-              This subsystem is spread across
-              <b>{{ mapsData.subsystems[idfy(selectionData.data.id)].compartment_count }}</b>
-              compartments(s).
-            </div>
           </div>
           <footer class="card-footer" v-if="!selectionData.error">
-            <router-link class="card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${selectionData.type}/${idfy(selectionData.data.id)}`}">View on {{ messages.gemBrowserName }}</router-link>
+            <router-link class="button is-info is-medium is-outlined card-footer-item has-text-centered" :to="{ path: `/explore/gem-browser/${model.database_name}/${selectionData.type}/${idfy(selectionData.data.id)}`}">
+              <span class="icon is-large"><i class="fa fa-search-plus"></i></span>
+              <span>{{ messages.gemBrowserName }}</span>
+            </router-link>
           </footer>
         </div>
       </div>
@@ -113,6 +134,7 @@ import { capitalize, reformatStringToLink, idfy } from '../../../helpers/utils';
 import { chemicalReaction } from '../../../helpers/chemical-formatters';
 import { getExpLvlLegend } from '../../../expression-sources/hpa';
 import { default as messages } from '../../../helpers/messages';
+import { default as EventBus } from '../../../event-bus';
 
 export default {
   name: 'sidebar-data-panels',
@@ -128,28 +150,28 @@ export default {
             { name: 'formula' },
             { name: 'compartment' },
             { name: 'aliases', display: 'Synonyms' },
-            {
-              name: 'external_ids',
-              display: 'External&nbsp;IDs',
-              value: [
-                ['HMDB', 'hmdb_id', 'hmdb_link'],
-                ['chebi', 'chebi_id', 'chebi_link'],
-                ['mnxref', 'mnxref_id', 'mnxref_link'],
-              ],
-            },
+            // {
+            //   name: 'external_ids',
+            //   display: 'External&nbsp;IDs',
+            //   value: [
+            //     ['HMDB', 'hmdb_id', 'hmdb_link'],
+            //     ['chebi', 'chebi_id', 'chebi_link'],
+            //     ['mnxref', 'mnxref_id', 'mnxref_link'],
+            //   ],
+            // },
           ],
           enzyme: [
             { name: 'gene_name', display: 'Gene&nbsp;name' },
             { name: 'gene_synonyms', display: 'Synonyms' },
-            {
-              name: 'external_ids',
-              display: 'External&nbsp;IDs',
-              value: [
-                ['Uniprot', 'uniprot_id', 'uniprot_link'],
-                ['NCBI', 'ncbi_id', 'ncbi_link'],
-                ['Ensembl', 'id', 'name_link'],
-              ],
-            },
+            // {
+            //   name: 'external_ids',
+            //   display: 'External links',
+            //   value: [
+            //     ['NCBI', 'ncbi_id', 'ncbi_link'],
+            //     ['Ensembl', 'id', 'name_link'],
+            //     ['Protein Atlas', 'hpa_id', 'hpa_link'],
+            //   ],
+            // },
           ],
           reaction: [
             { name: 'equation' },
@@ -194,6 +216,9 @@ export default {
         }
       }
       return true;
+    },
+    showSubsystem(id) {
+      EventBus.$emit('showAction', 'subsystem', id, [], false);
     },
     getExpLvlLegend,
     capitalize,

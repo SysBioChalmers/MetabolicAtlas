@@ -11,7 +11,7 @@
       <div class="control" :class="{ 'is-loading' : isLoadingSearch }">
         <input id="searchInput" title="Exact search by id, name, alias. Press Enter for results"
           class="input" type="text" :class="searchInputClass" v-model.trim="searchTerm"
-          v-on:keyup.enter="searchComponentIDs(searchTerm)" :disabled="!loadedMap"
+          v-on:keyup.enter="searchComponentIDs()" :disabled="!loadedMap"
           placeholder="Exact search by id, name, alias"/>
       </div>
       <div v-show="searchTerm && totalSearchMatch">
@@ -71,7 +71,7 @@ export default {
       panzoomOptions: {
         maxScale: 1,
         minScale: 0.03,
-        increment: 0.02,
+        increment: 0.025,
         animate: false,
         linearZoom: true,
       },
@@ -95,6 +95,7 @@ export default {
       totalSearchMatch: 0,
 
       svgMapURL: `${window.location.origin}/svgs`, // SEDME
+      defaultEnzymeColor: '#feb',
     };
   },
   watch: {
@@ -108,7 +109,7 @@ export default {
   },
   created() {
     EventBus.$off('showSVGmap');
-    EventBus.$off('loadHPARNAlevels');
+    EventBus.$off('load2DHPARNAlevels');
 
     EventBus.$on('showSVGmap', (type, name, ids, forceReload) => {
       if (forceReload) {
@@ -119,16 +120,20 @@ export default {
       if (type === 'compartment' || type === 'subsystem') {
         if (name) {
           this.idsFound = ids;
-          const callback = ids.length !== 0 ? this.findElementsOnSVG : null;
-          this.loadSVG(name, callback);
+          if (ids.length === 1) {
+            this.searchTerm = ids[0];
+            this.loadSVG(name, this.searchComponentIDs);
+          } else {
+            this.loadSVG(name, null);
+          }
         }
       } else if (type === 'find') {
         this.hlElements(name, ids);
       }
     });
 
-    EventBus.$on('loadHPARNAlevels', (tissue) => {
-      this.loadHPAlevelsOnMap(tissue);
+    EventBus.$on('load2DHPARNAlevels', (mapType, tissue) => {
+      this.loadHPAlevelsOnMap(mapType, tissue);
     });
   },
   mounted() {
@@ -176,9 +181,12 @@ export default {
         this.$panzoom = $('#svg-wrapper').panzoom(this.panzoomOptions);
       } else {
         this.$panzoom = $('#svg-wrapper').panzoom('reset', this.panzoomOptions);
+        this.$panzoom.off('mousewheel.focal');
+        this.$panzoom.off('panzoomzoom');
       }
       setTimeout(() => {
-        const minZoomScale = $('.svgbox').width() / $('#svg-wrapper svg').width();
+        const minZoomScale = Math.min($('.svgbox').width() / $('#svg-wrapper svg').width(),
+                                 $('.svgbox').height() / $('#svg-wrapper svg').height());
         const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
         const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
         this.$panzoom.panzoom('pan', -focusX, -focusY);
@@ -202,7 +210,8 @@ export default {
         if (callback) {
           if (callback === this.findElementsOnSVG) {
             callback(true);
-            this.$emit('loadComplete', true, '');
+          } else if (callback === this.searchComponentIDs) {
+            callback();
           }
         } else {
           this.$emit('loadComplete', true, '');
@@ -212,8 +221,12 @@ export default {
     loadSVG(id, callback) {
       // load the svg file from the server
       this.$emit('loading');
-      // reset some values
-      this.searchTerm = '';
+
+      if (!callback) {
+        // reset some values
+        this.searchTerm = '';
+      }
+
       let mapInfo = this.mapsData.compartments[id];
       if (!mapInfo) {
         mapInfo = this.mapsData.subsystems[id];
@@ -264,12 +277,12 @@ export default {
         this.$emit('loadComplete', true, '');
       }
     },
-    loadHPAlevelsOnMap(tissue) {
+    loadHPAlevelsOnMap(mapType, tissue) {
       if (this.svgName in this.HPARNAlevelsHistory) {
         this.readHPARNAlevels(tissue);
         return;
       }
-      axios.get(`${this.model.database_name}/enzyme/hpa_rna_levels/${this.loadedMap.name_id}`)
+      axios.get(`${this.model.database_name}/enzyme/hpa_rna_levels/${mapType}/2d/${this.loadedMap.name_id}`)
       .then((response) => {
         this.HPARNAlevelsHistory[this.svgName] = response.data;
         setTimeout(() => {
@@ -283,7 +296,7 @@ export default {
     },
     readHPARNAlevels(tissue) {
       if (tissue === 'None') {
-        $('#svg-wrapper .enz .shape').attr('fill', '#fa0');
+        $('#svg-wrapper .enz .shape').attr('fill', this.defaultEnzymeColor);
         this.enzymeRNAlevels = {};
         return;
       }
@@ -292,32 +305,41 @@ export default {
         EventBus.$emit('loadRNAComplete', false, '');
         return;
       }
+
       const levels = this.HPARNAlevelsHistory[this.svgName].levels;
-      $('#svg-wrapper .enz .shape').attr('fill', 'whitesmoke'); // init to NA
       for (const array of levels) {
         const enzID = array[0];
         let level = Math.log2(parseFloat(array[1].split(',')[index]) + 1);
         level = Math.round((level + 0.00001) * 100) / 100;
         this.enzymeRNAlevels[enzID] = level;
-        const classs = `#svg-wrapper .enz.${enzID} .shape`;
-        $(classs).attr('fill', getExpressionColor(level));
       }
+
+      const allEnzymes = $('#svg-wrapper .enz');
+      for (const oneEnz of allEnzymes) {
+        const ID = oneEnz.classList[1];
+        if (this.enzymeRNAlevels[ID] !== undefined) {
+          oneEnz.children[0].setAttribute('fill', getExpressionColor(this.enzymeRNAlevels[ID]));
+        } else {
+          oneEnz.children[0].setAttribute('fill', 'whitesmoke');
+        }
+      }
+
       // update cached selected elements
       for (const id of Object.keys(this.selectedItemHistory)) {
-        if (this.enzymeRNAlevels[id]) {
+        if (this.enzymeRNAlevels[id] !== undefined) {
           this.selectedItemHistory[id].rnaLvl = this.enzymeRNAlevels[id];
         }
       }
       EventBus.$emit('loadRNAComplete', true, '');
     },
-    searchComponentIDs(term) {
+    searchComponentIDs() {
       // get the correct IDs from the backend
       if (!this.searchTerm) {
         this.searchInputClass = 'is-warning';
         return;
       }
       this.isLoadingSearch = true;
-      axios.get(`${this.model.database_name}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${term}`)
+      axios.get(`${this.model.database_name}/search_map/${this.loadedMapType}/${this.loadedMap.name_id}/${this.searchTerm}`)
       .then((response) => {
         this.searchInputClass = 'is-success';
         this.idsFound = response.data;
@@ -357,6 +379,8 @@ export default {
       this.isLoadingSearch = false;
       if (zoomOn) {
         this.centerElementOnSVG(1);
+      } else {
+        this.$emit('loadComplete', true, '');
       }
     },
     centerElementOnSVG(increment) {
@@ -430,6 +454,10 @@ export default {
     },
     selectElement(element) {
       const [id, type] = this.getElementIdAndType(element);
+      if (type === 'subsystem' && this.loadedMapType === 'subsystem') {
+        return;
+      }
+
       if (this.selectElementID === id) {
         this.unSelectElement();
         return;
@@ -493,6 +521,7 @@ export default {
         },
       });
       this.$panzoom.panzoom('pan', -panX + ($('.svgbox').width() / 2), -panY + ($('.svgbox').height() / 2));
+      this.$emit('loadComplete', true, '');
     },
   },
 };
