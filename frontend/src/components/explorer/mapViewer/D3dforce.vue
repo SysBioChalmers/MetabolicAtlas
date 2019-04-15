@@ -105,7 +105,9 @@ export default {
         .warmupTicks(100)
         .cooldownTicks(0)
         .onEngineStop(() => {
-          this.$emit('loadComplete', true, '');
+          if (this.graph.graphData().nodes.length !== 0) {
+            this.$emit('loadComplete', true, '');
+          }
           this.networkHistory[this.loadedComponentName] = this.network;
         });
     },

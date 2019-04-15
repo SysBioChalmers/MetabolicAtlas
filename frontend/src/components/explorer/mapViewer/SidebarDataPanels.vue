@@ -19,7 +19,7 @@
       <div class="card">
         <header class="card-header" @click.prevent="showMapCardContent = !showMapCardContent">
           <p class="card-header-title is-capitalized is-inline">
-            {{ capitalize(mapType) }}:
+            {{ mapType }}:
             <i>{{ mapsData.compartments[mapName] ? mapsData.compartments[mapName].name : mapsData.subsystems[mapName] ? mapsData.subsystems[mapName].name : '' }}</i>
           </p>
         </header>

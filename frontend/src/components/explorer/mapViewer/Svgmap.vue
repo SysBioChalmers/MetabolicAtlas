@@ -129,8 +129,6 @@ export default {
         }
       } else if (type === 'find') {
         this.hlElements(name, ids);
-      } else if (!this.svgName || type === 'wholemap') {
-        this.loadSVG('wholemap', null);
       }
     });
 
@@ -270,12 +268,12 @@ export default {
               this.$emit('loadComplete', false, messages.mapNotFound);
             });
         }
-      } else if (callback) {
-        // if already loaded, just call the callback funtion
-        this.loadedMap = mapInfo;
-        callback();
       } else {
         this.loadedMap = mapInfo;
+        // if already loaded, just call the callback funtion
+        if (callback) {
+          callback();
+        }
         this.$emit('loadComplete', true, '');
       }
     },
