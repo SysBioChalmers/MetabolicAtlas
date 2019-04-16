@@ -216,7 +216,7 @@ $body-size: 14px !default
 $desktop: 1192px !default;
 $widescreen: 1384px !default;
 $fullhd: 1576px !default;
-
+$navbar-breakpoint: 1000px;
 
 @import '~bulma';
 
