@@ -165,7 +165,6 @@ export default {
     setup() {
       this.rId = this.$route.params.id;
       this.load();
-      this.getAvailableMaps();
     },
     load() {
       axios.get(`${this.model.database_name}/reaction/${this.rId}/`)

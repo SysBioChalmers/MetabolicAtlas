@@ -53,7 +53,6 @@ export default {
     });
 
     EventBus.$on('destroy3Dnetwork', () => {
-      // console.log('quit 3D network');
       if (this.graph) {
         // this.graph.resetProps();
         // this.graph.null;

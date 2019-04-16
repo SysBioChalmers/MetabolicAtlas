@@ -420,14 +420,12 @@ export default {
     };
   },
   beforeRouteEnter(to, from, next) {
-    console.log('beforeRouteEnter');
     next((vm) => {
       vm.validateSearch(to.query.term);
       next();
     });
   },
   beforeRouteUpdate(to, from, next) {
-    console.log('beforeRouteUpdate');
     this.validateSearch(to.query.term);
     next();
   },
@@ -660,23 +658,18 @@ export default {
       return this.showTabType === elementType;
     },
     validateSearch(term) {
-      console.log('got term ', term);
       this.searchTerm = term;
       this.showSearchCharAlert = false;
       this.searchResults = [];
       this.showTabType = '';
       this.searchResultsFiltered = {};
       if (this.searchTerm.length > 1) {
-        console.log('going to search term ', this.searchTerm);
         this.search();
       } else if (this.searchTerm.length === 1) {
-        console.log('short term ', this.searchTerm);
         this.showSearchCharAlert = true;
       }
-      console.log('end of validateSearch');
     },
     search() {
-      console.log('searching term ', this.searchTerm);
       this.loading = true;
       const url = `all/search/${this.searchTerm}`;
       axios.get(url)
