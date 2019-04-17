@@ -6,8 +6,9 @@
         <input id="search" class="input" type="text"
           v-model="searchTermString" @input="searchDebounce"
           placeholder="Search by metabolite (uracil), gene (SULT1A3), or reaction (ATP => cAMP + PPi) or subsystem"
-          v-on:keyup.esc="showResults = false"
-          v-on:focus="showResults = true"
+          @keyup.esc="showResults = false"
+          @focus="showResults = true"
+          @blur="showResults = false"
           ref="searchInput">
           <span class="has-text-info icon is-small is-right" v-show="showSearchCharAlert" style="width: 200px">
             Type at least 2 characters
@@ -19,10 +20,8 @@
         <router-link :to="{ name: 'search', query: { term: this.searchTermString } }">Global search</router-link>
       </div>
       <div id="searchResults" v-show="showResults && searchTermString.length > 1" ref="searchResults">
-        <div id="asn" class="notification is-large is-unselectable has-text-centered" v-show="searchResults.length !== 0 && !showLoader">
-          <router-link  v-if="model" :to="{ name: 'search', query: { term: this.searchTermString } }">
-            Limited to 50 results per type. Click to search all integrated GEMs
-          </router-link>
+        <div id="asn" class="notification is-large is-unselectable has-text-centered clickable" v-show="searchResults.length !== 0 && !showLoader" @mousedown.prevent="globalSearch">
+          Limited to 50 results per type. Click to search all integrated GEMs
         </div>
         <div class="resList" v-show="!showLoader">
           <div v-if="searchResults.length !== 0" class="searchGroupResultSection"
@@ -30,7 +29,7 @@
             <hr class="bhr" v-if="i1 != 0 && searchResults[k].length != 0 && (i1 != 0 && searchResults[resultsOrder[i1-1]].length != 0)">
             <div v-for="(r, i2) in searchResults[k]" class="searchResultSection">
               <hr class="is-marginless" v-if="i2 != 0">
-              <div class="clickable" @click="goToTab(k, r.id || r.name_id || r.name)">
+              <div class="clickable" @mousedown.prevent="goToTab(k, r.id || r.name_id || r.name)">
                  <b class="is-capitalized">{{ k }}: </b><label v-html="formatSearchResultLabel(k, r, searchTermString)"></label>
               </div>
             </div>
@@ -99,24 +98,7 @@ export default {
       },
     };
   },
-  created() {
-    // init the global events
-    EventBus.$off('hideSearchResult');
-
-    EventBus.$on('hideSearchResult', () => {
-      this.showResults = false;
-    });
-    document.addEventListener('click', () => {
-      EventBus.$emit('hideSearchResult');
-    });
-  },
   mounted() {
-    this.$refs.searchResults.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-    this.$refs.searchInput.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
     $('#search').focus();
   },
   methods: {
@@ -214,6 +196,9 @@ export default {
       this.searchTermString = '';
       this.searchResults = [];
       EventBus.$emit('GBnavigateTo', type, id);
+    },
+    globalSearch() {
+      this.$router.push({ name: 'search', query: { term: this.searchTermString } });
     },
     formatSearchResultLabel(type, element, searchTerm) {
       const re = new RegExp(`(${searchTerm})`, 'ig');

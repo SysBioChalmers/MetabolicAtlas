@@ -148,7 +148,6 @@ export default {
       for (const m of this.metabolites) {
         if ((!this.showFullMetabolite && i === this.displayedMetabolite) ||
           i === this.limitMetabolite) {
-          console.log('break');
           break;
         }
         i += 1;

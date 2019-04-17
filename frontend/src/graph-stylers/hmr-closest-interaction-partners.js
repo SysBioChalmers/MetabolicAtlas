@@ -6,12 +6,6 @@ export default function (
   const enzExpSource = nodeDisplayParams.enzymeExpSource;
   const enzExpType = nodeDisplayParams.enzymeExpType;
   const enzSample = nodeDisplayParams.enzymeExpSample;
-
-  // console.log(enzExpSource);
-  // console.log(enzExpType);
-  // console.log(enzSample);
-  // console.log(nodeDisplayParams.enzymeNodeColor.hex);
-
   for (const id of Object.keys(elms)) {
     const elm = elms[id];
     if (elm.type === 'enzyme') {

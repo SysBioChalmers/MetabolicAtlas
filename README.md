@@ -97,7 +97,6 @@ source postgres.env                               # to load the environment vari
 
 python manage.py makemigrations
 python manage.py migrate --database [database] e.g. 'hmr2' (see settings.py)
-python manage.py graph_models -a -o ER.png        # will generate a PNG overview of your tables (optional)
 python manage.py populateDB [database] [YAML file] [model label] [model PMID]
 # model label and model PMID are used to get information about the input model from the 'gems' database,
 # consequently the model must have been previously added by getMAModels.py or getGithubModels.py in the 'gems' database
@@ -107,9 +106,6 @@ python manage.py populateDB [database] [YAML file] [model label] [model PMID]
 python manage.py addAnnotations [database] 'all' # add content of annotations files found in annotation/hmr2/ in the database
 # this commande populate annotations data in tables: metabolite, enzyme, reaction and subsystem
 
-# no available yet
-# python manage.py addCurrencyMetabolites [database]   # define currency metabolites
-# python manage.py addNumberOfInteractionPartners [database]   # for each reaction_component calculate and store the number of interaction partners...
 ```
 
 (as adapted from `http://eli.thegreenplace.net/2014/02/15/programmatically-populating-a-django-database`)

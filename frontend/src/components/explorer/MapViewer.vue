@@ -382,7 +382,6 @@ export default {
         this.checkRoute();
       })
       .catch((error) => {
-        console.log(error);
         switch (error.response.status) {
           default:
             this.errorMessage = messages.unknownError;

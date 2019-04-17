@@ -92,13 +92,19 @@
                       </router-link>
                     </template>
                     <template v-else-if="props.column.field == 'subsystem'">
-                      <template v-for="(sub, i) in props.formattedRow[props.column.field]">
+                      <template v-if="props.formattedRow[props.column.field].length == 0">
+                        {{ "" }}
+                      </template>
+                      <template v-else v-for="(sub, i) in props.formattedRow[props.column.field]">
                         <template v-if="i != 0">; </template>
                         <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/subsystem/${idfy(sub)}` }"> {{ sub }}</router-link>
                       </template>
                     </template>
                     <template v-else-if="props.column.field == 'compartment'">
-                      <template v-if="['subsystem', 'enzyme'].includes(header)">
+                      <template v-if="props.formattedRow[props.column.field].length == 0">
+                        {{ "" }}
+                      </template>
+                      <template v-else v-if="['subsystem', 'enzyme'].includes(header)">
                         <template v-for="(comp, i) in props.formattedRow[props.column.field]">
                           <template v-if="i != 0">; </template>
                           <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(comp)}` }"> {{ comp }}</router-link>
@@ -420,14 +426,12 @@ export default {
     };
   },
   beforeRouteEnter(to, from, next) {
-    console.log('beforeRouteEnter');
     next((vm) => {
       vm.validateSearch(to.query.term);
       next();
     });
   },
   beforeRouteUpdate(to, from, next) {
-    console.log('beforeRouteUpdate');
     this.validateSearch(to.query.term);
     next();
   },
@@ -660,23 +664,18 @@ export default {
       return this.showTabType === elementType;
     },
     validateSearch(term) {
-      console.log('got term ', term);
       this.searchTerm = term;
       this.showSearchCharAlert = false;
       this.searchResults = [];
       this.showTabType = '';
       this.searchResultsFiltered = {};
       if (this.searchTerm.length > 1) {
-        console.log('going to search term ', this.searchTerm);
         this.search();
       } else if (this.searchTerm.length === 1) {
-        console.log('short term ', this.searchTerm);
         this.showSearchCharAlert = true;
       }
-      console.log('end of validateSearch');
     },
     search() {
-      console.log('searching term ', this.searchTerm);
       this.loading = true;
       const url = `all/search/${this.searchTerm}`;
       axios.get(url)

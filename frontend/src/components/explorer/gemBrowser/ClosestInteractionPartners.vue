@@ -496,7 +496,6 @@ export default {
         })
         .catch((error) => {
           this.loading = false;
-          // console.log(error);
           switch (error.response.status) {
             case 406:
               this.errorMessage = messages.tooManyInteractionPartner;
@@ -552,7 +551,6 @@ export default {
           }, 0);
         })
         .catch((error) => {
-          // console.log(error);
           this.loading = false;
           switch (error.response.status) {
             case 406:
@@ -854,7 +852,6 @@ export default {
     },
     applyLevels(componentType, expSource, expType, expSample) {
       setTimeout(() => {  // wait this.toggleEnzymeExpLevel
-        // console.log('Type Source, Type, Sample', componentType, expSource, expType, expSample);
         if (this.disableExpLvl) {
           return;
         }
