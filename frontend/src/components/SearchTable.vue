@@ -92,13 +92,19 @@
                       </router-link>
                     </template>
                     <template v-else-if="props.column.field == 'subsystem'">
-                      <template v-for="(sub, i) in props.formattedRow[props.column.field]">
+                      <template v-if="props.formattedRow[props.column.field].length == 0">
+                        {{ "" }}
+                      </template>
+                      <template v-else v-for="(sub, i) in props.formattedRow[props.column.field]">
                         <template v-if="i != 0">; </template>
                         <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/subsystem/${idfy(sub)}` }"> {{ sub }}</router-link>
                       </template>
                     </template>
                     <template v-else-if="props.column.field == 'compartment'">
-                      <template v-if="['subsystem', 'enzyme'].includes(header)">
+                      <template v-if="props.formattedRow[props.column.field].length == 0">
+                        {{ "" }}
+                      </template>
+                      <template v-else v-if="['subsystem', 'enzyme'].includes(header)">
                         <template v-for="(comp, i) in props.formattedRow[props.column.field]">
                           <template v-if="i != 0">; </template>
                           <router-link :to="{ path: `/explore/gem-browser/${props.row.model.id}/compartment/${idfy(comp)}` }"> {{ comp }}</router-link>
