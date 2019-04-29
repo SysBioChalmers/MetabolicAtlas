@@ -143,7 +143,7 @@ export default {
     return {
       errorMessage: '',
       selectedElementDataKeys: {
-        hmr2: {
+        human1: {
           metabolite: [
             { name: 'name' },
             { name: 'model_name', display: 'Model&nbsp;name' },

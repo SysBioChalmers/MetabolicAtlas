@@ -183,7 +183,7 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path, model
             GEM['reference'] = [{
                                 'title': dic['reference_title'], 
                                 'link': dic['reference_link'],
-                                'pubmed': dic['reference_pubmed'],
+                                'pmid': dic['reference_pubmed'],
                                 'year': dic['reference_year'],
                                 }]
         elif 'reference' in dic:
@@ -199,13 +199,13 @@ def build_ftp_path_and_dl(liste_dico_data, FTP_root, model_set, root_path, model
                     GEM['reference'].append({
                         'link': global_dict.pop(key_link),
                         'title': global_dict.pop(key_title),
-                        'pubmed': global_dict.pop(key_pubmed),
+                        'pmid': global_dict.pop(key_pubmed),
                         'year': global_dict.pop(key_year)})
                 elif key_link in dic:
                     GEM['reference'].append({
                         'link': dic[key_link],
                         'title': dic[key_title],
-                        'pubmed': dic[key_pubmed],
+                        'pmid': dic[key_pubmed],
                         'year': dic[key_year]})
 
         GEM['files'] = []
@@ -265,7 +265,7 @@ def parse_info_file(info_file):
             set_reference_data_list.append({
                 'link': global_dict.pop('reference_link'),
                 'title': global_dict.pop('reference_title'),
-                'pubmed': global_dict.pop('reference_pubmed'),
+                'pmid': global_dict.pop('reference_pubmed'),
                 'year': global_dict.pop('reference_year'),})
         else:
             for key_link, key_title, key_pubmed, key_year in [["reference_link%s" % k,
@@ -278,7 +278,7 @@ def parse_info_file(info_file):
                 set_reference_data_list.append({
                     'link': global_dict.pop(key_link),
                     'title': global_dict.pop(key_title),
-                    'pubmed': global_dict.pop(key_pubmed),
+                    'pmid': global_dict.pop(key_pubmed),
                     'year': global_dict.pop(key_year)})
 
         model_set_data['reference'] = set_reference_data_list

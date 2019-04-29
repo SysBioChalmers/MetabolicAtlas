@@ -10,7 +10,7 @@
         <div>
           <div class="columns has-text-centered">
             <div class="column">
-              <h4 v-if="model" class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model.short_name }}</i></h4>
+              <h4 v-if="model" class="is-size-4 has-text-weight-bold">Explore a model: <i>{{ model.short_name }} v{{ model.version }}</i></h4>
               <p class="has-text-weight-bold">
                 Select a model and start browsing or navigate on the maps
               </p>
@@ -91,7 +91,7 @@ export default {
         },
       ],
       model: null,
-      models: { hmr2: { short_name: '' }, hmr2n: { short_name: '' } },
+      models: {},
       extendWindow: false,
       currentShowComponent: '',
 
@@ -192,7 +192,7 @@ export default {
             models[model.database_name] = model;
           }
           this.models = models;
-          let defaultModel = this.models.hmr2; // // todo get the first key?
+          let defaultModel = this.models.human1 || this.models.hmr2 || this.models.yeast8;
           if (this.$route.params.model && this.$route.params.model in this.models) {
             defaultModel = this.models[this.$route.params.model];
           }
@@ -204,7 +204,7 @@ export default {
         });
     },
     getModelDescription(model) {
-      return `<div>${model.short_name} - ${model.name}<div>
+      return `<div>${model.short_name} v${model.version} - ${model.full_name}<div>
       <div class="has-text-grey">
         ${model.reaction_count} reactions -
         ${model.metabolite_count} metabolites -

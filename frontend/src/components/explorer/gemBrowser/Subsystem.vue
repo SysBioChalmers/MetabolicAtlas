@@ -116,7 +116,7 @@ export default {
       reactions: [],
       errorMessage: '',
       mainTableKey: {
-        hmr2: [
+        human1: [
           { name: 'name', display: 'Name' },
         ],
       },
