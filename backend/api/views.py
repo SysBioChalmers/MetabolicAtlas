@@ -48,7 +48,7 @@ def componentDBserializerSelector(database, type, serializer_type=None, api_vers
     if serializer_type not in serializer_choice:
         raise ValueError("Error serializer type, choices are %s" % ", ".join([str(e) for e in serializer_choice]))
 
-    if database in ['hmr2', 'hmr2n', 'hmr3']:
+    if database in ['hmr2', 'human1']:
         if type == 'reaction component':
             if serializer_type in ['lite', 'basic']:
                 return APIrcSerializer.ReactionComponentLiteSerializer

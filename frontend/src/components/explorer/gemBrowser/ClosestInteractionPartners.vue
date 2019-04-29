@@ -128,7 +128,7 @@
               </div>
             </div>
             <div class="column">
-              <div class="card " v-if="model.database_name === 'hmr2'">
+              <div class="card " v-if="model.database_name === 'human1'">
                 <header class="card-header">
                   <p class="card-header-title">
                     <label class="checkbox is-unselectable">
@@ -307,7 +307,7 @@ export default {
 
       cy: null,
       tableStructure: {
-        hmr2: [
+        human1: [
           { field: 'type', colName: 'Type' },
           { field: 'name', colName: 'Name' },
           { field: 'formula', colName: 'Formula', modifier: chemicalFormula },

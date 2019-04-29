@@ -93,7 +93,7 @@ export default {
       enzyme: {},
       enzymeName: '',
       mainTableKey: {
-        hmr2: [
+        human1: [
           { name: 'enzymeName', display: 'Gene&nbsp;name' },
           { name: 'prot_name', display: 'Protein&nbsp;name' },
           { name: 'gene_synonyms', display: 'Synonyms' },
@@ -109,7 +109,7 @@ export default {
         ],
       },
       externalIDTableKey: {
-        hmr2: [
+        human1: [
           { name: 'id', display: 'Ensembl', link: 'name_link' },
           { name: 'hpa_id', display: 'Protein Atlas', link: 'hpa_link' },
           { name: 'uniprot_id', display: 'Uniprot', link: 'uniprot_link' },

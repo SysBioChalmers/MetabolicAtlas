@@ -81,7 +81,7 @@ export default {
       messages,
 
       itemKeys: {
-        hmr2: {
+        human1: {
           enzyme: ['id', 'gene_name'],
           reaction: ['id', 'equation'],
           metabolite: ['id', 'name', 'compartment'],

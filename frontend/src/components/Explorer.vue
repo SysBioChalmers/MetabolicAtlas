@@ -192,7 +192,7 @@ export default {
             models[model.database_name] = model;
           }
           this.models = models;
-          let defaultModel = this.models.hmr2; // // todo get the first key?
+          let defaultModel = this.models.human1 || this.models.hmr2 || this.models.yeast8;
           if (this.$route.params.model && this.$route.params.model in this.models) {
             defaultModel = this.models[this.$route.params.model];
           }
