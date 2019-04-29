@@ -520,22 +520,23 @@ def get_compartment(request, model, compartment_name_id, api=True):
 
 
 #=========================================================================================================
-# For the Models database
+# For the integrated Models stored in separate database
 
 @api_view()
 def get_models(request):
     """
-    List all Genome-scale metabolic models (GEMs) that are available on the GemsExplorer,
+    List all Genome-scale metabolic models (GEMs) that are available on the GEM browser,
     """
     models = APImodels.GEM.objects.all()
-    serializer = APIserializer.GEMListSerializer(models, many=True)
+    serializer = APIserializer.GEMSerializer(models, many=True)
     return JSONResponse(serializer.data)
+
 
 
 @api_view()
 def get_model(request, model_id):
     """
-    Return all known information for a given model available on the GemsExplorer, supply its ID (int) or database_name e.g. 'hmr3'
+    Return all known information for a given model available on the GEM browser, supply its ID (int) or database_name e.g. 'human1'
     """
 
     try:
@@ -546,11 +547,11 @@ def get_model(request, model_id):
 
     try:
         if is_int:
-            model = APImodels.GEM.objects.get(id=model_id)
+            model = APImodels.GEM.objects.filter(id=model_id).select_related('sample').prefetch_related('authors', 'ref')
         else:
-            model = APImodels.GEM.objects.get(database_name__iexact=model_id)
+            model = APImodels.GEM.objects.filter(database_name__iexact=model_id).select_related('sample').prefetch_related('authors', 'ref')
     except APImodels.GEM.DoesNotExist:
         return HttpResponse(status=404)
 
-    serializer = APIserializer.GEMSerializer(model)
+    serializer = APIserializer.GEMSerializer(model[0])
     return JSONResponse(serializer.data)

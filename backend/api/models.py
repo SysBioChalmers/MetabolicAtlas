@@ -18,7 +18,7 @@ class ILike(Lookup):
 class GEModelReference(models.Model):
     title = models.TextField()
     link = models.TextField()
-    pubmed = models.CharField(max_length=20, unique=True, null=True)
+    pmid = models.CharField(max_length=20, unique=True, null=True)
     year = models.CharField(max_length=4)
 
     class Meta:
@@ -48,6 +48,9 @@ class GEModelSample(models.Model):
 
     unique_together = (('organism', 'organ_system', 'tissue', 'cell_type', 'cell_line'),)
 
+    def __str__(self):
+        return "<Sample: {0} {1} {2} {3} {4}>".format(self.organism, self.organ_system, self.tissue, self.cell_type, self.cell_line)
+
     class Meta:
         db_table = "gemodel_sample"
 
@@ -69,9 +72,9 @@ class GEModel(models.Model):
     reaction_count = models.IntegerField(default=0)
     metabolite_count = models.IntegerField(default=0)
     enzyme_count = models.IntegerField(default=0)
-    files = models.ManyToManyField(GEModelFile, related_name='gemodel_files')
+    files = models.ManyToManyField(GEModelFile, related_name='gemodel')
     maintained = models.BooleanField(default=False)
-    ref = models.ManyToManyField(GEModelReference, related_name='gemodels_refs', blank=True)
+    ref = models.ManyToManyField(GEModelReference, related_name='gemodel', blank=True)
     last_update = models.DateField(null=True)
     repo_name = models.CharField(max_length=200, null=True)
 
@@ -104,23 +107,22 @@ class Author(models.Model):
     class Meta:
         db_table = "author"
 
+# integrate models!
 class GEM(models.Model):
-    name = models.CharField(max_length=255, blank=False)
-    short_name = models.CharField(max_length=255, blank=False)
+    short_name = models.CharField(max_length=255, blank=False, unique=True)
+    full_name = models.CharField(max_length=255, null=True, unique=True)
+    description = models.TextField()
+    version = models.CharField(max_length=20)
     database_name = models.CharField(max_length=255, blank=False, unique=True)
-    publication =  models.OneToOneField( # only one main paper per model
-            'GEModelReference',
-            related_name='publication',
-            db_column='publication',
-            on_delete=models.SET_NULL, null=True)
-    ensembl_version = models.CharField(max_length=50, null=True)
-    ensembl_archive_url = models.CharField(max_length=50, null=True)
-    authors = models.ManyToManyField(Author, related_name='authors', through='GEMAuthor')
-    model = models.OneToOneField(
-            'GEModel',
-            related_name='model',
-            db_column='model',
-            on_delete=models.SET_NULL, null=True)
+    condition = models.CharField(max_length=200, null=True)
+    reaction_count = models.IntegerField(default=0)
+    metabolite_count = models.IntegerField(default=0)
+    enzyme_count = models.IntegerField(default=0)
+    date = models.DateField()
+    link = models.CharField(max_length=255, null=True)
+    ref = models.ManyToManyField(GEModelReference, related_name='gem', blank=True)
+    authors = models.ManyToManyField(Author, related_name='gem', through='GEMAuthor', blank=True)
+    sample = models.ForeignKey(GEModelSample, on_delete=models.CASCADE)
 
     def __str__(self):
         return "<GEM: {0} {1} {2}>".format(self.name, self.short_name, self.database_name)

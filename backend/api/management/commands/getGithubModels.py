@@ -15,8 +15,6 @@ import requests
 import json
 
 import base64
-
-
 import logging
 
 def check_PMID(PMID):
@@ -118,7 +116,7 @@ for repo in list_repo:
         reference = {
             'title': title,
             'link': 'https://www.ncbi.nlm.nih.gov/pubmed/%s' % PMID,
-            'pubmed': PMID,
+            'pmid': PMID,
             'year': year
         }
 
