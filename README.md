@@ -96,14 +96,9 @@ Then connect to the **backend container** and run:
 source postgres.env                               # to load the environment variables
 
 python manage.py makemigrations
-python manage.py migrate --database [database] e.g. 'hmr2' (see settings.py)
-python manage.py populateDB [database] [YAML file] [model label] [model PMID]
-# model label and model PMID are used to get information about the input model from the 'gems' database,
-# consequently the model must have been previously added by getMAModels.py or getGithubModels.py in the 'gems' database
-# in case of getGithubModels.py, the model repo should be available and public on the Chalmers Sysbio Github organization repos
-# note: [model label] [model PMID] might be extracted from the YAML in the future, this is a temporary solution
-
-python manage.py addAnnotations [database] 'all' # add content of annotations files found in annotation/hmr2/ in the database
+python manage.py migrate --database [database] e.g. 'human1' (see settings.py)
+python manage.py populateDB [database] [YAML file]
+python manage.py addAnnotations [database] 'all' # add content of annotations files found in annotation/human1/ in the database
 # this commande populate annotations data in tables: metabolite, enzyme, reaction and subsystem
 
 ```

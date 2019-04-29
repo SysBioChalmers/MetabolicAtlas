@@ -7,9 +7,149 @@ import sys
 
 from django.db import models
 from api.models import *
+from django.db.models import Q
+
+# import api.management.commands.repo_parser as github_model_parser TODO FIX
 
 import re
 import collections
+
+def insert_model_metadata(database, metadata, overwrite=False, content_only=False):
+    # YAML metadata expected structure:
+    # - metadata:
+    #     id         : "HumanGEM"
+    #     short_name : "human"
+    #     full_name  : "Human metabolic model v1"
+    #     description: "1-3 lines description"
+    #     version    : "1.0.0"
+    #     author:
+    #       - first_name  : "fn"
+    #         last_name   : "ln"
+    #         email       : "email"
+    #         organization: "org"
+    #       - first_name  : "fn2"
+    #         last_name   : "ln2"
+    #         email       : "email2"
+    #         organization: "org2"
+    #     date       : "YYYY-MM-DD"
+    #     sample     : "tissue, cell line, cell type, organ etc.."
+    #     condition  : "Generic metabolism"
+    #     pmid       : (optional)
+    #       - "PMID1"
+    #       - "PMID2"
+    #     link     : "https://github.com/SysBioChalmers/human-GEM"
+
+    # currently in the yaml
+    # - metaData:
+        # short_name  : "humanGEM"
+        # full_name   : "Generic genome-scale metabolic model of Homo sapiens"
+        # version     : "1.0.2"
+        # date        : "2019-04-19"
+        # authors     : "Jonathan Robinson, Hao Wang, Pierre-Etienne Cholley, Pınar Kocabaş"
+        # email       : "nielsenj@chalmers.se"
+        # organization: "Chalmers University of Technology"
+        # taxonomy    : "9606"
+        # github      : "https://github.com/SysBioChalmers/human-GEM"
+        # description : "Human genome-scale metabolic models are important tools for the study of human health and diseases, by providing a scaffold upon which different types of data can be analyzed. This is the latest version of human-GEM, which is a genome-scale model of the generic human cell. The objective of human-GEM is to serve as a community model for enabling integrative and mechanistic studies of human metabolism."
+
+    metadata_dict = metadata[1]
+
+    # check if the model already exists
+    try:
+        gem = GEM.objects.using('gems').get(Q(short_name=metadata_dict["short_name"]) | Q(database_name=database))
+        if content_only:
+            return gem
+
+        if not overwrite:
+            print("Error: model '%s' already in the database" % metadata_dict["short_name"])
+            exit(1)
+        # might trigger an delete error, TODO to fix
+        gem.delete()
+    except GEM.DoesNotExist:
+        if content_only:
+            print("Error: model '%s' is not in the database" % metadata_dict["short_name"])
+            exit(1)
+
+    #fix metadata dict
+    if database == "human1":
+        metadata_dict["organism"] = "Human"
+        metadata_dict["organ_system"] = None
+        metadata_dict["tissue"] = None
+        metadata_dict["cell_line"] = None
+        metadata_dict["cell_type"] = "Generic cell"
+        metadata_dict["condition"] = "Generic metabolism"
+        metadata_dict["link"] = "https://github.com/SysBioChalmers/human-GEM"
+        metadata_dict["pmid"] = []
+        metadata_dict["authors"] = []
+
+    # get the sample from the database or create a new one
+    try:
+        sample = GEModelSample.objects.using('gems').get(organism=metadata_dict["organism"],
+                                                      organ_system=metadata_dict["organ_system"],
+                                                      tissue=metadata_dict["tissue"],
+                                                      cell_line=metadata_dict["cell_line"],
+                                                      cell_type=metadata_dict["cell_type"])
+    except GEModelSample.DoesNotExist:
+        # create a new sample
+        sample = GEModelSample(organism=metadata_dict["organism"], 
+                      organ_system=metadata_dict["organ_system"],
+                      tissue=metadata_dict["tissue"],
+                      cell_type=metadata_dict["cell_type"],
+                      cell_line=metadata_dict["cell_line"])
+        sample.save(using="gems")
+        print("New sample created, %s" % sample)
+
+    # get the reference from the db or create new reference
+    ref_list = []
+    for pmid in metadata_dict["pmid"]:
+        try:
+            gr = GEModelReference.objects.get(pmid=pmid)
+        except GEModelReference.DoesNotExist:
+            res = github_model_parser.check_PMID(pmid)
+            if res:
+                DOI, PMID = res
+                title, year = github_model_parser.get_info_from_pmid(PMID)
+                gr = GEModelReference(title=title, link='https://www.ncbi.nlm.nih.gov/pubmed/%s' % PMID, pmid=PMID, year=year)
+                gr.save(using="gems")
+                print("New reference created, %s" % pmid)
+        ref_list.append(gr)
+
+    # insert the model
+    gem = GEM(short_name=metadata_dict["short_name"],
+                full_name=metadata_dict["full_name"],
+                description=metadata_dict["description"],
+                version=metadata_dict["version"],
+                database_name=database,
+                condition=metadata_dict["condition"],
+                date=metadata_dict["date"],
+                link=metadata_dict["link"],
+                sample=sample)
+    gem.save(using="gems")
+    gem.ref.add(*ref_list)
+
+    #insert authors
+    authors_list = []
+    for author in metadata_dict["authors"]:
+        try:
+            a = Author.objects.get(given_name=author["first_name"],
+                                   family_name=author["last_name"],
+                                   email=author["email"],
+                                   organization=author["organization"])
+        except Author.DoesNotExist:
+            a = Author(given_name=author["first_name"],
+                       family_name=author["last_name"],
+                       email=author["email"],
+                       organization=author["organization"])
+            a.save(using="gems")
+
+        try:
+            ga = GEMAuthor.objects.get(gem=gem, author=a)
+        except GEMAuthor.DoesNotExist:
+            ga = GEMAuthor(gem=gem, author=a)
+            ga.save(using="gems")
+
+    return gem
+
 
 # e.g. [('id', 'm00005c'), ('name', '(11R)-HPETE'), ('compartment', 'c'), ('formula', 'C20H32O4'), ('annotation', [('lipidmaps', 'LMFA03060071')])]
 # get only id, name and compartment
@@ -34,14 +174,14 @@ def make_rxn_dict(info):
     d['product'] = []
     try:
         for key, value in info:
-            if key in ['id', 'metabolites', 'gene_reaction_rule', 'lower_bound', 'upper_bound', 'subsystem']:
+            if key in ['id', 'metabolites', 'metabolite', 'gene_reaction_rule', 'lower_bound', 'upper_bound', 'subsystem']:
                 if  key == 'subsystem':
                     if not isinstance(value, list):
                         # yeast have multiple subsystem, subsystem in hmr are one, string type
                         d[key] = [value]
                     else:
                         d[key] = value
-                elif key == 'metabolites':
+                elif key == 'metabolites' or key == 'metabolite':
                     for id, stoichiometry in value:
                         if isinstance(stoichiometry, str):
                             stoichiometry = float(stoichiometry)
@@ -173,13 +313,19 @@ def insert_compartment_stats(database):
     read YAML model files and insert the strict minimum information
     Annotations should be added in a separate script
 """
-def load_YAML(database, yaml_file, delete=False):
+def load_YAML(database, yaml_file, overwrite=False, metadata_only=False, content_only=False):
     with open(yaml_file, 'r') as fh:
         print ('Reading YAML file...')
         model_list = yaml.load(fh.read())
-        metabolites, reactions, genes, compartments = model_list
+        metadata, metabolites, reactions, genes, compartments = model_list
 
-    if delete:
+    # counts must be updated so we need the gem object
+    gem = insert_model_metadata(database, metadata, overwrite=overwrite, content_only=content_only)
+
+    if metadata_only:
+        return
+
+    if overwrite:
         Compartment.objects.using(database).all().delete()
 
     print("Inserting compartments...")
@@ -193,11 +339,12 @@ def load_YAML(database, yaml_file, delete=False):
             compartment=compartment[0]
         compartment_dict[letter_code] = compartment
 
-    if delete:
+    if overwrite:
         ReactionComponent.objects.using(database).all().delete()
 
     print("Inserting metabolites (rc)...")
     rc_dict = {} # store reaction component pour connectivity tables (reaction/reactant, rc/subsystem, rc /compartment)
+    unique_metabolite = set()
     for el in metabolites[1]:
         dict_metabolite = make_meta_dict(el)
         rc = ReactionComponent.objects.using(database).filter(id__iexact=dict_metabolite['id'])
@@ -217,8 +364,12 @@ def load_YAML(database, yaml_file, delete=False):
                 met.save(using=database)
         else:
             rc = rc[0]
+        unique_metabolite.add(dict_metabolite['name'])
 
         rc_dict[dict_metabolite['id']] = rc
+
+    # update metabolite count
+    GEM.objects.filter(id=gem.id).update(metabolite_count=len(unique_metabolite))
 
     print("Inserting enzymes (rc)...")
     for el in genes[1]:
@@ -233,7 +384,10 @@ def load_YAML(database, yaml_file, delete=False):
             rc = rc[0]
         rc_dict[id_value] = rc
 
-    if delete:
+    # update enzyme count
+    GEM.objects.filter(id=gem.id).update(enzyme_count=len(genes[1]))
+
+    if overwrite:
         Reaction.objects.using(database).all().delete()
         Subsystem.objects.using(database).all().delete()
 
@@ -411,6 +565,9 @@ def load_YAML(database, yaml_file, delete=False):
                     except SubsystemCompartment.DoesNotExist:
                         sc = SubsystemCompartment(subsystem=ss, compartment=compt)
                         sc.save(using=database)
+
+    # update reaction count
+    GEM.objects.filter(id=gem.id).update(reaction_count=len(reactions[1]))
 
     print("Inserting subsystem stats...")
     insert_subsystem_stats(database)
