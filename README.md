@@ -80,15 +80,15 @@ Connect to the db container and once inside run psql
 psql -U postgres
 ```
 
-Create databases using psql (in the docker container), example for hmr2:
+Create databases using psql (in the docker container), example for human1:
 
 ```bash
-CREATE DATABASE "hmr2" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
+CREATE DATABASE "human1" WITH OWNER 'postgres' ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0;
 ```
 
 To disconnect all sessions open on a database use:
 ```bash
-SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'hmr2' AND pid <> pg_backend_pid();
+SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'human1' AND pid <> pg_backend_pid();
 ```
 
 Then connect to the **backend container** and run:
@@ -112,14 +112,14 @@ python manage.py addMapsInformation [database] [map type] [map directory] [map m
 # with [map type] 'compartment' or 'subsystem', [map directory] the folder where to with the svg files
 # and [map metadata file] a TSV file that describes svg file and link each file to a compartment/subsystem of the model
 ```
-see the example file [hmr2_compartmentSVG.tsv](/backend/database_generation/example/hmr2_compartmentSVG.tsv)
+see the example file [human1_compartmentSVG.tsv](/backend/database_generation/example/human1_compartmentSVG.tsv)
 
 
 ### Dump databases
 
 Integrated model databases:
 ```bash
-docker exec -it db  pg_dump -U postgres -d hmr2 --create -T 'auth_*' -T 'django_*' > hmr2.db
+docker exec -it db  pg_dump -U postgres -d human1 --create -T 'auth_*' -T 'django_*' > human1.db
 ```
 Once imported the database cannot be migrated anymore with django, thus should only be used for production. To create a woking version of the db remove "--create -T 'auth_*' -T 'django_*'"
 
@@ -131,7 +131,7 @@ docker exec -it db pg_dump -U postgres -d gems --create -T 'auth_*' -T 'django_*
 ### Import databases
 
 ```bash
-docker exec -it db psql -U postgres hmr2 < PATH_TO_DB_FILE
+docker exec -it db psql -U postgres human1 < PATH_TO_DB_FILE
 docker exec -it db psql -U postgres gems < PATH_TO_DB_FILE
 ```
 
