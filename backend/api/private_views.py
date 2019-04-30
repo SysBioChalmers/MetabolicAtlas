@@ -821,9 +821,18 @@ def search(request, model, term):
         models = [model]
         limit = 50
 
+    # iterate on GEMs (databases might be empty)
+    filtered_models = []
     for model_db_name in models:
-        m = APImodels.GEM.objects.get(database_name=model_db_name)
-        models_dict[model_db_name] = m.short_name
+        print (model_db_name)
+        try:
+            m = APImodels.GEM.objects.get(database_name=model_db_name)
+            models_dict[model_db_name] = m.short_name
+            filtered_models.append(model_db_name)
+        except APImodels.GEM.DoesNotExist:
+            pass
+    models = filtered_models
+
 
     match_found = False
     for model in models:
