@@ -19,7 +19,7 @@
     "cytoscape": "3.2.9",
     "cytoscape-cola": "2.3.0",
     "file-saver": "^2.0.2",
-    "jquery": "3.3.1",
+    "jquery": "3.5.0",
     "jquery-mousewheel": "3.1.13",
     "jquery.panzoom": "3.2.2",
     "vue": "^2.6.10",
