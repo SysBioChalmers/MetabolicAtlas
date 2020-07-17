@@ -1,7 +1,14 @@
 # To make sure docker-compose is in the path
 export PATH=$PATH:/usr/local/bin
 
+function generate-data {
+  echo 'Data generation started.'
+  sh -ac ' . ./.env; yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH'
+  echo 'Data generation completed.'
+}
+
 function build-stack {
+  generate-data
   docker-compose -f docker-compose.yml -f docker-compose-$MET_ATLAS_VERSION.yml build $@
 }
 
@@ -26,21 +33,10 @@ function logs {
   docker-compose -f docker-compose.yml -f docker-compose-$MET_ATLAS_VERSION.yml logs -f $@
 }
 
-function db-import {
-  docker exec -i db psql -U postgres < $1
-}
-
-function db-make-migrations {
-  docker exec backend python manage.py makemigrations api
-}
-
-function db-migrate {
-  docker exec backend python manage.py migrate --database=$@
-}
-
 function deploy-stack {
-  sh -ac ' . ./.env; cp -r $NEO4J_IMPORT_DATA_PATH ./neo4j/import'
-  docker-compose -f docker-compose.yml -f docker-compose-prod.yml --context met-prod up -d --build
+  generate-data
+  sh -ac ' . ./.env; cp -r $DATA_GENERATOR_PATH/data ./neo4j/import'
+  docker-compose -f docker-compose.yml -f docker-compose-prod.yml --context $1 up -d --build
 }
 
 echo -e "Available commands:
@@ -48,11 +44,8 @@ echo -e "Available commands:
 \tstart-stack
 \tstop-stack
 \tclean-stack
-\tdeploy-stack [options for prod instance only]
-\tlogs [container]
-\tdb-import [database]
-\tdb-make-migrations
-\tdb-migrate [database]"
+\tdeploy-stack <CONTEXT> [options for prod instance only]
+\tlogs [container]"
 
 if [ "$1" != 'production' ] ; then
   export MET_ATLAS_VERSION=local
