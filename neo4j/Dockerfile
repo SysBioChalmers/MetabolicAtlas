@@ -6,5 +6,4 @@ ARG NEO4J_PASSWORD
 COPY ./import /var/lib/neo4j/import
 COPY ./import.sh /
 RUN chmod +x /import.sh
-EXPOSE 7687
 RUN /import.sh

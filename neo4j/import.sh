@@ -18,6 +18,7 @@ done
 
 # Import data
 cat /var/lib/neo4j/import/import.cypher | cypher-shell -u $NEO4J_USERNAME -p $NEO4J_PASSWORD --format plain
+echo Data import complete.
 
 # Stop server
 neo4j stop
