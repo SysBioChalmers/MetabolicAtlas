@@ -36,3 +36,8 @@ The frontend should be available at: `http://localhost/`. If you encounter any p
 * To import a database: `db-import [database-file.db]`
 * To create new migration files: `db-make-migrations`
 * To run a database migration: `db-migrate [database]`
+
+
+### Licenses
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMetabolicAtlas%2FMetabolicAtlas.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMetabolicAtlas%2FMetabolicAtlas?ref=badge_large)
