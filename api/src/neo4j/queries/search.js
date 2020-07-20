@@ -1,5 +1,4 @@
 import queryListResult from 'neo4j/queryHandlers/list';
-import runStatement from 'neo4j/queryHandlers/run';
 
 const componentTypes = [
   "CompartmentalizedMetabolite",
@@ -364,32 +363,8 @@ LIMIT ${limit}
   };
 };
 
-const initializeSearchIndex = async () => {
-  const SEARCH_INDEX_NAME = 'fulltext';
-
-  const indexNames = await queryListResult(`
-CALL apoc.cypher.run(
-  "CALL db.indexes", {}
-) yield value
-RETURN value.name as name
-`);
-
-  if (indexNames.indexOf(SEARCH_INDEX_NAME) === -1) {
-    const statement = `
-CALL db.index.fulltext.createNodeIndex(
- 	"${SEARCH_INDEX_NAME}",
- 	["CompartmentState", "Compartment", "MetaboliteState", "Metabolite", "CompartmentalizedMetabolite", "SubsystemState", "Subsystem", "ReactionState", "Reaction", "GeneState", "Gene", "PubMedReference"],
- 	["id", "name", "letterCode", "alternateName", "synonyms", "description", "formula", "function", "pubMedID"]
- )
- `;
-     await runStatement(statement);
-     console.log('Fulltext search index is created');
-  }
-};
-
 
 export {
-  initializeSearchIndex,
   modelSearch,
   globalSearch
 };

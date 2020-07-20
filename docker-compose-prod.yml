@@ -18,18 +18,9 @@ services:
 
   neo4j:
     restart: unless-stopped
-    container_name: neo4j
-    build: ./neo4j
-    command: neo4j
-    ports:
-      - "7687:7687"
 
   api:
     restart: unless-stopped
-    container_name: api
-    build:
-      context: ./api
-      dockerfile: ./Dockerfile.prod
     environment:
       - NODE_ENV=production
     command: yarn start

@@ -11,11 +11,19 @@ services:
     environment:
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4JLABS_PLUGINS=["apoc"] 
+    build:
+      context: ./neo4j
+      dockerfile: ./Dockerfile
+      args:
+        NEO4J_USERNAME: ${NEO4J_USERNAME}
+        NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+    command: neo4j
     networks:
       - db-network
 
   api:
     container_name: api
+    build: ./api
     environment:
       - NEO4J_USERNAME=${NEO4J_USERNAME}
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}

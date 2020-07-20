@@ -1,5 +1,6 @@
 FROM node:lts-alpine
 
-WORKDIR /project/
+WORKDIR /project
 COPY . .
+
 RUN yarn
