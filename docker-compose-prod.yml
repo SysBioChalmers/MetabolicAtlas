@@ -21,9 +21,6 @@ services:
 
   api:
     restart: unless-stopped
-    build:
-      context: ./api
-      dockerfile: ./Dockerfile.prod
     environment:
       - NODE_ENV=production
     command: yarn start
