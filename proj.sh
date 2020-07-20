@@ -4,6 +4,7 @@ export PATH=$PATH:/usr/local/bin
 function generate-data {
   echo 'Data generation started.'
   sh -ac ' . ./.env; yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH'
+  sh -ac ' . ./.env; cp -r $DATA_GENERATOR_PATH/data ./neo4j/import'
   echo 'Data generation completed.'
 }
 
@@ -35,7 +36,6 @@ function logs {
 
 function deploy-stack {
   generate-data
-  sh -ac ' . ./.env; cp -r $DATA_GENERATOR_PATH/data ./neo4j/import'
   docker-compose -f docker-compose.yml -f docker-compose-prod.yml --context $1 up -d --build
 }
 
