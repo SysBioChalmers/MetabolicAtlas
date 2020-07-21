@@ -9,7 +9,7 @@ const routes = express.Router();
 const options = {
   customSiteTitle: 'Metabolic Atlas API',
   customCss,
-  customJs: 'static/helper.js',
+  customJs: 'public/helper.js',
 };
 
 routes.use('', swaggerUi.serve);

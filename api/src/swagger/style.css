@@ -8,7 +8,7 @@
 }
 
 .swagger-ui .topbar a img {
-  content: url('/api/v2/static/logo.png');
+  content: url('/api/v2/public/logo.png');
 }
 
 .auth-wrapper {
