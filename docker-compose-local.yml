@@ -23,7 +23,6 @@ services:
       - "127.0.0.1:81:81"
 
   api:
-    env_file: .env
     environment:
       - NODE_ENV=develop
     volumes:
@@ -37,6 +36,7 @@ services:
       - NEO4J_apoc_import_file_use__neo4j__config=true
     volumes:
       - ./neo4j/plugins:/plugins
+      - ./ne4oj/import:/var/lib/neo4j/import
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"

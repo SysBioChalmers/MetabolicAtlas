@@ -3,8 +3,7 @@ export PATH=$PATH:/usr/local/bin
 
 function generate-data {
   echo 'Data generation started.'
-  sh -ac ' . ./.env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH && cp -r $DATA_GENERATOR_PATH/data/ ./neo4j/import'
-  echo 'Data generation completed.'
+  sh -ac ' . ./.env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH "$@" && cp -r $DATA_GENERATOR_PATH/data/ ./neo4j/import'
 }
 
 function build-stack {
@@ -35,10 +34,20 @@ function deploy-stack {
   docker-compose -f docker-compose.yml -f docker-compose-prod.yml --context $1 up -d --build
 }
 
+function import-db {
+  generate-data --drop-indexes
+  source .env
+  docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain 'MATCH (n) DETACH DELETE n;'"
+  docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain 'CALL apoc.schema.assert({},{},true) YIELD label, key RETURN *;'"
+  docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain 'CALL  db.index.fulltext.drop(\"fulltext\");'"
+  docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain --file import/import.cypher"
+}
+
 echo -e "Available commands:
 \tbuild-stack
 \tstart-stack
 \tstop-stack
 \tclean-stack
 \tdeploy-stack <CONTEXT>
+\timport-db
 \tlogs [container]"

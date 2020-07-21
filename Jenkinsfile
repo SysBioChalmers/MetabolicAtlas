@@ -38,7 +38,7 @@ pipeline {
     stage('Clean up') {
       steps {
         sh '''
-          docker rmi $(docker images -q) --force || true
+          docker system prune -af
         '''
         echo 'Deleted old Docker images and containers. We are live!'
       }

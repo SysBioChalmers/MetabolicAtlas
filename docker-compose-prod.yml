@@ -17,7 +17,6 @@ services:
       - letsencrypt:/etc/letsencrypt
 
   api:
-    env_file: production.env
     restart: unless-stopped
     environment:
       - NODE_ENV=production
