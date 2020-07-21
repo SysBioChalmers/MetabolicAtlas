@@ -1,10 +1,12 @@
-FROM neo4j:4.1.0
+FROM neo4j:4.1.1 as neo4jdbdump
 
 ARG NEO4J_USERNAME
 ARG NEO4J_PASSWORD
 
-COPY ./import /var/lib/neo4j/import
-COPY ./create-search-index.cypher /var/lib/neo4j/import
-COPY ./import.sh /
-RUN chmod +x /import.sh
-RUN /import.sh
+COPY import ./import
+RUN ./import/import.sh
+
+
+FROM neo4j:4.1.1
+
+COPY --from=neo4jdbdump /db.dump /db.dump

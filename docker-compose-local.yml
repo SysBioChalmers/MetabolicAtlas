@@ -2,18 +2,11 @@ version: '3.7'
 
 services:
   nginx:
-    build:
-      context: nginx
-      dockerfile: Dockerfile
-    depends_on:
-      - api
-      - frontend
+    build: nginx
     ports:
       - "127.0.0.1:80:80"
     volumes:
       - ./nginx/svgs:/svgs
-    networks:
-      - frontend-network
 
   frontend:
     container_name: frontend
@@ -25,9 +18,17 @@ services:
       - ./frontend/src:/project/src
       - ./frontend/public:/project/public
     networks:
-      - frontend-network
+      - nginx-network
     ports:
       - "127.0.0.1:81:81"
+
+  api:
+    env_file: .env
+    environment:
+      - NODE_ENV=develop
+    volumes:
+      - ./api/src:/project/src
+    command: yarn develop
 
   neo4j:
     environment:
@@ -39,14 +40,3 @@ services:
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
-
-  api:
-    environment:
-      - NODE_ENV=develop
-    volumes:
-      - ./api/src:/project/src
-    command: yarn develop
-
-networks:
-  frontend-network:
-    driver: bridge
