@@ -35,11 +35,8 @@ function deploy-stack {
 }
 
 function import-db {
-  generate-data --drop-indexes
+  generate-data --reset-db
   source .env
-  docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain 'MATCH (n) DETACH DELETE n;'"
-  docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain 'CALL apoc.schema.assert({},{},true) YIELD label, key RETURN *;'"
-  docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain 'CALL  db.index.fulltext.drop(\"fulltext\");'"
   docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain --file import/import.cypher"
 }
 
