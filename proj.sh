@@ -4,7 +4,7 @@ export PATH=$PATH:/usr/local/bin
 function generate-data {
   echo 'Data generation started.'
   sh -ac ' . ./.env; yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH'
-  sh -ac ' . ./.env; cp -r $DATA_GENERATOR_PATH/data ./neo4j/import'
+  sh -ac ' . ./.env; cp -r $DATA_GENERATOR_PATH/data/ ./neo4j/import'
   echo 'Data generation completed.'
 }
 
