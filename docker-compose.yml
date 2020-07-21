@@ -23,16 +23,12 @@ services:
     environment:
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4JLABS_PLUGINS=["apoc"]
-    env_file: .env
     build:
       context: neo4j
       dockerfile: Dockerfile
       args:
         NEO4J_USERNAME: ${NEO4J_USERNAME}
         NEO4J_PASSWORD: ${NEO4J_PASSWORD}
-    command:
-      - neo4j-admin load --from=/db.dump --force
-      - neo4j console
     networks:
       - db-network
 

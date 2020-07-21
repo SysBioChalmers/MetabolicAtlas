@@ -1,12 +1,9 @@
-FROM neo4j:4.1.1 as neo4jdbdump
+FROM neo4j:4.1.1
 
 ARG NEO4J_USERNAME
 ARG NEO4J_PASSWORD
 
+RUN rm -r /var/lib/neo4j/data
 COPY import ./import
-RUN ./import/import.sh
-
-
-FROM neo4j:4.1.1
-
-COPY --from=neo4jdbdump /db.dump /db.dump
+COPY import.sh .
+RUN ./import.sh

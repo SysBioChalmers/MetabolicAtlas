@@ -24,7 +24,6 @@ services:
     command: yarn start
 
   neo4j:
-    env_file: production.env
     restart: unless-stopped
 
 volumes:

@@ -20,5 +20,3 @@ cypher-shell -u $NEO4J_USERNAME -p $NEO4J_PASSWORD --format plain --file import/
 
 # Stop server
 neo4j stop
-
-neo4j-admin dump --database=neo4j --to=/db.dump
