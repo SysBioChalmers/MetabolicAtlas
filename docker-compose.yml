@@ -30,7 +30,9 @@ services:
       args:
         NEO4J_USERNAME: ${NEO4J_USERNAME}
         NEO4J_PASSWORD: ${NEO4J_PASSWORD}
-    command: /bin/sh -c "neo4j-admin load --from=/db.dump --force && neo4j console"
+    command:
+      - neo4j-admin load --from=/db.dump --force
+      - neo4j console
     networks:
       - db-network
 
