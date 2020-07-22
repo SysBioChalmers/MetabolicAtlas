@@ -8,7 +8,7 @@ function bindClickEvent() {
   const el = document.querySelector('.topbar img');
 
   if (el) {
-    onclick = () => {
+    el.onclick = () => {
       location.href = '/';
     };
     eventBound = true;
