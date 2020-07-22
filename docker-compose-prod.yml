@@ -16,15 +16,15 @@ services:
     volumes:
       - letsencrypt:/etc/letsencrypt
 
-  neo4j:
-    restart: unless-stopped
-
   api:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
     command: yarn start
 
+  neo4j:
+    restart: unless-stopped
+
 volumes:
-    letsencrypt:
+  letsencrypt:
 

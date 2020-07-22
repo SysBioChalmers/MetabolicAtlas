@@ -2,18 +2,13 @@ version: '3.7'
 
 services:
   nginx:
-    build:
-      context: nginx
-      dockerfile: Dockerfile
+    build: nginx
     depends_on:
-      - api
       - frontend
     ports:
       - "127.0.0.1:80:80"
     volumes:
       - ./nginx/svgs:/svgs
-    networks:
-      - frontend-network
 
   frontend:
     container_name: frontend
@@ -25,7 +20,7 @@ services:
       - ./frontend/src:/project/src
       - ./frontend/public:/project/public
     networks:
-      - frontend-network
+      - nginx-network
     ports:
       - "127.0.0.1:81:81"
 
@@ -36,6 +31,7 @@ services:
       - NEO4J_apoc_import_file_use__neo4j__config=true
     volumes:
       - ./neo4j/plugins:/plugins
+      - ./ne4oj/import:/var/lib/neo4j/import
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"

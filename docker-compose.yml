@@ -3,32 +3,33 @@ version: '3.7'
 services:
   nginx:
     container_name: nginx
+    depends_on:
+      - api
     networks:
       - nginx-network
+
+  api:
+    container_name: api
+    build: api
+    env_file: .env
+    depends_on: 
+      - neo4j
+    networks:
+      - nginx-network
+      - db-network
 
   neo4j:
     container_name: neo4j
     environment:
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
-      - NEO4JLABS_PLUGINS=["apoc"] 
+      - NEO4JLABS_PLUGINS=["apoc"]
     build:
-      context: ./neo4j
-      dockerfile: ./Dockerfile
+      context: neo4j
+      dockerfile: Dockerfile
       args:
         NEO4J_USERNAME: ${NEO4J_USERNAME}
         NEO4J_PASSWORD: ${NEO4J_PASSWORD}
-    command: neo4j
     networks:
-      - db-network
-
-  api:
-    container_name: api
-    build: ./api
-    environment:
-      - NEO4J_USERNAME=${NEO4J_USERNAME}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-    networks:
-      - nginx-network
       - db-network
 
 networks:
