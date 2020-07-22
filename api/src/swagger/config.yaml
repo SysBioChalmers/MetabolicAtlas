@@ -9,7 +9,6 @@ info:
   license:
     name: "GPL version 3"
     url: "https://www.gnu.org/licenses/gpl-3.0.html"
-host: "localhost"
 basePath: "/api/v2"
 tags:
 - name: "model"
@@ -18,9 +17,6 @@ tags:
 - name: "metabolite"
 - name: "reaction"
 - name: "subsystem"
-schemes:
-  - "https"
-  - "http"
 paths:
   /repository/integrated_models:
     get:
