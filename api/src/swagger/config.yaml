@@ -1,0 +1,51 @@
+swagger: "2.0"
+info:
+  description: "Metabolite Atlas can be accessed programmatically using this web API. Here we provide endpoints to get global information on the list of models integrated in Metabolic Atlas and to retrieve bulk or details information on those models. The API is still under developpment and might change without notice.\n\nUse model.short_name attribute (e.g. \"Yeast-GEM\", \"Human-GEM\") or model.database attribute as model parameter."
+  version: "2.0"
+  title: "Metabolic Atlas API"
+  termsOfService: "https://metabolicatlas.org/about"
+  contact:
+    email: "contact@metabolicatlas.org"
+  license:
+    name: "GPL version 3"
+    url: "https://www.gnu.org/licenses/gpl-3.0.html"
+basePath: "/api/v2"
+tags:
+- name: "model"
+- name: "compartment"
+- name: "gene"
+- name: "metabolite"
+- name: "reaction"
+- name: "subsystem"
+paths:
+  /repository/integrated_models:
+    get:
+      tags:
+      - "model"
+      summary: "List all Genome-scale metabolic models (GEMs) that are available on the GEM browser."
+      description: "List all Genome-scale metabolic models (GEMs) that are available on the GEM browser."
+      operationId: "integratedModels"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+  /repository/integrated_models/{name}:
+    get:
+      tags:
+      - "model"
+      summary: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM’."
+      description: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM’."
+      operationId: "modelInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"

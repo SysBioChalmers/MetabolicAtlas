@@ -14,6 +14,7 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, "dist"),
+    publicPath: path.resolve(__dirname, "public"),
     filename: "bundle.js",
   },
 
@@ -41,6 +42,19 @@ module.exports = {
             },
           },
         ],
+      },
+      {
+        test: /\.css/,
+        use: ['css-loader'],
+      },
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: ['file-loader'],
+      },
+      {
+        test: /\.ya?ml$/,
+        type: 'json', // Required by Webpack v4
+        use: 'yaml-loader'
       },
     ],
   },
