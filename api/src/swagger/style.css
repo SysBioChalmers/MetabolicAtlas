@@ -11,10 +11,6 @@
   content: url('/api/v2/public/logo.png');
 }
 
-.auth-wrapper {
-  display: none !important;
-}
-
 #footer {
   padding-bottom: 0.5em;
   padding-top: 0.5em;
