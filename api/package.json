@@ -28,5 +28,8 @@
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.0",
     "yaml-loader": "^0.6.0"
+  },
+  "resolutions": {
+    "swagger-ui-dist": "3.30.0"
   }
 }
