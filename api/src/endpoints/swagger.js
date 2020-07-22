@@ -11,6 +11,9 @@ const options = {
   customJs: 'public/helper.js',
 };
 
+routes.get('/favicon*', function (req, res) {
+  res.redirect('public' + req.url);
+});
 routes.use('', swaggerUi.serve);
 routes.get('', swaggerUi.setup(config, options));
 

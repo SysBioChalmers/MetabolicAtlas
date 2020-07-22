@@ -7,7 +7,11 @@
   cursor: pointer;
 }
 
-.swagger-ui .topbar a img {
+.swagger-ui .topbar-wrapper img[alt="Swagger UI"], .topbar-wrapper span {
+  visibility: collapse;
+}
+
+.swagger-ui .topbar-wrapper .link:before {
   content: url('/api/v2/public/logo.png');
 }
 

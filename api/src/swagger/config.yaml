@@ -20,6 +20,7 @@ tags:
 - name: "subsystem"
 schemes:
   - "https"
+  - "http"
 paths:
   /repository/integrated_models:
     get:
