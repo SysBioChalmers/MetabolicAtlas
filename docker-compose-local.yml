@@ -24,13 +24,6 @@ services:
     ports:
       - "127.0.0.1:81:81"
 
-  api:
-    environment:
-      - NODE_ENV=develop
-    volumes:
-      - ./api/src:/project/src
-    command: yarn develop
-
   neo4j:
     environment:
       - NEO4J_apoc_export_file_enabled=true
@@ -42,3 +35,15 @@ services:
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
+
+  api:
+    environment:
+      - NODE_ENV=develop
+    volumes:
+      - ./api/src:/project/src
+      - ./api/public:/project/public
+    command: yarn develop
+
+networks:
+  frontend-network:
+    driver: bridge

@@ -48,7 +48,7 @@
           <a :href="`/api/v2/${model.database_name}/compartment/${cName}/`"
              target="_blank">complete list in JSON format</a>
           of reactions / metabolites / genes is available using our
-          <a href="/api/" target="_blank">API</a></p>
+          <a href="/api/v2" target="_blank">API</a></p>
       </div>
       <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
         <maps-available :id="cName" :type="type" :element-i-d="''" />

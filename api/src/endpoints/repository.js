@@ -12,6 +12,21 @@ routes.get('/integrated_models', async (req, res) => {
   }
 });
 
+routes.get('/integrated_models/:name', async (req, res) => {
+  const { name } = req.params;
+
+  try {
+    const gem = integratedGemsRepoJson.filter(g => g.short_name.toLowerCase() === name.toLowerCase())[0];
+    if (!!gem) {
+      res.json(gem);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
 routes.get('/models', async (req, res) => {
   try {
     res.json(gemsRepoJson);
