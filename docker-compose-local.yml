@@ -14,7 +14,7 @@ services:
     container_name: frontend
     depends_on:
       - api
-    build: ./frontend
+    build: frontend
     command: npm run serve
     volumes:
       - ./frontend/src:/project/src
@@ -43,7 +43,3 @@ services:
       - ./api/src:/project/src
       - ./api/public:/project/public
     command: yarn develop
-
-networks:
-  frontend-network:
-    driver: bridge
