@@ -10,8 +10,7 @@
       </div>
       <p v-if="relatedMetCount" class="control field">
         <button class="button" @click="toggleExpandAllCompartment">
-          {{ !expandAllCompartment ?
-            "See reactions with from all compartments" : "Restrict to current compartment" }}
+          {{ !expandAllCompartment ? "See reactions from all compartments" : "Restrict to current compartment" }}
         </button>
       </p>
       <div class="field columns">
