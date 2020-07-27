@@ -42,10 +42,11 @@ const actions = {
     const _getters = args.getters; // eslint-disable-line no-underscore-dangle
 
     const payload = { id, version: model.apiVersion, model: model.apiName };
-    const expansion = await interactionPartnersApi.fetchInteractionPartners(payload);
+    let expansion = await interactionPartnersApi.fetchInteractionPartners(payload);
+    expansion = formatInteractionPartners(expansion);
 
     commit('setTooLargeNetworkGraph', !expansion.reactions);
-    commit('setExpansion', formatInteractionPartners(expansion));
+    commit('setExpansion', expansion);
 
     const newReactions = expansion.reactions.filter(r => !_getters.reactionsSet.has(r.id));
     const updatedInteractionPartners = {
