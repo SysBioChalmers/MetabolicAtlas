@@ -7,7 +7,8 @@ const data = {
 
 const actions = {
   async getMetaboliteData({ commit }, { model, id }) {
-    const metabolite = await metabolitesApi.fetchMetaboliteData({ id, model, version: '1_3_0' });
+    const payload = { id, model: model.apiName, version: model.apiVersion };
+    const metabolite = await metabolitesApi.fetchMetaboliteData(payload);
     commit('setMetabolite', metabolite);
 
     commit('maps/setAvailableMaps', {
@@ -22,7 +23,8 @@ const actions = {
     }, { root: true });
   },
   async getRelatedMetabolites({ commit }, { model, id }) {
-    const metabolites = await metabolitesApi.fetchRelatedMetabolites({ id, model, version: '1_3_0' });
+    const payload = { id, model: model.apiName, version: model.apiVersion };
+    const metabolites = await metabolitesApi.fetchRelatedMetabolites(payload);
     commit('setRelatedMetabolites', metabolites);
   },
   clearRelatedMetabolites({ commit }) {

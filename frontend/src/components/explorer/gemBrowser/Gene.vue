@@ -118,7 +118,7 @@ export default {
       this.showLoaderMessage = 'Loading gene data';
       this.geneId = this.$route.params.id;
       try {
-        const payload = { model: this.model.database_name, id: this.geneId };
+        const payload = { model: this.model, id: this.geneId };
         await this.$store.dispatch('genes/getGeneData', payload);
         this.componentNotFound = false;
         this.showLoaderMessage = '';

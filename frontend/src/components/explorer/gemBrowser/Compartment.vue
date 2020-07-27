@@ -121,7 +121,7 @@ export default {
       this.showLoaderMessage = 'Loading compartment data';
       this.cName = this.$route.params.id;
       try {
-        const payload = { model: this.model.database_name, id: this.cName };
+        const payload = { model: this.model, id: this.cName };
         await this.$store.dispatch('compartments/getCompartmentSummary', payload);
         this.componentNotFound = false;
         this.showLoaderMessage = '';

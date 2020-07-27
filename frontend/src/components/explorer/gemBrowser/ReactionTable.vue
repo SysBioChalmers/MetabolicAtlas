@@ -181,7 +181,7 @@ export default {
       this.$store.dispatch('reactions/clearRelatedReactions');
       try {
         const payload = {
-          model: this.model.database_name,
+          model: this.model,
           id: this.sourceName,
           allCompartments: this.expandAllCompartment,
         };
