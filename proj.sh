@@ -3,7 +3,7 @@ export PATH=$PATH:/usr/local/bin
 
 function generate-data {
   echo 'Data generation started.'
-  sh -ac ' . ./.env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH "$@" && cp -r $DATA_GENERATOR_PATH/data/ ./neo4j/import'
+  source .env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH "$@" && cp -r $DATA_GENERATOR_PATH/data/ ./neo4j/import
 }
 
 function build-stack {
@@ -36,7 +36,6 @@ function deploy-stack {
 
 function import-db {
   generate-data --reset-db
-  source .env
   docker exec -it neo4j bash -c "cypher-shell -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} --format plain --file import/import.cypher"
 }
 
