@@ -1,6 +1,6 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 
-const getCompartment = async ({ id, version }) => {
+const getCompartment = async ({ id, version, full }) => {
   const v = version;
   const statement = `
 CALL apoc.cypher.run("
@@ -15,17 +15,17 @@ CALL apoc.cypher.run("
   UNION
   
   MATCH (:Compartment {id: '${id}'})-[:V${v}]-(:CompartmentalizedMetabolite)-[:V${v}]-(r:Reaction)
-  RETURN { reactionsCount: COUNT(DISTINCT(r)) } as data
+  RETURN { reactionsCount: COUNT(DISTINCT(r)) ${ full ? ', reactions: COLLECT(DISTINCT(r.id))' : ''}} as data
   
   UNION
   
   MATCH (:Compartment {id: '${id}'})-[:V${v}]-(cm:CompartmentalizedMetabolite)
-  RETURN { metabolitesCount: COUNT(DISTINCT(cm)) } as data
+  RETURN { metabolitesCount: COUNT(DISTINCT(cm)) ${ full ? ', metabolites: COLLECT(DISTINCT(cm.id))' : ''}} as data
   
   UNION
   
   MATCH (:Compartment {id: '${id}'})-[:V${v}]-(:CompartmentalizedMetabolite)-[:V${v}]-(:Reaction)-[:V${v}]-(g:Gene)
-  RETURN { genesCount: COUNT(DISTINCT(g)) } as data
+  RETURN { genesCount: COUNT(DISTINCT(g)) ${ full ? ', genes: COLLECT(DISTINCT(g.id))' : ''}} as data
   
   UNION
   
