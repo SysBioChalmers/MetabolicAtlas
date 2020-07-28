@@ -46,7 +46,14 @@ RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
 )) } as data
 `;
 
-  return queryListResult(statement);
+  const result = await queryListResult(statement);
+
+  const mapListing = {
+    compartments: result.filter(o => !!o.compartment).reduce((l, o) => [...l, o.compartment] , []),
+    subsystems: result.filter(o => !!o.subsystem).reduce((l, o) => [...l, o.subsystem] , []),
+  };
+
+  return mapListing;
 };
 
 export default getMapsListing;
