@@ -10,8 +10,6 @@ const getters = {
     const modifiedModel = {
       ...model,
       email: model.authors[0].email,
-      apiName: model.short_name.split('-').map(s => s[0] + s.slice(1).toLowerCase()).join(''),
-      apiVersion: model.version.split('.').join('_'),
     };
     return {
       ...models,
