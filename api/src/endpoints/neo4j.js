@@ -15,6 +15,7 @@ import {
   modelSearch,
   globalSearch,
   getInteractionPartners,
+  getMapsListing,
 } from 'neo4j/index';
 
 const neo4jRoutes = express.Router();
@@ -49,6 +50,8 @@ neo4jRoutes.get('/:version/subsystems/:id/related-reactions', async (req, res) =
 
 neo4jRoutes.get('/:version/random-components', async (req, res) => fetchWith(req, res, getRandomComponents));
 neo4jRoutes.get('/:version/interaction-partners/:id', async (req, res) => fetchWith(req, res, getInteractionPartners));
+
+neo4jRoutes.get('/:version/maps/listing', async (req, res) => fetchWith(req, res, getMapsListing));
 
 neo4jRoutes.get('/:version/search', async (req, res) => {
   const { version } = req.params;
