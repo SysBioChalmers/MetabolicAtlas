@@ -25,6 +25,8 @@ services:
   neo4j:
     restart: unless-stopped
 
+  ftp:
+    restart: unless-stopped
+
 volumes:
   letsencrypt:
-

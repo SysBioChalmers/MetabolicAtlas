@@ -59,28 +59,10 @@ GitHub.sublime-settings
 .env
 *.env
 
-# migration files
-backend/api/migrations/*py
-backend/database_generation/**/*.yml
-backend/database_generation/**/*.yaml
-backend/database_generation/**/*.tsv
-!backend/database_generation/example/*.tsv
-backend/database_generation/**/*.gz
-backend/database_generation/**/output/*
-backend/database_generation/**/jsonMaps/*
-backend/model_files/
-backend/svgs/
-*.db
 static/
 
-utils/annotation/**/backup/*
-utils/annotation/**/*tsv
-!utils/annotation/**/test/*tsv
-utils/svg/input/*
-utils/svg/output/*
 *.pyc
 node_modules/
-utils/mockData/**/*csv
 
 # Log files
 yarn-debug.log*
@@ -102,3 +84,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# GEM repository - FTP
+ftp-models/

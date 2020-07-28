@@ -43,3 +43,7 @@ services:
       - ./api/src:/project/src
       - ./api/public:/project/public
     command: yarn develop
+
+  ftp:
+    environment: 
+      - ADDED_FLAGS=-d -d

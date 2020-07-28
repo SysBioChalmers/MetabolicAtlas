@@ -204,12 +204,12 @@
           The <i>Comparison</i> page provides statistics about the comparison/overlap between Human1 and HMR2, and Recond3D.
 
           <h5 id="FTP-download" class="is-size-5">FTP download</h5>
-          Genome-Scale Metabolic model files can be downloaded from <a href="https://ftp.metabolicatlas.org">ftp.metabolicatlas.org</a> or by connecting to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>).
+          Genome-Scale Metabolic model files can be downloaded from <a :href="`ftp://${ftpUsername}:${ftpPassword}@${ftpUrl}/`">metabolicatlas.org</a> or by connecting to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>).
 
           <br>
-          <span class="has-text-weight-bold lab">Host:</span> <a href="https://ftp.metabolicatlas.org"> ftp.metabolicatlas.org</a><br>
-          <span class="has-text-weight-bold lab">Login:</span> (leave empty)<br>
-          <span class="has-text-weight-bold lab">Password:</span> (leave empty)<br>
+          <span class="has-text-weight-bold lab">Host:</span> <a :href="`ftp://${ftpUsername}:${ftpPassword}@${ftpUrl}/`"> metabolicatlas.org</a><br>
+          <span class="has-text-weight-bold lab">Login:</span> {{ ftpUsername }}<br>
+          <span class="has-text-weight-bold lab">Password:</span> {{ ftpPassword }}<br>
           <span class="has-text-weight-bold lab">Port:</span> 21
 
           <hr>
@@ -237,6 +237,9 @@ export default {
   data() {
     return {
       multipleColors,
+      ftpUsername: process.env.VUE_APP_FTP_USER_NAME,
+      ftpPassword: process.env.VUE_APP_FTP_USER_NAME,
+      ftpUrl: process.env.VUE_APP_FTP_SERVER,
     };
   },
 };

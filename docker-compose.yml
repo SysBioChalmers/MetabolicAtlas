@@ -25,12 +25,26 @@ services:
       - NEO4JLABS_PLUGINS=["apoc"]
     build:
       context: neo4j
-      dockerfile: Dockerfile
       args:
         NEO4J_USERNAME: ${NEO4J_USERNAME}
         NEO4J_PASSWORD: ${NEO4J_PASSWORD}
     networks:
       - db-network
+
+  ftp:
+    container_name: ftp
+    build:
+      context: ftp
+      args:
+        FTP_USER_HOME: ${FTP_USER_HOME}
+    environment: 
+      - PUBLICHOST=${SERVER_NAME}
+      - FTP_USER_NAME=${FTP_USER_NAME}
+      - FTP_USER_PASS=${FTP_USER_PASS}
+      - FTP_USER_HOME=${FTP_USER_HOME}
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
 
 networks:
   db-network:

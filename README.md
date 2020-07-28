@@ -13,9 +13,9 @@ Docker, along with docker-compose, is used to manage the dependencies of this pr
 
 Add a `.env` file based on the `.env.sample` file:
 ```bash
-cp .env.sample .env
+cp .env.sample ./frontend/.env
 ```
-and modify the `.env` file. To load the list of helper commands:
+and modify this `./frontend/.env` file. To load the list of helper commands:
 ```bash
 source proj.sh
 ```
@@ -33,10 +33,7 @@ The frontend should be available at: `http://localhost/`. If you encounter any p
 * To run the project: `start-stack`
 * To display real-time logs: `logs [container-name: frontend/backend/nginx/db]`
 * To stop the project: `stop-stack`
-* To import a database: `db-import [database-file.db]`
-* To create new migration files: `db-make-migrations`
-* To run a database migration: `db-migrate [database]`
-
+* To import a database: `import-db`
 
 ### Licenses
 

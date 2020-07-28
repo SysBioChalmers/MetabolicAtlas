@@ -262,7 +262,7 @@ export default {
         ofLabel: 'of',
       },
       messages,
-      filesURL: 'https://ftp.metabolicatlas.org/', // TODO change ME
+      filesURL: `ftp://${process.env.VUE_APP_FTP_USER_NAME}:${process.env.VUE_APP_FTP_USER_PASS}@${process.env.VUE_APP_FTP_SERVER}/`,
     };
   },
   computed: {
