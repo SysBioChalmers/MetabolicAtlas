@@ -11,7 +11,7 @@
           </div>
           The Metabolic Atlas project is headed by <a href="https://www.sysbio.se/labs/nielsen" target="_new">Professor Jens Nielsen</a>, <a href="https://www.sysbio.se">Division of Systems and Synthetic Biology</a>, Department of Biology and Biological Engineering at the <a href="https://www.chalmers.se" target="_new">Chalmers University of Technology</a>. The platform is developed by members of <a href="https://www.chalmers.se/en/researchinfrastructure/csb/Pages/default.aspx">Computational Systems Biology Infrastructure</a> at Chalmers University of Technology and <a href="https://nbis.se" target="blank">National Bioinformatics Infrastructure Sweden</a>.<br><br>
 
-          Metabolic Atlas is a freely available resource containing detailed information about a set of open-source  Genome-Scale Metabolic Models (GEMs), specifically <router-link :to="{ name: 'explorerRoot', params: {model: 'human1'} }">Human-GEM</router-link> and <router-link :to="{ name: 'explorerRoot', params: {model: 'yeast8'} }">Yeast-GEM</router-link>. These are two reference models containing all possible reactions that could occur in human, and yeast, respectively.<br><br>
+          Metabolic Atlas is a freely available resource containing detailed information about a set of open-source  Genome-Scale Metabolic Models (GEMs), specifically <router-link :to="{ name: 'explorerRoot', params: {model: 'human-gem'} }">Human-GEM</router-link> and <router-link :to="{ name: 'explorerRoot', params: {model: 'yeast8'} }">Yeast-GEM</router-link>. These are two reference models containing all possible reactions that could occur in human, and yeast, respectively.<br><br>
 
           The research focus of the content of this website is <b>metabolism in a systems biology context</b>. The goal is to collect many curated GEMs, and to bring these models closer to <a href="https://en.wikipedia.org/wiki/FAIR_data" target="_new">FAIR principles</a>. To this end, the website also provides visualisations and comparisons of the GEMs, and links to <a href="resources">resources</a>: algorithms, other databases, and more general software applications (like RAVEN and PIANO).<br><br>
 
@@ -120,20 +120,20 @@ export default {
           { date: '1 August 2019',
             text: '<b>Metabolic Atlas v1.3</b> loads much faster. Across the website <i>enzyme</i> has been renamed to <i>gene</i>, and the <i>Global search</i> gives results in order, downloadable in TSV format. Among the minor tweaks are: notice on 404 page,  <i>Interaction partners</i> layout and <i>API</i> layout. More details can be found <a href="https://github.com/SysBioChalmers/MetabolicAtlas/releases/tag/v1.3" target="_blank">on GitHub</a>.' },
           { date: '25 June 2019',
-            text: '<b>Metabolic Atlas v1.2</b> adds more interaction on the 3D <i>Map Viewer</i>, and improves the <i>GEM Comparison</i> tables. It also contains several bug fixes. More details can be found in <a href="https://github.com/SysBioChalmers/MetabolicAtlas/releases/tag/v1.2" target="_blank">on GitHub</a>. Moreover, <i>Human1</i> was updated to v1.1.' },
+            text: '<b>Metabolic Atlas v1.2</b> adds more interaction on the 3D <i>Map Viewer</i>, and improves the <i>GEM Comparison</i> tables. It also contains several bug fixes. More details can be found in <a href="https://github.com/SysBioChalmers/MetabolicAtlas/releases/tag/v1.2" target="_blank">on GitHub</a>. Moreover, <i>Human-GEM</i> was updated to v1.1.' },
           { date: '29 May 2019',
             text: '<b>Metabolic Atlas v1.1</b> has minor UI improvements, mainly around documentation, resources, <i>Interaction Partners</i> and <i>Map Viewe</i>, alongside deployment improvements with a focus on reducing downtime. More details can be found <a href="https://github.com/SysBioChalmers/MetabolicAtlas/releases/tag/v1.1" target="_blank">on GitHub</a>.' },
           { date: '17 May 2019',
             text: '<b>Metabolic Atlas v1.0</b> is publicly available. We have finalized two main tools, the <i>GEM Browser</i> (including <i>Interaction Partners</i>) and <i>Map Viewer</i>. Additionally, Metabolic Atlas is hosting GEMs in a repository. More details can be found in <a href="https://github.com/SysBioChalmers/MetabolicAtlas/releases/tag/v1.0" target="_blank">on GitHub</a>.',
             icon: 'flag' },
           { date: '2 May 2019',
-            text: '<i>Human1</i> is integrated, with complete compartment maps, and a significant number of the subsystem maps.' },
+            text: '<i>Human-GEM</i> is integrated, with complete compartment maps, and a significant number of the subsystem maps.' },
         ],
         2018: [
           { date: 'December 2018',
-            text: 'New manually curated maps for <i>Human1</i> are being created, and the MapViewer is faster when browsing these maps.' },
+            text: 'New manually curated maps for <i>Human-GEM</i> are being created, and the MapViewer is faster when browsing these maps.' },
           { date: 'November 2018',
-            text: 'Draft models of <i>Human1</i> and <i>Yeast8</i> have been integrated on the 23rd and 28th respectively.' },
+            text: 'Draft models of <i>Human-GEM</i> and <i>Yeast-GEM</i> have been integrated on the 23rd and 28th respectively.' },
           { date: 'September 2018',
             text: 'Development on Metabolic Atlas is coordinated by <a href="https://nbis.se/about/staff/mihail-anton" target="_blank">Mihail Anton</a> from <a href="https://nbis.se" target="blank">NBIS</a> in close collaboration with  <a href="https://www.sysbio.se">SysBio</a>, headed by <a href="https://www.sysbio.se/labs/nielsen" target="_new">Prof. Nielsen</a>.',
             icon: 'thumb-tack' },
