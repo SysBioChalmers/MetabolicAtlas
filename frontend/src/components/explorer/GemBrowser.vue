@@ -150,6 +150,7 @@ export default {
         } else if (this.selectedType === 'interaction') {
           this.$router.replace(`/explore/interaction/${this.model.database_name}/${this.componentID}`);
         } else {
+          this.$store.dispatch('reactions/clearRelatedReactions');
           this.selectedType = this.$route.params.type;
         }
         this.showTiles = this.tileComponents !== null;

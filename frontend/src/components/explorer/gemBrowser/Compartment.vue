@@ -45,7 +45,7 @@
           </table>
         </div>
         <p>The
-          <a :href="`/api/v2/${model.database_name}/compartment/${cName}/`"
+          <a :href="`/api/v2/${model.apiVersion}/compartments/${cName}?full=true`"
              target="_blank">complete list in JSON format</a>
           of reactions / metabolites / genes is available using our
           <a href="/api/v2" target="_blank">API</a></p>
@@ -121,7 +121,7 @@ export default {
       this.showLoaderMessage = 'Loading compartment data';
       this.cName = this.$route.params.id;
       try {
-        const payload = { model: this.model.database_name, id: this.cName };
+        const payload = { model: this.model, id: this.cName };
         await this.$store.dispatch('compartments/getCompartmentSummary', payload);
         this.componentNotFound = false;
         this.showLoaderMessage = '';

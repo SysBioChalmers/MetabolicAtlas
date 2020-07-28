@@ -21,10 +21,10 @@ const neo4jRoutes = express.Router();
 
 const fetchWith = async (req, res, getter) => {
   const { id, version } = req.params;
-  const { limit, model } = req.query;
+  const { limit, model, full } = req.query;
 
   try {
-    const result = await getter({ id, version, limit, model });
+    const result = await getter({ id, version, limit, model, full });
     res.json(result);
   } catch (e) {
     res.status(400).send(e);

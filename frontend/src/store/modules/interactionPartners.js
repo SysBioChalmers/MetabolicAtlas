@@ -30,7 +30,8 @@ const formatInteractionPartners = ips => ({
 
 const actions = {
   async getInteractionPartners({ commit }, { model, id }) {
-    const interactionPartners = await interactionPartnersApi.fetchInteractionPartners({ id, version: '1_3_0', model: 'HumanGem' });
+    const payload = { id, version: model.apiVersion, model: model.apiName };
+    const interactionPartners = await interactionPartnersApi.fetchInteractionPartners(payload);
 
     commit('setTooLargeNetworkGraph', !interactionPartners.reactions);
     commit('setInteractionPartners', formatInteractionPartners(interactionPartners));
@@ -40,10 +41,12 @@ const actions = {
     const { state, commit } = args;
     const _getters = args.getters; // eslint-disable-line no-underscore-dangle
 
-    const expansion = await interactionPartnersApi.fetchInteractionPartners({ id, version: '1_3_0', model: 'HumanGem' });
+    const payload = { id, version: model.apiVersion, model: model.apiName };
+    let expansion = await interactionPartnersApi.fetchInteractionPartners(payload);
+    expansion = formatInteractionPartners(expansion);
 
     commit('setTooLargeNetworkGraph', !expansion.reactions);
-    commit('setExpansion', formatInteractionPartners(expansion));
+    commit('setExpansion', expansion);
 
     const newReactions = expansion.reactions.filter(r => !_getters.reactionsSet.has(r.id));
     const updatedInteractionPartners = {

@@ -139,7 +139,7 @@ export default {
 
       try {
         const payload = {
-          model: this.model.database_name,
+          model: this.model,
           metabolitesAndGenesOnly: this.metabolitesAndGenesOnly,
         };
         await this.$store.dispatch('search/search', payload);

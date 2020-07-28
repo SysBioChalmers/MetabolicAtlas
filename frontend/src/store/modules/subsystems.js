@@ -14,7 +14,8 @@ const getters = {
 
 const actions = {
   async getSubsystemSummary({ commit }, { model, id }) {
-    const subsystemSummary = await subsystemsApi.fetchSubsystemSummary({ id, model, version: '1_3_0' });
+    const payload = { id, model: model.apiName, version: model.apiVersion };
+    const subsystemSummary = await subsystemsApi.fetchSubsystemSummary(payload);
     commit('setSubsystemSummary', subsystemSummary);
 
     commit('maps/setAvailableMaps', {

@@ -11,7 +11,8 @@ const getters = {
 
 const actions = {
   async getCompartmentSummary({ commit }, { model, id }) {
-    const compartmentSummary = await compartmentsApi.fetchCompartmentSummary({ id, model, version: '1_3_0' });
+    const payload = { id, model: model.apiName, version: model.apiVersion };
+    const compartmentSummary = await compartmentsApi.fetchCompartmentSummary(payload);
     commit('setCompartmentSummary', compartmentSummary);
 
     commit('maps/setAvailableMaps', {

@@ -6,7 +6,13 @@ const routes = express.Router();
 
 routes.get('/integrated_models', async (req, res) => {
   try {
-    res.json(integratedGemsRepoJson);
+    const models = integratedGemsRepoJson.map(model => ({
+      ...model,
+      apiName: model.short_name.split('-').map(s => s[0] + s.slice(1).toLowerCase()).join(''),
+      apiVersion: model.version.split('.').join('_'),
+    }));
+
+    res.json(models);
   } catch (e) {
     res.status(400).send(e);
   }
