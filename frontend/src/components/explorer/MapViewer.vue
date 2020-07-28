@@ -25,8 +25,6 @@
                         :class="{'has-text-warning': cKey === currentDisplayedName }"
                         @click="showMap(mapsData3D.compartments[cKey].id, 'compartment', '3d')">
                       {{ mapsData3D.compartments[cKey].name }}
-                      {{ mapsData3D.compartments[cKey].reaction_count != 0 ?
-                        `(${mapsData3D.compartments[cKey].reaction_count})` : '' }}
                     </li>
                   </div>
                   <div v-else>
@@ -36,8 +34,6 @@
                                   'has-text-warning': cKey === currentDisplayedName }"
                         @click="showMap(mapsData2D.compartments[cKey].id, 'compartment', '2d')">
                       {{ mapsData2D.compartments[cKey].name }}
-                      {{ mapsData2D.compartments[cKey].reaction_count != 0 ?
-                        `(${mapsData2D.compartments[cKey].reaction_count})` : '' }}
                     </li>
                   </div>
                 </ul>
@@ -52,8 +48,6 @@
                         :class="{'has-text-warning': sKey === currentDisplayedName }"
                         @click="showMap(mapsData3D.subsystems[sKey].id, 'subsystem', '3d')">
                       {{ mapsData3D.subsystems[sKey].name }}
-                      {{ mapsData3D.subsystems[sKey].reaction_count != 0 ?
-                        `(${mapsData3D.subsystems[sKey].reaction_count})` : '' }}
                     </li>
                   </div>
                   <div v-else>
@@ -63,8 +57,6 @@
                         <li class="clickable" :class="{'has-text-warning': sKey === currentDisplayedName }"
                             @click="showMap(mapsData2D.subsystems[sKey].id, 'subsystem', '2d')">
                           {{ mapsData2D.subsystems[sKey].name }}
-                          {{ mapsData2D.subsystems[sKey].reaction_count != 0 ?
-                            `(${mapsData2D.subsystems[sKey].reaction_count})` : '' }}
                         </li>
                       </template>
                       <template v-else>
@@ -384,7 +376,7 @@ export default {
     },
     async getSubComptData(model) {
       try {
-        await this.$store.dispatch('maps/getMapsListing', model.database_name);
+        await this.$store.dispatch('maps/getMapsListing', model);
 
         if (!this.has2DCompartmentMaps && !this.has2DSubsystemMaps) {
           this.$store.dispatch('maps/setShow2D', false);
