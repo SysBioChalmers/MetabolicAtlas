@@ -104,7 +104,7 @@
               <template v-else-if="item.name === 'equation'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <p><span class="has-text-weight-bold" v-html="capitalize(item.display || item.name) + ':'"></span><br>
-                  <span v-html="chemicalReaction(selectionData.data[item.name], selectionData.data['is_reversible'])">
+                  <span v-html="chemicalReaction(selectionData.data[item.name], selectionData.data.reversible)">
                   </span></p>
               </template>
               <template v-else-if="item.name === 'formula'">

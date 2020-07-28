@@ -114,7 +114,7 @@
                     {{ props.formattedRow[props.column.field].name }}
                   </template>
                   <template v-else-if="props.column.field === 'equation'">
-                    <span v-html="reformatEqSign(props.formattedRow[props.column.field], false)"></span>
+                    <span v-html="reformatEqSign(props.formattedRow[props.column.field], props.row.reversible)"></span>
                   </template>
                   <template v-else-if="props.column.field === 'formula'">
                     <span v-html="chemicalFormula(props.row[props.column.field], props.row.charge)"></span>
