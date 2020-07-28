@@ -111,7 +111,8 @@ const actions = {
 
   async mapSearch({ commit }, { model, searchTerm }) {
     commit('setSearchTerm', searchTerm);
-    const idsFound = await mapsApi.mapSearch(model, searchTerm);
+    const payload = { model: model.apiName, version: model.apiVersion, searchTerm };
+    const idsFound = await mapsApi.mapSearch(payload);
     commit('setIdsFound', idsFound);
   },
 

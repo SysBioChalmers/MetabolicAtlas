@@ -1,3 +1,4 @@
+import querySingleResult from 'neo4j/queryHandlers/single';
 import queryListResult from 'neo4j/queryHandlers/list';
 
 const getMapsListing = async ({ model, version }) => {
@@ -56,4 +57,19 @@ RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
   return mapListing;
 };
 
-export default getMapsListing;
+const mapSearch = async ({ model, version, searchTerm }) => {
+  const statement = `
+CALL db.index.fulltext.queryNodes("fulltext", "${searchTerm}~")
+YIELD node
+OPTIONAL MATCH (node)-[:V${version}]-(parentNode:${model})
+WHERE node:${model} OR parentNode:${model}
+RETURN [n in COLLECT(DISTINCT(
+	CASE
+		WHEN EXISTS(node.id) THEN node.id
+		ELSE parentNode.id
+	END
+))[..100] WHERE n IS NOT NULL]`;
+
+  return querySingleResult(statement);
+};
+export { getMapsListing, mapSearch };

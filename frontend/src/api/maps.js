@@ -49,8 +49,8 @@ const fetchSvgMap = async (mapUrl, model, svgName) => {
   return data;
 };
 
-const mapSearch = async (model, searchTerm) => {
-  const { data } = await axios({ url: `${model}/get_id/${searchTerm}`, baseURL });
+const mapSearch = async ({ model, version, searchTerm }) => {
+  const { data } = await axios.get(`${version}/maps/search?model=${model}&searchTerm=${searchTerm}`);
   return data;
 };
 

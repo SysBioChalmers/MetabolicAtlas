@@ -16,16 +16,17 @@ import {
   globalSearch,
   getInteractionPartners,
   getMapsListing,
+  mapSearch,
 } from 'neo4j/index';
 
 const neo4jRoutes = express.Router();
 
 const fetchWith = async (req, res, getter) => {
   const { id, version } = req.params;
-  const { limit, model, full } = req.query;
+  const { limit, model, full, searchTerm } = req.query;
 
   try {
-    const result = await getter({ id, version, limit, model, full });
+    const result = await getter({ id, version, limit, model, full, searchTerm });
     res.json(result);
   } catch (e) {
     res.status(400).send(e);
@@ -52,6 +53,7 @@ neo4jRoutes.get('/:version/random-components', async (req, res) => fetchWith(req
 neo4jRoutes.get('/:version/interaction-partners/:id', async (req, res) => fetchWith(req, res, getInteractionPartners));
 
 neo4jRoutes.get('/:version/maps/listing', async (req, res) => fetchWith(req, res, getMapsListing));
+neo4jRoutes.get('/:version/maps/search', async (req, res) => fetchWith(req, res, mapSearch));
 
 neo4jRoutes.get('/:version/search', async (req, res) => {
   const { version } = req.params;
