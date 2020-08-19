@@ -11,13 +11,13 @@ WITH g.id as gid, rand() as r
 ORDER BY r LIMIT 2
 CALL apoc.cypher.run("
   MATCH (gs:GeneState)-[:V${v}]-(:Gene {id: $gid})-[:V${v}]-(re:Reaction)
-  RETURN { id: $gid, name: gs.name, reactionsCount: COUNT(DISTINCT(re)) } as data
+  RETURN { id: $gid, name: gs.name, reactionCount: COUNT(DISTINCT(re)) } as data
   UNION
   MATCH (:Gene {id: $gid})-[:V${v}]-(:Reaction)-[:V${v}]-(ss:Subsystem)
-  RETURN { id: $gid, subsystemsCount: COUNT(DISTINCT(ss)) } as data
+  RETURN { id: $gid, subsystemCount: COUNT(DISTINCT(ss)) } as data
   UNION
   MATCH (:Gene {id: $gid})-[:V${v}]-(:Reaction)-[:V${v}]-(:CompartmentalizedMetabolite)-[:V${v}]-(c:Compartment)
-  RETURN { id: $gid, compartmentsCount: COUNT(DISTINCT(c)) } as data
+  RETURN { id: $gid, compartmentCount: COUNT(DISTINCT(c)) } as data
 ", {gid:gid}) yield value
 RETURN { gene: apoc.map.mergeList(apoc.coll.flatten(
 	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])

@@ -145,7 +145,7 @@ export default {
       this.showLoaderMessage = 'Loading metabolite data';
       this.metaboliteId = this.$route.params.id;
       try {
-        const payload = { model: this.model.database_name, id: this.metaboliteId };
+        const payload = { model: this.model, id: this.metaboliteId };
         await this.$store.dispatch('metabolites/getMetaboliteData', payload);
         this.componentNotFound = false;
         this.showLoaderMessage = '';
@@ -157,7 +157,7 @@ export default {
     },
     async getRelatedMetabolites() {
       try {
-        const payload = { model: this.model.database_name, id: this.metaboliteId };
+        const payload = { model: this.model, id: this.metaboliteId };
         await this.$store.dispatch('metabolites/getRelatedMetabolites', payload);
       } catch {
         this.$store.dispatch('metabolites/clearRelatedMetabolites');

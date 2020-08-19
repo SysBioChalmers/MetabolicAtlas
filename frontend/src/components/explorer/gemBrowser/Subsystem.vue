@@ -179,7 +179,7 @@ export default {
       this.showLoaderMessage = 'Loading subsystem data';
       this.sName = this.$route.params.id;
       try {
-        const payload = { model: this.model.database_name, id: this.sName };
+        const payload = { model: this.model, id: this.sName };
         await this.$store.dispatch('subsystems/getSubsystemSummary', payload);
         this.componentNotFound = false;
         this.showLoaderMessage = '';

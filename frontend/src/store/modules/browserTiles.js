@@ -7,8 +7,8 @@ const data = {
 const actions = {
   async getBrowserTiles({ commit }, model) {
     const payload = {
-      model: model.short_name.split('-').map(s => s[0] + s.slice(1).toLowerCase()).join(''),
-      version: model.version.split('.').join('_'),
+      model: model.apiName,
+      version: model.apiVersion,
     };
     const tileComponents = await browserTilesApi.fetchBrowserTiles(payload);
     commit('setTileComponents', tileComponents);

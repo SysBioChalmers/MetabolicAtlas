@@ -10,7 +10,8 @@ const data = {
 
 const actions = {
   async getReactionData({ commit }, { model, id }) {
-    const { pubmedIds, ...reaction } = await reactionsApi.fetchReactionData({ id, model, version: '1_3_0' });
+    const payload = { id, model: model.apiName, version: model.apiVersion };
+    const { pubmedIds, ...reaction } = await reactionsApi.fetchReactionData(payload);
 
     commit('setReaction', {
       ...reaction,
@@ -34,7 +35,8 @@ const actions = {
     commit('setReferenceList', pmids);
   },
   async getRelatedReactionsForReaction({ commit, state }, { model, id }) {
-    const reactions = await reactionsApi.fetchRelatedReactionsForReaction({ id, model, version: '1_3_0', limit: state.relatedReactionsLimit });
+    const payload = { id, model: model.apiName, version: model.apiVersion, limit: state.relatedReactionsLimit };
+    const reactions = await reactionsApi.fetchRelatedReactionsForReaction(payload);
     commit(
       'setRelatedReactions',
       reactions.map(r => ({
@@ -46,7 +48,8 @@ const actions = {
     );
   },
   async getRelatedReactionsForGene({ commit, state }, { model, id }) {
-    const reactions = await reactionsApi.fetchRelatedReactionsForGene({ id, model, version: '1_3_0', limit: state.relatedReactionsLimit });
+    const payload = { id, model: model.apiName, version: model.apiVersion, limit: state.relatedReactionsLimit };
+    const reactions = await reactionsApi.fetchRelatedReactionsForGene(payload);
     commit(
       'setRelatedReactions',
       reactions.map(r => ({
@@ -60,7 +63,8 @@ const actions = {
     // commit('setRelatedReactionsLimit', limit);
   },
   async getRelatedReactionsForMetabolite({ commit, state }, { model, id }) {
-    const reactions = await reactionsApi.fetchRelatedReactionsForMetabolite({ id, model, version: '1_3_0', limit: state.relatedReactionsLimit });
+    const payload = { id, model: model.apiName, version: model.apiVersion, limit: state.relatedReactionsLimit };
+    const reactions = await reactionsApi.fetchRelatedReactionsForMetabolite(payload);
 
     commit(
       'setRelatedReactions',
@@ -75,7 +79,8 @@ const actions = {
     // commit('setRelatedReactionsLimit', limit);
   },
   async getRelatedReactionsForSubsystem({ commit, state }, { model, id }) {
-    const reactions = await reactionsApi.fetchRelatedReactionsForSubsystem({ id, model, version: '1_3_0', limit: state.relatedReactionsLimit });
+    const payload = { id, model: model.apiName, version: model.apiVersion, limit: state.relatedReactionsLimit };
+    const reactions = await reactionsApi.fetchRelatedReactionsForSubsystem(payload);
 
     commit(
       'setRelatedReactions',

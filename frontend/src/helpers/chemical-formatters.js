@@ -44,8 +44,8 @@ function chemicalReactionSign(value, reversible) {
 }
 
 export function chemicalReaction(value, r) {
-  if (typeof r !== 'boolean' && 'is_reversible' in r) {
-    return chemicalReactionSign(value, r.is_reversible);
+  if (typeof r !== 'boolean' && 'reversible' in r) {
+    return chemicalReactionSign(value, r.reversible);
   }
   return chemicalReactionSign(value, r);
 }
