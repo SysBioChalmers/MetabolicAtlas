@@ -39,12 +39,11 @@ services:
         FTP_USER_HOME: ${FTP_USER_HOME}
     environment: 
       - PUBLICHOST=${SERVER_NAME}
-      - FTP_USER_NAME=${FTP_USER_NAME}
-      - FTP_USER_PASS=${FTP_USER_PASS}
-      - FTP_USER_HOME=${FTP_USER_HOME}
+      - FTP_MIN_PORT=${FTP_MIN_PORT}
+      - FTP_MAX_PORT=${FTP_MAX_PORT}
     ports:
       - "21:21"
-      - "30000-30009:30000-30009"
+      - "${FTP_MIN_PORT}-${FTP_MAX_PORT}:${FTP_MIN_PORT}-${FTP_MAX_PORT}"
 
 networks:
   db-network:

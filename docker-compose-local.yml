@@ -46,4 +46,4 @@ services:
 
   ftp:
     environment: 
-      - ADDED_FLAGS=-d -d
+      - FLAGS=-d -d
