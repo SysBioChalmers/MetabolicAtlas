@@ -4,6 +4,7 @@ services:
   nginx:
     build: nginx
     depends_on:
+      - api
       - frontend
     ports:
       - "127.0.0.1:80:80"
@@ -12,8 +13,6 @@ services:
 
   frontend:
     container_name: frontend
-    depends_on:
-      - api
     build: frontend
     command: npm run serve
     volumes:
