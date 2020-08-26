@@ -1,6 +1,8 @@
 {
   "name": "metabolic-atlas-api",
   "version": "1.0.0",
+  "author": "https://nbis.se",
+  "license": "GPL-3.0-only",
   "main": "src/index.js",
   "scripts": {
     "start": "webpack && node ./dist/bundle.js",
