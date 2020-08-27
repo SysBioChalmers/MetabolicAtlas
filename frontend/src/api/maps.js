@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = '/api/v1/';
+const baseURL = '/api/v2/';
 
 const fetchAvailableMaps = async (model, mapType, id) => {
   const { data } = await axios({ url: `${model}/available_maps/${mapType}/${id}`, baseURL });
