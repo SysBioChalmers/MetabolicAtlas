@@ -13,9 +13,9 @@ Docker, along with docker-compose, is used to manage the dependencies of this pr
 
 Add a `.env` file based on the `.env.sample` file:
 ```bash
-cp .env.sample ./frontend/.env
+cp .env.sample .env
 ```
-and modify this `./frontend/.env` file. To load the list of helper commands:
+and modify this `.env` file. To load the list of helper commands:
 ```bash
 source proj.sh
 ```
