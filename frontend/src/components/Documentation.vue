@@ -237,8 +237,6 @@ export default {
   data() {
     return {
       multipleColors,
-      ftpUsername: process.env.VUE_APP_FTP_USER_NAME,
-      ftpPassword: process.env.VUE_APP_FTP_USER_NAME,
       ftpUrl: process.env.VUE_APP_FTP_SERVER,
     };
   },
