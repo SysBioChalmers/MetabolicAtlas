@@ -26,8 +26,8 @@ services:
     build:
       context: neo4j
       args:
-        NEO4J_USERNAME: ${NEO4J_USERNAME}
-        NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+        - NEO4J_USERNAME=${NEO4J_USERNAME}
+        - NEO4J_PASSWORD=${NEO4J_PASSWORD}
     networks:
       - db-network
 

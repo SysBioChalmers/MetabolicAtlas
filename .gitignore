@@ -85,5 +85,8 @@ pids
 *.seed
 *.pid.lock
 
-# GEM repository - FTP
+# GEM repository in FTP
 ftp-models/
+
+# SVG folder in API
+svg/
