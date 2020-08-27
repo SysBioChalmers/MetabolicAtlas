@@ -2,14 +2,46 @@ import axios from 'axios';
 
 const baseURL = '/api/v1/';
 
-const fetchAvailableMaps = async (model, mapType, id) => {
-  const { data } = await axios({ url: `${model}/available_maps/${mapType}/${id}`, baseURL });
-  return data;
-};
+const fetchMapsListing = async ({ model, version }) => {
+  const { data } = await axios.get(`${version}/maps/listing?model=${model}`);
 
-const fetchMapsListing = async (model) => {
-  const { data } = await axios({ url: `${model}/viewer/`, baseURL });
-  return data;
+  const compartment = data.compartments.map(c => ({
+    id: c.id,
+    name: c.name,
+    compartment_svg: c.compartmentSVGs.length === 0 ? null : c.compartmentSVGs[0].id,
+    reaction_count: c.reactionCount,
+  }));
+
+  const compartmentsvg = data.compartments.reduce((l, c) => {
+    const svgs = c.compartmentSVGs.map(svg => (
+      {
+        id: svg.id,
+        name: svg.customName,
+        compartment: c.id,
+        filename: svg.filename,
+      }));
+    return [...l, svgs];
+  }, []).flat();
+
+  const subsystem = data.subsystems.map(s => ({
+    id: s.id,
+    name: s.name,
+    subsystem_svg: s.subsystemSVGs.length === 0 ? null : s.subsystemSVGs[0].id,
+    reaction_count: s.reactionCount,
+  }));
+
+  const subsystemsvg = data.subsystems.reduce((l, s) => {
+    const svgs = s.subsystemSVGs.map(svg => (
+      {
+        id: svg.id,
+        name: svg.customName,
+        subsystem: s.id,
+        filename: svg.filename,
+      }));
+    return [...l, svgs];
+  }, []).flat();
+
+  return { compartment, compartmentsvg, subsystem, subsystemsvg };
 };
 
 const fetchSvgMap = async (mapUrl, model, svgName) => {
@@ -17,8 +49,8 @@ const fetchSvgMap = async (mapUrl, model, svgName) => {
   return data;
 };
 
-const mapSearch = async (model, searchTerm) => {
-  const { data } = await axios({ url: `${model}/get_id/${searchTerm}`, baseURL });
+const mapSearch = async ({ model, version, searchTerm }) => {
+  const { data } = await axios.get(`${version}/maps/search?model=${model}&searchTerm=${searchTerm}`);
   return data;
 };
 
@@ -27,4 +59,4 @@ const fetch3DMapNetwork = async (model, type, name) => {
   return data;
 };
 
-export default { fetchAvailableMaps, fetchMapsListing, fetchSvgMap, mapSearch, fetch3DMapNetwork };
+export default { fetchMapsListing, fetchSvgMap, mapSearch, fetch3DMapNetwork };

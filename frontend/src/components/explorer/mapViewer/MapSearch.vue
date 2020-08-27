@@ -111,7 +111,7 @@ export default {
       // get the IDs from the backend, then search in the SVG
       this.isSearching = true;
       try {
-        const payload = { model: this.model.database_name, searchTerm: term };
+        const payload = { model: this.model, searchTerm: term };
         await this.$store.dispatch('maps/mapSearch', payload);
         this.totalSearchMatch = 0;
         this.currentSearchMatch = 0;
