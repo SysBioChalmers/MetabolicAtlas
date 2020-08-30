@@ -2,7 +2,8 @@
   "name": "metabolic_atlas_frontend",
   "version": "1.0.0",
   "description": "Metabolic Atlas",
-  "author": "https://sysbio.se https://nbis.se",
+  "author": "https://nbis.se",
+  "license": "GPL-3.0-only",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode local",

@@ -4,6 +4,7 @@ services:
   nginx:
     build: nginx
     depends_on:
+      - api
       - frontend
     ports:
       - "127.0.0.1:80:80"
@@ -12,10 +13,11 @@ services:
 
   frontend:
     container_name: frontend
-    depends_on:
-      - api
-    build: ./frontend
+    build: frontend
     command: npm run serve
+    environment:
+      - VUE_APP_FTP_SERVER=localhost
+      - VUE_APP_SVGMAPURL=http://localhost/api/v2/svg
     volumes:
       - ./frontend/src:/project/src
       - ./frontend/public:/project/public
@@ -44,6 +46,6 @@ services:
       - ./api/public:/project/public
     command: yarn develop
 
-networks:
-  frontend-network:
-    driver: bridge
+  ftp:
+    environment:
+      - FLAGS=-Y 0 -d -d

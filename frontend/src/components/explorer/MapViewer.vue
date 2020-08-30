@@ -30,8 +30,7 @@
                   <div v-else>
                     <li v-for="cKey in Object.keys(mapsData2D.compartments).sort()" :key="cKey"
                         class="clickable"
-                        :class="{ 'disable' : !mapsData2D.compartments[cKey].sha,
-                                  'has-text-warning': cKey === currentDisplayedName }"
+                        :class="{ 'has-text-warning': cKey === currentDisplayedName }"
                         @click="showMap(mapsData2D.compartments[cKey].id, 'compartment', '2d')">
                       {{ mapsData2D.compartments[cKey].name }}
                     </li>
@@ -52,7 +51,7 @@
                   </div>
                   <div v-else>
                     <template v-for="sKey in Object.keys(mapsData2D.subsystems).sort()">
-                      <template v-if="mapsData2D.subsystems[sKey].id && mapsData2D.subsystems[sKey].sha">
+                      <template v-if="mapsData2D.subsystems[sKey].id">
                         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                         <li class="clickable" :class="{'has-text-warning': sKey === currentDisplayedName }"
                             @click="showMap(mapsData2D.subsystems[sKey].id, 'subsystem', '2d')">
@@ -229,7 +228,7 @@ export default {
         return !(altID in this.mapsData2D.compartments);
       }
       const altID = this.mapsData3D.subsystems[this.currentDisplayedName].alternateDim;
-      return !(altID in this.mapsData2D.subsystems && this.mapsData2D.subsystems[altID].sha);
+      return !(altID in this.mapsData2D.subsystems);
     },
     dim() {
       return this.show2D ? '2d' : '3d';
@@ -398,8 +397,7 @@ export default {
           }
           return this.requestedName in this.mapsData2D.compartments;
         }
-        return this.requestedName in this.mapsData2D.subsystems
-         && this.mapsData2D.subsystems[this.requestedName].sha;
+        return this.requestedName in this.mapsData2D.subsystems;
       }
       if (displayType === 'compartment') {
         if (displayName in this.compartmentMapping.dim2D) {
