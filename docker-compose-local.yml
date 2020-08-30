@@ -47,5 +47,5 @@ services:
     command: yarn develop
 
   ftp:
-    environment: 
-      - FLAGS=-d -d
+    environment:
+      - FLAGS=-Y 0 -d -d

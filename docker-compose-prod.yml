@@ -7,7 +7,7 @@ services:
       dockerfile: ./nginx/prod.Dockerfile
       args:
       - VUE_APP_FTP_SERVER=${SERVER_NAME}
-      - VUE_APP_SVGMAPURL=https://${SERVER_NAME}/api/v2/svgs
+      - VUE_APP_SVGMAPURL=https://${SERVER_NAME}/api/v2/svg
     ports:
       - "80:80"
       - "443:443"
@@ -30,6 +30,8 @@ services:
     restart: unless-stopped
 
   ftp:
+    environment:
+      - FLAGS=-Y 1
     volumes:
       - letsencrypt:/etc/letsencrypt:ro
     restart: unless-stopped
