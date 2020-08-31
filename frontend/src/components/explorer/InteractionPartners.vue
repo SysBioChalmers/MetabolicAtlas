@@ -448,7 +448,7 @@ export default {
       this.reactionHL = null;
       this.compartmentHL = '';
       this.subsystemHL = '';
-      this.$router.push({ name: 'interPartner', params: { model: this.model.database_name, id: this.clickedElmId } });
+      this.$router.push({ name: 'interPartner', params: { model: this.model.short_name, id: this.clickedElmId } });
     },
     async loadHPALevels() {
       if (this.model.sample.organism !== 'Homo sapiens') {

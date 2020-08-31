@@ -155,7 +155,7 @@ export default {
 
       try {
         const payload = {
-          model: this.model.database_name,
+          model: this.model.short_name,
           type: this.loadedComponentType,
           name: this.loadedComponentName,
         };
@@ -344,7 +344,7 @@ export default {
       this.$emit('startSelection');
 
       try {
-        const payload = { model: this.model.database_name, type, id };
+        const payload = { model: this.model.short_name, type, id };
         await this.$store.dispatch('maps/getSelectedElement', payload);
         let data = this.selectedElement;
         if (type === 'reaction') {

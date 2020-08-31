@@ -31,7 +31,7 @@
                   <template v-for="c in info['compartments']">
                     <span :key="c.id" class="tag">
                       <!-- eslint-disable-next-line max-len -->
-                      <router-link :to="{ name: 'browser', params: { model: model.database_name, type: 'compartment', id: c.id } }">{{ c.name }}</router-link>
+                      <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'compartment', id: c.id } }">{{ c.name }}</router-link>
                     </span>
                   </template>
                 </div>
@@ -142,7 +142,7 @@ export default {
           || i === this.limitMetabolite) {
           break;
         }
-        const customLink = buildCustomLink({ model: this.model.database_name, type: 'metabolite', id: m.id, title: m.name || m.id });
+        const customLink = buildCustomLink({ model: this.model.short_name, type: 'metabolite', id: m.id, title: m.name || m.id });
         l.push(
           `<span id="${m.id}" class="tag">${customLink}</span>`
         );
@@ -159,7 +159,7 @@ export default {
           || i === this.limitGene) {
           break;
         }
-        const customLink = buildCustomLink({ model: this.model.database_name, type: 'gene', id: e.id, title: e.name || e.id });
+        const customLink = buildCustomLink({ model: this.model.short_name, type: 'gene', id: e.id, title: e.name || e.id });
         l.push(`<span id="${e.id}" class="tag">${customLink}</span>`);
       }
       l.push('</span>');

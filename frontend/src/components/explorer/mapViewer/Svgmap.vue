@@ -360,7 +360,7 @@ export default {
           }, 0);
         } else {
           try {
-            const payload = { mapUrl: this.svgMapURL, model: this.model.database_name, svgName: newSvgName };
+            const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: newSvgName };
             await this.$store.dispatch('maps/getSvgMap', payload);
             this.mapType = type;
             this.mapName = newSvgName;
@@ -548,7 +548,7 @@ export default {
 
       this.$emit('startSelection');
       try {
-        const payload = { model: this.model.database_name, type, id };
+        const payload = { model: this.model.short_name, type, id };
         await this.$store.dispatch('maps/getSelectedElement', payload);
         // TODO: consider refactoring more of this block into Vuex
         let data = this.selectedElement;

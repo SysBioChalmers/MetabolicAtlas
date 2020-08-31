@@ -26,15 +26,15 @@
         <div v-if="model" class="columns is-multiline is-centered">
           <div v-for="cmodel in Object.values(models).sort((a, b) =>
                  (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1))"
-               :key="cmodel.database_name" class="column is-5-desktop is-half-tablet">
+               :key="cmodel.short_name" class="column is-5-desktop is-half-tablet">
             <div id="selectedModel" style="height: 100%"
                  class="box has-text-centered clickable hoverable"
-                 :class="cmodel.database_name === model.database_name ? 'selectedBox' : ''"
+                 :class="cmodel.short_name === model.short_name ? 'selectedBox' : ''"
                  :title="`Select ${cmodel.short_name} as the model to explore`"
                  @mousedown.prevent="selectModel(cmodel)">
               <p class="title is-5"
-                 :class="cmodel.database_name === model.database_name ? 'has-text-primary' : ''">
-                <span v-if="cmodel.database_name === model.database_name"
+                 :class="cmodel.short_name === model.short_name ? 'has-text-primary' : ''">
+                <span v-if="cmodel.short_name === model.short_name"
                       class="icon"><i class="fa fa-check-square-o"></i></span>
                 <span v-else><i class="fa fa-square-o">&nbsp;</i></span>
                 &nbsp;{{ cmodel.short_name }} {{ cmodel.version }}
@@ -57,7 +57,7 @@
         <div v-if="model" class="columns is-multiline is-centered">
           <div v-for="tool in explorerTools" :key="tool.name"
                class="column is-one-fifth-widescreen is-4-desktop is-4-tablet">
-            <router-link :to="{ name: tool.routeName, params: { model: model.database_name } }"
+            <router-link :to="{ name: tool.routeName, params: { model: model.short_name } }"
                          :title="`Click to access the ${tool.name} for ${model.short_name}`">
               <div class="card card-fullheight hoverable">
                 <header class="card-header">
@@ -210,7 +210,7 @@ export default {
       }
     },
     selectModel(model) {
-      if (!this.model || model.database_name !== this.model.database_name) {
+      if (!this.model || model.short_name !== this.model.short_name) {
         this.$store.dispatch('models/selectModel', model);
       }
       if (this.$route.name === 'explorerRoot'

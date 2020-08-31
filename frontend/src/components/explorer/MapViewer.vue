@@ -424,14 +424,14 @@ export default {
         this.$store.dispatch('maps/resetParamsExcept', ['dim', 'panel']);
         this.$router.push({
           name: 'viewer',
-          params: { model: this.model.database_name, type, map_id: compartmentOrSubsystemID },
+          params: { model: this.model.short_name, type, map_id: compartmentOrSubsystemID },
         }).catch(() => {});
       } else {
         this.currentDisplayedType = '';
         this.currentDisplayedName = '';
         this.showOverviewScreen = true;
         this.$store.dispatch('maps/resetParamsExcept', ['dim']);
-        this.$router.push({ name: 'viewerRoot', params: { model: this.model.database_name } }).catch(() => {});
+        this.$router.push({ name: 'viewerRoot', params: { model: this.model.short_name } }).catch(() => {});
       }
     },
     endSelection(isSuccess) {

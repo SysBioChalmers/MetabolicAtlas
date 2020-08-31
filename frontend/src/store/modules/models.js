@@ -13,7 +13,8 @@ const getters = {
     };
     return {
       ...models,
-      [model.database_name]: modifiedModel,
+      // eslint-disable-next-line
+      [model.short_name]: modifiedModel,
     };
   }, {}),
   integratedModels: state => state.modelList.map(model => ({
