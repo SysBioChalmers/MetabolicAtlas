@@ -1,6 +1,8 @@
 {
   "name": "metabolic-atlas-api",
   "version": "1.0.0",
+  "author": "https://nbis.se",
+  "license": "GPL-3.0-only",
   "main": "src/index.js",
   "scripts": {
     "start": "webpack && node ./dist/bundle.js",
@@ -11,7 +13,7 @@
     "compression": "^1.7.4",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "neo4j-driver": "^4.0.2",
+    "neo4j-driver": "^4.1.1",
     "swagger-ui-express": "^4.1.4"
   },
   "devDependencies": {
@@ -28,8 +30,5 @@
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.0",
     "yaml-loader": "^0.6.0"
-  },
-  "resolutions": {
-    "swagger-ui-dist": "3.30.0"
   }
 }

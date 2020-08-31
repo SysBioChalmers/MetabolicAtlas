@@ -2,29 +2,39 @@ version: '3.7'
 
 services:
   nginx:
-    restart: unless-stopped
     build:
       context: .
-      dockerfile: ./nginx/Dockerfile.prod
+      dockerfile: ./nginx/prod.Dockerfile
+      args:
+      - VUE_APP_FTP_SERVER=${SERVER_NAME}
+      - VUE_APP_SVGMAPURL=https://${SERVER_NAME}/api/v2/svg
     ports:
       - "80:80"
       - "443:443"
     environment:
-      CERTBOT_EMAIL: ${CERTBOT_EMAIL}
-      ENVSUBST_VARS: SERVER_NAME
-      SERVER_NAME: ${SERVER_NAME}
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - SERVER_NAME=${SERVER_NAME}
+      - IP_FILTER=${IP_FILTER}
+      - ENVSUBST_VARS=SERVER_NAME IP_FILTER
     volumes:
       - letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
 
   api:
-    restart: unless-stopped
     environment:
       - NODE_ENV=production
     command: yarn start
+    restart: unless-stopped
 
   neo4j:
     restart: unless-stopped
 
+  ftp:
+    environment:
+      - FLAGS=-Y 1
+    volumes:
+      - letsencrypt:/etc/letsencrypt:ro
+    restart: unless-stopped
+
 volumes:
   letsencrypt:
-

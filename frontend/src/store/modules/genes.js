@@ -10,7 +10,8 @@ const getters = {
 
 const actions = {
   async getGeneData({ commit }, { model, id }) {
-    const gene = await genesApi.fetchGeneData({ id, model, version: '1_3_0' });
+    const payload = { id, model: model.apiName, version: model.apiVersion };
+    const gene = await genesApi.fetchGeneData(payload);
     commit('setGene', gene);
     commit('maps/setAvailableMaps', {
       '2d': {

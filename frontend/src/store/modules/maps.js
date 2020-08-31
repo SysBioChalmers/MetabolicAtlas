@@ -95,7 +95,8 @@ const actions = {
   },
 
   async getMapsListing({ commit }, model) {
-    const mapsListing = await mapsApi.fetchMapsListing(model);
+    const payload = { model: model.apiName, version: model.apiVersion };
+    const mapsListing = await mapsApi.fetchMapsListing(payload);
     commit('setMapsListing', mapsListing);
   },
 
@@ -110,7 +111,8 @@ const actions = {
 
   async mapSearch({ commit }, { model, searchTerm }) {
     commit('setSearchTerm', searchTerm);
-    const idsFound = await mapsApi.mapSearch(model, searchTerm);
+    const payload = { model: model.apiName, version: model.apiVersion, searchTerm };
+    const idsFound = await mapsApi.mapSearch(payload);
     commit('setIdsFound', idsFound);
   },
 

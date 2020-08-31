@@ -466,7 +466,7 @@ export default {
       this.loading = true;
 
       try {
-        const payload = { model: this.model.database_name, id: this.mainNodeID };
+        const payload = { model: this.model, id: this.mainNodeID };
         await this.$store.dispatch('interactionPartners/getInteractionPartners', payload);
 
         // TODO: consider refactoring the following lines in this try block into Vuex,
@@ -530,7 +530,7 @@ export default {
     },
     async loadExpansion() {
       try {
-        const payload = { model: this.model.database_name, id: this.clickedElmId };
+        const payload = { model: this.model, id: this.clickedElmId };
         await this.$store.dispatch('interactionPartners/loadExpansion', payload);
 
         this.reactionHL = null;

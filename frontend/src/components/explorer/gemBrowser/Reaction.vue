@@ -146,7 +146,7 @@ export default {
       this.showLoaderMessage = 'Loading reaction data';
       this.rId = this.$route.params.id;
       try {
-        const payload = { model: this.model.database_name, id: this.rId };
+        const payload = { model: this.model, id: this.rId };
         await this.$store.dispatch('reactions/getReactionData', payload);
         this.componentNotFound = false;
         this.showLoaderMessage = '';
@@ -158,7 +158,7 @@ export default {
     },
     async getRelatedReactions() {
       try {
-        const payload = { model: this.model.database_name, id: this.rId };
+        const payload = { model: this.model, id: this.rId };
         await this.$store.dispatch('reactions/getRelatedReactionsForReaction', payload);
       } catch {
         this.$store.dispatch('reactions/clearRelatedReactions');

@@ -112,15 +112,15 @@ export default function (c, reactions, relms, rrels, rcomp, rsub) {
             direction: {},
             order,
           };
-          relation.direction[r.id] = r.is_reversible ? 0 : -1;
+          relation.direction[r.id] = r.reversible ? 0 : -1;
           relation.reaction = new Set([r.id]);
           rels[relID] = relation;
         } else if (relID in rels) {
           rels[relID].reaction.add(r.id);
-          rels[relID].direction[r.id] = r.is_reversible ? 0 : -1;
+          rels[relID].direction[r.id] = r.reversible ? 0 : -1;
         } else if (relIDinv in rels) {
           rels[relIDinv].reaction.add(r.id);
-          rels[relIDinv].direction[r.id] = r.is_reversible ? 0 : -1;
+          rels[relIDinv].direction[r.id] = r.reversible ? 0 : -1;
         }
       });
     });
@@ -138,15 +138,15 @@ export default function (c, reactions, relms, rrels, rcomp, rsub) {
             direction: {},
             order,
           };
-          relation.direction[r.id] = r.is_reversible ? 0 : 1;
+          relation.direction[r.id] = r.reversible ? 0 : 1;
           relation.reaction = new Set([r.id]);
           rels[relID] = relation;
         } else if (relID in rels) {
           rels[relID].reaction.add(r.id);
-          rels[relID].direction[r.id] = r.is_reversible ? 0 : 1;
+          rels[relID].direction[r.id] = r.reversible ? 0 : 1;
         } else if (relIDinv in rels) {
           rels[relIDinv].reaction.add(r.id);
-          rels[relIDinv].direction[r.id] = r.is_reversible ? 0 : 1;
+          rels[relIDinv].direction[r.id] = r.reversible ? 0 : 1;
         }
       });
     });

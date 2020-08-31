@@ -139,7 +139,7 @@ export default {
 
       try {
         const payload = {
-          model: this.model.database_name,
+          model: this.model,
           metabolitesAndGenesOnly: this.metabolitesAndGenesOnly,
         };
         await this.$store.dispatch('search/search', payload);
@@ -181,7 +181,7 @@ export default {
       let s = '';
       this.itemKeys[type].filter(key => element[key]).forEach((key) => {
         if (key === 'equation') {
-          s = `${s} ‒ ${chemicalReaction(element[key].replace(re, '<b>$1</b>'), element.is_reversible)}`;
+          s = `${s} ‒ ${chemicalReaction(element[key].replace(re, '<b>$1</b>'), element.reversible)}`;
         } else {
           // do not HL the compartment name
           s = key === 'compartment_str' ? `${s} ‒ ${element[key]}` : `${s} ‒ ${element[key].replace(re, '<b>$1</b>')}`;

@@ -4,6 +4,8 @@ export PATH=$PATH:/usr/local/bin
 function generate-data {
   echo 'Data generation started.'
   source .env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH "$@" && cp -r $DATA_GENERATOR_PATH/data/ ./neo4j/import
+  cp -r $DATA_FILES_PATH/ftp-models ftp/
+  cp -r $DATA_FILES_PATH/svg api/
 }
 
 function build-stack {

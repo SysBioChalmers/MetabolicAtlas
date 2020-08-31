@@ -10,8 +10,7 @@
       </div>
       <p v-if="relatedMetCount" class="control field">
         <button class="button" @click="toggleExpandAllCompartment">
-          {{ !expandAllCompartment ?
-            "See reactions with from all compartments" : "Restrict to current compartment" }}
+          {{ !expandAllCompartment ? "See reactions from all compartments" : "Restrict to current compartment" }}
         </button>
       </p>
       <div class="field columns">
@@ -67,7 +66,7 @@
               </td>
               <td>
                 <template v-for="(RP, i) in r.compartment_str.split(' => ')">
-                  <template v-if="i !== 0">{{ r.is_reversible ? ' &#8660; ' : ' &#8658; ' }}</template>
+                  <template v-if="i !== 0">{{ r.reversible ? ' &#8660; ' : ' &#8658; ' }}</template>
                   <template v-for="(compo, j) in RP.split(' + ')">
                     <template v-if="j != 0"> + </template>
                     <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
@@ -144,7 +143,7 @@ export default {
       if (this.selectedElmId) {
         reactionsCopy = reactionsCopy.map((r) => {
           const rCopy = { ...r };
-          if (rCopy.is_reversible) {
+          if (rCopy.reversible) {
             rCopy.cp = 'consume/produce';
           } else {
             const boolC = rCopy.reactionreactant_set.filter(
@@ -181,7 +180,7 @@ export default {
       this.$store.dispatch('reactions/clearRelatedReactions');
       try {
         const payload = {
-          model: this.model.database_name,
+          model: this.model,
           id: this.sourceName,
           allCompartments: this.expandAllCompartment,
         };
