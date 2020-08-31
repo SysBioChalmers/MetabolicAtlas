@@ -260,9 +260,9 @@ const MODELS = [
   { key: "yeast8", label: "YeastGem", name: "Yeast-GEM" },
 ];
 
-const globalSearch = async({ searchTerm, version, limit }) => {
+const globalSearch = async ({ searchTerm, version, limit }) => {
   const results = await Promise.all(MODELS.map(m =>
-    search({ searchTerm, version, model: m.label, limit, includeCounts: true })
+    _search({ searchTerm, version, model: m.label, limit, includeCounts: true })
   ));
   return results.reduce((obj, r, i) => {
     const m = MODELS[i];
@@ -274,13 +274,13 @@ const globalSearch = async({ searchTerm, version, limit }) => {
   }, {});
 };
 
-const modelSearch = async({ searchTerm, model, version, limit }) => {
+const modelSearch = async ({ searchTerm, model, version, limit }) => {
   const match = MODELS.filter(m => m.label == model);
   if (match.length === 0) {
     throw new Error(`Invalid model: ${model}`);
   }
   
-  const results = await search({ searchTerm, model, version, limit: limit || 50 });
+  const results = await _search({ searchTerm, model, version, limit: limit || 50 });
 
   return {
     [match[0].key]: {
@@ -296,7 +296,7 @@ const modelSearch = async({ searchTerm, model, version, limit }) => {
  * 1. Do a fuzzy search over all nodes covered by full-text search index
  * 2. Fetch results for each component type (parallelly) and return result
  */
-const search = async ({ searchTerm, model, version, limit, includeCounts }) => {
+const _search = async ({ searchTerm, model, version, limit, includeCounts }) => {
   const v = version ? `V${version}` : '';
 
   // Metabolites are not included as it would mess with the limit and
@@ -363,8 +363,6 @@ LIMIT ${limit}
   };
 };
 
+const search = async (params) => params.model ? modelSearch(params) : globalSearch(params);
 
-export {
-  modelSearch,
-  globalSearch
-};
+export { search };

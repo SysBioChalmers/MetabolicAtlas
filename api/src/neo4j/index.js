@@ -3,7 +3,7 @@ import getGene from 'neo4j/queries/gene';
 import getReaction from 'neo4j/queries/reaction';
 import getSubsystem from 'neo4j/queries/subsystem';
 import getMetabolite from 'neo4j/queries/metabolite';
-import { modelSearch, globalSearch } from 'neo4j/queries/search';
+import { search } from 'neo4j/queries/search';
 import {
   getRelatedReactionsForReaction,
   getRelatedReactionsForGene,
@@ -22,8 +22,6 @@ export {
   getReaction,
   getSubsystem,
   getMetabolite,
-  modelSearch,
-  globalSearch,
   getRelatedReactionsForReaction,
   getRelatedReactionsForGene,
   getRelatedReactionsForMetabolite,
@@ -34,4 +32,5 @@ export {
   getInteractionPartners,
   getMapsListing,
   mapSearch,
+  search,
 };
