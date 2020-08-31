@@ -13,7 +13,6 @@ const getters = {
     };
     return {
       ...models,
-      // eslint-disable-next-line
       [model.short_name]: modifiedModel,
     };
   }, {}),

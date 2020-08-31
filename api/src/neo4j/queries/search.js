@@ -1,5 +1,5 @@
 import queryListResult from 'neo4j/queryHandlers/list';
-import * as iMODELS from 'data/integratedModels';
+import * as INTEGRATED_MODELS from 'data/integratedModels';
 
 const componentTypes = [
   "CompartmentalizedMetabolite",
@@ -256,7 +256,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
   return results;
 };
 
-const MODELS = iMODELS.map(m => ({ label: m.short_name.replace('-GEM', 'Gem'), name: m.short_name }));
+const MODELS = INTEGRATED_MODELS.map(m => ({ label: m.short_name.replace('-GEM', 'Gem'), name: m.short_name }));
 
 const globalSearch = async ({ searchTerm, version, limit }) => {
   const results = await Promise.all(MODELS.map(m =>
