@@ -59,11 +59,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 LIMIT ${limit}
 `;
   }
-  const start = new Date().getTime();
-  const results = await queryListResult(statement);
-  const elapsed = new Date().getTime() - start;
-  console.log(`Time taken to fetch compartmentalized metabolites${ viaMetabolties ? " via metabolites" : ""}: ${elapsed}ms`);
-  return results;
+  return queryListResult(statement);
 };
 
 
@@ -100,11 +96,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 )) as gene
 `;
 
-  const start = new Date().getTime();
-  const results = await queryListResult(statement);
-  const elapsed = new Date().getTime() - start;
-  console.log(`Time taken to fetch genes: ${elapsed}ms`);
-  return results;
+  return queryListResult(statement);
 };
 
 
@@ -137,11 +129,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 )) as reaction
 `;
 
-  const start = new Date().getTime();
-  const results = await queryListResult(statement);
-  const elapsed = new Date().getTime() - start;
-  console.log(`Time taken to fetch reactions: ${elapsed}ms`);
-  return results;
+  return queryListResult(statement);
 };
 
 const fetchSubsystems = async ({ ids, version, includeCounts }) => {
@@ -193,11 +181,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 )) as subsystem
 `;
 
-  const start = new Date().getTime();
-  const results = await queryListResult(statement);
-  const elapsed = new Date().getTime() - start;
-  console.log(`Time taken to fetch subsystem: ${elapsed}ms`);
-  return results;
+  return queryListResult(statement);
 };
 
 const fetchCompartments = async ({ ids, version, includeCounts }) => {
@@ -248,11 +232,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 )) as compartment
 `;
 
-  const start = new Date().getTime();
-  const results = await queryListResult(statement);
-  const elapsed = new Date().getTime() - start;
-  console.log(`Time taken to fetch compartment: ${elapsed}ms`);
-  return results;
+  return queryListResult(statement);
 };
 
 const MODELS = [
@@ -320,7 +300,6 @@ LIMIT ${limit}
 `;
   }
 
-  const start = new Date().getTime();
   const results = await queryListResult(statement);
 
   const uniqueIds = results.reduce((o, r) => {
@@ -349,9 +328,6 @@ LIMIT ${limit}
     fetchSubsystems({ ids: ids["Subsystem"], version: v, includeCounts: true }),
     fetchCompartments({ ids: ids["Compartment"], version: v, includeCounts: true }),
   ]);
-
-  const elapsed = new Date().getTime() - start;
-  console.log(`Time taken to perform search: ${elapsed}ms`);
 
   // formatting for simple (gem browser) search
   return {
