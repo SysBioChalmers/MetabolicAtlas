@@ -21,7 +21,7 @@
         </p>
         <router-link v-if="$route.name === 'browser'"
                      class="is-pulled-left has-text-grey-light"
-                     :to="{ name: 'browserRoot', params: { model: model.database_name } }">
+                     :to="{ name: 'browserRoot', params: { model: model.short_name } }">
           &larr; back to tiles
         </router-link>
         <router-link class="is-pulled-right" :to="{ name: 'search', query: { term: searchTermString } }">

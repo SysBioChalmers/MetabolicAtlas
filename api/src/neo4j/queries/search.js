@@ -1,4 +1,5 @@
 import queryListResult from 'neo4j/queryHandlers/list';
+import * as INTEGRATED_MODELS from 'data/integratedModels';
 
 const componentTypes = [
   "CompartmentalizedMetabolite",
@@ -32,7 +33,7 @@ UNWIND cmids as cmid
 `;
   }
 
-  statement +=`
+  statement += `
 CALL apoc.cypher.run('
   MATCH (ms:MetaboliteState)-[:${version}]-(:Metabolite)-[:${version}]-(:CompartmentalizedMetabolite {id: $cmid})
   RETURN ms { id: $cmid, .* } as data
@@ -62,7 +63,7 @@ LIMIT ${limit}
   const start = new Date().getTime();
   const results = await queryListResult(statement);
   const elapsed = new Date().getTime() - start;
-  console.log(`Time taken to fetch compartmentalized metabolites${ viaMetabolties ? " via metabolites" : ""}: ${elapsed}ms`);
+  console.log(`Time taken to fetch compartmentalized metabolites${viaMetabolties ? " via metabolites" : ""}: ${elapsed}ms`);
   return results;
 };
 
@@ -179,7 +180,7 @@ CALL apoc.cypher.run("
   RETURN { id: $sid, geneCount: COUNT(DISTINCT g) } as data
 `;
   }
-  
+
   statement += ` 
   UNION
   
@@ -212,7 +213,7 @@ CALL apoc.cypher.run("
   MATCH (cs:CompartmentState)-[:${version}]-(:Compartment {id: $cid})
   RETURN cs { id: $cid, .* } as data
 `;
-  
+
   if (includeCounts) {
     statement += ` 
   UNION
@@ -240,7 +241,7 @@ CALL apoc.cypher.run("
   RETURN { id: $cid, subsystemCount: COUNT(DISTINCT s) } as data
 `;
   }
-  
+
   statement += ` 
 ", {cid:cid}) yield value
 RETURN apoc.map.mergeList(apoc.coll.flatten(
@@ -255,18 +256,16 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
   return results;
 };
 
-const MODELS = [
-  { key: "human1", label: "HumanGem", name: "Human-GEM" },
-  { key: "yeast8", label: "YeastGem", name: "Yeast-GEM" },
-];
+const MODELS = INTEGRATED_MODELS.map(m => ({ label: m.short_name.replace('-GEM', 'Gem'), name: m.short_name }));
 
-const globalSearch = async({ searchTerm, version, limit }) => {
+const globalSearch = async ({ searchTerm, version, limit }) => {
   const results = await Promise.all(MODELS.map(m =>
     search({ searchTerm, version, model: m.label, limit, includeCounts: true })
   ));
+  console.log(results);
   return results.reduce((obj, r, i) => {
     const m = MODELS[i];
-    obj[m.key] = {
+    obj[m.name] = {
       ...r,
       name: m.name,
     };
@@ -274,16 +273,16 @@ const globalSearch = async({ searchTerm, version, limit }) => {
   }, {});
 };
 
-const modelSearch = async({ searchTerm, model, version, limit }) => {
+const modelSearch = async ({ searchTerm, model, version, limit }) => {
   const match = MODELS.filter(m => m.label == model);
   if (match.length === 0) {
     throw new Error(`Invalid model: ${model}`);
   }
-  
+
   const results = await search({ searchTerm, model, version, limit: limit || 50 });
 
   return {
-    [match[0].key]: {
+    [match[0].name]: {
       ...results,
       name: match[0].name,
       metabolite: results.metabolite.map(m => ({ ...m, compartment: m.compartment.name })),
@@ -332,7 +331,7 @@ LIMIT ${limit}
     return o;
   }, {});
 
-  const ids = Object.assign({}, ...Object.keys(uniqueIds).map(c => ({[c]: Array.from(uniqueIds[c]) })));
+  const ids = Object.assign({}, ...Object.keys(uniqueIds).map(c => ({ [c]: Array.from(uniqueIds[c]) })));
 
   const [
     compartmentalizedMetabolites,
@@ -343,7 +342,7 @@ LIMIT ${limit}
     compartments,
   ] = await Promise.all([
     fetchCompartmentalizedMetabolites({ ids: ids["CompartmentalizedMetabolite"], version: v, limit }),
-    fetchCompartmentalizedMetabolites({ ids: ids["Metabolite"], version: v, limit,  viaMetabolties: true }),
+    fetchCompartmentalizedMetabolites({ ids: ids["Metabolite"], version: v, limit, viaMetabolties: true }),
     fetchGenes({ ids: ids["Gene"], version: v }),
     fetchReactions({ ids: ids["Reaction"], version: v }),
     fetchSubsystems({ ids: ids["Subsystem"], version: v, includeCounts: true }),

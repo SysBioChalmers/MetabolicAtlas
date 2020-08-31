@@ -83,7 +83,7 @@ export function getChemicalReaction(reaction) {
 const sortByName = metabolites => [...metabolites].sort((a, b) => ((a.name > b.name) ? 1 : -1));
 
 // TODO: consider using an object as param
-export function reformatChemicalReactionHTML(reaction, noLink = false, model = 'human1', sourceMet = '') {
+export function reformatChemicalReactionHTML(reaction, noLink = false, model = 'human-gem', sourceMet = '') {
   if (reaction === null) {
     return '';
   }

@@ -141,14 +141,14 @@ export default {
   methods: {
     async setup(loadTiles = true) {
       if (['browser', 'browserRoot'].includes(this.$route.name)) {
-        if (!this.model || this.model.database_name !== this.$route.params.model) {
+        if (!this.model || this.model.short_name !== this.$route.params.model) {
           this.errorMessage = `Error: ${messages.modelNotFound}`;
           return;
         }
         if (this.$route.name === 'browserRoot' && loadTiles) {
           await this.getTilesData();
         } else if (this.selectedType === 'interaction') {
-          this.$router.replace(`/explore/interaction/${this.model.database_name}/${this.componentID}`);
+          this.$router.replace(`/explore/interaction/${this.model.short_name}/${this.componentID}`);
         } else {
           this.$store.dispatch('reactions/clearRelatedReactions');
           this.selectedType = this.$route.params.type;

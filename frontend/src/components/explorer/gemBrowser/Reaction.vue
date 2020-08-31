@@ -27,7 +27,7 @@
                   <template v-for="(v, i) in reaction[el.name]">
                     <template v-if="i !== 0">; </template>
                     <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
-                    <router-link :to="{ name: 'browser', params: { model: model.database_name, type: 'subsystem', id: v.id } }"> {{ v.name }}</router-link>
+                    <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'subsystem', id: v.id } }"> {{ v.name }}</router-link>
                   </template>
                 </template>
                 <template v-else-if="el.name === 'compartments'">
@@ -35,7 +35,7 @@
                     <template v-for="c in reaction[el.name]">
                       <span :key="c.id" class="tag">
                         <!-- eslint-disable-next-line max-len -->
-                        <router-link :to="{ name: 'browser', params: { model: model.database_name, type: 'compartment', id: c.id } }">{{ c.name }}</router-link>
+                        <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'compartment', id: c.id } }">{{ c.name }}</router-link>
                       </span>
                     </template>
                     <template v-if="reaction.is_transport">
@@ -59,11 +59,11 @@
               <td>
                 <span v-for="rr in relatedReactions" :key="rr.id">
                   <!-- eslint-disable-next-line max-len -->
-                  <router-link :to="{ name: 'browser', params: { model: model.database_name, type: 'reaction', id: rr.id } }">
+                  <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'reaction', id: rr.id } }">
                     {{ rr.id }}
                   </router-link>
                   <div style="margin-left: 30px">
-                    <span v-html="reformatChemicalReactionHTML(rr, true, model.database_name)"></span>
+                    <span v-html="reformatChemicalReactionHTML(rr, true, model.short_name)"></span>
                     (<span v-html="reformatEqSign(rr.compartment_str, rr.reversible)">
                     </span>)
                   </div>
@@ -164,7 +164,7 @@ export default {
         this.$store.dispatch('reactions/clearRelatedReactions');
       }
     },
-    reformatEquation() { return reformatChemicalReactionHTML(this.reaction, false, this.model.database_name); },
+    reformatEquation() { return reformatChemicalReactionHTML(this.reaction, false, this.model.short_name); },
     reformatGenes() {
       if (!this.reaction.geneRule) {
         return '-';
@@ -188,7 +188,7 @@ export default {
             const suffix = e.slice(-1) === ')' ? ')' : '';
             const newE = e.replace(/^\(+|\)+$/g, '');
             const tag = newGRnameArr ? newGRnameArr[i] : newE;
-            const customLink = buildCustomLink({ model: this.model.database_name, type: 'gene', id: newE, title: tag });
+            const customLink = buildCustomLink({ model: this.model.short_name, type: 'gene', id: newE, title: tag });
             return `${prefix}<span class="tag">${customLink}</span>${suffix}`;
           });
         newGR = newGRArr.join(' ');
