@@ -19,15 +19,47 @@ services:
     volumes:
       - letsencrypt:/etc/letsencrypt
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.35'
+          memory: 1.5G
+        limits:
+          cpus: '0.40'
+          memory: 2G
 
   api:
     environment:
       - NODE_ENV=production
     command: yarn start
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.35'
+          memory: 2.5G
+        limits:
+          cpus: '0.40'
+          memory: 3G
 
   neo4j:
+    environment:
+      - NEO4J_dbms_transaction_timeout=15s
+      - NEO4J_dbms_memory_heap_initial__size=5G
+      - NEO4J_dbms_memory_off__heap_max__size=8G
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          cpus: '1.00'
+          memory: 9G
+        limits:
+          cpus: '1.10'
+          memory: 10G
+    ulimits:
+      nofile:
+        soft: 80000
+        hard: 90000
 
   ftp:
     environment:
@@ -35,6 +67,14 @@ services:
     volumes:
       - letsencrypt:/etc/letsencrypt:ro
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.05'
+          memory: 150M
+        limits:
+          cpus: '0.10'
+          memory: 200M
 
 volumes:
   letsencrypt:
