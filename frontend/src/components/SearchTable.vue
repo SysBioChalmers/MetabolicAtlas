@@ -323,14 +323,6 @@ export default {
               filterFn: (e, s) => e.filter(v => v.name === s).length !== 0,
             },
             sortable: true,
-          }, {
-            label: 'Transport?',
-            field: 'is_transport',
-            filterOptions: {
-              enabled: true,
-              filterDropdownItems: [],
-            },
-            sortable: false,
           },
         ],
         subsystem: [
@@ -496,7 +488,6 @@ export default {
         reaction: {
           model: {},
           compartment: {},
-          is_transport: {},
         },
         subsystem: {
           model: {},
@@ -563,7 +554,6 @@ export default {
               equation: el.equation_wname,
               subsystem: el.subsystem,
               compartment: el.compartment,
-              is_transport: el.is_transport ? 'Yes' : 'No',
             });
           } else if (componentType === 'subsystem') {
             Object.keys(filterTypeDropdown[componentType]).forEach((field) => {
@@ -615,7 +605,6 @@ export default {
 
       this.columns.reaction[0].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.model;
       this.columns.reaction[4].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.compartment;
-      this.columns.reaction[5].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.is_transport;
 
       this.columns.subsystem[0].filterOptions.filterDropdownItems = filterTypeDropdown.subsystem.model;
       this.columns.subsystem[2].filterOptions.filterDropdownItems = filterTypeDropdown.subsystem.compartments;

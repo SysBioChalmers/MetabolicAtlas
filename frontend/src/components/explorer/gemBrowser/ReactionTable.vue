@@ -19,9 +19,6 @@
                `The number of reactions displayed is limited to ${limitReaction}` : ''"
         >
           Showing {{ reactions.length }} reaction(s)
-          <template v-if="transportReactionCount !== 0">
-            including {{ transportReactionCount }} transport reactions
-          </template>
           <template v-if="(reactions.length || -1) === limitReaction" class="icon">
             <i class="fa fa-exclamation-triangle has-text-warning"></i> limited to {{ limitReaction }}
           </template>
@@ -127,9 +124,6 @@ export default {
     }),
     showCP() {
       return this.selectedElmId; // true or false
-    },
-    transportReactionCount() {
-      return this.reactions.filter(r => r.is_transport).length;
     },
     showSubsystem() {
       return this.type !== 'subsystem';
