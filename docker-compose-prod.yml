@@ -22,10 +22,10 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.35'
+          cpus: '0.25'
           memory: 1.5G
         limits:
-          cpus: '0.40'
+          cpus: '0.30'
           memory: 2G
 
   api:
@@ -54,7 +54,7 @@ services:
           cpus: '1.00'
           memory: 9G
         limits:
-          cpus: '1.10'
+          cpus: '1.15'
           memory: 10G
     ulimits:
       nofile:
