@@ -1,4 +1,4 @@
-## pip install locustio
+## pip install locust
 ## locust --host=https://csbi.chalmers.se
 
 import time
