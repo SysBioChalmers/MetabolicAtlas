@@ -40,12 +40,12 @@
               </div>
               <footer class="card-footer">
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'browserRoot', params: { model: model.database_name } }">
+                             :to="{ name: 'browserRoot', params: { model: model.short_name } }">
                   <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
                   <span>{{ messages.gemBrowserName }}</span>
                 </router-link>
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'viewerRoot', params: { model: model.database_name } }">
+                             :to="{ name: 'viewerRoot', params: { model: model.short_name } }">
                   <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
                   <span>{{ messages.mapViewerName }}</span>
                 </router-link>
@@ -79,7 +79,7 @@
                tabindex="0" @keyup.esc="showModelId = ''">
             <div id="modal-info" class="model-table">
               <h4 class="title is-size-4">
-                <template v-if="selectedModel.database_name">
+                <template v-if="selectedModel.short_name">
                   {{ selectedModel.full_name }}
                 </template>
                 <template v-else>

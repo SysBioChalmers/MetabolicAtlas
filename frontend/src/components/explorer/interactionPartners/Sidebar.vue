@@ -14,13 +14,13 @@
       <router-link
         v-if="showIpButton && selectedElm.type !== 'reaction'"
         class="card-footer-item is-paddingless"
-        :to="{ name: 'interPartner', params: { model: model.database_name, id: selectedElm.real_id || selectedElm.id } }">  <!-- eslint-disable-line max-len -->
+        :to="{ name: 'interPartner', params: { model: model.short_name, id: selectedElm.real_id || selectedElm.id } }">  <!-- eslint-disable-line max-len -->
         <span class="icon is-large"><i class="fa fa-share-alt fa-lg"></i></span>
         <span>{{ messages.interPartName }}</span>
       </router-link>
       <router-link
         class="card-footer-item is-paddingless"
-        :to="{ name: 'browser', params: { model: model.database_name, type: selectedElm.type, id: selectedElm.real_id || selectedElm.id } }">  <!-- eslint-disable-line max-len -->
+        :to="{ name: 'browser', params: { model: model.short_name, type: selectedElm.type, id: selectedElm.real_id || selectedElm.id } }">  <!-- eslint-disable-line max-len -->
         <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
         <span>{{ messages.gemBrowserName }}</span>
       </router-link>

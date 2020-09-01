@@ -38,7 +38,7 @@
                     </span>
                     <span v-else-if="el.name === 'compartment' && metabolite[el.name]">
                       <!-- eslint-disable-next-line max-len -->
-                      <router-link :to="{ name: 'browser', params: { model: model.database_name, type: 'compartment', id: metabolite[el.name].id } }"
+                      <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'compartment', id: metabolite[el.name].id } }"
                       >{{ metabolite[el.name].id }}</router-link>
                     </span>
                     <span v-else>
@@ -53,7 +53,7 @@
                     <span v-for="(rm, i) in relatedMetabolites" :key="rm.id">
                       <br v-if="i !== 0">
                       <!-- eslint-disable-next-line max-len -->
-                      <router-link :to="{ name: 'browser', params: { model: model.database_name, type: 'metabolite', id: rm.id } }">
+                      <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'metabolite', id: rm.id } }">
                         {{ rm.fullName }}
                       </router-link> in {{ rm.compartment.name }}
                     </span>
@@ -65,7 +65,7 @@
           </div>
           <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
             <router-link class="button is-info is-fullwidth is-outlined"
-                         :to="{ name: 'interPartner', params: { model: model.database_name, id: metaboliteId } }">
+                         :to="{ name: 'interPartner', params: { model: model.short_name, id: metaboliteId } }">
               <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
               <span>{{ messages.interPartName }}</span>
             </router-link>

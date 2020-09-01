@@ -13,7 +13,7 @@ const getters = {
     };
     return {
       ...models,
-      [model.database_name]: modifiedModel,
+      [model.short_name]: modifiedModel,
     };
   }, {}),
   integratedModels: state => state.modelList.map(model => ({

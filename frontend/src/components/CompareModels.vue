@@ -41,7 +41,7 @@
                 <thead>
                   <tr>
                     <th>Compartment</th>
-                    <th>Human1 total</th>
+                    <th>Human-GEM total</th>
                     <th>{{ c.models.A.modelId }}-exclusive</th>
                     <th>{{ c.models.B.modelId }}-exclusive</th>
                   </tr>
@@ -66,7 +66,7 @@
                 <thead>
                   <tr>
                     <th>Subsystem</th>
-                    <th>Human1 total</th>
+                    <th>Human-GEM total</th>
                     <th>{{ c.models.A.modelId }}-exclusive</th>
                     <th>{{ c.models.B.modelId }}-exclusive</th>
                   </tr>

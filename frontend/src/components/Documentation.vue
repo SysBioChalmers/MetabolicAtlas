@@ -201,7 +201,7 @@
           Click on a row in the table to show more information about a GEM. Users can download models in various file formats (when available).
 
           <h5 id="Comparison" class="is-size-5">Comparison</h5>
-          The <i>Comparison</i> page provides statistics about the comparison/overlap between Human1 and HMR2, and Recond3D.
+          The <i>Comparison</i> page provides statistics about the comparison/overlap between Human-GEM and HMR 2.0, and Recon3D.
 
           <h5 id="FTP-download" class="is-size-5">FTP download</h5>
           Genome-Scale Metabolic model files can be downloaded from <a :href="`ftp://${ftpUrl}/`">metabolicatlas.org</a> or by connecting to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>).

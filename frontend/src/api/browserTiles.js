@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// params: { model, version }
-const fetchBrowserTiles = async (params) => {
+const fetchBrowserTiles = async ({ model, version }) => {
+  const params = { model, version };
   const { data } = await axios.get('/random-components', { params });
   return data;
 };
