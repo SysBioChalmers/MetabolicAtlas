@@ -18,7 +18,7 @@ class RandomUser(HttpUser):
     @task(3)
     def explore(self):
         self.client.get("/api/v2/1_3_0/reactions/HMR_8313")
-        self.client.get("filename: /api/v2/1_3_0/reactions/HMR_8313/related-reactions")
+        self.client.get("/api/v2/1_3_0/reactions/HMR_8313/related-reactions")
 
     @task(4)
     def browserR(self):
