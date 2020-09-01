@@ -1,14 +1,8 @@
 import axios from 'axios';
 
-const search = async ({ version, searchTerm, model, limit }) => {
-  let url = `${version}/search?searchTerm=${searchTerm}`;
-  if (model) {
-    url += `&model=${model}`;
-  }
-  if (limit) {
-    url += `&limit=${limit}`;
-  }
-  const { data } = await axios.get(url);
+// params: { searchTerm, model, version, limit }
+const search = async (params) => {
+  const { data } = await axios.get('/search', { params });
   return data;
 };
 

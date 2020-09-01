@@ -1,25 +1,28 @@
 import axios from 'axios';
 
-const fetchReactionData = async ({ id, version }) => {
-  const { data } = await axios.get(`${version}/reactions/${id}/`);
+const fetchReactionData = async ({ id, model, version }) => {
+  const params = { model, version };
+  const { data } = await axios.get(`/reactions/${id}`, { params });
   return data;
 };
 
-const fetchRelatedReactionsForReaction = async ({ id, version, limit }) => {
-  const { data } = await axios.get(`${version}/reactions/${id}/related-reactions?limit=${limit}`);
+const fetchRelatedReactionsForReaction = async ({ id, model, version, limit }) => {
+  const params = { model, version, limit };
+  const { data } = await axios.get(`/reactions/${id}/related-reactions`, { params });
   return data.sort((a, b) => (a.compartment_str < b.compartment_str ? -1 : 1));
 };
 
-const fetchRelatedReactions = async (resourceType, id, version, limit) => {
-  const { data } = await axios.get(`${version}/${resourceType}s/${id}/related-reactions?limit=${limit}`);
+const fetchRelatedReactions = async (resourceType, id, model, version, limit) => {
+  const params = { model, version, limit };
+  const { data } = await axios.get(`/${resourceType}s/${id}/related-reactions`, { params });
   return data;
 };
 
-const fetchRelatedReactionsForGene = async ({ id, version, limit }) => fetchRelatedReactions('gene', id, version, limit);
+const fetchRelatedReactionsForGene = async ({ id, model, version, limit }) => fetchRelatedReactions('gene', id, model, version, limit);
 
-const fetchRelatedReactionsForMetabolite = async ({ id, version, limit }, allCompartments) => fetchRelatedReactions('metabolite', id, version, limit, allCompartments);
+const fetchRelatedReactionsForMetabolite = async ({ id, model, version, limit }, allCompartments) => fetchRelatedReactions('metabolite', id, model, version, limit, allCompartments);
 
-const fetchRelatedReactionsForSubsystem = async ({ id, version, limit }) => fetchRelatedReactions('subsystem', id, version, limit);
+const fetchRelatedReactionsForSubsystem = async ({ id, model, version, limit }) => fetchRelatedReactions('subsystem', id, model, version, limit);
 
 export default {
   fetchReactionData,

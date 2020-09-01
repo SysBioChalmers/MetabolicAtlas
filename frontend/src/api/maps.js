@@ -2,8 +2,9 @@ import axios from 'axios';
 
 const baseURL = '/api/v2/';
 
-const fetchMapsListing = async ({ model, version }) => {
-  const { data } = await axios.get(`${version}/maps/listing?model=${model}`);
+// params: { model, version }
+const fetchMapsListing = async (params) => {
+  const { data } = await axios.get('/maps/listing', { params });
 
   const compartment = data.compartments.map(c => ({
     id: c.id,
@@ -49,8 +50,9 @@ const fetchSvgMap = async (mapUrl, model, svgName) => {
   return data;
 };
 
-const mapSearch = async ({ model, version, searchTerm }) => {
-  const { data } = await axios.get(`${version}/maps/search?model=${model}&searchTerm=${searchTerm}`);
+// params: { searchTerm, model, version }
+const mapSearch = async (params) => {
+  const { data } = await axios.get('/maps/search', { params });
   return data;
 };
 
