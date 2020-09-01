@@ -23,7 +23,7 @@ class RandomUser(HttpUser):
     @task(4)
     def browserR(self):
         self.client.get("/api/v2/1_3_0/subsystems/transport_reactions")
-        self.client.get("/api/v2/1_3_0/subsystems/transport_reactions/related-reactions")
+        self.client.get("/api/v2/1_3_0/subsystems/transport_reactions/related-reactions?limit=200")
 
     @task(5)
     def browserM(self):
