@@ -1,9 +1,9 @@
 import queryListResult from 'neo4j/queryHandlers/list';
 import reformatExternalDbs from 'neo4j/shared/formatter';
+import parseParams from 'neo4j/shared/helper';
 
 const getRandomComponents = async ({ model, version }) => {
-  const m = model ? `:${model}` : '';
-  const v = version ? `:V${version}` : '';
+  const [m, v] = parseParams(model, version);
 
   const statement = `
 MATCH (:GeneState)-[${v}]-(g:Gene${m})

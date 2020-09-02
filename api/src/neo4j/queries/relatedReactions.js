@@ -1,4 +1,5 @@
 import queryListResult from 'neo4j/queryHandlers/list';
+import parseParams from 'neo4j/shared/helper';
 
 const NODE_TYPES = {
   reaction: 'Reaction',
@@ -10,8 +11,7 @@ const NODE_TYPES = {
 
 // TODO: add pagination and search
 const getRelatedReactions = async ({ nodeType, id, model,  version, limit }) => {
-  const m = model ? `:${model}` : '';
-  const v = version ? `:V${version}` : '';
+  const [m, v] = parseParams(model, version);
   let statement;
 
   switch (nodeType) {
