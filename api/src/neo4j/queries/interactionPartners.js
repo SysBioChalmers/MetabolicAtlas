@@ -1,8 +1,8 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
+import parseParams from 'neo4j/shared/helper';
 
 const getInteractionPartners = async ({ id, model, version }) => {
-  const m = model ? `:${model}` : '';
-  const v = version ? `:V${version}` : '';
+  const [m, v] = parseParams(model, version);
 
   const statement = `
 MATCH (comp${m} {id: "${id}"})

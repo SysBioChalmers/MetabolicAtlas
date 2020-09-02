@@ -1,9 +1,9 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import queryListResult from 'neo4j/queryHandlers/list';
+import parseParams from 'neo4j/shared/helper';
 
 const getMapsListing = async ({ model, version }) => {
-  const m = model ? `:${model}` : '';
-  const v = version ? `:V${version}` : '';
+  const [m, v] = parseParams(model, version);
 
   const statement = `
 MATCH (:CompartmentState)-[${v}]-(c:Compartment${m})
@@ -58,8 +58,7 @@ RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
 };
 
 const mapSearch = async ({ model, version, searchTerm }) => {
-  const m = model ? `:${model}` : '';
-  const v = version ? `:V${version}` : '';
+  const [m, v] = parseParams(model, version);
 
   const statement = `
 CALL db.index.fulltext.queryNodes("fulltext", "${searchTerm}~")

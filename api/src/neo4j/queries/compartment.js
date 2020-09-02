@@ -1,8 +1,8 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
+import parseParams from 'neo4j/shared/helper';
 
 const getCompartment = async ({ id, model, version, full }) => {
-  const m = model ? `:${model}` : '';
-  const v = version ? `:V${version}` : '';
+  const [m, v] = parseParams(model, version);
 
   const statement = `
 CALL apoc.cypher.run("

@@ -1,9 +1,9 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import reformatExternalDbs from 'neo4j/shared/formatter';
+import parseParams from 'neo4j/shared/helper';
 
 const getReaction = async ({ id, model, version }) => {
-  const m = model ? `:${model}` : '';
-  const v = version ? `:V${version}` : '';
+  const [m, v] = parseParams(model, version);
 
   const statement = `
 CALL apoc.cypher.run("
