@@ -81,7 +81,7 @@ export default {
     return {
       errorMessage: '',
       showSearchCharAlert: false,
-      showResults: true,
+      showResults: false,
       showLoader: false,
       noResult: false,
       messages,
@@ -112,7 +112,11 @@ export default {
     },
   },
   mounted() {
-    $('#search').focus();
+    if (this.searchTermString.length === 0) {
+      $('#search').focus();
+    } else {
+      this.blur();
+    }
   },
   methods: {
     blur() {
