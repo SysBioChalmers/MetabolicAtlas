@@ -38,9 +38,6 @@
                         <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'compartment', id: c.id } }">{{ c.name }}</router-link>
                       </span>
                     </template>
-                    <template v-if="reaction.is_transport">
-                      &nbsp;(transport reaction)
-                    </template>
                   </div>
                 </template>
                 <template v-else-if="el.name === 'ec'">

@@ -87,7 +87,7 @@ export function reformatChemicalReactionHTML(reaction, noLink = false, model = '
   if (reaction === null) {
     return '';
   }
-  const addComp = reaction.is_transport || reaction.compartment_str.includes('=>');
+  const addComp = reaction.compartment_str.includes('=>');
   const type = 'metabolite';
   function formatReactionElement(x) {
     if (!addComp) {
