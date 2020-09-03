@@ -534,7 +534,7 @@ export default {
             Object.keys(filterTypeDropdown[componentType]).forEach((field) => {
               if (field === 'model') {
                 filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
-              } else if (field === 'compartment') {
+              } else if (el[field] && field === 'compartment') {
                 el[field]
                   .filter(v => !(v.id in filterTypeDropdown[componentType][field]))
                   .forEach((v) => {

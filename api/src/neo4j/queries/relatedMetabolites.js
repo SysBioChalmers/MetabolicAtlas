@@ -1,12 +1,13 @@
 import queryListResult from 'neo4j/queryHandlers/list';
+import parseParams from 'neo4j/shared/helper';
 
-const getRelatedMetabolites = async ({ id, version }) => {
-  const v = version;
+const getRelatedMetabolites = async ({ id, model, version }) => {
+  const [m, v] = parseParams(model, version);
 
   const statement = `
-MATCH (cm:CompartmentalizedMetabolite)-[:V${v}]-(m:Metabolite)-[:V${v}]-(rcm:CompartmentalizedMetabolite)-[:V${v}]-(c:Compartment)-[:V${v}]-(cs:CompartmentState)
+MATCH (cm:CompartmentalizedMetabolite${m})-[${v}]-(m:Metabolite)-[${v}]-(rcm:CompartmentalizedMetabolite)-[${v}]-(c:Compartment)-[${v}]-(cs:CompartmentState)
 WHERE cm.id="${id}"
-MATCH (m)-[:V${v}]-(ms:MetaboliteState)
+MATCH (m)-[${v}]-(ms:MetaboliteState)
 RETURN {
   id: rcm.id,
   fullName: COALESCE(ms.name, '') + ' [' + COALESCE(cs.letterCode, '') + ']',

@@ -1,42 +1,44 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import reformatExternalDbs from 'neo4j/shared/formatter';
+import parseParams from 'neo4j/shared/helper';
 
-const getMetabolite = async ({ id, version }) => {
-  const v = version;
+const getMetabolite = async ({ id, model, version }) => {
+  const [m, v] = parseParams(model, version);
+
   const statement = `
 CALL apoc.cypher.run('
-  MATCH (ms:MetaboliteState)-[:V${v}]-(:Metabolite)-[:V${v}]-(cm:CompartmentalizedMetabolite {id: "${id}"})
+  MATCH (ms:MetaboliteState)-[${v}]-(:Metabolite)-[${v}]-(cm:CompartmentalizedMetabolite${m} {id: "${id}"})
   RETURN ms { id: cm.id, .* } as data
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite {id: "${id}"})-[:V${v}]-(c:Compartment)-[:V${v}]-(cs:CompartmentState)
+  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(c:Compartment)-[${v}]-(cs:CompartmentState)
   RETURN { compartment: cs { id: c.id, .* } } as data
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite {id: "${id}"})-[:V${v}]-(:Compartment)-[:V${v}]-(csvg:SvgMap)
+  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(:Compartment)-[${v}]-(csvg:SvgMap)
   RETURN { compartmentSVGs: COLLECT(DISTINCT(csvg {.*})) } as data
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite {id: "${id}"})-[:V${v}]-(:Reaction)-[:V${v}]-(s:Subsystem)
+  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(:Reaction)-[${v}]-(s:Subsystem)
   WITH DISTINCT s
-  MATCH (s)-[:V${v}]-(ss:SubsystemState)
+  MATCH (s)-[${v}]-(ss:SubsystemState)
   RETURN { subsystems: COLLECT(DISTINCT({id: s.id, name: ss.name})) } as data
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite {id: "${id}"})-[:V${v}]-(r:Reaction)
+  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(r:Reaction)
   WITH DISTINCT r
-  MATCH (r)-[:V${v}]-(e:ExternalDb)
+  MATCH (r)-[${v}]-(e:ExternalDb)
   RETURN { externalDbs: COLLECT(DISTINCT(e {.*})) } as data
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite {id: "${id}"})-[:V${v}]-(:Reaction)-[:V${v}]-(s:Subsystem)
+  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(:Reaction)-[${v}]-(s:Subsystem)
   WITH DISTINCT s
-  MATCH (s)-[:V${v}]-(ssvg:SvgMap)
+  MATCH (s)-[${v}]-(ssvg:SvgMap)
   RETURN { subsystemSVGs: COLLECT(DISTINCT(ssvg {.*})) } as data
 ', {}) yield value
 RETURN apoc.map.mergeList(COLLECT(value.data)) as metabolite

@@ -1,24 +1,24 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import queryListResult from 'neo4j/queryHandlers/list';
+import parseParams from 'neo4j/shared/helper';
 
 const getMapsListing = async ({ model, version }) => {
-  const m = model;
-  const v = version;
+  const [m, v] = parseParams(model, version);
 
   const statement = `
-MATCH (:CompartmentState)-[:V${v}]-(c:Compartment:${m})
+MATCH (:CompartmentState)-[${v}]-(c:Compartment${m})
 CALL apoc.cypher.run("
-  MATCH (cs:CompartmentState)-[:V${v}]-(:Compartment:${m} {id: $cid})
+  MATCH (cs:CompartmentState)-[${v}]-(:Compartment${m} {id: $cid})
   RETURN cs { id: $cid, .* } as data
   
   UNION
   
-  MATCH (:Compartment:${m} {id: $cid})-[:V${v}]-(:CompartmentalizedMetabolite)-[:V${v}]-(r:Reaction)
+  MATCH (:Compartment${m} {id: $cid})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)
   RETURN { id: $cid, reactionCount: COUNT(DISTINCT(r)) } as data
   
   UNION
   
-  MATCH (csvg:SvgMap)-[:V${v}]-(:Compartment:${m} {id: $cid})
+  MATCH (csvg:SvgMap)-[${v}]-(:Compartment${m} {id: $cid})
   RETURN { id: $cid, compartmentSVGs: COLLECT(DISTINCT(csvg {.*})) } as data
 ", {cid:c.id}) yield value
 RETURN { compartment: apoc.map.mergeList(apoc.coll.flatten(
@@ -27,19 +27,19 @@ RETURN { compartment: apoc.map.mergeList(apoc.coll.flatten(
 
 UNION
 
-MATCH (:SubsystemState)-[:V${v}]-(s:Subsystem:${m})
+MATCH (:SubsystemState)-[${v}]-(s:Subsystem${m})
 CALL apoc.cypher.run("
-  MATCH (ss:SubsystemState)-[:V${v}]-(s:Subsystem {id: $sid})
+  MATCH (ss:SubsystemState)-[${v}]-(s:Subsystem {id: $sid})
   RETURN ss { id: $sid, .* } as data
   
   UNION
   
-  MATCH (:Subsystem:${m} {id: $sid})-[:V${v}]-(r:Reaction)
+  MATCH (:Subsystem${m} {id: $sid})-[${v}]-(r:Reaction)
   RETURN { id: $sid, reactionCount: COUNT(DISTINCT(r)) } as data
   
   UNION
   
-  MATCH (:Subsystem:${m} {id: $sid})-[:V${v}]-(ssvg:SvgMap)
+  MATCH (:Subsystem${m} {id: $sid})-[${v}]-(ssvg:SvgMap)
   RETURN { id: $sid, subsystemSVGs: COLLECT(DISTINCT(ssvg {.*})) } as data
 ", {sid:s.id}) yield value
 RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
@@ -58,11 +58,13 @@ RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
 };
 
 const mapSearch = async ({ model, version, searchTerm }) => {
+  const [m, v] = parseParams(model, version);
+
   const statement = `
 CALL db.index.fulltext.queryNodes("fulltext", "${searchTerm}~")
 YIELD node
-OPTIONAL MATCH (node)-[:V${version}]-(parentNode:${model})
-WHERE node:${model} OR parentNode:${model}
+OPTIONAL MATCH (node)-[${v}]-(parentNode${m})
+WHERE node${m} OR parentNode${m}
 RETURN [n in COLLECT(DISTINCT(
 	CASE
 		WHEN EXISTS(node.id) THEN node.id

@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-const fetchCompartmentSummary = async ({ id, version }) => {
-  const { data } = await axios.get(`${version}/compartments/${id}/`);
+const fetchCompartmentSummary = async ({ id, model, version }) => {
+  const params = { model, version };
+  const { data } = await axios.get(`/compartments/${id}`, { params });
   return data;
 };
 

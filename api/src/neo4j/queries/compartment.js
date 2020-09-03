@@ -1,40 +1,42 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
+import parseParams from 'neo4j/shared/helper';
 
-const getCompartment = async ({ id, version, full }) => {
-  const v = version;
+const getCompartment = async ({ id, model, version, full }) => {
+  const [m, v] = parseParams(model, version);
+
   const statement = `
 CALL apoc.cypher.run("
-  MATCH (cs:CompartmentState)-[:V${v}]-(c:Compartment {id: '${id}'})
+  MATCH (cs:CompartmentState)-[${v}]-(c:Compartment${m} {id: '${id}'})
   RETURN cs { id: c.id, .* } as data
   
   UNION
     
-  MATCH (:Compartment {id: '${id}'})-[:V${v}]-(:CompartmentalizedMetabolite)-[:V${v}]-(:Reaction)-[:V${v}]-(s:Subsystem)-[:V${v}]-(ss:SubsystemState)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
   RETURN { subsystems: COLLECT(DISTINCT({id: s.id, name: ss.name})) } as data
   
   UNION
   
-  MATCH (:Compartment {id: '${id}'})-[:V${v}]-(:CompartmentalizedMetabolite)-[:V${v}]-(r:Reaction)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)
   RETURN { reactionsCount: COUNT(DISTINCT(r)) ${ full ? ', reactions: COLLECT(DISTINCT(r.id))' : ''}} as data
   
   UNION
   
-  MATCH (:Compartment {id: '${id}'})-[:V${v}]-(cm:CompartmentalizedMetabolite)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(cm:CompartmentalizedMetabolite)
   RETURN { metabolitesCount: COUNT(DISTINCT(cm)) ${ full ? ', metabolites: COLLECT(DISTINCT(cm.id))' : ''}} as data
   
   UNION
   
-  MATCH (:Compartment {id: '${id}'})-[:V${v}]-(:CompartmentalizedMetabolite)-[:V${v}]-(:Reaction)-[:V${v}]-(g:Gene)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(:Reaction)-[${v}]-(g:Gene)
   RETURN { genesCount: COUNT(DISTINCT(g)) ${ full ? ', genes: COLLECT(DISTINCT(g.id))' : ''}} as data
   
   UNION
   
-  MATCH (:Compartment {id: '${id}'})-[:V${v}]-(e:ExternalDb)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(e:ExternalDb)
   RETURN { externalDbs: COLLECT(DISTINCT(e {.*})) } as data
   
   UNION
   
-  MATCH (:Compartment {id: '${id}'})-[:V${v}]-(csvg:SvgMap)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(csvg:SvgMap)
   RETURN { compartmentSVGs: COLLECT(DISTINCT(csvg {.*})) } as data
 ", {}) yield value
 RETURN apoc.map.mergeList(COLLECT(value.data)) as compartment
