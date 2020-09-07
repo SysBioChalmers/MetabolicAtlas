@@ -4,15 +4,22 @@ import parseParams from 'neo4j/shared/helper';
 const get3dNetwork = async ({ model, version, type, id }) => {
   const [m, v] = parseParams(model, version);
 
-  const compartmentFragment = type === 'compartment'
+  // compartment fragment
+  const cf = type === 'compartment'
     ? `(:Compartment {id: "${id}"})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-`
     : '';
 
-  const subsystemFragment = type === 'subsystem'
+  // compartment fragment at end
+  const cfe = type === 'compartment'
+    ? `-[${v}]-(:Compartment {id: "${id}"})`
+    : '';
+
+  // subsystem fragment
+  const sf = type === 'subsystem'
     ? `(s:Subsystem {id: "${id}"})-[${v}]-`
     : '';
 
-  const f = `${compartmentFragment}${subsystemFragment}`;
+  const f = `${cf}${sf}`;
 
   const statement = `
 CALL apoc.cypher.run('
@@ -26,20 +33,20 @@ CALL apoc.cypher.run('
   MATCH ${f}(r:Reaction${m})-[${v}]-(g:Gene)
   MATCH (g)-[${v}]-(gs:GeneState)
   RETURN {
-    nodes: COLLECT(DISTINCT { g: "e", id: g.id, n: gs.name }),
-    links: COLLECT(DISTINCT { s: g.id, t: r.id })
+    nodes: COLLECT(DISTINCT { g: "e", id: g.id + "-" + toString(ID(g)), n: gs.name }),
+    links: COLLECT(DISTINCT { s: g.id + "-" + toString(ID(g)), t: r.id })
   } as data
   
   UNION
   
-  MATCH ${f}(r:Reaction${m})-[cmE${v}]-(cm:CompartmentalizedMetabolite)
+  MATCH ${sf}(r:Reaction${m})-[cmE${v}]-(cm:CompartmentalizedMetabolite)${cfe}
   MATCH (cm)-[${v}]-(:Metabolite)-[${v}]-(ms:MetaboliteState)
   RETURN {
-    nodes: COLLECT(DISTINCT { g: "m", id: cm.id, n: ms.name }),
+    nodes: COLLECT(DISTINCT { g: "m", id: cm.id + "-" + toString(ID(cm)), n: ms.name }),
     links: COLLECT(DISTINCT(
       CASE
-	WHEN startnode(cmE)=cm THEN { s: cm.id, t: r.id }
-	ELSE { s: r.id, t: cm.id }
+	WHEN startnode(cmE)=cm THEN { s: cm.id + "-" + toString(ID(cm)), t: r.id }
+	ELSE { s: r.id, t: cm.id + "-" + toString(ID(cm)) }
       END
     ))
   } as data
