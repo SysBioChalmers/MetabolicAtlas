@@ -1,5 +1,6 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import parseParams from 'neo4j/shared/helper';
+import populateWithLayout from 'utils/3d-network';
 
 const get3dNetwork = async ({ model, version, type, id }) => {
   const [m, v] = parseParams(model, version);
@@ -57,7 +58,8 @@ RETURN {
 }
 `;
 
-  return querySingleResult(statement);
+  const network = await querySingleResult(statement);
+  return populateWithLayout(network);
 };
 
 export default get3dNetwork;
