@@ -92,13 +92,12 @@
                     @loading="showLoader=true" @startSelection="showSelectionLoader=true" @endSelection="endSelection"
                     @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
             </svgmap>
-            <d3dforce v-if="show3D"
-                      :requested-map-type="requestedType" :requested-map-name="requestedName"
-                      @loadComplete="handleLoadComplete"
-                      @loading="showLoader=true" @startSelection="showSelectionLoader=true"
-                      @endSelection="endSelection" @unSelect="unSelect"
-                      @updatePanelSelectionData="updatePanelSelectionData">
-            </d3dforce>
+            <three-d-viewer v-if="show3D"
+                            :component-type="requestedType" :component-id="requestedName"
+                            @loadComplete="handleLoadComplete"
+                            @loading="showLoader=true" @startSelection="showSelectionLoader=true"
+                            @endSelection="endSelection" @unSelect="unSelect"
+                            @updatePanelSelectionData="updatePanelSelectionData" />
           </template>
           <div v-show="showLoader" id="iLoader" class="loading">
             <a class="button is-loading"></a>
@@ -162,7 +161,7 @@ import { debounce } from 'vue-debounce';
 import SidebarDataPanels from '@/components/explorer/mapViewer/SidebarDataPanels';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
-import D3dforce from '@/components/explorer/mapViewer/D3dforce';
+import ThreeDViewer from '@/components/explorer/ThreeDviewer';
 import { default as EventBus } from '@/event-bus';
 import { default as messages } from '@/helpers/messages';
 
@@ -172,7 +171,7 @@ export default {
     SidebarDataPanels,
     DataOverlay,
     Svgmap,
-    D3dforce,
+    ThreeDViewer,
   },
   data() {
     return {
