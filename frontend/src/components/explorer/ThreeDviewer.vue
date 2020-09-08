@@ -60,6 +60,7 @@ export default {
   },
   methods: {
     async loadNetwork() {
+      this.$emit('loading');
       const payload = {
         model: this.model.apiName,
         version: this.model.apiVersion,
@@ -69,6 +70,7 @@ export default {
 
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
       this.renderNetwork();
+      this.$emit('loadComplete', true, '');
       // console.log('controller:', controller);
       // controller.filterBy({group: 'm'});
       // controller.filterBy({id: [1, 2, 3, 4]});
