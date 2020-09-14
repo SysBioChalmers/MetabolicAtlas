@@ -28,6 +28,7 @@ export default {
   props: {
     componentType: String,
     componentId: String,
+    loading: Boolean,
   },
   data() {
     return {
@@ -60,7 +61,12 @@ export default {
   },
   methods: {
     async loadNetwork() {
+      if (this.loading) {
+        return; // prevent duplicate loads
+      }
+
       this.$emit('loading');
+
       const payload = {
         model: this.model.apiName,
         version: this.model.apiVersion,

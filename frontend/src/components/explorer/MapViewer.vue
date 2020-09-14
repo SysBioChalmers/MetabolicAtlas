@@ -94,6 +94,7 @@
             </svgmap>
             <three-d-viewer v-if="show3D"
                             :component-type="requestedType" :component-id="requestedName"
+                            :loading="showLoader"
                             @loadComplete="handleLoadComplete"
                             @loading="showLoader=true" @startSelection="showSelectionLoader=true"
                             @endSelection="endSelection" @unSelect="unSelect"
