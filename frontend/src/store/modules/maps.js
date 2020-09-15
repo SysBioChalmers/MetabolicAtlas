@@ -44,6 +44,9 @@ const getters = {
     }), {}),
   }),
 
+  mapsData3DLoaded: state => state.mapsListing.compartment.length > 0
+    && state.mapsListing.subsystem.length > 0,
+
   compartmentMapping: state => ({
     dim3D: state.mapsListing.compartment.reduce((obj, c) => ({
       ...obj, [c.id]: c.compartment_svg,

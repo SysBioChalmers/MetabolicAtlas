@@ -206,6 +206,7 @@ export default {
     }),
     ...mapGetters({
       mapsData3D: 'maps/mapsData3D',
+      mapsData3DLoaded: 'maps/mapsData3DLoaded',
       mapsData2D: 'maps/mapsData2D',
       compartmentMapping: 'maps/compartmentMapping',
       has2DCompartmentMaps: 'maps/has2DCompartmentMaps',
@@ -390,6 +391,7 @@ export default {
     checkValidRequest(displayType, displayName) {
       this.requestedType = displayType;
       this.requestedName = displayName;
+
       if (this.show2D) {
         if (displayType === 'compartment') {
           if (displayName in this.compartmentMapping.dim3D) {
@@ -399,6 +401,13 @@ export default {
         }
         return this.requestedName in this.mapsData2D.subsystems;
       }
+
+      // since the following checks requires mapsData3D, short-circuit
+      // the function if the data is not loaded
+      if (!this.mapsData3DLoaded) {
+        return true;
+      }
+
       if (displayType === 'compartment') {
         if (displayName in this.compartmentMapping.dim2D) {
           this.requestedName = this.compartmentMapping.dim2D[displayName];
