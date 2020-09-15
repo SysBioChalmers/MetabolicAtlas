@@ -42,8 +42,7 @@ const populateWithLayout = ({ nodes, links }) => {
     }
   }
 
-  const nodeSet = new Set();
-  const linkSet = new Set();
+  const nodesWithPos = [];
 
   g.forEachNode((node) => {
     const { x, y, z } = layout.getNodePosition(node.id);
@@ -53,20 +52,16 @@ const populateWithLayout = ({ nodes, links }) => {
       Math.round(z * SCALE),
     ];
 
-    nodeSet.add({
+    nodesWithPos.push({
       id: node.id,
       pos,
       ...node.data,
     });
-
-    for (let link of node.links) {
-      linkSet.add({ s: link.fromId, t: link.toId });
-    }
   });
 
   return {
-    nodes: [...nodeSet],
-    links: [...linkSet],
+    nodes: nodesWithPos,
+    links,
   };
 };
 
