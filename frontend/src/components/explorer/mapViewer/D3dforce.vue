@@ -155,9 +155,10 @@ export default {
 
       try {
         const payload = {
-          model: this.model.short_name,
+          model: this.model.apiName,
+          version: this.model.apiVersion,
           type: this.loadedComponentType,
-          name: this.loadedComponentName,
+          id: this.$route.params.map_id,
         };
         await this.$store.dispatch('maps/get3DMapNetwork', payload);
         setTimeout(async () => {
@@ -184,7 +185,6 @@ export default {
         .nodeLabel('n')
         .linkSource('s')
         .linkTarget('t')
-        .forceEngine('ngraph')
         .graphData({ nodes: this.network.nodes, links: this.network.links })
         .nodeOpacity(1)
         .linkWidth(0)

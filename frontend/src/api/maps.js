@@ -56,8 +56,9 @@ const mapSearch = async ({ searchTerm, model, version }) => {
   return data;
 };
 
-const fetch3DMapNetwork = async (model, type, name) => {
-  const { data } = await axios({ url: `/${model}/json/${type}/${name}`, baseURL });
+const fetch3DMapNetwork = async ({ model, version, type, id }) => {
+  const params = { model, version, type, id };
+  const { data } = await axios.get('/3d-network', { params });
   return data;
 };
 

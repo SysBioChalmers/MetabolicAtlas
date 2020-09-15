@@ -147,8 +147,8 @@ const actions = {
     commit('setSelectedElement', selectedElement);
   },
 
-  async get3DMapNetwork({ commit }, { model, type, name }) {
-    const network = await mapsApi.fetch3DMapNetwork(model, type, name);
+  async get3DMapNetwork({ commit }, { model, version, type, id }) {
+    const network = await mapsApi.fetch3DMapNetwork({ model, version, type, id });
     commit('setNetwork', network);
   },
 

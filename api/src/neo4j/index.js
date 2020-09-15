@@ -15,6 +15,7 @@ import getRelatedMetabolites from 'neo4j/queries/relatedMetabolites';
 import getRandomComponents from 'neo4j/queries/randomComponents';
 import getInteractionPartners from 'neo4j/queries/interactionPartners';
 import { getMapsListing, mapSearch } from 'neo4j/queries/map';
+import get3dNetwork from 'neo4j/queries/3d-network';
 
 export {
   getCompartment,
@@ -33,4 +34,5 @@ export {
   getMapsListing,
   mapSearch,
   search,
+  get3dNetwork,
 };

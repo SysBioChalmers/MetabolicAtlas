@@ -19,44 +19,83 @@
 
 <script>
 
-import axios from 'axios';
 import { mapState } from 'vuex';
 import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
 import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'ThreeDViewer',
+  props: {
+    componentType: String,
+    componentId: String,
+    loading: Boolean,
+  },
   data() {
     return {
       errorMessage: '',
       messages,
       controller: null,
-      data: {},
     };
   },
   computed: {
     ...mapState({
       model: state => state.models.model,
+      network: state => state.maps.network,
     }),
   },
-  mounted() {
-    this.controller = MetAtlasViewer('viewer');
-    const frontenPublic = axios.create({ baseURL: '/' });
-    frontenPublic.get('/data-colors.js')
-      .then((response) => {
-        this.data = response.data;
-        this.controller.setData(
-          this.data,
-          [{ group: 'e', sprite: '/sprite_round.png' },
-            { group: 'r', sprite: '/sprite_square.png' },
-            { group: 'm', sprite: '/sprite_triangle.png' }],
-          15);
-      });
-    // console.log('controller:', controller);
-    // controller.filterBy({group: 'm'});
-    // controller.filterBy({id: [1, 2, 3, 4]});
-    // Subscribe to node selection events
-    // document.getElementById('viewer').addEventListener('select', e => console.debug('selected', e.detail));
+  watch: {
+    async componentType() {
+      this.resetNetwork();
+      await this.loadNetwork();
+    },
+    async componentId() {
+      this.resetNetwork();
+      await this.loadNetwork();
+    },
+  },
+  async mounted() {
+    // only load network for an entire model for this specific route
+    if (this.$route.name === 'threeDviewerRoot') {
+      await this.loadNetwork();
+    }
+  },
+  methods: {
+    async loadNetwork() {
+      if (this.loading) {
+        return; // prevent duplicate loads
+      }
+
+      this.$emit('loading');
+
+      const payload = {
+        model: this.model.apiName,
+        version: this.model.apiVersion,
+        type: this.componentType,
+        id: this.componentId,
+      };
+
+      await this.$store.dispatch('maps/get3DMapNetwork', payload);
+      this.renderNetwork();
+      this.$emit('loadComplete', true, '');
+      // console.log('controller:', controller);
+      // controller.filterBy({group: 'm'});
+      // controller.filterBy({id: [1, 2, 3, 4]});
+      // Subscribe to node selection events
+      // document.getElementById('viewer').addEventListener('select', e => console.debug('selected', e.detail));
+    },
+    renderNetwork() {
+      this.controller = MetAtlasViewer('viewer');
+      this.controller.setData(
+        this.network,
+        [{ group: 'e', sprite: '/sprite_round.png' },
+          { group: 'r', sprite: '/sprite_square.png' },
+          { group: 'm', sprite: '/sprite_triangle.png' }],
+        15);
+    },
+    resetNetwork() {
+      const viewer = document.getElementById('viewer');
+      viewer.innerHTML = '';
+    },
   },
 };
 </script>
