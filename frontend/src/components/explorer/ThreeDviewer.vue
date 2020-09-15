@@ -21,7 +21,9 @@
 
 import { mapState } from 'vuex';
 import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
+import { default as EventBus } from '@/event-bus';
 import { default as messages } from '@/helpers/messages';
+import { default as colorToRGBArray } from '@/helpers/colors';
 
 export default {
   name: 'ThreeDViewer',
@@ -45,13 +47,15 @@ export default {
   },
   watch: {
     async componentType() {
-      this.resetNetwork();
       await this.loadNetwork();
     },
     async componentId() {
-      this.resetNetwork();
       await this.loadNetwork();
     },
+  },
+  created() {
+    EventBus.$off('apply3DHPARNAlevels');
+    EventBus.$on('apply3DHPARNAlevels', this.applyColorsAndRenderNetwork);
   },
   async mounted() {
     if (this.$route.name === 'threeDviewerRoot'
@@ -76,7 +80,7 @@ export default {
       };
 
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
-      this.renderNetwork();
+      this.applyColorsAndRenderNetwork({});
       this.$emit('loadComplete', true, '');
       // console.log('controller:', controller);
       // controller.filterBy({group: 'm'});
@@ -84,14 +88,44 @@ export default {
       // Subscribe to node selection events
       // document.getElementById('viewer').addEventListener('select', e => console.debug('selected', e.detail));
     },
-    renderNetwork() {
+    renderNetwork(customizedNetwork) {
+      this.resetNetwork();
       this.controller = MetAtlasViewer('viewer');
       this.controller.setData(
-        this.network,
+        customizedNetwork || this.network,
         [{ group: 'e', sprite: '/sprite_round.png' },
           { group: 'r', sprite: '/sprite_square.png' },
           { group: 'm', sprite: '/sprite_triangle.png' }],
         15);
+    },
+    applyColorsAndRenderNetwork(levels) {
+      const nodes = this.network.nodes.map((node) => {
+        let color = colorToRGBArray('#9df');
+
+        if (node.g === 'e') {
+          if (Object.keys(levels).length === 0) {
+            color = colorToRGBArray('#feb');
+          } else {
+            const partialID = node.id.split('-')[0];
+            const key = levels[partialID] !== undefined ? partialID : 'n/a';
+            color = colorToRGBArray(levels[key][0]);
+          }
+        }
+
+        if (node.g === 'r') {
+          color = colorToRGBArray('#fff');
+        }
+
+        return {
+          ...node,
+          color,
+        };
+      });
+
+      this.renderNetwork({
+        nodes,
+        links: this.network.links,
+      });
     },
     resetNetwork() {
       const viewer = document.getElementById('viewer');
