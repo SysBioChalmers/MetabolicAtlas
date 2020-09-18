@@ -84,7 +84,7 @@
                 <img src="./assets/nbislogo-green.png" title="National Bioinformatics Infrastructure Sweden" />
               </a>
               <a href="https://www.scilifelab.se" title="Science for Life Laboratory (SciLifeLab)">
-                <img src="./assets/scilifelab-green.png" />
+                <img src="./assets/scilifelab.png" />
               </a>
             </p>
           </div>
