@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "nprogress": "0.2.0",
-    "3d-force-graph": "1.56.5",
     "axios": "^0.18.0",
     "bulma": "^0.8.0",
     "bulma-timeline": "^3.0.4",
