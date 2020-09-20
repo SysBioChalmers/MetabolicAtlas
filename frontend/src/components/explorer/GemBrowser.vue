@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div class="section extended-section">
     <template v-if="errorMessage">
       <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
         {{ errorMessage }}
       </div>
     </template>
     <template v-else>
-      <div v-if="!selectedType" class="columns">
+      <div class="columns">
         <div class="column container is-fullhd has-text-centered">
           <h3 class="title is-3">Explore {{ model.short_name }} with the {{ messages.gemBrowserName }}</h3>
           <h5 class="subtitle is-5 has-text-weight-normal">
@@ -17,7 +17,7 @@
       <div class="columns is-centered">
         <gem-search ref="gemSearch" />
       </div>
-      <div v-if="showTiles && !selectedType">
+      <div>
         <div class="columns is-centered">
           <div class="column is-10 has-text-centered">
             <br><br>
@@ -115,8 +115,7 @@ export default {
     return {
       messages,
       selectedType: '',
-
-      showTiles: true,
+      showTiles: false,
       errorMessage: '',
     };
   },
@@ -126,43 +125,36 @@ export default {
       tileComponents: state => state.browserTiles.tileComponents,
     }),
   },
-  // TODO: remove selectedType and nested components, use router for navigation
-  watch: {
-    /* eslint-disable quote-props */
-    '$route': async function watchSetup(newRoute, lastRoute) {
-      this.selectedType = '';
-      const loadTiles = !this.tileComponents || !(newRoute.name === 'browserRoot' && lastRoute.name === 'browser');
-      await this.setup(loadTiles);
-    },
-  },
   async beforeMount() {
     await this.setup();
   },
   methods: {
-    async setup(loadTiles = true) {
-      if (['browser', 'browserRoot'].includes(this.$route.name)) {
-        if (!this.model || this.model.short_name !== this.$route.params.model) {
-          this.errorMessage = `Error: ${messages.modelNotFound}`;
-          return;
-        }
-        if (this.$route.name === 'browserRoot' && loadTiles) {
+    async setup() {
+      console.log(this.model);
+      if (!this.model || this.model.short_name !== this.$route.params.model) {
+        const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
+        console.log('modelSelectionSuccessful is ', modelSelectionSuccessful);
+        if (modelSelectionSuccessful) {
           await this.getTilesData();
-        } else if (this.selectedType === 'interaction') {
-          this.$router.replace(`/explore/interaction/${this.model.short_name}/${this.componentID}`);
+          console.log('should have new tiles');
         } else {
-          this.$store.dispatch('reactions/clearRelatedReactions');
-          this.selectedType = this.$route.params.type;
+          this.errorMessage = `Error: ${messages.modelNotFound}`;
         }
-        this.showTiles = this.tileComponents !== null;
       }
+      // if (!this.tileComponents) {
+      // } else {
+      //   this.$store.dispatch('reactions/clearRelatedReactions');
+      //   this.selectedType = this.$route.params.type;
+      // }
+      this.showTiles = this.tileComponents !== null;
     },
     async getTilesData() {
+      this.showTiles = false;
       try {
         await this.$store.dispatch('browserTiles/getBrowserTiles', this.model);
         this.showTiles = true;
       } catch {
         this.errorMessage = messages.unknownError;
-        this.showTiles = false;
       }
     },
   },

@@ -31,8 +31,19 @@ const actions = {
     const models = await modelsApi.fetchModels();
     commit('setModelList', models);
   },
-  selectModel({ commit }, model) {
-    commit('setModel', model);
+  /* eslint-disable no-shadow */
+  async selectModel({ dispatch, commit, getters, state }, modelShortName) {
+    if (!state.modelList) {
+      await dispatch('getModels');
+    }
+    const fixedModels = getters.models;
+    const modelShortNamesDict = {};
+    Object.values(fixedModels).forEach((m) => { modelShortNamesDict[m.short_name] = m; });
+    if (modelShortName in modelShortNamesDict) {
+      commit('setModel', fixedModels[modelShortName]);
+      return true;
+    }
+    return false;
   },
 };
 
