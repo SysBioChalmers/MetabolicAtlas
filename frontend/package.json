@@ -22,7 +22,7 @@
     "jquery": "3.3.1",
     "jquery-mousewheel": "3.1.13",
     "jquery.panzoom": "3.2.2",
-    "@metabolicatlas/mapviewer-3d": "^0.1.1",
+    "@metabolicatlas/mapviewer-3d": "^0.1.2",
     "vue": "^2.6.10",
     "vue-color": "2.0.9",
     "vue-cookie": "^1.1.4",
