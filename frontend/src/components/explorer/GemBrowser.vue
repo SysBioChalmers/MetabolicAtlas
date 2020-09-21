@@ -136,10 +136,15 @@ export default {
         console.log('modelSelectionSuccessful is ', modelSelectionSuccessful);
         if (modelSelectionSuccessful) {
           await this.getTilesData();
-          console.log('should have new tiles');
+          console.log('should get tiles for new model');
         } else {
           this.errorMessage = `Error: ${messages.modelNotFound}`;
         }
+      } else if (!this.tileComponents
+          || !(this.tileComponents.model === this.model.apiName
+            && this.tileComponents.version === this.model.apiVersion)) {
+        console.log('reloading tiles');
+        await this.getTilesData();
       }
       // if (!this.tileComponents) {
       // } else {
