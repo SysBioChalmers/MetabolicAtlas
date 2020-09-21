@@ -5,14 +5,13 @@ import NProgress from 'nprogress';
 import Home from '@/components/Home';
 import Explorer from '@/components/Explorer';
 import GemBrowser from '@/components/explorer/GemBrowser';
-import Resources from './components/Resources';
 import SearchTable from '@/components/SearchTable';
-import Resources from '@/components/Resources';
 import About from '@/components/About';
 import Documentation from '@/components/Documentation';
 import Repository from '@/components/Repository';
 import CompareModels from '@/components/CompareModels';
 import FourOFour from '@/components/FourOFour';
+import Resources from './components/Resources';
 
 Vue.use(VueRouter);
 

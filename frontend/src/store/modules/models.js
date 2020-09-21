@@ -33,7 +33,7 @@ const actions = {
   },
   /* eslint-disable no-shadow */
   async selectModel({ dispatch, commit, getters, state }, modelShortName) {
-    if (!state.modelList) {
+    if (state.modelList.length === 0) {
       await dispatch('getModels');
     }
     const fixedModels = getters.models;
