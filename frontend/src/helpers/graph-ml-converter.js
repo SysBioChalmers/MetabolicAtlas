@@ -16,7 +16,6 @@ export default function (cyNetwork) {
     function appendNodes(cyNodes) {
         let nodesString = '';
         cyNodes.forEach(function(ele){
-            // console.log(ele.data());
             nodesString += `\n\t\t<node id="${ele.data().id}">`;
             nodesString += `\n\t\t\t<data key="name">${ele.data().name}</data>`;
             nodesString += `\n\t\t\t<data key="type">${ele.data().type}</data>`;
