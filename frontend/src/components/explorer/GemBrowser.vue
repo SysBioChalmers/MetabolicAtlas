@@ -22,6 +22,7 @@
           <div class="column is-10 has-text-centered">
             <br><br>
             <a id="randomButton" class="button is-rounded is-outlined is-success"
+               :class="tileComponents ? '' : 'is-loading'"
                title="Fetch another random set of components" @click="getTilesData()">
               <span class="icon">
                 <i class="fa fa-random"></i>
@@ -115,7 +116,6 @@ export default {
     return {
       messages,
       selectedType: '',
-      showTiles: false,
       errorMessage: '',
     };
   },
@@ -126,38 +126,33 @@ export default {
     }),
   },
   async beforeMount() {
-    await this.setup();
+    if (!this.model || this.model.short_name !== this.$route.params.model) {
+      const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
+      if (modelSelectionSuccessful) {
+        await this.getTilesData();
+      } else {
+        this.errorMessage = `Error: ${messages.modelNotFound}`;
+      }
+    } else {
+      await this.getTilesData();
+    }
+    // if (!this.tileComponents) {
+    // } else {
+    //   this.$store.dispatch('reactions/clearRelatedReactions');
+    //   this.selectedType = this.$route.params.type;
+    // }
+  },
+  async beforeUpdate() {
+    if (!this.tileComponents
+        || !(this.tileComponents.model === this.model.apiName
+          && this.tileComponents.version === this.model.apiVersion)) {
+      await this.getTilesData();
+    }
   },
   methods: {
-    async setup() {
-      console.log(this.model);
-      if (!this.model || this.model.short_name !== this.$route.params.model) {
-        const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
-        console.log('modelSelectionSuccessful is ', modelSelectionSuccessful);
-        if (modelSelectionSuccessful) {
-          await this.getTilesData();
-          console.log('should get tiles for new model');
-        } else {
-          this.errorMessage = `Error: ${messages.modelNotFound}`;
-        }
-      } else if (!this.tileComponents
-          || !(this.tileComponents.model === this.model.apiName
-            && this.tileComponents.version === this.model.apiVersion)) {
-        console.log('reloading tiles');
-        await this.getTilesData();
-      }
-      // if (!this.tileComponents) {
-      // } else {
-      //   this.$store.dispatch('reactions/clearRelatedReactions');
-      //   this.selectedType = this.$route.params.type;
-      // }
-      this.showTiles = this.tileComponents !== null;
-    },
     async getTilesData() {
-      this.showTiles = false;
       try {
         await this.$store.dispatch('browserTiles/getBrowserTiles', this.model);
-        this.showTiles = true;
       } catch {
         this.errorMessage = messages.unknownError;
       }
