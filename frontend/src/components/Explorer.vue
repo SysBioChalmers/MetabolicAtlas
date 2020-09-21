@@ -83,7 +83,7 @@ export default {
       explorerTools: [
         { name: messages.gemBrowserName,
           img: require('../assets/gemBrowser.jpg'),
-          routeName: 'browserRoot',
+          routeName: 'browser',
           icon: 'table' },
         { name: messages.mapViewerName,
           img: require('../assets/mapViewer.jpg'),
@@ -117,19 +117,19 @@ export default {
     async getIntegratedModelList() {
       await this.$store.dispatch('models/getModels');
       let modelKey = Object.keys(this.models)[0];
-      if (this.$route.query && this.$route.query.selected) {
+      if (this.$route.params && this.$route.params.model) {
         const modelShortNamesDict = {};
         Object.values(this.models).forEach((m) => { modelShortNamesDict[m.short_name] = m; });
-        if (this.$route.query.selected in modelShortNamesDict) {
-          modelKey = this.$route.query.selected;
+        if (this.$route.params.model in modelShortNamesDict) {
+          modelKey = this.$route.params.model;
         }
       }
       this.$store.dispatch('models/selectModel', modelKey);
     },
-    selectModel(modelShortName) {
+    async selectModel(modelShortName) {
       if (modelShortName !== this.model.short_name) {
         this.$store.dispatch('models/selectModel', modelShortName);
-        this.$router.replace({ name: 'explorerRoot', query: { selected: modelShortName } }).catch(() => {});
+        this.$router.replace({ params: { model: modelShortName } });
       }
     },
   },

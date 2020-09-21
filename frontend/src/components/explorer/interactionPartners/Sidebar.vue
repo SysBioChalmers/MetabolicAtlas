@@ -20,7 +20,7 @@
       </router-link>
       <router-link
         class="card-footer-item is-paddingless"
-        :to="{ name: 'browser', params: { model: model.short_name, type: selectedElm.type, id: selectedElm.real_id || selectedElm.id } }">  <!-- eslint-disable-line max-len -->
+        :to="{ name: selectedElm.type, params: { model: model.short_name, id: selectedElm.real_id || selectedElm.id } }">  <!-- eslint-disable-line max-len -->
         <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
         <span>{{ messages.gemBrowserName }}</span>
       </router-link>

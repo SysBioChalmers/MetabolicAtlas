@@ -1,58 +1,70 @@
 <template>
-  <div v-if="componentNotFound" class="columns is-centered">
-    <notFound :type="type" :component-id="cName"></notFound>
-  </div>
-  <div v-else>
-    <div class="columns">
-      <div class="column">
-        <h3 class="title is-3"><span class="is-capitalized">{{ type }}</span> {{ compartment.name }}</h3>
-      </div>
-    </div>
-    <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
-    <div v-else class="columns is-multiline is-variable is-8">
-      <div class="subsystem-table column is-10-widescreen is-9-desktop is-full-tablet">
-        <div class="table-container">
-          <table v-if="compartment && Object.keys(compartment).length != 0"
-                 class="table main-table is-fullwidth">
-            <tr>
-              <td class="td-key has-background-primary has-text-white-bis">Name</td>
-              <td> {{ compartment.name }}</td>
-            </tr>
-            <tr>
-              <td class="td-key has-background-primary has-text-white-bis">Subsystems</td>
-              <td>
-                <div v-html="subsystemListHtml"></div>
-                <div v-if="!showFullSubsystem && subsystems.length > limitSubsystem">
-                  <br>
-                  <button class="is-small button" @click="showFullSubsystem=true">
-                    ... and {{ subsystems.length - limitSubsystem }} more
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="td-key has-background-primary has-text-white-bis">Reactions</td>
-              <td> {{ compartment.reactionsCount }}</td>
-            </tr>
-            <tr>
-              <td class="td-key has-background-primary has-text-white-bis">Metabolites</td>
-              <td> {{ compartment.metabolitesCount }}</td>
-            </tr>
-            <tr>
-              <td class="td-key has-background-primary has-text-white-bis">Genes</td>
-              <td> {{ compartment.genesCount }}</td>
-            </tr>
-          </table>
+  <div class="section extended-section">
+    <div class="container is-fullhd">
+      <div v-if="modelErrorMessage" class="columns is-centered">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
         </div>
-        <p>The
-          <a :href="`/api/v2/${model.apiVersion}/compartments/${cName}?full=true`"
-             target="_blank">complete list in JSON format</a>
-          of reactions / metabolites / genes is available using our
-          <a href="/api/v2" target="_blank">API</a></p>
       </div>
-      <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
-        <maps-available :id="cName" :type="type" :element-i-d="''" />
-        <gem-contact :id="cName" :type="type" />
+      <div v-else class="columns is-centered">
+        <gem-search ref="gemSearch" />
+      </div>
+      <div v-if="componentNotFound" class="columns is-centered">
+        <notFound :type="type" :component-id="cName"></notFound>
+      </div>
+      <div v-else>
+        <div class="columns">
+          <div class="column">
+            <h3 class="title is-3"><span class="is-capitalized">{{ type }}</span> {{ compartment.name }}</h3>
+          </div>
+        </div>
+        <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
+        <div v-else class="columns is-multiline is-variable is-8">
+          <div class="subsystem-table column is-10-widescreen is-9-desktop is-full-tablet">
+            <div class="table-container">
+              <table v-if="compartment && Object.keys(compartment).length != 0"
+                     class="table main-table is-fullwidth">
+                <tr>
+                  <td class="td-key has-background-primary has-text-white-bis">Name</td>
+                  <td> {{ compartment.name }}</td>
+                </tr>
+                <tr>
+                  <td class="td-key has-background-primary has-text-white-bis">Subsystems</td>
+                  <td>
+                    <div v-html="subsystemListHtml"></div>
+                    <div v-if="!showFullSubsystem && subsystems.length > limitSubsystem">
+                      <br>
+                      <button class="is-small button" @click="showFullSubsystem=true">
+                        ... and {{ subsystems.length - limitSubsystem }} more
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td-key has-background-primary has-text-white-bis">Reactions</td>
+                  <td> {{ compartment.reactionsCount }}</td>
+                </tr>
+                <tr>
+                  <td class="td-key has-background-primary has-text-white-bis">Metabolites</td>
+                  <td> {{ compartment.metabolitesCount }}</td>
+                </tr>
+                <tr>
+                  <td class="td-key has-background-primary has-text-white-bis">Genes</td>
+                  <td> {{ compartment.genesCount }}</td>
+                </tr>
+              </table>
+            </div>
+            <p v-if="model">The
+              <a :href="`/api/v2/${model.apiVersion}/compartments/${cName}?full=true`"
+                 target="_blank">complete list in JSON format</a>
+              of reactions / metabolites / genes is available using our
+              <a href="/api/v2" target="_blank">API</a></p>
+          </div>
+          <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
+            <maps-available :id="cName" :type="type" :element-i-d="''" />
+            <gem-contact :id="cName" :type="type" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -64,25 +76,29 @@ import Loader from '@/components/Loader';
 import NotFound from '@/components/NotFound';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import GemContact from '@/components/shared/GemContact';
+import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import { buildCustomLink } from '@/helpers/utils';
+import { default as messages } from '@/helpers/messages';
 
 export default {
-  name: 'Subsystem',
+  name: 'Compartment',
   components: {
     NotFound,
     Loader,
     MapsAvailable,
     GemContact,
+    GemSearch,
   },
   data() {
     return {
       cName: '',
       type: 'compartment',
-      errorMessage: '',
+      modelErrorMessage: '',
       showFullSubsystem: false,
       limitSubsystem: 30,
       componentNotFound: false,
       showLoaderMessage: '',
+      messages,
     };
   },
   computed: {
@@ -109,25 +125,31 @@ export default {
     },
   },
   watch: {
-    $route() {
-      this.setup();
-    },
+    '$route.params': 'setup',
   },
-  beforeMount() {
+  async created() {
+    if (!this.model || this.model.short_name !== this.$route.params.model) {
+      const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
+      if (!modelSelectionSuccessful) {
+        this.modelErrorMessage = `Error: ${messages.modelNotFound}`;
+      }
+    }
     this.setup();
   },
   methods: {
     async setup() {
       this.showLoaderMessage = 'Loading compartment data';
       this.cName = this.$route.params.id;
-      try {
-        const payload = { model: this.model, id: this.cName };
-        await this.$store.dispatch('compartments/getCompartmentSummary', payload);
-        this.componentNotFound = false;
-        this.showLoaderMessage = '';
-      } catch {
-        this.componentNotFound = true;
-        document.getElementById('search').focus();
+      if (this.cName !== this.compartment.id) {
+        try {
+          const payload = { model: this.model, id: this.cName };
+          await this.$store.dispatch('compartments/getCompartmentSummary', payload);
+          this.componentNotFound = false;
+          this.showLoaderMessage = '';
+        } catch {
+          this.componentNotFound = true;
+          document.getElementById('search').focus();
+        }
       }
     },
   },

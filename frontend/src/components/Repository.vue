@@ -40,7 +40,7 @@
               </div>
               <footer class="card-footer">
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'browserRoot', params: { model: model.short_name } }">
+                             :to="{ name: 'browser', params: { model: model.short_name } }">
                   <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
                   <span>{{ messages.gemBrowserName }}</span>
                 </router-link>

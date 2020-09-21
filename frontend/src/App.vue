@@ -16,7 +16,7 @@
         <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
           <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
             <router-link v-if="$route.path.includes('/explore')"
-                         :to="{ name: 'explorerRoot' }"
+                         :to="{ name: 'explorer' }"
                          class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
               {{ model ? model.short_name : '' }}
             </router-link>
@@ -128,7 +128,7 @@ export default {
         },
         {
           displayName: 'Explore',
-          routeName: 'explorerRoot',
+          routeName: 'explorer',
         },
         {
           displayName: 'GEM',

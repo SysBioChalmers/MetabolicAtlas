@@ -11,7 +11,7 @@
       </header>
       <footer class="card-footer">
         <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                     :to="{ name: 'browser', params: { model: model.short_name, type: mapType, id: getGemBrowserLinkId() } }">  <!-- eslint-disable-line max-len -->
+                     :to="{ name: mapType, params: { model: model.short_name, id: getGemBrowserLinkId() } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
           <span>{{ messages.gemBrowserName }}</span>
         </router-link>
@@ -32,7 +32,7 @@
         </header>
         <footer class="card-footer">
           <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                       :to="{ name: 'browser', params: { model: model.short_name, type: selectionData.type, id: idfy(selectionData.data.id) } }">  <!-- eslint-disable-line max-len -->
+                       :to="{ name: selectionData.type, params: { model: model.short_name, id: idfy(selectionData.data.id) } }">  <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
@@ -125,7 +125,7 @@
         </div>
         <footer class="card-footer">
           <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                       :to="{ name: 'browser', params: { model: model.short_name, type: selectionData.type, id: idfy(selectionData.data.id) } }"> <!-- eslint-disable-line max-len -->
+                       :to="{ name: selectionData.type, params: { model: model.short_name, id: idfy(selectionData.data.id) } }"> <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>

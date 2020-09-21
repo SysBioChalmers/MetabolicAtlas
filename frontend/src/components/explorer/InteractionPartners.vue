@@ -416,7 +416,7 @@ export default {
   },
   watch: {
     /* eslint-disable quote-props */
-    '$route': async function watchSetup() {
+    '$route': async function () {
       if (this.$route.path.includes('/interaction/')) {
         if (this.mainNodeID !== this.$route.params.id) {
           await this.setup();

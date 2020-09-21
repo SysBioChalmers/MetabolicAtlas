@@ -23,7 +23,7 @@ const getters = {
       model.sample.cell_type,
       model.sample.cell_line,
     ].filter(e => e).join(' ‒ ') || '-',
-  })).sort((a, b) => (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1)),
+  })).sort((a, b) => (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? 1 : -1)),
 };
 
 const actions = {
