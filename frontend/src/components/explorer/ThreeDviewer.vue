@@ -53,12 +53,6 @@ export default {
       await this.loadNetwork();
     },
   },
-  async mounted() {
-    // only load network for an entire model for this specific route
-    if (this.$route.name === 'threeDviewerRoot') {
-      await this.loadNetwork();
-    }
-  },
   methods: {
     async loadNetwork() {
       if (this.loading) {

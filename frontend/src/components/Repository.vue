@@ -45,7 +45,7 @@
                   <span>{{ messages.gemBrowserName }}</span>
                 </router-link>
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'viewerRoot', params: { model: model.short_name } }">
+                             :to="{ name: 'viewer', params: { model: model.short_name } }">
                   <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
                   <span>{{ messages.mapViewerName }}</span>
                 </router-link>

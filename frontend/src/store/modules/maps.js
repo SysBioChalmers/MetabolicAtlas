@@ -6,10 +6,8 @@ import metabolitesApi from '@/api/metabolites';
 const data = {
   availableMaps: {},
   mapsListing: {
-    compartment: [],
-    subsystem: [],
-    compartmentsvg: [],
-    subsystemsvg: [],
+    compartments: [],
+    subsystems: [],
   },
   svgMap: null,
   idsFound: [],
@@ -18,7 +16,7 @@ const data = {
     nodes: [],
     links: [],
   },
-  show2D: true,
+  showing2D: true,
   dataOverlayPanelVisible: false,
   coords: {
     x: 0,
@@ -35,50 +33,12 @@ const data = {
 };
 
 const getters = {
-  mapsData3D: state => ({
-    compartments: state.mapsListing.compartment.reduce((obj, c) => ({
-      ...obj, [c.id]: { ...c, alternateDim: c.compartment_svg },
-    }), {}),
-    subsystems: state.mapsListing.subsystem.reduce((obj, s) => ({
-      ...obj, [s.id]: { ...s, alternateDim: s.subsystem_svg },
-    }), {}),
-  }),
-
-  compartmentMapping: state => ({
-    dim3D: state.mapsListing.compartment.reduce((obj, c) => ({
-      ...obj, [c.id]: c.compartment_svg,
-    }), {}),
-    dim2D: state.mapsListing.compartmentsvg.reduce((obj, c) => ({
-      ...obj, [c.id]: c.compartment,
-    }), {}),
-  }),
-
-  mapsData2D: state => ({
-    compartments: state.mapsListing.compartmentsvg.reduce((obj, c) => ({
-      ...obj, [c.id]: { ...c, alternateDim: c.compartment },
-    }), {}),
-    subsystems: state.mapsListing.subsystemsvg.reduce((obj, s) => ({
-      ...obj, [s.id]: { ...s, alternateDim: s.subsystem },
-    }), {}),
-  }),
-
-  has2DCompartmentMaps: (state, _getters) => Object.keys(_getters.mapsData2D.compartments).length > 0, // eslint-disable-line no-unused-vars
-
-  has2DSubsystemMaps: (state, _getters) => Object.keys(_getters.mapsData2D.subsystems).length > 0, // eslint-disable-line no-unused-vars
-
-  show3D: state => !state.show2D,
-  // selectedElementId: (state) => {
-  //   if (!state.selectedElement) {
-  //     return null;
-  //   }
-
-  //   return state.selectedElement.reaction ? state.selectedElement.reaction.id : state.selectedElement.id;
-  // },
+  mapsListing: state => state.mapsListing,
 
   selectIds: state => [state.selectedElementId].filter(x => x),
 
   queryParams: state => ({
-    dim: state.show2D ? '2d' : '3d',
+    dim: state.showing2D ? '2d' : '3d',
     panel: +state.dataOverlayPanelVisible,
     sel: state.selectedElementId,
     search: state.searchTerm,
@@ -156,12 +116,8 @@ const actions = {
     commit('setNetwork', network);
   },
 
-  toggleShow2D({ state, commit }) {
-    commit('setShow2D', !state.show2D);
-  },
-
-  setShow2D({ commit }, show2D) {
-    commit('setShow2D', show2D);
+  setShowing2D({ commit }, showing2D) {
+    commit('setShowing2D', showing2D);
   },
 
   toggleDataOverlayPanelVisible({ state, commit }) {
@@ -190,7 +146,7 @@ const actions = {
 
   initFromQueryParams({ commit }, { dim, panel, coords, sel, search, g1, g2 }) {
     // TODO: handle errors
-    commit('setShow2D', dim !== '3d');
+    commit('setShowing2D', dim === '2d');
     commit('setDataOverlayPanelVisible', !!(panel === '1' || g1 || g2));
     commit('setSelectedElementId', sel);
     commit('setSearchTerm', search);
@@ -218,7 +174,7 @@ const actions = {
 
   resetParamsExcept({ commit }, paramsToKeep) {
     if (!paramsToKeep.includes('dim')) {
-      commit('setShow2D', true);
+      commit('setShowing2D', true);
     }
 
     if (!paramsToKeep.includes('panel')) {
@@ -279,8 +235,8 @@ const mutations = {
     state.network = network;
   },
 
-  setShow2D: (state, show2D) => {
-    state.show2D = show2D;
+  setShowing2D: (state, showing2D) => {
+    state.showing2D = showing2D;
   },
 
   setDataOverlayPanelVisible: (state, dataOverlayPanelVisible) => {

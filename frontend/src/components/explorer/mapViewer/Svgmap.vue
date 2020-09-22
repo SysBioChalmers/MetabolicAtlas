@@ -48,13 +48,11 @@ export default {
   },
   props: {
     mapsData: Object,
-    requestedMapType: String,
     requestedMapName: String,
   },
   data() {
     return {
       errorMessage: '',
-      mapType: '',
       mapName: '',
       mapMetadata: null,
       mapMetadataHistory: {},
@@ -111,21 +109,19 @@ export default {
       return true;
     },
   },
-  watch: {
-    async requestedMapName(newName, oldName) {
-      if (oldName && oldName.length > 0 && newName !== oldName) {
-        this.initialLoadWithParams = false;
-      }
-      await this.init();
-    },
-  },
+  // watch: {
+  //   async mapsData(newName, oldName) {
+  //     if (oldName && oldName.length > 0 && newName !== oldName) {
+  //       this.initialLoadWithParams = false;
+  //     }
+  //     await this.init();
+  //   },
+  // },
   created() {
     EventBus.$off('apply2DHPARNAlevels');
-
     EventBus.$on('apply2DHPARNAlevels', (levels) => {
       this.applyHPARNAlevelsOnMap(levels);
     });
-
     this.updateURLCoord = debounce(this.updateURLCoord, 150);
   },
   async mounted() {
@@ -174,11 +170,7 @@ export default {
   methods: {
     async init() {
       this.$refs.mapsearch.reset(); // always reset the search
-      const type = this.requestedMapType;
-      const name = this.requestedMapName;
-      if (name && (type === 'compartment' || type === 'subsystem')) {
-        await this.loadMap(type, name);
-      }
+      await this.loadMap(this.mapsData);
     },
     toggleGenes() {
       if ($('.enz, .ee').first().attr('visibility') === 'hidden') {
@@ -311,12 +303,11 @@ export default {
         this.$emit('loadComplete', true, '');
       }, 0);
     },
-    async loadMap(type, name) {
+    async loadMap(name) {
       // load the svg file from the server
       this.$emit('loading');
-      const mapInfo = this.mapsData.compartments[name] || this.mapsData.subsystems[name];
+      const mapInfo = this.mapsData;
       if (!mapInfo) {
-        this.mapType = null;
         this.mapName = null;
         this.$emit('loadComplete', false, `Invalid map ID "${name}"`);
         return;
@@ -328,12 +319,11 @@ export default {
         return;
       }
 
-      if (type !== this.mapType || newSvgName !== this.mapName) {
+      if (newSvgName !== this.mapName) {
         // this.$refs.mapsearch.reset();
         if (newSvgName in this.mapMetadataHistory) {
           this.$store.dispatch('maps/setSvgMap', this.svgContentHistory[newSvgName]);
           this.mapMetadata = this.mapMetadataHistory[newSvgName];
-          this.mapType = type;
           this.mapName = newSvgName;
           setTimeout(() => {
             this.loadSvgPanzoom();
@@ -342,10 +332,8 @@ export default {
           try {
             const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: newSvgName };
             await this.$store.dispatch('maps/getSvgMap', payload);
-            this.mapType = type;
             this.mapName = newSvgName;
             this.mapMetadata = mapInfo;
-
             setTimeout(() => {
               this.loadSvgPanzoom();
             }, 0);
@@ -494,10 +482,6 @@ export default {
         return;
       }
       const [id, type] = this.getElementIdAndType(element);
-      if (type === 'subsystem' && this.mapType === 'subsystem') {
-        // cannot select subsystem on subsystem map
-        return;
-      }
 
       if (this.selectedElementId === id && !routeSelect) {
         this.unSelectElement();
