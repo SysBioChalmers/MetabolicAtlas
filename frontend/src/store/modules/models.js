@@ -23,13 +23,13 @@ const getters = {
       model.sample.cell_type,
       model.sample.cell_line,
     ].filter(e => e).join(' ‒ ') || '-',
-  })).sort((a, b) => (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? 1 : -1)),
+  })),
 };
 
 const actions = {
   async getModels({ commit }) {
     const models = await modelsApi.fetchModels();
-    commit('setModelList', models);
+    commit('setModelList', models.sort((a, b) => (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1)));
   },
   /* eslint-disable no-shadow */
   async selectModel({ dispatch, commit, getters, state }, modelShortName) {

@@ -26,7 +26,7 @@
     "vue-color": "2.0.9",
     "vue-cookie": "^1.1.4",
     "vue-debounce": "^2.1.0",
-    "vue-good-table": "^2.12.2",
+    "vue-good-table": "^2.21.0",
     "vue-lodash": "^1.0.3",
     "vue-matomo": "^3",
     "vue-router": "^3.0.3",
