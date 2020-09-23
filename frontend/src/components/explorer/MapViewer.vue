@@ -62,7 +62,7 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex';
-// import { debounce } from 'vue-debounce';
+import { debounce } from 'vue-debounce';
 import Menu from '@/components/explorer/mapViewer/Menu.vue';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
@@ -112,20 +112,23 @@ export default {
   },
   watch: {
     '$route.params': 'loadMapFromParams',
+    queryParams(newQuery, oldQuery) {
+      this.handleQueryParamsWatch(newQuery, oldQuery);
+    },
   },
-  // created() {
-  //   this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
-  //   window.onpopstate = this.handleQueryParamsWatch();
-  //   EventBus.$off('loadRNAComplete');
-  //   EventBus.$on('loadRNAComplete', (isSuccess, errorMessage) => {
-  //     if (!isSuccess) {
-  //       this.showMessage(errorMessage);
-  //       EventBus.$emit('unselectFirstTissue');
-  //       EventBus.$emit('unselectSecondTissue');
-  //     }
-  //   });
-  // },
   async created() {
+    this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
+    window.onpopstate = this.handleQueryParamsWatch();
+
+    EventBus.$off('loadRNAComplete');
+    EventBus.$on('loadRNAComplete', (isSuccess, errorMessage) => {
+      if (!isSuccess) {
+        this.showMessage(errorMessage);
+        EventBus.$emit('unselectFirstTissue');
+        EventBus.$emit('unselectSecondTissue');
+      }
+    });
+
     if (!this.model || this.model.short_name !== this.$route.params.model) {
       const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
       if (!modelSelectionSuccessful) {
@@ -137,6 +140,27 @@ export default {
     this.loadMapFromParams();
   },
   methods: {
+    handleQueryParamsWatch(newQuery, oldQuery) {
+      if (!this.$route.params.map_id) {
+        const payload = [{}, null, `${this.$route.path}?dim=${newQuery.dim}`];
+        history.replaceState(...payload); // eslint-disable-line no-restricted-globals
+        return;
+      }
+
+      if (JSON.stringify(newQuery) === JSON.stringify(oldQuery)) {
+        return;
+      }
+
+      const queryString = Object.entries(newQuery).map(e => e.join('=')).join('&');
+
+      const payload = [{}, null, `${this.$route.path}?${queryString}`];
+      if (newQuery.dim === this.$route.query.dim || (newQuery.dim && !this.$route.query.dim)) {
+        history.replaceState(...payload); // eslint-disable-line no-restricted-globals
+      } else {
+        history.pushState(...payload); // eslint-disable-line no-restricted-globals
+      }
+    },
+
     loadMapFromParams() {
       const id = this.$route.params.map_id;
       if (id) {
