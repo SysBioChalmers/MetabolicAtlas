@@ -192,8 +192,6 @@ export default {
   },
   created() {
     EventBus.$off('reloadGeneExpressionData');
-    EventBus.$off('loadingCustomFile');
-
     EventBus.$on('reloadGeneExpressionData', () => {
       // check if tissues are provided in the URL
       if (this.$route.query && (this.$route.query.g1 || this.$route.query.g2)) {
@@ -226,6 +224,8 @@ export default {
       this.customTissue2 = 'None';
       this.customFileInfo = info;
     });
+
+    EventBus.$off('loadingCustomFile');
     EventBus.$on('loadingCustomFile', () => {
       this.showFileLoader = true;
     });

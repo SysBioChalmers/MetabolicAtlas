@@ -54,7 +54,7 @@
             </span>
           </p>
         </div>
-        <DataOverlay v-show="dataOverlayPanelVisible" :map-name="currentDisplayedName" />
+        <DataOverlay v-if="currentMap !== null && dataOverlayPanelVisible" :map-name="currentMap.name" />
       </template>
     </div>
   </div>
@@ -68,6 +68,7 @@ import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
 import ThreeDViewer from '@/components/explorer/ThreeDviewer';
 import { default as messages } from '@/helpers/messages';
+import { default as EventBus } from '@/event-bus';
 
 export default {
   name: 'MapViewer',
@@ -88,8 +89,6 @@ export default {
       loadMapErrorMessage: '',
       showOverviewScreen: true,
       requestedName: '',
-      currentDisplayedName: '',
-      currentDisplayedData: '',
       watchURL: true,
 
       selectionData: {
@@ -150,14 +149,10 @@ export default {
       if (!isSuccess) {
         this.selectionData.data = null;
         this.showMessage(errorMessage);
-        this.currentDisplayedName = '';
-        return;
       }
-      // this.showOverviewScreen = false;
-      this.currentDisplayedName = this.requestedName;
-      // this.$nextTick(() => {
-      //   EventBus.$emit('reloadGeneExpressionData');
-      // });
+      this.$nextTick(() => {
+        EventBus.$emit('reloadGeneExpressionData');
+      });
     },
     toggleDataOverlayPanel() {
       this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
