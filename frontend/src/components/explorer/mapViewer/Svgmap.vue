@@ -30,7 +30,7 @@
       </span>
       <span class="button" title="Download as SVG" @click="downloadCanvas()"><i class="fa fa-download"></i></span>
     </div>
-    <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap" :ready="mapMetadata !== null"
+    <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap"
                :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
                @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>
@@ -59,17 +59,11 @@ export default {
       type: Object,
       required: true,
     },
-    requestedMapName: String,
   },
   data() {
     return {
       showLoader: true,
       errorMessage: '',
-      mapName: '',
-      mapMetadata: null,
-      mapMetadataHistory: {},
-
-      svgContentHistory: {},
 
       isFullscreen: false,
       panzoom: null,
@@ -122,10 +116,10 @@ export default {
     },
   },
   watch: {
-    async mapData(newName, oldName) {
-      if (oldName && oldName.length > 0 && newName !== oldName) {
-        this.initialLoadWithParams = false;
-      }
+    async mapData() {
+      // if (oldName && oldName.length > 0 && newName !== oldName) {
+      //   this.initialLoadWithParams = false;
+      // }
       await this.init();
     },
   },
@@ -172,11 +166,6 @@ export default {
       self.isFullscreen = $('.svgbox').first().hasClass('fullscreen');
       e.stopPropagation();
     });
-    $(document).on('mozfullscreenchange', () => {
-      $('.svgbox').first().toggleClass('fullscreen');
-      self.isFullscreen = $('.svgbox').first().hasClass('fullscreen');
-    });
-
     await this.init();
   },
   methods: {
@@ -322,34 +311,14 @@ export default {
         this.errorMessage = messages.mapNotFound;
         return;
       }
-
-      if (newSvgName !== this.mapName) {
-        // this.$refs.mapsearch.reset();
-        if (newSvgName in this.mapMetadataHistory) {
-          this.$store.dispatch('maps/setSvgMap', this.svgContentHistory[newSvgName]);
-          this.mapMetadata = this.mapMetadataHistory[newSvgName];
-          this.mapName = newSvgName;
-          setTimeout(() => {
-            this.loadSvgPanzoom();
-          }, 0);
-        } else {
-          try {
-            const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: newSvgName };
-            await this.$store.dispatch('maps/getSvgMap', payload);
-            this.mapName = newSvgName;
-            this.mapMetadata = this.mapData;
-            setTimeout(() => {
-              this.loadSvgPanzoom();
-            }, 0);
-          } catch {
-            this.errorMessage = messages.mapNotFound;
-          }
-        }
-      } else {
-        setTimeout(() => {
-          this.loadSvgPanzoom();
-        }, 0);
-      }
+      // this.$store.dispatch('maps/setSvgMap', this.svgContentHistory[newSvgName]);
+      this.showLoader = true;
+      const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: newSvgName };
+      await this.$store.dispatch('maps/getSvgMap', payload);
+      setTimeout(() => {
+        this.loadSvgPanzoom();
+      }, 0);
+      // this.errorMessage = messages.mapNotFound;
     },
     downloadCanvas() {
       const blob = new Blob([document.getElementById('svg-wrapper').innerHTML], {

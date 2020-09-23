@@ -139,9 +139,11 @@ export default {
   },
   methods: {
     loadMapFromParams() {
-      if (this.$route.params.map_id) {
+      const id = this.$route.params.map_id;
+      if (id) {
         /* eslint-disable prefer-destructuring */
-        this.currentMap = this.mapsListing.compartments[1];
+        this.currentMap = this.mapsListing.compartments
+          .concat(this.mapsListing.subsystems).filter(map => map.id === id)[0];
       }
     },
     handleLoadComplete(isSuccess, errorMessage) {
@@ -156,6 +158,9 @@ export default {
       // this.$nextTick(() => {
       //   EventBus.$emit('reloadGeneExpressionData');
       // });
+    },
+    toggleDataOverlayPanel() {
+      this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
     },
     showMessage(errorMessage) {
       this.loadMapErrorMessage = errorMessage;

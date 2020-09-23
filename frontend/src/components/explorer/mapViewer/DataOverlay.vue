@@ -231,9 +231,6 @@ export default {
     });
   },
   methods: {
-    toggleDataOverlayPanel() {
-      this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
-    },
     getFileName(e) {
       if (e.target.files.length !== 0) {
         this.customFileName = e.target.files[0].name;
