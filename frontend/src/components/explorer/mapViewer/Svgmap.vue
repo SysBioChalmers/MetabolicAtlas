@@ -117,11 +117,9 @@ export default {
   },
   watch: {
     async mapData() {
-      // if (oldName && oldName.length > 0 && newName !== oldName) {
-      //   this.initialLoadWithParams = false;
-      // }
       await this.init();
     },
+    svgContent: 'loadSvgPanzoom',
   },
   created() {
     EventBus.$off('apply2DHPARNAlevels');
@@ -170,8 +168,14 @@ export default {
   },
   methods: {
     async init() {
-      this.$refs.mapsearch.reset(); // always reset the search
-      await this.loadMap(this.mapData);
+      this.$refs.mapsearch.reset();
+      if (this.mapData.svgs.length === 0) {
+        this.errorMessage = messages.mapNotFound;
+        return;
+      }
+      this.showLoader = true;
+      const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
+      await this.$store.dispatch('maps/getSvgMap', payload);
     },
     toggleGenes() {
       if ($('.enz, .ee').first().attr('visibility') === 'hidden') {
@@ -272,7 +276,6 @@ export default {
         this.panzoom.destroy(); // clean reset
       }
       this.panzoom = Panzoom(panzoomElem, this.panzoomOptions);
-      this.showLoader = false;
 
       setTimeout(() => {
         // bind event listeners
@@ -302,23 +305,8 @@ export default {
         });
 
         this.processSelSearchParam();
+        this.showLoader = false;
       }, 0);
-    },
-    async loadMap() {
-      // load the svg file from the server
-      const newSvgName = this.mapData.svgs[0].filename;
-      if (!newSvgName) {
-        this.errorMessage = messages.mapNotFound;
-        return;
-      }
-      // this.$store.dispatch('maps/setSvgMap', this.svgContentHistory[newSvgName]);
-      this.showLoader = true;
-      const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: newSvgName };
-      await this.$store.dispatch('maps/getSvgMap', payload);
-      setTimeout(() => {
-        this.loadSvgPanzoom();
-      }, 0);
-      // this.errorMessage = messages.mapNotFound;
     },
     downloadCanvas() {
       const blob = new Blob([document.getElementById('svg-wrapper').innerHTML], {
