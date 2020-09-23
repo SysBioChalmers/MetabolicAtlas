@@ -7,33 +7,22 @@
         </div>
       </template>
       <template v-else>
-        <div class="column is-one-fifth-widescreen is-one-quarter-desktop
+        <div id="mapSidebar"
+             class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet is-half-mobile has-background-lightgray">
-          <Menu />
+          <Menu :maps-listing="mapsListing" />
         </div>
-        <div v-show="showOverviewScreen" class="column">
-          <p class="is-size-5 has-text-centered" style="padding: 10%;">
-            Choose a compartment or subsystem map from the menu on the left
-          </p>
-        </div>
-        <div v-show="!showOverviewScreen" id="graphframe" class="column is-unselectable">
+        <div v-if="currentMap" id="graphframe" class="column is-unselectable">
           <Svgmap v-if="showing2D"
-                  :maps-data="{ customName: 'Peroxisome', filename: 'peroxisome.svg', id: 'peroxisome'}"
-                  requested-map-name="peroxisome"
+                  :map-data="currentMap"
                   @loadComplete="handleLoadComplete"
-                  @loading="showLoader=true" @startSelection="showSelectionLoader=true" @endSelection="endSelection"
                   @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
           </Svgmap>
           <ThreeDViewer v-if="!showing2D"
                         :component-id="requestedName"
-                        :loading="showLoader"
                         @loadComplete="handleLoadComplete"
-                        @loading="showLoader=true" @startSelection="showSelectionLoader=true"
-                        @endSelection="endSelection" @unSelect="unSelect"
+                        @unSelect="unSelect"
                         @updatePanelSelectionData="updatePanelSelectionData" />
-          <div v-show="showLoader" id="iLoader" class="loading">
-            <a class="button is-loading"></a>
-          </div>
           <transition name="slide-fade">
             <article v-if="loadMapErrorMessage" id="errorPanel" class="message is-danger">
               <div class="message-header">
@@ -43,7 +32,12 @@
             </article>
           </transition>
         </div>
-        <div v-show="!showLoader" id="dataOverlayBar"
+        <div v-else class="column">
+          <p class="is-size-5 has-text-centered" style="padding: 10%;">
+            Choose a compartment or subsystem map from the menu on the left
+          </p>
+        </div>
+        <div id="dataOverlayBar"
              class="column is-narrow has-text-white is-unselectable" :class="{
                'is-paddingless': dataOverlayPanelVisible }"
              title="Click to show the data overlay panel" @click="toggleDataOverlayPanel()">
@@ -60,8 +54,7 @@
             </span>
           </p>
         </div>
-        <DataOverlay v-show="dataOverlayPanelVisible"
-                     :dim="dim" :map-name="currentDisplayedName" />
+        <DataOverlay v-show="dataOverlayPanelVisible" :map-name="currentDisplayedName" />
       </template>
     </div>
   </div>
@@ -74,7 +67,6 @@ import Menu from '@/components/explorer/mapViewer/Menu.vue';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
 import ThreeDViewer from '@/components/explorer/ThreeDviewer';
-import { default as EventBus } from '@/event-bus';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -87,13 +79,17 @@ export default {
   },
   data() {
     return {
+      // already refactored
+      dataOverlayPanelVisible: true,
+      currentMap: null,
+
+      // old
       errorMessage: '',
       loadMapErrorMessage: '',
       showOverviewScreen: true,
       requestedName: '',
       currentDisplayedName: '',
       currentDisplayedData: '',
-      showLoader: false,
       watchURL: true,
 
       selectionData: {
@@ -101,8 +97,6 @@ export default {
         data: null,
         error: false,
       },
-      showSelectionLoader: false,
-      isHoverMenuItem: false,
       lastRoute: {},
       messages,
     };
@@ -111,48 +105,44 @@ export default {
     ...mapState({
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
-      dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
     }),
     ...mapGetters({
+      mapsListing: 'maps/mapsListing',
       queryParams: 'maps/queryParams',
     }),
-    dim() {
-      return this.showing2D ? '2d' : '3d';
-    },
   },
   watch: {
     '$route.params': 'loadMapFromParams',
   },
-  created() {
-    // this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
-    // window.onpopstate = this.handleQueryParamsWatch();
-    EventBus.$off('loadRNAComplete');
-    EventBus.$on('loadRNAComplete', (isSuccess, errorMessage) => {
-      if (!isSuccess) {
-        this.showMessage(errorMessage);
-        EventBus.$emit('unselectFirstTissue');
-        EventBus.$emit('unselectSecondTissue');
-      } else {
-        this.showLoader = false;
+  // created() {
+  //   this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
+  //   window.onpopstate = this.handleQueryParamsWatch();
+  //   EventBus.$off('loadRNAComplete');
+  //   EventBus.$on('loadRNAComplete', (isSuccess, errorMessage) => {
+  //     if (!isSuccess) {
+  //       this.showMessage(errorMessage);
+  //       EventBus.$emit('unselectFirstTissue');
+  //       EventBus.$emit('unselectSecondTissue');
+  //     }
+  //   });
+  // },
+  async created() {
+    if (!this.model || this.model.short_name !== this.$route.params.model) {
+      const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
+      if (!modelSelectionSuccessful) {
+        console.log(`Error: ${messages.modelNotFound}`);
       }
-    });
-  },
-  async beforeMount() {
+    }
+    await this.$store.dispatch('maps/getMapsListing', this.model);
     this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
-    await this.getSubComptData(this.model);
+    this.loadMapFromParams();
   },
   methods: {
     loadMapFromParams() {
-      if (false) { // request is invalid ?!?!?
-        this.handleLoadComplete(false, `Invalid ID "${this.$route.params.map_id}"`);
-      } else {
-        this.loadMapErrorMessage = '';
+      if (this.$route.params.map_id) {
+        /* eslint-disable prefer-destructuring */
+        this.currentMap = this.mapsListing.compartments[1];
       }
-      this.showOverviewScreen = false;
-    },
-    toggleDataOverlayPanel() {
-      this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
-      EventBus.$emit('recompute3DCanvasBounds');
     },
     handleLoadComplete(isSuccess, errorMessage) {
       if (!isSuccess) {
@@ -161,38 +151,17 @@ export default {
         this.currentDisplayedName = '';
         return;
       }
-      this.showOverviewScreen = false;
+      // this.showOverviewScreen = false;
       this.currentDisplayedName = this.requestedName;
-      this.showLoader = false;
-      this.$nextTick(() => {
-        EventBus.$emit('reloadGeneExpressionData');
-      });
+      // this.$nextTick(() => {
+      //   EventBus.$emit('reloadGeneExpressionData');
+      // });
     },
     showMessage(errorMessage) {
       this.loadMapErrorMessage = errorMessage;
       if (!this.loadMapErrorMessage) {
         this.loadMapErrorMessage = messages.unknownError;
       }
-      this.showLoader = false;
-    },
-    async getSubComptData(model) {
-      try {
-        await this.$store.dispatch('maps/getMapsListing', model);
-
-        if (!this.has2DCompartmentMaps && !this.has2DSubsystemMaps) {
-          this.$store.dispatch('maps/setShowing2D', false);
-        }
-      } catch (error) {
-        console.log(error);
-        switch (error.status) {
-          default:
-            this.errorMessage = messages.unknownError;
-        }
-      }
-    },
-    endSelection(isSuccess) {
-      this.showSelectionLoader = false;
-      this.selectionData.error = !isSuccess;
     },
     unSelect() {
       this.selectionData.error = false;
@@ -212,27 +181,6 @@ export default {
     min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
     height: calc(100vh - #{$navbar-height} - #{$footer-height});
-  }
-
-  #iLoader {
-    z-index: 10;
-    position: absolute;
-    background: black;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.8;
-    display: table;
-    a {
-      color: white;
-      font-size: 5em;
-      font-weight: 1000;
-      display: table-cell;
-      vertical-align: middle;
-      background: black;
-      border: 0;
-    }
   }
 
   #graphframe {

@@ -1,5 +1,13 @@
 <template>
   <div class="svgbox">
+    <div v-if="errorMessage" class="columns is-centered">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
+      </div>
+    </div>
+    <div v-show="showLoader" id="iLoader" class="loading">
+      <a class="button is-loading"></a>
+    </div>
     <div id="svg-wrapper" v-html="svgContent">
     </div>
     <div class="canvasOption overlay">
@@ -20,11 +28,11 @@
             @click="toggleFullScreen()">
         <i class="fa" :class="{ 'fa-compress': isFullscreen, 'fa-arrows-alt': !isFullscreen}"></i>
       </span>
-      <span class="button" title="Download as SVG" @click="downloadMap()"><i class="fa fa-download"></i></span>
+      <span class="button" title="Download as SVG" @click="downloadCanvas()"><i class="fa fa-download"></i></span>
     </div>
     <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap" :ready="mapMetadata !== null"
                :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
-               @unHighlightAll="unHighlight"></MapSearch>
+               @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>
   </div>
 </template>
@@ -47,11 +55,15 @@ export default {
     MapSearch,
   },
   props: {
-    mapsData: Object,
+    mapData: {
+      type: Object,
+      required: true,
+    },
     requestedMapName: String,
   },
   data() {
     return {
+      showLoader: true,
       errorMessage: '',
       mapName: '',
       mapMetadata: null,
@@ -109,14 +121,14 @@ export default {
       return true;
     },
   },
-  // watch: {
-  //   async mapsData(newName, oldName) {
-  //     if (oldName && oldName.length > 0 && newName !== oldName) {
-  //       this.initialLoadWithParams = false;
-  //     }
-  //     await this.init();
-  //   },
-  // },
+  watch: {
+    async mapData(newName, oldName) {
+      if (oldName && oldName.length > 0 && newName !== oldName) {
+        this.initialLoadWithParams = false;
+      }
+      await this.init();
+    },
+  },
   created() {
     EventBus.$off('apply2DHPARNAlevels');
     EventBus.$on('apply2DHPARNAlevels', (levels) => {
@@ -170,7 +182,7 @@ export default {
   methods: {
     async init() {
       this.$refs.mapsearch.reset(); // always reset the search
-      await this.loadMap(this.mapsData);
+      await this.loadMap(this.mapData);
     },
     toggleGenes() {
       if ($('.enz, .ee').first().attr('visibility') === 'hidden') {
@@ -271,6 +283,7 @@ export default {
         this.panzoom.destroy(); // clean reset
       }
       this.panzoom = Panzoom(panzoomElem, this.panzoomOptions);
+      this.showLoader = false;
 
       setTimeout(() => {
         // bind event listeners
@@ -300,22 +313,13 @@ export default {
         });
 
         this.processSelSearchParam();
-        this.$emit('loadComplete', true, '');
       }, 0);
     },
-    async loadMap(name) {
+    async loadMap() {
       // load the svg file from the server
-      this.$emit('loading');
-      const mapInfo = this.mapsData;
-      if (!mapInfo) {
-        this.mapName = null;
-        this.$emit('loadComplete', false, `Invalid map ID "${name}"`);
-        return;
-      }
-
-      const newSvgName = mapInfo.filename;
+      const newSvgName = this.mapData.svgs[0].filename;
       if (!newSvgName) {
-        this.$emit('loadComplete', false, messages.mapNotFound);
+        this.errorMessage = messages.mapNotFound;
         return;
       }
 
@@ -333,12 +337,12 @@ export default {
             const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: newSvgName };
             await this.$store.dispatch('maps/getSvgMap', payload);
             this.mapName = newSvgName;
-            this.mapMetadata = mapInfo;
+            this.mapMetadata = this.mapData;
             setTimeout(() => {
               this.loadSvgPanzoom();
             }, 0);
           } catch {
-            this.$emit('loadComplete', false, messages.mapNotFound);
+            this.errorMessage = messages.mapNotFound;
           }
         }
       } else {
@@ -347,11 +351,11 @@ export default {
         }, 0);
       }
     },
-    downloadMap() {
+    downloadCanvas() {
       const blob = new Blob([document.getElementById('svg-wrapper').innerHTML], {
         type: 'data:text/tsv;charset=utf-8',
       });
-      FileSaver.saveAs(blob, `${this.mapMetadata.id}.svg`);
+      FileSaver.saveAs(blob, `${this.mapData.id}.svg`);
     },
     applyHPARNAlevelsOnMap(RNAlevels) {
       this.HPARNAlevels = RNAlevels;
@@ -538,7 +542,7 @@ export default {
     },
     clientFocusX() {
       const svgBox = document.querySelector('.svgbox');
-      const sidebar = document.querySelector('#iSideBar');
+      const sidebar = document.querySelector('#mapSidebar');
       return (svgBox.offsetWidth / 2) + sidebar.offsetWidth;
     },
     clientFocusY() {
@@ -548,14 +552,11 @@ export default {
     },
     panToCoords({ panX, panY, zoom, center }) {
       this.panzoom.zoom(zoom);
-
       if (center) {
         this.panzoom.pan(panX + ($('.svgbox').width() / 2), panY + ($('.svgbox').height() / 2));
       } else {
         this.panzoom.pan(panX, panY);
       }
-
-      this.$emit('loadComplete', true, '');
     },
     reformatChemicalReactionHTML,
   },
@@ -563,6 +564,28 @@ export default {
 </script>
 
 <style lang="scss">
+
+#iLoader {
+  z-index: 10;
+  position: absolute;
+  background: black;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+  display: table;
+  a {
+    color: white;
+    font-size: 5em;
+    font-weight: 1000;
+    display: table-cell;
+    vertical-align: middle;
+    background: black;
+    border: 0;
+  }
+}
+
 .met, .rea, .enz {
   .shape, .lbl {
     cursor: pointer;

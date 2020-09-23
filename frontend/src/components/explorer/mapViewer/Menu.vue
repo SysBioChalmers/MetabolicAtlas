@@ -32,6 +32,12 @@ import { mapGetters, mapState } from 'vuex';
 
 export default {
   name: 'Menu',
+  props: {
+    mapsListing: {
+      type: Object,
+      required: true,
+    },
+  },
   data() {
     return {
       showingMapListing: true,
@@ -43,12 +49,8 @@ export default {
       showing2D: state => state.maps.showing2D,
     }),
     ...mapGetters({
-      mapsListing: 'maps/mapsListing',
       queryParams: 'maps/queryParams',
     }),
-  },
-  async created() {
-    await this.$store.dispatch('maps/getMapsListing', this.model);
   },
   methods: {
     changeToMap(newMapId) {

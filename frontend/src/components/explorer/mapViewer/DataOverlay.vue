@@ -98,14 +98,13 @@
                    :map-name="mapName"
                    @loadedHPARNALevels="setHPATissues($event)"
                    @loadedCustomLevels="setCustomTissues($event)"
-                   @errorCustomFile="handleErrorCustomFile($event)">
-    </RNAexpression>
+                   @errorCustomFile="handleErrorCustomFile($event)" />
   </div>
 </template>
 
 <script>
 
-import { mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import $ from 'jquery';
 import RNAexpression from '@/components/explorer/mapViewer/RNAexpression.vue';
 import { default as EventBus } from '@/event-bus';
@@ -148,6 +147,11 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
+      showing2D: state => state.maps.showing2D,
+      dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
+    }),
+    ...mapGetters({
+      queryParams: 'maps/queryParams',
     }),
     disabledRNAlvl() {
       return !this.mapName || this.HPATissues.length === 0;
@@ -227,6 +231,9 @@ export default {
     });
   },
   methods: {
+    toggleDataOverlayPanel() {
+      this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
+    },
     getFileName(e) {
       if (e.target.files.length !== 0) {
         this.customFileName = e.target.files[0].name;
