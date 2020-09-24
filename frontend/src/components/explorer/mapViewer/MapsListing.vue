@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     changeToMap(newMapId) {
-      this.$router.push({ params: { map_id: newMapId }, query: { dim: '2d' } });
+      this.$router.push({ params: { map_id: newMapId }, query: { dim: this.showing2D ? '2d' : '3d' } });
     },
   },
 };

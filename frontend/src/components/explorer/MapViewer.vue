@@ -17,7 +17,7 @@
                   @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
           </Svgmap>
           <ThreeDViewer v-if="!showing2D"
-                        :component-id="currentMap.name"
+                        :component-id="currentMap.id"
                         @loadComplete="handleLoadComplete"
                         @unSelect="unSelect"
                         @updatePanelSelectionData="updatePanelSelectionData" />
@@ -64,7 +64,7 @@ import { debounce } from 'vue-debounce';
 import Menu from '@/components/explorer/mapViewer/Menu.vue';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
-import ThreeDViewer from '@/components/explorer/ThreeDviewer';
+import ThreeDViewer from '@/components/explorer/mapViewer/ThreeDviewer';
 import { default as messages } from '@/helpers/messages';
 import { default as EventBus } from '@/event-bus';
 
