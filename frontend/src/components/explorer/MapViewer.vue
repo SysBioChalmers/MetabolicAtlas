@@ -30,7 +30,7 @@
                   @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
           </Svgmap>
           <ThreeDViewer v-if="!showing2D"
-                        :component-id="currentMap.id"
+                        :current-map="currentMap"
                         @loadComplete="handleLoadComplete"
                         @unSelect="unSelect"
                         @updatePanelSelectionData="updatePanelSelectionData" />

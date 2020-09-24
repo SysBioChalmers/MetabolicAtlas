@@ -15,11 +15,10 @@ import { default as messages } from '@/helpers/messages';
 export default {
   name: 'ThreeDViewer',
   props: {
-    componentId: {
-      type: String,
+    currentMap: {
+      type: Object,
       required: true,
     },
-    loading: Boolean,
   },
   data() {
     return {
@@ -35,7 +34,7 @@ export default {
     }),
   },
   watch: {
-    async componentId() {
+    async currentMap() {
       this.resetNetwork();
       await this.loadNetwork();
     },
@@ -48,8 +47,8 @@ export default {
       const payload = {
         model: this.model.apiName,
         version: this.model.apiVersion,
-        type: 'subsystem',
-        id: this.componentId,
+        type: this.currentMap.type,
+        id: this.currentMap.id,
       };
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
       this.renderNetwork();
