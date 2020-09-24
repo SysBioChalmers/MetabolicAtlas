@@ -130,7 +130,6 @@ export default {
   },
   async mounted() {
     const self = this;
-    self.initialLoadWithParams = !!self.$route.query.coords;
     ['.met', '.enz', '.rea', '.subsystem'].forEach((aClass) => {
       $('#svg-wrapper').on('click', aClass, async function f() {
         await self.selectElement($(this));
@@ -270,6 +269,8 @@ export default {
       this.selectElement(elms[0] || null, true);
     },
     loadSvgPanzoom() {
+      this.initialLoadWithParams = !!this.$route.query.coords;
+
       // load the lib svgPanzoom on the SVG loaded
       const panzoomElem = document.getElementById('svg-wrapper');
       if (this.panzoom) {
