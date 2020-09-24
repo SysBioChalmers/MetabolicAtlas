@@ -15,7 +15,8 @@
         </div>
         <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
           <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
-            <router-link v-if="$route.path.includes('/explore')"
+            <router-link id="selectedModelLink"
+                         v-if="$route.path.includes('/explore')"
                          :to="{ name: 'explorer' }"
                          class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
               {{ model ? model.short_name : '' }}
@@ -290,6 +291,9 @@ m, .clickable {
 
   #search-icon {
     font-size: 1.8rem;
+  }
+  #selectedModelLink .router-link-exact-active, .router-link-active {
+    background-color: $primary-lighter;
   }
 }
 
