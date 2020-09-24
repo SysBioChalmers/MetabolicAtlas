@@ -11,6 +11,7 @@ import Metabolite from '@/components/explorer/gemBrowser/Metabolite';
 import Reaction from '@/components/explorer/gemBrowser/Reaction';
 import Subsystem from '@/components/explorer/gemBrowser/Subsystem';
 import MapViewer from '@/components/explorer/MapViewer';
+import InteractionPartners from '@/components/explorer/InteractionPartners';
 import SearchTable from '@/components/SearchTable';
 import About from '@/components/About';
 import Documentation from '@/components/Documentation';
@@ -32,8 +33,7 @@ const routes = [
   { path: '/explore/:model/gem-browser/reaction/:id', name: 'reaction', component: Reaction },
   { path: '/explore/:model/gem-browser/subsystem/:id', name: 'subsystem', component: Subsystem },
   { path: '/explore/:model/map-viewer/:map_id?', name: 'viewer', component: MapViewer },
-  { path: '/explore/:model/interaction/', name: 'interPartnerRoot', component: Explorer },
-  { path: '/explore/:model/interaction/:id', name: 'interPartner', component: Explorer },
+  { path: '/explore/:model/interaction/:id?', name: 'interaction', component: InteractionPartners },
   { path: '/about', name: 'about', component: About },
   { path: '/gems/repository/:model_id?', name: 'gems', component: Repository },
   { path: '/gems/comparison', name: 'comparemodels', component: CompareModels },
