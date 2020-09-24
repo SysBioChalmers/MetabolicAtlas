@@ -4,7 +4,7 @@
       {{ errorMessage }}
     </div>
   </div>
-  <div v-else id="3dviewer"></div>
+  <div v-else id="viewer3d"></div>
 </template>
 
 <script>
@@ -59,7 +59,7 @@ export default {
       // document.getElementById('viewer').addEventListener('select', e => console.debug('selected', e.detail));
     },
     renderNetwork() {
-      this.controller = MetAtlasViewer('3dviewer');
+      this.controller = MetAtlasViewer('viewer3d');
       this.controller.setData(
         this.network,
         [{ group: 'e', sprite: '/sprite_round.png' },
@@ -68,7 +68,7 @@ export default {
         15);
     },
     resetNetwork() {
-      const viewer = document.getElementById('3dviewer');
+      const viewer = document.getElementById('viewer3d');
       viewer.innerHTML = '';
     },
   },
@@ -76,8 +76,8 @@ export default {
 </script>
 
 <style lang='scss'>
-#3dviewer {
-  min-width: 100%;
-  min-height: 100%;
+#viewer3d {
+  width: 100%;
+  height: 100%;
 }
 </style>
