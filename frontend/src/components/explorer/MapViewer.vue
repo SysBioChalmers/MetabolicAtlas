@@ -7,9 +7,22 @@
         </div>
       </template>
       <template v-else>
-        <Menu id="mapSidebar"
+        <div id="mapSidebar"
               class="column is-one-fifth-widescreen is-one-quarter-desktop
-                     is-one-quarter-tablet is-half-mobile has-background-lightgray" />
+                     is-one-quarter-tablet is-half-mobile has-background-lightgray">
+          <a class="button" @click="changeDimension()">
+            Switch to {{ showing2D ? '3D' : '2D ' }}
+          </a>
+          <a class="button" @click="showingMapListing = !showingMapListing">
+            {{ showingMapListing ? 'Hide' : 'Show' }} map list
+          </a>
+          <SidebarDataPanels
+            :dim="showing2D ? '2d' : '3d'"
+            :current-map="currentMap"
+            :selection-data="selectionData"
+            :loading="false" />
+          <MapsListing v-if="showingMapListing" :maps-listing="this.mapsListing" />
+        </div>
         <div v-if="currentMap" id="graphframe" class="column is-unselectable">
           <Svgmap v-if="showing2D"
                   :map-data="currentMap"
@@ -61,8 +74,9 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import { debounce } from 'vue-debounce';
-import Menu from '@/components/explorer/mapViewer/Menu.vue';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
+import MapsListing from '@/components/explorer/mapViewer/MapsListing.vue';
+import SidebarDataPanels from '@/components/explorer/mapViewer/SidebarDataPanels.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
 import ThreeDViewer from '@/components/explorer/mapViewer/ThreeDviewer';
 import { default as messages } from '@/helpers/messages';
@@ -71,13 +85,15 @@ import { default as EventBus } from '@/event-bus';
 export default {
   name: 'MapViewer',
   components: {
-    Menu,
     DataOverlay,
+    MapsListing,
+    SidebarDataPanels,
     Svgmap,
     ThreeDViewer,
   },
   data() {
     return {
+      showingMapListing: true,
       currentMap: null,
       errorMessage: '',
       loadMapErrorMessage: '',
@@ -153,10 +169,31 @@ export default {
     loadMapFromParams() {
       const id = this.$route.params.map_id;
       if (id) {
-        /* eslint-disable prefer-destructuring */
-        this.currentMap = this.mapsListing.compartments
-          .concat(this.mapsListing.subsystems).filter(map => map.id === id)[0];
+        const categories = Object.keys(this.mapsListing);
+        const items = Object.values(this.mapsListing);
+        for (let i = 0; i < categories.length; i += 1) {
+          for (let j = 0; j < items[i].length; j += 1) {
+            const item = items[i][j];
+            if (this.showing2D) {
+              for (let k = 0; k < item.svgs.length; k += 1) {
+                if (item.svgs[k].id === id) {
+                  this.currentMap = { ...item };
+                  this.currentMap.svgs = [item.svgs[k]];
+                  this.currentMap.type = categories[i].slice(0, -1);
+                  return;
+                }
+              }
+            } else if (item.id === id) {
+              this.currentMap = item;
+              this.currentMap.type = categories[i].slice(0, -1);
+              return;
+            }
+          }
+        }
       }
+    },
+    changeDimension() {
+      this.$store.dispatch('maps/setShowing2D', !this.showing2D);
     },
     handleLoadComplete(isSuccess, errorMessage) {
       if (!isSuccess) {

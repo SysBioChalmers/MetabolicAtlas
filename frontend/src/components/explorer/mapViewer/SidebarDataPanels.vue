@@ -1,17 +1,15 @@
 <template>
   <div id="sidebar_mapviewer">
-    <div v-if="mapName" class="card card-margin">
+    <div v-if="currentMap" class="card card-margin">
       <header class="card-header" @click.prevent="showMapCardContent = !showMapCardContent">
         <p class="card-header-title is-capitalized is-inline">
-          {{ mapType }}:
-          <i>{{ mapsData.compartments[mapName] ?
-            mapsData.compartments[mapName].name : mapsData.subsystems[mapName] ?
-              mapsData.subsystems[mapName].name : '' }}</i>
+          {{ currentMap.type }}:
+          <i>{{ currentMap.name }}</i>
         </p>
       </header>
       <footer class="card-footer">
         <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                     :to="{ name: mapType, params: { model: model.short_name, id: getGemBrowserLinkId() } }">  <!-- eslint-disable-line max-len -->
+                     :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
           <span>{{ messages.gemBrowserName }}</span>
         </router-link>
@@ -23,7 +21,7 @@
       </div>
     </template>
     <template v-else-if="!selectionData.error">
-      <div v-if="selectionData.data && mapType !== 'subsystem' && selectionData.type === 'subsystem'"
+      <div v-if="selectionData.data && currentMap.type !== 'subsystem' && selectionData.type === 'subsystem'"
            class="card card-margin">
         <header class="card-header">
           <p class="card-header-title is-capitalized is-inline is-unselectable">
@@ -36,21 +34,12 @@
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
-          <template v-if="isAvailableSubsystemMap(selectionData.data.id)">
-            <router-link
-              class="is-paddingless is-primary is-outlined card-footer-item has-text-centered"
-              :to="{ name: 'viewer', params: { model: model.short_name, type: selectionData.type, map_id: idfy(selectionData.data.id) }, query: { dim: '2d' } }">  <!-- eslint-disable-line max-len -->
-              <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
-              <span>Load map</span>
-            </router-link>
-          </template>
-          <template v-else>
-            <div class="is-paddingless is-primary is-outlined card-footer-item has-text-centered" disabled
-                 title="Subsystem map not available">
-              <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
-              <span :style="{ cursor: 'not-allowed' }">Load map</span>
-            </div>
-          </template>
+          <router-link
+            class="is-paddingless is-primary is-outlined card-footer-item has-text-centered"
+            :to="{ name: 'viewer', params: { model: model.short_name, type: selectionData.type, map_id: idfy(selectionData.data.id) }, query: { dim: dim } }">  <!-- eslint-disable-line max-len -->
+            <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
+            <span>Load map</span>
+          </router-link>
         </footer>
       </div>
       <div v-else-if="selectionData.data && ['metabolite', 'gene', 'reaction'].includes(selectionData.type)"
@@ -155,8 +144,7 @@ export default {
   name: 'SidebarDataPanels',
   props: {
     dim: String,
-    mapType: String,
-    mapName: String,
+    currentMap: Object,
     mapsData: Object,
     selectionData: Object,
     loading: Boolean,
@@ -195,12 +183,6 @@ export default {
     }),
   },
   methods: {
-    getGemBrowserLinkId() {
-      if (this.mapType === 'compartment') {
-        return this.mapsData.compartments[this.mapName].compartment || this.mapsData.compartments[this.mapName].id;
-      }
-      return this.mapsData.subsystems[this.mapName].subsystem || this.mapsData.subsystems[this.mapName].id;
-    },
     selectionHasNoData() {
       if (!(this.selectionData.type
           in this.selectedElementDataKeys)) {
@@ -216,11 +198,6 @@ export default {
         }
       }
       return true;
-    },
-    isAvailableSubsystemMap(name) {
-      // get the name from the svg
-      return this.mapsData.subsystems[idfy(name)]
-        && this.mapsData.subsystems[idfy(name)].sha;
     },
     capitalize,
     reformatStringToLink,
