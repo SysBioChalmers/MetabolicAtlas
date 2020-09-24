@@ -109,6 +109,9 @@ export default {
   async created() {
     await this.getIntegratedModelList();
   },
+  watch: {
+    '$route.params': 'getIntegratedModelList',
+  },
   methods: {
     async getIntegratedModelList() {
       await this.$store.dispatch('models/getModels');
