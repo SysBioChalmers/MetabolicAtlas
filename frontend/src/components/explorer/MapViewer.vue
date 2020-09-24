@@ -202,8 +202,8 @@ export default {
   }
 
   .canvasOption {
-    top: 7.25rem;
-    left: 2.25rem;
+    top: 2rem;
+    left: 1.5rem;
     span {
       display: block;
       &:not(:last-child) {
