@@ -1,6 +1,6 @@
 <template>
   <div class="extended-section">
-    <div id="iMainPanel" class="columns">
+    <div class="columns">
       <template v-if="errorMessage">
         <div class="column">
           <div class="columns">

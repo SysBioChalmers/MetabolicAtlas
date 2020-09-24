@@ -1,5 +1,5 @@
 <template>
-  <div id="mapViewer" class="extended-section">
+  <div class="extended-section">
     <div id="mapViewerContainer" class="columns">
       <template v-if="errorMessage">
         <div class="column is-danger is-half is-offset-one-quarter">
@@ -7,11 +7,9 @@
         </div>
       </template>
       <template v-else>
-        <div id="mapSidebar"
-             class="column is-one-fifth-widescreen is-one-quarter-desktop
-                    is-one-quarter-tablet is-half-mobile has-background-lightgray">
-          <Menu :maps-listing="mapsListing" />
-        </div>
+        <Menu id="mapSidebar"
+              class="column is-one-fifth-widescreen is-one-quarter-desktop
+                     is-one-quarter-tablet is-half-mobile has-background-lightgray" />
         <div v-if="currentMap" id="graphframe" class="column is-unselectable">
           <Svgmap v-if="showing2D"
                   :map-data="currentMap"
@@ -19,7 +17,7 @@
                   @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
           </Svgmap>
           <ThreeDViewer v-if="!showing2D"
-                        :component-id="requestedName"
+                        :component-id="currentMap.name"
                         @loadComplete="handleLoadComplete"
                         @unSelect="unSelect"
                         @updatePanelSelectionData="updatePanelSelectionData" />
@@ -38,8 +36,8 @@
           </p>
         </div>
         <div id="dataOverlayBar"
-             class="column is-narrow has-text-white is-unselectable" :class="{
-               'is-paddingless': dataOverlayPanelVisible }"
+             class="column is-narrow has-text-white is-unselectable"
+             :class="{'is-paddingless': dataOverlayPanelVisible }"
              title="Click to show the data overlay panel" @click="toggleDataOverlayPanel()">
           <p class="is-size-5 has-text-centered has-text-weight-bold">
             <span class="icon">
@@ -80,23 +78,14 @@ export default {
   },
   data() {
     return {
-      // already refactored
-      dataOverlayPanelVisible: true,
       currentMap: null,
-
-      // old
       errorMessage: '',
       loadMapErrorMessage: '',
-      showOverviewScreen: true,
-      requestedName: '',
-      watchURL: true,
-
       selectionData: {
         type: '',
         data: null,
         error: false,
       },
-      lastRoute: {},
       messages,
     };
   },
@@ -104,6 +93,7 @@ export default {
     ...mapState({
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
+      dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
     }),
     ...mapGetters({
       mapsListing: 'maps/mapsListing',
@@ -160,7 +150,6 @@ export default {
         history.pushState(...payload); // eslint-disable-line no-restricted-globals
       }
     },
-
     loadMapFromParams() {
       const id = this.$route.params.map_id;
       if (id) {
@@ -199,38 +188,10 @@ export default {
 </script>
 
 <style lang="scss">
-#mapViewer {
-  #mapViewerContainer {
-    margin-bottom: 0;
-    min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    height: calc(100vh - #{$navbar-height} - #{$footer-height});
-  }
-
-  #graphframe {
-    position: relative;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-  }
-
-  #dataOverlayBar {
-    display: flex;
-    align-items: center;
-    background: $primary;
-    cursor: pointer;
-    line-height: 17px;
-    padding: 0.25rem;
-    .icon {
-      padding-bottom: 20px;
-      padding-top: 20px;
-    }
-    &:hover{
-      background: $primary-light;
-    }
-    padding-right: 1rem;
-  }
+#mapViewerContainer {
+  min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+  max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+  height: calc(100vh - #{$navbar-height} - #{$footer-height});
 
   .overlay {
     position: absolute;
@@ -250,18 +211,43 @@ export default {
       }
     }
   }
+}
 
-  #errorPanel {
-    z-index: 11;
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: 350px;
-    bottom: 2rem;
-    border: 1px solid gray;
+#graphframe {
+  position: relative;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+#dataOverlayBar {
+  display: flex;
+  align-items: center;
+  background: $primary;
+  cursor: pointer;
+  line-height: 17px;
+  padding: 0.25rem;
+  .icon {
+    padding-bottom: 20px;
+    padding-top: 20px;
   }
+  &:hover{
+    background: $primary-light;
+  }
+  padding-right: 1rem;
+}
+
+#errorPanel {
+  z-index: 11;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 350px;
+  bottom: 2rem;
+  border: 1px solid gray;
 
   .slide-fade-enter-active {
     transition: all .3s ease;
@@ -274,5 +260,4 @@ export default {
     opacity: 0;
   }
 }
-
 </style>
