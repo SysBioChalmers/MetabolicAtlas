@@ -8,8 +8,8 @@
       </template>
       <template v-else>
         <div id="mapSidebar"
-              class="column is-one-fifth-widescreen is-one-quarter-desktop
-                     is-one-quarter-tablet is-half-mobile has-background-lightgray">
+             class="column is-one-fifth-widescreen is-one-quarter-desktop
+                    is-one-quarter-tablet is-half-mobile has-background-lightgray">
           <a class="button" @click="changeDimension()">
             Switch to {{ showing2D ? '3D' : '2D ' }}
           </a>
@@ -21,7 +21,7 @@
             :current-map="currentMap"
             :selection-data="selectionData"
             :loading="false" />
-          <MapsListing v-if="showingMapListing" :maps-listing="this.mapsListing" />
+          <MapsListing v-if="showingMapListing" :maps-listing="mapsListing" />
         </div>
         <div v-if="currentMap" id="graphframe" class="column is-unselectable">
           <Svgmap v-if="showing2D"
@@ -138,7 +138,7 @@ export default {
     if (!this.model || this.model.short_name !== this.$route.params.model) {
       const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
       if (!modelSelectionSuccessful) {
-        console.log(`Error: ${messages.modelNotFound}`);
+        this.errorMessage = `Error: ${messages.modelNotFound}`;
       }
     }
     await this.$store.dispatch('maps/getMapsListing', this.model);
