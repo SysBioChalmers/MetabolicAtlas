@@ -226,8 +226,6 @@ export default {
 
 <style lang="scss">
 #mapViewerContainer {
-  min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
-  max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
   height: calc(100vh - #{$navbar-height} - #{$footer-height});
 
   .overlay {
