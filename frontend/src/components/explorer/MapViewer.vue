@@ -9,7 +9,7 @@
       <template v-else>
         <div id="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
-                    is-one-quarter-tablet is-half-mobile has-background-lightgray">
+                    is-one-quarter-tablet has-background-lightgray om-2">
           <a class="button" @click="$store.dispatch('maps/toggleShowing2D')">
             Switch to {{ showing2D ? '3D' : '2D ' }}
           </a>
@@ -23,7 +23,7 @@
             :loading="false" />
           <MapsListing v-if="showingMapListing" :maps-listing="mapsListing" />
         </div>
-        <div v-if="currentMap" id="graphframe" class="column is-unselectable">
+        <div v-if="currentMap" id="graphframe" class="column is-unselectable om-1">
           <Svgmap v-if="showing2D"
                   :map-data="currentMap"
                   @loadComplete="handleLoadComplete"
@@ -49,7 +49,7 @@
           </p>
         </div>
         <div id="dataOverlayBar"
-             class="column is-narrow has-text-white is-unselectable"
+             class="column is-narrow has-text-white is-unselectable is-hidden-mobile"
              :class="{'is-paddingless': dataOverlayPanelVisible }"
              title="Click to show the data overlay panel" @click="toggleDataOverlayPanel()">
           <p class="is-size-5 has-text-centered has-text-weight-bold">
@@ -65,7 +65,7 @@
             </span>
           </p>
         </div>
-        <DataOverlay v-if="currentMap !== null && dataOverlayPanelVisible" :map-name="currentMap.name" />
+        <DataOverlay v-if="currentMap !== null && dataOverlayPanelVisible" class="om-3" :map-name="currentMap.name" />
       </template>
     </div>
   </div>
@@ -243,6 +243,26 @@ export default {
       }
     }
   }
+
+  @media (max-width: $tablet) {
+    .ordered-mobile {
+      display: flex;
+      flex-flow: column;
+    }
+    .om-1 {
+      order: 1;
+    }
+    .om-2 {
+      order: 2;
+    }
+    .om-3 {
+      order: 3;
+    }
+    .om-4 {
+      order: 4;
+    }
+  }
+
 }
 
 #graphframe {
@@ -268,6 +288,9 @@ export default {
     background: $primary-light;
   }
   padding-right: 1rem;
+  @media (max-width: $tablet) {
+    display: none;
+  }
 }
 
 #errorPanel {
