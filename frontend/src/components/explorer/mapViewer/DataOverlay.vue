@@ -103,7 +103,7 @@
 
 <script>
 
-import { mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 import $ from 'jquery';
 import RNAexpression from '@/components/explorer/mapViewer/RNAexpression.vue';
 import { default as EventBus } from '@/event-bus';
@@ -148,9 +148,6 @@ export default {
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
       dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
-    }),
-    ...mapGetters({
-      queryParams: 'maps/queryParams',
     }),
     disabledRNAlvl() {
       return !this.mapName || this.HPATissues.length === 0;
