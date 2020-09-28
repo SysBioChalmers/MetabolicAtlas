@@ -58,9 +58,7 @@
         </div>
       </div>
     </nav>
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
+    <router-view></router-view>
     <footer id="footer" class="footer has-background-primary-lighter is-size-6">
       <div class="columns is-gapless">
         <div class="column is-7">

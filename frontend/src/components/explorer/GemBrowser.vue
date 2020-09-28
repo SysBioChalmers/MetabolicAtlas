@@ -120,18 +120,6 @@ export default {
       }
     }
     await this.getTilesData();
-    // if (!this.tileComponents) {
-    // } else {
-    //   this.$store.dispatch('reactions/clearRelatedReactions');
-    //   this.selectedType = this.$route.params.type;
-    // }
-  },
-  async beforeUpdate() {
-    if (!this.tileComponents
-        || !(this.tileComponents.model === this.model.apiName
-          && this.tileComponents.version === this.model.apiVersion)) {
-      await this.getTilesData();
-    }
   },
   methods: {
     async getTilesData() {
