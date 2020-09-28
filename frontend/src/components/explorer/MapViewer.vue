@@ -10,7 +10,7 @@
         <div id="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet is-half-mobile has-background-lightgray">
-          <a class="button" @click="changeDimension()">
+          <a class="button" @click="$store.dispatch('maps/toggleShowing2D')">
             Switch to {{ showing2D ? '3D' : '2D ' }}
           </a>
           <a class="button" @click="showingMapListing = !showingMapListing">
@@ -191,9 +191,6 @@ export default {
           }
         }
       }
-    },
-    changeDimension() {
-      this.$store.dispatch('maps/setShowing2D', !this.showing2D);
     },
     handleLoadComplete(isSuccess, errorMessage) {
       if (!isSuccess) {

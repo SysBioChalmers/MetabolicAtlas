@@ -116,6 +116,10 @@ const actions = {
     commit('setNetwork', network);
   },
 
+  toggleShowing2D({ commit, state }) {
+    commit('setShowing2D', !state.showing2D);
+  },
+
   setShowing2D({ commit }, showing2D) {
     commit('setShowing2D', showing2D);
   },
