@@ -91,7 +91,7 @@ export default {
           icon: 'map-o' },
         { name: messages.interPartName,
           img: require('../assets/interaction.jpg'),
-          routeName: 'interaction-partners',
+          routeName: 'interaction',
           icon: 'share-alt' },
       ],
       compartments: {},

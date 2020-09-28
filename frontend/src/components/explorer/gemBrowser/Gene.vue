@@ -52,7 +52,7 @@
               </div>
               <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
                 <router-link v-if="model && gene.id" class="button is-info is-fullwidth is-outlined"
-                            :to="{ name: 'interaction-partners', params: { model: model.short_name, id: gene.id } }">
+                            :to="{ name: 'interaction', params: { model: model.short_name, id: gene.id } }">
                   <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
                   <span>{{ messages.interPartName }}</span>
                 </router-link>

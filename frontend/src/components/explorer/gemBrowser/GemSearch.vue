@@ -39,7 +39,7 @@
             <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection">
               <hr v-if="i2 !== 0" class="is-marginless">
             <router-link class="clickable" @click.native="showResults=false"
-                         :to="{ name: metabolitesAndGenesOnly ? 'interaction-partners': type, params: { model: model.short_name, id: r.id } }">
+                         :to="{ name: metabolitesAndGenesOnly ? 'interaction': type, params: { model: model.short_name, id: r.id } }">
                 <b class="is-capitalized">{{ type }}: </b>
                 <label class="clickable" v-html="formatSearchResultLabel(type, r, searchTermString)"></label>
               </router-link>

@@ -33,7 +33,7 @@ const routes = [
   { path: '/explore/:model/gem-browser/reaction/:id', name: 'reaction', component: Reaction },
   { path: '/explore/:model/gem-browser/subsystem/:id', name: 'subsystem', component: Subsystem },
   { path: '/explore/:model/map-viewer/:map_id?', name: 'viewer', component: MapViewer },
-  { path: '/explore/:model/interaction/:id?', name: 'interaction-partners', component: InteractionPartners },
+  { path: '/explore/:model/interaction-partners/:id?', name: 'interaction', component: InteractionPartners },
   { path: '/about', name: 'about', component: About },
   { path: '/gems/repository/:model_id?', name: 'gems', component: Repository },
   { path: '/gems/comparison', name: 'comparemodels', component: CompareModels },
