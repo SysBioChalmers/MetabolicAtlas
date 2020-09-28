@@ -1,6 +1,7 @@
 <template>
-  <div id="dataOverlayBox" class="column is-one-fifth-widescreen is-one-quarter-desktop
-              is-one-quarter-tablet is-half-mobile has-background-lightgray">
+  <div id="dataOverlayBox"
+       class="column is-one-fifth-widescreen is-one-quarter-desktop
+         is-one-quarter-tablet has-background-lightgray">
     <div class="title is-size-4 has-text-centered">Gene expression data</div>
     <div class="has-text-centered"
          title="Load a TSV file with gene IDs and TPM values.
@@ -327,7 +328,6 @@ export default {
 #dataOverlayBox {
   padding-left: 0;
   padding-right: 0;
-  overflow-y: scroll;
   margin-right: -0.15rem;
 }
 
