@@ -36,11 +36,9 @@ const actions = {
     if (state.modelList.length === 0) {
       await dispatch('getModels');
     }
-    const fixedModels = getters.models;
-    const modelShortNamesDict = {};
-    Object.values(fixedModels).forEach((m) => { modelShortNamesDict[m.short_name] = m; });
-    if (modelShortName in modelShortNamesDict) {
-      commit('setModel', fixedModels[modelShortName]);
+
+    if (modelShortName in getters.models) {
+      commit('setModel', getters.models[modelShortName]);
       return true;
     }
     return false;
