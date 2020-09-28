@@ -11,7 +11,7 @@
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2
                     fixed-height-desktop scrollable">
-          <a class="button is-fullwidth"
+          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold"
              @click="$store.dispatch('maps/toggleShowing2D')">
             Switch to {{ showing2D ? '3D' : '2D ' }}
           </a>
@@ -19,11 +19,11 @@
                              :current-map="currentMap"
                              :selection-data="selectionData"
                              :loading="false" />
-          <a class="button is-fullwidth"
+          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold"
              @click="showingMapListing = !showingMapListing">
             {{ showingMapListing ? 'Hide' : 'Show' }} map list
           </a>
-          <a class="button is-fullwidth is-hidden-tablet"
+          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
              @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
             {{ dataOverlayPanelVisible ? 'Hide' : 'Show' }} data overlay
           </a>

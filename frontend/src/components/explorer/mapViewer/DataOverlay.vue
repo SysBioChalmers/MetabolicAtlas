@@ -326,9 +326,7 @@ export default {
 
 <style lang="scss">
 #dataOverlayBox {
-  padding-left: 0;
-  padding-right: 0;
-  margin-right: -0.15rem;
+  margin-right: -1rem;
 }
 
 #fileSelectBut {
