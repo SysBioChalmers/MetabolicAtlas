@@ -15,8 +15,9 @@
         </div>
         <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
           <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
-            <router-link v-if="$route.path.includes('/explore')"
-                         :to="{ name: 'explorerRoot' }"
+            <router-link id="selectedModelLink"
+                         v-if="$route.path.includes('/explore')"
+                         :to="{ name: 'explorer' }"
                          class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
               {{ model ? model.short_name : '' }}
             </router-link>
@@ -57,9 +58,7 @@
         </div>
       </div>
     </nav>
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
+    <router-view></router-view>
     <footer id="footer" class="footer has-background-primary-lighter is-size-6">
       <div class="columns is-gapless">
         <div class="column is-7">
@@ -128,7 +127,7 @@ export default {
         },
         {
           displayName: 'Explore',
-          routeName: 'explorerRoot',
+          routeName: 'explorer',
         },
         {
           displayName: 'GEM',
@@ -290,6 +289,9 @@ m, .clickable {
 
   #search-icon {
     font-size: 1.8rem;
+  }
+  #selectedModelLink .router-link-exact-active, .router-link-active {
+    background-color: $primary-lighter;
   }
 }
 

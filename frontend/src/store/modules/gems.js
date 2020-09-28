@@ -18,7 +18,11 @@ const actions = {
     commit('setGems', gems);
   },
   getGemData({ commit, state }, id) {
-    commit('setGem', state.gems[id]);
+    if (state.gems[id]) {
+      commit('setGem', state.gems[id]);
+      return true;
+    }
+    return false;
   },
 };
 

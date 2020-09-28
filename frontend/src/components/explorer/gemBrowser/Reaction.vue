@@ -1,81 +1,95 @@
 <template>
-  <div v-if="componentNotFound" class="columns is-centered">
-    <notFound :type="type" :component-id="rId"></notFound>
-  </div>
-  <div v-else>
-    <div class="columns">
-      <div class="column">
-        <h3 class="title is-size-3"><span class="is-capitalized">{{ type }}</span> {{ reaction.id }}</h3>
-      </div>
-    </div>
-    <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
-    <div v-else class="columns is-multiline is-variable is-8">
-      <div class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
-        <div class="table-container">
-          <table v-if="reaction && Object.keys(reaction).length !== 0" class="table main-table is-fullwidth">
-            <tr v-for="el in mainTableKey" :key="el.name">
-              <td v-if="'display' in el"
-                  class="td-key has-background-primary has-text-white-bis"
-                  v-html="el.display"></td>
-              <td v-else-if="el.name === 'id'"
-                  class="td-key has-background-primary has-text-white-bis">
-                {{ model.short_name }} ID</td>
-              <td v-else class="td-key has-background-primary has-text-white-bis">{{ reformatTableKey(el.name) }}</td>
-              <td v-if="reaction[el.name]">
-                <template v-if="'modifier' in el"><span v-html="el.modifier()"></span></template>
-                <template v-else-if="el.name === 'subsystems'">
-                  <template v-for="(v, i) in reaction[el.name]">
-                    <template v-if="i !== 0">; </template>
-                    <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
-                    <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'subsystem', id: v.id } }"> {{ v.name }}</router-link>
-                  </template>
-                </template>
-                <template v-else-if="el.name === 'compartments'">
-                  <div class="tags">
-                    <template v-for="c in reaction[el.name]">
-                      <span :key="c.id" class="tag">
-                        <!-- eslint-disable-next-line max-len -->
-                        <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'compartment', id: c.id } }">{{ c.name }}</router-link>
-                      </span>
-                    </template>
-                  </div>
-                </template>
-                <template v-else-if="el.name === 'ec'">
-                  <!-- eslint-disable-next-line max-len -->
-                  <router-link v-for="eccode in reaction[el.name].split('; ')" :key="eccode" :to="{ name: 'search', query: { term: eccode }}">
-                    {{ eccode }}
-                  </router-link>
-                </template>
-                <template v-else>{{ reaction[el.name] }}</template>
-              </td>
-              <td v-else-if="'modifier' in el"><span v-html="el.modifier()"></span></td>
-              <td v-else> - </td>
-            </tr>
-            <tr v-if="relatedReactions.length !== 0">
-              <td class="td-key has-background-primary has-text-white-bis">Related reaction(s)</td>
-              <td>
-                <span v-for="rr in relatedReactions" :key="rr.id">
-                  <!-- eslint-disable-next-line max-len -->
-                  <router-link :to="{ name: 'browser', params: { model: model.short_name, type: 'reaction', id: rr.id } }">
-                    {{ rr.id }}
-                  </router-link>
-                  <div style="margin-left: 30px">
-                    <span v-html="reformatChemicalReactionHTML(rr, true, model.short_name)"></span>
-                    (<span v-html="reformatEqSign(rr.compartment_str, rr.reversible)">
-                    </span>)
-                  </div>
-                </span>
-              </td>
-            </tr>
-          </table>
+  <div class="section extended-section">
+    <div class="container is-fullhd">
+      <div v-if="modelErrorMessage" class="columns is-centered">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ modelErrorMessage }}
         </div>
-        <ExtIdTable :type="type" :external-dbs="reaction.externalDbs"></ExtIdTable>
-        <br>
-        <references :reference-list="referenceList" />
       </div>
-      <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
-        <maps-available :id="rId" :type="type" :viewer-selected-i-d="reaction.id" />
-        <gem-contact :id="rId" :type="type" />
+      <div v-else class="columns is-centered">
+        <gem-search ref="gemSearch" />
+      </div>
+      <div v-if="componentNotFound" class="columns is-centered">
+        <notFound :type="type" :component-id="rId"></notFound>
+      </div>
+      <div v-else>
+        <div class="columns">
+          <div class="column">
+            <h3 class="title is-size-3"><span class="is-capitalized">{{ type }}</span> {{ reaction.id }}</h3>
+          </div>
+        </div>
+        <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
+        <div v-else class="columns is-multiline is-variable is-8">
+          <div class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
+            <div class="table-container">
+              <table v-if="reaction && Object.keys(reaction).length !== 0" class="table main-table is-fullwidth">
+                <tr v-for="el in mainTableKey" :key="el.name">
+                  <td v-if="'display' in el"
+                      class="td-key has-background-primary has-text-white-bis"
+                      v-html="el.display"></td>
+                  <td v-else-if="el.name === 'id'"
+                      class="td-key has-background-primary has-text-white-bis">
+                    {{ model.short_name }} ID</td>
+                  <td v-else class="td-key has-background-primary has-text-white-bis">
+                    {{ reformatTableKey(el.name) }}
+                  </td>
+                  <td v-if="reaction[el.name]">
+                    <template v-if="'modifier' in el"><span v-html="el.modifier()"></span></template>
+                    <template v-else-if="el.name === 'subsystems'">
+                      <template v-for="(v, i) in reaction[el.name]">
+                        <template v-if="i !== 0">; </template>
+                        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
+                        <router-link :to="{ name: 'subsystem', params: { model: model.short_name, id: v.id } }"> {{ v.name }}</router-link>
+                      </template>
+                    </template>
+                    <template v-else-if="el.name === 'compartments'">
+                      <div class="tags">
+                        <template v-for="c in reaction[el.name]">
+                          <span :key="c.id" class="tag">
+                            <!-- eslint-disable-next-line max-len -->
+                            <router-link :to="{ name: 'compartment', params: { model: model.short_name, id: c.id } }">{{ c.name }}</router-link>
+                          </span>
+                        </template>
+                      </div>
+                    </template>
+                    <template v-else-if="el.name === 'ec'">
+                      <!-- eslint-disable-next-line max-len -->
+                      <router-link v-for="eccode in reaction[el.name].split('; ')" :key="eccode" :to="{ name: 'search', query: { term: eccode }}">
+                        {{ eccode }}
+                      </router-link>
+                    </template>
+                    <template v-else>{{ reaction[el.name] }}</template>
+                  </td>
+                  <td v-else-if="'modifier' in el"><span v-html="el.modifier()"></span></td>
+                  <td v-else> - </td>
+                </tr>
+                <tr v-if="relatedReactions.length !== 0">
+                  <td class="td-key has-background-primary has-text-white-bis">Related reaction(s)</td>
+                  <td>
+                    <span v-for="rr in relatedReactions" :key="rr.id">
+                      <!-- eslint-disable-next-line max-len -->
+                      <router-link :to="{ name: 'reaction', params: { model: model.short_name, id: rr.id } }">
+                        {{ rr.id }}
+                      </router-link>
+                      <div style="margin-left: 30px">
+                        <span v-html="reformatChemicalReactionHTML(rr, true, model.short_name)"></span>
+                        (<span v-html="reformatEqSign(rr.compartment_str, rr.reversible)">
+                        </span>)
+                      </div>
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <ExtIdTable :type="type" :external-dbs="reaction.externalDbs"></ExtIdTable>
+            <br>
+            <references :reference-list="referenceList" />
+          </div>
+          <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
+            <maps-available :id="rId" :type="type" :viewer-selected-i-d="reaction.id" />
+            <gem-contact :id="rId" :type="type" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -88,8 +102,10 @@ import NotFound from '@/components/NotFound';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import GemContact from '@/components/shared/GemContact';
+import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import References from '@/components/shared/References';
 import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, reformatEqSign } from '@/helpers/utils';
+import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'Reaction',
@@ -97,11 +113,11 @@ export default {
     NotFound,
     Loader,
     MapsAvailable,
-    GemContact,
     ExtIdTable,
+    GemContact,
+    GemSearch,
     References,
   },
-
   data() {
     return {
       rId: this.$route.params.id,
@@ -116,10 +132,11 @@ export default {
         { name: 'compartments', display: 'Compartment(s)' },
         { name: 'subsystems', display: 'Subsystem(s)' },
       ],
-      errorMessage: '',
+      modelErrorMessage: '',
       showLoaderMessage: '',
       mapsAvailable: {},
       componentNotFound: false,
+      messages,
     };
   },
   computed: {
@@ -131,11 +148,15 @@ export default {
     }),
   },
   watch: {
-    $route() {
-      this.setup();
-    },
+    '$route.params': 'setup',
   },
-  beforeMount() {
+  async created() {
+    if (!this.model || this.model.short_name !== this.$route.params.model) {
+      const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
+      if (!modelSelectionSuccessful) {
+        this.modelErrorMessage = `Error: ${messages.modelNotFound}`;
+      }
+    }
     this.setup();
   },
   methods: {

@@ -16,7 +16,7 @@
                class="column is-4-widescreen is-5-desktop is-6-tablet">
             <div class="card">
               <header class="card-header clickable has-background-primary-lighter"
-                      @click="showIntegratedModelData(model)">
+                      @click="selectModel(model.short_name)">
                 <p class="card-header-title card-content has-text-primary">
                   {{ model.short_name }} {{ model.version }}
                 </p>
@@ -40,12 +40,12 @@
               </div>
               <footer class="card-footer">
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'browserRoot', params: { model: model.short_name } }">
+                             :to="{ name: 'browser', params: { model: model.short_name } }">
                   <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
                   <span>{{ messages.gemBrowserName }}</span>
                 </router-link>
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'viewerRoot', params: { model: model.short_name } }">
+                             :to="{ name: 'viewer', params: { model: model.short_name } }">
                   <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
                   <span>{{ messages.mapViewerName }}</span>
                 </router-link>
@@ -66,7 +66,7 @@
         <div v-if="gems.length != 0">
           <vue-good-table :columns="columns" :rows="gems" :search-options="{ enabled: true, skipDiacritics: true }"
                           :sort-options="{ enabled: true }" style-class="vgt-table striped"
-                          :pagination-options="tablePaginationOpts" @on-row-click="t => getModelData(t.row.id)">
+                          :pagination-options="tablePaginationOpts" @on-row-click="t => selectModel(t.row.id)">
           </vue-good-table>
         </div>
         <div v-else>
@@ -74,7 +74,7 @@
         </div>
         <br>
         <div v-if="showModelId" id="gem-list-modal" class="modal is-active">
-          <div class="modal-background" @click="showModelId = ''"></div>
+          <div class="modal-background" @click="selectModel(null)"></div>
           <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white"
                tabindex="0" @keyup.esc="showModelId = ''">
             <div id="modal-info" class="model-table">
@@ -120,7 +120,7 @@
                 </tbody>
               </table>
               <br>
-              <references :reference-list="referenceList" />
+              <references :reference-list="selectedModel.ref" />
               <br>
               <template v-if="selectedModel.files">
                 <h4 class="subtitle is-size-4">Files</h4>
@@ -131,7 +131,7 @@
               </template>
             </div>
           </div>
-          <button class="modal-close is-large" @click="showModelId = ''"></button>
+          <button class="modal-close is-large" @click="selectModel(null)"></button>
         </div>
       </div>
     </div>
@@ -278,25 +278,29 @@ export default {
     }),
   },
   watch: {
-    showModelId(modelId) {
-      if (modelId) {
-        this.$router.push({ name: 'gemsModal', params: { model_id: modelId } });
-        return;
-      }
-      this.$router.push({ name: 'gems' });
-    },
+    '$route.params': 'getModelData',
   },
   async beforeMount() {
-    await this.getIntegratedModels();
-    await this.getModels();
+    try {
+      this.showLoader = true;
+      await this.$store.dispatch('models/getModels');
+      await this.$store.dispatch('gems/getGems');
+      this.columns[0].filterOptions.filterDropdownItems = this.setFilterOptions;
+      this.columns[3].filterOptions.filterDropdownItems = this.systemFilterOptions;
+      this.columns[4].filterOptions.filterDropdownItems = this.conditionFilterOptions;
+      this.errorMessage = '';
+      this.showLoader = false;
+      this.getModelData();
+    } catch {
+      this.errorMessage = messages.notFoundError;
+      this.showLoader = false;
+    }
   },
   methods: {
     async getIntegratedModels() {
       try {
-        await this.$store.dispatch('models/getModels');
-
-        if (this.$route.name === 'gemsModal') {
-          const urlId = this.$route.params.model_id;
+        const urlId = this.$route.params.model_id;
+        if (urlId) {
           const urlIntegrateModel = this.integratedModels.find(m => m.short_name === urlId);
           if (urlIntegrateModel) {
             this.showIntegratedModelData(urlIntegrateModel);
@@ -309,45 +313,34 @@ export default {
         this.errorMessage = messages.unknownError;
       }
     },
-    getModelData(id) {
-      try {
-        this.$store.dispatch('gems/getGemData', id);
-        this.selectedModel = this.gem;
-        this.referenceList = this.selectedModel.ref;
-        this.showModelId = id;
-      } catch {
-        this.showModelId = '';
+    getModelData() {
+      const urlId = this.$route.params.model_id;
+      this.showModelId = '';
+      this.selectedModel = {};
+      if (urlId) {
+        Object.values(this.integratedModels).forEach((anIntegratedModel) => {
+          if (urlId === anIntegratedModel.short_name) {
+            this.selectedModel = anIntegratedModel;
+            this.showModelId = this.selectedModel.short_name;
+          }
+        });
+        if (!this.showModelId) {
+          const urlIdExists = this.$store.dispatch('gems/getGemData', urlId);
+          if (urlIdExists) {
+            this.selectedModel = this.gem;
+            this.showModelId = urlId;
+          } else {
+            this.selectModel(null);
+          }
+        }
       }
     },
-    showIntegratedModelData(model) {
-      this.selectedModel = model;
-      this.showModelId = model.short_name;
-      this.referenceList = model.ref;
-    },
-    async getModels() {
-      this.showLoader = true;
-
-      try {
-        await this.$store.dispatch('gems/getGems');
-        this.columns[0].filterOptions.filterDropdownItems = this.setFilterOptions;
-        this.columns[3].filterOptions.filterDropdownItems = this.systemFilterOptions;
-        this.columns[4].filterOptions.filterDropdownItems = this.conditionFilterOptions;
-        this.errorMessage = '';
-        this.showLoader = false;
-      } catch {
-        this.errorMessage = messages.notFoundError;
-        this.showLoader = false;
-      }
+    selectModel(id) {
+      this.$router.push({ params: { model_id: id } });
     },
   },
 };
 
 </script>
 
-<style lang="scss">
-// style copy-pasted from https://github.com/xaksis/vue-good-table/blob/master/src/styles/_table.scss
-// fixes the broken row highlight when table is striped https://github.com/xaksis/vue-good-table/pull/682
-table.vgt-table tr.clickable:hover{
-  background-color: #F1F5FD;
-}
-</style>
+<style lang="scss"></style>

@@ -1,4 +1,4 @@
-export const buildCustomLink = ({ model, type, id, title, cssClass }) => `<a href="/explore/gem-browser/${model}/${type}/${id}" class="custom-router-link ${cssClass || ''}">${title}</a>`;
+export const buildCustomLink = ({ model, type, id, title, cssClass }) => `<a href="/explore/${model}/gem-browser/${type}/${id}" class="custom-router-link ${cssClass || ''}">${title}</a>`;
 
 export function capitalize(value) {
   return `${value[0].toUpperCase()}${value.slice(1)}`;

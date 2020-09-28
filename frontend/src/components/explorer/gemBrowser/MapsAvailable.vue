@@ -6,7 +6,6 @@
         <span>{{ messages.mapViewerName }}</span>
       </p>
     </header>
-    <!-- eslint-disable-next-line max-len -->
     <div v-if="mapAvailableLimited" class="card-content">
       <div v-for="mapKey in mapKeys" :key="mapKey"
            class="content has-text-left is-paddingless">
@@ -16,12 +15,15 @@
             <template v-for="mapType in Object.keys(mapAvailableLimited[mapKey])">
               <template v-for="map in mapAvailableLimited[mapKey][mapType]">
                 <li :key="map.id">
-                  <!-- eslint-disable-next-line max-len -->
-                  <router-link v-if="viewerSelectedID" :to="{ name: 'viewer', params: { model: model.short_name, type: mapType, map_id: map.id, reload: true }, query: { dim: mapKey, search: viewerSelectedID, sel: viewerSelectedID } }">
+                  <router-link v-if="viewerSelectedID"
+                               :to="{ name: 'viewer',
+                                      params: { model: model.short_name, type: mapType, map_id: map.id, reload: true },
+                                      query: { dim: mapKey, search: viewerSelectedID, sel: viewerSelectedID } }">
                     {{ map.customName }}
                   </router-link>
-                  <!-- eslint-disable-next-line max-len -->
-                  <router-link v-else :to="{ name: 'viewer', params: { model: model.short_name, type: mapType, map_id: map.id}, query: { dim: mapKey } }">
+                  <router-link v-else :to="{ name: 'viewer',
+                                             params: { model: model.short_name, type: mapType, map_id: map.id},
+                                             query: { dim: mapKey } }">
                     {{ map.customName }}
                   </router-link>
                 </li>

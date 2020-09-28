@@ -1,125 +1,39 @@
 <template>
-  <div id="mapViewer" class="extended-section">
-    <div id="iMainPanel" class="columns">
+  <div class="extended-section">
+    <div id="mapViewerContainer" class="columns">
       <template v-if="errorMessage">
-        <div class="column">
-          <div class="columns">
-            <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-              <p>{{ errorMessage }}</p>
-            </div>
-          </div>
+        <div class="column is-danger is-half is-offset-one-quarter">
+          <div class="notification is-danger is-danger has-text-centered">{{ errorMessage }}</div>
         </div>
       </template>
       <template v-else>
-        <div id="iSideBar" class="column is-one-fifth-widescreen is-one-quarter-desktop
-        is-one-quarter-tablet is-half-mobile has-background-lightgray">
-          <div id="menu">
-            <ul class="l0">
-              <li :title="`Select a ${dim.toUpperCase()} compartment network to show`">
-                Compartments<span>&nbsp;&#9656;</span>
-                <ul class="vhs l1" title="">
-                  <li class="has-background-grey-dark clickable" @click="showMap()"><i>Clear selection</i></li>
-                  <div v-if="!has2DCompartmentMaps || show3D">
-                    <li v-for="cKey in Object.keys(mapsData3D.compartments).sort()" :key="cKey"
-                        class="clickable"
-                        :class="{'has-text-warning': cKey === currentDisplayedName }"
-                        @click="showMap(mapsData3D.compartments[cKey].id, 'compartment', '3d')">
-                      {{ mapsData3D.compartments[cKey].name }}
-                    </li>
-                  </div>
-                  <div v-else>
-                    <li v-for="cKey in Object.keys(mapsData2D.compartments).sort()" :key="cKey"
-                        class="clickable"
-                        :class="{ 'has-text-warning': cKey === currentDisplayedName }"
-                        @click="showMap(mapsData2D.compartments[cKey].id, 'compartment', '2d')">
-                      {{ mapsData2D.compartments[cKey].name }}
-                    </li>
-                  </div>
-                </ul>
-              </li>
-              <li :title="`Select a ${dim.toUpperCase()} subsystem network to show`">
-                Subsystems<span>&nbsp;&#9656;</span>
-                <ul class="vhs l1" title="">
-                  <li class="has-background-grey-dark clickable" @click="showMap()"><i>Clear selection</i></li>
-                  <div v-if="!has2DSubsystemMaps || show3D">
-                    <li v-for="sKey in Object.keys(mapsData3D.subsystems).sort()" :key="sKey"
-                        class="clickable"
-                        :class="{'has-text-warning': sKey === currentDisplayedName }"
-                        @click="showMap(mapsData3D.subsystems[sKey].id, 'subsystem', '3d')">
-                      {{ mapsData3D.subsystems[sKey].name }}
-                    </li>
-                  </div>
-                  <div v-else>
-                    <template v-for="sKey in Object.keys(mapsData2D.subsystems).sort()">
-                      <template v-if="mapsData2D.subsystems[sKey].id">
-                        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                        <li class="clickable" :class="{'has-text-warning': sKey === currentDisplayedName }"
-                            @click="showMap(mapsData2D.subsystems[sKey].id, 'subsystem', '2d')">
-                          {{ mapsData2D.subsystems[sKey].name }}
-                        </li>
-                      </template>
-                      <template v-else>
-                        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                        <li class="disable">
-                          {{ mapsData2D.subsystems[sKey].name }}
-                        </li>
-                      </template>
-                    </template>
-                  </div>
-                </ul>
-              </li>
-            </ul>
-          </div>
-          <sidebar-data-panels
-            :dim="dim"
-            :map-type="currentDisplayedType"
-            :map-name="currentDisplayedName"
-            :maps-data="show2D ? mapsData2D : mapsData3D"
+        <div id="mapSidebar"
+             class="column is-one-fifth-widescreen is-one-quarter-desktop
+                    is-one-quarter-tablet is-half-mobile has-background-lightgray">
+          <a class="button" @click="$store.dispatch('maps/toggleShowing2D')">
+            Switch to {{ showing2D ? '3D' : '2D ' }}
+          </a>
+          <a class="button" @click="showingMapListing = !showingMapListing">
+            {{ showingMapListing ? 'Hide' : 'Show' }} map list
+          </a>
+          <SidebarDataPanels
+            :dim="showing2D ? '2d' : '3d'"
+            :current-map="currentMap"
             :selection-data="selectionData"
-            :loading="showSelectionLoader">
-          </sidebar-data-panels>
+            :loading="false" />
+          <MapsListing v-if="showingMapListing" :maps-listing="mapsListing" />
         </div>
-        <div v-show="showOverviewScreen" class="column">
-          <p class="is-size-5 has-text-centered" style="padding: 10%;">
-            Choose a compartment or subsystem map from the menu on the left
-          </p>
-        </div>
-        <div v-show="!showOverviewScreen" id="graphframe" class="column is-unselectable">
-          <template v-if="showMapViewer">
-            <svgmap v-if="show2D" :maps-data="mapsData2D"
-                    :requested-map-type="requestedType" :requested-map-name="requestedName"
-                    @loadComplete="handleLoadComplete"
-                    @loading="showLoader=true" @startSelection="showSelectionLoader=true" @endSelection="endSelection"
-                    @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
-            </svgmap>
-            <three-d-viewer v-if="show3D"
-                            :component-type="requestedType" :component-id="requestedName"
-                            :loading="showLoader"
-                            @loadComplete="handleLoadComplete"
-                            @loading="showLoader=true" @startSelection="showSelectionLoader=true"
-                            @endSelection="endSelection" @unSelect="unSelect"
-                            @updatePanelSelectionData="updatePanelSelectionData" />
-          </template>
-          <div v-show="showLoader" id="iLoader" class="loading">
-            <a class="button is-loading"></a>
-          </div>
-          <div id="iSwitch" class="overlay">
-            <span class="button" :disabled="!activeSwitch"
-                  :title="activeSwitch ? `Reload the current network in ${ show2D ? '3D' : '2D' }` : ''"
-                  @click="switchDimension">
-              <template v-if="activeSwitch">
-                Switch to&nbsp;<b>{{ show2D ? '3D' : '2D' }}</b>
-              </template>
-              <template v-else>
-                <template v-if="!disabled2D">
-                  Switch to&nbsp;<b>{{ show2D ? '3D' : '2D' }}</b>
-                </template>
-                <template v-else>
-                  Not available in 2D
-                </template>
-              </template>
-            </span>
-          </div>
+        <div v-if="currentMap" id="graphframe" class="column is-unselectable">
+          <Svgmap v-if="showing2D"
+                  :map-data="currentMap"
+                  @loadComplete="handleLoadComplete"
+                  @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
+          </Svgmap>
+          <ThreeDViewer v-if="!showing2D"
+                        :current-map="currentMap"
+                        @loadComplete="handleLoadComplete"
+                        @unSelect="unSelect"
+                        @updatePanelSelectionData="updatePanelSelectionData" />
           <transition name="slide-fade">
             <article v-if="loadMapErrorMessage" id="errorPanel" class="message is-danger">
               <div class="message-header">
@@ -129,9 +43,14 @@
             </article>
           </transition>
         </div>
-        <div v-show="!showLoader" id="dataOverlayBar"
-             class="column is-narrow has-text-white is-unselectable" :class="{
-               'is-paddingless': dataOverlayPanelVisible }"
+        <div v-else class="column">
+          <p class="is-size-5 has-text-centered" style="padding: 10%;">
+            Choose a compartment or subsystem map from the menu on the left
+          </p>
+        </div>
+        <div id="dataOverlayBar"
+             class="column is-narrow has-text-white is-unselectable"
+             :class="{'is-paddingless': dataOverlayPanelVisible }"
              title="Click to show the data overlay panel" @click="toggleDataOverlayPanel()">
           <p class="is-size-5 has-text-centered has-text-weight-bold">
             <span class="icon">
@@ -146,10 +65,7 @@
             </span>
           </p>
         </div>
-        <DataOverlay v-show="dataOverlayPanelVisible"
-                     :map-type="currentDisplayedType"
-                     :dim="dim" :map-name="currentDisplayedName">
-        </DataOverlay>
+        <DataOverlay v-if="currentMap !== null && dataOverlayPanelVisible" :map-name="currentMap.name" />
       </template>
     </div>
   </div>
@@ -157,156 +73,77 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex';
-import $ from 'jquery';
 import { debounce } from 'vue-debounce';
-import SidebarDataPanels from '@/components/explorer/mapViewer/SidebarDataPanels';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
+import MapsListing from '@/components/explorer/mapViewer/MapsListing.vue';
+import SidebarDataPanels from '@/components/explorer/mapViewer/SidebarDataPanels.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
-import ThreeDViewer from '@/components/explorer/ThreeDviewer';
-import { default as EventBus } from '@/event-bus';
+import ThreeDViewer from '@/components/explorer/mapViewer/ThreeDviewer';
 import { default as messages } from '@/helpers/messages';
+import { default as EventBus } from '@/event-bus';
 
 export default {
   name: 'MapViewer',
   components: {
-    SidebarDataPanels,
     DataOverlay,
+    MapsListing,
+    SidebarDataPanels,
     Svgmap,
     ThreeDViewer,
   },
   data() {
     return {
+      showingMapListing: true,
+      currentMap: null,
       errorMessage: '',
       loadMapErrorMessage: '',
-      showOverviewScreen: true,
-      requestedType: '',
-      requestedName: '',
-      currentDisplayedType: '',
-      currentDisplayedName: '',
-      currentDisplayedData: '',
-      showLoader: false,
-      watchURL: true,
-
       selectionData: {
         type: '',
         data: null,
         error: false,
       },
-      showSelectionLoader: false,
-      isHoverMenuItem: false,
-      lastRoute: {},
       messages,
     };
   },
   computed: {
     ...mapState({
       model: state => state.models.model,
-      show2D: state => state.maps.show2D,
+      showing2D: state => state.maps.showing2D,
       dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
     }),
     ...mapGetters({
-      mapsData3D: 'maps/mapsData3D',
-      mapsData3DLoaded: 'maps/mapsData3DLoaded',
-      mapsData2D: 'maps/mapsData2D',
-      compartmentMapping: 'maps/compartmentMapping',
-      has2DCompartmentMaps: 'maps/has2DCompartmentMaps',
-      has2DSubsystemMaps: 'maps/has2DSubsystemMaps',
-      show3D: 'maps/show3D',
+      mapsListing: 'maps/mapsListing',
       queryParams: 'maps/queryParams',
     }),
-    activeSwitch() {
-      return !this.showLoader && !this.disabled2D;
-    },
-    disabled2D() {
-      if (this.show2D || !this.currentDisplayedName || this.showLoader) {
-        return false;
-      }
-      if (!this.has2DCompartmentMaps && !this.has2DSubsystemMaps) {
-        return true;
-      }
-      if (this.currentDisplayedType === 'compartment') {
-        const altID = this.mapsData3D.compartments[this.currentDisplayedName].alternateDim;
-        return !(altID in this.mapsData2D.compartments);
-      }
-      const altID = this.mapsData3D.subsystems[this.currentDisplayedName].alternateDim;
-      return !(altID in this.mapsData2D.subsystems);
-    },
-    dim() {
-      return this.show2D ? '2d' : '3d';
-    },
-    showMapViewer() {
-      return this.$route.name === 'viewer';
-    },
   },
   watch: {
-    $route(to) {
-      if (to.name === 'viewer' && to.query.dim && to.query.dim !== this.queryParams.dim) {
-        this.$store.dispatch('maps/setShow2D', to.query.dim !== '3d');
-      }
-    },
+    '$route.params': 'loadMapFromParams',
     queryParams(newQuery, oldQuery) {
       this.handleQueryParamsWatch(newQuery, oldQuery);
     },
   },
-  created() {
+  async created() {
     this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
     window.onpopstate = this.handleQueryParamsWatch();
 
-
     EventBus.$off('loadRNAComplete');
-
     EventBus.$on('loadRNAComplete', (isSuccess, errorMessage) => {
       if (!isSuccess) {
         this.showMessage(errorMessage);
         EventBus.$emit('unselectFirstTissue');
         EventBus.$emit('unselectSecondTissue');
-      } else {
-        this.showLoader = false;
       }
-    });
-  },
-  async beforeMount() {
-    this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
-    await this.getSubComptData(this.model);
-  },
-  beforeUpdate() {
-    if (!this.checkValidRequest(this.$route.params.type, this.$route.params.map_id) && this.showMapViewer) {
-      this.handleLoadComplete(false, `Invalid map ID "${this.$route.params.map_id}"`);
-    } else {
-      this.loadMapErrorMessage = '';
-    }
-    this.showOverviewScreen = false; // to get the loader visible
-  },
-  mounted() {
-    // menu
-    const self = this;
-    $('#menu').on('mouseenter', 'ul.l0 > li:has(ul)', function f() {
-      if ($(this).hasClass('disable')) {
-        return;
-      }
-      $('#menu ul.l1, #menu ul.l2').hide();
-      $(this).find('ul').first().show();
-      self.isHoverMenuItem = true;
-    });
-    $('#menu').on('mouseleave', 'ul.l0 > li:has(ul)', function f() {
-      self.isHoverMenuItem = false;
-      $(this).find('ul').first().delay(500)
-        .queue(function ff() {
-          if (!self.isHoverMenuItem) {
-            $(this).hide(0);
-          }
-          $(this).dequeue();
-        });
-    });
-    $('#menu').on('mouseenter', 'ul.l1 > li:has(ul)', function f() {
-      $('#menu ul.l2').hide();
-      $(this).find('ul').first().show();
-      self.isHoverMenuItem = true;
     });
 
-    $('#graphframe').on('click', () => {
-      $('#menu ul.l1, #menu ul.l2').hide();
-    });
+    if (!this.model || this.model.short_name !== this.$route.params.model) {
+      const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
+      if (!modelSelectionSuccessful) {
+        this.errorMessage = `Error: ${messages.modelNotFound}`;
+      }
+    }
+    await this.$store.dispatch('maps/getMapsListing', this.model);
+    this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
+    this.loadMapFromParams();
   },
   methods: {
     handleQueryParamsWatch(newQuery, oldQuery) {
@@ -329,49 +166,50 @@ export default {
         history.pushState(...payload); // eslint-disable-line no-restricted-globals
       }
     },
-    hideDropleftMenus() {
-      $('#menu ul.l1, #menu ul.l2').hide();
-    },
-    toggleDataOverlayPanel() {
-      this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
-      if (this.show3D) {
-        // fix the 3D canvas size when open/close dataOverlay
-        EventBus.$emit('recompute3DCanvasBounds');
+    loadMapFromParams() {
+      const id = this.$route.params.map_id;
+      if (id) {
+        const categories = Object.keys(this.mapsListing);
+        const items = Object.values(this.mapsListing);
+        for (let i = 0; i < categories.length; i += 1) {
+          for (let j = 0; j < items[i].length; j += 1) {
+            const item = items[i][j];
+            if (this.showing2D) {
+              for (let k = 0; k < item.svgs.length; k += 1) {
+                if (item.svgs[k].id === id) {
+                  this.currentMap = { ...item };
+                  this.currentMap.svgs = [item.svgs[k]];
+                  this.currentMap.type = categories[i].slice(0, -1);
+                  return;
+                }
+              }
+            } else if (item.id === id) {
+              this.currentMap = item;
+              this.currentMap.type = categories[i].slice(0, -1);
+              return;
+            }
+          }
+        }
       }
-    },
-    switchDimension() {
-      if (!this.activeSwitch || !this.currentDisplayedType || !this.currentDisplayedName) {
-        return;
-      }
-
-      if (!this.checkValidRequest(this.currentDisplayedType, this.currentDisplayedName)) {
-        this.showMessage(`Invalid map ID "${this.currentDisplayedName}"`);
-        return;
-      }
-
-      this.$store.dispatch('maps/toggleShow2D');
     },
     handleLoadComplete(isSuccess, errorMessage) {
       if (!isSuccess) {
         this.selectionData.data = null;
         this.showMessage(errorMessage);
-        this.currentDisplayedType = '';
-        this.currentDisplayedName = '';
-        return;
       }
-      this.showOverviewScreen = false;
-      this.currentDisplayedType = this.requestedType;
-      this.currentDisplayedName = this.requestedName;
-      this.showLoader = false;
       this.$nextTick(() => {
         EventBus.$emit('reloadGeneExpressionData');
       });
+    },
+    toggleDataOverlayPanel() {
+      this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
     },
     showMessage(errorMessage) {
       this.loadMapErrorMessage = errorMessage;
       if (!this.loadMapErrorMessage) {
         this.loadMapErrorMessage = messages.unknownError;
       }
+<<<<<<< HEAD
       this.showLoader = false;
     },
     async getSubComptData(model) {
@@ -446,6 +284,8 @@ export default {
     endSelection(isSuccess) {
       this.showSelectionLoader = false;
       this.selectionData.error = !isSuccess;
+=======
+>>>>>>> develop
     },
     unSelect() {
       this.selectionData.error = false;
@@ -459,113 +299,8 @@ export default {
 </script>
 
 <style lang="scss">
-#mapViewer {
-  #menu {
-    background: $primary;
-    color: $white;
-    position: relative;
-    font-size: 16px;
-    ul {
-      list-style: none;
-      &.vhs, &.l2 {
-        max-height: 65vh;
-        overflow-y: auto;
-      }
-    }
-
-    ul.l1, ul.l2 {
-      display: none;
-      border-left: 1px solid white;
-      position: absolute;
-      top: 0;
-      left: 100%;
-      width: 100%;
-      background: $primary;
-      z-index: 11;
-      box-shadow: 5px 5px 5px #222222;
-    }
-
-    li {
-      padding: 17px 15px 17px 20px;
-      border-bottom: 1px solid $grey-lighter;
-      user-select: none;
-      &:hover {
-        background: $primary-light;
-      }
-      span {
-        position: absolute;
-        right: 10px;
-      }
-      &.disable {
-        cursor: not-allowed;
-        background: $primary;
-        color: $grey;
-      }
-    }
-  }
-
-  #iMainPanel {
-    margin-bottom: 0;
-    min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    height: calc(100vh - #{$navbar-height} - #{$footer-height});
-  }
-
-  #iSwitch {
-    left: 2.25rem;
-    top:  2.25rem;
-  }
-
-  #iSideBar {
-    padding: 0.75rem 0 0 0.75rem;
-  }
-
-  #iLoader {
-    z-index: 10;
-    position: absolute;
-    background: black;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.8;
-    display: table;
-    a {
-      color: white;
-      font-size: 5em;
-      font-weight: 1000;
-      display: table-cell;
-      vertical-align: middle;
-      background: black;
-      border: 0;
-    }
-  }
-
-  #graphframe {
-    position: relative;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-  }
-
-
-  #dataOverlayBar {
-    display: flex;
-    align-items: center;
-    background: $primary;
-    cursor: pointer;
-    line-height: 17px;
-    padding: 0.25rem;
-    .icon {
-      padding-bottom: 20px;
-      padding-top: 20px;
-    }
-    &:hover{
-      background: $primary-light;
-    }
-    padding-right: 1rem;
-  }
+#mapViewerContainer {
+  height: calc(100vh - #{$navbar-height} - #{$footer-height});
 
   .overlay {
     position: absolute;
@@ -576,8 +311,8 @@ export default {
   }
 
   .canvasOption {
-    top: 7.25rem;
-    left: 2.25rem;
+    top: 2rem;
+    left: 1.5rem;
     span {
       display: block;
       &:not(:last-child) {
@@ -585,19 +320,43 @@ export default {
       }
     }
   }
+}
 
+#graphframe {
+  position: relative;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
 
-  #errorPanel {
-    z-index: 11;
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: 350px;
-    bottom: 2rem;
-    border: 1px solid gray;
+#dataOverlayBar {
+  display: flex;
+  align-items: center;
+  background: $primary;
+  cursor: pointer;
+  line-height: 17px;
+  padding: 0.25rem;
+  .icon {
+    padding-bottom: 20px;
+    padding-top: 20px;
   }
+  &:hover{
+    background: $primary-light;
+  }
+  padding-right: 1rem;
+}
+
+#errorPanel {
+  z-index: 11;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 350px;
+  bottom: 2rem;
+  border: 1px solid gray;
 
   .slide-fade-enter-active {
     transition: all .3s ease;
@@ -610,5 +369,4 @@ export default {
     opacity: 0;
   }
 }
-
 </style>

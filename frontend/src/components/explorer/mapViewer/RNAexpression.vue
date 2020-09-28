@@ -48,6 +48,7 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
+      showing2D: state => state.maps.showing2D,
       rnaLevels: state => state.humanProteinAtlas.levels,
     }),
     ...mapGetters({
@@ -254,7 +255,7 @@ export default {
     computeRNAlevels() {
       if (Object.keys(this.firstRNAlevels).length === 0 && Object.keys(this.secondRNAlevels).length === 0) {
         // nothing to compute
-        EventBus.$emit(this.dim === '2d' ? 'apply2DHPARNAlevels' : 'apply3DHPARNAlevels', {});
+        EventBus.$emit(this.showing2D ? 'apply2DHPARNAlevels' : 'apply3DHPARNAlevels', {});
         this.RNAExpressionLegend = false;
         return;
       }
@@ -303,7 +304,7 @@ export default {
         this.computedRNAlevels['n/a'] = [getComparisonRNAExpressionColor(NaN), 'n/a'];
       }
       this.$nextTick(() => {
-        EventBus.$emit(this.dim === '2d' ? 'apply2DHPARNAlevels' : 'apply3DHPARNAlevels', this.computedRNAlevels);
+        EventBus.$emit(this.showing2D ? 'apply2DHPARNAlevels' : 'apply3DHPARNAlevels', this.computedRNAlevels);
       });
     },
     roundValue(value) {

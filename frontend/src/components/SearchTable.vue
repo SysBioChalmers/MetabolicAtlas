@@ -120,7 +120,7 @@
                     <span v-html="chemicalFormula(props.row[props.column.field], props.row.charge)"></span>
                   </template>
                   <template v-else-if="['name', 'id'].includes(props.column.field)">
-                    <router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: header, id: props.row.id } }">
+                    <router-link :to="{ name: header, params: { model: props.row.model.id, id: props.row.id } }">
                       {{ props.row.name || props.row.id }}
                     </router-link>
                   </template>
@@ -131,7 +131,7 @@
                     <template v-for="(sub, i) in props.formattedRow[props.column.field]" v-else>
                       <template v-if="i !== 0">; </template>
                       <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
-                      <router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: 'subsystem', id: sub.id } }">{{ sub.name }}</router-link>
+                      <router-link :to="{ name: 'subsystem', params: { model: props.row.model.id, id: sub.id } }">{{ sub.name }}</router-link>
                     </template>
                   </template>
                   <template v-else-if="['compartment', 'compartments'].includes(props.column.field)">
@@ -141,14 +141,14 @@
                     <template v-else-if="['gene', 'subsystem', 'reaction'].includes(header)">
                       <template v-for="(comp, i) in props.formattedRow[props.column.field]">
                         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                        <template v-if="i != 0">; </template><router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: 'compartment', id: comp.id } }">{{ comp.name }}</router-link>
+                        <template v-if="i != 0">; </template><router-link :to="{ name: 'compartment', params: { model: props.row.model.id, id: comp.id } }">{{ comp.name }}</router-link>
                       </template>
                     </template>
                     <template v-else-if="Array.isArray(props.formattedRow[props.column.field])">
                       {{ props.formattedRow[props.column.field].join("; ") }}
                     </template>
                     <template v-else>
-                      <router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: 'compartment', id: props.formattedRow[props.column.field].id } }">
+                      <router-link :to="{ name: 'compartment', params: { model: props.row.model.id, id: props.formattedRow[props.column.field].id } }">
                         {{ props.formattedRow[props.column.field].name }}
                       </router-link>
                     </template>

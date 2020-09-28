@@ -19,9 +19,9 @@
             <i class="fa" :class="metabolitesAndGenesOnly ? 'fa-connectdevelop' : 'fa-table'"></i>
           </span>
         </p>
-        <router-link v-if="$route.name === 'browser'"
+        <router-link v-if="$route.name === 'browser' && model "
                      class="is-pulled-left has-text-grey-light"
-                     :to="{ name: 'browserRoot', params: { model: model.short_name } }">
+                     :to="{ name: 'browser', params: { model: model.short_name } }">
           &larr; back to tiles
         </router-link>
         <router-link class="is-pulled-right" :to="{ name: 'search', query: { term: searchTermString } }">
@@ -38,8 +38,8 @@
           <template v-for="type in resultsOrder">
             <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection">
               <hr v-if="i2 !== 0" class="is-marginless">
-              <router-link class="clickable" :to="getRouterUrl(type, r.id)"
-                           @click.native="showResults=false">
+            <router-link class="clickable" @click.native="showResults=false"
+                         :to="{ name: metabolitesAndGenesOnly ? 'interaction': type, params: { model: model.short_name, id: r.id } }">
                 <b class="is-capitalized">{{ type }}: </b>
                 <label class="clickable" v-html="formatSearchResultLabel(type, r, searchTermString)"></label>
               </router-link>
@@ -170,12 +170,6 @@ export default {
         }
         this.showLoader = false;
       }
-    },
-    getRouterUrl(type, id) {
-      if (this.metabolitesAndGenesOnly) {
-        return `/explore/interaction/${this.$route.params.model}/${id}`;
-      }
-      return `/explore/gem-browser/${this.$route.params.model}/${type}/${id}`;
     },
     globalSearch() {
       this.$router.push({ name: 'search', query: { term: this.searchTermString } });

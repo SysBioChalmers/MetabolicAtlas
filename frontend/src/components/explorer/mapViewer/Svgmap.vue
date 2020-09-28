@@ -1,10 +1,18 @@
 <template>
   <div class="svgbox">
+    <div v-if="errorMessage" class="columns is-centered">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
+      </div>
+    </div>
+    <div v-show="showLoader" id="iLoader" class="loading">
+      <a class="button is-loading"></a>
+    </div>
     <div id="svg-wrapper" v-html="svgContent">
     </div>
     <div class="canvasOption overlay">
-      <span class="button" title="Zoom in" @click="zoomOut(false)"><i class="fa fa-search-plus"></i></span>
-      <span class="button" title="Zoom out" @click="zoomOut(true)"><i class="fa fa-search-minus"></i></span>
+      <span class="button" title="Zoom in" @click="zoomIn()"><i class="fa fa-search-plus"></i></span>
+      <span class="button" title="Zoom out" @click="zoomOut()"><i class="fa fa-search-minus"></i></span>
       <span class="button" title="Show/Hide genes"
             style="padding: 4.25px;"
             @click="toggleGenes()">
@@ -20,11 +28,11 @@
             @click="toggleFullScreen()">
         <i class="fa" :class="{ 'fa-compress': isFullscreen, 'fa-arrows-alt': !isFullscreen}"></i>
       </span>
-      <span class="button" title="Download as SVG" @click="downloadMap()"><i class="fa fa-download"></i></span>
+      <span class="button" title="Download as SVG" @click="downloadCanvas()"><i class="fa fa-download"></i></span>
     </div>
-    <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap" :ready="mapMetadata !== null"
+    <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap"
                :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
-               @unHighlightAll="unHighlight"></MapSearch>
+               @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>
   </div>
 </template>
@@ -33,8 +41,7 @@
 
 import { mapGetters, mapState } from 'vuex';
 import $ from 'jquery';
-import JQPanZoom from 'jquery.panzoom';
-import JQMouseWheel from 'jquery-mousewheel';
+import Panzoom from '@panzoom/panzoom';
 import { default as FileSaver } from 'file-saver';
 import { debounce } from 'vue-debounce';
 import MapSearch from '@/components/explorer/mapViewer/MapSearch';
@@ -42,46 +49,28 @@ import { default as EventBus } from '@/event-bus';
 import { default as messages } from '@/helpers/messages';
 import { reformatChemicalReactionHTML } from '@/helpers/utils';
 
-// hack: the only way for jquery plugins to play nice with the plugins inside Vue
-$.Panzoom = JQPanZoom;
-$.fn.extend({
-  mousewheel: function fn(options) {
-    return this.each(function f() { return JQMouseWheel.mousewheel(this, options); });
-  },
-  unmousewheel: function fn() {
-    return this.each(function f() { return JQMouseWheel.unmousewheel(this); });
-  },
-});
-
-
 export default {
   name: 'Svgmap',
   components: {
     MapSearch,
   },
   props: {
-    mapsData: Object,
-    requestedMapType: String,
-    requestedMapName: String,
+    mapData: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
+      showLoader: true,
       errorMessage: '',
-      mapType: '',
-      mapName: '',
-      mapMetadata: null,
-      mapMetadataHistory: {},
-
-      svgContentHistory: {},
 
       isFullscreen: false,
-      $panzoom: null,
+      panzoom: null,
       panzoomOptions: {
         maxScale: 1,
         minScale: 0.03,
-        increment: 0.025,
-        animate: false,
-        linearZoom: true,
+        step: 0.1,
       },
       currentZoomScale: 1,
 
@@ -127,25 +116,20 @@ export default {
     },
   },
   watch: {
-    async requestedMapName(newName, oldName) {
-      if (oldName && oldName.length > 0 && newName !== oldName) {
-        this.initialLoadWithParams = false;
-      }
+    async mapData() {
       await this.init();
     },
+    svgContent: 'loadSvgPanzoom',
   },
   created() {
     EventBus.$off('apply2DHPARNAlevels');
-
     EventBus.$on('apply2DHPARNAlevels', (levels) => {
       this.applyHPARNAlevelsOnMap(levels);
     });
-
     this.updateURLCoord = debounce(this.updateURLCoord, 150);
   },
   async mounted() {
     const self = this;
-    self.initialLoadWithParams = !!self.$route.query.coords;
     ['.met', '.enz', '.rea', '.subsystem'].forEach((aClass) => {
       $('#svg-wrapper').on('click', aClass, async function f() {
         await self.selectElement($(this));
@@ -179,21 +163,18 @@ export default {
       self.isFullscreen = $('.svgbox').first().hasClass('fullscreen');
       e.stopPropagation();
     });
-    $(document).on('mozfullscreenchange', () => {
-      $('.svgbox').first().toggleClass('fullscreen');
-      self.isFullscreen = $('.svgbox').first().hasClass('fullscreen');
-    });
-
     await this.init();
   },
   methods: {
     async init() {
-      this.$refs.mapsearch.reset(); // always reset the search
-      const type = this.requestedMapType;
-      const name = this.requestedMapName;
-      if (name && (type === 'compartment' || type === 'subsystem')) {
-        await this.loadMap(type, name);
+      this.$refs.mapsearch.reset();
+      if (this.mapData.svgs.length === 0) {
+        this.errorMessage = messages.mapNotFound;
+        return;
       }
+      this.showLoader = true;
+      const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
+      await this.$store.dispatch('maps/getSvgMap', payload);
     },
     toggleGenes() {
       if ($('.enz, .ee').first().attr('visibility') === 'hidden') {
@@ -241,25 +222,21 @@ export default {
         this.isFullscreen = false;
       }
     },
-    zoomOut(bool) {
-      if (this.$panzoom) {
-        this.$panzoom.panzoom('zoom', bool, {
-          focal: {
-            clientX: this.clientFocusX(),
-            clientY: this.clientFocusY(),
-          },
+    zoomToValue(v) {
+      if (v >= this.panzoomOptions.minScale
+        && v <= this.panzoomOptions.maxScale
+      ) {
+        this.panzoom.zoomToPoint(v, {
+          clientX: this.clientFocusX(),
+          clientY: this.clientFocusY(),
         });
       }
     },
-    zoomToValue(v) {
-      this.$panzoom.panzoom('zoom', v, {
-        increment: 1 - this.currentZoomScale,
-        transition: false,
-        focal: {
-          clientX: this.clientFocusX(),
-          clientY: this.clientFocusY(),
-        },
-      });
+    zoomIn() {
+      this.zoomToValue(this.currentZoomScale + this.panzoomOptions.step);
+    },
+    zoomOut() {
+      this.zoomToValue(this.currentZoomScale - this.panzoomOptions.step);
     },
     restoreMapPosition(x, y, zoom) {
       this.zoomToValue(1.0);
@@ -269,11 +246,10 @@ export default {
       const payload = { x, y, z: zoom, lx: 0, ly: 0, lz: 0 };
       this.$store.dispatch('maps/setCoords', payload);
     },
-    updateURLCoord(e, v, o) { // eslint-disable-line no-unused-vars
-      const z = parseFloat(o[0]);
-      const x = -parseFloat(o[4]);
-      const y = -parseFloat(o[5]);
-      // FIXME invalid coord
+    updateURLCoord(e) {
+      const z = e.detail.scale || this.currentZoomScale;
+      const x = e.detail.x || 0;
+      const y = e.detail.y || 0;
 
       const payload = { x, y, z, lx: 0, ly: 0, lz: 0 };
       this.$store.dispatch('maps/setCoords', payload);
@@ -292,98 +268,52 @@ export default {
       const elms = this.findElementsOnSVG(this.selectIds);
       this.selectElement(elms[0] || null, true);
     },
-    loadSvgPanZoom() {
-      // load the lib svgPanZoom on the SVG loaded
-      if (!this.$panzoom) {
-        this.$panzoom = $('#svg-wrapper').panzoom(this.panzoomOptions);
-      } else {
-        this.$panzoom = $('#svg-wrapper').panzoom('reset', this.panzoomOptions);
-        this.$panzoom.off('mousewheel.focal');
-        this.$panzoom.off('panzoomzoom');
-        this.$panzoom.off('panzoomchange');
-      }
-      setTimeout(() => {
-        this.$panzoom.on('panzoomchange', (e, v, o) => this.updateURLCoord(e, v, o));
+    loadSvgPanzoom() {
+      this.initialLoadWithParams = !!this.$route.query.coords;
 
-        const minZoomScale = Math.min($('.svgbox').width() / $('#svg-wrapper svg').width(),
-          $('.svgbox').height() / $('#svg-wrapper svg').height());
-        const focusX = ($('#svg-wrapper svg').width() / 2) - ($('.svgbox').width() / 2);
-        const focusY = ($('#svg-wrapper svg').height() / 2) - ($('.svgbox').height() / 2);
-        this.$panzoom.panzoom('pan', -focusX, -focusY);
-        this.$panzoom.panzoom('zoom', true, {
-          increment: 1 - minZoomScale,
-          focal: {
-            clientX: this.clientFocusX(),
-            clientY: this.clientFocusY(),
-          },
+      // load the lib svgPanzoom on the SVG loaded
+      const panzoomElem = document.getElementById('svg-wrapper');
+      if (this.panzoom) {
+        this.panzoom.destroy(); // clean reset
+      }
+      this.panzoom = Panzoom(panzoomElem, this.panzoomOptions);
+
+      setTimeout(() => {
+        // bind event listeners
+        panzoomElem.addEventListener('panzoomchange', this.updateURLCoord);
+        panzoomElem.addEventListener('panzoomzoom', (e) => { // eslint-disable-line no-unused-vars
+          this.currentZoomScale = e.detail.scale;
         });
-        this.$panzoom.on('mousewheel.focal', (e) => {
-          e.preventDefault();
-          const delta = e.delta || e.originalEvent.wheelDelta;
-          const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-          this.$panzoom.panzoom('zoom', zoomOut, { focal: e });
-        });
-        this.$panzoom.on('panzoomzoom', (e, panzoom, scale) => { // eslint-disable-line no-unused-vars
-          this.currentZoomScale = scale;
+        panzoomElem.parentElement.addEventListener('wheel', this.panzoom.zoomWithWheel);
+
+        const svg = document.querySelector('#svg-wrapper svg').getBBox();
+        const svgBox = document.querySelector('.svgbox');
+
+        // set default pan
+        const focusX = svg.width / 2 - svgBox.offsetWidth / 2;
+        const focusY = svg.height / 2 - svgBox.offsetHeight / 3;
+        this.panzoom.pan(-focusX, -focusY);
+
+        // set default zoom
+        const minZoomScale = Math.min(
+          svgBox.offsetWidth / svg.width,
+          svgBox.offsetHeight / svg.height
+        );
+
+        this.panzoom.zoomToPoint(minZoomScale, {
+          clientX: this.clientFocusX(),
+          clientY: this.clientFocusY(),
         });
 
         this.processSelSearchParam();
-        this.$emit('loadComplete', true, '');
+        this.showLoader = false;
       }, 0);
     },
-    async loadMap(type, name) {
-      // load the svg file from the server
-      this.$emit('loading');
-      const mapInfo = this.mapsData.compartments[name] || this.mapsData.subsystems[name];
-      if (!mapInfo) {
-        this.mapType = null;
-        this.mapName = null;
-        this.$emit('loadComplete', false, `Invalid map ID "${name}"`);
-        return;
-      }
-
-      const newSvgName = mapInfo.filename;
-      if (!newSvgName) {
-        this.$emit('loadComplete', false, messages.mapNotFound);
-        return;
-      }
-
-      if (type !== this.mapType || newSvgName !== this.mapName) {
-        // this.$refs.mapsearch.reset();
-        if (newSvgName in this.mapMetadataHistory) {
-          this.$store.dispatch('maps/setSvgMap', this.svgContentHistory[newSvgName]);
-          this.mapMetadata = this.mapMetadataHistory[newSvgName];
-          this.mapType = type;
-          this.mapName = newSvgName;
-          setTimeout(() => {
-            this.loadSvgPanZoom();
-          }, 0);
-        } else {
-          try {
-            const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: newSvgName };
-            await this.$store.dispatch('maps/getSvgMap', payload);
-            this.mapType = type;
-            this.mapName = newSvgName;
-            this.mapMetadata = mapInfo;
-
-            setTimeout(() => {
-              this.loadSvgPanZoom();
-            }, 0);
-          } catch {
-            this.$emit('loadComplete', false, messages.mapNotFound);
-          }
-        }
-      } else {
-        setTimeout(() => {
-          this.loadSvgPanZoom();
-        }, 0);
-      }
-    },
-    downloadMap() {
+    downloadCanvas() {
       const blob = new Blob([document.getElementById('svg-wrapper').innerHTML], {
         type: 'data:text/tsv;charset=utf-8',
       });
-      FileSaver.saveAs(blob, `${this.mapMetadata.id}.svg`);
+      FileSaver.saveAs(blob, `${this.mapData.id}.svg`);
     },
     applyHPARNAlevelsOnMap(RNAlevels) {
       this.HPARNAlevels = RNAlevels;
@@ -514,10 +444,6 @@ export default {
         return;
       }
       const [id, type] = this.getElementIdAndType(element);
-      if (type === 'subsystem' && this.mapType === 'subsystem') {
-        // cannot select subsystem on subsystem map
-        return;
-      }
 
       if (this.selectedElementId === id && !routeSelect) {
         this.unSelectElement();
@@ -573,21 +499,22 @@ export default {
       this.$emit('unSelect');
     },
     clientFocusX() {
-      return ($('.svgbox').width() / 2) + $('#iSideBar').width();
+      const svgBox = document.querySelector('.svgbox');
+      const sidebar = document.querySelector('#mapSidebar');
+      return (svgBox.offsetWidth / 2) + sidebar.offsetWidth;
     },
     clientFocusY() {
-      return ($('.svgbox').height() / 2) + $('#navbar').height();
+      const svgBox = document.querySelector('.svgbox');
+      const navbar = document.querySelector('#navbar');
+      return (svgBox.offsetHeight / 2) + navbar.offsetHeight;
     },
     panToCoords({ panX, panY, zoom, center }) {
-      this.$panzoom.panzoom('zoom', zoom);
-
+      this.panzoom.zoom(zoom);
       if (center) {
-        this.$panzoom.panzoom('pan', -panX + ($('.svgbox').width() / 2), -panY + ($('.svgbox').height() / 2));
+        this.panzoom.pan(panX + ($('.svgbox').width() / 2), panY + ($('.svgbox').height() / 2));
       } else {
-        this.$panzoom.panzoom('pan', -panX, -panY);
+        this.panzoom.pan(panX, panY);
       }
-
-      this.$emit('loadComplete', true, '');
     },
     reformatChemicalReactionHTML,
   },
@@ -595,6 +522,28 @@ export default {
 </script>
 
 <style lang="scss">
+
+#iLoader {
+  z-index: 10;
+  position: absolute;
+  background: black;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+  display: table;
+  a {
+    color: white;
+    font-size: 5em;
+    font-weight: 1000;
+    display: table-cell;
+    vertical-align: middle;
+    background: black;
+    border: 0;
+  }
+}
+
 .met, .rea, .enz {
   .shape, .lbl {
     cursor: pointer;
