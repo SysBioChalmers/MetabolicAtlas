@@ -313,7 +313,7 @@ export default {
         this.errorMessage = messages.unknownError;
       }
     },
-    async getModelData() {
+    getModelData() {
       const urlId = this.$route.params.model_id;
       this.showModelId = '';
       this.selectedModel = {};
@@ -325,7 +325,7 @@ export default {
           }
         });
         if (!this.showModelId) {
-          const urlIdExists = await this.$store.dispatch('gems/getGemData', urlId);
+          const urlIdExists = this.$store.dispatch('gems/getGemData', urlId);
           if (urlIdExists) {
             this.selectedModel = this.gem;
             this.showModelId = urlId;
