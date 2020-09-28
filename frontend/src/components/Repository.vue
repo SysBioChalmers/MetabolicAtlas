@@ -74,7 +74,7 @@
         </div>
         <br>
         <div v-if="showModelId" id="gem-list-modal" class="modal is-active">
-          <div class="modal-background" @click="selectModel()"></div>
+          <div class="modal-background" @click="selectModel(null)"></div>
           <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white"
                tabindex="0" @keyup.esc="showModelId = ''">
             <div id="modal-info" class="model-table">
@@ -131,7 +131,7 @@
               </template>
             </div>
           </div>
-          <button class="modal-close is-large" @click="selectModel()"></button>
+          <button class="modal-close is-large" @click="selectModel(null)"></button>
         </div>
       </div>
     </div>
@@ -330,12 +330,12 @@ export default {
             this.selectedModel = this.gem;
             this.showModelId = urlId;
           } else {
-            this.selectModel();
+            this.selectModel(null);
           }
         }
       }
     },
-    selectModel(id = null) {
+    selectModel(id) {
       this.$router.push({ params: { model_id: id } });
     },
   },
