@@ -121,7 +121,7 @@ export default {
   data() {
     return {
       type: 'metabolite',
-      metaboliteId: ' ',
+      metaboliteId: this.$route.params.id,
       mainTableKey: [
         { name: 'id' },
         { name: 'name' },
@@ -162,7 +162,6 @@ export default {
   methods: {
     async setup() {
       this.showLoaderMessage = 'Loading metabolite data';
-      this.metaboliteId = this.$route.params.id;
       try {
         const payload = { model: this.model, id: this.metaboliteId };
         await this.$store.dispatch('metabolites/getMetaboliteData', payload);
