@@ -116,12 +116,11 @@ export default {
     async getIntegratedModelList() {
       await this.$store.dispatch('models/getModels');
       let modelKey = Object.keys(this.models)[0];
-      if (this.$route.params && this.$route.params.model) {
-        const modelShortNamesDict = {};
-        Object.values(this.models).forEach((m) => { modelShortNamesDict[m.short_name] = m; });
-        if (this.$route.params.model in modelShortNamesDict) {
-          modelKey = this.$route.params.model;
-        }
+      if (this.$route.params && this.$route.params.model in this.models) {
+        modelKey = this.$route.params.model;
+      } else if (this.model) {
+        modelKey = this.model.short_name;
+        this.$router.replace({ params: { model: modelKey } });
       }
       this.$store.dispatch('models/selectModel', modelKey);
     },
