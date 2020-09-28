@@ -5,9 +5,7 @@
         {{ errorMessage }}
       </div>
     </div>
-    <div v-show="showLoader" id="iLoader" class="loading">
-      <a class="button is-loading"></a>
-    </div>
+    <MapLoader :loading="showLoader" />
     <div id="svg-wrapper" v-html="svgContent">
     </div>
     <div class="canvasOption overlay">
@@ -44,6 +42,7 @@ import $ from 'jquery';
 import Panzoom from '@panzoom/panzoom';
 import { default as FileSaver } from 'file-saver';
 import { debounce } from 'vue-debounce';
+import MapLoader from '@/components/explorer/mapViewer/MapLoader';
 import MapSearch from '@/components/explorer/mapViewer/MapSearch';
 import { default as EventBus } from '@/event-bus';
 import { default as messages } from '@/helpers/messages';
@@ -52,6 +51,7 @@ import { reformatChemicalReactionHTML } from '@/helpers/utils';
 export default {
   name: 'Svgmap',
   components: {
+    MapLoader,
     MapSearch,
   },
   props: {
@@ -522,27 +522,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-#iLoader {
-  z-index: 10;
-  position: absolute;
-  background: black;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.8;
-  display: table;
-  a {
-    color: white;
-    font-size: 5em;
-    font-weight: 1000;
-    display: table-cell;
-    vertical-align: middle;
-    background: black;
-    border: 0;
-  }
-}
 
 .met, .rea, .enz {
   .shape, .lbl {

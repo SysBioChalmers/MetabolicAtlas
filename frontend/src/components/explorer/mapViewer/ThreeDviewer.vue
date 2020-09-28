@@ -1,21 +1,28 @@
 <template>
-  <div v-if="errorMessage" class="columns is-centered">
-    <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-      {{ errorMessage }}
+  <div class="viewer-container">
+    <div v-if="errorMessage" class="columns is-centered">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
+      </div>
     </div>
+    <div v-else id="viewer3d"></div>
+    <MapLoader :loading="showLoader" />
   </div>
-  <div v-else id="viewer3d"></div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
 import { default as EventBus } from '@/event-bus';
+import MapLoader from '@/components/explorer/mapViewer/MapLoader';
 import { default as messages } from '@/helpers/messages';
 import { default as colorToRGBArray } from '@/helpers/colors';
 
 export default {
   name: 'ThreeDViewer',
+  components: {
+    MapLoader,
+  },
   props: {
     currentMap: {
       type: Object,
@@ -27,6 +34,7 @@ export default {
       errorMessage: '',
       messages,
       controller: null,
+      showLoader: true,
     };
   },
   computed: {
@@ -52,6 +60,8 @@ export default {
   },
   methods: {
     async loadNetwork() {
+      this.showLoader = true;
+
       const payload = {
         model: this.model.apiName,
         version: this.model.apiVersion,
@@ -60,6 +70,7 @@ export default {
       };
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
       this.renderNetwork();
+      this.showLoader = false;
       // controller.filterBy({group: 'm'});
       // controller.filterBy({id: [1, 2, 3, 4]});
       // Subscribe to node selection events
@@ -144,8 +155,8 @@ export default {
 };
 </script>
 
-<style lang='scss'>
-#viewer3d {
+<style lang='scss' scoped>
+.viewer-container, #viewer3d {
   width: 100%;
   height: 100%;
 }
