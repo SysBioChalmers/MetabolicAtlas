@@ -302,9 +302,6 @@ m, .clickable {
     max-height: 20px;
     margin: 0 0.5rem;
   }
-  sup {
-    vertical-align: top;
-  }
 }
 
 .metabolite-table, .model-table, .reaction-table, .subsystem-table {
