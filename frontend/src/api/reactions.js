@@ -1,21 +1,44 @@
 import axios from 'axios';
+import { constructCompartmentStr, reformatChemicalReactionHTML } from '@/helpers/utils';
 
 const fetchReactionData = async ({ id, model, version }) => {
   const params = { model, version };
-  const { data } = await axios.get(`/reactions/${id}`, { params });
-  return data;
+  let { data } = await axios.get(`/reactions/${id}`, { params });
+
+  data = {
+    ...data,
+    compartment_str: data.compartments.map(c => c.name).join(', '),
+    reactionreactant_set: data.metabolites.filter(m => m.outgoing),
+    reactionproduct_set: data.metabolites.filter(m => !m.outgoing),
+  };
+
+  return {
+    ...data,
+    equation: reformatChemicalReactionHTML(data),
+  };
 };
 
 const fetchRelatedReactionsForReaction = async ({ id, model, version, limit }) => {
   const params = { model, version, limit };
   const { data } = await axios.get(`/reactions/${id}/related-reactions`, { params });
-  return data.sort((a, b) => (a.compartment_str < b.compartment_str ? -1 : 1));
+  return data.sort((a, b) => (a.compartment_str < b.compartment_str ? -1 : 1)).map(r => ({
+    ...r,
+    compartment_str: constructCompartmentStr(r),
+    reactionreactant_set: r.metabolites.filter(m => m.outgoing),
+    reactionproduct_set: r.metabolites.filter(m => !m.outgoing),
+  }));
 };
 
 const fetchRelatedReactions = async (resourceType, id, model, version, limit) => {
   const params = { model, version, limit };
   const { data } = await axios.get(`/${resourceType}s/${id}/related-reactions`, { params });
-  return data;
+  return data.map(r => ({
+    ...r,
+    compartment_str: constructCompartmentStr(r),
+    subsystem_str: r.subsystems.map(s => s.name).join(', '),
+    reactionreactant_set: r.metabolites.filter(m => m.outgoing),
+    reactionproduct_set: r.metabolites.filter(m => !m.outgoing),
+  }));
 };
 
 const fetchRelatedReactionsForGene = async ({ id, model, version, limit }) => fetchRelatedReactions('gene', id, model, version, limit);

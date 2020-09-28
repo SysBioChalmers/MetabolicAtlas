@@ -33,6 +33,8 @@ export default {
     ...mapState({
       model: state => state.models.model,
       network: state => state.maps.network,
+      selectedElement: state => state.maps.selectedElement,
+      selectedElementId: state => state.maps.selectedElementId,
     }),
   },
   watch: {
@@ -63,6 +65,14 @@ export default {
       // Subscribe to node selection events
       // document.getElementById('viewer').addEventListener('select', e => console.debug('selected', e.detail));
     },
+    getElementIdAndType(element) {
+      if (element.group === 'r') {
+        return [element.id, 'reaction'];
+      } if (element.group === 'e') {
+        return [element.id.split('-')[0], 'gene'];
+      }
+      return [element.id.split('-')[0], 'metabolite'];
+    },
     renderNetwork(customizedNetwork) {
       this.resetNetwork();
       this.controller = MetAtlasViewer('viewer3d');
@@ -72,6 +82,30 @@ export default {
           { group: 'r', sprite: '/sprite_square.png' },
           { group: 'm', sprite: '/sprite_triangle.png' }],
         15);
+      this.controller.setNodeSelectCallback(this.selectElement);
+    },
+    async selectElement(element) {
+      const [id, type] = this.getElementIdAndType(element);
+      const selectionData = { type, data: null, error: false };
+
+      this.$emit('startSelection');
+      try {
+        const payload = {
+          model: this.model.apiName,
+          version: this.model.apiVersion,
+          type,
+          id,
+        };
+        await this.$store.dispatch('maps/getSelectedElement', payload);
+        const data = this.selectedElement;
+        selectionData.data = data;
+        this.$emit('updatePanelSelectionData', selectionData);
+        this.$emit('endSelection', true);
+      } catch {
+        this.$emit('updatePanelSelectionData', selectionData);
+        this.$set(selectionData, 'error', true);
+        this.$emit('endSelection', false);
+      }
     },
     applyColorsAndRenderNetwork(levels) {
       const nodes = this.network.nodes.map((node) => {

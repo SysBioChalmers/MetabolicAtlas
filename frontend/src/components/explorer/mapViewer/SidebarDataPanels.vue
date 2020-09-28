@@ -67,7 +67,7 @@
                     &ndash;&nbsp;{{ s }}<br :key="s">
                   </template></p>
               </template>
-              <template v-else-if="item.name === 'subsystem'">
+              <template v-else-if="item.name === 'subsystems'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span><p>
                   <template v-for="s in selectionData.data[item.name]">
@@ -86,7 +86,7 @@
                 <p>
                   <template v-for="s in selectionData.data[item.name]">
                     <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                    &ndash;&nbsp;{{ s.full_name }}<br>
+                    &ndash;&nbsp;{{ s.fullName }}<br>
                   </template>
                 </p>
               </template>
@@ -155,19 +155,16 @@ export default {
       selectedElementDataKeys: {
         metabolite: [
           { name: 'name' },
-          { name: 'model_name', display: 'Model&nbsp;name' },
           { name: 'formula' },
           { name: 'compartment' },
-          { name: 'synonyms', display: 'Synonym(s)' },
         ],
         gene: [
           { name: 'name', display: 'Gene&nbsp;name' },
-          { name: 'alternate_name', display: 'Alt&nbsp;name' },
-          { name: 'synonyms', display: 'Synonym(s)' },
+          { name: 'alternateName', display: 'Alt&nbsp;name' },
         ],
         reaction: [
           { name: 'equation' },
-          { name: 'subsystem', display: 'Subsystem(s)' },
+          { name: 'subsystems', display: 'Subsystem(s)' },
           { name: 'reactionreactant_set', display: 'Reactant(s)' },
           { name: 'reactionproduct_set', display: 'Product(s)' },
         ],

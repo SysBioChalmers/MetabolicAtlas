@@ -84,7 +84,7 @@ const actions = {
     commit('setIdsFound', idsFound);
   },
 
-  async getSelectedElement({ commit }, { model, type, id }) {
+  async getSelectedElement({ commit }, { model, version, type, id }) {
     let apiFunc;
 
     switch (type) {
@@ -102,7 +102,7 @@ const actions = {
         break;
     }
 
-    const selectedElement = await apiFunc(model, id);
+    const selectedElement = await apiFunc({ id, model, version });
     commit('setSelectedElementId', id);
     commit('setSelectedElement', selectedElement);
   },
