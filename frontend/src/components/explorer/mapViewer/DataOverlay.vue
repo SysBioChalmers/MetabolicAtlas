@@ -1,7 +1,6 @@
 <template>
-  <div class="column is-one-fifth-widescreen is-one-quarter-desktop
-              is-one-quarter-tablet is-half-mobile has-background-lightgray"
-       style="padding-left: 0; overflow-y: scroll;">
+  <div id="dataOverlayBox" class="column is-one-fifth-widescreen is-one-quarter-desktop
+              is-one-quarter-tablet is-half-mobile has-background-lightgray">
     <div class="title is-size-4 has-text-centered">Gene expression data</div>
     <div class="has-text-centered"
          title="Load a TSV file with gene IDs and TPM values.
@@ -98,8 +97,7 @@
                    :map-name="mapName"
                    @loadedHPARNALevels="setHPATissues($event)"
                    @loadedCustomLevels="setCustomTissues($event)"
-                   @errorCustomFile="handleErrorCustomFile($event)">
-    </RNAexpression>
+                   @errorCustomFile="handleErrorCustomFile($event)" />
   </div>
 </template>
 
@@ -148,6 +146,8 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
+      showing2D: state => state.maps.showing2D,
+      dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
     }),
     disabledRNAlvl() {
       return !this.mapName || this.HPATissues.length === 0;
@@ -188,8 +188,6 @@ export default {
   },
   created() {
     EventBus.$off('reloadGeneExpressionData');
-    EventBus.$off('loadingCustomFile');
-
     EventBus.$on('reloadGeneExpressionData', () => {
       // check if tissues are provided in the URL
       if (this.$route.query && (this.$route.query.g1 || this.$route.query.g2)) {
@@ -222,6 +220,8 @@ export default {
       this.customTissue2 = 'None';
       this.customFileInfo = info;
     });
+
+    EventBus.$off('loadingCustomFile');
     EventBus.$on('loadingCustomFile', () => {
       this.showFileLoader = true;
     });
@@ -324,14 +324,11 @@ export default {
 </script>
 
 <style lang="scss">
-#dataOverlayPanel {
-  z-index: 13;
-  .select {
-    margin: 0.5rem 0;
-  }
-  .title {
-    margin-bottom: 0.5rem;
-  }
+#dataOverlayBox {
+  padding-left: 0;
+  padding-right: 0;
+  overflow-y: scroll;
+  margin-right: -0.15rem;
 }
 
 #fileSelectBut {

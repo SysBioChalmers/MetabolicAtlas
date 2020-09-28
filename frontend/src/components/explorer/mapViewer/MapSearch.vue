@@ -142,8 +142,8 @@ export default {
 
 <style lang="scss">
   #svgSearch {
-    top: 2.25rem;
-    left: 30%;
+    top: 2rem;
+    left: 20%;
     margin: 0;
     padding: 15px;
     div {

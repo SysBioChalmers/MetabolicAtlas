@@ -1,6 +1,6 @@
 <template>
   <router-link class="tile is-parent" :class="size"
-               :to="{ name: 'browser', params: { model: model.short_name, type: type, id: data.id } }">
+               :to="{ name: type, params: { model: model.short_name, id: data.id } }">
     <div class="tile is-child clickable box hoverable"
          :title="`Click to view ${data.name || data.id}`">
       <p class="is-capitalized subtitle is-size-4-desktop is-size-5-tablet

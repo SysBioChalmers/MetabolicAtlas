@@ -6,6 +6,7 @@ const data = {
 
 const actions = {
   async getBrowserTiles({ commit }, model) {
+    commit('setTileComponents', null);
     const payload = {
       model: model.apiName,
       version: model.apiVersion,
