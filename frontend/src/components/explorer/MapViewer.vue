@@ -19,9 +19,9 @@
                              :current-map="currentMap"
                              :selection-data="selectionData"
                              :loading="false" />
-          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold"
+          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
              @click="showingMapListing = !showingMapListing">
-            {{ showingMapListing ? 'Hide' : 'Show' }} map list
+            {{ showingMapListing ? 'Hide' : 'Show' }} the map list
           </a>
           <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
              @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
@@ -35,7 +35,7 @@
             <a @click="showingMapListing = true">Show the map list and choose a compartment or subsystem map</a>
           </p>
         </div>
-        <div v-else class="column is-unselectable om-1 fixed-height-mobile fixed-height-desktop">
+        <div v-else class="column is-unselectable om-1 fixed-height-desktop fixed-height-mobile">
           <Svgmap v-if="showing2D"
                   :map-data="currentMap"
                   @loadComplete="handleLoadComplete"
