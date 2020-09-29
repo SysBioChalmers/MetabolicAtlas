@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="maps-listing" class="card card-margin">
     <div v-for="category in Object.keys(mapsListing).sort()" :key="category">
       <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category }}</p>
       <span v-for="item in mapsListing[category]" :key="item.id">
@@ -24,9 +24,7 @@
             {{ item.name }}
           </a>
         </template>
-        <br>
       </span>
-      <br>
     </div>
   </div>
 </template>
@@ -56,4 +54,31 @@ export default {
 };
 </script>
 
-<style lang="scss"></script>
+<style lang="scss">
+
+#maps-listing {
+
+  p {
+    padding: 0.5rem 1.5rem;
+  }
+
+  span {
+    padding: 0.5rem 1.5rem;
+    display: block;
+    color: #7DAD78;
+
+    a {
+      color: $primary;
+    }
+
+    &:nth-child(odd) {
+      background-color: rgba(119, 161, 139, 0.2);
+    }
+
+    &:nth-child(even) {
+      background-color: rgba(119, 161, 139, 0.3);
+    }
+  }
+}
+
+</style>
