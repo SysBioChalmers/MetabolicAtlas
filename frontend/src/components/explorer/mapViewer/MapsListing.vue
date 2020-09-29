@@ -58,12 +58,11 @@ export default {
 
 #maps-listing {
 
-  p {
-    padding: 0.5rem 1.5rem;
+  p, span {
+    padding: 0.5rem 1rem;
   }
 
   span {
-    padding: 0.5rem 1.5rem;
     display: block;
     color: #7DAD78;
 
