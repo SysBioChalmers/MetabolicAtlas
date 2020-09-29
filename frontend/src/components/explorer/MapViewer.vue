@@ -11,10 +11,14 @@
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2
                     fixed-height-desktop scrollable">
-          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold"
-             @click="$store.dispatch('maps/toggleShowing2D')">
-            Switch to {{ showing2D ? '3D' : '2D ' }}
-          </a>
+          <div
+            class="buttons has-addons is-centered" @click="$store.dispatch('maps/toggleShowing2D')"
+            tooltip="haha">
+            <button :class="showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'"
+                    class="button" title="Switch to 3D">2D</button>
+            <button :class="!showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'"
+                    class="button" title="Switch to 2D">3D</button>
+          </div>
           <SidebarDataPanels :dim="showing2D ? '2d' : '3d'"
                              :current-map="currentMap"
                              :selection-data="selectionData"
@@ -233,13 +237,25 @@ export default {
 #mapViewerContainer {
   margin: 0;
 
-  .overlay {
-      position: absolute;
-      z-index: 10;
-      padding: 10px;
-      border-radius: 5px;
-      background: rgba(22, 22, 22, 0.8);
+  #mapSidebar {
+    .buttons {
+      margin: 0;
+
+      button {
+        margin: 0;
+        border: none !important;
+        box-shadow: none !important;
+      }
     }
+  }
+
+  .overlay {
+    position: absolute;
+    z-index: 10;
+    padding: 10px;
+    border-radius: 5px;
+    background: rgba(22, 22, 22, 0.8);
+  }
 
   .canvasOption {
     top: 2rem;
