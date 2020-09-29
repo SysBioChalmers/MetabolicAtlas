@@ -8,7 +8,7 @@
     <div v-show="showLoader" id="iLoader" class="loading">
       <a class="button is-loading"></a>
     </div>
-    <div id="svg-wrapper" v-html="svgContent">
+    <div id="svg-wrapper" class="fixed-height-desktop" v-html="svgContent">
     </div>
     <div class="canvasOption overlay">
       <span class="button" title="Zoom in" @click="zoomIn()"><i class="fa fa-search-plus"></i></span>
