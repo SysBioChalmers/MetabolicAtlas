@@ -1,6 +1,7 @@
 <template>
-  <div id="maps-listing" class="card card-margin">
-    <div v-for="category in Object.keys(mapsListing).sort()" :key="category">
+  <div id="maps-listing">
+    <div v-for="category in Object.keys(mapsListing).sort()"
+      :key="category" class="card card-margin">
       <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category }}</p>
       <span v-for="item in mapsListing[category]" :key="item.id">
         <template v-if="showing2D">
@@ -14,7 +15,9 @@
           </template>
           <template v-else>
             {{ item.name }}:
-            <a v-for="svg in item.svgs" :key="svg.id" @click="changeToMap(svg.id)">
+            <a
+              v-for="svg in item.svgs.sort((a, b) => a.customName.localeCompare(b.customName))"
+              :key="svg.id" @click="changeToMap(svg.id)" class="inline">
               {{ svg.customName }}
             </a>
           </template>
@@ -54,28 +57,27 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 #maps-listing {
-
   p, span {
     padding: 0.5rem 1rem;
   }
 
   span {
     display: block;
-    color: #7DAD78;
+    color: rgba(0, 84, 158, 0.5);
 
-    a {
-      color: $primary;
-    }
-
-    &:nth-child(odd) {
-      background-color: rgba(119, 161, 139, 0.2);
+    a:not(.inline) {
+      display: block;
     }
 
     &:nth-child(even) {
-      background-color: rgba(119, 161, 139, 0.3);
+      background-color: rgba(211, 211, 211, 0.18);
+    }
+
+    &:nth-child(odd) {
+      background-color: rgba(211, 211, 211, 0.08);
     }
   }
 }
