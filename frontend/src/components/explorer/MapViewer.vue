@@ -27,7 +27,7 @@
              @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
             {{ dataOverlayPanelVisible ? 'Hide' : 'Show' }} data overlay
           </a>
-          <MapsListing v-if="showingMapListing" :maps-listing="mapsListing" />
+          <MapsListing v-if="showingMapListing" />
         </div>
         <div v-if="!currentMap"
              class="column is-unselectable om-1 fixed-height-mobile">
@@ -121,9 +121,9 @@ export default {
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
       dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
+      mapsListing: state => state.maps.mapsListing,
     }),
     ...mapGetters({
-      mapsListing: 'maps/mapsListing',
       queryParams: 'maps/queryParams',
     }),
   },

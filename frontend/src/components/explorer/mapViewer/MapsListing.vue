@@ -37,16 +37,11 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'MapsListing',
-  props: {
-    mapsListing: {
-      type: Object,
-      required: true,
-    },
-  },
   computed: {
     ...mapState({
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
+      mapsListing: state => state.maps.mapsListing,
     }),
   },
   methods: {

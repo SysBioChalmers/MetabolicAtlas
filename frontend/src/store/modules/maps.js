@@ -33,8 +33,6 @@ const data = {
 };
 
 const getters = {
-  mapsListing: state => state.mapsListing,
-
   selectIds: state => [state.selectedElementId].filter(x => x),
 
   queryParams: state => ({
