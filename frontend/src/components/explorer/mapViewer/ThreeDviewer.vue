@@ -4,7 +4,7 @@
       {{ errorMessage }}
     </div>
   </div>
-  <div v-else id="viewer3d"></div>
+  <div v-else id="viewer3d" class="fixed-height-desktop"></div>
 </template>
 
 <script>

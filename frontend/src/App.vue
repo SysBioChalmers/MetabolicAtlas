@@ -15,8 +15,8 @@
         </div>
         <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
           <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
-            <router-link id="selectedModelLink"
-                         v-if="$route.path.includes('/explore')"
+            <router-link v-if="$route.path.includes('/explore')"
+                         id="selectedModelLink"
                          :to="{ name: 'explorer' }"
                          class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
               {{ model ? model.short_name : '' }}
@@ -61,11 +61,15 @@
     <router-view></router-view>
     <footer id="footer" class="footer has-background-primary-lighter is-size-6">
       <div class="columns is-gapless">
-        <div class="column is-7">
-          <p>2020 © Department of Biology and Biological Engineering | Chalmers University of Technology</p>
+        <div class="column is-7-desktop is-5-tablet has-text-centered-mobile">
+          <p>2020 ©
+            <span class="is-hidden-tablet-only">
+              &nbsp;Department of Biology and Biological Engineering |
+            </span>
+            &nbsp;Chalmers University of Technology</p>
         </div>
         <div class="column">
-          <div class="content has-text-right">
+          <div class="content has-text-right has-text-centered-mobile is-size-2-mobile">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
                 <img src="./assets/sysbio-logo.png" />
@@ -202,7 +206,8 @@ html {
 }
 
 .card-margin {
-  margin: 0.75rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 m, .clickable {
@@ -301,9 +306,6 @@ m, .clickable {
   img {
     max-height: 20px;
     margin: 0 0.5rem;
-  }
-  sup {
-    vertical-align: top;
   }
 }
 

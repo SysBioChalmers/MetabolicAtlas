@@ -1,71 +1,73 @@
 <template>
   <section class="section extended-section">
-    <div class="columns has-text-centered">
-      <div class="column">
-        <h3 class="title is-size-3">Explore the integrated models</h3>
-      </div>
-    </div>
-    <br>
-    <div class="columns">
-      <div class="column has-text-centered">
-        <p class="has-text-weight-bold is-size-5">1. Select a model:</p>
-      </div>
-    </div>
-    <div v-if="model" class="columns is-multiline is-centered">
-      <div v-for="cmodel in Object.values(models).sort((a, b) =>
-             (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1))"
-           :key="cmodel.short_name" class="column is-5-desktop is-half-tablet">
-        <div id="selectedModel" style="height: 100%"
-             class="box has-text-centered clickable hoverable"
-             :class="cmodel.short_name === model.short_name ? 'selectedBox' : ''"
-             :title="`Select ${cmodel.short_name} as the model to explore`"
-             @mousedown.prevent="selectModel(cmodel.short_name)">
-          <p class="title is-5"
-             :class="cmodel.short_name === model.short_name ? 'has-text-primary' : ''">
-            <span v-if="cmodel.short_name === model.short_name"
-                  class="icon"><i class="fa fa-check-square-o"></i></span>
-            <span v-else><i class="fa fa-square-o">&nbsp;</i></span>
-            &nbsp;{{ cmodel.short_name }} {{ cmodel.version }}
-          </p>
-          <p>{{ cmodel.full_name }}</p>
-          <p class="has-text-grey is-touch-hidden">
-            {{ cmodel.reaction_count }} reactions -
-            {{ cmodel.metabolite_count }} metabolites -
-            {{ cmodel.gene_count }} genes
-          </p>
+    <div class="container is-fullhd">
+      <div class="columns has-text-centered">
+        <div class="column">
+          <h3 class="title is-size-3">Explore the integrated models</h3>
         </div>
       </div>
-    </div>
-    <br><br><br>
-    <div class="columns">
-      <div class="column has-text-centered">
-        <p class="has-text-weight-bold is-size-5">2. Select a tool:</p>
+      <br>
+      <div class="columns">
+        <div class="column has-text-centered">
+          <p class="has-text-weight-bold is-size-5">1. Select a model:</p>
+        </div>
       </div>
-    </div>
-    <div v-if="model" class="columns is-multiline is-centered">
-      <div v-for="tool in explorerTools" :key="tool.name"
-           class="column is-one-fifth-widescreen is-4-desktop is-4-tablet">
-        <router-link :to="{ name: tool.routeName, params: { model: model.short_name } }"
-                     :title="`Click to access the ${tool.name} for ${model.short_name}`">
-          <div class="card card-fullheight hoverable">
-            <header class="card-header">
-              <p class="card-header-title is-block has-text-centered is-size-5">
-                <span class="icon is-medium" style="width: 100%">
-                  <i :class="`fa fa-${tool.icon}`"></i>
-                  &nbsp;&nbsp;{{ tool.name }}
-                </span>
-                <span class="is-visible-desktop has-text-grey-light" style="width: 100%">
-                  {{ model.short_name }}
-                </span>
-              </p>
-            </header>
-            <div class="card-content">
-              <div class="content">
-                <img :src="tool.img" />
+      <div v-if="model" class="columns is-multiline is-centered">
+        <div v-for="cmodel in Object.values(models).sort((a, b) =>
+               (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1))"
+             :key="cmodel.short_name" class="column is-5-desktop is-half-tablet">
+          <div id="selectedModel" style="height: 100%"
+               class="box has-text-centered clickable hoverable"
+               :class="cmodel.short_name === model.short_name ? 'selectedBox' : ''"
+               :title="`Select ${cmodel.short_name} as the model to explore`"
+               @mousedown.prevent="selectModel(cmodel.short_name)">
+            <p class="title is-5"
+               :class="cmodel.short_name === model.short_name ? 'has-text-primary' : ''">
+              <span v-if="cmodel.short_name === model.short_name"
+                    class="icon"><i class="fa fa-check-square-o"></i></span>
+              <span v-else><i class="fa fa-square-o">&nbsp;</i></span>
+              &nbsp;{{ cmodel.short_name }} {{ cmodel.version }}
+            </p>
+            <p>{{ cmodel.full_name }}</p>
+            <p class="has-text-grey is-touch-hidden">
+              {{ cmodel.reaction_count }} reactions -
+              {{ cmodel.metabolite_count }} metabolites -
+              {{ cmodel.gene_count }} genes
+            </p>
+          </div>
+        </div>
+      </div>
+      <br><br><br>
+      <div class="columns">
+        <div class="column has-text-centered">
+          <p class="has-text-weight-bold is-size-5">2. Select a tool:</p>
+        </div>
+      </div>
+      <div v-if="model" class="columns is-multiline is-centered">
+        <div v-for="tool in explorerTools" :key="tool.name"
+             class="column is-one-fifth-widescreen is-4-desktop is-4-tablet">
+          <router-link :to="{ name: tool.routeName, params: { model: model.short_name } }"
+                       :title="`Click to access the ${tool.name} for ${model.short_name}`">
+            <div class="card card-fullheight hoverable">
+              <header class="card-header">
+                <p class="card-header-title is-block has-text-centered is-size-5">
+                  <span class="icon is-medium" style="width: 100%">
+                    <i :class="`fa fa-${tool.icon}`"></i>
+                    &nbsp;&nbsp;{{ tool.name }}
+                  </span>
+                  <span class="is-visible-desktop has-text-grey-light" style="width: 100%">
+                    {{ model.short_name }}
+                  </span>
+                </p>
+              </header>
+              <div class="card-content">
+                <div class="content">
+                  <img :src="tool.img" />
+                </div>
               </div>
             </div>
-          </div>
-        </router-link>
+          </router-link>
+        </div>
       </div>
     </div>
   </section>

@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <div v-for="category in Object.keys(mapsListing).sort()" :key="category">
-      <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category }}</p>
+  <div id="maps-listing">
+    <div v-for="category in Object.keys(mapsListing).sort()"
+      :key="category" class="card card-margin">
+      <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
       <span v-for="item in mapsListing[category]" :key="item.id">
         <template v-if="showing2D">
           <template v-if="item.svgs.length === 0">
@@ -14,7 +15,9 @@
           </template>
           <template v-else>
             {{ item.name }}:
-            <a v-for="svg in item.svgs" :key="svg.id" @click="changeToMap(svg.id)">
+            <a
+              v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
+              :key="svg.id" @click="changeToMap(svg.id)" class="inline">
               {{ svg.customName }}
             </a>
           </template>
@@ -24,9 +27,7 @@
             {{ item.name }}
           </a>
         </template>
-        <br>
       </span>
-      <br>
     </div>
   </div>
 </template>
@@ -36,16 +37,11 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'MapsListing',
-  props: {
-    mapsListing: {
-      type: Object,
-      required: true,
-    },
-  },
   computed: {
     ...mapState({
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
+      mapsListing: state => state.maps.mapsListing,
     }),
   },
   methods: {
@@ -56,4 +52,29 @@ export default {
 };
 </script>
 
-<style lang="scss"></script>
+<style lang="scss" scoped>
+
+#maps-listing {
+  p, span {
+    padding: 0.5rem 1rem;
+  }
+
+  span {
+    display: block;
+    color: rgba(0, 84, 158, 0.5);
+
+    a:not(.inline) {
+      display: block;
+    }
+
+    &:nth-child(even) {
+      background-color: rgba(211, 211, 211, 0.18);
+    }
+
+    &:nth-child(odd) {
+      background-color: rgba(211, 211, 211, 0.08);
+    }
+  }
+}
+
+</style>

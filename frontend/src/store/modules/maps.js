@@ -33,8 +33,6 @@ const data = {
 };
 
 const getters = {
-  mapsListing: state => state.mapsListing,
-
   selectIds: state => [state.selectedElementId].filter(x => x),
 
   queryParams: state => ({
@@ -150,7 +148,7 @@ const actions = {
 
   initFromQueryParams({ commit }, { dim, panel, coords, sel, search, g1, g2 }) {
     // TODO: handle errors
-    commit('setShowing2D', dim === '2d');
+    commit('setShowing2D', dim !== '3d');
     commit('setDataOverlayPanelVisible', !!(panel === '1' || g1 || g2));
     commit('setSelectedElementId', sel);
     commit('setSearchTerm', search);
