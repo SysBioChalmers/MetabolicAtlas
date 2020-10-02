@@ -11,7 +11,7 @@
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2
                     fixed-height-desktop scrollable">
-          <div id="dimensionToggle" class="buttons has-addons is-centered padding-mobile"
+          <div class="buttons has-addons is-centered padding-mobile"
                :title="`Switch to ${dimensionalState(!showing2D) }`"
                @click="$store.dispatch('maps/toggleShowing2D')" tooltip="haha">
             <button v-for="dim in [true, false]" :key="dim"
@@ -247,21 +247,14 @@ export default {
 #mapViewerContainer {
   margin: 0;
 
-  #dimensionToggle {
-    .button {
-      min-width: 8rem;
-      width: 50%;
-    }
-  }
-
   #mapSidebar {
     .buttons {
       margin: 0;
 
       button {
         margin: 0;
-        border: none !important;
-        box-shadow: none !important;
+        min-width: 8rem;
+        width: 50%;
       }
     }
   }
