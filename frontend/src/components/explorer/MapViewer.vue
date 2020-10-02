@@ -11,24 +11,31 @@
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2
                     fixed-height-desktop scrollable">
-          <div
-            class="buttons has-addons is-centered" @click="$store.dispatch('maps/toggleShowing2D')"
-            tooltip="haha">
-            <button :class="showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'"
-                    class="button" title="Switch to 3D">2D</button>
-            <button :class="!showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'"
-                    class="button" title="Switch to 2D">3D</button>
+          <div id="dimensionToggle" class="buttons has-addons is-centered padding-mobile"
+               :title="`Switch to ${dimensionalState(!showing2D) }`"
+               @click="$store.dispatch('maps/toggleShowing2D')" tooltip="haha">
+            <button v-for="dim in [true, false]" :key="dim"
+                    class="button"
+                    :class="dim === showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'">
+              <span v-if="dim === showing2D" class="icon">
+                <i class="fa fa-check-square-o"></i>
+              </span>
+              <span v-if="dim !== showing2D">Switch to&nbsp;</span>
+              <span class="is-uppercase">{{ dimensionalState(dim) }}</span>
+            </button>
           </div>
-          <SidebarDataPanels :dim="showing2D ? '2d' : '3d'"
+          <SidebarDataPanels :dim="dimensionalState(showing2D)"
                              :current-map="currentMap"
                              :selection-data="selectionData"
                              :loading="false" />
+          <div class="padding-mobile">
+            <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
+              @click="showingMapListing = !showingMapListing">
+              {{ showingMapListing ? 'Hide' : 'Show' }} the map list
+            </a>
+          </div>
           <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
-             @click="showingMapListing = !showingMapListing">
-            {{ showingMapListing ? 'Hide' : 'Show' }} the map list
-          </a>
-          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
-             @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
+            @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
             {{ dataOverlayPanelVisible ? 'Hide' : 'Show' }} data overlay
           </a>
           <MapsListing v-if="showingMapListing" />
@@ -161,6 +168,9 @@ export default {
     this.loadMapFromParams();
   },
   methods: {
+    dimensionalState(showing2D) {
+      return showing2D ? '2d' : '3d';
+    },
     handleQueryParamsWatch(newQuery, oldQuery) {
       if (!this.$route.params.map_id) {
         const payload = [{}, null, `${this.$route.path}?dim=${newQuery.dim}`];
@@ -237,6 +247,13 @@ export default {
 #mapViewerContainer {
   margin: 0;
 
+  #dimensionToggle {
+    .button {
+      min-width: 8rem;
+      width: 50%;
+    }
+  }
+
   #mapSidebar {
     .buttons {
       margin: 0;
@@ -246,6 +263,12 @@ export default {
         border: none !important;
         box-shadow: none !important;
       }
+    }
+  }
+
+  .padding-mobile {
+    @media screen and (max-width: $tablet) {
+      padding-bottom: 0.75rem;
     }
   }
 
