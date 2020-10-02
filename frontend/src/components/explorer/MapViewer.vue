@@ -172,7 +172,7 @@ export default {
       return showing2D ? '2d' : '3d';
     },
     handleQueryParamsWatch(newQuery, oldQuery) {
-      if (!this.$route.params.map_id) {
+      if (newQuery && !this.$route.params.map_id) {
         const payload = [{}, null, `${this.$route.path}?dim=${newQuery.dim}`];
         history.replaceState(...payload); // eslint-disable-line no-restricted-globals
         return;
