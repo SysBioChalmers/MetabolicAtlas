@@ -255,6 +255,12 @@ export default {
         margin: 0;
         min-width: 8rem;
         width: 50%;
+
+        &:focus {
+          // This is needed because the box-shadow shows for certain browsers, for more info see:
+          // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#Clicking_and_focus
+          box-shadow: none;
+        }
       }
     }
   }
