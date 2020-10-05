@@ -108,11 +108,11 @@ export default {
       model: state => state.models.model,
     }),
   },
-  async created() {
-    await this.getIntegratedModelList();
-  },
   watch: {
     '$route.params': 'getIntegratedModelList',
+  },
+  async created() {
+    await this.getIntegratedModelList();
   },
   methods: {
     async getIntegratedModelList() {

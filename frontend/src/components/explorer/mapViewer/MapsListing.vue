@@ -1,7 +1,7 @@
 <template>
   <div id="maps-listing">
     <div v-for="category in Object.keys(mapsListing).sort()"
-      :key="category" class="card card-margin">
+         :key="category" class="card card-margin">
       <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
       <span v-for="item in mapsListing[category]" :key="item.id">
         <template v-if="showing2D">
@@ -15,9 +15,8 @@
           </template>
           <template v-else>
             {{ item.name }}:
-            <a
-              v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
-              :key="svg.id" @click="changeToMap(svg.id)" class="inline">
+            <a v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
+               :key="svg.id" class="inline" @click="changeToMap(svg.id)">
               {{ svg.customName }}
             </a>
           </template>
