@@ -2,11 +2,12 @@
   <div id="svgSearch" class="overlay" :class="[{'fullscreen' : fullscreen}]">
     <div class="control" :class="{ 'is-loading' : isSearching }">
       <input id="searchInput" data-hj-whitelist
+             :class="searchInputClass"
              title="Exact search by id, name, alias. Press Enter for results" class="input"
-             type="text" @input="e => handleChange(e.target.value)" :class="searchInputClass"
+             placeholder="Exact search by id, name, alias"
+             :disabled="!ready"
              :value="searchTerm"
-             :disabled="!ready" placeholder="Exact search by id, name, alias"
-
+             type="text" @input="e => handleChange(e.target.value)"
              @keyup.enter="e => search(e.target.value)" />
     </div>
     <template v-if="searchTerm && matches && matches.length !== 0 && totalSearchMatch !== 0">

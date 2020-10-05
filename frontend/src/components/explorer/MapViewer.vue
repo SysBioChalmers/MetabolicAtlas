@@ -13,7 +13,7 @@
                     fixed-height-desktop scrollable">
           <div class="buttons has-addons is-centered padding-mobile"
                :title="`Switch to ${dimensionalState(!showing2D) }`"
-               @click="$store.dispatch('maps/toggleShowing2D')" tooltip="haha">
+               @click="$store.dispatch('maps/toggleShowing2D')">
             <button v-for="dim in [true, false]" :key="dim"
                     class="button"
                     :class="dim === showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'">
@@ -30,12 +30,12 @@
                              :loading="false" />
           <div class="padding-mobile">
             <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
-              @click="showingMapListing = !showingMapListing">
+               @click="showingMapListing = !showingMapListing">
               {{ showingMapListing ? 'Hide' : 'Show' }} the map list
             </a>
           </div>
           <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
-            @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
+             @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
             {{ dataOverlayPanelVisible ? 'Hide' : 'Show' }} data overlay
           </a>
           <MapsListing v-if="showingMapListing" />

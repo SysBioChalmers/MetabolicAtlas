@@ -169,15 +169,15 @@
                 <div id="dropdownMenuExport" class="dropdown">
                   <div class="dropdown-trigger">
                     <a v-show="showNetworkGraph" class="button is-primary is-outlined" aria-haspopup="true"
-                      aria-controls="dropdown-menu" @click="showMenuExport=!showMenuExport">
+                       aria-controls="dropdown-menu" @click="showMenuExport=!showMenuExport">
                       <span class="icon is-large"><i class="fa fa-download"></i></span>
                       <span>Export graph</span>
                       <span class="icon is-large"><i class="fa fa-caret-down"></i></span>
                     </a>
                   </div>
                   <div v-show="showMenuExport" id="dropdown-menu"
-                      class="dropdown-menu" role="menu"
-                      @mouseleave="showMenuExport = false">
+                       class="dropdown-menu" role="menu"
+                       @mouseleave="showMenuExport = false">
                     <div class="dropdown-content">
                       <a class="dropdown-item" @click="exportGraphml">
                         Graphml
@@ -203,7 +203,7 @@
                       <RNALegend />
                       <br>
                       <div class="select is-fullwidth"
-                          :class="{ 'is-loading' : loadingHPA }">
+                           :class="{ 'is-loading' : loadingHPA }">
                         <select v-if="tissues" id="enz-select" ref="enzHPAselect"
                                 v-model="selectedSample" title="Select a tissue type"
                                 @change.prevent="applyLevels('HPA', 'RNA', selectedSample)">
@@ -253,9 +253,9 @@
             </div>
           </div>
           <cytoscape-table :reactions="reactions" :selected-elm-id="clickedElmId" :selected-reaction-id="reactionHL"
-                          :is-graph-visible="showNetworkGraph"
-                          :filename="filename"
-                          @highlight="highlightNode($event)" @HLreaction="highlightReaction($event)">
+                           :is-graph-visible="showNetworkGraph"
+                           :filename="filename"
+                           @highlight="highlightNode($event)" @HLreaction="highlightReaction($event)">
           </cytoscape-table>
         </template>
       </div>
