@@ -87,13 +87,17 @@ export default {
     renderNetwork(customizedNetwork) {
       this.resetNetwork();
       this.controller = MetAtlasViewer('viewer3d');
-      this.controller.setData(
-        customizedNetwork || this.network,
-        [{ group: 'e', sprite: '/sprite_round.png' },
+      this.controller.setData({
+        graphData: customizedNetwork || this.network,
+        nodeTextures: [
+          { group: 'e', sprite: '/sprite_round.png' },
           { group: 'r', sprite: '/sprite_square.png' },
-          { group: 'm', sprite: '/sprite_triangle.png' }],
-        15);
+          { group: 'm', sprite: '/sprite_triangle.png' },
+        ],
+        nodeSize: 15,
+      });
       this.controller.setNodeSelectCallback(this.selectElement);
+      this.controller.setBackgroundColor('#222');
     },
     async selectElement(element) {
       const [id, type] = this.getElementIdAndType(element);
