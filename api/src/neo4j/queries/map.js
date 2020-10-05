@@ -22,8 +22,8 @@ CALL apoc.cypher.run("
   RETURN { id: $cid, svgs: COLLECT(DISTINCT(csvg {.*})) } as data
 ", {cid:c.id}) yield value
 RETURN { compartment: apoc.map.mergeList(apoc.coll.flatten(
-	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
-)) } as data
+  apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
+)) } as data ORDER BY data.compartment.name
 
 UNION
 
@@ -43,8 +43,8 @@ CALL apoc.cypher.run("
   RETURN { id: $sid, svgs: COLLECT(DISTINCT(ssvg {.*})) } as data
 ", {sid:s.id}) yield value
 RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
-	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
-)) } as data
+  apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
+)) } as data ORDER BY data.subsystem.name
 `;
 
   const result = await queryListResult(statement);

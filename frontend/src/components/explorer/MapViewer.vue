@@ -1,6 +1,6 @@
 <template>
   <div class="extended-section">
-    <div id="mapViewerContainer" class="columns">
+    <div id="mapViewerContainer" class="columns ordered-mobile">
       <template v-if="errorMessage">
         <div class="column is-danger is-half is-offset-one-quarter">
           <div class="notification is-danger is-danger has-text-centered">{{ errorMessage }}</div>
@@ -9,21 +9,44 @@
       <template v-else>
         <div id="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
-                    is-one-quarter-tablet is-half-mobile has-background-lightgray">
-          <a class="button" @click="$store.dispatch('maps/toggleShowing2D')">
-            Switch to {{ showing2D ? '3D' : '2D ' }}
+                    is-one-quarter-tablet has-background-lightgray om-2
+                    fixed-height-desktop scrollable">
+          <div class="buttons has-addons is-centered padding-mobile"
+               :title="`Switch to ${dimensionalState(!showing2D) }`"
+               @click="$store.dispatch('maps/toggleShowing2D')" tooltip="haha">
+            <button v-for="dim in [true, false]" :key="dim"
+                    class="button"
+                    :class="dim === showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'">
+              <span v-if="dim === showing2D" class="icon">
+                <i class="fa fa-check-square-o"></i>
+              </span>
+              <span v-if="dim !== showing2D">Switch to&nbsp;</span>
+              <span class="is-uppercase">{{ dimensionalState(dim) }}</span>
+            </button>
+          </div>
+          <SidebarDataPanels :dim="dimensionalState(showing2D)"
+                             :current-map="currentMap"
+                             :selection-data="selectionData"
+                             :loading="false" />
+          <div class="padding-mobile">
+            <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
+              @click="showingMapListing = !showingMapListing">
+              {{ showingMapListing ? 'Hide' : 'Show' }} the map list
+            </a>
+          </div>
+          <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
+            @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
+            {{ dataOverlayPanelVisible ? 'Hide' : 'Show' }} data overlay
           </a>
-          <a class="button" @click="showingMapListing = !showingMapListing">
-            {{ showingMapListing ? 'Hide' : 'Show' }} map list
-          </a>
-          <SidebarDataPanels
-            :dim="showing2D ? '2d' : '3d'"
-            :current-map="currentMap"
-            :selection-data="selectionData"
-            :loading="false" />
-          <MapsListing v-if="showingMapListing" :maps-listing="mapsListing" />
+          <MapsListing v-if="showingMapListing" />
         </div>
-        <div v-if="currentMap" id="graphframe" class="column is-unselectable">
+        <div v-if="!currentMap"
+             class="column is-unselectable om-1 fixed-height-mobile">
+          <p class="is-size-5 has-text-centered" style="padding: 10%;">
+            <a @click="showingMapListing = true">Show the map list and choose a compartment or subsystem map</a>
+          </p>
+        </div>
+        <div v-else class="column is-unselectable om-1 fixed-height-desktop fixed-height-mobile">
           <Svgmap v-if="showing2D"
                   :map-data="currentMap"
                   @loadComplete="handleLoadComplete"
@@ -43,29 +66,28 @@
             </article>
           </transition>
         </div>
-        <div v-else class="column">
-          <p class="is-size-5 has-text-centered" style="padding: 10%;">
-            Choose a compartment or subsystem map from the menu on the left
-          </p>
-        </div>
         <div id="dataOverlayBar"
-             class="column is-narrow has-text-white is-unselectable"
+             class="column is-narrow has-text-white is-unselectable is-hidden-mobile fixed-height-desktop"
              :class="{'is-paddingless': dataOverlayPanelVisible }"
-             title="Click to show the data overlay panel" @click="toggleDataOverlayPanel()">
+             title="Click to show the data overlay panel"
+             @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
           <p class="is-size-5 has-text-centered has-text-weight-bold">
             <span class="icon">
               <i class="fa"
-                 :class="{ 'fa-arrow-left': !dataOverlayPanelVisible, 'fa-arrow-right': dataOverlayPanelVisible}"></i>
+                 :class="{ 'fa-arrow-left': !dataOverlayPanelVisible, 'fa-arrow-right': dataOverlayPanelVisible}">
+              </i>
             </span><br>
             D<br>A<br>T<br>A<br><br>
             O<br>V<br>E<br>R<br>L<br>A<br>Y<br>
             <span class="icon">
               <i class="fa"
-                 :class="{ 'fa-arrow-left': !dataOverlayPanelVisible, 'fa-arrow-right': dataOverlayPanelVisible}"></i>
+                 :class="{ 'fa-arrow-left': !dataOverlayPanelVisible, 'fa-arrow-right': dataOverlayPanelVisible}">
+              </i>
             </span>
           </p>
         </div>
-        <DataOverlay v-if="currentMap !== null && dataOverlayPanelVisible" :map-name="currentMap.name" />
+        <DataOverlay v-if="currentMap !== null && dataOverlayPanelVisible"
+                     class="om-3 fixed-height-desktop scrollable" :map-name="currentMap.name" />
       </template>
     </div>
   </div>
@@ -110,9 +132,9 @@ export default {
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
       dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
+      mapsListing: state => state.maps.mapsListing,
     }),
     ...mapGetters({
-      mapsListing: 'maps/mapsListing',
       queryParams: 'maps/queryParams',
     }),
   },
@@ -146,8 +168,11 @@ export default {
     this.loadMapFromParams();
   },
   methods: {
+    dimensionalState(showing2D) {
+      return showing2D ? '2d' : '3d';
+    },
     handleQueryParamsWatch(newQuery, oldQuery) {
-      if (!this.$route.params.map_id) {
+      if (newQuery && !this.$route.params.map_id) {
         const payload = [{}, null, `${this.$route.path}?dim=${newQuery.dim}`];
         history.replaceState(...payload); // eslint-disable-line no-restricted-globals
         return;
@@ -201,9 +226,6 @@ export default {
         EventBus.$emit('reloadGeneExpressionData');
       });
     },
-    toggleDataOverlayPanel() {
-      this.$store.dispatch('maps/toggleDataOverlayPanelVisible');
-    },
     showMessage(errorMessage) {
       this.loadMapErrorMessage = errorMessage;
       if (!this.loadMapErrorMessage) {
@@ -223,7 +245,31 @@ export default {
 
 <style lang="scss">
 #mapViewerContainer {
-  height: calc(100vh - #{$navbar-height} - #{$footer-height});
+  margin: 0;
+
+  #mapSidebar {
+    .buttons {
+      margin: 0;
+
+      button {
+        margin: 0;
+        min-width: 8rem;
+        width: 50%;
+
+        &:focus {
+          // This is needed because the box-shadow shows for certain browsers, for more info see:
+          // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#Clicking_and_focus
+          box-shadow: none;
+        }
+      }
+    }
+  }
+
+  .padding-mobile {
+    @media screen and (max-width: $tablet) {
+      padding-bottom: 0.75rem;
+    }
+  }
 
   .overlay {
     position: absolute;
@@ -243,13 +289,46 @@ export default {
       }
     }
   }
+
+  @media screen and (max-width: $tablet) {
+    &.ordered-mobile {
+      display: flex;
+      flex-flow: column;
+    }
+    .om-1 {
+      order: 1;
+    }
+    .om-2 {
+      order: 2;
+    }
+    .om-3 {
+      order: 3;
+    }
+    .om-4 {
+      order: 4;
+    }
+  }
 }
 
-#graphframe {
+.fixed-height-desktop {
+  @media screen and (min-width: $tablet) {
+    min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    &.scrollable {
+      overflow-y: scroll;
+    }
+  }
+}
+
+.fixed-height-mobile {
+  @media screen and (max-width: $tablet) {
+    min-height: 450px;
+    max-height: 450px;
+  }
   position: relative;
-  height: 100%;
   padding: 0;
   margin: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -267,7 +346,9 @@ export default {
   &:hover{
     background: $primary-light;
   }
-  padding-right: 1rem;
+  @media (max-width: $tablet) {
+    display: none;
+  }
 }
 
 #errorPanel {
