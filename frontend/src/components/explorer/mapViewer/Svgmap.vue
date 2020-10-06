@@ -8,26 +8,9 @@
     <MapLoader :loading="showLoader" />
     <div id="svg-wrapper" v-html="svgContent">
     </div>
-    <div class="canvasOption overlay">
-      <span class="button" title="Zoom in" @click="zoomIn()"><i class="fa fa-search-plus"></i></span>
-      <span class="button" title="Zoom out" @click="zoomOut()"><i class="fa fa-search-minus"></i></span>
-      <span class="button" title="Show/Hide genes"
-            style="padding: 4.25px;"
-            @click="toggleGenes()">
-        <i class="fa fa-eye-slash">&thinsp;G</i>
-      </span>
-      <span class="button" style="padding: 4.25px;"
-            title="Show/Hide subsystem"
-            @click="toggleSubsystems()">
-        <i class="fa fa-eye-slash">&thinsp;S</i>
-      </span>
-      <span class="button" title="Toggle fullscreen"
-            :disabled="isFullScreenDisabled"
-            @click="toggleFullScreen()">
-        <i class="fa" :class="{ 'fa-compress': isFullscreen, 'fa-arrows-alt': !isFullscreen}"></i>
-      </span>
-      <span class="button" title="Download as SVG" @click="downloadCanvas()"><i class="fa fa-download"></i></span>
-    </div>
+    <MapControls :is-fullscreen="isFullscreen" :zoom-in="zoomIn" :zoom-out="zoomOut"
+                 :toggle-full-screen="toggleFullScreen" :toggle-genes="toggleGenes"
+                 :toggle-subsystems="toggleSubsystems" :download-canvas="downloadCanvas" />
     <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap"
                :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
                @unHighlightAll="unHighlight" />
@@ -42,6 +25,7 @@ import $ from 'jquery';
 import Panzoom from '@panzoom/panzoom';
 import { default as FileSaver } from 'file-saver';
 import { debounce } from 'vue-debounce';
+import MapControls from '@/components/explorer/mapViewer/MapControls';
 import MapLoader from '@/components/explorer/mapViewer/MapLoader';
 import MapSearch from '@/components/explorer/mapViewer/MapSearch';
 import { default as EventBus } from '@/event-bus';
@@ -51,6 +35,7 @@ import { reformatChemicalReactionHTML } from '@/helpers/utils';
 export default {
   name: 'Svgmap',
   components: {
+    MapControls,
     MapLoader,
     MapSearch,
   },
@@ -105,15 +90,6 @@ export default {
     ...mapGetters({
       selectIds: 'maps/selectIds',
     }),
-    isFullScreenDisabled() {
-      if ((document.fullScreenElement !== undefined && document.fullScreenElement === null)
-        || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null)
-        || (document.mozFullScreen !== undefined && !document.mozFullScreen)
-        || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
-        return false;
-      }
-      return true;
-    },
   },
   watch: {
     async mapData() {
@@ -191,9 +167,6 @@ export default {
       }
     },
     toggleFullScreen() {
-      if (this.isFullScreenDisabled) {
-        return;
-      }
       const elem = $('.svgbox').first()[0];
       if ((document.fullScreenElement !== undefined && document.fullScreenElement === null)
         || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null)

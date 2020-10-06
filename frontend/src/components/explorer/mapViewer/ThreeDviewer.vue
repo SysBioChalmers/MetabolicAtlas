@@ -6,6 +6,8 @@
       </div>
     </div>
     <div v-else id="viewer3d"></div>
+    <MapControls :is-fullscreen="isFullscreen" :zoom-in="zoomIn" :zoom-out="zoomOut"
+                 :toggle-full-screen="toggleFullScreen" :toggle-genes="toggleGenes" />
     <MapLoader :loading="showLoader" />
   </div>
 </template>
@@ -14,6 +16,7 @@
 import { mapState } from 'vuex';
 import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
 import { default as EventBus } from '@/event-bus';
+import MapControls from '@/components/explorer/mapViewer/MapControls';
 import MapLoader from '@/components/explorer/mapViewer/MapLoader';
 import { default as messages } from '@/helpers/messages';
 import { default as colorToRGBArray } from '@/helpers/colors';
@@ -21,6 +24,7 @@ import { default as colorToRGBArray } from '@/helpers/colors';
 export default {
   name: 'ThreeDViewer',
   components: {
+    MapControls,
     MapLoader,
   },
   props: {
@@ -35,6 +39,7 @@ export default {
       messages,
       controller: null,
       showLoader: true,
+      isFullscreen: false,
     };
   },
   computed: {
@@ -154,6 +159,18 @@ export default {
     resetNetwork() {
       const viewer = document.getElementById('viewer3d');
       viewer.innerHTML = '';
+    },
+    zoomIn() {
+      console.log('zoom in');
+    },
+    zoomOut() {
+      console.log('zoom out');
+    },
+    toggleFullScreen() {
+      console.log('toggle fullscreen');
+    },
+    toggleGenes() {
+      this.controller.toggleNodeType('e');
     },
   },
 };
