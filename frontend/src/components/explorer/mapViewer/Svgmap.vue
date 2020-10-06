@@ -8,8 +8,9 @@
     <MapLoader :loading="showLoader" />
     <div id="svg-wrapper" v-html="svgContent">
     </div>
-    <MapControls :is-fullscreen="isFullscreen" :zoom-in="zoomIn" :zoom-out="zoomOut"
-                 :toggle-full-screen="toggleFullScreen" :toggle-genes="toggleGenes"
+    <MapControls wrapper-elem-selector=".svgbox" :is-fullscreen="isFullscreen"
+                 :zoom-in="zoomIn" :zoom-out="zoomOut"
+                 :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-subsystems="toggleSubsystems" :download-canvas="downloadCanvas" />
     <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap"
                :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
@@ -166,34 +167,8 @@ export default {
         $('.subsystem').attr('visibility', 'hidden');
       }
     },
-    toggleFullScreen() {
-      const elem = $('.svgbox').first()[0];
-      if ((document.fullScreenElement !== undefined && document.fullScreenElement === null)
-        || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null)
-        || (document.mozFullScreen !== undefined && !document.mozFullScreen)
-        || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
-        if (elem.requestFullScreen) {
-          elem.requestFullScreen();
-        } else if (elem.mozRequestFullScreen) {
-          elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullScreen) {
-          elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-        } else if (elem.msRequestFullscreen) {
-          elem.msRequestFullscreen();
-        }
-        this.isFullscreen = true;
-      } else {
-        if (document.cancelFullScreen) {
-          document.cancelFullScreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.webkitCancelFullScreen) {
-          document.webkitCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        }
-        this.isFullscreen = false;
-      }
+    toggleFullscreen() {
+      this.isFullscreen = !this.isFullscreen;
     },
     zoomToValue(v) {
       if (v >= this.panzoomOptions.minScale

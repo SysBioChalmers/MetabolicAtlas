@@ -6,8 +6,9 @@
       </div>
     </div>
     <div v-else id="viewer3d"></div>
-    <MapControls :is-fullscreen="isFullscreen" :zoom-in="zoomIn" :zoom-out="zoomOut"
-                 :toggle-full-screen="toggleFullScreen" :toggle-genes="toggleGenes" />
+    <MapControls wrapper-elem-selector=".viewer-container" :is-fullscreen="isFullscreen"
+                 :zoom-in="zoomIn" :zoom-out="zoomOut"
+                 :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes" />
     <MapLoader :loading="showLoader" />
   </div>
 </template>
@@ -166,8 +167,8 @@ export default {
     zoomOut() {
       console.log('zoom out');
     },
-    toggleFullScreen() {
-      console.log('toggle fullscreen');
+    toggleFullscreen() {
+      this.isFullscreen = !this.isFullscreen;
     },
     toggleGenes() {
       this.controller.toggleNodeType('e');
