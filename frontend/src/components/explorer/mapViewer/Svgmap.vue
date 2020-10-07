@@ -12,7 +12,7 @@
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-subsystems="toggleSubsystems" :download-canvas="downloadCanvas" />
-    <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap"
+    <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
                :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
                @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>

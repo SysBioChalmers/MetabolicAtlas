@@ -10,6 +10,8 @@
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-background-color="toggleBackgroundColor" />
+    <MapSearch ref="mapsearch" :matches="[]" :fullscreen="isFullscreen"
+               :ready="!showLoader" />
     <MapLoader :loading="showLoader" />
   </div>
 </template>
@@ -20,6 +22,7 @@ import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
 import { default as EventBus } from '@/event-bus';
 import MapControls from '@/components/explorer/mapViewer/MapControls';
 import MapLoader from '@/components/explorer/mapViewer/MapLoader';
+import MapSearch from '@/components/explorer/mapViewer/MapSearch';
 import { default as messages } from '@/helpers/messages';
 import { default as colorToRGBArray } from '@/helpers/colors';
 
@@ -28,6 +31,7 @@ export default {
   components: {
     MapControls,
     MapLoader,
+    MapSearch,
   },
   props: {
     currentMap: {
