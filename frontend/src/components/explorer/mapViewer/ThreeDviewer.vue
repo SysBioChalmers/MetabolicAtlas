@@ -8,7 +8,8 @@
     <div v-else id="viewer3d"></div>
     <MapControls wrapper-elem-selector=".viewer-container" :is-fullscreen="isFullscreen"
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
-                 :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes" />
+                 :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
+                 :toggle-background-color="toggleBackgroundColor" />
     <MapLoader :loading="showLoader" />
   </div>
 </template>
@@ -49,6 +50,7 @@ export default {
       network: state => state.maps.network,
       selectedElement: state => state.maps.selectedElement,
       selectedElementId: state => state.maps.selectedElementId,
+      backgroundColor: state => state.maps.backgroundColor,
     }),
   },
   watch: {
@@ -103,7 +105,7 @@ export default {
         nodeSize: 15,
       });
       this.controller.setNodeSelectCallback(this.selectElement);
-      this.controller.setBackgroundColor('#222');
+      this.controller.setBackgroundColor(this.backgroundColor);
     },
     async selectElement(element) {
       const [id, type] = this.getElementIdAndType(element);
@@ -172,6 +174,10 @@ export default {
     },
     toggleGenes() {
       this.controller.toggleNodeType('e');
+    },
+    toggleBackgroundColor() {
+      this.$store.dispatch('maps/toggleBackgroundColor');
+      this.controller.setBackgroundColor(this.backgroundColor);
     },
   },
 };

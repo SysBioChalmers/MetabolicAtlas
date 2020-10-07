@@ -13,6 +13,10 @@
           @click="toggleSubsystems()">
       <i class="fa fa-eye-slash">&thinsp;S</i>
     </span>
+    <span v-if="toggleBackgroundColor" class="button" title="Toggle background color"
+          @click="toggleBackgroundColor()">
+      <i class="fa fa-adjust"></i>
+    </span>
     <span class="button" title="Toggle fullscreen"
           :disabled="isFullscreenDisabled"
           @click="handleToggleFullScreen()">
@@ -54,6 +58,9 @@ export default {
       required: true,
     },
     toggleSubsystems: {
+      type: Function,
+    },
+    toggleBackgroundColor: {
       type: Function,
     },
     downloadCanvas: {
