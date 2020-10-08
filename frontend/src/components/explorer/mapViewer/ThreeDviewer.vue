@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
 import { default as EventBus } from '@/event-bus';
 import MapControls from '@/components/explorer/mapViewer/MapControls';
@@ -55,12 +55,21 @@ export default {
       selectedElement: state => state.maps.selectedElement,
       selectedElementId: state => state.maps.selectedElementId,
       backgroundColor: state => state.maps.backgroundColor,
+      coords: state => state.maps.coords,
+      dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
+    }),
+    ...mapGetters({
+      queryParams: 'maps/queryParams',
     }),
   },
   watch: {
     async currentMap() {
       this.resetNetwork();
       await this.loadNetwork();
+    },
+    dataOverlayPanelVisible() {
+      // this is needed by the 3D viewer to update its size
+      window.dispatchEvent(new Event('resize'));
     },
   },
   created() {
@@ -110,6 +119,21 @@ export default {
       });
       this.controller.setNodeSelectCallback(this.selectElement);
       this.controller.setBackgroundColor(this.backgroundColor);
+      this.controller.setUpdateCameraCallback(this.updateURLCoords);
+      this.processURLQuery();
+    },
+    processURLQuery() {
+      this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
+      const { lx, ly, lz } = this.coords;
+      this.controller.setCamera({ x: lx, y: ly, z: lz });
+
+      const id = this.queryParams.sel;
+
+      if (id) {
+        setTimeout(() => {
+          this.controller.selectBy({ id });
+        }, 150);
+      }
     },
     async selectElement(element) {
       const [id, type] = this.getElementIdAndType(element);
@@ -162,6 +186,15 @@ export default {
         nodes,
         links: this.network.links,
       });
+    },
+    updateURLCoords({ x, y, z }) {
+      const payload = {
+        ...this.coords,
+        lx: x,
+        ly: y,
+        lz: z,
+      };
+      this.$store.dispatch('maps/setCoords', payload);
     },
     resetNetwork() {
       const viewer = document.getElementById('viewer3d');
