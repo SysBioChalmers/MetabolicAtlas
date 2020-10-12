@@ -13,7 +13,8 @@
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-subsystems="toggleSubsystems" :download-canvas="downloadCanvas" />
     <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
-               :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
+               :fullscreen="isFullscreen" :ready="!showLoader"
+               @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
                @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>
   </div>
@@ -339,7 +340,7 @@ export default {
         return;
       }
       // const zoom = element.is('text') ? 0.8 : 1; zoom out a bit when centering a subsystem label
-      this.panToCoords({ panX: coords[4], panY: coords[5], zoom: 1, center: true });
+      this.panToCoords({ panX: -coords[4], panY: -coords[5], zoom: 1, center: true });
     },
     getSvgElemCoordinates(el) {
       // read and parse the transform attribut

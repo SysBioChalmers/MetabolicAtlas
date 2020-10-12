@@ -10,8 +10,10 @@
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-background-color="toggleBackgroundColor" />
-    <MapSearch ref="mapsearch" :matches="[]" :fullscreen="isFullscreen"
-               :ready="!showLoader" />
+    <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
+               :fullscreen="isFullscreen" :ready="!showLoader"
+               @searchOnMap="searchIDsOnMap" @centerViewOn="centerElement"
+               @unHighlightAll="unHighlight" />
     <MapLoader :loading="showLoader" />
   </div>
 </template>
@@ -46,6 +48,7 @@ export default {
       controller: null,
       showLoader: true,
       isFullscreen: false,
+      searchedNodesOnMap: [],
     };
   },
   computed: {
@@ -218,6 +221,32 @@ export default {
     toggleBackgroundColor() {
       this.$store.dispatch('maps/toggleBackgroundColor');
       this.controller.setBackgroundColor(this.backgroundColor);
+    },
+    async searchIDsOnMap(ids) {
+      this.searchedNodesOnMap = [];
+
+      if (ids && ids.length > 0) {
+        this.searchedNodesOnMap = this.network.nodes
+          .filter(n => ids.includes(n.id))
+          .map(n => ({
+            id: n.id,
+            name: n.n,
+            group: n.g,
+          }));
+
+        if (this.searchedNodesOnMap.length > 0) {
+          await this.centerElement(this.searchedNodesOnMap[0]);
+        }
+      }
+    },
+    async centerElement(elem) {
+      this.controller.selectBy({ id: elem.id });
+      await this.selectElement(elem);
+    },
+    unHighlight() {
+      this.searchedNodesOnMap = [];
+      this.controller.selectBy({});
+      this.$store.dispatch('maps/setSelectedElementId', null);
     },
   },
 };
