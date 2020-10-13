@@ -325,8 +325,10 @@ export default {
 </script>
 
 <style lang="scss">
-#dataOverlayBox {
-  margin-right: -1rem;
+@media screen and (min-width: $tablet) {
+  #dataOverlayBox {
+    margin-right: -1rem;
+  }
 }
 
 #fileSelectBut {

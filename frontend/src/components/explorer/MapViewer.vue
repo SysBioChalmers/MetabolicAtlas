@@ -313,6 +313,8 @@ export default {
 .fixed-height-desktop {
   @media screen and (min-width: $tablet) {
     height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    overflow: hidden;
+
     &.scrollable {
       overflow-y: scroll;
     }
@@ -326,7 +328,6 @@ export default {
   position: relative;
   padding: 0;
   margin: 0;
-  overflow: hidden;
 }
 
 #dataOverlayBar {
