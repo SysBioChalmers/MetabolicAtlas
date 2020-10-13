@@ -98,12 +98,15 @@ export default {
       // document.getElementById('viewer').addEventListener('select', e => console.debug('selected', e.detail));
     },
     getElementIdAndType(element) {
+      let type = 'metabolite';
+
       if (element.group === 'r') {
-        return [element.id, 'reaction'];
+        type = 'reaction';
       } if (element.group === 'e') {
-        return [element.id.split('-')[0], 'gene'];
+        type = 'gene';
       }
-      return [element.id.split('-')[0], 'metabolite'];
+
+      return [element.id, type];
     },
     renderNetwork(customizedNetwork) {
       this.resetNetwork();
