@@ -16,7 +16,7 @@
       </footer>
     </div>
     <template v-if="loading">
-      <div class="loading">
+      <div class="card loading">
         <a class="button is-large is-loading"></a>
       </div>
     </template>
@@ -147,7 +147,6 @@ export default {
     currentMap: Object,
     mapsData: Object,
     selectionData: Object,
-    loading: Boolean,
   },
   data() {
     return {
@@ -178,6 +177,7 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
+      loading: state => state.maps.loadingElement,
     }),
   },
   methods: {
@@ -206,10 +206,14 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   #sidebar_mapviewer {
     .content p:not(:last-child) {
       margin-bottom: 0.3em;
+    }
+
+    .loading .button {
+      width: 100%;
     }
   }
 </style>

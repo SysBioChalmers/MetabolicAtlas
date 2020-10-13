@@ -26,8 +26,7 @@
           </div>
           <SidebarDataPanels :dim="dimensionalState(showing2D)"
                              :current-map="currentMap"
-                             :selection-data="selectionData"
-                             :loading="false" />
+                             :selection-data="selectionData" />
           <div class="padding-mobile">
             <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
                @click="showingMapListing = !showingMapListing">

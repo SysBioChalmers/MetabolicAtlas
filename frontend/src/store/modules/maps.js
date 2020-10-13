@@ -36,6 +36,8 @@ const data = {
   tissue1: null,
   tissue2: null,
   backgroundColor: BG_COLORS.light,
+  loading: true,
+  loadingElement: false,
 };
 
 const getters = {
@@ -150,6 +152,14 @@ const actions = {
 
   setTissue2({ commit }, tissue2) {
     commit('setTissue2', tissue2);
+  },
+
+  setLoading({ commit }, loading) {
+    commit('setLoading', loading);
+  },
+
+  setLoadingElement({ commit }, loadingElement) {
+    commit('setLoadingElement', loadingElement);
   },
 
   toggleBackgroundColor({ state, commit }) {
@@ -278,6 +288,14 @@ const mutations = {
 
   setBackgroundColor: (state, color) => {
     state.backgroundColor = color;
+  },
+
+  setLoading: (state, loading) => {
+    state.loading = loading;
+  },
+
+  setLoadingElement: (state, loadingElement) => {
+    state.loadingElement = loadingElement;
   },
 };
 

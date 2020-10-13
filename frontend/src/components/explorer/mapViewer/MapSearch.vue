@@ -5,7 +5,7 @@
              :class="searchInputClass"
              title="Exact search by id, name, alias. Press Enter for results" class="input"
              placeholder="Exact search by id, name, alias"
-             :disabled="!ready"
+             :disabled="loading"
              :value="searchTerm"
              type="text" @input="e => handleChange(e.target.value)"
              @keyup.enter="e => search(e.target.value)" />
@@ -39,7 +39,6 @@ export default {
   name: 'MapSearch',
   props: {
     matches: Array, // list of matched objects on the map/graph
-    ready: Boolean,
     fullscreen: Boolean,
   },
   data() {
@@ -61,6 +60,7 @@ export default {
       model: state => state.models.model,
       searchTerm: state => state.maps.searchTerm,
       idsFound: state => state.maps.idsFound,
+      loading: state => state.maps.loading,
     }),
   },
   watch: {

@@ -11,10 +11,10 @@
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-background-color="toggleBackgroundColor" />
     <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
-               :fullscreen="isFullscreen" :ready="!showLoader"
+               :fullscreen="isFullscreen"
                @searchOnMap="searchIDsOnMap" @centerViewOn="centerElement"
                @unHighlightAll="unHighlight" />
-    <MapLoader :loading="showLoader" />
+    <MapLoader />
   </div>
 </template>
 
@@ -46,7 +46,6 @@ export default {
       errorMessage: '',
       messages,
       controller: null,
-      showLoader: true,
       isFullscreen: false,
       searchedNodesOnMap: [],
     };
@@ -84,7 +83,7 @@ export default {
   },
   methods: {
     async loadNetwork() {
-      this.showLoader = true;
+      this.$store.dispatch('maps/setLoading', true);
 
       const payload = {
         model: this.model.apiName,
@@ -94,7 +93,7 @@ export default {
       };
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
       this.renderNetwork();
-      this.showLoader = false;
+      this.$store.dispatch('maps/setLoading', false);
       // controller.filterBy({group: 'm'});
       // controller.filterBy({id: [1, 2, 3, 4]});
       // Subscribe to node selection events
@@ -136,9 +135,9 @@ export default {
       const id = this.queryParams.sel;
 
       if (id) {
-        setTimeout(() => {
-          this.controller.selectBy({ id });
-        }, 150);
+        setTimeout(async () => {
+          await this.searchIDsOnMap([id]);
+        }, 200);
       }
     },
     async selectElement(element) {
@@ -147,6 +146,7 @@ export default {
 
       this.$emit('startSelection');
       try {
+        this.$store.dispatch('maps/setLoadingElement', true);
         const payload = {
           model: this.model.apiName,
           version: this.model.apiVersion,
@@ -158,10 +158,12 @@ export default {
         selectionData.data = data;
         this.$emit('updatePanelSelectionData', selectionData);
         this.$emit('endSelection', true);
+        this.$store.dispatch('maps/setLoadingElement', false);
       } catch {
         this.$emit('updatePanelSelectionData', selectionData);
         this.$set(selectionData, 'error', true);
         this.$emit('endSelection', false);
+        this.$store.dispatch('maps/setLoadingElement', false);
       }
     },
     applyColorsAndRenderNetwork(levels) {

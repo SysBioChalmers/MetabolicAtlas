@@ -5,7 +5,7 @@
         {{ errorMessage }}
       </div>
     </div>
-    <MapLoader :loading="showLoader" />
+    <MapLoader />
     <div id="svg-wrapper" v-html="svgContent">
     </div>
     <MapControls wrapper-elem-selector=".svgbox" :is-fullscreen="isFullscreen"
@@ -13,7 +13,7 @@
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-subsystems="toggleSubsystems" :download-canvas="downloadCanvas" />
     <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
-               :fullscreen="isFullscreen" :ready="!showLoader"
+               :fullscreen="isFullscreen"
                @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
                @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>
@@ -49,7 +49,6 @@ export default {
   },
   data() {
     return {
-      showLoader: true,
       errorMessage: '',
 
       isFullscreen: false,
@@ -150,7 +149,7 @@ export default {
         this.errorMessage = messages.mapNotFound;
         return;
       }
-      this.showLoader = true;
+      this.$store.dispatch('maps/setLoading', true);
       const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
       await this.$store.dispatch('maps/getSvgMap', payload);
     },
@@ -255,7 +254,7 @@ export default {
         });
 
         this.processSelSearchParam();
-        this.showLoader = false;
+        this.$store.dispatch('maps/setLoading', false);
       }, 0);
     },
     downloadCanvas() {
@@ -423,6 +422,7 @@ export default {
 
       this.$emit('startSelection');
       try {
+        this.$store.dispatch('maps/setLoadingElement', true);
         const payload = { model: this.model.short_name, type, id };
         await this.$store.dispatch('maps/getSelectedElement', payload);
         // TODO: consider refactoring more of this block into Vuex
@@ -435,10 +435,12 @@ export default {
         this.selectedItemHistory[id] = selectionData.data;
         this.$emit('updatePanelSelectionData', selectionData);
         this.$emit('endSelection', true);
+        this.$store.dispatch('maps/setLoadingElement', false);
       } catch {
         this.$emit('updatePanelSelectionData', selectionData);
         this.$set(selectionData, 'error', true);
         this.$emit('endSelection', false);
+        this.$store.dispatch('maps/setLoadingElement', false);
       }
     },
     unSelectElement() {
