@@ -423,15 +423,15 @@ export default {
       this.$emit('startSelection');
       try {
         this.$store.dispatch('maps/setLoadingElement', true);
-        const payload = { model: this.model.short_name, type, id };
+        const payload = {
+          model: this.model.apiName,
+          version: this.model.apiVersion,
+          type,
+          id,
+        };
         await this.$store.dispatch('maps/getSelectedElement', payload);
         // TODO: consider refactoring more of this block into Vuex
-        let data = this.selectedElement;
-        if (type === 'reaction') {
-          data = data.reaction;
-          data.equation = this.reformatChemicalReactionHTML(data, true);
-        }
-        selectionData.data = data;
+        selectionData.data = this.selectedElement;
         this.selectedItemHistory[id] = selectionData.data;
         this.$emit('updatePanelSelectionData', selectionData);
         this.$emit('endSelection', true);
