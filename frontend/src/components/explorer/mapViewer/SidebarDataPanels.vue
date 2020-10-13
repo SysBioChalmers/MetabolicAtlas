@@ -58,7 +58,7 @@
         <div v-show="showSelectionCardContent" class="card-content card-content-compact">
           <div class="content">
             <template v-for="item in selectedElementDataKeys[selectionData.type]
-              .filter(i => selectionData.data[i.name] !== null)">
+              .filter(i => selectionData.data[i.name])">
               <template v-if="item.name === 'synonyms'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span><p>
@@ -161,6 +161,7 @@ export default {
         gene: [
           { name: 'name', display: 'Gene&nbsp;name' },
           { name: 'alternateName', display: 'Alt&nbsp;name' },
+          { name: 'synonyms', display: 'Synonym(s)' },
         ],
         reaction: [
           { name: 'equation' },
