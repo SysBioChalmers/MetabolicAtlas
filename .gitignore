@@ -90,3 +90,6 @@ ftp-models/
 
 # SVG folder in API
 svg/
+
+# data folder in API
+api/src/data
