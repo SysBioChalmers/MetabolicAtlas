@@ -9,11 +9,15 @@
     <MapControls wrapper-elem-selector=".viewer-container" :is-fullscreen="isFullscreen"
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
-                 :toggle-background-color="toggleBackgroundColor" />
+                 :toggle-background-color="toggleBackgroundColor"
+                 :style="{'z-index': network.nodes.length + 1}"
+                 />
     <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
                :fullscreen="isFullscreen"
                @searchOnMap="searchIDsOnMap" @centerViewOn="centerElement"
-               @unHighlightAll="unHighlight" />
+               @unHighlightAll="unHighlight"
+               :style="{'z-index': network.nodes.length + 1}"
+               />
     <MapLoader />
   </div>
 </template>

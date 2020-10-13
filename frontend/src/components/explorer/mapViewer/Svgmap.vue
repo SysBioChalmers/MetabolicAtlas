@@ -451,6 +451,12 @@ export default {
     },
     clientFocusX() {
       const svgBox = document.querySelector('.svgbox');
+
+      // This is the same as the $tablet (scss variable) width
+      if (window.innerWidth < 660) {
+        return svgBox.offsetWidth / 2;
+      }
+
       const sidebar = document.querySelector('#mapSidebar');
       return (svgBox.offsetWidth / 2) + sidebar.offsetWidth;
     },
