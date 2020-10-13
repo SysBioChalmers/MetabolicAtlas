@@ -34,8 +34,8 @@ CALL apoc.cypher.run('
   MATCH ${f}(r:Reaction${m})-[${v}]-(g:Gene)
   MATCH (g)-[${v}]-(gs:GeneState)
   RETURN {
-    nodes: COLLECT(DISTINCT { g: "e", id: g.id + "-" + toString(ID(g)), n: gs.name }),
-    links: COLLECT(DISTINCT { s: g.id + "-" + toString(ID(g)), t: r.id })
+    nodes: COLLECT(DISTINCT { g: "e", id: g.id, n: gs.name }),
+    links: COLLECT(DISTINCT { s: g.id, t: r.id })
   } as data
   
   UNION
@@ -43,11 +43,11 @@ CALL apoc.cypher.run('
   MATCH ${sf}(r:Reaction${m})-[cmE${v}]-(cm:CompartmentalizedMetabolite)${cfe}
   MATCH (cm)-[${v}]-(:Metabolite)-[${v}]-(ms:MetaboliteState)
   RETURN {
-    nodes: COLLECT(DISTINCT { g: "m", id: cm.id + "-" + toString(ID(cm)), n: ms.name }),
+    nodes: COLLECT(DISTINCT { g: "m", id: cm.id, n: ms.name }),
     links: COLLECT(DISTINCT(
       CASE
-	WHEN startnode(cmE)=cm THEN { s: cm.id + "-" + toString(ID(cm)), t: r.id }
-	ELSE { s: r.id, t: cm.id + "-" + toString(ID(cm)) }
+	WHEN startnode(cmE)=cm THEN { s: cm.id, t: r.id }
+	ELSE { s: r.id, t: cm.id }
       END
     ))
   } as data

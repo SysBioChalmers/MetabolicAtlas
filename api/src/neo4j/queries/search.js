@@ -1,5 +1,5 @@
 import queryListResult from 'neo4j/queryHandlers/list';
-import * as INTEGRATED_MODELS from 'data/integratedModels';
+const INTEGRATED_MODELS = require('data/integratedModels');
 
 const componentTypes = [
   "CompartmentalizedMetabolite",

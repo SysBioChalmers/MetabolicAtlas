@@ -1,19 +1,38 @@
 <template>
-  <div v-if="errorMessage" class="columns is-centered">
-    <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-      {{ errorMessage }}
+  <div class="viewer-container">
+    <div v-if="errorMessage" class="columns is-centered">
+      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+        {{ errorMessage }}
+      </div>
     </div>
+    <div v-else id="viewer3d"></div>
+    <MapControls wrapper-elem-selector=".viewer-container" :is-fullscreen="isFullscreen"
+                 :zoom-in="zoomIn" :zoom-out="zoomOut"
+                 :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
+                 :toggle-background-color="toggleBackgroundColor" />
+    <MapSearch ref="mapsearch" :matches="[]" :fullscreen="isFullscreen"
+               :ready="!showLoader" />
+    <MapLoader :loading="showLoader" />
   </div>
-  <div v-else id="viewer3d" class="fixed-height-desktop"></div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
+import { default as EventBus } from '@/event-bus';
+import MapControls from '@/components/explorer/mapViewer/MapControls';
+import MapLoader from '@/components/explorer/mapViewer/MapLoader';
+import MapSearch from '@/components/explorer/mapViewer/MapSearch';
 import { default as messages } from '@/helpers/messages';
+import { default as colorToRGBArray } from '@/helpers/colors';
 
 export default {
   name: 'ThreeDViewer',
+  components: {
+    MapControls,
+    MapLoader,
+    MapSearch,
+  },
   props: {
     currentMap: {
       type: Object,
@@ -25,12 +44,22 @@ export default {
       errorMessage: '',
       messages,
       controller: null,
+      showLoader: true,
+      isFullscreen: false,
     };
   },
   computed: {
     ...mapState({
       model: state => state.models.model,
       network: state => state.maps.network,
+      selectedElement: state => state.maps.selectedElement,
+      selectedElementId: state => state.maps.selectedElementId,
+      backgroundColor: state => state.maps.backgroundColor,
+      coords: state => state.maps.coords,
+      dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
+    }),
+    ...mapGetters({
+      queryParams: 'maps/queryParams',
     }),
   },
   watch: {
@@ -38,12 +67,22 @@ export default {
       this.resetNetwork();
       await this.loadNetwork();
     },
+    dataOverlayPanelVisible() {
+      // this is needed by the 3D viewer to update its size
+      window.dispatchEvent(new Event('resize'));
+    },
+  },
+  created() {
+    EventBus.$off('apply3DHPARNAlevels');
+    EventBus.$on('apply3DHPARNAlevels', this.applyColorsAndRenderNetwork);
   },
   async mounted() {
     await this.loadNetwork();
   },
   methods: {
     async loadNetwork() {
+      this.showLoader = true;
+
       const payload = {
         model: this.model.apiName,
         version: this.model.apiVersion,
@@ -52,30 +91,140 @@ export default {
       };
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
       this.renderNetwork();
+      this.showLoader = false;
       // controller.filterBy({group: 'm'});
       // controller.filterBy({id: [1, 2, 3, 4]});
       // Subscribe to node selection events
       // document.getElementById('viewer').addEventListener('select', e => console.debug('selected', e.detail));
     },
-    renderNetwork() {
+    getElementIdAndType(element) {
+      let type = 'metabolite';
+
+      if (element.group === 'r') {
+        type = 'reaction';
+      } if (element.group === 'e') {
+        type = 'gene';
+      }
+
+      return [element.id, type];
+    },
+    renderNetwork(customizedNetwork) {
+      this.resetNetwork();
       this.controller = MetAtlasViewer('viewer3d');
-      this.controller.setData(
-        this.network,
-        [{ group: 'e', sprite: '/sprite_round.png' },
+      this.controller.setData({
+        graphData: customizedNetwork || this.network,
+        nodeTextures: [
+          { group: 'e', sprite: '/sprite_round.png' },
           { group: 'r', sprite: '/sprite_square.png' },
-          { group: 'm', sprite: '/sprite_triangle.png' }],
-        15);
+          { group: 'm', sprite: '/sprite_triangle.png' },
+        ],
+        nodeSize: 15,
+      });
+      this.controller.setNodeSelectCallback(this.selectElement);
+      this.controller.setBackgroundColor(this.backgroundColor);
+      this.controller.setUpdateCameraCallback(this.updateURLCoords);
+      this.processURLQuery();
+    },
+    processURLQuery() {
+      this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
+      const { lx, ly, lz } = this.coords;
+      this.controller.setCamera({ x: lx, y: ly, z: lz });
+
+      const id = this.queryParams.sel;
+
+      if (id) {
+        setTimeout(() => {
+          this.controller.selectBy({ id });
+        }, 150);
+      }
+    },
+    async selectElement(element) {
+      const [id, type] = this.getElementIdAndType(element);
+      const selectionData = { type, data: null, error: false };
+
+      this.$emit('startSelection');
+      try {
+        const payload = {
+          model: this.model.apiName,
+          version: this.model.apiVersion,
+          type,
+          id,
+        };
+        await this.$store.dispatch('maps/getSelectedElement', payload);
+        const data = this.selectedElement;
+        selectionData.data = data;
+        this.$emit('updatePanelSelectionData', selectionData);
+        this.$emit('endSelection', true);
+      } catch {
+        this.$emit('updatePanelSelectionData', selectionData);
+        this.$set(selectionData, 'error', true);
+        this.$emit('endSelection', false);
+      }
+    },
+    applyColorsAndRenderNetwork(levels) {
+      const nodes = this.network.nodes.map((node) => {
+        let color = colorToRGBArray('#9df');
+
+        if (node.g === 'e') {
+          if (Object.keys(levels).length === 0) {
+            color = colorToRGBArray('#feb');
+          } else {
+            const partialID = node.id.split('-')[0];
+            const key = levels[partialID] !== undefined ? partialID : 'n/a';
+            color = colorToRGBArray(levels[key][0]);
+          }
+        }
+
+        if (node.g === 'r') {
+          color = colorToRGBArray('#fff');
+        }
+
+        return {
+          ...node,
+          color,
+        };
+      });
+
+      this.renderNetwork({
+        nodes,
+        links: this.network.links,
+      });
+    },
+    updateURLCoords({ x, y, z }) {
+      const payload = {
+        ...this.coords,
+        lx: x,
+        ly: y,
+        lz: z,
+      };
+      this.$store.dispatch('maps/setCoords', payload);
     },
     resetNetwork() {
       const viewer = document.getElementById('viewer3d');
       viewer.innerHTML = '';
     },
+    zoomIn() {
+      console.log('zoom in');
+    },
+    zoomOut() {
+      console.log('zoom out');
+    },
+    toggleFullscreen() {
+      this.isFullscreen = !this.isFullscreen;
+    },
+    toggleGenes() {
+      this.controller.toggleNodeType('e');
+    },
+    toggleBackgroundColor() {
+      this.$store.dispatch('maps/toggleBackgroundColor');
+      this.controller.setBackgroundColor(this.backgroundColor);
+    },
   },
 };
 </script>
 
-<style lang='scss'>
-#viewer3d {
+<style lang='scss' scoped>
+.viewer-container, #viewer3d {
   width: 100%;
   height: 100%;
 }

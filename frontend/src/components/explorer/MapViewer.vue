@@ -312,8 +312,9 @@ export default {
 
 .fixed-height-desktop {
   @media screen and (min-width: $tablet) {
-    min-height: calc(100vh - #{$navbar-height} - #{$footer-height});
-    max-height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    height: calc(100vh - #{$navbar-height} - #{$footer-height});
+    overflow: hidden;
+
     &.scrollable {
       overflow-y: scroll;
     }
@@ -322,14 +323,11 @@ export default {
 
 .fixed-height-mobile {
   @media screen and (max-width: $tablet) {
-    min-height: 450px;
-    max-height: 450px;
+    height: 450px;
   }
   position: relative;
   padding: 0;
   margin: 0;
-  height: 100%;
-  overflow: hidden;
 }
 
 #dataOverlayBar {

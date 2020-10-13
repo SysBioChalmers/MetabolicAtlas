@@ -5,32 +5,14 @@
         {{ errorMessage }}
       </div>
     </div>
-    <div v-show="showLoader" id="iLoader" class="loading">
-      <a class="button is-loading"></a>
+    <MapLoader :loading="showLoader" />
+    <div id="svg-wrapper" v-html="svgContent">
     </div>
-    <div id="svg-wrapper" class="fixed-height-desktop" v-html="svgContent">
-    </div>
-    <div class="canvasOption overlay">
-      <span class="button" title="Zoom in" @click="zoomIn()"><i class="fa fa-search-plus"></i></span>
-      <span class="button" title="Zoom out" @click="zoomOut()"><i class="fa fa-search-minus"></i></span>
-      <span class="button" title="Show/Hide genes"
-            style="padding: 4.25px;"
-            @click="toggleGenes()">
-        <i class="fa fa-eye-slash">&thinsp;G</i>
-      </span>
-      <span class="button" style="padding: 4.25px;"
-            title="Show/Hide subsystem"
-            @click="toggleSubsystems()">
-        <i class="fa fa-eye-slash">&thinsp;S</i>
-      </span>
-      <span class="button" title="Toggle fullscreen"
-            :disabled="isFullScreenDisabled"
-            @click="toggleFullScreen()">
-        <i class="fa" :class="{ 'fa-compress': isFullscreen, 'fa-arrows-alt': !isFullscreen}"></i>
-      </span>
-      <span class="button" title="Download as SVG" @click="downloadCanvas()"><i class="fa fa-download"></i></span>
-    </div>
-    <MapSearch ref="mapsearch" :model="model" :matches="searchedNodesOnMap"
+    <MapControls wrapper-elem-selector=".svgbox" :is-fullscreen="isFullscreen"
+                 :zoom-in="zoomIn" :zoom-out="zoomOut"
+                 :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
+                 :toggle-subsystems="toggleSubsystems" :download-canvas="downloadCanvas" />
+    <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
                :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
                @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>
@@ -44,6 +26,8 @@ import $ from 'jquery';
 import Panzoom from '@panzoom/panzoom';
 import { default as FileSaver } from 'file-saver';
 import { debounce } from 'vue-debounce';
+import MapControls from '@/components/explorer/mapViewer/MapControls';
+import MapLoader from '@/components/explorer/mapViewer/MapLoader';
 import MapSearch from '@/components/explorer/mapViewer/MapSearch';
 import { default as EventBus } from '@/event-bus';
 import { default as messages } from '@/helpers/messages';
@@ -52,6 +36,8 @@ import { reformatChemicalReactionHTML } from '@/helpers/utils';
 export default {
   name: 'Svgmap',
   components: {
+    MapControls,
+    MapLoader,
     MapSearch,
   },
   props: {
@@ -105,15 +91,6 @@ export default {
     ...mapGetters({
       selectIds: 'maps/selectIds',
     }),
-    isFullScreenDisabled() {
-      if ((document.fullScreenElement !== undefined && document.fullScreenElement === null)
-        || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null)
-        || (document.mozFullScreen !== undefined && !document.mozFullScreen)
-        || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
-        return false;
-      }
-      return true;
-    },
   },
   watch: {
     async mapData() {
@@ -190,37 +167,8 @@ export default {
         $('.subsystem').attr('visibility', 'hidden');
       }
     },
-    toggleFullScreen() {
-      if (this.isFullScreenDisabled) {
-        return;
-      }
-      const elem = $('.svgbox').first()[0];
-      if ((document.fullScreenElement !== undefined && document.fullScreenElement === null)
-        || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null)
-        || (document.mozFullScreen !== undefined && !document.mozFullScreen)
-        || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
-        if (elem.requestFullScreen) {
-          elem.requestFullScreen();
-        } else if (elem.mozRequestFullScreen) {
-          elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullScreen) {
-          elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-        } else if (elem.msRequestFullscreen) {
-          elem.msRequestFullscreen();
-        }
-        this.isFullscreen = true;
-      } else {
-        if (document.cancelFullScreen) {
-          document.cancelFullScreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.webkitCancelFullScreen) {
-          document.webkitCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        }
-        this.isFullscreen = false;
-      }
+    toggleFullscreen() {
+      this.isFullscreen = !this.isFullscreen;
     },
     zoomToValue(v) {
       if (v >= this.panzoomOptions.minScale
@@ -522,27 +470,6 @@ export default {
 </script>
 
 <style lang="scss">
-
-#iLoader {
-  z-index: 10;
-  position: absolute;
-  background: black;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.8;
-  display: table;
-  a {
-    color: white;
-    font-size: 5em;
-    font-weight: 1000;
-    display: table-cell;
-    vertical-align: middle;
-    background: black;
-    border: 0;
-  }
-}
 
 .met, .rea, .enz {
   .shape, .lbl {

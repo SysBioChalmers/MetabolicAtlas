@@ -3,6 +3,11 @@ import genesApi from '@/api/genes';
 import reactionsApi from '@/api/reactions';
 import metabolitesApi from '@/api/metabolites';
 
+const BG_COLORS = {
+  dark: '#222',
+  light: '#ececec',
+};
+
 const data = {
   availableMaps: {},
   mapsListing: {
@@ -30,6 +35,7 @@ const data = {
   selectedElementId: null,
   tissue1: null,
   tissue2: null,
+  backgroundColor: BG_COLORS.light,
 };
 
 const getters = {
@@ -82,7 +88,7 @@ const actions = {
     commit('setIdsFound', idsFound);
   },
 
-  async getSelectedElement({ commit }, { model, type, id }) {
+  async getSelectedElement({ commit }, { model, version, type, id }) {
     let apiFunc;
 
     switch (type) {
@@ -100,7 +106,7 @@ const actions = {
         break;
     }
 
-    const selectedElement = await apiFunc(model, id);
+    const selectedElement = await apiFunc({ id, model, version });
     commit('setSelectedElementId', id);
     commit('setSelectedElement', selectedElement);
   },
@@ -144,6 +150,11 @@ const actions = {
 
   setTissue2({ commit }, tissue2) {
     commit('setTissue2', tissue2);
+  },
+
+  toggleBackgroundColor({ state, commit }) {
+    const color = state.backgroundColor === BG_COLORS.dark ? BG_COLORS.light : BG_COLORS.dark;
+    commit('setBackgroundColor', color);
   },
 
   initFromQueryParams({ commit }, { dim, panel, coords, sel, search, g1, g2 }) {
@@ -263,6 +274,10 @@ const mutations = {
 
   setTissue2: (state, tissue2) => {
     state.tissue2 = tissue2;
+  },
+
+  setBackgroundColor: (state, color) => {
+    state.backgroundColor = color;
   },
 };
 
