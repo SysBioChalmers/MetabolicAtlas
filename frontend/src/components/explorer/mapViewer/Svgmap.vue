@@ -57,8 +57,10 @@ export default {
         maxScale: 1,
         minScale: 0.03,
         step: 0.1,
+        canvas: true,
       },
       currentZoomScale: 1,
+      lastWheelZoomTime: Date.now(),
 
       selectedNodesOnMap: [],
       selectedElemsHL: [],
@@ -221,18 +223,20 @@ export default {
 
       // load the lib svgPanzoom on the SVG loaded
       const panzoomElem = document.getElementById('svg-wrapper');
-      if (this.panzoom) {
-        this.panzoom.destroy(); // clean reset
-      }
       this.panzoom = Panzoom(panzoomElem, this.panzoomOptions);
 
       setTimeout(() => {
+        // reset
+        this.panzoom.reset();
+        panzoomElem.parentElement.removeEventListener('wheel', this.handleWheelEvent);
+
         // bind event listeners
         panzoomElem.addEventListener('panzoomchange', this.updateURLCoord);
         panzoomElem.addEventListener('panzoomzoom', (e) => {
           this.currentZoomScale = e.detail.scale;
         });
-        panzoomElem.parentElement.addEventListener('wheel', this.panzoom.zoomWithWheel);
+
+        panzoomElem.parentElement.addEventListener('wheel', this.handleWheelEvent);
 
         const svg = document.querySelector('#svg-wrapper svg').getBBox();
         const svgBox = document.querySelector('.svgbox');
@@ -256,6 +260,24 @@ export default {
         this.processSelSearchParam();
         this.$store.dispatch('maps/setLoading', false);
       }, 0);
+    },
+    handleWheelEvent(event) {
+      event.preventDefault();
+
+      // In certain browsers such as Safari and Firefox,
+      // the wheel event triggers too many zooms to be handled
+      // properly so that the focal point becomes wrong.
+      // This acts as a little bumper to prevent as many zoom events.
+      // It is added for all browsers as it is less computationally
+      // expensive and helps out performance for bigger maps.
+      setTimeout(() => {
+        const timeDelta = Date.now() - this.lastWheelZoomTime;
+
+        if (timeDelta > 50) {
+          this.lastWheelZoomTime = Date.now();
+          this.panzoom.zoomWithWheel(event, { step: 0.3 });
+        }
+      });
     },
     downloadCanvas() {
       const blob = new Blob([document.getElementById('svg-wrapper').innerHTML], {
@@ -503,6 +525,15 @@ export default {
   height:100%;
   &.fullscreen {
     background: white;
+  }
+
+  #svg-wrapper {
+    position: relative;
+
+    svg {
+      position: relative;
+      display: block;
+    }
   }
 }
 
