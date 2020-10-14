@@ -71,10 +71,6 @@ const actions = {
     commit('setSvgMap', svgMap);
   },
 
-  setSvgMap({ commit }, svgMap) {
-    commit('setSvgMap', svgMap);
-  },
-
   async mapSearch({ commit }, { model, searchTerm }) {
     commit('setSearchTerm', searchTerm);
     const payload = { model: model.apiName, version: model.apiVersion, searchTerm };

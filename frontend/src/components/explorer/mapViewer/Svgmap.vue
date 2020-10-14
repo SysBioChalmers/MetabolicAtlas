@@ -229,7 +229,7 @@ export default {
       setTimeout(() => {
         // bind event listeners
         panzoomElem.addEventListener('panzoomchange', this.updateURLCoord);
-        panzoomElem.addEventListener('panzoomzoom', (e) => { // eslint-disable-line no-unused-vars
+        panzoomElem.addEventListener('panzoomzoom', (e) => {
           this.currentZoomScale = e.detail.scale;
         });
         panzoomElem.parentElement.addEventListener('wheel', this.panzoom.zoomWithWheel);

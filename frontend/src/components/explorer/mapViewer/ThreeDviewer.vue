@@ -32,6 +32,12 @@ import MapSearch from '@/components/explorer/mapViewer/MapSearch';
 import { default as messages } from '@/helpers/messages';
 import { default as colorToRGBArray } from '@/helpers/colors';
 
+const NODE_TEXTURES = [
+  { group: 'e', sprite: '/sprite_round.png' },
+  { group: 'r', sprite: '/sprite_square.png' },
+  { group: 'm', sprite: '/sprite_triangle.png' },
+];
+
 export default {
   name: 'ThreeDViewer',
   components: {
@@ -117,15 +123,17 @@ export default {
     renderNetwork(customizedNetwork) {
       this.resetNetwork();
       this.controller = MetAtlasViewer('viewer3d');
+
+      const graphData = customizedNetwork || this.network;
+      const nodeTypes = new Set(graphData.nodes.map(n => n.g));
+      const nodeTextures = NODE_TEXTURES.filter(t => nodeTypes.has(t.group));
+
       this.controller.setData({
-        graphData: customizedNetwork || this.network,
-        nodeTextures: [
-          { group: 'e', sprite: '/sprite_round.png' },
-          { group: 'r', sprite: '/sprite_square.png' },
-          { group: 'm', sprite: '/sprite_triangle.png' },
-        ],
+        graphData,
+        nodeTextures,
         nodeSize: 15,
       });
+
       this.controller.setNodeSelectCallback(this.selectElement);
       this.controller.setBackgroundColor(this.backgroundColor);
       this.controller.setUpdateCameraCallback(this.updateURLCoords);
