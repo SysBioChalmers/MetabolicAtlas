@@ -5,9 +5,9 @@ function generate-data {
   echo 'Data generation started.'
   source .env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH "$@"
   cp -r $DATA_GENERATOR_PATH/data/ neo4j/import
-  cp    $DATA_GENERATOR_PATH/data/hpaRna.json api/src/data
-  cp -r $DATA_FILES_PATH/integrated-models/integratedModels.json api/src/data
-  cp -r $DATA_FILES_PATH/gemsRepository.json api/src/data
+  cp    $DATA_GENERATOR_PATH/data/hpaRna.json api/src/data/
+  cp -r $DATA_FILES_PATH/integrated-models/integratedModels.json api/src/data/
+  cp -r $DATA_FILES_PATH/gemsRepository.json api/src/data/
   cp -r $DATA_FILES_PATH/svg api/
   cp -r $DATA_FILES_PATH/ftp-models ftp/
 }

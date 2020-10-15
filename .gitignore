@@ -92,4 +92,4 @@ ftp-models/
 svg/
 
 # data folder in API
-api/src/data
+api/src/data/*.json
