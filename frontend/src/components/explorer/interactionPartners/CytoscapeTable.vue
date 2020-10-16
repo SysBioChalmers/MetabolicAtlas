@@ -105,8 +105,6 @@
 
 import ExportTSV from '@/components/shared/ExportTSV';
 import { default as compare } from '@/helpers/compare';
-import { reformatEqSign } from '@/helpers/utils';
-
 
 export default {
   name: 'CytoscapeTable',

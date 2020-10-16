@@ -69,8 +69,8 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import $ from 'jquery';
-import { chemicalReaction } from '@/helpers/chemical-formatters';
 import { default as messages } from '@/helpers/messages';
+import { getChemicalReaction } from '@/helpers/utils';
 
 export default {
   name: 'GemSearch',
@@ -180,7 +180,7 @@ export default {
       let s = '';
       this.itemKeys[type].filter(key => element[key]).forEach((key) => {
         if (key === 'equation') {
-          s = `${s} ‒ ${chemicalReaction(element[key].replace(re, '<b>$1</b>'), element.reversible)}`;
+          s = `${s} ‒ ${getChemicalReaction(element[key]).replace(re, '<b>$1</b>')}`;
         } else {
           // do not HL the compartment name
           s = key === 'compartment_str' ? `${s} ‒ ${element[key]}` : `${s} ‒ ${element[key].replace(re, '<b>$1</b>')}`;

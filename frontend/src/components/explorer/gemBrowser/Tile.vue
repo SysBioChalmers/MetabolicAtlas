@@ -18,9 +18,7 @@
         <b>{{ data.id }}</b> is <b>{{ data.isReversible ? 'reversible' : 'irreversible' }}</b>
         and has the following equation:
         <br>
-        <b v-if="data.equationWname">
-          {{ data.equationWname.replace('=>', data.isReversible ? '&#8660;' : '&#8658;') }}
-        </b>.
+        <b v-html="getSimpleEquation(data)"></b>
         <br><br>
         This reaction is part of <b>{{ data.subsystemCount }}</b> subsystem(s)
         and <b>{{ data.compartmentCount }}</b> compartment(s) and is associated
@@ -62,6 +60,7 @@
 </template>
 
 <script>
+import { getSimpleEquation } from '@/helpers/utils';
 import { mapState } from 'vuex';
 
 export default {
@@ -75,6 +74,9 @@ export default {
     ...mapState({
       model: state => state.models.model,
     }),
+  },
+  methods: {
+    getSimpleEquation,
   },
 };
 </script>

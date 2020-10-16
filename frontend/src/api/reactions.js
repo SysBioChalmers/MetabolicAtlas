@@ -8,8 +8,8 @@ const fetchReactionData = async ({ id, model, version }) => {
   data = {
     ...data,
     compartment_str: data.compartments.map(c => c.name).join(', '),
-    reactionreactant_set: data.metabolites.filter(m => m.outgoing),
-    reactionproduct_set: data.metabolites.filter(m => !m.outgoing),
+    reactants: data.metabolites.filter(m => m.outgoing),
+    products: data.metabolites.filter(m => !m.outgoing),
   };
 
   return {
@@ -24,8 +24,8 @@ const fetchRelatedReactionsForReaction = async ({ id, model, version, limit }) =
   return data.sort((a, b) => (a.compartment_str < b.compartment_str ? -1 : 1)).map(r => ({
     ...r,
     compartment_str: constructCompartmentStr(r),
-    reactionreactant_set: r.metabolites.filter(m => m.outgoing),
-    reactionproduct_set: r.metabolites.filter(m => !m.outgoing),
+    reactants: r.metabolites.filter(m => m.outgoing),
+    products: r.metabolites.filter(m => !m.outgoing),
   }));
 };
 
@@ -36,8 +36,8 @@ const fetchRelatedReactions = async (resourceType, id, model, version, limit) =>
     ...r,
     compartment_str: constructCompartmentStr(r),
     subsystem_str: r.subsystems.map(s => s.name).join(', '),
-    reactionreactant_set: r.metabolites.filter(m => m.outgoing),
-    reactionproduct_set: r.metabolites.filter(m => !m.outgoing),
+    reactants: r.metabolites.filter(m => m.outgoing),
+    products: r.metabolites.filter(m => !m.outgoing),
   }));
 };
 

@@ -140,12 +140,12 @@ export default {
           if (rCopy.reversible) {
             rCopy.cp = 'consume/produce';
           } else {
-            const boolC = rCopy.reactionreactant_set.filter(
+            const boolC = rCopy.reactants.filter(
               e => e.id === this.selectedElmId);
             if (boolC.length !== 0) {
               rCopy.cp = 'consume';
             } else {
-              const boolP = rCopy.reactionproduct_set.filter(
+              const boolP = rCopy.products.filter(
                 e => e.id === this.selectedElmId);
               if (boolP.length !== 0) {
                 rCopy.cp = 'produce';

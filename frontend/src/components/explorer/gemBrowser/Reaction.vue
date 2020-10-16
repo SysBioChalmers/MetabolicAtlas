@@ -73,8 +73,7 @@
                       </router-link>
                       <div style="margin-left: 30px">
                         <span v-html="reformatChemicalReactionHTML(rr, true, model.short_name)"></span>
-                        (<span v-html="reformatEqSign(rr.compartment_str, rr.reversible)">
-                        </span>)
+                        (<span>{{ rr.compartment_str }}</span>)
                       </div>
                     </span>
                   </td>
@@ -104,7 +103,7 @@ import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import GemContact from '@/components/shared/GemContact';
 import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import References from '@/components/shared/References';
-import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, reformatEqSign } from '@/helpers/utils';
+import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -236,7 +235,6 @@ export default {
     reformatReversible() { return this.reaction.reversible ? 'Yes' : 'No'; },
     reformatTableKey,
     reformatChemicalReactionHTML,
-    reformatEqSign,
   },
 };
 </script>

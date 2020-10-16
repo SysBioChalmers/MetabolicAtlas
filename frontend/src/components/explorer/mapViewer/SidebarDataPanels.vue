@@ -79,7 +79,7 @@
                 <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span>
                 {{ selectionData.data[item.name].name }}
               </template>
-              <template v-else-if="['reactionreactant_set', 'reactionproduct_set'].includes(item.name)">
+              <template v-else-if="['reactants', 'products'].includes(item.name)">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span>
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
@@ -93,7 +93,7 @@
               <template v-else-if="item.name === 'equation'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <p><span class="has-text-weight-bold" v-html="capitalize(item.display || item.name) + ':'"></span><br>
-                  <span v-html="chemicalReaction(selectionData.data[item.name], selectionData.data.reversible)">
+                  <span v-html="getChemicalReaction(selectionData.data[item.name])">
                   </span></p>
               </template>
               <template v-else-if="item.name === 'formula'">
@@ -136,9 +136,9 @@
 
 <script>
 import { mapState } from 'vuex';
-import { capitalize, reformatStringToLink, idfy } from '../../../helpers/utils';
-import { chemicalFormula, chemicalReaction } from '../../../helpers/chemical-formatters';
-import { default as messages } from '../../../helpers/messages';
+import { capitalize, reformatStringToLink, idfy, getChemicalReaction } from '@/helpers/utils';
+import { chemicalFormula } from '@/helpers/chemical-formatters';
+import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'SidebarDataPanels',
@@ -166,8 +166,8 @@ export default {
         reaction: [
           { name: 'equation' },
           { name: 'subsystems', display: 'Subsystem(s)' },
-          { name: 'reactionreactant_set', display: 'Reactant(s)' },
-          { name: 'reactionproduct_set', display: 'Product(s)' },
+          { name: 'reactants', display: 'Reactant(s)' },
+          { name: 'products', display: 'Product(s)' },
         ],
       },
       showMapCardContent: true,
@@ -200,7 +200,7 @@ export default {
     capitalize,
     reformatStringToLink,
     chemicalFormula,
-    chemicalReaction,
+    getChemicalReaction,
     idfy,
   },
 };
