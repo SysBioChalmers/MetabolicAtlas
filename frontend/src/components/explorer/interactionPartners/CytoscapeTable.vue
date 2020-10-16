@@ -57,9 +57,6 @@
                       </span>
                     </template>
                   </template>
-                  <template v-else-if="'modifier' in s">
-                    <span v-html="applyModifier(s, r)"></span>
-                  </template>
                   <template v-else>
                     {{ r[s.field] }}
                   </template>
@@ -84,9 +81,6 @@
                         <span class="">{{ el.name || el.id }}</span>
                       </span>
                     </template>
-                  </template>
-                  <template v-else-if="'modifier' in s">
-                    <span v-html="applyModifier(s, r)"></span>
                   </template>
                   <template v-else>
                     {{ r[s.field] }}
@@ -125,7 +119,7 @@ export default {
         { field: 'reactants', display: 'Reactants' },
         { field: 'products', display: 'Products' },
         { field: 'genes', display: 'Genes' },
-        { field: 'compartment', display: 'Compartment', modifier: reformatEqSign },
+        { field: 'compartment', display: 'Compartment' },
       ],
       matchingReactions: [],
       unMatchingReactions: [],
@@ -173,7 +167,6 @@ export default {
     this.updateTable();
   },
   methods: {
-    applyModifier(s, elm) { return s.modifier(elm[s.field], elm.link); },
     isSelected(elmId) {
       return this.hlID === elmId || this.selectedReactionId === elmId;
     },
