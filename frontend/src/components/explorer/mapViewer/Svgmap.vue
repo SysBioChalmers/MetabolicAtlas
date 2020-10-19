@@ -193,7 +193,7 @@ export default {
       this.panToCoords({ panX: x, panY: y, zoom });
       this.zoomToValue(zoom);
 
-      const payload = { x, y, z: zoom, lx: 0, ly: 0, lz: 0 };
+      const payload = { x, y, z: zoom, ...this.coords };
       this.$store.dispatch('maps/setCoords', payload);
     },
     updateURLCoord(e) {
@@ -201,7 +201,7 @@ export default {
       const x = e.detail.x || 0;
       const y = e.detail.y || 0;
 
-      const payload = { x, y, z, lx: 0, ly: 0, lz: 0 };
+      const payload = { x, y, z, lx: 0, ...this.coords };
       this.$store.dispatch('maps/setCoords', payload);
     },
     processSelSearchParam() {
@@ -219,6 +219,10 @@ export default {
       this.selectElement(elms[0] || null, true);
     },
     loadSvgPanzoom() {
+      if (!this.svgContent) {
+        return;
+      }
+
       this.initialLoadWithParams = !!this.$route.query.coords;
 
       // load the lib svgPanzoom on the SVG loaded

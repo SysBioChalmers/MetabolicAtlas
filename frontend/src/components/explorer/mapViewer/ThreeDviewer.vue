@@ -140,7 +140,6 @@ export default {
       this.processURLQuery();
     },
     processURLQuery() {
-      this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
       const { lx, ly, lz } = this.coords;
       this.controller.setCamera({ x: lx, y: ly, z: lz });
 

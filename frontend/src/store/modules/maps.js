@@ -29,7 +29,7 @@ const data = {
     z: 1,
     lx: 0,
     ly: 0,
-    lz: 0,
+    lz: 500,
   },
   searchTerm: '',
   selectedElementId: null,
@@ -67,6 +67,7 @@ const actions = {
   },
 
   async getSvgMap({ commit }, { mapUrl, model, svgName }) {
+    commit('setSvgMap', null);
     const svgMap = await mapsApi.fetchSvgMap(mapUrl, model, svgName);
     commit('setSvgMap', svgMap);
   },
