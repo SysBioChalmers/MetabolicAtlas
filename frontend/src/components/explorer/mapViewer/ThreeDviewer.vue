@@ -9,6 +9,7 @@
     <MapControls wrapper-elem-selector=".viewer-container" :is-fullscreen="isFullscreen"
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
+                 :toggle-labels="toggleLabels"
                  :toggle-background-color="toggleBackgroundColor"
                  :style="{'z-index': network.nodes.length + 1}" />
     <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
@@ -227,6 +228,9 @@ export default {
     },
     toggleGenes() {
       this.controller.toggleNodeType('e');
+    },
+    toggleLabels() {
+      this.controller.toggleLabels();
     },
     toggleBackgroundColor() {
       this.$store.dispatch('maps/toggleBackgroundColor');
