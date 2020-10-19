@@ -10,14 +10,11 @@
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-background-color="toggleBackgroundColor"
-                 :style="{'z-index': network.nodes.length + 1}"
-                 />
+                 :style="{'z-index': network.nodes.length + 1}" />
     <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
-               :fullscreen="isFullscreen"
+               :fullscreen="isFullscreen" :style="{'z-index': network.nodes.length + 1}"
                @searchOnMap="searchIDsOnMap" @centerViewOn="centerElement"
-               @unHighlightAll="unHighlight"
-               :style="{'z-index': network.nodes.length + 1}"
-               />
+               @unHighlightAll="unHighlight" />
     <MapLoader />
   </div>
 </template>

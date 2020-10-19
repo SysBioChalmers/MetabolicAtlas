@@ -193,7 +193,7 @@ export default {
       this.panToCoords({ panX: x, panY: y, zoom });
       this.zoomToValue(zoom);
 
-      const payload = { x, y, z: zoom, ...this.coords };
+      const payload = { ...this.coords, x, y, z: zoom };
       this.$store.dispatch('maps/setCoords', payload);
     },
     updateURLCoord(e) {
@@ -201,7 +201,7 @@ export default {
       const x = e.detail.x || 0;
       const y = e.detail.y || 0;
 
-      const payload = { x, y, z, lx: 0, ...this.coords };
+      const payload = { ...this.coords, x, y, z };
       this.$store.dispatch('maps/setCoords', payload);
     },
     processSelSearchParam() {
