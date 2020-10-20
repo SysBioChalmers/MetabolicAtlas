@@ -12,7 +12,7 @@ const componentTypes = [
 
 const intersect = (a, b) => [...new Set(a)].filter(x => new Set(b).has(x));
 
-const fetchCompartmentalizedMetabolites = async ({ ids, version, limit, viaMetabolties }) => {
+const fetchCompartmentalizedMetabolites = async ({ ids, model, version, limit, viaMetabolties }) => {
   if (!ids) {
     return null;
   }
@@ -23,7 +23,7 @@ const fetchCompartmentalizedMetabolites = async ({ ids, version, limit, viaMetab
     statement += `
 WITH ${JSON.stringify(ids)} as mids
 UNWIND mids as mid
-MATCH (:Metabolite {id:mid})-[${version}]-(cm:CompartmentalizedMetabolite)
+MATCH (:Metabolite:${model} {id:mid})-[${version}]-(cm:CompartmentalizedMetabolite)
 WITH DISTINCT(cm.id) as cmid
 `;
   } else {
@@ -35,17 +35,17 @@ UNWIND cmids as cmid
 
   statement += `
 CALL apoc.cypher.run('
-  MATCH (ms:MetaboliteState)-[${version}]-(:Metabolite)-[${version}]-(:CompartmentalizedMetabolite {id: $cmid})
+  MATCH (ms:MetaboliteState)-[${version}]-(:Metabolite)-[${version}]-(:CompartmentalizedMetabolite:${model} {id: $cmid})
   RETURN ms { id: $cmid, .* } as data
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite {id: $cmid})-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
+  MATCH (:CompartmentalizedMetabolite:${model} {id: $cmid})-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
   RETURN { id: $cmid, compartment: cs { id: c.id, .* } } as data
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite {id: $cmid})-[${version}]-(:Reaction)-[${version}]-(s:Subsystem)
+  MATCH (:CompartmentalizedMetabolite:${model} {id: $cmid})-[${version}]-(:Reaction)-[${version}]-(s:Subsystem)
   WITH DISTINCT s
   MATCH (s)-[${version}]-(ss:SubsystemState)
   RETURN { id: $cmid, subsystem: COLLECT(DISTINCT({id: s.id, name: ss.name})) } as data
@@ -60,11 +60,12 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 LIMIT ${limit}
 `;
   }
+
   return queryListResult(statement);
 };
 
 
-const fetchGenes = async ({ ids, version }) => {
+const fetchGenes = async ({ ids, model, version }) => {
   if (!ids) {
     return null;
   }
@@ -73,12 +74,12 @@ const fetchGenes = async ({ ids, version }) => {
 WITH ${JSON.stringify(ids)} as gids
 UNWIND gids as gid
 CALL apoc.cypher.run("
-  MATCH (gs:GeneState)-[${version}]-(:Gene {id: $gid})
+  MATCH (gs:GeneState)-[${version}]-(:Gene:${model} {id: $gid})
   RETURN { id: $gid, name: gs.name } as data
   
   UNION
   
-  MATCH (:Gene {id: $gid})-[${version}]-(r:Reaction)
+  MATCH (:Gene:${model} {id: $gid})-[${version}]-(r:Reaction)
   WITH DISTINCT r
   MATCH (r)-[${version}]-(s:Subsystem)
   WITH DISTINCT s
@@ -87,7 +88,7 @@ CALL apoc.cypher.run("
   
   UNION
   
-  MATCH (:Gene {id: $gid})-[${version}]-(:Reaction)-[${version}]-(cm:CompartmentalizedMetabolite)
+  MATCH (:Gene:${model} {id: $gid})-[${version}]-(:Reaction)-[${version}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
   MATCH (cm)-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
   RETURN { id: $gid, compartment: COLLECT(DISTINCT({ id: c.id, name: cs.name })) } as data
@@ -101,7 +102,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 };
 
 
-const fetchReactions = async ({ ids, version }) => {
+const fetchReactions = async ({ ids, model, version }) => {
   if (!ids) {
     return null;
   }
@@ -110,17 +111,17 @@ const fetchReactions = async ({ ids, version }) => {
 WITH ${JSON.stringify(ids)} as rids
 UNWIND rids as rid
 CALL apoc.cypher.run("
-  MATCH (rs:ReactionState)-[${version}]-(:Reaction {id: $rid})
+  MATCH (rs:ReactionState)-[${version}]-(:Reaction:${model} {id: $rid})
   RETURN rs { id: $rid, .* } as data
   
   UNION
   
-  MATCH (:Reaction {id: $rid})-[${version}]-(s:Subsystem)-[${version}]-(ss:SubsystemState)
+  MATCH (:Reaction:${model} {id: $rid})-[${version}]-(s:Subsystem)-[${version}]-(ss:SubsystemState)
   RETURN { id: $rid, subsystem: COLLECT(DISTINCT({ id: s.id, name: ss.name })) } as data
   
   UNION
   
-  MATCH (:Reaction {id: $rid})-[${version}]-(cm:CompartmentalizedMetabolite)
+  MATCH (:Reaction:${model} {id: $rid})-[${version}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
   MATCH (cm)-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
   RETURN { id: $rid, compartment: COLLECT(DISTINCT({ id: c.id, name: cs.name })) } as data
@@ -133,7 +134,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
   return queryListResult(statement);
 };
 
-const fetchSubsystems = async ({ ids, version, includeCounts }) => {
+const fetchSubsystems = async ({ ids, model, version, includeCounts }) => {
   if (!ids) {
     return null;
   }
@@ -142,7 +143,7 @@ const fetchSubsystems = async ({ ids, version, includeCounts }) => {
 WITH ${JSON.stringify(ids)} as sids
 UNWIND sids as sid
 CALL apoc.cypher.run("
-  MATCH (ss:SubsystemState)-[${version}]-(:Subsystem {id: $sid})
+  MATCH (ss:SubsystemState)-[${version}]-(:Subsystem:${model} {id: $sid})
   RETURN { id: $sid, name: ss.name } as data
 `;
 
@@ -150,19 +151,19 @@ CALL apoc.cypher.run("
     statement += ` 
   UNION
   
-  MATCH (:Subsystem {id: $sid})-[${version}]-(r:Reaction)
+  MATCH (:Subsystem:${model} {id: $sid})-[${version}]-(r:Reaction)
   RETURN { id: $sid, reactionCount: COUNT(DISTINCT(r)) } as data
   
   UNION
   
-  MATCH (:Subsystem {id: $sid})-[${version}]-(r:Reaction)
+  MATCH (:Subsystem:${model} {id: $sid})-[${version}]-(r:Reaction)
   WITH DISTINCT r
   MATCH (r)-[${version}]-(cm:CompartmentalizedMetabolite)
   RETURN { id: $sid, compartmentalizedMetaboliteCount: COUNT(DISTINCT cm) } as data
   
   UNION
   
-  MATCH (:Subsystem {id: $sid})-[${version}]-(r:Reaction)
+  MATCH (:Subsystem:${model} {id: $sid})-[${version}]-(r:Reaction)
   WITH DISTINCT r
   MATCH (r)-[${version}]-(g:Gene)
   RETURN { id: $sid, geneCount: COUNT(DISTINCT g) } as data
@@ -172,7 +173,7 @@ CALL apoc.cypher.run("
   statement += ` 
   UNION
   
-  MATCH (:Subsystem {id: $sid})-[${version}]-(:Reaction)-[${version}]-(cm:CompartmentalizedMetabolite)
+  MATCH (:Subsystem:${model} {id: $sid})-[${version}]-(:Reaction)-[${version}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
   MATCH (cm)-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
   RETURN { id: $sid, compartment: COLLECT(DISTINCT({ id: c.id, name: cs.name })) } as data
@@ -185,7 +186,7 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
   return queryListResult(statement);
 };
 
-const fetchCompartments = async ({ ids, version, includeCounts }) => {
+const fetchCompartments = async ({ ids, model, version, includeCounts }) => {
   if (!ids) {
     return null;
   }
@@ -194,7 +195,7 @@ const fetchCompartments = async ({ ids, version, includeCounts }) => {
 WITH ${JSON.stringify(ids)} as cids
 UNWIND cids as cid
 CALL apoc.cypher.run("
-  MATCH (cs:CompartmentState)-[${version}]-(:Compartment {id: $cid})
+  MATCH (cs:CompartmentState)-[${version}]-(:Compartment:${model} {id: $cid})
   RETURN cs { id: $cid, .* } as data
 `;
 
@@ -202,24 +203,24 @@ CALL apoc.cypher.run("
     statement += ` 
   UNION
   
-  MATCH (:Compartment {id: $cid})-[${version}]-(:CompartmentalizedMetabolite)-[${version}]-(r:Reaction)
+  MATCH (:Compartment:${model} {id: $cid})-[${version}]-(:CompartmentalizedMetabolite)-[${version}]-(r:Reaction)
   RETURN { id: $cid, reactionCount: COUNT(DISTINCT(r)) } as data
   
   UNION
   
-  MATCH (:Compartment {id: $cid})-[${version}]-(cm:CompartmentalizedMetabolite)
+  MATCH (:Compartment:${model} {id: $cid})-[${version}]-(cm:CompartmentalizedMetabolite)
   RETURN { id: $cid, compartmentalizedMetaboliteCount: COUNT(DISTINCT cm) } as data
   
   UNION
   
-  MATCH (:Compartment {id: $cid})-[${version}]-(:CompartmentalizedMetabolite)-[${version}]-(r:Reaction)
+  MATCH (:Compartment:${model} {id: $cid})-[${version}]-(:CompartmentalizedMetabolite)-[${version}]-(r:Reaction)
   WITH DISTINCT r
   MATCH (r)-[${version}]-(g:Gene)
   RETURN { id: $cid, geneCount: COUNT(DISTINCT g) } as data
   
   UNION
   
-  MATCH (:Compartment {id: $cid})-[${version}]-(:CompartmentalizedMetabolite)-[${version}]-(r:Reaction)
+  MATCH (:Compartment:${model} {id: $cid})-[${version}]-(:CompartmentalizedMetabolite)-[${version}]-(r:Reaction)
   WITH DISTINCT r
   MATCH (r)-[${version}]-(s:Subsystem)
   RETURN { id: $cid, subsystemCount: COUNT(DISTINCT s) } as data
@@ -242,10 +243,10 @@ const globalSearch = async ({ searchTerm, version, limit }) => {
   const results = await Promise.all(MODELS.map(m =>
     _search({ searchTerm, version, model: m.label, limit, includeCounts: true })
   ));
-  return results.reduce((obj, r, i) => {
-    const m = MODELS[i];
+
+  return MODELS.reduce((obj, m, i) => {
     obj[m.name] = {
-      ...r,
+      ...results[i],
       name: m.name,
     };
     return obj;
@@ -285,12 +286,14 @@ YIELD node, score
 WITH node, score, LABELS(node) as labelList
 OPTIONAL MATCH (node)-[${v}]-(parentNode:${model})
 WHERE node:${model} OR parentNode:${model}
-RETURN DISTINCT(
+WITH DISTINCT(
 	CASE
 		WHEN EXISTS(node.id) THEN { id: node.id, labels: labelList, score: score }
 		ELSE { id: parentNode.id, labels: LABELS(parentNode), score: score }
 	END
-)
+) as r 
+WHERE any(r IN r.labels WHERE r="${model}")
+RETURN r
 `;
   if (limit) {
     statement += `
@@ -319,12 +322,12 @@ LIMIT ${limit}
     subsystems,
     compartments,
   ] = await Promise.all([
-    fetchCompartmentalizedMetabolites({ ids: ids["CompartmentalizedMetabolite"], version: v, limit }),
-    fetchCompartmentalizedMetabolites({ ids: ids["Metabolite"], version: v, limit, viaMetabolties: true }),
-    fetchGenes({ ids: ids["Gene"], version: v }),
-    fetchReactions({ ids: ids["Reaction"], version: v }),
-    fetchSubsystems({ ids: ids["Subsystem"], version: v, includeCounts: true }),
-    fetchCompartments({ ids: ids["Compartment"], version: v, includeCounts: true }),
+    fetchCompartmentalizedMetabolites({ ids: ids["CompartmentalizedMetabolite"], model, version: v, limit }),
+    fetchCompartmentalizedMetabolites({ ids: ids["Metabolite"], model, version: v, limit, viaMetabolties: true }),
+    fetchGenes({ ids: ids["Gene"], model, version: v }),
+    fetchReactions({ ids: ids["Reaction"], model, version: v }),
+    fetchSubsystems({ ids: ids["Subsystem"], model, version: v, includeCounts: true }),
+    fetchCompartments({ ids: ids["Compartment"], model, version: v, includeCounts: true }),
   ]);
 
   // formatting for simple (gem browser) search
