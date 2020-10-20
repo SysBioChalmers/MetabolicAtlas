@@ -114,7 +114,7 @@
                     {{ props.formattedRow[props.column.field].name }}
                   </template>
                   <template v-else-if="props.column.field === 'equation'">
-                    <span v-html="reformatEqSign(props.formattedRow[props.column.field], props.row.reversible)"></span>
+                    <span v-html="equationSign(props.row.reversible)"></span>
                   </template>
                   <template v-else-if="props.column.field === 'formula'">
                     <span v-html="chemicalFormula(props.row[props.column.field], props.row.charge)"></span>
@@ -178,7 +178,7 @@ import Loader from '@/components/Loader';
 import ExportTSV from '@/components/shared/ExportTSV';
 import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../helpers/chemical-formatters';
-import { reformatEqSign, sortResults } from '../helpers/utils';
+import { equationSign, sortResults } from '../helpers/utils';
 import { default as messages } from '../helpers/messages';
 
 export default {
@@ -516,7 +516,7 @@ export default {
             Object.keys(filterTypeDropdown[componentType]).forEach((field) => {
               if (field === 'model') {
                 filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
-              } else if (field === 'compartment') {
+              } else if (el[field] && field === 'compartment') {
                 filterTypeDropdown[componentType][field][el[field].name] = 1;
               }
             });
@@ -686,7 +686,7 @@ export default {
       return `${header.join('\t')}\n${tsvContent}`;
     },
     chemicalFormula,
-    reformatEqSign,
+    equationSign,
     sortResults,
   },
 };
