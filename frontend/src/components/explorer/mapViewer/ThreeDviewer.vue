@@ -22,7 +22,7 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex';
-import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
+import { MetAtlasViewer } from '@metabolicatlas/3d-network-viewer';
 import { default as EventBus } from '@/event-bus';
 import MapControls from '@/components/explorer/mapViewer/MapControls';
 import MapLoader from '@/components/explorer/mapViewer/MapLoader';
@@ -100,8 +100,8 @@ export default {
         id: this.currentMap.id,
       };
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
-      this.applyColorsAndRenderNetwork({});
       this.$store.dispatch('maps/setLoading', false);
+      await this.applyColorsAndRenderNetwork({});
       // controller.filterBy({group: 'm'});
       // controller.filterBy({id: [1, 2, 3, 4]});
       // Subscribe to node selection events
@@ -118,7 +118,7 @@ export default {
 
       return [element.id, type];
     },
-    renderNetwork(customizedNetwork) {
+    async renderNetwork(customizedNetwork) {
       this.resetNetwork();
       this.controller = MetAtlasViewer('viewer3d');
 
@@ -126,15 +126,16 @@ export default {
       const nodeTypes = new Set(graphData.nodes.map(n => n.g));
       const nodeTextures = NODE_TEXTURES.filter(t => nodeTypes.has(t.group));
 
-      this.controller.setData({
+      this.controller.setNodeSelectCallback(this.selectElement);
+      this.controller.setBackgroundColor(this.backgroundColor);
+      this.controller.setUpdateCameraCallback(this.updateURLCoords);
+
+      await this.controller.setData({
         graphData,
         nodeTextures,
         nodeSize: 10,
       });
 
-      this.controller.setNodeSelectCallback(this.selectElement);
-      this.controller.setBackgroundColor(this.backgroundColor);
-      this.controller.setUpdateCameraCallback(this.updateURLCoords);
       this.processURLQuery();
     },
     processURLQuery() {
@@ -175,7 +176,7 @@ export default {
         this.$store.dispatch('maps/setLoadingElement', false);
       }
     },
-    applyColorsAndRenderNetwork(levels) {
+    async applyColorsAndRenderNetwork(levels) {
       const nodes = this.network.nodes.map((node) => {
         let color = colorToRGBArray('#9df');
 
@@ -199,7 +200,7 @@ export default {
         };
       });
 
-      this.renderNetwork({
+      await this.renderNetwork({
         nodes,
         links: this.network.links,
       });
@@ -218,16 +219,29 @@ export default {
       viewer.innerHTML = '';
     },
     zoomIn() {
-      console.log('zoom in');
+      this.zoomBy(50);
     },
     zoomOut() {
-      console.log('zoom out');
+      this.zoomBy(-50);
+    },
+    zoomBy(amount) {
+      const { lx, ly, lz } = this.coords;
+      let z = lz - amount;
+      if (z < 0) {
+        z = 0;
+      } else if (z > 1000) {
+        z = 1000;
+      }
+
+      const payload = { x: lx, y: ly, z };
+      this.controller.setCamera(payload);
+      this.updateURLCoords(payload);
     },
     toggleFullscreen() {
       this.isFullscreen = !this.isFullscreen;
     },
-    toggleGenes() {
-      this.controller.toggleNodeType('e');
+    async toggleGenes() {
+      await this.controller.toggleNodeType('e');
     },
     toggleLabels() {
       this.controller.toggleLabels();
