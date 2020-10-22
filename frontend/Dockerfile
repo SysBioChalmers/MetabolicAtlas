@@ -1,5 +1,5 @@
 FROM node:lts-alpine
 
-WORKDIR /project/
+WORKDIR /project
 COPY . .
-RUN npm install
+RUN yarn
