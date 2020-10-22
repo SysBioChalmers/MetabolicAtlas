@@ -18,7 +18,7 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex';
-import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
+import { MetAtlasViewer } from '@metabolicatlas/3d-network-viewer';
 import { default as EventBus } from '@/event-bus';
 import MapControls from '@/components/explorer/mapViewer/MapControls';
 import MapLoader from '@/components/explorer/mapViewer/MapLoader';

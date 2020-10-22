@@ -19,7 +19,7 @@
     "cytoscape-cola": "2.3.0",
     "file-saver": "^2.0.2",
     "jquery": "3.3.1",
-    "@metabolicatlas/mapviewer-3d": "^0.1.5",
+    "@metabolicatlas/3d-network-viewer": "^0.1.11",
     "@panzoom/panzoom": "^4.3.2",
     "vue": "^2.6.10",
     "vue-color": "2.0.9",
