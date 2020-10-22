@@ -114,7 +114,7 @@
         </div>
         <footer class="card-footer">
           <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                       :to="{ name: selectionData.type, params: { model: model.short_name, id: idfy(selectionData.data.id) } }"> <!-- eslint-disable-line max-len -->
+                       :to="{ name: selectionData.type, params: { model: model.short_name, id: selectionData.data.id } }"> <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
@@ -136,9 +136,9 @@
 
 <script>
 import { mapState } from 'vuex';
-import { capitalize, reformatStringToLink, idfy } from '../../../helpers/utils';
-import { chemicalFormula, chemicalReaction } from '../../../helpers/chemical-formatters';
-import { default as messages } from '../../../helpers/messages';
+import { capitalize, reformatStringToLink } from '@/helpers/utils';
+import { chemicalFormula, chemicalReaction } from '@/helpers/chemical-formatters';
+import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'SidebarDataPanels',
@@ -201,7 +201,6 @@ export default {
     reformatStringToLink,
     chemicalFormula,
     chemicalReaction,
-    idfy,
   },
 };
 </script>
