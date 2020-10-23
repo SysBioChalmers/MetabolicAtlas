@@ -35,9 +35,7 @@ const actions = {
   },
   /* eslint-disable no-shadow */
   async selectModel({ dispatch, commit, getters }, modelShortName) {
-    if (state.modelList.length === 0) {
     await dispatch('getModels');
-    }
 
     if (modelShortName in getters.models) {
       commit('setModel', getters.models[modelShortName]);
