@@ -29,15 +29,15 @@
         </router-link>
       </div>
       <div v-show="showResults && searchTermString.length > 1" id="searchResults" ref="searchResults">
-        <div v-show="searchResults.length !== 0 && !showLoader" id="asn"
-             class="notification is-large is-unselectable has-text-centered clickable"
+        <div v-show="searchResults.length !== 0 && !showLoader"
+             class="notification is-large is-unselectable has-text-centered clickable py-1 mb-1"
              @mousedown.prevent="globalSearch">
-          Limited to 50 results per type. Click to search all integrated GEMs
+          Limited to 50 results per type. Click here to search all integrated GEMs
         </div>
         <div v-show="!showLoader" v-if="searchResults.length !== 0" class="resList">
           <template v-for="type in resultsOrder">
             <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection">
-              <hr v-if="i2 !== 0" class="is-marginless">
+              <hr v-if="i2 !== 0" class="m-0">
               <router-link class="clickable"
                            :to="{ name: metabolitesAndGenesOnly ? 'interaction': type, params: { model: model.short_name, id: r.id } }"
                            @click.native="showResults=false">
@@ -52,7 +52,7 @@
         <div v-show="showLoader" class="has-text-centered">
           <a class="button is-primary is-inverted is-outlined is-large is-loading"></a>
         </div>
-        <div v-show="!showLoader && noResult" class="has-text-centered notification is-marginless">
+        <div v-show="!showLoader && noResult" class="has-text-centered notification m-0">
           {{ messages.searchNoResult }}
           <div v-if="notFoundSuggestions.length !== 0">
             Do you mean:&nbsp;
@@ -207,10 +207,6 @@ export default {
   border-top: 0;
   margin-top: -2px;
   z-index: 30;
-
-  #asn {
-    padding: 4px;
-  }
 
   .resList {
       max-height: 22rem;

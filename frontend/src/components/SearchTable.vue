@@ -1,6 +1,6 @@
 <template>
   <section class="extended-section">
-    <div id="search-table" class="container is-fullhd">
+    <div id="search-table" class="container is-fullhd pb-6">
       <div class="columns">
         <div class="column has-text-centered content">
           <br>
@@ -104,7 +104,7 @@
                               style-class="vgt-table striped bordered"
                               :pagination-options="tablePaginationOpts">
                 <div slot="table-actions">
-                  <ExportTSV :arg="index" :style="{'margin': '0.3rem 1rem'}" :filename="`${searchTerm}-${header}.tsv`"
+                  <ExportTSV :arg="index" class="my-1 mx-4" :filename="`${searchTerm}-${header}.tsv`"
                              :format-function="formatToTSV">
                   </ExportTSV>
                 </div>
@@ -704,7 +704,6 @@ export default {
       cursor: not-allowed;
     }
   }
-  padding-bottom: 6rem;
   .suggestions {
     text-decoration: underline;
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="extended-section">
-    <div id="mapViewerContainer" class="columns ordered-mobile">
+    <div id="mapViewerContainer" class="columns ordered-mobile m-0">
       <template v-if="errorMessage">
         <div class="column is-danger is-half is-offset-one-quarter">
           <div class="notification is-danger is-danger has-text-centered">{{ errorMessage }}</div>
@@ -11,11 +11,11 @@
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2
                     fixed-height-desktop scrollable">
-          <div class="buttons has-addons is-centered padding-mobile"
+          <div class="buttons has-addons is-centered padding-mobile m-0"
                :title="`Switch to ${dimensionalState(!showing2D) }`"
                @click="$store.dispatch('maps/toggleShowing2D')">
             <button v-for="dim in [true, false]" :key="dim"
-                    class="button"
+                    class="button m-0"
                     :class="dim === showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'">
               <span v-if="dim === showing2D" class="icon">
                 <i class="fa fa-check-square-o"></i>
@@ -40,12 +40,12 @@
           <MapsListing v-if="showingMapListing" />
         </div>
         <div v-if="!currentMap"
-             class="column is-unselectable om-1 fixed-height-mobile">
+             class="column is-unselectable om-1 fixed-height-mobile p-0 m-0">
           <p class="is-size-5 has-text-centered" style="padding: 10%;">
             <a @click="showingMapListing = true">Show the map list and choose a compartment or subsystem map</a>
           </p>
         </div>
-        <div v-else class="column is-unselectable om-1 fixed-height-desktop fixed-height-mobile">
+        <div v-else class="column is-unselectable om-1 fixed-height-desktop fixed-height-mobile p-0 m-0">
           <Svgmap v-if="showing2D"
                   :map-data="currentMap"
                   @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
@@ -64,12 +64,12 @@
           </transition>
         </div>
         <div id="dataOverlayBar"
-             class="column is-narrow has-text-white is-unselectable is-hidden-mobile fixed-height-desktop"
-             :class="{'is-paddingless': dataOverlayPanelVisible }"
+             class="column is-narrow has-text-white is-unselectable is-hidden-mobile fixed-height-desktop p-1"
+             :class="{'px-0 py-0': dataOverlayPanelVisible }"
              title="Click to show the data overlay panel"
              @click="$store.dispatch('maps/toggleDataOverlayPanelVisible')">
           <p class="is-size-5 has-text-centered has-text-weight-bold">
-            <span class="icon">
+            <span class="icon py-2">
               <i class="fa"
                  :class="{ 'fa-arrow-left': !dataOverlayPanelVisible, 'fa-arrow-right': dataOverlayPanelVisible}">
               </i>
@@ -233,14 +233,11 @@ export default {
 
 <style lang="scss">
 #mapViewerContainer {
-  margin: 0;
 
   #mapSidebar {
     .buttons {
-      margin: 0;
 
       button {
-        margin: 0;
         min-width: 8rem;
         width: 50%;
 
@@ -262,7 +259,6 @@ export default {
   .overlay {
     position: absolute;
     z-index: 10;
-    padding: 10px;
     border-radius: 5px;
     background: rgba(22, 22, 22, 0.8);
   }
@@ -314,8 +310,6 @@ export default {
     height: 450px;
   }
   position: relative;
-  padding: 0;
-  margin: 0;
 }
 
 #dataOverlayBar {
@@ -324,11 +318,6 @@ export default {
   background: $primary;
   cursor: pointer;
   line-height: 17px;
-  padding: 0.25rem;
-  .icon {
-    padding-bottom: 20px;
-    padding-top: 20px;
-  }
   &:hover{
     background: $primary-light;
   }

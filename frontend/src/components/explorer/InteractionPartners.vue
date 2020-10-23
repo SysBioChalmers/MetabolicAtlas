@@ -51,7 +51,7 @@
         <template v-else-if="mainNodeID && !componentNotFound">
           <div class="container is-fullhd columns">
             <div class="column is-8">
-              <h3 class="title is-3 is-marginless" v-html="`${messages.interPartName} for ${title}`"></h3>
+              <h3 class="title is-3 m-0" v-html="`${messages.interPartName} for ${title}`"></h3>
             </div>
           </div>
           <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
@@ -160,7 +160,7 @@
                     </span>
                   </div>
                 </div>
-                <div id="cy" ref="cy" class="card is-paddingless">
+                <div id="cy" ref="cy" class="card px-0 py-0">
                 </div>
               </div>
             </template>
@@ -195,7 +195,7 @@
                       RNA levels via&nbsp;<a href="https://www.proteinatlas.org/" target="_blank">proteinAtlas.org</a>
                     </p>
                   </header>
-                  <div class="card-content card-content-compact">
+                  <div class="card-content py-2 p-3">
                     <template v-if="disableExpLvlMessage">
                       {{ disableExpLvlMessage }}
                     </template>
@@ -223,7 +223,7 @@
                       Highlight
                     </p>
                   </header>
-                  <div class="card-content card-content-compact">
+                  <div class="card-content py-2 p-3">
                     <div class="select is-fullwidth">
                       <select v-model="compartmentHL" :disabled="disableCompartmentHL"
                               @change.prevent="highlightCompartment">
@@ -1105,10 +1105,6 @@ export default {
       margin-right: 15px;
       margin-bottom: 5px;
     }
-  }
-
-  #t-select {
-    margin-top: 0.75rem;
   }
 
   #enz-select {

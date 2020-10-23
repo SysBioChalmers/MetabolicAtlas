@@ -60,7 +60,7 @@
                   </span>
                 </p>
               </header>
-              <div class="card-content">
+              <div class="card-content py-2">
                 <div class="content">
                   <img :src="tool.img" />
                 </div>

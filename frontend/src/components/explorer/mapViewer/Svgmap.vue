@@ -1,5 +1,5 @@
 <template>
-  <div class="svgbox">
+  <div class="svgbox p-0 m-0">
     <div v-if="errorMessage" class="columns is-centered">
       <div class="column is-half has-text-centered">
         <p class="notification has-background-danger-light" style="margin-top: 30%;" v-html="errorMessage"></p>
@@ -523,8 +523,6 @@ export default {
 
 .svgbox {
   position: relative;
-  margin: 0;
-  padding: 0;
   width: 100%;
   height:100%;
   &.fullscreen {

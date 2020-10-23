@@ -67,15 +67,12 @@
                   <td class="td-key has-background-primary has-text-white-bis">Related reaction(s)</td>
                   <td>
                     <span v-for="rr in relatedReactions" :key="rr.id">
-                      <!-- eslint-disable-next-line max-len -->
                       <router-link :to="{ name: 'reaction', params: { model: model.short_name, id: rr.id } }">
                         {{ rr.id }}
-                      </router-link>
-                      <div style="margin-left: 30px">
-                        <span v-html="reformatChemicalReactionHTML(rr, true, model.short_name)"></span>
-                        (<span v-html="reformatEqSign(rr.compartment_str, rr.reversible)">
-                        </span>)
-                      </div>
+                      </router-link>:&nbsp;
+                      <span v-html="reformatChemicalReactionHTML(rr, true, model.short_name)"></span>:
+                      (<span v-html="reformatEqSign(rr.compartment_str, rr.reversible)">
+                      </span>)
                     </span>
                   </td>
                 </tr>

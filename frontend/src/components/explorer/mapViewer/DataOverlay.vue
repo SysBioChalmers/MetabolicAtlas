@@ -8,7 +8,7 @@
          More information can be found in the documentation.">
       Load custom gene expression data<span class="icon"><i class="fa fa-info-circle"></i></span>
     </div>
-    <div id="fileSelectBut" class="file is-centered">
+    <div class="file is-centered mb-2">
       <label class="file-label">
         <input class="file-input"
                type="file"
@@ -24,7 +24,7 @@
         </span>
       </label>
     </div>
-    <div v-if="customFileName" id="fileNameBox">
+    <div v-if="customFileName" id="fileNameBox" class="mb-4">
       <div v-show="!showFileLoader" class="tags has-addons is-centered"
            :title="errorCustomFile ? errorCustomFileMsg : customFileInfo">
         <span class="tag" :class="errorCustomFile ? 'is-danger' : 'is-success'">
@@ -36,8 +36,8 @@
         <a class="button is-small is-loading"></a>
       </div>
     </div>
-    <div class="card card-margin">
-      <div class="card-content card-content-compact">
+    <div class="card my-3">
+      <div class="card-content py-2 p-3">
         <div class="has-text-centered title is-size-6">Data 1</div>
         <div class="control">
           <p>RNA levels from <a href="https://www.proteinatlas.org" target="_blank">proteinAtlas.org</a></p>
@@ -65,8 +65,8 @@
         </div>
       </div>
     </div>
-    <div class="card card-margin">
-      <div class="card-content card-content-compact">
+    <div class="card my-3">
+      <div class="card-content py-2 p-3">
         <div class="has-text-centered title is-size-6">Data 2 (for comparison)</div>
         <div class="control">
           <p>RNA levels from <a href="https://www.proteinatlas.org" target="_blank">proteinAtlas.org</a></p>
@@ -95,7 +95,7 @@
         </div>
       </div>
     </div>
-    <RNAexpression class="card-margin"
+    <RNAexpression class="my-3"
                    :map-type="mapType"
                    :map-name="mapName"
                    @loadedCustomLevels="setCustomTissues($event)"
@@ -328,10 +328,6 @@ export default {
   }
 }
 
-#fileSelectBut {
-  margin-bottom: 0.5rem;
-}
-
 #fileNameBox {
   span.tag {
     width: 90%;
@@ -344,6 +340,5 @@ export default {
       cursor: help;
     }
   }
-  margin-bottom: 1rem;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div id="svgSearch" class="overlay" :class="[{'fullscreen' : fullscreen}]">
+  <div id="mapSearch" class="overlay m-0 p-2" :class="[{'fullscreen' : fullscreen}]">
     <div class="control" :class="{ 'is-loading' : isSearching }">
       <input id="searchInput" data-hj-whitelist
              :class="searchInputClass"
@@ -142,11 +142,9 @@ export default {
 </script>
 
 <style lang="scss">
-  #svgSearch {
+  #mapSearch {
     top: 2rem;
     left: 20%;
-    margin: 0;
-    padding: 15px;
     div {
       display: inline-block;
       vertical-align: middle;

@@ -1,5 +1,5 @@
 <template>
-  <div class="canvasOption overlay">
+  <div class="canvasOption overlay p-2">
     <span class="button" title="Zoom in" @click="zoomIn()"><i class="fa fa-search-plus"></i></span>
     <span class="button" title="Zoom out" @click="zoomOut()"><i class="fa fa-search-minus"></i></span>
     <span class="button" title="Show/Hide genes"
