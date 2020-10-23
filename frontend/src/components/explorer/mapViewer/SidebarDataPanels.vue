@@ -113,7 +113,7 @@
           </div>
         </div>
         <footer class="card-footer">
-          <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
+          <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                        :to="{ name: selectionData.type,
                          params: { model: model.short_name, id: selectionData.data.id } }">
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>

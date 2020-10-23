@@ -36,7 +36,7 @@
         </div>
         <div v-show="!showLoader" v-if="searchResults.length !== 0" class="resList">
           <template v-for="type in resultsOrder">
-            <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection">
+            <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection px-1 py-0">
               <hr v-if="i2 !== 0" class="m-0">
               <router-link class="clickable"
                            :to="{ name: metabolitesAndGenesOnly ? 'interaction': type, params: { model: model.short_name, id: r.id } }"
@@ -46,7 +46,7 @@
               </router-link>
             </div>
             <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-            <hr v-if="searchResults[type] && searchResults[type].length !== 0" class="bhr">
+            <hr v-if="searchResults[type] && searchResults[type].length !== 0" class="bhr p-0">
           </template>
         </div>
         <div v-show="showLoader" class="has-text-centered">
@@ -216,7 +216,6 @@ export default {
   hr {
     &.bhr {
       margin: 5px 7px;
-      padding: 0;
       border-top: 3px double #000000;
     }
   }
@@ -224,10 +223,9 @@ export default {
     display: none;
   }
 
-  .searchResultSection {
-    padding: 0px 10px;
+  .searchResultSection{
     a {
-      display:block;
+      display: block;
       padding: 7px 0px;
     }
   }

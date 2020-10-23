@@ -29,6 +29,7 @@
                     <ul class="menu-list is-unselectable">
                       <li v-for="menuItem in menu" :key="menuItem.title">
                         <a :class="[ {'is-active' : menuItem.title === currentMenu.title}]"
+                           class='pl-2'
                            @click="currentMenu = menuItem">
                           <span class="icon is-medium">
                             <i :class="`fa fa-${menuItem.icon}`"></i>
@@ -266,7 +267,6 @@ export default {
       }
       a {
         color: $white-bis;
-        padding-left: 0.5em;
         line-height: 2;
       }
       a:hover {
