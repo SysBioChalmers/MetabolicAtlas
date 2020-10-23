@@ -1,8 +1,8 @@
 <template>
   <div class="svgbox">
     <div v-if="errorMessage" class="columns is-centered">
-      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-        {{ errorMessage }}
+      <div class="column is-half has-text-centered">
+        <p class="notification has-background-danger-light" style="margin-top: 30%;" v-html="errorMessage"></p>
       </div>
     </div>
     <MapLoader />
