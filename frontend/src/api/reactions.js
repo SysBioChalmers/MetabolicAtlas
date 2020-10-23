@@ -14,7 +14,7 @@ const fetchReactionData = async ({ id, model, version }) => {
 
   return {
     ...data,
-    equation: reformatChemicalReactionHTML(data),
+    equation: reformatChemicalReactionHTML(data, true, model.short_name),
   };
 };
 

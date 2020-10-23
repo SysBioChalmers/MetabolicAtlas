@@ -16,7 +16,7 @@
       </footer>
     </div>
     <template v-if="loading">
-      <div class="loading">
+      <div class="card loading">
         <a class="button is-large is-loading"></a>
       </div>
     </template>
@@ -114,7 +114,7 @@
         </div>
         <footer class="card-footer">
           <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                       :to="{ name: selectionData.type, params: { model: model.short_name, id: idfy(selectionData.data.id) } }"> <!-- eslint-disable-line max-len -->
+                       :to="{ name: selectionData.type, params: { model: model.short_name, id: selectionData.data.id } }"> <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
@@ -136,9 +136,9 @@
 
 <script>
 import { mapState } from 'vuex';
-import { capitalize, reformatStringToLink, idfy } from '../../../helpers/utils';
-import { chemicalFormula, chemicalReaction } from '../../../helpers/chemical-formatters';
-import { default as messages } from '../../../helpers/messages';
+import { capitalize, reformatStringToLink } from '@/helpers/utils';
+import { chemicalFormula, chemicalReaction } from '@/helpers/chemical-formatters';
+import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'SidebarDataPanels',
@@ -147,7 +147,6 @@ export default {
     currentMap: Object,
     mapsData: Object,
     selectionData: Object,
-    loading: Boolean,
   },
   data() {
     return {
@@ -178,6 +177,7 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
+      loading: state => state.maps.loadingElement,
     }),
   },
   methods: {
@@ -201,15 +201,18 @@ export default {
     reformatStringToLink,
     chemicalFormula,
     chemicalReaction,
-    idfy,
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   #sidebar_mapviewer {
     .content p:not(:last-child) {
       margin-bottom: 0.3em;
+    }
+
+    .loading .button {
+      width: 100%;
     }
   }
 </style>

@@ -30,8 +30,6 @@ export default {
   data() {
     return {
       errorMessage: '',
-      tissue1: 'None',
-      tissue2: 'None',
       tissue1Source: '',
       tissue2Source: '',
       dim: null,
@@ -49,6 +47,8 @@ export default {
     ...mapState({
       model: state => state.models.model,
       showing2D: state => state.maps.showing2D,
+      tissue1: state => state.maps.tissue1,
+      tissue2: state => state.maps.tissue2,
       rnaLevels: state => state.humanProteinAtlas.levels,
     }),
     ...mapGetters({
@@ -97,7 +97,7 @@ export default {
     });
 
     EventBus.$on('unselectFirstTissue', (skipCompute) => {
-      this.tissue1 = 'None';
+      this.$store.dispatch('maps/setTissue1', 'None');
       this.tissue1Source = '';
       this.firstRNAlevels = {};
       if (!skipCompute) {
@@ -106,7 +106,7 @@ export default {
     });
 
     EventBus.$on('unselectSecondTissue', (skipCompute) => {
-      this.tissue2 = 'None';
+      this.$store.dispatch('maps/setTissue2', 'None');
       this.tissue2Source = '';
       this.secondRNAlevels = {};
       if (!skipCompute) {
@@ -122,7 +122,7 @@ export default {
   methods: {
     selectFirstTissue(tissue, tissueSource, dim, skipCompute = false) {
       this.dim = dim;
-      this.tissue1 = tissue;
+      this.$store.dispatch('maps/setTissue1', tissue);
       this.tissue1Source = tissueSource;
       if (tissueSource === 'HPA') {
         this.parseHPARNAlevels(tissue, 0, skipCompute ? null : this.computeRNAlevels);
@@ -133,7 +133,7 @@ export default {
     },
     selectSecondTissue(tissue, tissueSource, dim, skipCompute = false) {
       this.dim = dim;
-      this.tissue2 = tissue;
+      this.$store.dispatch('maps/setTissue2', tissue);
       this.tissue2Dource = tissueSource;
       if (tissueSource === 'HPA') {
         this.parseHPARNAlevels(tissue, 1, skipCompute ? null : this.computeRNAlevels);
@@ -145,7 +145,6 @@ export default {
     async getRnaLevels() {
       try {
         await this.$store.dispatch('humanProteinAtlas/getLevels');
-        this.$emit('loadedHPARNALevels', this.HPATissues);
       } catch {
         this.loadErrorMesssage = messages.unknownError;
       }

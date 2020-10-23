@@ -128,7 +128,6 @@ export default {
     },
     async selectModel(modelShortName) {
       if (modelShortName !== this.model.short_name) {
-        this.$store.dispatch('models/selectModel', modelShortName);
         this.$router.replace({ params: { model: modelShortName } });
       }
     },

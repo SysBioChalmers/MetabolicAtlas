@@ -29,13 +29,15 @@ const data = {
     z: 1,
     lx: 0,
     ly: 0,
-    lz: 0,
+    lz: 500,
   },
   searchTerm: '',
   selectedElementId: null,
-  tissue1: null,
-  tissue2: null,
+  tissue1: 'None',
+  tissue2: 'None',
   backgroundColor: BG_COLORS.light,
+  loading: true,
+  loadingElement: false,
 };
 
 const getters = {
@@ -65,11 +67,8 @@ const actions = {
   },
 
   async getSvgMap({ commit }, { mapUrl, model, svgName }) {
+    commit('setSvgMap', null);
     const svgMap = await mapsApi.fetchSvgMap(mapUrl, model, svgName);
-    commit('setSvgMap', svgMap);
-  },
-
-  setSvgMap({ commit }, svgMap) {
     commit('setSvgMap', svgMap);
   },
 
@@ -150,6 +149,14 @@ const actions = {
 
   setTissue2({ commit }, tissue2) {
     commit('setTissue2', tissue2);
+  },
+
+  setLoading({ commit }, loading) {
+    commit('setLoading', loading);
+  },
+
+  setLoadingElement({ commit }, loadingElement) {
+    commit('setLoadingElement', loadingElement);
   },
 
   toggleBackgroundColor({ state, commit }) {
@@ -278,6 +285,14 @@ const mutations = {
 
   setBackgroundColor: (state, color) => {
     state.backgroundColor = color;
+  },
+
+  setLoading: (state, loading) => {
+    state.loading = loading;
+  },
+
+  setLoadingElement: (state, loadingElement) => {
+    state.loadingElement = loadingElement;
   },
 };
 

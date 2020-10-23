@@ -26,8 +26,7 @@
           </div>
           <SidebarDataPanels :dim="dimensionalState(showing2D)"
                              :current-map="currentMap"
-                             :selection-data="selectionData"
-                             :loading="false" />
+                             :selection-data="selectionData" />
           <div class="padding-mobile">
             <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
                @click="showingMapListing = !showingMapListing">
@@ -49,12 +48,10 @@
         <div v-else class="column is-unselectable om-1 fixed-height-desktop fixed-height-mobile">
           <Svgmap v-if="showing2D"
                   :map-data="currentMap"
-                  @loadComplete="handleLoadComplete"
                   @unSelect="unSelect" @updatePanelSelectionData="updatePanelSelectionData">
           </Svgmap>
           <ThreeDViewer v-if="!showing2D"
                         :current-map="currentMap"
-                        @loadComplete="handleLoadComplete"
                         @unSelect="unSelect"
                         @updatePanelSelectionData="updatePanelSelectionData" />
           <transition name="slide-fade">
@@ -216,15 +213,6 @@ export default {
           }
         }
       }
-    },
-    handleLoadComplete(isSuccess, errorMessage) {
-      if (!isSuccess) {
-        this.selectionData.data = null;
-        this.showMessage(errorMessage);
-      }
-      this.$nextTick(() => {
-        EventBus.$emit('reloadGeneExpressionData');
-      });
     },
     showMessage(errorMessage) {
       this.loadMapErrorMessage = errorMessage;

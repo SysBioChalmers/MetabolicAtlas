@@ -7,6 +7,11 @@
           @click="toggleGenes()">
       <i class="fa fa-eye-slash">&thinsp;G</i>
     </span>
+    <span v-if="toggleLabels" class="button" title="Show/Hide labels"
+          style="padding: 4.25px;"
+          @click="toggleLabels()">
+      <i class="fa fa-eye-slash">&thinsp;L</i>
+    </span>
     <span v-if="toggleSubsystems"
           class="button" style="padding: 4.25px;"
           title="Show/Hide subsystem"
@@ -56,6 +61,9 @@ export default {
     toggleGenes: {
       type: Function,
       required: true,
+    },
+    toggleLabels: {
+      type: Function,
     },
     toggleSubsystems: {
       type: Function,
