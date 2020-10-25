@@ -6,9 +6,9 @@
         <span>{{ messages.mapViewerName }}</span>
       </p>
     </header>
-    <div v-if="mapAvailableLimited" class="card-content pl-3 py-2 pr-2">
+    <div v-if="mapAvailableLimited" class="card-content p-2">
       <div v-for="mapKey in mapKeys" :key="mapKey"
-           class="content has-text-left px-0 py-0">
+           class="content has-text-left p-0">
         <template>
           <div>{{ mapKey.toUpperCase() }} maps</div>
           <ul class="py-0 px-4">

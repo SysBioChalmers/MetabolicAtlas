@@ -85,7 +85,7 @@
               </a>
               <a href="https://nbis.se/">
                 <img class="my-0 mx-2" src="./assets/nbislogo-green.png"
-                  title="National Bioinformatics Infrastructure Sweden" />
+                     title="National Bioinformatics Infrastructure Sweden" />
               </a>
               <a href="https://www.scilifelab.se" title="Science for Life Laboratory (SciLifeLab)">
                 <img class="my-0 mx-2" src="./assets/scilifelab.png" />

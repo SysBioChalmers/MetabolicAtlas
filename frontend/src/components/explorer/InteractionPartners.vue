@@ -160,7 +160,7 @@
                     </span>
                   </div>
                 </div>
-                <div id="cy" ref="cy" class="card px-0 py-0">
+                <div id="cy" ref="cy" class="card p0">
                 </div>
               </div>
             </template>

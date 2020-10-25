@@ -29,7 +29,7 @@
                     <ul class="menu-list is-unselectable">
                       <li v-for="menuItem in menu" :key="menuItem.title">
                         <a :class="[ {'is-active' : menuItem.title === currentMenu.title}]"
-                           class='pl-2'
+                           class="pl-2"
                            @click="currentMenu = menuItem">
                           <span class="icon is-medium">
                             <i :class="`fa fa-${menuItem.icon}`"></i>

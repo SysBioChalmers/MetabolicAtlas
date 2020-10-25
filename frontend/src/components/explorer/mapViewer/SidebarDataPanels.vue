@@ -8,7 +8,7 @@
         </p>
       </header>
       <footer class="card-footer">
-        <router-link class="px-0 py-0 is-info is-outlined card-footer-item has-text-centered"
+        <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                      :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
           <span>{{ messages.gemBrowserName }}</span>
@@ -29,13 +29,13 @@
           </p>
         </header>
         <footer class="card-footer">
-          <router-link class="px-0 py-0 is-info is-outlined card-footer-item has-text-centered"
+          <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                        :to="{ name: selectionData.type, params: { model: model.short_name, id: idfy(selectionData.data.id) } }">  <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
           <router-link
-            class="px-0 py-0 is-primary is-outlined card-footer-item has-text-centered"
+            class="p-0 is-primary is-outlined card-footer-item has-text-centered"
             :to="{ name: 'viewer', params: { model: model.short_name, type: selectionData.type, map_id: idfy(selectionData.data.id) }, query: { dim: dim } }">  <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
             <span>Load map</span>
@@ -55,7 +55,7 @@
             </span>
           </a>
         </header>
-        <div v-show="showSelectionCardContent" class="card-content py-2 p-3">
+        <div v-show="showSelectionCardContent" class="card-content px-4">
           <div class="content">
             <template v-for="item in selectedElementDataKeys[selectionData.type]
               .filter(i => selectionData.data[i.name])">
@@ -115,7 +115,7 @@
         <footer class="card-footer">
           <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                        :to="{ name: selectionData.type,
-                         params: { model: model.short_name, id: selectionData.data.id } }">
+                              params: { model: model.short_name, id: selectionData.data.id } }">
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
