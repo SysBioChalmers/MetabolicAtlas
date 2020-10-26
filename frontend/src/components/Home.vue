@@ -22,13 +22,14 @@
         <div class="columns is-hidden-touch">
           <div class="column">
             <div class="card">
-              <div class="columns is-mobile is-multiline margin-fix">
+              <div class="columns is-mobile is-multiline my-0 ml-0">
                 <div id="menu-desktop"
-                     class="column is-narrow has-background-primary has-text-weight-bold is-paddingless">
+                     class="column is-narrow has-background-primary has-text-weight-bold p-0">
                   <aside class="menu">
                     <ul class="menu-list is-unselectable">
                       <li v-for="menuItem in menu" :key="menuItem.title">
                         <a :class="[ {'is-active' : menuItem.title === currentMenu.title}]"
+                           class="pl-2"
                            @click="currentMenu = menuItem">
                           <span class="icon is-medium">
                             <i :class="`fa fa-${menuItem.icon}`"></i>
@@ -103,7 +104,7 @@
           <div v-for="card in cards" :key="card.title" class="column is-half">
             <div class="card card-fullheight">
               <header class="card-header has-background-success ">
-                <p class="card-content has-text-weight-bold has-text-white">{{ card.title }}</p>
+                <p class="card-content py-2 has-text-weight-bold has-text-white">{{ card.title }}</p>
               </header>
               <div class="card-content has-text-justified">
                 <table>
@@ -266,7 +267,6 @@ export default {
       }
       a {
         color: $white-bis;
-        padding-left: 0.5em;
         line-height: 2;
       }
       a:hover {
@@ -297,19 +297,10 @@ export default {
       background-color: $white;
     }
   }
-  .margin-fix {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    margin-left: 0;
-  }
   .more-padding {
     @media only screen and (min-width: $desktop) {
       padding: 1.5rem 2rem 1.5rem 2rem;
     }
-  }
-  .card-header > .card-content {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
   }
   .is-v-aligned {
     display: flex;

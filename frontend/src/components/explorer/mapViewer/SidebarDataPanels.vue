@@ -1,6 +1,6 @@
 <template>
   <div id="sidebar_mapviewer">
-    <div v-if="currentMap" class="card card-margin">
+    <div v-if="currentMap" class="card my-3">
       <header class="card-header" @click.prevent="showMapCardContent = !showMapCardContent">
         <p class="card-header-title is-capitalized is-inline">
           {{ currentMap.type }}:
@@ -8,7 +8,7 @@
         </p>
       </header>
       <footer class="card-footer">
-        <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
+        <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                      :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
           <span>{{ messages.gemBrowserName }}</span>
@@ -22,20 +22,20 @@
     </template>
     <template v-else-if="!selectionData.error">
       <div v-if="selectionData.data && currentMap.type !== 'subsystem' && selectionData.type === 'subsystem'"
-           class="card card-margin">
+           class="card my-3">
         <header class="card-header">
           <p class="card-header-title is-capitalized is-inline is-unselectable">
             {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
           </p>
         </header>
         <footer class="card-footer">
-          <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
+          <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                        :to="{ name: selectionData.type, params: { model: model.short_name, id: idfy(selectionData.data.id) } }">  <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
           <router-link
-            class="is-paddingless is-primary is-outlined card-footer-item has-text-centered"
+            class="p-0 is-primary is-outlined card-footer-item has-text-centered"
             :to="{ name: 'viewer', params: { model: model.short_name, type: selectionData.type, map_id: idfy(selectionData.data.id) }, query: { dim: dim } }">  <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
             <span>Load map</span>
@@ -43,7 +43,7 @@
         </footer>
       </div>
       <div v-else-if="selectionData.data && ['metabolite', 'gene', 'reaction'].includes(selectionData.type)"
-           class="card card-margin">
+           class="card my-3">
         <header class="card-header clickable"
                 @click.prevent="showSelectionCardContent = !showSelectionCardContent">
           <p class="card-header-title is-inline is-capitalized is-unselectable">
@@ -55,7 +55,7 @@
             </span>
           </a>
         </header>
-        <div v-show="showSelectionCardContent" class="card-content card-content-compact">
+        <div v-show="showSelectionCardContent" class="card-content px-4">
           <div class="content">
             <template v-for="item in selectedElementDataKeys[selectionData.type]
               .filter(i => selectionData.data[i.name])">
@@ -113,8 +113,9 @@
           </div>
         </div>
         <footer class="card-footer">
-          <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                       :to="{ name: selectionData.type, params: { model: model.short_name, id: selectionData.data.id } }"> <!-- eslint-disable-line max-len -->
+          <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
+                       :to="{ name: selectionData.type,
+                              params: { model: model.short_name, id: selectionData.data.id } }">
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
@@ -122,7 +123,7 @@
       </div>
     </template>
     <template v-else>
-      <div class="card card-margin">
+      <div class="card my-3">
         <header class="card-header clickable">
           <p class="card-header-title is-inline is-unselectable has-text-weight-normal">
             This {{ selectionData.type }} does not exist in {{ model.short_name }}.

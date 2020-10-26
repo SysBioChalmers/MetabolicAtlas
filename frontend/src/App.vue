@@ -3,17 +3,17 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <nav id="navbar" class="navbar has-background-primary-lighter" role="navigation" aria-label="main navigation">
       <div class="container is-fullhd">
-        <div class="navbar-brand">
+        <div class="navbar-brand ml-2">
           <router-link class="navbar-item" :to="{ name: 'home' }" active-class="" @click.native="isMobileMenu = false">
             <img :src="require('./assets/logo.png')" />
           </router-link>
-          <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }" @click="isMobileMenu = !isMobileMenu">
+          <div class="navbar-burger pr-2" :class="{ 'is-active': isMobileMenu }" @click="isMobileMenu = !isMobileMenu">
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
           </div>
         </div>
-        <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
+        <div id="#nav-menu" class="navbar-menu mr-2" :class="{ 'is-active': isMobileMenu }">
           <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
             <router-link v-if="$route.path.includes('/explore')"
                          id="selectedModelLink"
@@ -41,7 +41,7 @@
                        }">
                       {{ menuElem.displayName }}
                     </a>
-                    <div class="navbar-dropdown has-background-primary-lighter is-paddingless">
+                    <div class="navbar-dropdown has-background-primary-lighter p-0">
                       <template v-for="(subMenuElem) in menuElem.subMenuElems">
                         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                         <router-link class="navbar-item is-unselectable has-background-primary-lighter"
@@ -59,7 +59,7 @@
       </div>
     </nav>
     <router-view></router-view>
-    <footer id="footer" class="footer has-background-primary-lighter is-size-6">
+    <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
       <div class="columns is-gapless">
         <div class="column is-7-desktop is-5-tablet has-text-centered-mobile">
           <p>2020 ©
@@ -72,22 +72,23 @@
           <div class="content has-text-right has-text-centered-mobile is-size-2-mobile">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
-                <img src="./assets/sysbio-logo.png" />
+                <img class="my-0 mx-2" src="./assets/sysbio-logo.png" />
               </a>
               <a href="http://www.chalmers.se" title="Chalmers University of Technology">
-                <img src="./assets/chalmers.png" />
+                <img class="my-0 mx-2" src="./assets/chalmers.png" />
               </a>
               <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
-                <img src="./assets/wallenberg.gif" />
+                <img class="my-0 mx-2" src="./assets/wallenberg.gif" />
               </a>
               <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
-                <img src="./assets/wpcr.jpg" />
+                <img class="my-0 mx-2" src="./assets/wpcr.jpg" />
               </a>
               <a href="https://nbis.se/">
-                <img src="./assets/nbislogo-green.png" title="National Bioinformatics Infrastructure Sweden" />
+                <img class="my-0 mx-2" src="./assets/nbislogo-green.png"
+                     title="National Bioinformatics Infrastructure Sweden" />
               </a>
               <a href="https://www.scilifelab.se" title="Science for Life Laboratory (SciLifeLab)">
-                <img src="./assets/scilifelab.png" />
+                <img class="my-0 mx-2" src="./assets/scilifelab.png" />
               </a>
             </p>
           </div>
@@ -95,7 +96,7 @@
       </div>
     </footer>
     <div v-if="showCookieMsg" id="cookies" class="has-background-grey">
-      <div class="column has-text-centered" style="padding: 0.25rem">
+      <div class="column has-text-centered p-1">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website.
           By continuing you are agreeing to our
@@ -205,19 +206,9 @@ html {
   background-color: lightgray;
 }
 
-.card-margin {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
 m, .clickable {
   cursor: pointer;
 }
-
-.card-content-compact {
-  padding: 0.75rem;
-}
-
 
 .content h1,h2,h3,h4,h5,h6 {
   margin-top: 1em;
@@ -229,10 +220,6 @@ m, .clickable {
 
 .hoverable:hover {
   box-shadow: $shadow-primary-light;
-}
-
-.section-no-top {
-  padding-top: 0;
 }
 
 #app {
@@ -273,14 +260,9 @@ m, .clickable {
     a {
       font-weight: 400;
     }
-    margin-left: 0.5rem;
-  }
-  .navbar-menu {
-    margin-right: 0.5rem;
   }
   .navbar-burger{
     height: 4rem;
-    padding-right: 0.5rem;
     span {
       height: 2px;
     }
@@ -301,11 +283,8 @@ m, .clickable {
 }
 
 .footer {
-  padding-bottom: 1em;
-  padding-top: 1em;
   img {
     max-height: 20px;
-    margin: 0 0.5rem;
   }
 }
 
@@ -327,16 +306,6 @@ m, .clickable {
   }
 }
 
-#cytoTable .tag {
-  height: 1.4rem;
-  margin: 2px 3px;
-  user-select: none;
-  &.hl {
-    background: $primary;
-    color: whitesmoke;
-  }
-}
-
 #integrated {
   .card {
     height: 100%;
@@ -345,20 +314,8 @@ m, .clickable {
     .card-header {
       flex-grow: 1;
     }
-    .card-footer {
-    }
   }
   margin-bottom: 2rem;
-}
-
-#gem-list-modal {
-  .modal-content {
-    padding: 2rem;
-  }
-}
-
-#documentation hr {
-   margin-top: 2.75rem;
 }
 
 span.sc {

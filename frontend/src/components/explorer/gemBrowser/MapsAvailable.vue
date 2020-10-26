@@ -6,12 +6,12 @@
         <span>{{ messages.mapViewerName }}</span>
       </p>
     </header>
-    <div v-if="mapAvailableLimited" class="card-content">
+    <div v-if="mapAvailableLimited" class="card-content p-2">
       <div v-for="mapKey in mapKeys" :key="mapKey"
-           class="content has-text-left is-paddingless">
+           class="content has-text-left p-0">
         <template>
           <div>{{ mapKey.toUpperCase() }} maps</div>
-          <ul>
+          <ul class="py-0 px-4">
             <template v-for="mapType in Object.keys(mapAvailableLimited[mapKey])">
               <template v-for="map in mapAvailableLimited[mapKey][mapType]">
                 <li :key="map.id">
@@ -98,14 +98,7 @@ export default {
 
 <style lang="scss" scoped>
 .card-content {
-  padding: 0.75em 0.5em 0.5em;
   overflow-y: auto;
   max-height: 400px;
-
-  .content {
-    ul {
-      margin: 0 1rem;
-    }
-  }
 }
 </style>

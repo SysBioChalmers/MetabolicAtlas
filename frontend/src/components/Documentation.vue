@@ -13,7 +13,7 @@
             <ul class="menu-list">
               <li>
                 <a href="#GEM-Browser">
-                  <span class="icon has-text-info"><i class="fa fa-table"></i></span>
+                  <span class="icon pr-5 has-text-info"><i class="fa fa-table"></i></span>
                   <b>GEM Browser</b>
                 </a>
                 <ul class="menu-list">
@@ -25,14 +25,14 @@
                   <li><a href="#GEM-Browser-Search">Search</a></li>
                 </ul>
                 <a href="#Interaction-Partners">
-                  <span class="icon has-text-info"><i class="fa fa-connectdevelop"></i></span>
+                  <span class="icon pr-5 has-text-info"><i class="fa fa-connectdevelop"></i></span>
                   <b>Interaction Partners</b>
                 </a>
                 <ul class="menu-list">
                   <li><a href="#IP-Search">Search</a></li>
                 </ul>
                 <a href="#Map-Viewer">
-                  <span class="icon has-text-info"><i class="fa fa-map-o"></i></span>
+                  <span class="icon pr-5 has-text-info"><i class="fa fa-map-o"></i></span>
                   <b>Map Viewer</b>
                 </a>
                 <ul class="menu-list">
@@ -41,7 +41,7 @@
                   <li><a href="#Data-overlay">Data Overlay</a></li>
                 </ul>
                 <a href="#Global-search">
-                  <span class="icon has-text-info"><i class="fa fa-search"></i></span>
+                  <span class="icon pr-5 has-text-info"><i class="fa fa-search"></i></span>
                   <b>Global search</b>
                 </a>
                 <a href="#GEMs"><b>GEMs</b></a>
@@ -66,9 +66,9 @@
           To browse our integrated GEMs, visit the <router-link :to="{ name: 'gems'}">GEM Repository</router-link> page.<br>
           The <i>GEM Browser</i> and the <i>Map Viewer</i> are closely connected, and users can navigate between the two tools using the buttons in the top navigation bar.
 
-          <hr>
+          <hr class="mt-6">
           <h4 id="GEM-Browser" class="is-info is-size-4">
-            <span class="icon is-large has-text-info"><i class="fa fa-table"></i></span>
+            <span class="icon pr-5 is-large has-text-info"><i class="fa fa-table"></i></span>
             GEM Browser
           </h4>
           The <i>GEM Browser</i> is a set of dedicated pages for different components of the model; reactions, metabolites, genes, subsystems, and compartments. Each of these pages contains a button on right, to report a problem or ask questions to the modellers.
@@ -108,9 +108,9 @@
           Search for any term in metabolites, genes, reactions, subsystems, or compartments information. The results links redirect to the corresponding <i>GEM Browser</i> page of the component clicked.<br>
           The <i>GEM Browser</i> search is restricted to the selected GEM and limited to 50 results per component type. Alternatively, users can click on the banner under the search input field to run a <i>Global Search</i>, where the term is searched among all the integrated models' components and is unrestricted. To learn more about the search term possiblities, go to the <a href="#Global-Search">Global Search</a> section of this page.
 
-          <hr>
+          <hr class="mt-6">
           <h4 id="Interaction-Partners" class="is-size-4">
-            <span class="icon is-large has-text-info"><i class="fa fa-connectdevelop"></i></span>
+            <span class="icon pr-5 is-large has-text-info"><i class="fa fa-connectdevelop"></i></span>
             Interaction Partners
           </h4>
           For a given metabolite or gene, this tool renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. a edge between two nodes maybe represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, the user is prompted before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. Users can left-click a node to display a context menu with 3 options:<br>
@@ -136,9 +136,9 @@
           Search for any term in metabolites or genes information. The results links redirect to the corresponding <i>Interaction Partners</i> page of the component clicked.<br>
           The <i>Interaction Partners</i> search is also restricted to the selected GEM and limited to 50 results per component type.
 
-          <hr>
+          <hr class="mt-6">
           <h4 id="Map-Viewer" class="is-size-4">
-            <span class="icon is-large has-text-info"><i class="fa fa-map-o"></i></span>
+            <span class="icon pr-5 is-large has-text-info"><i class="fa fa-map-o"></i></span>
             Map Viewer
           </h4>
           The <i>Map Viewer</i> is - similar to the <i>Interaction Partners</i> and the <i>GEM Browser</i> - a separate tool, accessible after an integrated model has been selected. It includes a 2D viewer to vizualize metabolic maps in SVG format, and a 3D viewer to explore the metabolic network in 3 dimensions. Users can easly toggle between the <i>GEM Browser</i> and <i>Map Viewer</i> using the buttons in the top navigation bar.<br>
@@ -157,8 +157,8 @@
           Users can also hover a node to view its name/id or left-clik on a node (once the graph has stopped moving) to display some of its information in the sidebar. Additonal information on the corresponding selected element can be accessed by clicking the <i>GEM Browser</i> button.<br>
 
           <h5 id="Data-overlay" class="is-size-5">Data overlay</h5>
-          <div class="columns is-marginless">
-            <div class="column is-paddingless is-8 content">
+          <div class="columns m-0">
+            <div class="column p-0 is-8 content">
               Gene expression levels for genes from <a href="https://www.proteinatlas.org/about/releases#18" target="_blank">The Human Protein Atlas v18</a> can be loaded using the <i>Data overlay</i> sidebar on the right side. Once selected, the RNA levels corresponding to the chosen tissue will be used to color each gene on the respective map, as shown in the legend. To clear the RNA levels, select the <i>None</i> option. RNA levels are available for both the 2D and 3D Map Viewer. The data is obtained from version 18 of the Protein Atlas with the units in log<sub>2</sub>(TPM+1) associated with a gradient colorbar.<br>
               The <i>Data overlay</i> sidebar allows for the upload of user-generated data in TSV format. If the file is parsed correctly, the file name will be highlighted green; in case errors are detected, it will be highlighted red. The expected format is at least two columns with headers using tab delimiters. For an exact description of the TSV file format <a target="_blank" href="https://en.wikipedia.org/wiki/Tab-separated_values">see the Wiki page</a>. The first column has to contain the gene IDs, identical to the ones in the model. Any missing genes or missing values will be assigned an "n/a" value and highlighted in gray. The rest of the columns act as data series, with each column being a new series, as shown in the example to the right. The headers of these data series will be shown automatically in the dropdown options for the uploaded data. The values are expected in TPM.<br>
               If multiple data are selected in the <i>Data overlay</i> sidebar, the overlay will switch to the comparison mode, using a differently colored legend for the log fold change between the selected data.<br>
@@ -176,9 +176,9 @@
             </div>
           </div>
 
-          <hr>
+          <hr class="mt-6">
           <h4 id="Global-search" class="is-size-4">
-            <span class="icon has-text-info"><i class="fa fa-search"></i></span>
+            <span class="icon pr-5 has-text-info"><i class="fa fa-search"></i></span>
             Global search
           </h4>
           The <i>Global search</i> page queries all the integrated metabolic models. Each metabolic component has its own results table accessible via the dedicated tab. Tabs are inactivated when no results are found. The search text is not restricted to the visible columns; for example, searching an MetaNetX ID will return results for the metabolites and/or reactions matching the ID even though the MetaNetX column is not in the table. The search algorithm matches partial names of components: searching for 'cholesterol' will output all metabolites containing the substring 'cholesterol'. When the name of a metabolite is provided, all metabolites matching or partially matching this name be returned, in addition to a the list of all reactions that involve these matching metabolites. The global search is also able to query reactions in a more advanced way using special patterns:
@@ -189,7 +189,7 @@
             <li>Combine the three patterns to refine the results even further.</li>
           </ul>
 
-          <hr>
+          <hr class="mt-6">
           <h4 id="GEMs" class="is-size-4">GEMs</h4>
           A genome-scale metabolic model (GEM) is a mathematical representation of a metabolic reaction network.
 
@@ -212,7 +212,7 @@
           <span class="has-text-weight-bold lab">Password:</span> leave blank<br>
           <span class="has-text-weight-bold lab">Port:</span> 21
 
-          <hr>
+          <hr class="mt-6">
           <h4 id="Resources" class="is-size-4">Resources</h4>
           Lists of the most relevant software tools, algorithms, or databases published by the SysBio group.
 
@@ -246,8 +246,5 @@ export default {
 <style lang="scss" scoped>
   .menu-list > a {
     padding-left: 0;
-  }
-  .icon {
-    padding-right: 1.2rem;
   }
 </style>

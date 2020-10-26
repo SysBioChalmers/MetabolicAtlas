@@ -18,7 +18,7 @@ import Documentation from '@/components/Documentation';
 import Repository from '@/components/Repository';
 import CompareModels from '@/components/CompareModels';
 import FourOFour from '@/components/FourOFour';
-import Resources from './components/Resources';
+import Resources from '@/components/Resources';
 
 Vue.use(VueRouter);
 
