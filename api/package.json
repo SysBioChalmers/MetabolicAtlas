@@ -10,7 +10,6 @@
     "lint": "eslint ./src --fix"
   },
   "dependencies": {
-    "compression": "^1.7.4",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "neo4j-driver": "^4.1.1",

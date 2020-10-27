@@ -22,11 +22,11 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.25'
-          memory: 1.5G
+          cpus: '0.35'
+          memory: 2.5G
         limits:
-          cpus: '0.30'
-          memory: 2G
+          cpus: '0.40'
+          memory: 3G
 
   api:
     environment:
@@ -36,11 +36,11 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.35'
-          memory: 2.5G
+          cpus: '0.25'
+          memory: 1.5G
         limits:
-          cpus: '0.40'
-          memory: 3G
+          cpus: '0.30'
+          memory: 2G
 
   neo4j:
     environment:
