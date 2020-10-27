@@ -70,7 +70,6 @@
 import { mapGetters, mapState } from 'vuex';
 import $ from 'jquery';
 import { default as messages } from '@/helpers/messages';
-import { getChemicalReaction } from '@/helpers/utils';
 
 export default {
   name: 'GemSearch',
@@ -179,12 +178,8 @@ export default {
       const re = new RegExp(`(${searchTerm})`, 'ig');
       let s = '';
       this.itemKeys[type].filter(key => element[key]).forEach((key) => {
-        if (key === 'equation') {
-          s = `${s} ‒ ${getChemicalReaction(element[key]).replace(re, '<b>$1</b>')}`;
-        } else {
-          // do not HL the compartment name
-          s = key === 'compartment_str' ? `${s} ‒ ${element[key]}` : `${s} ‒ ${element[key].replace(re, '<b>$1</b>')}`;
-        }
+        // do not HL the compartment name
+        s = key === 'compartment_str' ? `${s} ‒ ${element[key]}` : `${s} ‒ ${element[key].replace(re, '<b>$1</b>')}`;
       });
       if (s.length !== 0) {
         return s.slice(2);
@@ -227,6 +222,9 @@ export default {
     a {
       display: block;
       padding: 7px 0px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }

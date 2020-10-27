@@ -102,18 +102,30 @@ RETURN apoc.map.mergeList(apoc.coll.flatten(
 };
 
 
-const fetchReactions = async ({ ids, model, version }) => {
+const fetchReactions = async ({ ids, model, version, includeMetabolites }) => {
   if (!ids) {
     return null;
   }
 
-  const statement = `
+  let statement = `
 WITH ${JSON.stringify(ids)} as rids
 UNWIND rids as rid
 CALL apoc.cypher.run("
   MATCH (rs:ReactionState)-[${version}]-(:Reaction:${model} {id: $rid})
   RETURN rs { id: $rid, .* } as data
+`;
+
+  if (includeMetabolites) {
+    statement += `
+  UNION
   
+  MATCH (r:Reaction:${model} {id: $rid})-[cmE${version}]-(cm:CompartmentalizedMetabolite)-[${version}]-(:Metabolite)-[${version}]-(ms:MetaboliteState)
+  MATCH (cm)-[${version}]-(:Compartment)-[${version}]-(cs:CompartmentState)
+  RETURN { id: $rid, metabolites: COLLECT(DISTINCT(ms {id: cm.id, compartment: cs.name, fullName: COALESCE(ms.name, '') + ' [' + COALESCE(cs.letterCode, '') + ']', stoichiometry: cmE.stoichiometry, outgoing: startnode(cmE)=cm, .*})) } as data
+`;
+  }
+
+  statement += `
   UNION
   
   MATCH (:Reaction:${model} {id: $rid})-[${version}]-(s:Subsystem)-[${version}]-(ss:SubsystemState)
@@ -329,7 +341,7 @@ LIMIT ${limit}
     fetchCompartmentalizedMetabolites({ ids: ids["CompartmentalizedMetabolite"], model, version: v, limit }),
     fetchCompartmentalizedMetabolites({ ids: ids["Metabolite"], model, version: v, limit, viaMetabolties: true }),
     fetchGenes({ ids: ids["Gene"], model, version: v }),
-    fetchReactions({ ids: ids["Reaction"], model, version: v }),
+    fetchReactions({ ids: ids["Reaction"], model, version: v, includeMetabolites: !!limit }),
     fetchSubsystems({ ids: ids["Subsystem"], model, version: v, includeCounts: true }),
     fetchCompartments({ ids: ids["Compartment"], model, version: v, includeCounts: true }),
   ]);

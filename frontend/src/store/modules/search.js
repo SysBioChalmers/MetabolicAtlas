@@ -32,7 +32,10 @@ const categorizeResults = (results) => {
 };
 
 const getters = {
-  globalResultsEmpty: state => Object.keys(state.globalResults).length === 0,
+  globalResultsEmpty: state => Object.values(state.globalResults).reduce((s, r) => {
+    const components = Object.keys(r).filter(k => k !== 'name');
+    return s + components.reduce((t, c) => t + r[c].length, 0);
+  }, 0) === 0,
 
   categorizedGlobalResults: state => categorizeResults(state.globalResults),
 
