@@ -60,7 +60,7 @@
                   </span>
                 </p>
               </header>
-              <div class="card-content">
+              <div class="card-content py-2">
                 <div class="content">
                   <img :src="tool.img" />
                 </div>
@@ -128,7 +128,6 @@ export default {
     },
     async selectModel(modelShortName) {
       if (modelShortName !== this.model.short_name) {
-        this.$store.dispatch('models/selectModel', modelShortName);
         this.$router.replace({ params: { model: modelShortName } });
       }
     },

@@ -17,7 +17,7 @@
             <div class="card">
               <header class="card-header clickable has-background-primary-lighter"
                       @click="selectModel(model.short_name)">
-                <p class="card-header-title card-content has-text-primary">
+                <p class="card-header-title py-2 has-text-primary">
                   {{ model.short_name }} {{ model.version }}
                 </p>
                 <div class="card-header-icon">
@@ -26,7 +26,7 @@
                   </span>
                 </div>
               </header>
-              <div class="card-content card-fullheight">
+              <div class="card-content py-2 card-fullheight">
                 <p class="has-text-justified">{{ model.full_name }}</p><br>
                 <p>
                   Reactions: {{ model.reaction_count }}<br>
@@ -75,7 +75,8 @@
         <br>
         <div v-if="showModelId" id="gem-list-modal" class="modal is-active">
           <div class="modal-background" @click="selectModel(null)"></div>
-          <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white"
+          <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
+            has-background-white"
                tabindex="0" @keyup.esc="showModelId = ''">
             <div id="modal-info" class="model-table">
               <h4 class="title is-size-4">
@@ -89,7 +90,7 @@
                 </template>
               </h4>
               {{ selectedModel.description }}<br><br>
-              <table class="table main-table is-fullwidth is-marginless">
+              <table class="table main-table is-fullwidth m-0">
                 <tbody>
                   <tr v-for="field in model_fields" :key="field.name">
                     <template v-if="['reaction_count', 'metabolite_count', 'gene_count'].includes(field.name)">

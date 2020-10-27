@@ -1,11 +1,11 @@
 <template>
-  <div class="svgbox">
+  <div class="svgbox p-0 m-0">
     <div v-if="errorMessage" class="columns is-centered">
-      <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-        {{ errorMessage }}
+      <div class="column is-half has-text-centered">
+        <p class="notification has-background-danger-light" style="margin-top: 30%;" v-html="errorMessage"></p>
       </div>
     </div>
-    <MapLoader :loading="showLoader" />
+    <MapLoader />
     <div id="svg-wrapper" v-html="svgContent">
     </div>
     <MapControls wrapper-elem-selector=".svgbox" :is-fullscreen="isFullscreen"
@@ -13,7 +13,8 @@
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
                  :toggle-subsystems="toggleSubsystems" :download-canvas="downloadCanvas" />
     <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
-               :fullscreen="isFullscreen" @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
+               :fullscreen="isFullscreen"
+               @searchOnMap="searchIDsOnMap" @centerViewOn="centerElementOnSVG"
                @unHighlightAll="unHighlight" />
     <div id="tooltip" ref="tooltip"></div>
   </div>
@@ -48,7 +49,6 @@ export default {
   },
   data() {
     return {
-      showLoader: true,
       errorMessage: '',
 
       isFullscreen: false,
@@ -57,8 +57,10 @@ export default {
         maxScale: 1,
         minScale: 0.03,
         step: 0.1,
+        canvas: true,
       },
       currentZoomScale: 1,
+      lastWheelZoomTime: Date.now(),
 
       selectedNodesOnMap: [],
       selectedElemsHL: [],
@@ -149,7 +151,7 @@ export default {
         this.errorMessage = messages.mapNotFound;
         return;
       }
-      this.showLoader = true;
+      this.$store.dispatch('maps/setLoading', true);
       const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
       await this.$store.dispatch('maps/getSvgMap', payload);
     },
@@ -191,7 +193,7 @@ export default {
       this.panToCoords({ panX: x, panY: y, zoom });
       this.zoomToValue(zoom);
 
-      const payload = { x, y, z: zoom, lx: 0, ly: 0, lz: 0 };
+      const payload = { ...this.coords, x, y, z: zoom };
       this.$store.dispatch('maps/setCoords', payload);
     },
     updateURLCoord(e) {
@@ -199,7 +201,7 @@ export default {
       const x = e.detail.x || 0;
       const y = e.detail.y || 0;
 
-      const payload = { x, y, z, lx: 0, ly: 0, lz: 0 };
+      const payload = { ...this.coords, x, y, z };
       this.$store.dispatch('maps/setCoords', payload);
     },
     processSelSearchParam() {
@@ -217,22 +219,28 @@ export default {
       this.selectElement(elms[0] || null, true);
     },
     loadSvgPanzoom() {
+      if (!this.svgContent) {
+        return;
+      }
+
       this.initialLoadWithParams = !!this.$route.query.coords;
 
       // load the lib svgPanzoom on the SVG loaded
       const panzoomElem = document.getElementById('svg-wrapper');
-      if (this.panzoom) {
-        this.panzoom.destroy(); // clean reset
-      }
       this.panzoom = Panzoom(panzoomElem, this.panzoomOptions);
 
       setTimeout(() => {
+        // reset
+        this.panzoom.reset();
+        panzoomElem.parentElement.removeEventListener('wheel', this.handleWheelEvent);
+
         // bind event listeners
         panzoomElem.addEventListener('panzoomchange', this.updateURLCoord);
-        panzoomElem.addEventListener('panzoomzoom', (e) => { // eslint-disable-line no-unused-vars
+        panzoomElem.addEventListener('panzoomzoom', (e) => {
           this.currentZoomScale = e.detail.scale;
         });
-        panzoomElem.parentElement.addEventListener('wheel', this.panzoom.zoomWithWheel);
+
+        panzoomElem.parentElement.addEventListener('wheel', this.handleWheelEvent);
 
         const svg = document.querySelector('#svg-wrapper svg').getBBox();
         const svgBox = document.querySelector('.svgbox');
@@ -254,8 +262,26 @@ export default {
         });
 
         this.processSelSearchParam();
-        this.showLoader = false;
+        this.$store.dispatch('maps/setLoading', false);
       }, 0);
+    },
+    handleWheelEvent(event) {
+      event.preventDefault();
+
+      // In certain browsers such as Safari and Firefox,
+      // the wheel event triggers too many zooms to be handled
+      // properly so that the focal point becomes wrong.
+      // This acts as a little bumper to prevent as many zoom events.
+      // It is added for all browsers as it is less computationally
+      // expensive and helps out performance for bigger maps.
+      setTimeout(() => {
+        const timeDelta = Date.now() - this.lastWheelZoomTime;
+
+        if (timeDelta > 50) {
+          this.lastWheelZoomTime = Date.now();
+          this.panzoom.zoomWithWheel(event, { step: 0.3 });
+        }
+      });
     },
     downloadCanvas() {
       const blob = new Blob([document.getElementById('svg-wrapper').innerHTML], {
@@ -339,7 +365,7 @@ export default {
         return;
       }
       // const zoom = element.is('text') ? 0.8 : 1; zoom out a bit when centering a subsystem label
-      this.panToCoords({ panX: coords[4], panY: coords[5], zoom: 1, center: true });
+      this.panToCoords({ panX: -coords[4], panY: -coords[5], zoom: 1, center: true });
     },
     getSvgElemCoordinates(el) {
       // read and parse the transform attribut
@@ -422,22 +448,25 @@ export default {
 
       this.$emit('startSelection');
       try {
-        const payload = { model: this.model.short_name, type, id };
+        this.$store.dispatch('maps/setLoadingElement', true);
+        const payload = {
+          model: this.model.apiName,
+          version: this.model.apiVersion,
+          type,
+          id,
+        };
         await this.$store.dispatch('maps/getSelectedElement', payload);
         // TODO: consider refactoring more of this block into Vuex
-        let data = this.selectedElement;
-        if (type === 'reaction') {
-          data = data.reaction;
-          data.equation = this.reformatChemicalReactionHTML(data, true);
-        }
-        selectionData.data = data;
+        selectionData.data = this.selectedElement;
         this.selectedItemHistory[id] = selectionData.data;
         this.$emit('updatePanelSelectionData', selectionData);
         this.$emit('endSelection', true);
+        this.$store.dispatch('maps/setLoadingElement', false);
       } catch {
         this.$emit('updatePanelSelectionData', selectionData);
         this.$set(selectionData, 'error', true);
         this.$emit('endSelection', false);
+        this.$store.dispatch('maps/setLoadingElement', false);
       }
     },
     unSelectElement() {
@@ -448,6 +477,12 @@ export default {
     },
     clientFocusX() {
       const svgBox = document.querySelector('.svgbox');
+
+      // This is the same as the $tablet (scss variable) width
+      if (window.innerWidth < 660) {
+        return svgBox.offsetWidth / 2;
+      }
+
       const sidebar = document.querySelector('#mapSidebar');
       return (svgBox.offsetWidth / 2) + sidebar.offsetWidth;
     },
@@ -488,12 +523,19 @@ export default {
 
 .svgbox {
   position: relative;
-  margin: 0;
-  padding: 0;
   width: 100%;
   height:100%;
   &.fullscreen {
     background: white;
+  }
+
+  #svg-wrapper {
+    position: relative;
+
+    svg {
+      position: relative;
+      display: block;
+    }
   }
 }
 

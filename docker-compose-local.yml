@@ -14,7 +14,7 @@ services:
   frontend:
     container_name: frontend
     build: frontend
-    command: npm run serve
+    command: yarn serve
     environment:
       - VUE_APP_FTP_SERVER=localhost
       - VUE_APP_SVGMAPURL=http://localhost/api/v2/svg

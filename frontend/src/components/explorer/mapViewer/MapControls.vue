@@ -1,11 +1,16 @@
 <template>
-  <div class="canvasOption overlay">
+  <div class="canvasOption overlay p-2">
     <span class="button" title="Zoom in" @click="zoomIn()"><i class="fa fa-search-plus"></i></span>
     <span class="button" title="Zoom out" @click="zoomOut()"><i class="fa fa-search-minus"></i></span>
     <span class="button" title="Show/Hide genes"
           style="padding: 4.25px;"
           @click="toggleGenes()">
       <i class="fa fa-eye-slash">&thinsp;G</i>
+    </span>
+    <span v-if="toggleLabels" class="button" title="Show/Hide labels"
+          style="padding: 4.25px;"
+          @click="toggleLabels()">
+      <i class="fa fa-eye-slash">&thinsp;L</i>
     </span>
     <span v-if="toggleSubsystems"
           class="button" style="padding: 4.25px;"
@@ -56,6 +61,9 @@ export default {
     toggleGenes: {
       type: Function,
       required: true,
+    },
+    toggleLabels: {
+      type: Function,
     },
     toggleSubsystems: {
       type: Function,

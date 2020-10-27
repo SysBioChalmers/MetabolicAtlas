@@ -5,14 +5,14 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 
 export default {
   name: 'MapLoader',
-  props: {
-    loading: {
-      type: Boolean,
-      required: true,
-    },
+  computed: {
+    ...mapState({
+      loading: state => state.maps.loading,
+    }),
   },
 };
 

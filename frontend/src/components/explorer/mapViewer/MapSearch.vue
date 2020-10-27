@@ -1,11 +1,11 @@
 <template>
-  <div id="svgSearch" class="overlay" :class="[{'fullscreen' : fullscreen}]">
+  <div id="mapSearch" class="overlay m-0 p-2" :class="[{'fullscreen' : fullscreen}]">
     <div class="control" :class="{ 'is-loading' : isSearching }">
       <input id="searchInput" data-hj-whitelist
              :class="searchInputClass"
              title="Exact search by id, name, alias. Press Enter for results" class="input"
              placeholder="Exact search by id, name, alias"
-             :disabled="!ready"
+             :disabled="loading"
              :value="searchTerm"
              type="text" @input="e => handleChange(e.target.value)"
              @keyup.enter="e => search(e.target.value)" />
@@ -39,7 +39,6 @@ export default {
   name: 'MapSearch',
   props: {
     matches: Array, // list of matched objects on the map/graph
-    ready: Boolean,
     fullscreen: Boolean,
   },
   data() {
@@ -61,6 +60,7 @@ export default {
       model: state => state.models.model,
       searchTerm: state => state.maps.searchTerm,
       idsFound: state => state.maps.idsFound,
+      loading: state => state.maps.loading,
     }),
   },
   watch: {
@@ -142,11 +142,9 @@ export default {
 </script>
 
 <style lang="scss">
-  #svgSearch {
+  #mapSearch {
     top: 2rem;
     left: 20%;
-    margin: 0;
-    padding: 15px;
     div {
       display: inline-block;
       vertical-align: middle;

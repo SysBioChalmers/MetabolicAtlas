@@ -9,22 +9,32 @@
     <MapControls wrapper-elem-selector=".viewer-container" :is-fullscreen="isFullscreen"
                  :zoom-in="zoomIn" :zoom-out="zoomOut"
                  :toggle-full-screen="toggleFullscreen" :toggle-genes="toggleGenes"
-                 :toggle-background-color="toggleBackgroundColor" />
-    <MapSearch ref="mapsearch" :matches="[]" :fullscreen="isFullscreen"
-               :ready="!showLoader" />
-    <MapLoader :loading="showLoader" />
+                 :toggle-labels="toggleLabels"
+                 :toggle-background-color="toggleBackgroundColor"
+                 :style="{'z-index': network.nodes.length + 1}" />
+    <MapSearch ref="mapsearch" :matches="searchedNodesOnMap"
+               :fullscreen="isFullscreen" :style="{'z-index': network.nodes.length + 1}"
+               @searchOnMap="searchIDsOnMap" @centerViewOn="centerElement"
+               @unHighlightAll="unHighlight" />
+    <MapLoader />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex';
-import { MetAtlasViewer } from '@metabolicatlas/mapviewer-3d';
+import { MetAtlasViewer } from '@metabolicatlas/3d-network-viewer';
 import { default as EventBus } from '@/event-bus';
 import MapControls from '@/components/explorer/mapViewer/MapControls';
 import MapLoader from '@/components/explorer/mapViewer/MapLoader';
 import MapSearch from '@/components/explorer/mapViewer/MapSearch';
 import { default as messages } from '@/helpers/messages';
 import { default as colorToRGBArray } from '@/helpers/colors';
+
+const NODE_TEXTURES = [
+  { group: 'e', sprite: '/sprite_round.png' },
+  { group: 'r', sprite: '/sprite_square.png' },
+  { group: 'm', sprite: '/sprite_triangle.png' },
+];
 
 export default {
   name: 'ThreeDViewer',
@@ -44,8 +54,8 @@ export default {
       errorMessage: '',
       messages,
       controller: null,
-      showLoader: true,
       isFullscreen: false,
+      searchedNodesOnMap: [],
     };
   },
   computed: {
@@ -81,7 +91,7 @@ export default {
   },
   methods: {
     async loadNetwork() {
-      this.showLoader = true;
+      this.$store.dispatch('maps/setLoading', true);
 
       const payload = {
         model: this.model.apiName,
@@ -90,8 +100,8 @@ export default {
         id: this.currentMap.id,
       };
       await this.$store.dispatch('maps/get3DMapNetwork', payload);
-      this.renderNetwork();
-      this.showLoader = false;
+      this.$store.dispatch('maps/setLoading', false);
+      await this.applyColorsAndRenderNetwork({});
       // controller.filterBy({group: 'm'});
       // controller.filterBy({id: [1, 2, 3, 4]});
       // Subscribe to node selection events
@@ -108,34 +118,36 @@ export default {
 
       return [element.id, type];
     },
-    renderNetwork(customizedNetwork) {
+    async renderNetwork(customizedNetwork) {
       this.resetNetwork();
       this.controller = MetAtlasViewer('viewer3d');
-      this.controller.setData({
-        graphData: customizedNetwork || this.network,
-        nodeTextures: [
-          { group: 'e', sprite: '/sprite_round.png' },
-          { group: 'r', sprite: '/sprite_square.png' },
-          { group: 'm', sprite: '/sprite_triangle.png' },
-        ],
-        nodeSize: 15,
-      });
+
+      const graphData = customizedNetwork || this.network;
+      const nodeTypes = new Set(graphData.nodes.map(n => n.g));
+      const nodeTextures = NODE_TEXTURES.filter(t => nodeTypes.has(t.group));
+
       this.controller.setNodeSelectCallback(this.selectElement);
       this.controller.setBackgroundColor(this.backgroundColor);
       this.controller.setUpdateCameraCallback(this.updateURLCoords);
+
+      await this.controller.setData({
+        graphData,
+        nodeTextures,
+        nodeSize: 10,
+      });
+
       this.processURLQuery();
     },
     processURLQuery() {
-      this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
       const { lx, ly, lz } = this.coords;
       this.controller.setCamera({ x: lx, y: ly, z: lz });
 
       const id = this.queryParams.sel;
 
       if (id) {
-        setTimeout(() => {
-          this.controller.selectBy({ id });
-        }, 150);
+        setTimeout(async () => {
+          await this.searchIDsOnMap([id]);
+        }, 200);
       }
     },
     async selectElement(element) {
@@ -144,6 +156,7 @@ export default {
 
       this.$emit('startSelection');
       try {
+        this.$store.dispatch('maps/setLoadingElement', true);
         const payload = {
           model: this.model.apiName,
           version: this.model.apiVersion,
@@ -155,13 +168,15 @@ export default {
         selectionData.data = data;
         this.$emit('updatePanelSelectionData', selectionData);
         this.$emit('endSelection', true);
+        this.$store.dispatch('maps/setLoadingElement', false);
       } catch {
         this.$emit('updatePanelSelectionData', selectionData);
         this.$set(selectionData, 'error', true);
         this.$emit('endSelection', false);
+        this.$store.dispatch('maps/setLoadingElement', false);
       }
     },
-    applyColorsAndRenderNetwork(levels) {
+    async applyColorsAndRenderNetwork(levels) {
       const nodes = this.network.nodes.map((node) => {
         let color = colorToRGBArray('#9df');
 
@@ -185,7 +200,7 @@ export default {
         };
       });
 
-      this.renderNetwork({
+      await this.renderNetwork({
         nodes,
         links: this.network.links,
       });
@@ -204,20 +219,62 @@ export default {
       viewer.innerHTML = '';
     },
     zoomIn() {
-      console.log('zoom in');
+      this.zoomBy(50);
     },
     zoomOut() {
-      console.log('zoom out');
+      this.zoomBy(-50);
+    },
+    zoomBy(amount) {
+      const { lx, ly, lz } = this.coords;
+      let z = lz - amount;
+      if (z < 0) {
+        z = 0;
+      } else if (z > 1000) {
+        z = 1000;
+      }
+
+      const payload = { x: lx, y: ly, z };
+      this.controller.setCamera(payload);
+      this.updateURLCoords(payload);
     },
     toggleFullscreen() {
       this.isFullscreen = !this.isFullscreen;
     },
-    toggleGenes() {
-      this.controller.toggleNodeType('e');
+    async toggleGenes() {
+      await this.controller.toggleNodeType('e');
+    },
+    toggleLabels() {
+      this.controller.toggleLabels();
     },
     toggleBackgroundColor() {
       this.$store.dispatch('maps/toggleBackgroundColor');
       this.controller.setBackgroundColor(this.backgroundColor);
+    },
+    async searchIDsOnMap(ids) {
+      this.searchedNodesOnMap = [];
+
+      if (ids && ids.length > 0) {
+        this.searchedNodesOnMap = this.network.nodes
+          .filter(n => ids.includes(n.id))
+          .map(n => ({
+            id: n.id,
+            name: n.n,
+            group: n.g,
+          }));
+
+        if (this.searchedNodesOnMap.length > 0) {
+          await this.centerElement(this.searchedNodesOnMap[0]);
+        }
+      }
+    },
+    async centerElement(elem) {
+      this.controller.selectBy({ id: elem.id });
+      await this.selectElement(elem);
+    },
+    unHighlight() {
+      this.searchedNodesOnMap = [];
+      this.controller.selectBy({});
+      this.$store.dispatch('maps/setSelectedElementId', null);
     },
   },
 };
