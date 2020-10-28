@@ -1,6 +1,6 @@
 <template>
   <div class="extended-section">
-    <section class="hero is-large is-primary is-bold">
+    <section class="hero is-medium is-primary is-bold">
       <div class="hero-body has-text-centered">
         <p class="is-size-1 title has-text-white">METABOLIC ATLAS 2.0</p>
       </div>
@@ -86,7 +86,7 @@ export default {
     return {
       menu: [
         { title: 'Welcome',
-          text: '<b>Metabolic Atlas</b> integrates open source genome-scale metabolic models (GEMs) of human and yeast for easy browsing and analysis. It also contains many more GEMs constructed by our organization.<br><br>Detailed biochemical information is provided for individual model components, such as reactions, metabolites, and genes. These components are also associated with standard identifiers, facilitating integration with external databases, such as the Human Protein Atlas. <br><br><a href="https://doi.org/10.1126/scisignal.aaz1482" target="_blank">Robinson, J., et al, 2020. <i>An atlas of human metabolism</i>. Sci. Signal. 13, eaaz1482 </a>',
+          text: '<b>Metabolic Atlas</b> integrates open source genome-scale metabolic models (GEMs) of human, yeast for easy browsing and analysis. Detailed biochemical information is provided for individual model components, such as reactions, metabolites, and genes.<br><br><a href="https://doi.org/10.1126/scisignal.aaz1482" target="_blank">Robinson, J., et al, 2020. <i>An atlas of human metabolism</i>. Sci. Signal. 13, eaaz1482 </a><br><br>For the additional integration of the mouse and rat GEMs, the article is under consideration.',
           img: require('../assets/explorer.jpg'),
           cardLink: 'Explore a GEM',
           route: { name: 'explorer' },
@@ -94,7 +94,7 @@ export default {
         { title: 'Latest news',
           text: 'Lorem ipsum',
           img: require('../assets/explorer.jpg'),
-          cardLink: 'Explore a GEM',
+          cardLink: 'More news',
           route: { name: 'news' },
           icon: 'newspaper-o' },
         { title: messages.gemBrowserName,
@@ -146,7 +146,7 @@ export default {
         { title: 'Resources',
           text: 'Working with metabolic models requires a set of tools and external databases, which we have collected together for one-click access.<br><br>Additionally, Metabolic Atlas is open to further integrations.',
           img: require('../assets/resources.jpg'),
-          cardLink: 'Resources',
+          cardLink: 'See tools',
           route: { name: 'resources' },
           icon: 'gears' },
         { title: 'Community',
@@ -194,10 +194,15 @@ export default {
 
 </script>
 <style lang="scss">
-#home .stripe:nth-child(2n) {
-  background: whitesmoke;
-  .columns {
-    flex-direction: row-reverse;
+#home {
+  .card {
+    max-width: 500px;
+  }
+  .stripe:nth-child(2n) {
+    background: whitesmoke;
+    .columns {
+      flex-direction: row-reverse;
+    }
   }
 }
 </style>
