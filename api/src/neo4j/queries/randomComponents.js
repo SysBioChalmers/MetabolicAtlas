@@ -67,10 +67,16 @@ UNION
 MATCH (rs:ReactionState)-[${v}]-(re:Reaction${m})
 WITH re, rs, rand() as r
 ORDER BY r LIMIT 2
-MATCH (re)-[${v}]-(cm:CompartmentalizedMetabolite)-[${v}]-(c:Compartment)
+MATCH (re)<-[${v}]-(:CompartmentalizedMetabolite)-[${v}*2]-(ms:MetaboliteState)
+WITH re, rs, collect(ms.name) as reactants
+MATCH (re)-[${v}]->(:CompartmentalizedMetabolite)-[${v}*2]-(ms:MetaboliteState)
+WITH re, rs, reactants, collect(ms.name) as products
+MATCH (re)-[${v}*2]-(c:Compartment)
+WITH re, rs, reactants, products, collect(distinct c) as comps
 OPTIONAL MATCH (re)-[${v}]-(g:Gene)
+WITH re, rs, reactants, products, comps, count(g) as geneCount
 OPTIONAL MATCH (re)-[${v}]-(s:Subsystem)
-RETURN { reaction: { id: re.id, name: rs.name, equationWname: null, metaboliteCount: count(distinct cm), geneCount: count(distinct g), compartmentCount: count(distinct c), subsystemCount: count(distinct s) } } as xs
+RETURN { reaction: { id: re.id, name: rs.name, reactants: reactants, products: products, geneCount: geneCount, compartmentCount: size(comps), subsystemCount: count(s) }, reversible: rs.reversible } as xs
 
 UNION
 
@@ -98,7 +104,7 @@ RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
 `;
 
   const rows = await queryListResult(statement);
-  return rows.reduce( (obj, row) => {
+  return rows.reduce((obj, row) => {
     const [componentType, component] = Object.entries(row)[0]
 
     if (componentType === "compartment") {

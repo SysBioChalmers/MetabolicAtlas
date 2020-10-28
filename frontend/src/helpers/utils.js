@@ -30,54 +30,34 @@ export function reformatStringToLink(value, link) {
   return `<a href="${value}" target="_blank">${value}</a>`;
 }
 
-export function reformatEqSign(equation, reversible) {
-  if (reversible) {
-    return equation.replace(' => ', ' &#8660; ');
-  }
-  return equation.replace(' => ', ' &#8658; ');
+export function equationSign(isReversible) {
+  return isReversible ? '&#8660;' : '&#8658;';
 }
 
 export function addMassUnit(value) {
   return `${value} g/mol`;
 }
 
-export function joinListElements(list) {
-  let output = '';
-  if (list.length) {
-    output = list.join('; ');
+export function getSimpleEquation(reaction) {
+  if (reaction === null) {
+    return '';
   }
-  return output;
-}
-
-export function replaceEmpty(value) {
-  if (!value || value === null) {
-    return '-';
-  }
-  return value;
-}
-
-export function reformatSBOLink(sboID, link) {
-  if (link) {
-    return reformatStringToLink(sboID, link);
-  }
-  return `<a href="http://www.ebi.ac.uk/sbo/main/${sboID}" target="_blank">${sboID}</a>`;
+  const reactants = reaction.reactants.join(' + ');
+  const products = reaction.products.join(' + ');
+  return `${reactants} ${equationSign(reaction.reversible)} ${products}`;
 }
 
 export function getChemicalReaction(reaction) {
   if (reaction === null) {
     return '';
   }
-  const reactants = reaction.reactionreactant_set.map(
+  const reactants = reaction.reactants.map(
     x => `${x.stoichiometry !== 1 ? `${x.stoichiometry} ` : ''}${x.fullName}`
   ).join(' + ');
-  const products = reaction.reactionproduct_set.map(
+  const products = reaction.products.map(
     x => `${x.stoichiometry !== 1 ? `${x.stoichiometry} ` : ''}${x.fullName}`
   ).join(' + ');
-
-  if (reaction.reversible) {
-    return `${reactants} <=> ${products}`;
-  }
-  return `${reactants} => ${products}`;
+  return `${reactants} ${equationSign(reaction.reversible)} ${products}`;
 }
 
 const sortByName = metabolites => [...metabolites].sort((a, b) => ((a.name > b.name) ? 1 : -1));
@@ -98,13 +78,10 @@ export function reformatChemicalReactionHTML(reaction, noLink = false, model = '
     return `${Math.abs(x.stoichiometry !== 1) ? x.stoichiometry : ''} ${noLink ? x.name : buildCustomLink({ model, type, id: x.id, cssClass: x.id === sourceMet ? 'cms' : undefined, title: x.name })}<span class="sc" title="${x.compartment}">${match[1]}</span>`;
   }
 
-  const reactants = sortByName(reaction.reactionreactant_set).map(formatReactionElement).join(' + ');
-  const products = sortByName(reaction.reactionproduct_set).map(formatReactionElement).join(' + ');
+  const reactants = sortByName(reaction.reactants).map(formatReactionElement).join(' + ');
+  const products = sortByName(reaction.products).map(formatReactionElement).join(' + ');
 
-  if (reaction.reversible) {
-    return `${reactants} &#8660; ${products}`;
-  }
-  return `${reactants} &#8658; ${products}`;
+  return `${reactants} ${equationSign(reaction.reversible)} ${products}`;
 }
 
 export function sortResults(a, b, searchTermString) {
@@ -155,12 +132,12 @@ export const constructCompartmentStr = (reaction) => {
     products.map(r => compartments[r.compartmentId].name).sort()
   );
 
-  const reactantsCompartmentsStr = Array.from(reactantsCompartments).join(' + ');
+  const reactantsCompartmentsStr = Array.from(reactantsCompartments).join(' , ');
   if (JSON.stringify([...reactantsCompartments])
     === JSON.stringify([...productsCompartments])) {
     return reactantsCompartmentsStr;
   }
 
-  const productsCompartmentsStr = Array.from(productsCompartments).join(' + ');
-  return `${reactantsCompartmentsStr} => ${productsCompartmentsStr}`;
+  const productsCompartmentsStr = Array.from(productsCompartments).join(' , ');
+  return `${reactantsCompartmentsStr} ${equationSign(reaction.reversible)} ${productsCompartmentsStr}`;
 };

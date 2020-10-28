@@ -113,9 +113,7 @@
                   <template v-if="props.column.field === 'model'">
                     {{ props.formattedRow[props.column.field].name }}
                   </template>
-                  <template v-else-if="props.column.field === 'equation'">
-                    <span v-html="reformatEqSign(props.formattedRow[props.column.field], props.row.reversible)"></span>
-                  </template>
+
                   <template v-else-if="props.column.field === 'formula'">
                     <span v-html="chemicalFormula(props.row[props.column.field], props.row.charge)"></span>
                   </template>
@@ -178,7 +176,7 @@ import Loader from '@/components/Loader';
 import ExportTSV from '@/components/shared/ExportTSV';
 import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../helpers/chemical-formatters';
-import { reformatEqSign, sortResults } from '../helpers/utils';
+import { sortResults } from '../helpers/utils';
 import { default as messages } from '../helpers/messages';
 
 export default {
@@ -299,13 +297,6 @@ export default {
               enabled: true,
             },
             sortable: true,
-          }, {
-            label: 'Equation',
-            field: 'equation',
-            filterOptions: {
-              enabled: true,
-            },
-            sortable: false,
           }, {
             label: 'Subsystem',
             field: 'subsystem',
@@ -516,7 +507,7 @@ export default {
             Object.keys(filterTypeDropdown[componentType]).forEach((field) => {
               if (field === 'model') {
                 filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
-              } else if (field === 'compartment') {
+              } else if (el[field] && field === 'compartment') {
                 filterTypeDropdown[componentType][field][el[field].name] = 1;
               }
             });
@@ -551,7 +542,6 @@ export default {
             rows[componentType].push({
               id: el.id,
               model: el.model,
-              equation: el.equation_wname,
               subsystem: el.subsystem,
               compartment: el.compartment,
             });
@@ -604,7 +594,7 @@ export default {
       this.columns.gene[3].filterOptions.filterDropdownItems = filterTypeDropdown.gene.compartment;
 
       this.columns.reaction[0].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.model;
-      this.columns.reaction[4].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.compartment;
+      this.columns.reaction[3].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.compartment;
 
       this.columns.subsystem[0].filterOptions.filterDropdownItems = filterTypeDropdown.subsystem.model;
       this.columns.subsystem[2].filterOptions.filterDropdownItems = filterTypeDropdown.subsystem.compartments;
@@ -686,7 +676,6 @@ export default {
       return `${header.join('\t')}\n${tsvContent}`;
     },
     chemicalFormula,
-    reformatEqSign,
     sortResults,
   },
 };
