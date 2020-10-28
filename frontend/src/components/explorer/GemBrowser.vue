@@ -13,17 +13,13 @@
               Explore {{ model ? model.short_name : 'a model' }} with the {{ messages.gemBrowserName }}
             </h3>
             <h5 class="subtitle is-5 has-text-weight-normal">
-              use the search field to find the component of interest
+              use the menu bar search to find the component of interest
             </h5>
           </div>
-        </div>
-        <div class="columns is-centered">
-          <gem-search ref="gemSearch" />
         </div>
         <div>
           <div class="columns is-centered">
             <div class="column is-10 has-text-centered">
-              <br><br>
               <a id="randomButton" class="button is-rounded is-outlined is-success"
                  :class="tileComponents ? '' : 'is-loading'"
                  title="Fetch another random set of components" @click="getTilesData()">
@@ -89,14 +85,12 @@
 
 <script>
 import { mapState } from 'vuex';
-import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import Tile from '@/components/explorer/gemBrowser/Tile';
 import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'GemBrowser',
   components: {
-    GemSearch,
     Tile,
   },
   data() {

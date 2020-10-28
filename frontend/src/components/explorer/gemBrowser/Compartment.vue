@@ -6,9 +6,6 @@
           {{ errorMessage }}
         </div>
       </div>
-      <div v-else class="columns is-centered">
-        <gem-search ref="gemSearch" />
-      </div>
       <div v-if="componentNotFound" class="columns is-centered">
         <notFound :type="type" :component-id="cName"></notFound>
       </div>
@@ -76,7 +73,6 @@ import Loader from '@/components/Loader';
 import NotFound from '@/components/NotFound';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import GemContact from '@/components/shared/GemContact';
-import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import { buildCustomLink } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
@@ -87,7 +83,6 @@ export default {
     Loader,
     MapsAvailable,
     GemContact,
-    GemSearch,
   },
   data() {
     return {
