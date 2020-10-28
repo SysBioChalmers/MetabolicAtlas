@@ -1,107 +1,49 @@
 <template>
   <div class="extended-section">
-    <section class="hero video container is-fullhd" style="max-width:100%; width:100%;">
-      <div class="hero-video is-transparent is-block-mobile">
-        <video poster="@/assets/banner_video.jpg"
-               playsinline autoplay
-               muted loop>
-               <!-- <source src="https://ftp.metabolicatlas.org/.static/banner_video.mp4" type="video/mp4"> -->
-        </video>
-      </div>
-      <div class="hero-body">
-        <div class="container is-fullhd has-text-centered">
-          <p class="is-size-2 title has-text-primary">METABOLIC ATLAS</p>
-          <h3 class="is-size-3 has-text-gray">
-            THE ATLAS FOR EXPLORATION OF METABOLISM
-          </h3>
-        </div>
+    <section class="hero is-large is-primary is-bold">
+      <div class="hero-body has-text-centered">
+        <p class="is-size-1 title has-text-white">METABOLIC ATLAS 2.0</p>
       </div>
     </section>
-    <section class="section">
-      <div id="home" class="container is-fullhd">
-        <div class="columns is-hidden-touch">
-          <div class="column">
-            <div class="card">
-              <div class="columns is-mobile is-multiline my-0 ml-0">
-                <div id="menu-desktop"
-                     class="column is-narrow has-background-primary has-text-weight-bold p-0">
-                  <aside class="menu">
-                    <ul class="menu-list is-unselectable">
-                      <li v-for="menuItem in menu" :key="menuItem.title">
-                        <a :class="[ {'is-active' : menuItem.title === currentMenu.title}]"
-                           class="pl-2"
-                           @click="currentMenu = menuItem">
-                          <span class="icon is-medium">
-                            <i :class="`fa fa-${menuItem.icon}`"></i>
-                          </span>
-                          {{ menuItem.title }}
-                        </a>
-                      </li>
-                    </ul>
-                  </aside>
-                </div>
-                <div class="column more-padding is-v-aligned">
-                  <p class="has-text-justified" v-html="currentMenu.text"></p>
-                </div>
-                <div class="column more-padding is-v-aligned">
-                  <router-link :to="currentMenu.route">
-                    <div class="card" :class="{ 'hoverable': currentMenu.cardLink}">
-                      <img :src="currentMenu.img" :alt="currentMenu.title" />
-                      <template v-if="currentMenu.cardLink">
-                        <footer class="card-footer has-text-centered has-background-primary-lighter">
-                          <a class="card-footer-item has-text-weight-bold">{{ currentMenu.cardLink }}</a>
-                        </footer>
-                      </template>
-                    </div>
-                  </router-link>
-                </div>
-              </div>
+
+    <!-- TODO fix mobile layout -->
+    <section id="home">
+      <div v-for="menuItem in menu" :key="menuItem.title"
+           class="stripe as-background-white-ter">
+       <div class="container is-fullhd py-6">
+          <div class="columns is-variable is-8 is-vcentered py-6">
+            <div class="column is-1"></div>
+            <div class="column is-5 is-size-5">
+              <p class="title is-size-4 has-text-centered has-text-primary">
+                {{ menuItem.title }}
+                <span class="icon is-large fa-lg">
+                  <i :class="`fa fa-${menuItem.icon}`"></i>
+                </span>
+              </p>
+              <p v-html="menuItem.text"></p>
             </div>
+            <div class="column">
+              <router-link :to="menuItem.route">
+                <div class="card" :class="{ 'hoverable': menuItem.cardLink}">
+                  <img :src="menuItem.img" :alt="menuItem.title" />
+                  <template v-if="menuItem.cardLink">
+                    <footer class="card-footer has-text-centered">
+                      <a class="card-footer-item has-text-weight-bold is-size-5">
+                        {{ menuItem.cardLink }}
+                      </a>
+                    </footer>
+                  </template>
+                </div>
+              </router-link>
+            </div>
+            <div class="column is-1"></div>
           </div>
         </div>
-        <div class="columns is-hidden-desktop">
-          <div class="column">
-            <div class="card">
-              <header class="card-header has-background-primary">
-                <div class="card-header-title is-centered">
-                  <div class="tabs is-medium is-centered">
-                    <ul id="menu-mobile">
-                      <li v-for="menuItem in menu" :key="menuItem.title">
-                        <a :class="[ {'is-active' : menuItem.title === currentMenu.title}]"
-                           @click="currentMenu = menuItem">
-                          <i :class="`fa fa-${menuItem.icon} fa-lg`"></i>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </header>
-              <div class="card-content">
-                <p class="title has-text-centered">{{ currentMenu.title }}</p>
-                <div class="columns is-variable is-4-tablet">
-                  <div class="column is-half-tablet is-full-mobile">
-                    <p class="has-text-justified" v-html="currentMenu.text"></p>
-                  </div>
-                  <div class="column is-half-tablet is-full-mobile more-padding is-v-aligned">
-                    <router-link :to="currentMenu.route">
-                      <div class="card" :class="{ 'card-selectable': currentMenu.cardLink}">
-                        <img :src="currentMenu.img" :alt="currentMenu.title" />
-                        <template v-if="currentMenu.cardLink">
-                          <footer class="card-footer has-text-centered has-background-primary-lighter">
-                            <a class="card-footer-item has-text-weight-bold">{{ currentMenu.cardLink }}</a>
-                          </footer>
-                        </template>
-                      </div>
-                    </router-link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br>
-        <div id="newsandcommunity" class="columns is-variable is-6">
-          <div v-for="card in cards" :key="card.title" class="column is-half">
+      </div>
+
+      <div class="container is-fullhd">
+        <div class="columns is-variable is-6">
+          <div v-for="card in cards" :key="card.title" class="column is-5">
             <div class="card card-fullheight">
               <header class="card-header has-background-success ">
                 <p class="card-content py-2 has-text-weight-bold has-text-white">{{ card.title }}</p>
@@ -129,6 +71,7 @@
           </div>
         </div>
       </div>
+
     </section>
   </div>
 </template>
@@ -148,6 +91,12 @@ export default {
           cardLink: 'Explore a GEM',
           route: { name: 'explorer' },
           icon: 'home' },
+        { title: 'Latest news',
+          text: 'Lorem ipsum',
+          img: require('../assets/explorer.jpg'),
+          cardLink: 'Explore a GEM',
+          route: { name: 'news' },
+          icon: 'newspaper-o' },
         { title: messages.gemBrowserName,
           text: 'The <b>GEM Browser</b> enables powerful query and exploration of model content in tabular format.<br><br>A wide range of attributes, including reaction equations, metabolite formulas, gene rules and subsystem contents, are presented as a detailed network of individual model components. They are highly interconnected and rationally associated to easily navigate and switch between them.<br><br>Visit the documentation to learn about the different functionalities provided by the GEM Browser.',
           img: require('../assets/gemBrowser.jpg'),
@@ -200,45 +149,41 @@ export default {
           cardLink: 'Resources',
           route: { name: 'resources' },
           icon: 'gears' },
-      ],
-      currentMenu: {},
-      cards: [
-        { title: 'Latest news',
-          text: [
-            { date: '2020.04.27',
-              hash: '27-April-2020',
-              text: 'Metabolic Atlas v1.7 brings Map Viewer improvements' },
-            { date: '2020.03.23',
-              hash: '23-March-2020',
-              text: 'Metabolic Atlas v1.6' },
-            { date: '2020.02.07',
-              hash: '7-February-2020',
-              text: 'Metabolic Atlas v1.5 updates both integrated models' },
-            { date: '2019.09.11',
-              hash: '11-September-2019',
-              text: 'Metabolic Atlas was presented in a course given by NBIS' },
-            { date: '2019.09.05',
-              hash: '5-September-2019',
-              text: 'Metabolic Atlas v1.4 enables gene expression comparison' },
-            { date: '2019.08.01',
-              hash: '1-August-2019',
-              text: 'Metabolic Atlas v1.3' },
-            { date: '2019.06.25',
-              hash: '25-June-2019',
-              text: 'Metabolic Atlas is upgraded to v1.2 with Human-GEM updated to v1.1' },
-            { date: '2019.05.29',
-              hash: '29-May-2019',
-              text: 'Metabolic Atlas is upgraded to v1.1' },
-            { date: '2019.05.17',
-              hash: '17-May-2019',
-              text: 'Metabolic Atlas is publicly available as v1.0' },
-          ],
-        },
         { title: 'Community',
-          text: [
-            { text: '<p>We are grateful for the efforts of scientists all over the world in creating the knowledge required to assemble high quality genome scale metabolic models and are passionate about continuing on this journey of open curation of models.<br><br>We invite you to explore the world of GEMs through Metabolic Atlas, and hope it will enhance your interest in this field. We wish to continuously improve Metabolic Atlas for the community. Email us with any feedback, suggestions, or requests at <a href="mailto:">contact [at] metabolicatlas [dot] org</a>.</p>' },
-          ],
-        },
+          text: '<p>We are grateful for the efforts of scientists all over the world in creating the knowledge required to assemble high quality genome scale metabolic models. We are passionate about continuing on this journey of open curation of models.<br><br>We invite you to explore the world of GEMs through Metabolic Atlas, and hope it will enhance your interest in this field. We wish to continuously improve Metabolic Atlas for the community. Email us with any feedback, suggestions, or requests at <a href="mailto:">contact [at] metabolicatlas [dot] org</a>.</p>',
+          img: require('../assets/resources.jpg'),
+          cardLink: 'Contact us',
+          route: { name: 'team' },
+          icon: 'users' },
+      ],
+      news: [
+        { date: '2020.04.27',
+          hash: '27-April-2020',
+          text: 'Metabolic Atlas v1.7 brings Map Viewer improvements' },
+        { date: '2020.03.23',
+          hash: '23-March-2020',
+          text: 'Metabolic Atlas v1.6' },
+        { date: '2020.02.07',
+          hash: '7-February-2020',
+          text: 'Metabolic Atlas v1.5 updates both integrated models' },
+        { date: '2019.09.11',
+          hash: '11-September-2019',
+          text: 'Metabolic Atlas was presented in a course given by NBIS' },
+        { date: '2019.09.05',
+          hash: '5-September-2019',
+          text: 'Metabolic Atlas v1.4 enables gene expression comparison' },
+        { date: '2019.08.01',
+          hash: '1-August-2019',
+          text: 'Metabolic Atlas v1.3' },
+        { date: '2019.06.25',
+          hash: '25-June-2019',
+          text: 'Metabolic Atlas is upgraded to v1.2 with Human-GEM updated to v1.1' },
+        { date: '2019.05.29',
+          hash: '29-May-2019',
+          text: 'Metabolic Atlas is upgraded to v1.1' },
+        { date: '2019.05.17',
+          hash: '17-May-2019',
+          text: 'Metabolic Atlas is publicly available as v1.0' },
       ],
     };
   },
@@ -249,78 +194,10 @@ export default {
 
 </script>
 <style lang="scss">
-.hero-video video {
-  @media only screen and (max-width: $desktop) {
-    max-width: inherit;
+#home .stripe:nth-child(2n) {
+  background: whitesmoke;
+  .columns {
+    flex-direction: row-reverse;
   }
 }
-
-#home {
-  #menu-desktop {
-    outline: 1px solid $primary;
-    li {
-      &:first-child {
-        margin-top: 0.75em;
-      }
-      &:last-child {
-        margin-bottom: 0.75em;
-      }
-      a {
-        color: $white-bis;
-        line-height: 2;
-      }
-      a:hover {
-        color: $white-bis;
-        background-color: $primary-light;
-        border-radius: 0;
-      }
-      .is-active {
-        color: $black;
-        background-color: $white;
-        border-radius: 0;
-      }
-    }
-  }
-  .is-hidden-touch .card .card {
-    max-width: 480px;
-  }
-  #menu-mobile li {
-    padding-top: 10px;
-    a {
-      color: $white-bis;
-    }
-    a:hover {
-      background-color: $primary-light;
-    }
-    .is-active {
-      color: $black;
-      background-color: $white;
-    }
-  }
-  .more-padding {
-    @media only screen and (min-width: $desktop) {
-      padding: 1.5rem 2rem 1.5rem 2rem;
-    }
-  }
-  .is-v-aligned {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .tabs ul {
-    flex-shrink: 1;
-    flex-wrap: wrap;
-    border-bottom-color: transparent;
-  }
-}
-
-#newsandcommunity {
-  .card-header {
-    outline: 1px solid $primary;
-  }
-  td:first-child {
-    padding-right: 10px;
-  }
-}
-
 </style>
