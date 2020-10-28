@@ -260,14 +260,14 @@ m, .clickable {
   height: 64px;
 
   .slide-in-enter-active, .slide-in-leave-active {
-    transition: all .2s;
+    transition: all .2s ease-in-out;
   }
   .slide-in-enter, .slide-in-leave-active {
     transform: translateX(-100vw);
   }
 
   .slide-out-enter-active, .slide-out-leave-active {
-    transition: all .2s;
+    transition: all .2s ease-in-out;
   }
   .slide-out-enter, .slide-out-leave-active {
     transform: translateX(100vw);

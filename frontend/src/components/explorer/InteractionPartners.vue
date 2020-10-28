@@ -13,12 +13,11 @@
               Explore {{ model ? model.short_name : 'the model' }} with the {{ messages.interPartName }}
             </h3>
             <h5 class="subtitle is-5 has-text-weight-normal">
-              use the search field to find the component of interest
+              use the menu bar search to find the component of interest and click the
+              <span class="icon is-medium is-left"><i class="fa fa-connectdevelop" /></span>
+              icon
             </h5>
           </div>
-        </div>
-        <div class="columns is-centered">
-          <gem-search ref="gemSearch" :metabolites-and-genes-only="true"></gem-search>
         </div>
         <br><br>
         <div v-if="!mainNodeID">
@@ -271,7 +270,6 @@ import cola from 'cytoscape-cola';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
 
-import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import Sidebar from '@/components/explorer/interactionPartners/Sidebar';
 import CytoscapeTable from '@/components/explorer/interactionPartners/CytoscapeTable';
 import Loader from '@/components/Loader';
@@ -291,7 +289,6 @@ export default {
   name: 'InteractionPartners',
   components: {
     NotFound,
-    GemSearch,
     Sidebar,
     CytoscapeTable,
     Loader,
@@ -999,6 +996,10 @@ export default {
 
   h1, h2 {
     font-weight: normal;
+  }
+
+  h5 .icon {
+    color: #A15786;
   }
 
   #cy {

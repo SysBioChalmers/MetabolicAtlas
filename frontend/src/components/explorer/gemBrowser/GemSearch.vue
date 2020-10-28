@@ -24,9 +24,6 @@
         <span v-show="showSearchCharAlert" class="has-text-info icon is-right" style="width: 270px">
           Type at least 2 characters
         </span>
-        <span class="icon is-medium is-left">
-          <i class="fa" :class="metabolitesAndGenesOnly ? 'fa-connectdevelop' : 'fa-table'"></i>
-        </span>
       </p>
       <a class="delete" @click.stop.prevent="handleClear" />
     </div>
@@ -41,8 +38,20 @@
           <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection px-1 py-0">
             <hr v-if="i2 !== 0" class="m-0">
             <router-link class="clickable"
-                         :to="{ name: metabolitesAndGenesOnly ? 'interaction': type, params: { model: model.short_name, id: r.id } }"
+                         :to="{ name: type, params: { model: model.short_name, id: r.id } }"
                          @click.native="handleClickResult">
+              <span v-if="type === 'metabolite' || type === 'gene'" class="search-result-icons pr-1">
+                <router-link class="clickable"
+                             :to="{ name: type, params: { model: model.short_name, id: r.id } }"
+                             @click.native="handleClickResult">
+                  <span class="icon is-medium is-left" title="Gem Browser"><i class="fa fa-table" /></span>
+                </router-link>
+                <router-link class="clickable"
+                             :to="{ name: 'interaction', params: { model: model.short_name, id: r.id } }"
+                             @click.native="handleClickResult">
+                  <span class="icon is-medium is-left" title="Interaction Partners"><i class="fa fa-connectdevelop" /></span>
+                </router-link>
+              </span>
               <b class="is-capitalized">{{ type }}: </b>
               <label class="clickable" v-html="formatSearchResultLabel(type, r, searchTermString)"></label>
             </router-link>
@@ -76,7 +85,6 @@ export default {
   name: 'GemSearch',
   props: {
     searchTerm: String,
-    metabolitesAndGenesOnly: Boolean,
     handleClear: Function,
   },
   data() {
@@ -108,9 +116,6 @@ export default {
       searchResults: 'search/categorizedAndSortedResults',
     }),
     placeholder() {
-      if (this.metabolitesAndGenesOnly) {
-        return 'uracil, malate, SULT1A3, CNDP1';
-      }
       return 'uracil, SULT1A3, ATP => cAMP + PPi, subsystem or compartment';
     },
   },
@@ -118,11 +123,7 @@ export default {
     await this.getIntegratedModelList();
   },
   mounted() {
-    if (this.searchTermString.length === 0) {
-      $('#search').focus();
-    } else {
-      this.blur();
-    }
+    $('#search').focus();
   },
   methods: {
     async getIntegratedModelList() {
@@ -172,7 +173,6 @@ export default {
       try {
         const payload = {
           model: this.model,
-          metabolitesAndGenesOnly: this.metabolitesAndGenesOnly,
         };
         await this.$store.dispatch('search/search', payload);
 
@@ -273,12 +273,22 @@ export default {
     }
 
     .searchResultSection{
-      a {
+      > a {
         display: block;
         padding: 7px 0px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+      }
+
+      .search-result-icons a {
+        &:first-child {
+          color: $primary;
+        }
+
+        &:nth-child(2) {
+          color: #A15786;
+        }
       }
     }
   }
