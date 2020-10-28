@@ -111,21 +111,7 @@ export default {
   watch: {
     '$route.params': 'getIntegratedModelList',
   },
-  async created() {
-    await this.getIntegratedModelList();
-  },
   methods: {
-    async getIntegratedModelList() {
-      await this.$store.dispatch('models/getModels');
-      let modelKey = Object.keys(this.models)[0];
-      if (this.$route.params && this.$route.params.model in this.models) {
-        modelKey = this.$route.params.model;
-      } else if (this.model) {
-        modelKey = this.model.short_name;
-        this.$router.replace({ params: { model: modelKey } });
-      }
-      this.$store.dispatch('models/selectModel', modelKey);
-    },
     async selectModel(modelShortName) {
       if (modelShortName !== this.model.short_name) {
         this.$router.replace({ params: { model: modelShortName } });

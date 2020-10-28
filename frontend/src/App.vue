@@ -2,61 +2,73 @@
   <div id="app">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <nav id="navbar" class="navbar has-background-primary-lighter" role="navigation" aria-label="main navigation">
-      <div class="container is-fullhd">
-        <div class="navbar-brand ml-2">
-          <router-link class="navbar-item" :to="{ name: 'home' }" active-class="" @click.native="isMobileMenu = false">
-            <img :src="require('./assets/logo.png')" />
-          </router-link>
-          <div class="navbar-burger pr-2" :class="{ 'is-active': isMobileMenu }" @click="isMobileMenu = !isMobileMenu">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-          </div>
-        </div>
-        <div id="#nav-menu" class="navbar-menu mr-2" :class="{ 'is-active': isMobileMenu }">
-          <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
-            <router-link v-if="$route.path.includes('/explore')"
-                         id="selectedModelLink"
-                         :to="{ name: 'explorer' }"
-                         class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
-              {{ model ? model.short_name : '' }}
+      <transition name="slide-in">
+        <gem-search v-if="showGemSearch" :handle-clear="() => showGemSearch = false" />
+      </transition>
+      <transition name="slide-out">
+        <div v-if="!showGemSearch" class="container is-fullhd">
+          <div class="navbar-brand ml-2">
+            <router-link class="navbar-item" :to="{ name: 'home' }" active-class=""
+                         @click.native="isMobileMenu = false">
+              <img :src="require('./assets/logo.png')" />
             </router-link>
+            <div class="navbar-burger pr-2" :class="{ 'is-active': isMobileMenu }"
+                 @click="isMobileMenu = !isMobileMenu">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+            </div>
           </div>
-          <div class="navbar-end has-background-primary-lighter">
-            <template v-for="(menuElem) in menuElems">
-              <template v-if="menuElem.routeName">
-                <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                <router-link class="navbar-item is-unselectable is-active-underline"
-                             :to="{ name: menuElem.routeName }"
-                             @click.native="isMobileMenu = false" v-html="menuElem.displayName">
-                </router-link>
-              </template>
-              <template v-else>
-                <template>
+          <div id="#nav-menu" class="navbar-menu mr-2" :class="{ 'is-active': isMobileMenu }">
+            <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
+              <router-link v-if="$route.path.includes('/explore')"
+                           id="selectedModelLink"
+                           :to="{ name: 'explorer' }"
+                           class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
+                {{ model ? model.short_name : '' }}
+              </router-link>
+            </div>
+            <div class="navbar-end has-background-primary-lighter">
+              <a class="navbar-item" @click.stop.prevent="showGemSearch = true">
+                <span class="icon is-large px-2 py-3">
+                  <i id="search-icon" class="fa fa-search" />
+                </span>
+              </a>
+              <template v-for="(menuElem) in menuElems">
+                <template v-if="menuElem.routeName">
                   <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                  <div class="navbar-item has-dropdown is-hoverable is-unselectable has-background-primary-lighter">
-                    <a class="navbar-link is-active-underline"
-                       :class="{
-                         'router-link-active': menuElem.subMenuElems.map(sme => sme.routeName).includes($route.name)
-                       }">
-                      {{ menuElem.displayName }}
-                    </a>
-                    <div class="navbar-dropdown has-background-primary-lighter p-0">
-                      <template v-for="(subMenuElem) in menuElem.subMenuElems">
-                        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                        <router-link class="navbar-item is-unselectable has-background-primary-lighter"
-                                     :to="{ name: subMenuElem.routeName }"
-                                     @click.native="isMobileMenu = false">{{ subMenuElem.displayName }}
-                        </router-link>
-                      </template>
+                  <router-link class="navbar-item is-unselectable is-active-underline"
+                               :to="{ name: menuElem.routeName }"
+                               @click.native="isMobileMenu = false" v-html="menuElem.displayName">
+                  </router-link>
+                </template>
+                <template v-else>
+                  <template>
+                    <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
+                    <div class="navbar-item has-dropdown is-hoverable is-unselectable has-background-primary-lighter">
+                      <a class="navbar-link is-active-underline"
+                         :class="{
+                           'router-link-active': menuElem.subMenuElems.map(sme => sme.routeName).includes($route.name)
+                         }">
+                        {{ menuElem.displayName }}
+                      </a>
+                      <div class="navbar-dropdown has-background-primary-lighter p-0">
+                        <template v-for="(subMenuElem) in menuElem.subMenuElems">
+                          <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
+                          <router-link class="navbar-item is-unselectable has-background-primary-lighter"
+                                       :to="{ name: subMenuElem.routeName }"
+                                       @click.native="isMobileMenu = false">{{ subMenuElem.displayName }}
+                          </router-link>
+                        </template>
+                      </div>
                     </div>
-                  </div>
+                  </template>
                 </template>
               </template>
-            </template>
+            </div>
           </div>
         </div>
-      </div>
+      </transition>
     </nav>
     <router-view></router-view>
     <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
@@ -118,18 +130,18 @@
 <script>
 
 import { mapState } from 'vuex';
+import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'App',
+  components: {
+    GemSearch,
+  },
   data() {
     return {
       /* eslint-disable quote-props */
       menuElems: [
-        {
-          displayName: '<span class="icon is-large"><i id="search-icon" class="fa fa-search"></i></span>',
-          routeName: 'search',
-        },
         {
           displayName: 'Explore',
           routeName: 'explorer',
@@ -166,12 +178,22 @@ export default {
       browserLastRoute: {},
       viewerLastRoute: {},
       isMobileMenu: false,
+      showGemSearch: false,
     };
   },
   computed: {
     ...mapState({
       model: state => state.models.model,
     }),
+  },
+  created() {
+    // add handler for escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.keyCode === 27 && this.showGemSearch) {
+        e.preventDefault();
+        this.showGemSearch = false;
+      }
+    });
   },
 };
 </script>
@@ -235,50 +257,68 @@ m, .clickable {
 }
 
 #navbar {
-  a {
-    font-size: 1.15em;
-    color: $black-ter;
+  height: 64px;
+
+  .slide-in-enter-active, .slide-in-leave-active {
+    transition: all .2s;
   }
-  a:hover{
-    color: $black-bis;
-    background-color: $light;
-  }
-  .is-active {
-    color: $black-bis;
-    background-color: $grey-lighter;
-  }
-  .router-link-active {
-    color: $black-bis;
-    background-color: $grey-lighter;
-    &.is-active-underline {
-      color: $black-bis;
-      background-color: $grey-lighter;
-      border-bottom: 1px solid $primary;
-    }
-  }
-  .navbar-brand {
-    a {
-      font-weight: 400;
-    }
-  }
-  .navbar-burger{
-    height: 4rem;
-    span {
-      height: 2px;
-    }
-  }
-  .navbar-item img {
-    max-height: 3rem;
-  }
-  .navbar-link:not(.is-arrowless)::after {
-    border-color: $grey-darker;
+  .slide-in-enter, .slide-in-leave-active {
+    transform: translateX(-100vw);
   }
 
-  #search-icon {
-    font-size: 1.8rem;
+  .slide-out-enter-active, .slide-out-leave-active {
+    transition: all .2s;
   }
-  #selectedModelLink .router-link-exact-active, .router-link-active {
-    background-color: $primary-lighter;
+  .slide-out-enter, .slide-out-leave-active {
+    transform: translateX(100vw);
+  }
+
+  .container {
+    a {
+      font-size: 1.15em;
+      color: $black-ter;
+    }
+    a:hover{
+      color: $black-bis;
+      background-color: $light;
+    }
+    .is-active {
+      color: $black-bis;
+      background-color: $grey-lighter;
+    }
+    .router-link-active {
+      color: $black-bis;
+      background-color: $grey-lighter;
+      &.is-active-underline {
+        color: $black-bis;
+        background-color: $grey-lighter;
+        border-bottom: 1px solid $primary;
+      }
+    }
+    .navbar-brand {
+      a {
+        font-weight: 400;
+      }
+    }
+    .navbar-burger{
+      height: 4rem;
+      span {
+        height: 2px;
+      }
+    }
+    .navbar-item img {
+      max-height: 3rem;
+    }
+    .navbar-link:not(.is-arrowless)::after {
+      border-color: $grey-darker;
+    }
+
+    #search-icon {
+      font-size: 1.8rem;
+    }
+    #selectedModelLink .router-link-exact-active, .router-link-active {
+      background-color: $primary-lighter;
+    }
   }
 }
 

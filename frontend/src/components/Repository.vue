@@ -284,7 +284,6 @@ export default {
   async beforeMount() {
     try {
       this.showLoader = true;
-      await this.$store.dispatch('models/getModels');
       await this.$store.dispatch('gems/getGems');
       this.columns[0].filterOptions.filterDropdownItems = this.setFilterOptions;
       this.columns[3].filterOptions.filterDropdownItems = this.systemFilterOptions;
