@@ -257,7 +257,15 @@ m, .clickable {
 }
 
 #navbar {
-  height: 64px;
+  height: 52px;
+
+  @media screen and (min-width: $tablet) {
+    height: 56px;
+  }
+
+  @media screen and (min-width: $desktop) {
+    height: 64px;
+  }
 
   .slide-in-enter-active, .slide-in-leave-active {
     transition: all .2s ease-in-out;
