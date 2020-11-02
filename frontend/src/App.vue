@@ -1,12 +1,12 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{'fade-page': showGemSearch}" @click.stop.prevent="handleBodyClick">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <nav id="navbar" class="navbar has-background-primary-lighter" role="navigation" aria-label="main navigation">
-      <transition name="slide-in">
-        <gem-search v-if="showGemSearch" :handle-clear="() => showGemSearch = false" />
+      <transition name="fade">
+        <gem-search v-show="showGemSearch" :handle-clear="() => showGemSearch = false" />
       </transition>
-      <transition name="slide-out">
-        <div v-if="!showGemSearch" class="container is-fullhd">
+      <transition name="fade">
+        <div v-show="!showGemSearch" class="container is-fullhd">
           <div class="navbar-brand ml-2">
             <router-link class="navbar-item" :to="{ name: 'home' }" active-class=""
                          @click.native="isMobileMenu = false">
@@ -195,6 +195,15 @@ export default {
       }
     });
   },
+  methods: {
+    handleBodyClick(e) {
+      const navbar = document.querySelector('#navbar');
+
+      if (!navbar.contains(e.target) && this.showGemSearch) {
+        this.showGemSearch = false;
+      }
+    },
+  },
 };
 </script>
 
@@ -247,7 +256,21 @@ m, .clickable {
 #app {
   display: flex;
   min-height: 100vh;
-  flex-direction: column
+  flex-direction: column;
+
+  &.fade-page {
+    height: 100vh;
+    overflow: hidden;
+
+    &::after {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      content: "";
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 10;
+    }
+  }
 }
 
 .has-addons {
@@ -257,28 +280,22 @@ m, .clickable {
 }
 
 #navbar {
-  height: 52px;
+  min-height: 52px;
 
   @media screen and (min-width: $tablet) {
-    height: 56px;
+    min-height: 56px;
   }
 
   @media screen and (min-width: $desktop) {
-    height: 64px;
+    min-height: 64px;
   }
 
-  .slide-in-enter-active, .slide-in-leave-active {
-    transition: all .2s ease-in-out;
-  }
-  .slide-in-enter, .slide-in-leave-active {
-    transform: translateX(-100vw);
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .25s ease-in;
   }
 
-  .slide-out-enter-active, .slide-out-leave-active {
-    transition: all .2s ease-in-out;
-  }
-  .slide-out-enter, .slide-out-leave-active {
-    transform: translateX(100vw);
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
   }
 
   .container {

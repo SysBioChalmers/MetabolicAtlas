@@ -19,13 +19,13 @@
                :placeholder="placeholder"
                :value="searchTermString"
                @keyup.esc="showResults = false"
-               @focus="showResults = true"
-               @blur="blur()">
+               @focus="showResults = true">
+        <span class="icon is-medium is-left"><i class="fa fa-search" /></span>
         <span v-show="showSearchCharAlert" class="has-text-info icon is-right" style="width: 270px">
           Type at least 2 characters
         </span>
       </p>
-      <a class="delete" @click.stop.prevent="handleClear" />
+      <a class="delete" @click.stop.prevent="handleClearSearch" />
     </div>
     <div v-show="showResults && searchTermString.length > 1" id="searchResults" ref="searchResults">
       <div v-show="searchResults.length !== 0 && !showLoader"
@@ -39,16 +39,16 @@
             <hr v-if="i2 !== 0" class="m-0">
             <router-link class="clickable"
                          :to="{ name: type, params: { model: model.short_name, id: r.id } }"
-                         @click.native="handleClickResult">
+                         @click.native.prevent.stop="handleClickResult">
               <span v-if="type === 'metabolite' || type === 'gene'" class="search-result-icons pr-1">
                 <router-link class="clickable"
                              :to="{ name: type, params: { model: model.short_name, id: r.id } }"
-                             @click.native="handleClickResult">
+                             @click.native.prevent.stop="handleClickResult">
                   <span class="icon is-medium is-left" title="Gem Browser"><i class="fa fa-table" /></span>
                 </router-link>
                 <router-link class="clickable"
                              :to="{ name: 'interaction', params: { model: model.short_name, id: r.id } }"
-                             @click.native="handleClickResult">
+                             @click.native.prevent.stop="handleClickResult">
                   <span class="icon is-medium is-left" title="Interaction Partners"><i class="fa fa-connectdevelop" /></span>
                 </router-link>
               </span>
@@ -137,9 +137,6 @@ export default {
       }
       this.$store.dispatch('models/selectModel', modelKey);
     },
-    blur() {
-      setTimeout(() => { this.showResults = $('#search').is(':focus'); }, 100);
-    },
     async handleModelChange(e) {
       e.preventDefault();
       const modelKey = e.target.value;
@@ -215,6 +212,10 @@ export default {
       }
       return s;
     },
+    handleClearSearch() {
+      this.$store.dispatch('search/setSearchTermString', '');
+      this.handleClear();
+    },
     handleClickResult() {
       this.showResults = false;
       this.handleClear();
@@ -226,6 +227,7 @@ export default {
 <style lang="scss">
 
 #gem-search-wrapper {
+  position: absolute;
   width: 100%;
   height: 100%;
   display: flex;
