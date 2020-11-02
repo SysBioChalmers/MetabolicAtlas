@@ -267,7 +267,7 @@ m, .clickable {
       width: 100vw;
       height: 100vh;
       content: "";
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.75);
       z-index: 10;
     }
   }
@@ -291,7 +291,7 @@ m, .clickable {
   }
 
   .fade-enter-active, .fade-leave-active {
-    transition: opacity .25s ease-in;
+    transition: opacity .3s ease-in-out;
   }
 
   .fade-enter, .fade-leave-to {
