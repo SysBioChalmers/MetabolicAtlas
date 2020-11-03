@@ -31,7 +31,7 @@ const fetchWith = async (req, res, queryHandler) => {
     const result = await queryHandler({ id, version, limit, model, full, searchTerm });
     res.json(result);
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).send(e.message);
   }
 };
 
@@ -90,18 +90,23 @@ neo4jRoutes.get('/3d-network', async (req, res) => {
 
     res.json(network);
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).send(e.message);
   }
 });
 
 neo4jRoutes.get('/compare', async (req, res) => {
-  const { type, modelA, versionA, modelB, versionB } = req.query;
+  const { type, models } = req.query;
+  const parsedModels = JSON.parse(models);
 
   try {
-    const result = await compare({ type, modelA, versionA, modelB, versionB });
+    if (!models || parsedModels.length < 2 || parsedModels.length > 4) {
+      throw new Error('At least 2 and at most 4 models need to be provided.');
+    }
+
+    const result = await compare({ type, models: parsedModels });
     res.json(result);
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).send(e.message);
   }
 });
 
