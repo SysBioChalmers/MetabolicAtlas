@@ -3,12 +3,28 @@ import querySingleResult from 'neo4j/queryHandlers/single';
 const compareTwo = async ({ type, models }) => {
   const [ma, mb] = models;
 
-  const statement = `
-MATCH (a:${type}:${ma.model})-[:V${ma.version}]-(:ExternalDb)-[:V${mb.version}]-(b:${type}:${mb.model})
-RETURN { ${ma.model}: COUNT(DISTINCT(a.id)), ${mb.model}: COUNT(DISTINCT(b.id)) }
+  const aStatement = `
+MATCH (a:${type}:${ma.model})-[:V${ma.version}]-()
+RETURN { ${ma.model}: COUNT(DISTINCT(a)) }
 `;
 
-  return querySingleResult(statement);
+  const bStatement = `
+MATCH (b:${type}:${mb.model})-[:V${mb.version}]-()
+RETURN { ${mb.model}: COUNT(DISTINCT(b)) }
+`;
+
+  const compareStatement = `
+MATCH (a:${type}:${ma.model})-[:V${ma.version}]-(:ExternalDb)-[:V${mb.version}]-(b:${type}:${mb.model})
+RETURN { ${ma.model}: COUNT(DISTINCT(a)), ${mb.model}: COUNT(DISTINCT(b)) }
+`;
+
+  const promises = [
+    querySingleResult(aStatement),
+    querySingleResult(bStatement),
+    querySingleResult(compareStatement),
+  ];
+
+  return Promise.all(promises);
 };
 
 const compareThree = async ({ type, models }) => {
@@ -18,7 +34,7 @@ const compareThree = async ({ type, models }) => {
 MATCH (a:${type}:${ma.model})-[:V${ma.version}]-(e:ExternalDb)-[:V${mb.version}]-(b:${type}:${mb.model})
 MATCH (a)-[:V${ma.version}]-(e)-[:V${mc.version}]-(c:${type}:${mc.model})
 MATCH (b)-[:V${mb.version}]-(e)-[:V${mc.version}]-(c)
-RETURN { ${ma.model}: COUNT(DISTINCT(a.id)), ${mb.model}: COUNT(DISTINCT(b.id)), ${mc.model}: COUNT(DISTINCT(c.id)) }
+RETURN { ${ma.model}: COUNT(DISTINCT(a)), ${mb.model}: COUNT(DISTINCT(b)), ${mc.model}: COUNT(DISTINCT(c)) }
 `;
 
   const promises = [
@@ -28,7 +44,12 @@ RETURN { ${ma.model}: COUNT(DISTINCT(a.id)), ${mb.model}: COUNT(DISTINCT(b.id)),
     querySingleResult(statement),
   ];
 
-  return Promise.all(promises);
+  const results = await Promise.all(promises);
+  const filteredResults = results.flat() // remove duplicates
+    .filter((v, i, a) => a.findIndex(r => JSON.stringify(r) === JSON.stringify(v)) === i);;
+
+  return filteredResults.sort((a, b) => Object.keys(a).length - Object.keys(b).length);
+  ;
 };
 
 const compareFour = async ({ type, models }) => {
@@ -41,7 +62,7 @@ MATCH (a)-[:V${ma.version}]-(e)-[:V${md.version}]-(d:${type}:${md.model})
 MATCH (b)-[:V${mb.version}]-(e)-[:V${mc.version}]-(c)
 MATCH (b)-[:V${mb.version}]-(e)-[:V${md.version}]-(d)
 MATCH (c)-[:V${mc.version}]-(e)-[:V${md.version}]-(d)
-RETURN { ${ma.model}: COUNT(DISTINCT(a.id)), ${mb.model}: COUNT(DISTINCT(b.id)), ${mc.model}: COUNT(DISTINCT(c.id)), ${md.model}: COUNT(DISTINCT(d.id)) }
+RETURN { ${ma.model}: COUNT(DISTINCT(a)), ${mb.model}: COUNT(DISTINCT(b)), ${mc.model}: COUNT(DISTINCT(c)), ${md.model}: COUNT(DISTINCT(d)) }
 `;
 
   const promises = [
