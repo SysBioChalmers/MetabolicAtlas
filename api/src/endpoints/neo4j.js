@@ -17,6 +17,7 @@ import {
   mapSearch,
   search,
   get3dNetwork,
+  compare,
 } from 'neo4j/index';
 
 const neo4jRoutes = express.Router();
@@ -88,6 +89,17 @@ neo4jRoutes.get('/3d-network', async (req, res) => {
     }
 
     res.json(network);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+neo4jRoutes.get('/compare', async (req, res) => {
+  const { type, modelA, versionA, modelB, versionB } = req.query;
+
+  try {
+    const result = await compare({ type, modelA, versionA, modelB, versionB });
+    res.json(result);
   } catch (e) {
     res.status(400).send(e);
   }
