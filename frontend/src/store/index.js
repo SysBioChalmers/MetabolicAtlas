@@ -13,6 +13,7 @@ import interactionPartners from './modules/interactionPartners';
 import search from './modules/search';
 import humanProteinAtlas from './modules/humanProteinAtlas';
 import europepmc from './modules/europepmc';
+import compare from './modules/compare';
 
 Vue.use(Vuex);
 
@@ -31,5 +32,6 @@ export default new Vuex.Store({
     search,
     humanProteinAtlas,
     europepmc,
+    compare,
   },
 });
