@@ -31,25 +31,7 @@
           </div>
         </div>
         <div v-if="comparisons.length > 0" class="column">
-          Table
-          <table class="table is-striped">
-            <thead>
-              <tr>
-                <th>have in common with ↓</th>
-                <th v-for="model in selectedModels" :key="model.apiName">
-                  {{ model.apiName }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(heading, i) in rowHeadings" :key="heading + i">
-                <th>{{ heading }}</th>
-                <td v-for="(m, j) in selectedModels" :key="heading + j">
-                  {{ comparisonRows[i][j] }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <comparison-matrix :comparisons="comparisons" />
         </div>
       </div>
       <template v-for="c in comparison">
@@ -144,9 +126,13 @@
 <script>
 
 import { mapState } from 'vuex';
+import ComparisonMatrix from '@/components/shared/ComparisonMatrix.vue';
 
 export default {
   name: 'CompareModels',
+  components: {
+    ComparisonMatrix,
+  },
   data() {
     return {
       componentType: 'Reaction',
@@ -307,57 +293,6 @@ export default {
       comparisons: state => state.compare.comparisons,
       maxModels() {
         return this.componentType === 'Reaction' ? 4 : 3;
-      },
-      rowHeadings() {
-        if (this.selectedModels.length < 2) {
-          return [];
-        }
-
-        let headings = this.selectedModels.map(m => m.apiName);
-
-        if (this.selectedModels.length === 4) {
-          const [h1, h2, h3, h4] = headings;
-
-          headings = [
-            ...headings,
-            `${h1} + ${h2}`,
-            `${h1} + ${h3}`,
-            `${h1} + ${h4}`,
-            `${h2} + ${h3}`,
-            `${h2} + ${h4}`,
-            `${h3} + ${h4}`,
-          ];
-        }
-
-        if (this.selectedModels.length > 2) {
-          headings.push('all others');
-        }
-
-        return headings;
-      },
-      comparisonRows() {
-        const singles = this.comparisons.filter(c => Object.keys(c).length === 1);
-        const doubles = this.comparisons.filter(c => Object.keys(c).length === 2);
-        const triples = this.comparisons.filter(c => Object.keys(c).length === 3);
-        const quadruples = this.comparisons.filter(c => Object.keys(c).length === 4);
-
-        return this.rowHeadings.map((h, i) => this.selectedModels.map((m, j) => {
-          let comparison;
-
-          if (m.apiName === h) {
-            comparison = singles.find(x => Object.keys(x)[0] === m.apiName);
-          } else if (i < this.selectedModels.length && j < this.selectedModels.length) {
-            comparison = doubles.find(x => Object.keys(x).includes(h) && Object.keys(x).includes(m.apiName));
-          } else if (i === this.rowHeadings.length - 1) { // if last row
-            comparison = this.selectedModels.length === 3 ? triples[0] : quadruples[0];
-          } else {
-            const [k1, k2] = h.split(' + '); // e.g. HumanGem + MouseGem
-            comparison = k1 !== m.apiName && k2 !== m.apiName && triples.find(x => Object.keys(x).includes(k1)
-              && Object.keys(x).includes(k2) && Object.keys(x).includes(m.apiName));
-          }
-
-          return comparison ? comparison[m.apiName] : '-';
-        }));
       },
     }),
   },
