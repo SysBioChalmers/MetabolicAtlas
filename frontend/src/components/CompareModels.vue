@@ -4,34 +4,18 @@
       <h3 class="title is-size-3">GEM Comparison</h3>
       <div class="columns">
         <div class="column is-one-third">
-          <h5 class="subtitle is-size-5">Component:</h5>
-          <div class="control">
-            <label class="radio" @click="setComponentType('Reaction')">
-              <input v-model="componentType" name="componentType" type="radio" value="Reaction">
-              Reaction
-            </label>
-          </div>
-          <div class="control">
-            <label class="radio" @click="setComponentType('CompartmentalizedMetabolite')">
-              <input v-model="componentType" name="componentType" type="radio" value="CompartmentalizedMetabolite">
-              Metabolite
-            </label>
-          </div>
-          <h5 class="subtitle is-size-5">Models:</h5>
+          <h5 class="subtitle is-size-5">Models (select 2 or 3):</h5>
           <div v-for="model in modelList" :key="model.apiName" class="control"
-               @click="toggleSelectedModel(model)">
+               :disabled="shouldDisable(model)" @click="toggleSelectedModel(model)">
             <label class="checkbox" :disabled="shouldDisable(model)">
               <input :checked="selectedModelIndex(model) > -1" type="checkbox">
               {{ model.apiName }}
             </label>
           </div>
-          <br />
-          <div class="buttons">
-            <button class="button is-primary" :disabled="selectedModels.length < 2" @click="compare">Compare</button>
-          </div>
         </div>
-        <div v-if="comparisons.length > 0" class="column">
-          <comparison-matrix :comparisons="comparisons" />
+        <div v-if="!comparisonsEmpty" class="column">
+          <comparison-matrix caption="Reactions" :comparisons="comparisons.reactions" />
+          <comparison-matrix caption="Metabolites" :comparisons="comparisons.metabolites" />
         </div>
       </div>
       <template v-for="c in comparison">
@@ -125,7 +109,7 @@
 
 <script>
 
-import { mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import ComparisonMatrix from '@/components/shared/ComparisonMatrix.vue';
 
 export default {
@@ -135,7 +119,8 @@ export default {
   },
   data() {
     return {
-      componentType: 'Reaction',
+      minModels: 2,
+      maxModels: 3,
       selectedModels: [],
       comparison: [{
         models: {
@@ -291,29 +276,17 @@ export default {
     ...mapState({
       modelList: state => state.models.modelList,
       comparisons: state => state.compare.comparisons,
-      maxModels() {
-        return this.componentType === 'Reaction' ? 4 : 3;
-      },
+    }),
+    ...mapGetters({
+      comparisonsEmpty: 'compare/comparisonsEmpty',
     }),
   },
   methods: {
-    setComponentType(componentType) {
-      if (this.componentType === componentType) {
-        return;
-      }
-
-      this.$store.dispatch('compare/resetComparisons');
-      this.componentType = componentType;
-
-      if (this.selectedModels.length > this.maxModels) {
-        this.selectedModels.splice(this.maxModels, this.selectedModels.length - this.maxModels);
-      }
-    },
     selectedModelIndex(model) {
       return this.selectedModels.findIndex(m => model.apiName === m.apiName
         && model.version === m.version);
     },
-    toggleSelectedModel(model) {
+    async toggleSelectedModel(model) {
       this.$store.dispatch('compare/resetComparisons');
 
       const index = this.selectedModelIndex(model);
@@ -323,15 +296,20 @@ export default {
       } else {
         this.selectedModels.push(model);
       }
+
+      await this.compare();
     },
     shouldDisable(model) {
       return this.selectedModelIndex(model) === -1 && this.selectedModels.length === this.maxModels;
     },
     async compare() {
+      if (this.selectedModels.length < this.minModels || this.selectedModels.length > this.maxModels) {
+        return;
+      }
+
       this.$store.dispatch('compare/resetComparisons');
 
       const payload = {
-        type: this.componentType,
         models: this.selectedModels.map(m => ({
           model: m.apiName,
           version: m.apiVersion,
@@ -343,4 +321,12 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+
+.control[disabled] {
+  cursor: not-allowed;
+  pointer-events: none;
+  user-select: none;
+}
+
+</style>

@@ -1,18 +1,28 @@
 import compareApi from '@/api/compare';
 
 const data = {
-  comparisons: [],
+  comparisons: {
+    reactions: [],
+    metabolites: [],
+  },
 };
 
 const actions = {
-  async getComparisons({ commit }, { type, models }) {
-    const payload = { type, models };
-    const comparisons = await compareApi.fetchComparisons(payload);
-    commit('setComparisons', comparisons);
+  async getComparisons({ commit }, { models }) {
+    const [reactions, metabolites] = await Promise.all([
+      compareApi.fetchComparisons({ type: 'Reaction', models }),
+      compareApi.fetchComparisons({ type: 'CompartmentalizedMetabolite', models }),
+    ]);
+
+    commit('setComparisons', { reactions, metabolites });
   },
   resetComparisons({ commit }) {
     commit('setComparisons', []);
   },
+};
+
+const getters = {
+  comparisonsEmpty: state => Object.values(state.comparisons).flat().length === 0,
 };
 
 const mutations = {
@@ -24,6 +34,7 @@ const mutations = {
 export default {
   namespaced: true,
   state: data,
+  getters,
   actions,
   mutations,
 };

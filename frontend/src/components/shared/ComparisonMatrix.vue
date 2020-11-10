@@ -1,5 +1,6 @@
 <template>
   <table v-if="comparisons.length > 0" class="table is-striped is-bordered">
+    <caption>{{ caption }}</caption>
     <thead>
       <tr>
         <th></th>
@@ -22,6 +23,7 @@
 export default {
   name: 'ComparisonMatrix',
   props: {
+    caption: { type: String, required: true },
     comparisons: { type: Array, required: true },
   },
   computed: {
