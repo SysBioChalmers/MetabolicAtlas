@@ -281,6 +281,24 @@ export default {
       comparisonsEmpty: 'compare/comparisonsEmpty',
     }),
   },
+  watch: {
+    async modelList(l) {
+      if (l && l.length > 0) {
+        const { models } = this.$route.query;
+
+        if (models) {
+          models.forEach(async (m) => {
+            const [apiName, version] = m.split('-');
+            const model = l.find(x => x.apiName === apiName
+              && x.version === version);
+            await this.toggleSelectedModel(model);
+          });
+
+          await this.compare();
+        }
+      }
+    },
+  },
   methods: {
     selectedModelIndex(model) {
       return this.selectedModels.findIndex(m => model.apiName === m.apiName
@@ -296,6 +314,10 @@ export default {
       } else {
         this.selectedModels.push(model);
       }
+
+      this.$router.replace({ query: {
+        models: this.selectedModels.map(m => `${m.apiName}-${m.version}`),
+      } });
 
       await this.compare();
     },
