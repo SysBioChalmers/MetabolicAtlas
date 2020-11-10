@@ -186,21 +186,12 @@ export default {
       model: state => state.models.model,
     }),
   },
-  created() {
-    // add handler for escape key
-    window.addEventListener('keydown', (e) => {
-      if (e.keyCode === 27 && this.showGemSearch) {
-        e.preventDefault();
-        this.showGemSearch = false;
-      }
-    });
-  },
-  methods: {
-    handleBodyClick(e) {
-      const navbar = document.querySelector('#navbar');
-
-      if (!navbar.contains(e.target) && this.showGemSearch) {
-        this.showGemSearch = false;
+  watch: {
+    showGemSearch(show) {
+      if (show) {
+        setTimeout(() => {
+          document.querySelector('#search').focus();
+        });
       }
     },
   },

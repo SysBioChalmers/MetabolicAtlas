@@ -122,9 +122,6 @@ export default {
   async created() {
     await this.getIntegratedModelList();
   },
-  mounted() {
-    $('#search').focus();
-  },
   methods: {
     async getIntegratedModelList() {
       await this.$store.dispatch('models/getModels');
