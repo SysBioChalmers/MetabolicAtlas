@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="{'fade-page': showGemSearch}" @click.stop.prevent="handleBodyClick">
+  <div id="app" :class="{'fade-page': showGemSearch}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <nav id="navbar" class="navbar has-background-primary-lighter" role="navigation" aria-label="main navigation">
       <transition name="fade">

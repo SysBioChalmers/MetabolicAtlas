@@ -3,7 +3,8 @@
     <div class="field has-addons m-0">
       <p class="control">
         <span class="select">
-          <select :value="model.short_name" @change="handleModelChange">
+          <select id="model-select" :value="model.short_name"
+                  @change="handleModelChange" @keyup.esc="handleClear()" @blur="blur()">
             <option v-for="m in models" :key="m.short_name">
               {{ m.short_name }}
             </option>
@@ -18,8 +19,9 @@
                type="text" class="input"
                :placeholder="placeholder"
                :value="searchTermString"
-               @keyup.esc="showResults = false"
-               @focus="showResults = true">
+               @keyup.esc="handleClear()"
+               @focus="showResults = true"
+               @blur="blur()">
         <span class="icon is-medium is-left"><i class="fa fa-search" /></span>
         <span v-show="showSearchCharAlert" class="has-text-info icon is-right" style="width: 270px">
           Type at least 2 characters
@@ -216,6 +218,16 @@ export default {
     handleClickResult() {
       this.showResults = false;
       this.handleClear();
+    },
+    blur() {
+      setTimeout(() => {
+        if (document.getElementById('gem-search-wrapper').contains(document.activeElement) === false) {
+          this.showResults = false;
+          this.handleClear();
+        } else if (document.getElementById('model-select').contains(document.activeElement) === false) {
+          $('#search').focus();
+        }
+      });
     },
   },
 };
