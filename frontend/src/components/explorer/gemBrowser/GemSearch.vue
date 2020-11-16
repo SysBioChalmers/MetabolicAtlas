@@ -12,7 +12,7 @@
           </select>
         </span>
       </p>
-      <p class="control is-expanded has-icons-right has-icons-left">
+      <p class="control is-expanded has-icons-right has-icons-left has-icons-right">
         <!-- eslint-disable max-len -->
         <input id="search" ref="searchInput"
                v-debounce:700="searchDebounce" data-hj-whitelist
@@ -26,13 +26,15 @@
         <span v-show="showSearchCharAlert" class="has-text-info icon is-right" style="width: 270px">
           Type at least 2 characters
         </span>
+        <span id="clear-search-icon" class="icon is-medium is-right has-text-grey-dark" @click="handleClearSearch()">
+          <i class="fa fa-times-circle" />
+        </span>
       </p>
-      <a class="delete" @click.stop.prevent="handleClearSearch" />
     </div>
     <div v-show="showResults && searchTermString.length > 1" id="searchResults" ref="searchResults">
       <div v-show="searchResults.length !== 0 && !showLoader"
            class="notification is-large is-unselectable has-text-centered clickable py-1 mb-1"
-           @mousedown.prevent="globalSearch()">
+           @mousedown="globalSearch()">
         Limited to 50 results per type. Click here to search all integrated GEMs
       </div>
       <div v-show="!showLoader" v-if="searchResults.length !== 0" class="resList">
@@ -41,16 +43,16 @@
             <hr v-if="i2 !== 0" class="m-0">
             <router-link class="clickable"
                          :to="{ name: type, params: { model: model.short_name, id: r.id } }"
-                         @click.native.prevent.stop="handleClickResult">
+                         @click.native="handleClickResult">
               <span v-if="type === 'metabolite' || type === 'gene'" class="search-result-icons pr-1">
                 <router-link class="clickable"
                              :to="{ name: type, params: { model: model.short_name, id: r.id } }"
-                             @click.native.prevent.stop="handleClickResult">
+                             @click.native="handleClickResult">
                   <span class="icon is-medium is-left" title="Gem Browser"><i class="fa fa-table" /></span>
                 </router-link>
                 <router-link class="clickable"
                              :to="{ name: 'interaction', params: { model: model.short_name, id: r.id } }"
-                             @click.native.prevent.stop="handleClickResult">
+                             @click.native="handleClickResult">
                   <span class="icon is-medium is-left" title="Interaction Partners"><i class="fa fa-connectdevelop" /></span>
                 </router-link>
               </span>
@@ -252,11 +254,9 @@ export default {
     position: relative;
   }
 
-  a.delete {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 5;
+  #clear-search-icon {
+    cursor: pointer;
+    pointer-events: auto;
   }
 
   #searchResults {
