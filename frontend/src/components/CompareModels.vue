@@ -2,21 +2,22 @@
   <section class="section section-no-top extended-section">
     <div class="container is-fullhd">
       <h3 class="title is-size-3">GEM Comparison</h3>
-      <div class="columns">
-        <div class="column is-one-third">
-          <h5 class="subtitle is-size-5">Models (select 2 or 3):</h5>
-          <div v-for="model in modelList" :key="model.apiName" class="control"
-               :disabled="shouldDisable(model)" @click="toggleSelectedModel(model)">
-            <label class="checkbox" :disabled="shouldDisable(model)">
-              <input :checked="selectedModelIndex(model) > -1" type="checkbox">
-              {{ model.apiName }}
-            </label>
-          </div>
-        </div>
-        <div v-if="!comparisonsEmpty" class="column">
-          <comparison-matrix caption="Reactions" :comparisons="comparisons.reactions" />
-          <comparison-matrix caption="Metabolites" :comparisons="comparisons.metabolites" />
-        </div>
+      <h6 class="subtitle is-size-6">
+        See the common Reactions and Metabolites between 2 or 3 GEMs.
+      </h6>
+      <div class="tags">
+        <span v-for="m in modelList" :key="m.apiName" class="tag is-medium"
+              :disabled="shouldDisable(m)">
+          <label class="checkbox" :disabled="shouldDisable(m)">
+            <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox">
+            {{ m.apiName.replace('Gem', '') }}
+          </label>
+        </span>
+      </div>
+      <loader v-if="comparisonsEmpty && validModels" />
+      <div v-else class="columns">
+        <comparison-matrix class="column" caption="Reactions" :comparisons="comparisons.reactions" />
+        <comparison-matrix class="column" caption="Metabolites" :comparisons="comparisons.metabolites" />
       </div>
       <template v-for="c in comparison">
         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
@@ -37,13 +38,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="model in c.models" :key="model.modeName">
-                <td>{{ model.modelId }}</td>
-                <td v-html="model.modelName"></td>
-                <td>{{ model.totalReactions }}</td>
-                <td>{{ model.sharedReactions }}%</td>
-                <td>{{ model.exclusiveReactions }}</td>
-                <td>{{ model.exclusivePercentage }}</td>
+              <tr v-for="m in c.models" :key="m.modelName">
+                <td>{{ m.modelId }}</td>
+                <td v-html="m.modelName"></td>
+                <td>{{ m.totalReactions }}</td>
+                <td>{{ m.sharedReactions }}%</td>
+                <td>{{ m.exclusiveReactions }}</td>
+                <td>{{ m.exclusivePercentage }}</td>
               </tr>
             </tbody>
           </table>
@@ -111,11 +112,13 @@
 
 import { mapGetters, mapState } from 'vuex';
 import ComparisonMatrix from '@/components/shared/ComparisonMatrix.vue';
+import Loader from '@/components/Loader.vue';
 
 export default {
   name: 'CompareModels',
   components: {
     ComparisonMatrix,
+    Loader,
   },
   data() {
     return {
@@ -280,23 +283,37 @@ export default {
     ...mapGetters({
       comparisonsEmpty: 'compare/comparisonsEmpty',
     }),
+    validModels() {
+      return this.selectedModels.length >= this.minModels && this.selectedModels.length <= this.maxModels;
+    },
   },
   watch: {
-    async modelList(l) {
+    modelList(l) {
       if (l && l.length > 0) {
         const { models } = this.$route.query;
 
         if (models) {
-          models.forEach(async (m) => {
+          this.selectedModels = [models].flat().map((m) => {
             const [apiName, version] = m.split('-');
-            const model = l.find(x => x.apiName === apiName
-              && x.version === version);
-            await this.toggleSelectedModel(model);
+            return l.find(x => x.apiName === apiName && x.version === version);
           });
-
-          await this.compare();
         }
       }
+    },
+    async selectedModels(models) {
+      if (!models) {
+        return;
+      }
+
+      const query = {
+        models: models.map(m => `${m.apiName}-${m.version}`),
+      };
+
+      if (JSON.stringify(query.models) !== JSON.stringify([this.$route.query.models].flat())) {
+        this.$router.replace({ query });
+      }
+
+      await this.compare();
     },
   },
   methods: {
@@ -304,28 +321,11 @@ export default {
       return this.selectedModels.findIndex(m => model.apiName === m.apiName
         && model.version === m.version);
     },
-    async toggleSelectedModel(model) {
-      this.$store.dispatch('compare/resetComparisons');
-
-      const index = this.selectedModelIndex(model);
-
-      if (index > -1) {
-        this.selectedModels.splice(index, 1);
-      } else {
-        this.selectedModels.push(model);
-      }
-
-      this.$router.replace({ query: {
-        models: this.selectedModels.map(m => `${m.apiName}-${m.version}`),
-      } });
-
-      await this.compare();
-    },
     shouldDisable(model) {
       return this.selectedModelIndex(model) === -1 && this.selectedModels.length === this.maxModels;
     },
     async compare() {
-      if (this.selectedModels.length < this.minModels || this.selectedModels.length > this.maxModels) {
+      if (!this.validModels) {
         return;
       }
 
