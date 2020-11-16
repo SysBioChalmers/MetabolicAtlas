@@ -3,7 +3,7 @@
     <div class="field has-addons m-0">
       <p class="control">
         <span class="select">
-          <select id="model-select" :value="model.short_name"
+          <select id="model-select" :value="searchModel.short_name"
                   @change="handleModelChange" @keyup.esc="handleClear()" @blur="blur()">
             <option v-for="m in models" :key="m.short_name">
               {{ m.short_name }}
@@ -42,16 +42,16 @@
           <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection px-1 py-0">
             <hr v-if="i2 !== 0" class="m-0">
             <router-link class="clickable"
-                         :to="{ name: type, params: { model: model.short_name, id: r.id } }"
+                         :to="{ name: type, params: { model: searchModel.short_name, id: r.id } }"
                          @click.native="handleClickResult">
               <span v-if="type === 'metabolite' || type === 'gene'" class="search-result-icons pr-1">
                 <router-link class="clickable"
-                             :to="{ name: type, params: { model: model.short_name, id: r.id } }"
+                             :to="{ name: type, params: { model: searchModel.short_name, id: r.id } }"
                              @click.native="handleClickResult">
                   <span class="icon is-medium is-left" title="Gem Browser"><i class="fa fa-table" /></span>
                 </router-link>
                 <router-link class="clickable"
-                             :to="{ name: 'interaction', params: { model: model.short_name, id: r.id } }"
+                             :to="{ name: 'interaction', params: { model: searchModel.short_name, id: r.id } }"
                              @click.native="handleClickResult">
                   <span class="icon is-medium is-left" title="Interaction Partners"><i class="fa fa-connectdevelop" /></span>
                 </router-link>
@@ -107,6 +107,7 @@ export default {
         compartment: ['name'],
       },
       notFoundSuggestions: [],
+      searchModel: null,
     };
   },
   computed: {
@@ -137,6 +138,7 @@ export default {
         this.$router.replace({ params: { model: modelKey } });
       }
       this.$store.dispatch('models/selectModel', modelKey);
+      this.searchModel = this.models[modelKey];
     },
     async handleModelChange(e) {
       e.preventDefault();
@@ -145,7 +147,7 @@ export default {
       if (modelKey === 'Global Search') {
         this.globalSearch();
       } else {
-        await this.$store.dispatch('models/selectModel', modelKey);
+        this.searchModel = this.models[modelKey];
         await this.searchDebounce(this.searchTermString);
       }
     },
@@ -170,7 +172,7 @@ export default {
 
       try {
         const payload = {
-          model: this.model,
+          model: this.searchModel,
         };
         await this.$store.dispatch('search/search', payload);
 
