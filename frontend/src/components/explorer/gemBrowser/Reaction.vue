@@ -6,9 +6,6 @@
           {{ modelErrorMessage }}
         </div>
       </div>
-      <div v-else class="columns is-centered">
-        <gem-search ref="gemSearch" />
-      </div>
       <div v-if="componentNotFound" class="columns is-centered">
         <notFound :type="type" :component-id="rId"></notFound>
       </div>
@@ -71,7 +68,7 @@
                         {{ rr.id }}
                       </router-link>:&nbsp;
                       <span v-html="reformatChemicalReactionHTML(rr, true, model.short_name)"></span>:
-                      (<span v-html="reformatEqSign(rr.compartment_str, rr.reversible)">
+                      (<span v-html="equationSign(rr.reversible)">
                       </span>)
                     </span>
                   </td>
@@ -99,9 +96,8 @@ import NotFound from '@/components/NotFound';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import GemContact from '@/components/shared/GemContact';
-import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import References from '@/components/shared/References';
-import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, reformatEqSign } from '@/helpers/utils';
+import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, equationSign } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -112,7 +108,6 @@ export default {
     MapsAvailable,
     ExtIdTable,
     GemContact,
-    GemSearch,
     References,
   },
   data() {
@@ -233,7 +228,7 @@ export default {
     reformatReversible() { return this.reaction.reversible ? 'Yes' : 'No'; },
     reformatTableKey,
     reformatChemicalReactionHTML,
-    reformatEqSign,
+    equationSign,
   },
 };
 </script>

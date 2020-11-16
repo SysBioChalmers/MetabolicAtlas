@@ -6,9 +6,6 @@
           {{ modelErrorMessage }}
         </div>
       </div>
-      <div v-else class="columns is-centered">
-        <gem-search ref="gemSearch" />
-      </div>
       <div v-if="componentNotFound" class="columns is-centered">
         <notFound :type="type" :component-id="metaboliteId"></notFound>
       </div>
@@ -99,7 +96,6 @@ import { mapState } from 'vuex';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
 import GemContact from '@/components/shared/GemContact';
-import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import NotFound from '@/components/NotFound';
 import Loader from '@/components/Loader';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
@@ -116,7 +112,6 @@ export default {
     MapsAvailable,
     ReactionTable,
     GemContact,
-    GemSearch,
   },
   data() {
     return {

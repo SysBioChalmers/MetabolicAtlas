@@ -6,9 +6,6 @@
           {{ modelErrorMessage }}
         </div>
       </div>
-      <div v-else class="columns is-centered">
-        <gem-search ref="gemSearch" />
-      </div>
       <div v-if="componentNotFound" class="columns is-centered">
         <notFound :type="type" :component-id="sName"></notFound>
       </div>
@@ -103,7 +100,6 @@ import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
 import GemContact from '@/components/shared/GemContact';
-import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import { buildCustomLink, reformatTableKey } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
@@ -116,7 +112,6 @@ export default {
     ReactionTable,
     ExtIdTable,
     GemContact,
-    GemSearch,
   },
   data() {
     return {
