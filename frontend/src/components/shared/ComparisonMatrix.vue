@@ -1,20 +1,27 @@
 <template>
-  <table v-if="comparisons.length > 0" class="table is-striped is-bordered">
-    <caption>{{ caption }}</caption>
+  <table v-if="mergedComparisons" class="table is-striped is-bordered">
     <thead>
       <tr>
         <th></th>
-        <th v-for="cn in columnNames" :key="cn">{{ cn }}</th>
+        <th v-for="cn in columnNames" :key="cn" colspan="2">{{ cn.replace('Gem', '') }}</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="(rn, i) in rowNames" :key="rn + i">
-        <th>{{ rn }}</th>
-        <td v-for="(cn, j) in columnNames" :key="cn + j">
-          {{ matrix[i][j] }}
-        </td>
+        <th>{{ rn.replace('Gem', '') }}</th>
+        <template v-for="(cn, j) in columnNames">
+          <td v-for="(type, k) in types" :key="cn + j + type" :style="{backgroundColor: colors[k]}">
+            {{ matrix[i][j][type] }}
+          </td>
+        </template>
       </tr>
     </tbody>
+    <caption>
+      Legend:
+      <span v-for="(type, k) of types" :key="type" :style="{backgroundColor: colors[k]}">
+        {{ type }}
+      </span>
+    </caption>
   </table>
 </template>
 
@@ -23,21 +30,43 @@
 export default {
   name: 'ComparisonMatrix',
   props: {
-    caption: { type: String, required: true },
-    comparisons: { type: Array, required: true },
+    comparisons: { type: Object, required: true },
+  },
+  data() {
+    return {
+      colors: ['#eef6fc', '#fffbeb'],
+    };
   },
   computed: {
+    mergedComparisons() {
+      // currently has support for two types
+      if (this.comparisons && Object.keys(this.comparisons).length !== 2) {
+        return null;
+      }
+
+      const [t1, t2] = this.types;
+      return this.comparisons[t1].map((row, i) => Object.keys(row).reduce((mergedRow, key) => {
+        mergedRow[key] = { // eslint-disable-line no-param-reassign
+          [t1]: this.comparisons[t1][i][key],
+          [t2]: this.comparisons[t2][i][key],
+        };
+        return mergedRow;
+      }, {}));
+    },
+    types() {
+      return Object.keys(this.comparisons);
+    },
     singles() {
-      return this.comparisons.filter(c => Object.keys(c).length === 1);
+      return this.mergedComparisons.filter(c => Object.keys(c).length === 1);
     },
     doubles() {
-      return this.comparisons.filter(c => Object.keys(c).length === 2);
+      return this.mergedComparisons.filter(c => Object.keys(c).length === 2);
     },
     triples() {
-      return this.comparisons.filter(c => Object.keys(c).length === 3);
+      return this.mergedComparisons.filter(c => Object.keys(c).length === 3);
     },
     quadruples() {
-      return this.comparisons.filter(c => Object.keys(c).length === 4);
+      return this.mergedComparisons.filter(c => Object.keys(c).length === 4);
     },
     columnNames() {
       return this.singles.map(x => Object.keys(x)[0]);
@@ -90,9 +119,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+table {
+  caption-side: bottom;
 
-th, td {
-  cursor: pointer;
+  caption {
+    padding: 0.25em;
+
+    span {
+      padding: 0.25em;
+    }
+  }
+
+  th, td {
+    cursor: pointer;
+  }
+
+  th[colspan="2"] {
+    text-align: center;
+  }
+
+  td {
+    &:hover {
+      opacity: 0.5;
+    }
+
+    &:nth-child(odd) {
+      border-left: none;
+    }
+
+    &:nth-child(even) {
+      border-right: none;
+    }
+  }
 }
 
 </style>

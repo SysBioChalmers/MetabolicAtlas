@@ -16,8 +16,7 @@
       </div>
       <loader v-if="comparisonsEmpty && validModels" />
       <div v-else class="columns">
-        <comparison-matrix class="column" caption="Reactions" :comparisons="comparisons.reactions" />
-        <comparison-matrix class="column" caption="Metabolites" :comparisons="comparisons.metabolites" />
+        <comparison-matrix class="column" :comparisons="comparisons" />
       </div>
       <template v-for="c in comparison">
         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->

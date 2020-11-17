@@ -100,4 +100,13 @@ const compare = async ({ type, models }) => {
   return compareFour(payload);
 };
 
-export default compare;
+const compareReactionsAndMetabolites = async({ models }) => {
+  const promises = [
+    compare({ models, type: "Reaction" }),
+    compare({ models, type: "CompartmentalizedMetabolite" }),
+  ];
+
+  return Promise.all(promises);
+};
+
+export default compareReactionsAndMetabolites;

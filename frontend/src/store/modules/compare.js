@@ -9,10 +9,7 @@ const data = {
 
 const actions = {
   async getComparisons({ commit }, { models }) {
-    const [reactions, metabolites] = await Promise.all([
-      compareApi.fetchComparisons({ type: 'Reaction', models }),
-      compareApi.fetchComparisons({ type: 'CompartmentalizedMetabolite', models }),
-    ]);
+    const [reactions, metabolites] = await compareApi.fetchComparisons({ models });
 
     commit('setComparisons', { reactions, metabolites });
   },

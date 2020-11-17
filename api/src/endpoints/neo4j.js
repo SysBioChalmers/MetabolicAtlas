@@ -17,7 +17,7 @@ import {
   mapSearch,
   search,
   get3dNetwork,
-  compare,
+  compareReactionsAndMetabolites,
 } from 'neo4j/index';
 
 const neo4jRoutes = express.Router();
@@ -95,7 +95,7 @@ neo4jRoutes.get('/3d-network', async (req, res) => {
 });
 
 neo4jRoutes.get('/compare', async (req, res) => {
-  const { type, models } = req.query;
+  const { models } = req.query;
   const parsedModels = JSON.parse(models);
 
   try {
@@ -103,7 +103,7 @@ neo4jRoutes.get('/compare', async (req, res) => {
       throw new Error('At least 2 and at most 4 models need to be provided.');
     }
 
-    const result = await compare({ type, models: parsedModels });
+    const result = await compareReactionsAndMetabolites({ models: parsedModels });
     res.json(result);
   } catch (e) {
     res.status(400).send(e.message);
