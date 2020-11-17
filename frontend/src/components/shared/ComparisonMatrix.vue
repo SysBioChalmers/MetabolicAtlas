@@ -1,8 +1,8 @@
 <template>
-  <table v-if="mergedComparisons" class="table is-striped is-bordered">
+  <table v-if="mergedComparisons" class="table is-bordered">
     <thead>
       <tr>
-        <th></th>
+        <th>compared to ↓</th>
         <th v-for="cn in columnNames" :key="cn" colspan="2">{{ cn.replace('Gem', '') }}</th>
       </tr>
     </thead>

@@ -16,7 +16,10 @@ import getRandomComponents from 'neo4j/queries/randomComponents';
 import getInteractionPartners from 'neo4j/queries/interactionPartners';
 import { getMapsListing, mapSearch } from 'neo4j/queries/map';
 import get3dNetwork from 'neo4j/queries/3d-network';
-import compareReactionsAndMetabolites from 'neo4j/queries/compare';
+import {
+  getComparisonOverview,
+  getComparisonDetails,
+} from 'neo4j/queries/compare';
 
 export {
   getCompartment,
@@ -36,5 +39,6 @@ export {
   mapSearch,
   search,
   get3dNetwork,
-  compareReactionsAndMetabolites,
+  getComparisonOverview,
+  getComparisonDetails,
 };

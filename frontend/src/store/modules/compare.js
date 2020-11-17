@@ -9,9 +9,12 @@ const data = {
 
 const actions = {
   async getComparisons({ commit }, { models }) {
-    const [reactions, metabolites] = await compareApi.fetchComparisons({ models });
+    const comparisons = await compareApi.fetchComparisons({ models });
 
-    commit('setComparisons', { reactions, metabolites });
+    commit('setComparisons', {
+      reactions: comparisons.Reaction,
+      metabolites: comparisons.CompartmentalizedMetabolite,
+    });
   },
   resetComparisons({ commit }) {
     commit('setComparisons', []);

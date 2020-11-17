@@ -1,5 +1,7 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 
+const COMPONENT_TYPES = ['Reaction', 'CompartmentalizedMetabolite'];
+
 const compareTwo = async ({ type, models }) => {
   const [ma, mb] = models;
 
@@ -80,7 +82,7 @@ RETURN { ${ma.model}: COUNT(DISTINCT(a)), ${mb.model}: COUNT(DISTINCT(b)), ${mc.
   return filteredResults.sort((a, b) => Object.keys(a).length - Object.keys(b).length);
 };
 
-const compare = async ({ type, models }) => {
+const compareOverview = async ({ models, type }) => {
   const max = type === 'CompartmentalizedMetabolite' ? 3 : 4;
 
   if (models.length < 2 || models.length > max) {
@@ -100,13 +102,66 @@ const compare = async ({ type, models }) => {
   return compareFour(payload);
 };
 
-const compareReactionsAndMetabolites = async({ models }) => {
+const compareDetails = async({ model, models, type }) => {
+  // models can be of length 1 or 2
+  const [ma, mb, mc] = [model, ...models];
+
+  const selfStatement = `
+MATCH (a:${type}:${ma.model})-[:V${ma.version}]-()
+RETURN { own: COUNT(DISTINCT(a)) }
+`;
+
+  let commonStatement, uniqueStatement;
+
+  if (mc) {
+    commonStatement = `
+MATCH (a:${type}:${ma.model})-[:V${ma.version}]-(e:ExternalDb)-[:V${mb.version}]-(b:${type}:${mb.model})
+MATCH (a)-[:V${ma.version}]-(e)-[:V${mc.version}]-(c:${type}:${mc.model})
+MATCH (b)-[:V${mb.version}]-(e)-[:V${mc.version}]-(c)
+RETURN { common: COUNT(DISTINCT(a)) }
+`;
+
+    uniqueStatement = `
+MATCH (a:${type}:${ma.model})-[:V${ma.version}]-()
+WHERE NOT (a)-[:V${ma.version}]-(:ExternalDb)-[:V${mb.version}]-(:${type}:${mb.model})
+AND NOT (a)-[:V${ma.version}]-(:ExternalDb)-[:V${mc.version}]-(:${type}:${mc.model})
+RETURN { unique: COUNT(DISTINCT(a)) }
+`;
+  } else {
+    commonStatement = `
+MATCH (a:${type}:${ma.model})-[:V${ma.version}]-(:ExternalDb)-[:V${mb.version}]-(b:${type}:${mb.model})
+RETURN { common: COUNT(DISTINCT(a)) }
+`;
+
+    uniqueStatement = `
+MATCH (a:${type}:${ma.model})-[:V${ma.version}]-()
+WHERE NOT (a)-[:V${ma.version}]-(:ExternalDb)-[:V${mb.version}]-(:${type}:${mb.model})
+RETURN { common: COUNT(DISTINCT(a)) }
+`;
+  }
+
   const promises = [
-    compare({ models, type: "Reaction" }),
-    compare({ models, type: "CompartmentalizedMetabolite" }),
+    querySingleResult(selfStatement),
+    querySingleResult(commonStatement),
+    querySingleResult(uniqueStatement),
   ];
 
-  return Promise.all(promises);
+  const results = await Promise.all(promises);
+  return results.reduce((obj, x) => ({ ...obj, ...x }), {})
 };
 
-export default compareReactionsAndMetabolites;
+const getComparisonOverview = async({ models }) => {
+  const results = await Promise.all(COMPONENT_TYPES.map(async type => ({
+    [type]: await compareOverview({ models, type })
+  })))
+  return results.reduce((obj, x) => ({ ...obj, ...x }), {})
+};
+
+const getComparisonDetails = async({ model, models }) => ({
+  comparisonModels: ({ model, models }),
+  comparisonDetails: await Promise.all(COMPONENT_TYPES.map(async type => ({
+    [type]: await compareDetails({ model, models, type })
+  })))
+});
+
+export { getComparisonOverview, getComparisonDetails };
