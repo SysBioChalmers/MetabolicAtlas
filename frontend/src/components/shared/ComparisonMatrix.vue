@@ -10,7 +10,10 @@
       <tr v-for="(rn, i) in rowNames" :key="rn + i">
         <th>{{ rn.replace('Gem', '') }}</th>
         <template v-for="(cn, j) in columnNames">
-          <td v-for="(type, k) in types" :key="cn + j + type" :style="{backgroundColor: colors[k]}">
+          <td v-for="(type, k) in types" :key="cn + j + type"
+              :class="{selected: isSelectedCell(i, j)}"
+              :style="{backgroundColor: colors[k]}"
+              @click="handleSelectCell(i, j)">
             {{ matrix[i][j][type] }}
           </td>
         </template>
@@ -27,17 +30,20 @@
 
 <script>
 
+import { mapState } from 'vuex';
+
 export default {
   name: 'ComparisonMatrix',
-  props: {
-    comparisons: { type: Object, required: true },
-  },
   data() {
     return {
       colors: ['#eef6fc', '#fffbeb'],
     };
   },
   computed: {
+    ...mapState({
+      comparisons: state => state.compare.comparisons,
+      selectedCell: state => state.compare.selectedCell,
+    }),
     mergedComparisons() {
       // currently has support for two types
       if (this.comparisons && Object.keys(this.comparisons).length !== 2) {
@@ -114,6 +120,15 @@ export default {
       }));
     },
   },
+  methods: {
+    isSelectedCell(r, c) {
+      const { row, col } = this.selectedCell;
+      return row === r && col === c;
+    },
+    handleSelectCell(row, col) {
+      this.$store.dispatch('compare/setSelectedCell', { row, col });
+    },
+  },
 };
 
 </script>
@@ -130,7 +145,7 @@ table {
     }
   }
 
-  th, td {
+  td {
     cursor: pointer;
   }
 
@@ -139,8 +154,8 @@ table {
   }
 
   td {
-    &:hover {
-      opacity: 0.5;
+    &.selected {
+      font-weight: bold;
     }
 
     &:nth-child(odd) {

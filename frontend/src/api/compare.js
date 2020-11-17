@@ -6,4 +6,13 @@ const fetchComparisons = async ({ models }) => {
   return data;
 };
 
-export default { fetchComparisons };
+const fetchComparisonDetails = async ({ model, models }) => {
+  const params = {
+    model: JSON.stringify(model),
+    models: JSON.stringify(models),
+  };
+  const { data } = await axios.get('/compare-details', { params });
+  return data;
+};
+
+export default { fetchComparisons, fetchComparisonDetails };

@@ -5,6 +5,11 @@ const data = {
     reactions: [],
     metabolites: [],
   },
+  selectedCell: {
+    row: 1,
+    col: 0,
+  },
+  comparisonDetails: null,
 };
 
 const actions = {
@@ -16,8 +21,19 @@ const actions = {
       metabolites: comparisons.CompartmentalizedMetabolite,
     });
   },
+  async getComparisonDetails({ commit }, { model, models }) {
+    const comparisonDetails = await compareApi.fetchComparisonDetails({ model, models });
+
+    commit('setComparisonDetails', comparisonDetails);
+  },
   resetComparisons({ commit }) {
     commit('setComparisons', []);
+  },
+  resetComparisonDetails({ commit }) {
+    commit('setComparisonDetails', null);
+  },
+  setSelectedCell({ commit }, { row, col }) {
+    commit('setSelectedCell', { row, col });
   },
 };
 
@@ -28,6 +44,12 @@ const getters = {
 const mutations = {
   setComparisons: (state, comparisons) => {
     state.comparisons = comparisons;
+  },
+  setComparisonDetails: (state, comparisonDetails) => {
+    state.comparisonDetails = comparisonDetails;
+  },
+  setSelectedCell: (state, selectedCell) => {
+    state.selectedCell = selectedCell;
   },
 };
 
