@@ -125,7 +125,7 @@ RETURN { common: COUNT(DISTINCT(a)) }
 MATCH (a:${type}:${ma.model})-[:V${ma.version}]-()
 WHERE NOT (a)-[:V${ma.version}]-(:ExternalDb)-[:V${mb.version}]-(:${type}:${mb.model})
 AND NOT (a)-[:V${ma.version}]-(:ExternalDb)-[:V${mc.version}]-(:${type}:${mc.model})
-RETURN { unique: COUNT(DISTINCT(a)) }
+RETURN { unique: COLLECT(DISTINCT(a.id)) }
 `;
   } else {
     commonStatement = `
@@ -136,7 +136,7 @@ RETURN { common: COUNT(DISTINCT(a)) }
     uniqueStatement = `
 MATCH (a:${type}:${ma.model})-[:V${ma.version}]-()
 WHERE NOT (a)-[:V${ma.version}]-(:ExternalDb)-[:V${mb.version}]-(:${type}:${mb.model})
-RETURN { common: COUNT(DISTINCT(a)) }
+RETURN { unique: COLLECT(DISTINCT(a.id)) }
 `;
   }
 
