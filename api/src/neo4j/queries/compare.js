@@ -153,15 +153,21 @@ RETURN { unique: COLLECT(DISTINCT(a.id)) }
 const getComparisonOverview = async({ models }) => {
   const results = await Promise.all(COMPONENT_TYPES.map(async type => ({
     [type]: await compareOverview({ models, type })
-  })))
-  return results.reduce((obj, x) => ({ ...obj, ...x }), {})
+  })));
+
+  return results.reduce((obj, x) => ({ ...obj, ...x }), {});
 };
 
-const getComparisonDetails = async({ model, models }) => ({
-  comparisonModels: ({ model, models }),
-  comparisonDetails: await Promise.all(COMPONENT_TYPES.map(async type => ({
+const getComparisonDetails = async({ model, models }) => {
+  const promises = COMPONENT_TYPES.map(async type => ({
     [type]: await compareDetails({ model, models, type })
-  })))
-});
+  }));
+  const results = await Promise.all(promises);
+
+  return {
+    models: { model, models },
+    details: results.reduce((obj, x) => ({ ...obj, ...x }), {}),
+  };
+};
 
 export { getComparisonOverview, getComparisonDetails };

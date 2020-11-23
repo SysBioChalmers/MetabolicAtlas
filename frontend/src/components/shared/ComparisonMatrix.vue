@@ -120,13 +120,33 @@ export default {
       }));
     },
   },
+  mounted() {
+    this.handleSelectCell(1, 0); // default
+  },
   methods: {
     isSelectedCell(r, c) {
-      const { row, col } = this.selectedCell;
+      const { row, col } = this.selectedCell.position;
       return row === r && col === c;
     },
     handleSelectCell(row, col) {
-      this.$store.dispatch('compare/setSelectedCell', { row, col });
+      const selectedModels = [this.$route.query.models].flat().map((m) => {
+        const [model, version] = m.split('-');
+        return { model, version: version.replaceAll('.', '_') };
+      });
+
+      const model = selectedModels.find(m => m.model === this.columnNames[col]);
+      let models;
+      if (this.rowNames[row] === 'all others') {
+        models = selectedModels.filter(m => m.model !== this.columnNames[col]);
+      } else {
+        models = selectedModels.filter(m => m.model === this.rowNames[row]);
+      }
+
+      this.$store.dispatch('compare/setSelectedCell', {
+        model,
+        models,
+        position: { row, col },
+      });
     },
   },
 };
@@ -167,5 +187,4 @@ table {
     }
   }
 }
-
 </style>

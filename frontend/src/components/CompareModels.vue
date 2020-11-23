@@ -16,7 +16,8 @@
       </div>
       <loader v-if="comparisonsEmpty && validModels" />
       <div v-else class="columns">
-        <comparison-matrix class="column" />
+        <comparison-matrix class="column is-5" />
+        <comparison-details class="column is-3" />
       </div>
       <template v-for="c in comparison">
         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
@@ -111,12 +112,14 @@
 
 import { mapGetters, mapState } from 'vuex';
 import ComparisonMatrix from '@/components/shared/ComparisonMatrix.vue';
+import ComparisonDetails from '@/components/shared/ComparisonDetails.vue';
 import Loader from '@/components/Loader.vue';
 
 export default {
   name: 'CompareModels',
   components: {
     ComparisonMatrix,
+    ComparisonDetails,
     Loader,
   },
   data() {
