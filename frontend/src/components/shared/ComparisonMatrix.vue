@@ -1,31 +1,35 @@
 <template>
-  <table v-if="mergedComparisons" class="table is-bordered">
-    <thead>
-      <tr>
-        <th>compared to ↓</th>
-        <th v-for="cn in columnNames" :key="cn" colspan="2">{{ cn.replace('Gem', '') }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(rn, i) in rowNames" :key="rn + i">
-        <th>{{ rn.replace('Gem', '') }}</th>
-        <template v-for="(cn, j) in columnNames">
-          <td v-for="(type, k) in types" :key="cn + j + type"
-              :class="{selected: isSelectedCell(i, j)}"
-              :style="{backgroundColor: colors[k]}"
-              @click="handleSelectCell(i, j)">
-            {{ matrix[i][j][type] }}
-          </td>
-        </template>
-      </tr>
-    </tbody>
-    <caption>
-      Legend:
-      <span v-for="(type, k) of types" :key="type" :style="{backgroundColor: colors[k]}">
-        {{ type }}
-      </span>
-    </caption>
-  </table>
+  <div v-if="mergedComparisons" class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th v-for="cn in columnNames" :key="cn" colspan="2">{{ cn.replace('Gem', '') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(rn, i) in rowNames" :key="rn + i">
+          <th>{{ rn.replace('Gem', '') }}</th>
+          <template v-for="(cn, j) in columnNames">
+            <td v-for="(type, k) in types" :key="cn + j + type"
+                :class="{selected: isSelectedCell(i, j)}"
+                :style="{backgroundColor: colors[k]}"
+                @click="handleSelectCell(i, j)">
+              {{ matrix[i][j][type] }}
+            </td>
+          </template>
+        </tr>
+      </tbody>
+      <caption>
+        click a cell to see the comparison details
+        <br />
+        legend:
+        <span v-for="(type, k) of types" :key="type" :style="{backgroundColor: colors[k]}">
+          {{ type }}
+        </span>
+      </caption>
+    </table>
+  </div>
 </template>
 
 <script>
@@ -95,7 +99,7 @@ export default {
       }
 
       if (this.singles.length > 2) {
-        names.push('all others');
+        names.push('others');
       }
 
       return names;
@@ -136,7 +140,7 @@ export default {
 
       const model = selectedModels.find(m => m.model === this.columnNames[col]);
       let models;
-      if (this.rowNames[row] === 'all others') {
+      if (this.rowNames[row] === 'others') {
         models = selectedModels.filter(m => m.model !== this.columnNames[col]);
       } else {
         models = selectedModels.filter(m => m.model === this.rowNames[row]);
@@ -158,6 +162,8 @@ table {
   caption-side: bottom;
 
   caption {
+    font-size: 0.9em;
+    font-style: italic;
     padding: 0.25em;
 
     span {
@@ -176,6 +182,11 @@ table {
   td {
     &.selected {
       font-weight: bold;
+    }
+
+    &:hover {
+      background-color: #77A18B !important;
+      color: white;
     }
 
     &:nth-child(odd) {

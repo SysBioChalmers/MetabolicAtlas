@@ -5,19 +5,25 @@
       <h6 class="subtitle is-size-6">
         See the common Reactions and Metabolites between 2 or 3 GEMs.
       </h6>
-      <div class="tags">
-        <span v-for="m in modelList" :key="m.apiName" class="tag is-medium"
-              :disabled="shouldDisable(m)">
-          <label class="checkbox" :disabled="shouldDisable(m)">
-            <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox">
-            {{ m.apiName.replace('Gem', '') }}
-          </label>
-        </span>
-      </div>
-      <loader v-if="comparisonsEmpty && validModels" />
-      <div v-else class="columns">
-        <comparison-matrix class="column is-5" />
-        <comparison-details class="column is-3" />
+      <div class="comparison-container">
+        <div class="comparison-container__picker">
+          <div class="tags">
+            <span v-for="m in modelList" :key="m.apiName" class="tag is-medium"
+                  :disabled="shouldDisable(m)">
+              <label class="checkbox" :disabled="shouldDisable(m)">
+                <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox">
+                {{ m.apiName.replace('Gem', '') }}
+              </label>
+            </span>
+          </div>
+          <template v-if="validModels">
+            <loader v-if="comparisonsEmpty" />
+            <div v-else>
+              <comparison-matrix />
+            </div>
+          </template>
+        </div>
+        <comparison-details v-if="validModels && !comparisonsEmpty" />
       </div>
       <template v-for="c in comparison">
         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
@@ -124,6 +130,7 @@ export default {
   },
   data() {
     return {
+      comparing: false,
       minModels: 2,
       maxModels: 3,
       selectedModels: [],
@@ -290,17 +297,8 @@ export default {
     },
   },
   watch: {
-    modelList(l) {
-      if (l && l.length > 0) {
-        const { models } = this.$route.query;
-
-        if (models) {
-          this.selectedModels = [models].flat().map((m) => {
-            const [apiName, version] = m.split('-');
-            return l.find(x => x.apiName === apiName && x.version === version);
-          });
-        }
-      }
+    modelList() {
+      this.restoreFromQuery();
     },
     async selectedModels(models) {
       if (!models) {
@@ -318,6 +316,9 @@ export default {
       await this.compare();
     },
   },
+  mounted() {
+    this.restoreFromQuery();
+  },
   methods: {
     selectedModelIndex(model) {
       return this.selectedModels.findIndex(m => model.apiName === m.apiName
@@ -327,10 +328,11 @@ export default {
       return this.selectedModelIndex(model) === -1 && this.selectedModels.length === this.maxModels;
     },
     async compare() {
-      if (!this.validModels) {
+      if (!this.validModels || this.comparing) {
         return;
       }
 
+      this.comparing = true;
       this.$store.dispatch('compare/resetComparisons');
 
       const payload = {
@@ -340,6 +342,21 @@ export default {
         })),
       };
       await this.$store.dispatch('compare/getComparisons', payload);
+      this.comparing = false;
+    },
+    restoreFromQuery() {
+      if (this.modelList.length === 0) {
+        return;
+      }
+
+      const { models } = this.$route.query;
+
+      if (models) {
+        this.selectedModels = [models].flat().map((m) => {
+          const [apiName, version] = m.split('-');
+          return this.modelList.find(x => x.apiName === apiName && x.version === version);
+        });
+      }
     },
   },
 };
@@ -351,6 +368,30 @@ export default {
   cursor: not-allowed;
   pointer-events: none;
   user-select: none;
+}
+
+.comparison-container {
+  display: flex;
+  flex-direction: column;
+
+  &__picker {
+    margin-bottom: 2em;
+
+    .tags {
+      flex-wrap: nowrap;
+    }
+  }
+}
+
+@media (min-width: $desktop) {
+  .comparison-container {
+    flex-direction: row;
+
+    &__picker {
+      display: block;
+      margin-right: 2em;
+    }
+  }
 }
 
 </style>
