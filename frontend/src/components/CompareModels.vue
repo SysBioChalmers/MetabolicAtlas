@@ -383,7 +383,7 @@ export default {
   }
 }
 
-@media (min-width: $desktop) {
+@media (min-width: $tablet) {
   .comparison-container {
     flex-direction: row;
 
