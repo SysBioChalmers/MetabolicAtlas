@@ -344,7 +344,7 @@ m, .clickable {
   }
 }
 
-.metabolite-table, .model-table, .reaction-table, .subsystem-table {
+#comparison-details, .metabolite-table, .model-table, .reaction-table, .subsystem-table {
   .main-table tr td.td-key, #ed-table tr td.td-key {
     width: 150px;
   }
