@@ -4,12 +4,12 @@
       <thead>
         <tr>
           <th></th>
-          <th v-for="cn in columnNames" :key="cn" colspan="2">{{ cn.replace('Gem', '') }}</th>
+          <th v-for="cn in columnNames" :key="cn" colspan="2">{{ cn }}</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(rn, i) in rowNames" :key="rn + i">
-          <th>{{ rn.replace('Gem', '') }}</th>
+          <th>{{ rn }}</th>
           <template v-for="(cn, j) in columnNames">
             <td v-for="(type, k) in types" :key="cn + j + type"
                 :class="{selected: isSelectedCell(i, j)}"
@@ -46,6 +46,7 @@ export default {
   computed: {
     ...mapState({
       comparisons: state => state.compare.comparisons,
+      modelList: state => state.models.modelList,
       selectedCell: state => state.compare.selectedCell,
     }),
     mergedComparisons() {
@@ -56,7 +57,8 @@ export default {
 
       const [t1, t2] = this.types;
       return this.comparisons[t1].map((row, i) => Object.keys(row).reduce((mergedRow, key) => {
-        mergedRow[key] = { // eslint-disable-line no-param-reassign
+        const model = this.modelList.find(m => m.apiName === key);
+        mergedRow[model.short_name] = { // eslint-disable-line no-param-reassign
           [t1]: this.comparisons[t1][i][key],
           [t2]: this.comparisons[t2][i][key],
         };
@@ -135,20 +137,20 @@ export default {
     handleSelectCell(row, col) {
       const selectedModels = [this.$route.query.models].flat().map((m) => {
         const [model, version] = m.split('-');
-        return { model, version: version.replaceAll('.', '_') };
+        return this.modelList.find(mo => mo.apiName === model && mo.version === version);
       });
 
-      const model = selectedModels.find(m => m.model === this.columnNames[col]);
+      const model = selectedModels.find(m => m.short_name === this.columnNames[col]);
       let models;
       if (this.rowNames[row] === 'others') {
-        models = selectedModels.filter(m => m.model !== this.columnNames[col]);
+        models = selectedModels.filter(m => m.short_name !== this.columnNames[col]);
       } else {
-        models = selectedModels.filter(m => m.model === this.rowNames[row]);
+        models = selectedModels.filter(m => m.short_name === this.rowNames[row]);
       }
 
       this.$store.dispatch('compare/setSelectedCell', {
-        model,
-        models,
+        model: { model: model.apiName, version: model.apiVersion },
+        models: models.map(m => ({ model: m.apiName, version: m.apiVersion })),
         position: { row, col },
       });
     },

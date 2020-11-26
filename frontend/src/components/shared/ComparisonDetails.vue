@@ -4,14 +4,14 @@
       <p class="card-header-title">
         Comparison Details&nbsp;
         <span v-if="comparisonDetails">
-          | {{ comparisonDetails.models.model.model }} ⇄ {{ comparedModels }}
+          | {{ currentModel.short_name }} ⇄ {{ comparedModels }}
         </span>
       </p>
     </header>
     <div class="card-content">
       <div v-if="comparisonDetails" class="content">
         <p>
-          The <b>{{ comparisonDetails.models.model.model }}</b> has
+          The <b>{{ currentModel.short_name }}</b> has
           {{ comparisonDetails.details['Reaction'].own }} reactions and
           {{ comparisonDetails.details['CompartmentalizedMetabolite'].own }} metabolites.
         </p>
@@ -93,7 +93,9 @@ export default {
       if (!this.comparisonDetails) {
         return [];
       }
-      return this.comparisonDetails.models.models.map(m => m.model).join(' and ');
+
+      const models = this.comparisonDetails.models.models.map(m => this.modelList.find(mo => mo.apiName === m.model));
+      return models.map(m => m.short_name).join(' and ');
     },
   },
   watch: {

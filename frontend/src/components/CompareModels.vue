@@ -12,7 +12,7 @@
                   :disabled="shouldDisable(m)">
               <label class="checkbox" :disabled="shouldDisable(m)">
                 <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox">
-                {{ m.apiName.replace('Gem', '') }}
+                {{ m.short_name }}
               </label>
             </span>
           </div>
@@ -376,10 +376,6 @@ export default {
 
   &__picker {
     margin-bottom: 2em;
-
-    .tags {
-      flex-wrap: nowrap;
-    }
   }
 }
 
