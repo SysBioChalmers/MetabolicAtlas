@@ -22,31 +22,16 @@
               {{ comparisonDetails.details['Reaction'].common }} reactions and
               {{ comparisonDetails.details['CompartmentalizedMetabolite'].common }} metabolites in common
             </li>
-            <li>
-              {{ comparisonDetails.details['Reaction'].unique.length }} unique reactions
-              <span v-if="comparisonDetails.details['Reaction'].unique.length > 20">
-                (showing top 20)
+            <li v-for="t in Object.keys(types)" :key="t">
+              {{ comparisonDetails.details[types[t]].unique.length }} unique {{ t }}s
+              <span v-if="comparisonDetails.details[types[t]].unique.length > 20">
+                (showing 20)
               </span>
               <br />
               <div class="tags">
-                <span v-for="id in comparisonDetails.details['Reaction'].unique.slice(0,20)"
+                <span v-for="id in comparisonDetails.details[types[t]].unique.slice(0,20)"
                       :key="id" class="tag">
-                  <router-link :to="{ name: 'reaction', params: { model: currentModel.short_name, id } }">
-                    {{ id }}
-                  </router-link>
-                </span>
-              </div>
-            </li>
-            <li>
-              {{ comparisonDetails.details['CompartmentalizedMetabolite'].unique.length }} unique metabolites
-              <span v-if="comparisonDetails.details['CompartmentalizedMetabolite'].unique.length > 20">
-                (showing top 20)
-              </span>
-              <br />
-              <div class="tags">
-                <span v-for="id in comparisonDetails.details['CompartmentalizedMetabolite'].unique.slice(0,20)"
-                      :key="id" class="tag">
-                  <router-link :to="{ name: 'metabolite', params: { model: currentModel.short_name, id } }">
+                  <router-link :to="{ name: t, params: { model: currentModel.short_name, id } }">
                     {{ id }}
                   </router-link>
                 </span>
@@ -74,6 +59,10 @@ export default {
   },
   data() {
     return {
+      types: {
+        reaction: 'Reaction',
+        metabolite: 'CompartmentalizedMetabolite',
+      },
     };
   },
   computed: {
