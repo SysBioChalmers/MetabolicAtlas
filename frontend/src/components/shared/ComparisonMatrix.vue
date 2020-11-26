@@ -4,20 +4,21 @@
       <thead>
         <tr>
           <th></th>
-          <th v-for="cn in columnNames" :key="cn" colspan="2">{{ cn }}</th>
+          <th v-for="cn in columnNames" :key="cn">{{ cn }}</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(rn, i) in rowNames" :key="rn + i">
           <th>{{ rn }}</th>
-          <template v-for="(cn, j) in columnNames">
-            <td v-for="(type, k) in types" :key="cn + j + type"
-                :class="{selected: isSelectedCell(i, j)}"
-                :style="{backgroundColor: colors[k]}"
-                @click="handleSelectCell(i, j)">
-              {{ matrix[i][j][type] }}
-            </td>
-          </template>
+          <td v-for="(cn, j) in columnNames" :key="cn + j" :class="{selected: isSelectedCell(i, j)}">
+            <div>
+              <span v-for="(type, k) in types" :key="cn + j + type"
+                    :style="{backgroundColor: colors[k]}"
+                    @click="handleSelectCell(i, j)">
+                {{ matrix[i][j][type] }}
+              </span>
+            </div>
+          </td>
         </tr>
       </tbody>
       <caption>
@@ -173,30 +174,27 @@ table {
     }
   }
 
+  th {
+    padding: 0.5em 0.75em;
+    white-space: nowrap;
+  }
+
   td {
     cursor: pointer;
-  }
+    padding: 0;
 
-  th[colspan="2"] {
-    text-align: center;
-  }
-
-  td {
-    &.selected {
-      font-weight: bold;
+    &.selected, &:hover {
+      outline: 2px solid $black;
+      outline-offset: -2px;
     }
 
-    &:hover {
-      background-color: #77A18B !important;
-      color: white;
-    }
+    div {
+      display: flex;
 
-    &:nth-child(odd) {
-      border-left: none;
-    }
-
-    &:nth-child(even) {
-      border-right: none;
+      span {
+        flex: 1;
+        padding: 0.5em 0.75em;
+      }
     }
   }
 }
