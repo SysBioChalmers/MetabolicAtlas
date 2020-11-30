@@ -108,13 +108,11 @@ export default {
       model: state => state.models.model,
     }),
   },
-  watch: {
-    '$route.params': 'getIntegratedModelList',
-  },
   methods: {
     async selectModel(modelShortName) {
       if (modelShortName !== this.model.short_name) {
         this.$router.replace({ params: { model: modelShortName } });
+        this.$store.dispatch('models/selectModel', modelShortName);
       }
     },
   },
