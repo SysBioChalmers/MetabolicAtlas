@@ -4,7 +4,7 @@
       <p class="card-header-title">
         Comparing&nbsp;
         <span v-if="comparisonDetails">
-          {{ currentModel.short_name }} with {{ comparedModels }}
+          {{ currentModel.short_name }} with {{ comparedModels.map(m => m.short_name).join(' and ') }}
         </span>
       </p>
     </header>
@@ -12,7 +12,7 @@
       <div v-if="comparisonDetails" class="content">
         <p>
           The
-          <router-link :to="{ name: 'browser', params: { model: currentModel.short_name } }">
+          <router-link :to="{ name: 'explorer', params: { model: currentModel.short_name } }">
             <b>{{ currentModel.short_name }}</b>
           </router-link>
           has
@@ -20,7 +20,14 @@
           {{ comparisonDetails.details['CompartmentalizedMetabolite'].own }} metabolites.
         </p>
         <div v-if="selectedCell.position.row !== selectedCell.position.col">
-          Compared to {{ comparedModels }}, <b>{{ currentModel.short_name }}</b> has:
+          Compared to
+          <span v-for="(cm, i) in comparedModels" :key="cm.short_name" class="compared-models">
+            <router-link :to="{ name: 'explorer', params: { model: cm.short_name } }">
+              {{ cm.short_name }}
+            </router-link>
+            <span v-if="i < comparedModels.length - 1"> and </span>
+          </span>
+          , <b>{{ currentModel.short_name }}</b> has:
           <ul>
             <li>
               {{ comparisonDetails.details['Reaction'].common }} reactions and
@@ -87,8 +94,7 @@ export default {
         return [];
       }
 
-      const models = this.comparisonDetails.models.models.map(m => this.modelList.find(mo => mo.apiName === m.model));
-      return models.map(m => m.short_name).join(' and ');
+      return this.comparisonDetails.models.models.map(m => this.modelList.find(mo => mo.apiName === m.model));
     },
   },
   watch: {
@@ -108,5 +114,9 @@ export default {
 <style lang="scss" scoped>
   .card {
     padding: 0;
+  }
+
+  .compared-models:last-of-type {
+    margin-right: -0.25em;
   }
 </style>
