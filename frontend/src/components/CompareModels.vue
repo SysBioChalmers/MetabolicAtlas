@@ -371,6 +371,7 @@ export default {
 
   &__picker {
     margin-bottom: 2em;
+    margin-right: 0;
   }
 }
 
@@ -380,6 +381,7 @@ export default {
 
     &__picker {
       display: block;
+      margin-bottom: 0;
       margin-right: 2em;
     }
   }
