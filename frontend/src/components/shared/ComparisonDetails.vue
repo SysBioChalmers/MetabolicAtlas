@@ -16,7 +16,7 @@
           {{ comparisonDetails.details['CompartmentalizedMetabolite'].own }} metabolites.
         </p>
         <div v-if="selectedCell.position.row !== selectedCell.position.col">
-          Compared to {{ comparedModels }}, it has:
+          Compared to {{ comparedModels }}, <b>{{ currentModel.short_name }}</b> has:
           <ul>
             <li>
               {{ comparisonDetails.details['Reaction'].common }} reactions and

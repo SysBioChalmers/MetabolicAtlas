@@ -1,5 +1,5 @@
 <template>
-  <section class="section section-no-top extended-section">
+  <section class="section extended-section">
     <div class="container is-fullhd">
       <h3 class="title is-size-3">GEM Comparison</h3>
       <h6 class="subtitle is-size-6">
@@ -25,12 +25,9 @@
         </div>
         <comparison-details v-if="validModels && !comparisonsEmpty" />
       </div>
-      <template v-for="c in comparison">
-        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-        <br>
-        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
+      <br><br>
+      <div v-for="(c, id) in comparison" :key="id">
         <h4 class="title is-size-4">{{ c.models.A.modelId }} vs. {{ c.models.B.modelId }}</h4>
-        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
         <div class="table-container">
           <table class="is-fullwidth table is-narrow">
             <thead>
@@ -55,7 +52,6 @@
             </tbody>
           </table>
         </div>
-        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
         <div class="columns is-variable is-8">
           <div class="column">
             <h5 class="subtitle is-size-5">Exclusive reactions by compartment</h5>
@@ -106,9 +102,8 @@
             </div>
           </div>
         </div>
-        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
         <br><br>
-      </template>
+      </div>
     </div>
   </section>
 
