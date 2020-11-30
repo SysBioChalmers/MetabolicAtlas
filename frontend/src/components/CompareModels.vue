@@ -3,7 +3,11 @@
     <div class="container is-fullhd">
       <h3 class="title is-size-3">GEM Comparison</h3>
       <h6 class="subtitle is-size-6">
-        See the common Reactions and Metabolites between 2 or 3 GEMs.
+        See the common Reactions and Metabolites between 2 or 3 GEMs, or
+        <router-link :to="{ name: 'documentation', hash: '#Comparison'}">
+          read more about how this comparison
+        </router-link>
+        is made.
       </h6>
       <div class="comparison-container">
         <div class="comparison-container__picker">
