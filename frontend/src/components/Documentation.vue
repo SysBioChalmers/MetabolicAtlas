@@ -1,6 +1,6 @@
 <template>
   <!-- eslint-disable max-len -->
-  <section class="section section-no-top extended-section">
+  <section class="section extended-section">
     <div class="container is-fullhd">
       <h3 class="title is-3">Documentation</h3>
       <br>
