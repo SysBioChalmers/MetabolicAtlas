@@ -2,16 +2,20 @@
   <div id="comparison-details" class="card">
     <header class="card-header">
       <p class="card-header-title">
-        Comparison Details&nbsp;
+        Comparing&nbsp;
         <span v-if="comparisonDetails">
-          | {{ currentModel.short_name }} ⇄ {{ comparedModels }}
+          {{ currentModel.short_name }} with {{ comparedModels }}
         </span>
       </p>
     </header>
     <div class="card-content">
       <div v-if="comparisonDetails" class="content">
         <p>
-          The <b>{{ currentModel.short_name }}</b> has
+          The
+          <router-link :to="{ name: 'browser', params: { model: currentModel.short_name } }">
+            <b>{{ currentModel.short_name }}</b>
+          </router-link>
+          has
           {{ comparisonDetails.details['Reaction'].own }} reactions and
           {{ comparisonDetails.details['CompartmentalizedMetabolite'].own }} metabolites.
         </p>
