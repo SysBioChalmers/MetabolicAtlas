@@ -351,6 +351,9 @@ export default {
           const [apiName, version] = m.split('-');
           return this.modelList.find(x => x.apiName === apiName && x.version === version);
         });
+      } else {
+        const [m1, m2] = this.modelList;
+        this.selectedModels = [m1, m2];
       }
     },
   },
