@@ -14,7 +14,7 @@ function generate-data {
 }
 
 function build-stack {
-  generate-data $@
+  generate-data
   docker-compose -f docker-compose.yml -f docker-compose-local.yml build $@
 }
 
