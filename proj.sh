@@ -5,20 +5,12 @@ function generate-data {
   # enable flag "-q" to force overwritting existing data files
   echo 'Data generation started.'
   source .env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH "$@"
-  if [ "$(unalias cp 2> /dev/null)" != "" ];then 
-      unalias cp
-  fi
-
-  extra_opt=
-  if [ $1 ==  "-q" ]; then
-      extra_opt="--force"
-  fi
-  cp -r $extra_opt $DATA_GENERATOR_PATH/data/ neo4j/import
-  cp    $extra_opt $DATA_GENERATOR_PATH/data/hpaRna.json api/src/data/
-  cp -r $extra_opt $DATA_FILES_PATH/integrated-models/integratedModels.json api/src/data/
-  cp -r $extra_opt $DATA_FILES_PATH/gemsRepository.json api/src/data/
-  cp -r $extra_opt $DATA_FILES_PATH/svg api/
-  cp -r $extra_opt $DATA_FILES_PATH/ftp-models ftp/
+  /bin/cp -r $DATA_GENERATOR_PATH/data/ neo4j/import
+  /bin/cp    $DATA_GENERATOR_PATH/data/hpaRna.json api/src/data/
+  /bin/cp -r $DATA_FILES_PATH/integrated-models/integratedModels.json api/src/data/
+  /bin/cp -r $DATA_FILES_PATH/gemsRepository.json api/src/data/
+  /bin/cp -r $DATA_FILES_PATH/svg api/
+  /bin/cp -r $DATA_FILES_PATH/ftp-models ftp/
 }
 
 function build-stack {
@@ -57,7 +49,7 @@ function import-db {
 }
 
 echo -e "Available commands:
-\tbuild-stack [-q]
+\tbuild-stack
 \tstart-stack
 \tstop-stack
 \tclean-stack
