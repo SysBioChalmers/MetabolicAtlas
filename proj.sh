@@ -2,14 +2,15 @@
 export PATH=$PATH:/usr/local/bin
 
 function generate-data {
+  # enable flag "-q" to force overwritting existing data files
   echo 'Data generation started.'
   source .env && yarn --cwd $DATA_GENERATOR_PATH start $DATA_FILES_PATH "$@"
-  cp -r $DATA_GENERATOR_PATH/data/ neo4j/import
-  cp    $DATA_GENERATOR_PATH/data/hpaRna.json api/src/data/
-  cp -r $DATA_FILES_PATH/integrated-models/integratedModels.json api/src/data/
-  cp -r $DATA_FILES_PATH/gemsRepository.json api/src/data/
-  cp -r $DATA_FILES_PATH/svg api/
-  cp -r $DATA_FILES_PATH/ftp-models ftp/
+  /bin/cp -r $DATA_GENERATOR_PATH/data/ neo4j/import
+  /bin/cp    $DATA_GENERATOR_PATH/data/hpaRna.json api/src/data/
+  /bin/cp -r $DATA_FILES_PATH/integrated-models/integratedModels.json api/src/data/
+  /bin/cp -r $DATA_FILES_PATH/gemsRepository.json api/src/data/
+  /bin/cp -r $DATA_FILES_PATH/svg api/
+  /bin/cp -r $DATA_FILES_PATH/ftp-models ftp/
 }
 
 function build-stack {
