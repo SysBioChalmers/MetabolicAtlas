@@ -23,7 +23,7 @@
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
         <template v-else>
           <div class="columns is-multiline metabolite-table is-variable is-8">
-            <div class="column is-10-widescreen is-9-desktop is-full-tablet">
+            <div class="column is-7-widescreen is-7-desktop is-full-tablet">
               <div class="table-container">
                 <table v-if="metabolite" class="table main-table is-fullwidth">
                   <tr v-for="el in mainTableKey" :key="el.name">
@@ -69,6 +69,12 @@
                 </table>
               </div>
               <ExtIdTable :type="type" :external-dbs="metabolite.externalDbs"></ExtIdTable>
+            </div>
+            <div v-if="metabolite && metabolite.externalDbs && metabolite.externalDbs.ChEBI"
+                 class="column is-3-widescreen is-2-desktop is-full-tablet has-text-centered px-2">
+              <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank">
+                <img :src="`https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${metabolite.externalDbs.ChEBI[0].id.slice(6)}&dimensions=400`" />
+              </a>
             </div>
             <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
               <router-link v-if="model" class="button is-info is-fullwidth is-outlined"
