@@ -34,8 +34,8 @@ paths:
     get:
       tags:
       - "model"
-      summary: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM’."
-      description: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM’."
+      summary: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM'."
+      description: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM'."
       operationId: "modelInfo"
       produces:
       - "application/json"
@@ -55,10 +55,10 @@ paths:
       - "compartment"
       summary: "For a given compartment name (e.g., Golgi apparatus or
         golgi_apparatus), returns all containing metabolites, genes, reactions
-        and subsystems.  "
+        and subsystems."
       description: "For a given compartment name (e.g., Golgi apparatus or
         golgi_apparatus), returns all containing metabolites, genes, reactions
-        and subsystems.  "
+        and subsystems."
       operationId: "compartmentInfo"
       produces:
       - "application/json"
@@ -77,9 +77,9 @@ paths:
       tags:
       - "compartment"
       summary: "For a given compartment name (e.g., Golgi apparatus or
-        golgi_apparatus), return all reactions involving this compartment"
+        golgi_apparatus), return all reactions involving this compartment."
       description: "For a given compartment name (e.g., Golgi apparatus or
-        golgi_apparatus), return all reactions involving this compartment"
+        golgi_apparatus), return all reactions involving this compartment."
       operationId: "compartmentInfo"
       produces:
       - "application/json"
@@ -93,4 +93,22 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-
+  /genes/{id}:
+    get:
+      tags:
+      - "gene"
+      summary: "List all information for a given gene (for example ENSG00000196502 or SULT1A1)."
+      description: "List all information for a given gene (for example ENSG00000196502 or SULT1A1)."
+      operationId: "geneInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
