@@ -49,3 +49,27 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
+  /compartments/{id}:
+    get:
+      tags:
+      - "compartment"
+      summary: "For a given compartment name (e.g., Golgi apparatus or
+        golgi_apparatus), returns all containing metabolites, genes, reactions
+        and subsystems.  "
+      description: "For a given compartment name (e.g., Golgi apparatus or
+        golgi_apparatus), returns all containing metabolites, genes, reactions
+        and subsystems.  "
+      operationId: "compartmentInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
+
