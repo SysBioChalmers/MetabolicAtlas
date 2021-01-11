@@ -245,3 +245,22 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
+  /subsystems/{id}/related-reactions:
+    get:
+      tags:
+      - "subsystem"
+      summary: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
+      description: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
+      operationId: "subsystemInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
