@@ -72,4 +72,25 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
+  /compartments/{id}/related-reactions:
+    get:
+      tags:
+      - "compartment"
+      summary: "For a given compartment name (e.g., Golgi apparatus or
+        golgi_apparatus), return all reactions involving this compartment"
+      description: "For a given compartment name (e.g., Golgi apparatus or
+        golgi_apparatus), return all reactions involving this compartment"
+      operationId: "compartmentInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
 
