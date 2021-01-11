@@ -17,6 +17,7 @@ tags:
 - name: "metabolite"
 - name: "reaction"
 - name: "subsystem"
+- name: "miscellaneous"
 paths:
   /repository/integrated_models:
     get:
@@ -259,6 +260,20 @@ paths:
         in: "path"
         required: true
         type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
+  /random-components:
+    get:
+      tags:
+      - "miscellaneous"
+      summary: "List all information for random genes, metabolites compartments, reactions and subsystems."
+      description: "List all information for random genes, metabolites compartments, reactions and subsystems."
+      operationId: "randomComponentInfo"
+      produces:
+      - "application/json"
       responses:
         "200":
           description: "Successful operation"
