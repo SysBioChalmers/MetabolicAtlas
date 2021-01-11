@@ -169,3 +169,22 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
+  /metabolites/{id}/related-metabolites:
+    get:
+      tags:
+      - "metabolite"
+      summary: "List all related metabolites for involving a given metabolite (for example m01587m or citrate[m])."
+      description: "List all related metabolites involving a given metabolite (for example m01587m or citrate[m])."
+      operationId: "metaboliteInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
