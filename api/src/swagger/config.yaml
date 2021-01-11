@@ -188,3 +188,22 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
+  /reactions/{id}:
+    get:
+      tags:
+      - "reaction"
+      summary: "List all the information we have on a reaction (for example HMR_3905)."
+      description: "List all the information we have on a reaction (for example HMR_3905)."
+      operationId: "reactionInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
