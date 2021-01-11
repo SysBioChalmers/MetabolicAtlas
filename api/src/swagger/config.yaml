@@ -285,6 +285,20 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
+  /maps/listing:
+    get:
+      tags:
+      - "miscellaneous"
+      summary: "List all compartments and subsystems."
+      description: "List all compartments and subsystems."
+      operationId: "mapListingInfo"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
   /random-components:
     get:
       tags:
