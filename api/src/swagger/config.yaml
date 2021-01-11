@@ -112,3 +112,22 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
+  /genes/{id}/related-reactions:
+    get:
+      tags:
+      - "gene"
+      summary: "List all reactions for a given gene (for example ENSG00000196502 or SULT1A1)."
+      description: "List all reactions for a given gene (for example ENSG00000196502 or SULT1A1)."
+      operationId: "geneInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
