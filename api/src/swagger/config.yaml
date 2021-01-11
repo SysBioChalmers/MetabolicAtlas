@@ -17,6 +17,7 @@ tags:
 - name: "metabolite"
 - name: "reaction"
 - name: "subsystem"
+- name: "interaction-partner"
 - name: "miscellaneous"
 paths:
   /repository/integrated_models:
@@ -253,6 +254,25 @@ paths:
       summary: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
       description: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
       operationId: "subsystemInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
+  /interaction-partners/{id}/:
+    get:
+      tags:
+      - "interaction-partner"
+      summary: "List all first order interaction partners for a given gene (e.g. ENSG00000196502 or SULT1A1)."
+      description: "List all first order interaction partners for a given gene (e.g. ENSG00000196502 or SULT1A1)."
+      operationId: "geneInfo"
       produces:
       - "application/json"
       parameters:
