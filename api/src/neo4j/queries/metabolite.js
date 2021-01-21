@@ -29,10 +29,8 @@ CALL apoc.cypher.run('
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(r:Reaction)
-  WITH DISTINCT r
-  MATCH (r)-[${v}]-(e:ExternalDb)
-  RETURN { externalDbs: COLLECT(DISTINCT(e {.*})) } as data
+  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(e:ExternalDb)
+  RETURN { externalDbs: COLLECT(e {.*}) } as data
   
   UNION
   
