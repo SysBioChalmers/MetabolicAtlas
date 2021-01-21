@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "nprogress": "0.2.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "bulma": "^0.9.0",
     "bulma-timeline": "^3.0.4",
     "cytoscape": "3.2.9",
