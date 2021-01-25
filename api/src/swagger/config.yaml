@@ -106,7 +106,7 @@ paths:
       - "Genes"
       summary: "Get information of a given gene."
       description: "Retrieve all information for a given gene. The result is
-        returned in JSON format. Required parameter: Gene ID, e.g.
+        returned in JSON format. Required parameter: gene ID, e.g.
         **ENSG00000196502** or **Sult1a1**"
       operationId: "geneInfo"
       produces:
@@ -127,7 +127,7 @@ paths:
       - "Genes"
       summary: "Get related reations for a given gene."
       description: "Retrieve all related reactions for a given gene. The result is
-        returned in JSON format. Required parameter: Gene ID, e.g.
+        returned in JSON format. Required parameter: gene ID, e.g.
         **ENSG00000196502** or **Sult1a1**"
       operationId: "geneReaction"
       produces:
@@ -146,8 +146,10 @@ paths:
     get:
       tags:
       - "Metabolites"
-      summary: "List all information for a given metabolite (for example m01587m or citrate[m])."
-      description: "List all information for a given metabolite (for example m01587m or citrate[m])."
+      summary: "Get information of a given metabolite."
+      description: "Retrieve all information related to a given metabolite. The
+        result is returned in JSON format. Required parameter: metabolite ID,
+        e.g. **m01587m**"
       operationId: "metaboliteInfo"
       produces:
       - "application/json"
@@ -165,9 +167,9 @@ paths:
     get:
       tags:
       - "Metabolites"
-      summary: "List all reactions for a given metabolite (for example m01587m or citrate[m])."
-      description: "List all reactions for a given metabolite (for example m01587m or citrate[m])."
-      operationId: "metaboliteInfo"
+      summary: "Get related reactions for a given metabolite."
+      description: "Retrieve all related reactions for a given metabolite. The returned result is in JSON format. Required parameter: metabolite ID, e.g. **m01587m**"
+      operationId: "metaboliteReaction"
       produces:
       - "application/json"
       parameters:
@@ -184,9 +186,9 @@ paths:
     get:
       tags:
       - "Metabolites"
-      summary: "List all related metabolites for involving a given metabolite (for example m01587m or citrate[m])."
-      description: "List all related metabolites involving a given metabolite (for example m01587m or citrate[m])."
-      operationId: "metaboliteInfo"
+      summary: "Get related metabolites for a given metabolite."
+      description: "Retrieve all related metabolites involving a given metabolite. The returned results is in JSON format. Required parameter: metabolite ID, e.g. **m01587m**"
+      operationId: "metaboliteRelatedMetabolite"
       produces:
       - "application/json"
       parameters:
