@@ -11,7 +11,7 @@ info:
     url: "https://www.gnu.org/licenses/gpl-3.0.html"
 basePath: "/api/v2"
 tags:
-- name: "model"
+- name: "Integrated models"
 - name: "compartment"
 - name: "gene"
 - name: "metabolite"
@@ -23,7 +23,7 @@ paths:
   /repository/integrated_models:
     get:
       tags:
-      - "model"
+      - "Integrated models"
       summary: "List all Genome-scale metabolic models (GEMs) that are available on the GEM browser."
       description: "List all Genome-scale metabolic models (GEMs) that are available on the GEM browser."
       operationId: "integratedModels"
@@ -35,7 +35,7 @@ paths:
   /repository/integrated_models/{name}:
     get:
       tags:
-      - "model"
+      - "Integrated models"
       summary: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM'."
       description: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM'."
       operationId: "modelInfo"
