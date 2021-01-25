@@ -40,11 +40,11 @@ paths:
     get:
       tags:
       - "Integrated models"
-      summary: "List a specified GEM"
-      description: "Retrieve information for a specific GEM (Genome-Scale
+      summary: "Get information for a given GEM."
+      description: "Retrieve information for a given GEM (Genome-Scale
         Metabolic Model). The GEMs are available through tools like GEM Browser,
-        Map Viewer and Interaction Partners. The list is returned in JSON format.
-        Required parameter: GEM name, e.g. **Human-GEM**."
+        Map Viewer and Interaction Partners. The result is returned in JSON format.
+        Required parameter: GEM name, e.g. **Human-GEM** "
       operationId: "modelInfo"
       produces:
       - "application/json"
@@ -62,12 +62,10 @@ paths:
     get:
       tags:
       - "Compartments"
-      summary: "For a given compartment name (e.g., Golgi apparatus or
-        golgi_apparatus), returns all containing metabolites, genes, reactions
-        and subsystems."
-      description: "For a given compartment name (e.g., Golgi apparatus or
-        golgi_apparatus), returns all containing metabolites, genes, reactions
-        and subsystems."
+      summary: "Get information for a given compartment."
+      description: "Retrieve all containing metabolites, genes, reactions
+        and subsystems for a given compartment. The result is returned in JSON format.
+        Required parameter: compartment ID, e.g. **golgi_apparatus** "
       operationId: "compartmentInfo"
       produces:
       - "application/json"
@@ -85,11 +83,11 @@ paths:
     get:
       tags:
       - "Compartments"
-      summary: "For a given compartment name (e.g., Golgi apparatus or
-        golgi_apparatus), return all reactions involving this compartment."
-      description: "For a given compartment name (e.g., Golgi apparatus or
-        golgi_apparatus), return all reactions involving this compartment."
-      operationId: "compartmentInfo"
+      summary: "Get related reactions for a given compartment."
+      description: "Retrieve all related reactions for a given compartment. The
+        result is returned in JSON format. Required parameter: compartment ID,
+        e.g. **golgi_apparatus** "
+      operationId: "compartmentReaction"
       produces:
       - "application/json"
       parameters:
