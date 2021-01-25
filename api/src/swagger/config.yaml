@@ -210,7 +210,9 @@ paths:
       tags:
       - "Reactions"
       summary: "Get information of a given reaction."
-      description: "Retrieve all information we have on a reaction. The returned result is in JSON format. Required parameter: reaction ID, e.g. **HMR_3000**"
+      description: "Retrieve all information we have on a reaction. The
+        returned result is in JSON format. Required parameter: reaction ID, e.g.
+        **HMR_3000**"
       operationId: "reactionInfo"
       produces:
       - "application/json"
@@ -229,7 +231,9 @@ paths:
       tags:
       - "Reactions"
       summary: "Get related reactions involving a given reaction."
-      description: "Retrieve all related reactions involving a given reaction. The returned result is in JSON format. Required parameter: reaction ID, e.g. **HMR_3000**"
+      description: "Retrieve all related reactions involving a given reaction.
+        The returned result is in JSON format. Required parameter: reaction ID,
+        e.g. **HMR_3000**"
       operationId: "reactionRelatedReaction"
       produces:
       - "application/json"
@@ -247,8 +251,11 @@ paths:
     get:
       tags:
       - "Subsystems"
-      summary: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing metabolites and genes/genes."
-      description: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing metabolites and genes/genes."
+      summary: "Get information for a given subsystem."
+      description: "Retrieve all information (including metabolites,
+        compartments and genes) for a given subsystem. The returned result is in
+        JSON format. Required parameter: subsystem ID, e.g.
+        **eicosanoid_metabolism** "
       operationId: "subsystemInfo"
       produces:
       - "application/json"
@@ -266,9 +273,11 @@ paths:
     get:
       tags:
       - "Subsystems"
-      summary: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
-      description: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
-      operationId: "subsystemInfo"
+      summary: "Get related reactions for a given subsystem."
+      description: "Retrieve all related reactions for a given subsystem. The
+        returned result is in JSON format. Required parameter: subsystem ID, e.g.
+        **eicosanoid_metabolism** "
+      operationId: "subsystemRelatedReaction"
       produces:
       - "application/json"
       parameters:
