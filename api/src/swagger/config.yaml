@@ -40,7 +40,7 @@ paths:
     get:
       tags:
       - "Integrated models"
-      summary: "Get information of a given GEM."
+      summary: "Get information for a given GEM."
       description: "Retrieve information for a given GEM (Genome-Scale
         Metabolic Model). The GEMs are available through tools like GEM Browser,
         Map Viewer and Interaction Partners. The result is returned in JSON format.
@@ -62,7 +62,7 @@ paths:
     get:
       tags:
       - "Compartments"
-      summary: "Get information of a given compartment."
+      summary: "Get information for a given compartment."
       description: "Retrieve all containing metabolites, genes, reactions
         and subsystems for a given compartment. The result is returned in JSON format.
         Required parameter: compartment ID, e.g. **golgi_apparatus** "
@@ -104,7 +104,7 @@ paths:
     get:
       tags:
       - "Genes"
-      summary: "Get information of a given gene."
+      summary: "Get information for a given gene."
       description: "Retrieve all information for a given gene. The result is
         returned in JSON format. Required parameter: gene ID, e.g.
         **ENSG00000196502** or **Sult1a1**"
@@ -146,7 +146,7 @@ paths:
     get:
       tags:
       - "Metabolites"
-      summary: "Get information of a given metabolite."
+      summary: "Get information for a given metabolite."
       description: "Retrieve all information related to a given metabolite. The
         result is returned in JSON format. Required parameter: metabolite ID,
         e.g. **m01587m**"
@@ -209,7 +209,7 @@ paths:
     get:
       tags:
       - "Reactions"
-      summary: "Get information of a given reaction."
+      summary: "Get information for a given reaction."
       description: "Retrieve all information we have on a reaction. The
         returned result is in JSON format. Required parameter: reaction ID, e.g.
         **HMR_3000**"
@@ -294,9 +294,11 @@ paths:
     get:
       tags:
       - "Interaction Partners"
-      summary: "List all first order interaction partners for a given gene (e.g. ENSG00000196502 or SULT1A1)."
-      description: "List all first order interaction partners for a given gene (e.g. ENSG00000196502 or SULT1A1)."
-      operationId: "geneInfo"
+      summary: "Get interaction partners for a given gene."
+      description: "Retrieve all first order interaction partners for a given
+        gene. The returned result is in JSON format. Required parameter: gene ID,
+        e.g.  **ENSG00000196502** or **Sult1a1**"
+      operationId: "geneInteractionPartners"
       produces:
       - "application/json"
       parameters:
