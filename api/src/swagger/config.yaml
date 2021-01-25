@@ -168,7 +168,9 @@ paths:
       tags:
       - "Metabolites"
       summary: "Get related reactions for a given metabolite."
-      description: "Retrieve all related reactions for a given metabolite. The returned result is in JSON format. Required parameter: metabolite ID, e.g. **m01587m**"
+      description: "Retrieve all related reactions for a given metabolite. The
+        returned result is in JSON format. Required parameter: metabolite ID,
+        e.g. **m01587m**"
       operationId: "metaboliteReaction"
       produces:
       - "application/json"
@@ -187,7 +189,9 @@ paths:
       tags:
       - "Metabolites"
       summary: "Get related metabolites for a given metabolite."
-      description: "Retrieve all related metabolites involving a given metabolite. The returned results is in JSON format. Required parameter: metabolite ID, e.g. **m01587m**"
+      description: "Retrieve all related metabolites involving a given
+        metabolite. The returned result is in JSON format. Required parameter:
+        metabolite ID, e.g. **m01587m**"
       operationId: "metaboliteRelatedMetabolite"
       produces:
       - "application/json"
@@ -205,8 +209,8 @@ paths:
     get:
       tags:
       - "Reactions"
-      summary: "List all the information we have on a reaction (for example HMR_3905)."
-      description: "List all the information we have on a reaction (for example HMR_3905)."
+      summary: "Get information of a given reaction."
+      description: "Retrieve all information we have on a reaction. The returned result is in JSON format. Required parameter: reaction ID, e.g. **HMR_3000**"
       operationId: "reactionInfo"
       produces:
       - "application/json"
@@ -224,9 +228,9 @@ paths:
     get:
       tags:
       - "Reactions"
-      summary: "List all related reactions involving a given reaction (for example HMR_3905)."
-      description: "List all related reactions involving a given reaction (for example HMR_3905)."
-      operationId: "reactionInfo"
+      summary: "Get related reactions involving a given reaction."
+      description: "Retrieve all related reactions involving a given reaction. The returned result is in JSON format. Required parameter: reaction ID, e.g. **HMR_3000**"
+      operationId: "reactionRelatedReaction"
       produces:
       - "application/json"
       parameters:
