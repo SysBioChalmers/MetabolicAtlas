@@ -40,7 +40,7 @@ paths:
     get:
       tags:
       - "Integrated models"
-      summary: "Get information for a given GEM."
+      summary: "Get information of a given GEM."
       description: "Retrieve information for a given GEM (Genome-Scale
         Metabolic Model). The GEMs are available through tools like GEM Browser,
         Map Viewer and Interaction Partners. The result is returned in JSON format.
@@ -62,7 +62,7 @@ paths:
     get:
       tags:
       - "Compartments"
-      summary: "Get information for a given compartment."
+      summary: "Get information of a given compartment."
       description: "Retrieve all containing metabolites, genes, reactions
         and subsystems for a given compartment. The result is returned in JSON format.
         Required parameter: compartment ID, e.g. **golgi_apparatus** "
@@ -104,8 +104,10 @@ paths:
     get:
       tags:
       - "Genes"
-      summary: "List all information for a given gene (for example ENSG00000196502 or SULT1A1)."
-      description: "List all information for a given gene (for example ENSG00000196502 or SULT1A1)."
+      summary: "Get information of a given gene."
+      description: "Retrieve all information for a given gene. The result is
+        returned in JSON format. Required parameter: Gene ID, e.g.
+        **ENSG00000196502** or **Sult1a1**"
       operationId: "geneInfo"
       produces:
       - "application/json"
@@ -123,9 +125,11 @@ paths:
     get:
       tags:
       - "Genes"
-      summary: "List all reactions for a given gene (for example ENSG00000196502 or SULT1A1)."
-      description: "List all reactions for a given gene (for example ENSG00000196502 or SULT1A1)."
-      operationId: "geneInfo"
+      summary: "Get related reations for a given gene."
+      description: "Retrieve all related reactions for a given gene. The result is
+        returned in JSON format. Required parameter: Gene ID, e.g.
+        **ENSG00000196502** or **Sult1a1**"
+      operationId: "geneReaction"
       produces:
       - "application/json"
       parameters:
