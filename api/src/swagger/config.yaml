@@ -12,7 +12,7 @@ info:
 basePath: "/api/v2"
 tags:
 - name: "Integrated models"
-- name: "compartment"
+- name: "Compartments"
 - name: "gene"
 - name: "metabolite"
 - name: "reaction"
@@ -54,7 +54,7 @@ paths:
   /compartments/{id}:
     get:
       tags:
-      - "compartment"
+      - "Compartments"
       summary: "For a given compartment name (e.g., Golgi apparatus or
         golgi_apparatus), returns all containing metabolites, genes, reactions
         and subsystems."
@@ -77,7 +77,7 @@ paths:
   /compartments/{id}/related-reactions:
     get:
       tags:
-      - "compartment"
+      - "Compartments"
       summary: "For a given compartment name (e.g., Golgi apparatus or
         golgi_apparatus), return all reactions involving this compartment."
       description: "For a given compartment name (e.g., Golgi apparatus or
