@@ -18,7 +18,7 @@ tags:
 - name: "Reactions"
 - name: "Subsystems"
 - name: "Interaction Partners"
-- name: "miscellaneous"
+- name: "Miscellaneous"
 paths:
   /repository/integrated_models:
     get:
@@ -288,7 +288,7 @@ paths:
   /maps/listing:
     get:
       tags:
-      - "miscellaneous"
+      - "Miscellaneous"
       summary: "List all compartments and subsystems."
       description: "List all compartments and subsystems."
       operationId: "mapListingInfo"
@@ -302,7 +302,7 @@ paths:
   /random-components:
     get:
       tags:
-      - "miscellaneous"
+      - "Miscellaneous"
       summary: "List all information for random genes, metabolites compartments, reactions and subsystems."
       description: "List all information for random genes, metabolites compartments, reactions and subsystems."
       operationId: "randomComponentInfo"
