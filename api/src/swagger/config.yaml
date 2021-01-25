@@ -15,7 +15,7 @@ tags:
 - name: "Compartments"
 - name: "Genes"
 - name: "Metabolites"
-- name: "reaction"
+- name: "Reactions"
 - name: "subsystem"
 - name: "interaction-partner"
 - name: "miscellaneous"
@@ -193,7 +193,7 @@ paths:
   /reactions/{id}:
     get:
       tags:
-      - "reaction"
+      - "Reactions"
       summary: "List all the information we have on a reaction (for example HMR_3905)."
       description: "List all the information we have on a reaction (for example HMR_3905)."
       operationId: "reactionInfo"
@@ -212,7 +212,7 @@ paths:
   /reactions/{id}/related-reactions:
     get:
       tags:
-      - "reaction"
+      - "Reactions"
       summary: "List all related reactions involving a given reaction (for example HMR_3905)."
       description: "List all related reactions involving a given reaction (for example HMR_3905)."
       operationId: "reactionInfo"
