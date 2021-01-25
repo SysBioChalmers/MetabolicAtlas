@@ -16,7 +16,7 @@ tags:
 - name: "Genes"
 - name: "Metabolites"
 - name: "Reactions"
-- name: "subsystem"
+- name: "Subsystems"
 - name: "interaction-partner"
 - name: "miscellaneous"
 paths:
@@ -231,7 +231,7 @@ paths:
   /subsystems/{id}:
     get:
       tags:
-      - "subsystem"
+      - "Subsystems"
       summary: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing metabolites and genes/genes."
       description: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing metabolites and genes/genes."
       operationId: "subsystemInfo"
@@ -250,7 +250,7 @@ paths:
   /subsystems/{id}/related-reactions:
     get:
       tags:
-      - "subsystem"
+      - "Subsystems"
       summary: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
       description: "For a given subsystem name (e.g. eicosanoid_metabolism), list all the containing reactions."
       operationId: "subsystemInfo"
