@@ -14,7 +14,7 @@ tags:
 - name: "Integrated models"
 - name: "Compartments"
 - name: "Genes"
-- name: "metabolite"
+- name: "Metabolites"
 - name: "reaction"
 - name: "subsystem"
 - name: "interaction-partner"
@@ -136,7 +136,7 @@ paths:
   /metabolites/{id}:
     get:
       tags:
-      - "metabolite"
+      - "Metabolites"
       summary: "List all information for a given metabolite (for example m01587m or citrate[m])."
       description: "List all information for a given metabolite (for example m01587m or citrate[m])."
       operationId: "metaboliteInfo"
@@ -155,7 +155,7 @@ paths:
   /metabolites/{id}/related-reactions:
     get:
       tags:
-      - "metabolite"
+      - "Metabolites"
       summary: "List all reactions for a given metabolite (for example m01587m or citrate[m])."
       description: "List all reactions for a given metabolite (for example m01587m or citrate[m])."
       operationId: "metaboliteInfo"
@@ -174,7 +174,7 @@ paths:
   /metabolites/{id}/related-metabolites:
     get:
       tags:
-      - "metabolite"
+      - "Metabolites"
       summary: "List all related metabolites for involving a given metabolite (for example m01587m or citrate[m])."
       description: "List all related metabolites involving a given metabolite (for example m01587m or citrate[m])."
       operationId: "metaboliteInfo"
