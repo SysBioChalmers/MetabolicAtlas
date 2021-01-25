@@ -24,8 +24,12 @@ paths:
     get:
       tags:
       - "Integrated models"
-      summary: "List all Genome-scale metabolic models (GEMs) that are available on the GEM browser."
-      description: "List all Genome-scale metabolic models (GEMs) that are available on the GEM browser."
+      summary: "List all integrated GEMs."
+      description: "Retrieve a list of all GEMs (Genome-Scale
+        Metabolic Models) that Metabolic Atlas integrates. These GEMs are
+        available through tools like GEM Browser, Map Viewer and Interaction
+        Partners. The list is returned in JSON format. No parameters are
+        required."
       operationId: "integratedModels"
       produces:
       - "application/json"
@@ -36,8 +40,11 @@ paths:
     get:
       tags:
       - "Integrated models"
-      summary: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM'."
-      description: "List all information for a given model available on the GEM browser, supply its name e.g., 'Human-GEM'."
+      summary: "List a specified GEM"
+      description: "Retrieve information for a specific GEM (Genome-Scale
+        Metabolic Model). The GEMs are available through tools like GEM Browser,
+        Map Viewer and Interaction Partners. The list is returned in JSON format.
+        Required parameter: GEM name, e.g. **Human-GEM**."
       operationId: "modelInfo"
       produces:
       - "application/json"
