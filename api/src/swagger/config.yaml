@@ -84,20 +84,24 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /compartments/{id}/related-reactions:
+  /compartments/{id}/related-reactions?model={model}:
     get:
       tags:
       - "Compartments"
       summary: "Get related reactions for a given compartment."
       description: "Retrieve all related reactions for a given compartment. The
         result is returned in JSON format. <br /><br />
-        Required parameters: compartment ID,
-        e.g. **golgi_apparatus** "
+        Required parameters: compartment ID (e.g. **golgi_apparatus**) and
+        model name (e.g. **HumanGem**) "
       operationId: "compartmentRelatedReactionInfo"
       produces:
       - "application/json"
       parameters:
       - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
