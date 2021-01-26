@@ -340,20 +340,23 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /interaction-partners/{id}/:
+  /interaction-partners/{id}?model={model}:
     get:
       tags:
       - "Interaction Partners"
       summary: "Get interaction partners for a given gene."
       description: "Retrieve all first order interaction partners for a given
         gene. The returned result is in JSON format. <br /><br />
-        Required parameters: gene ID,
-        e.g.  **ENSG00000196502** or **Sult1a1**"
+        Required parameters: gene ID (e.g.  **ENSG00000196502**) and model name (e.g. **HumanGem**)"
       operationId: "geneInteractionPartners"
       produces:
       - "application/json"
       parameters:
       - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
