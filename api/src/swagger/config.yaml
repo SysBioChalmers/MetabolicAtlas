@@ -110,14 +110,15 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /genes/{id}:
+  /genes/{id}?model={model}:
     get:
       tags:
       - "Genes"
       summary: "Get information for a given gene."
       description: "Retrieve all information for a given gene. The result is
         returned in JSON format. <br /><br />
-        Required parameters: gene ID, e.g.  **ENSG00000196502** or **Sult1a1**"
+        Required parameters: gene ID (e.g.  **ENSG00000196502**)
+        and model name (e.g. **HumanGem**)"
       operationId: "geneInfo"
       produces:
       - "application/json"
@@ -126,24 +127,33 @@ paths:
         in: "path"
         required: true
         type: "string"
+      - name: "model"
+        in: "path"
+        required: true
+        type: "string"
       responses:
         "200":
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /genes/{id}/related-reactions:
+  /genes/{id}/related-reactions?model={model}:
     get:
       tags:
       - "Genes"
       summary: "Get related reations for a given gene."
       description: "Retrieve all related reactions for a given gene. The result is
         returned in JSON format. <br /><br />
-        Required parameters: gene ID, e.g.  **ENSG00000196502** or **Sult1a1**"
+        Required parameters: gene ID (e.g.  **ENSG00000196502**)
+        and model name (e.g. **HumanGem**)"
       operationId: "geneRelatedReactionInfo"
       produces:
       - "application/json"
       parameters:
       - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
