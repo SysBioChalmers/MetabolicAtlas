@@ -162,14 +162,14 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /metabolites/{id}:
+  /metabolites/{id}?model={model}:
     get:
       tags:
       - "Metabolites"
       summary: "Get information for a given metabolite."
       description: "Retrieve all information related to a given metabolite. The
         result is returned in JSON format. <br /><br />
-        Required parameters: metabolite ID, e.g. **m01587m**"
+        Required parameters: metabolite ID (e.g. **m01587m**) and model name (e.g. **HumanGem**)"
       operationId: "metaboliteInfo"
       produces:
       - "application/json"
@@ -178,24 +178,7 @@ paths:
         in: "path"
         required: true
         type: "string"
-      responses:
-        "200":
-          description: "Successful operation"
-        "404":
-          description: "Invalid input"
-  /metabolites/{id}/related-reactions:
-    get:
-      tags:
-      - "Metabolites"
-      summary: "Get related reactions for a given metabolite."
-      description: "Retrieve all related reactions for a given metabolite. The
-        returned result is in JSON format.  <br /><br />
-        Required parameters: metabolite ID, e.g. **m01587m**"
-      operationId: "metaboliteRelatedReactionInfo"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "id"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
@@ -204,20 +187,48 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /metabolites/{id}/related-metabolites:
+  /metabolites/{id}/related-reactions?model={model}:
+    get:
+      tags:
+      - "Metabolites"
+      summary: "Get related reactions for a given metabolite."
+      description: "Retrieve all related reactions for a given metabolite. The
+        returned result is in JSON format.  <br /><br />
+        Required parameters: metabolite ID (e.g. **m01587m**) and model name (e.g. **HumanGem**)"
+      operationId: "metaboliteRelatedReactionInfo"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "404":
+          description: "Invalid input"
+  /metabolites/{id}/related-metabolites?model={model}:
     get:
       tags:
       - "Metabolites"
       summary: "Get related metabolites for a given metabolite."
       description: "Retrieve all related metabolites involving a given
         metabolite. The returned result is in JSON format.  <br /><br />
-        Required parameters:
-        metabolite ID, e.g. **m01587m**"
+        Required parameters: metabolite ID (e.g. **m01587m**) and model name (e.g. **HumanGem**)"
       operationId: "metaboliteRelatedMetaboliteInfo"
       produces:
       - "application/json"
       parameters:
       - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
