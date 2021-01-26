@@ -237,15 +237,14 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /reactions/{id}:
+  /reactions/{id}?model={model}:
     get:
       tags:
       - "Reactions"
       summary: "Get information for a given reaction."
       description: "Retrieve all information we have on a reaction. The
         returned result is in JSON format. <br /><br />
-        Required parameters: reaction ID, e.g.
-        **HMR_3000**"
+        Required parameters: reaction ID (e.g.  **HMR_3000**) and model name (e.g. **HumanGem**)"
       operationId: "reactionInfo"
       produces:
       - "application/json"
@@ -254,25 +253,32 @@ paths:
         in: "path"
         required: true
         type: "string"
+      - name: "model"
+        in: "path"
+        required: true
+        type: "string"
       responses:
         "200":
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /reactions/{id}/related-reactions:
+  /reactions/{id}/related-reactions?model={model}:
     get:
       tags:
       - "Reactions"
       summary: "Get related reactions involving a given reaction."
       description: "Retrieve all related reactions involving a given reaction.
         The returned result is in JSON format. <br /><br />
-        Required parameters: reaction ID,
-        e.g. **HMR_3000**"
+        Required parameters: reaction ID (e.g.  **HMR_3000**) and model name (e.g. **HumanGem**)"
       operationId: "reactionRelatedReactionInfo"
       produces:
       - "application/json"
       parameters:
       - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
