@@ -287,7 +287,7 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /subsystems/{id}:
+  /subsystems/{id}?model={model}:
     get:
       tags:
       - "Subsystems"
@@ -295,8 +295,8 @@ paths:
       description: "Retrieve all information (including metabolites,
         compartments and genes) for a given subsystem. The returned result is in
         JSON format. <br /><br />
-        Required parameters: subsystem ID, e.g.
-        **eicosanoid_metabolism** "
+        Required parameters: subsystem ID (e.g.  **eicosanoid_metabolism**) and
+        model name (e.g. **HumanGem**)"
       operationId: "subsystemInfo"
       produces:
       - "application/json"
@@ -305,25 +305,33 @@ paths:
         in: "path"
         required: true
         type: "string"
+      - name: "model"
+        in: "path"
+        required: true
+        type: "string"
       responses:
         "200":
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /subsystems/{id}/related-reactions:
+  /subsystems/{id}/related-reactions?model={model}:
     get:
       tags:
       - "Subsystems"
       summary: "Get related reactions for a given subsystem."
       description: "Retrieve all related reactions for a given subsystem. The
         returned result is in JSON format. <br /><br />
-        Required parameters: subsystem ID, e.g.
-        **eicosanoid_metabolism** "
+        Required parameters: subsystem ID (e.g.  **eicosanoid_metabolism**) and
+        model name (e.g. **HumanGem**)"
       operationId: "subsystemRelatedReactionInfo"
       produces:
       - "application/json"
       parameters:
       - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
