@@ -28,8 +28,8 @@ paths:
       description: "Retrieve a list of all GEMs (Genome-Scale
         Metabolic Models) that Metabolic Atlas integrates. These GEMs are
         available through tools like GEM Browser, Map Viewer and Interaction
-        Partners. The list is returned in JSON format. No parameters are
-        required."
+        Partners. The list is returned in JSON format. <br /><br />
+        Required parameters: None"
       operationId: "integratedModelListing"
       produces:
       - "application/json"
@@ -43,8 +43,8 @@ paths:
       summary: "Get information for a given GEM."
       description: "Retrieve information for a given GEM (Genome-Scale
         Metabolic Model). The GEMs are available through tools like GEM Browser,
-        Map Viewer and Interaction Partners. The result is returned in JSON format.
-        Required parameters: GEM name, e.g. **Human-GEM** "
+        Map Viewer and Interaction Partners. The result is returned in JSON format.<br /><br />
+        Required parameters: GEM name (e.g. **Human-GEM**) "
       operationId: "integratedModelInfo"
       produces:
       - "application/json"
@@ -58,19 +58,24 @@ paths:
           description: "Successful operation"
         "404":
           description: "Invalid input"
-  /compartments/{id}:
+  /compartments/{id}?model={model}:
     get:
       tags:
       - "Compartments"
       summary: "Get information for a given compartment."
       description: "Retrieve all containing metabolites, genes, reactions
-        and subsystems for a given compartment. The result is returned in JSON format.
-        Required parameters: compartment ID, e.g. **golgi_apparatus** "
+        and subsystems for a given compartment. The result is returned in JSON format. <br /><br />
+        Required parameters: compartment ID (e.g. **golgi_apparatus**) and
+        model name (e.g. **HumanGem**) "
       operationId: "compartmentInfo"
       produces:
       - "application/json"
       parameters:
       - name: "id"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "model"
         in: "path"
         required: true
         type: "string"
@@ -85,7 +90,8 @@ paths:
       - "Compartments"
       summary: "Get related reactions for a given compartment."
       description: "Retrieve all related reactions for a given compartment. The
-        result is returned in JSON format. Required parameters: compartment ID,
+        result is returned in JSON format. <br /><br />
+        Required parameters: compartment ID,
         e.g. **golgi_apparatus** "
       operationId: "compartmentRelatedReactionInfo"
       produces:
@@ -106,8 +112,8 @@ paths:
       - "Genes"
       summary: "Get information for a given gene."
       description: "Retrieve all information for a given gene. The result is
-        returned in JSON format. Required parameters: gene ID, e.g.
-        **ENSG00000196502** or **Sult1a1**"
+        returned in JSON format. <br /><br />
+        Required parameters: gene ID, e.g.  **ENSG00000196502** or **Sult1a1**"
       operationId: "geneInfo"
       produces:
       - "application/json"
@@ -127,8 +133,8 @@ paths:
       - "Genes"
       summary: "Get related reations for a given gene."
       description: "Retrieve all related reactions for a given gene. The result is
-        returned in JSON format. Required parameters: gene ID, e.g.
-        **ENSG00000196502** or **Sult1a1**"
+        returned in JSON format. <br /><br />
+        Required parameters: gene ID, e.g.  **ENSG00000196502** or **Sult1a1**"
       operationId: "geneRelatedReactionInfo"
       produces:
       - "application/json"
@@ -148,8 +154,8 @@ paths:
       - "Metabolites"
       summary: "Get information for a given metabolite."
       description: "Retrieve all information related to a given metabolite. The
-        result is returned in JSON format. Required parameters: metabolite ID,
-        e.g. **m01587m**"
+        result is returned in JSON format. <br /><br />
+        Required parameters: metabolite ID, e.g. **m01587m**"
       operationId: "metaboliteInfo"
       produces:
       - "application/json"
@@ -169,8 +175,8 @@ paths:
       - "Metabolites"
       summary: "Get related reactions for a given metabolite."
       description: "Retrieve all related reactions for a given metabolite. The
-        returned result is in JSON format. Required parameters: metabolite ID,
-        e.g. **m01587m**"
+        returned result is in JSON format.  <br /><br />
+        Required parameters: metabolite ID, e.g. **m01587m**"
       operationId: "metaboliteRelatedReactionInfo"
       produces:
       - "application/json"
@@ -190,7 +196,8 @@ paths:
       - "Metabolites"
       summary: "Get related metabolites for a given metabolite."
       description: "Retrieve all related metabolites involving a given
-        metabolite. The returned result is in JSON format. Required parameters:
+        metabolite. The returned result is in JSON format.  <br /><br />
+        Required parameters:
         metabolite ID, e.g. **m01587m**"
       operationId: "metaboliteRelatedMetaboliteInfo"
       produces:
@@ -211,7 +218,8 @@ paths:
       - "Reactions"
       summary: "Get information for a given reaction."
       description: "Retrieve all information we have on a reaction. The
-        returned result is in JSON format. Required parameters: reaction ID, e.g.
+        returned result is in JSON format. <br /><br />
+        Required parameters: reaction ID, e.g.
         **HMR_3000**"
       operationId: "reactionInfo"
       produces:
@@ -232,7 +240,8 @@ paths:
       - "Reactions"
       summary: "Get related reactions involving a given reaction."
       description: "Retrieve all related reactions involving a given reaction.
-        The returned result is in JSON format. Required parameters: reaction ID,
+        The returned result is in JSON format. <br /><br />
+        Required parameters: reaction ID,
         e.g. **HMR_3000**"
       operationId: "reactionRelatedReactionInfo"
       produces:
@@ -254,7 +263,8 @@ paths:
       summary: "Get information for a given subsystem."
       description: "Retrieve all information (including metabolites,
         compartments and genes) for a given subsystem. The returned result is in
-        JSON format. Required parameters: subsystem ID, e.g.
+        JSON format. <br /><br />
+        Required parameters: subsystem ID, e.g.
         **eicosanoid_metabolism** "
       operationId: "subsystemInfo"
       produces:
@@ -275,7 +285,8 @@ paths:
       - "Subsystems"
       summary: "Get related reactions for a given subsystem."
       description: "Retrieve all related reactions for a given subsystem. The
-        returned result is in JSON format. Required parameters: subsystem ID, e.g.
+        returned result is in JSON format. <br /><br />
+        Required parameters: subsystem ID, e.g.
         **eicosanoid_metabolism** "
       operationId: "subsystemRelatedReactionInfo"
       produces:
@@ -296,7 +307,8 @@ paths:
       - "Interaction Partners"
       summary: "Get interaction partners for a given gene."
       description: "Retrieve all first order interaction partners for a given
-        gene. The returned result is in JSON format. Required parameters: gene ID,
+        gene. The returned result is in JSON format. <br /><br />
+        Required parameters: gene ID,
         e.g.  **ENSG00000196502** or **Sult1a1**"
       operationId: "geneInteractionPartners"
       produces:
@@ -317,8 +329,8 @@ paths:
       - "Miscellaneous"
       summary: "List all compartments and subsystems."
       description: "Retrieve a list of all compartments and subsystems that are
-        available on Metabolic Atlas. The returned result is in JSON format. No
-        parameters are required."
+        available on Metabolic Atlas. The returned result is in JSON format. <br /><br />
+        Required parameters: None"
       operationId: "mapListing"
       produces:
       - "application/json"
@@ -334,7 +346,8 @@ paths:
       summary: "Get information for random components."
       description: "Retrieve information for a number of random genes,
         metabolites, compartments, reactions and subsystems. The
-        returned result is in JSON format. No parameters are required."
+        returned result is in JSON format. <br /><br />
+        Required parameters: None"
       operationId: "randomComponentInfo"
       produces:
       - "application/json"
