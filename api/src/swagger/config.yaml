@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: "Metabolite Atlas can be accessed programmatically using this web API. Here we provide endpoints to get global information on the list of models integrated in Metabolic Atlas and to retrieve bulk or details information on those models. The API is still under developpment and might change without notice.\n\nUse model.short_name attribute (e.g. \"Yeast-GEM\", \"Human-GEM\") or model.database attribute as model parameter."
+  description: "Metabolic Atlas can be accessed programmatically using this web API. Here we provide endpoints to get global information on the list of models integrated in Metabolic Atlas and to retrieve bulk or details information on those models. The API is still under developpment and might change without notice.\n\nThe results are returned in JSON format."
   version: "2.0"
   title: "Metabolic Atlas API"
   termsOfService: "https://metabolicatlas.org/about"
@@ -25,26 +25,24 @@ paths:
       tags:
       - "Integrated models"
       summary: "List all integrated GEMs."
-      description: "Retrieve a list of all GEMs (Genome-Scale
-        Metabolic Models) that Metabolic Atlas integrates. These GEMs are
+      description: "This query retrieves a list of all GEMs (genome-scale
+        metabolic models) that Metabolic Atlas integrates. These GEMs are
         available through tools like GEM Browser, Map Viewer and Interaction
-        Partners. The list is returned in JSON format. <br /><br />
-        Required parameters: None"
+        Partners. No parameters are required for this query."
       operationId: "integratedModelListing"
       produces:
       - "application/json"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
   /repository/integrated_models/{name}:
     get:
       tags:
       - "Integrated models"
       summary: "Get information for a given GEM."
-      description: "Retrieve information for a given GEM (Genome-Scale
-        Metabolic Model). The GEMs are available through tools like GEM Browser,
-        Map Viewer and Interaction Partners. The result is returned in JSON format.<br /><br />
-        Required parameters: GEM name (e.g. **Human-GEM**) "
+      description: "This query retrieve information for a given GEM (genome-scale
+        metabolic model). The GEMs are available through tools like GEM Browser,
+        Map Viewer and Interaction Partners."
       operationId: "integratedModelInfo"
       produces:
       - "application/json"
@@ -53,9 +51,10 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the original GEM name, e.g. **Human-GEM**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /compartments/{id}?model={model}:
@@ -63,10 +62,8 @@ paths:
       tags:
       - "Compartments"
       summary: "Get information for a given compartment."
-      description: "Retrieve all containing metabolites, genes, reactions
-        and subsystems for a given compartment. The result is returned in JSON format. <br /><br />
-        Required parameters: compartment ID (e.g. **golgi_apparatus**) and
-        model name (e.g. **HumanGem**) "
+      description: "This query retrieves all the metabolites, genes, reactions
+        and subsystems contained by the given compartment."
       operationId: "compartmentInfo"
       produces:
       - "application/json"
@@ -75,13 +72,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the compartment identifier, e.g. **golgi_apparatus**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /compartments/{id}/related-reactions?model={model}:
@@ -89,10 +88,7 @@ paths:
       tags:
       - "Compartments"
       summary: "Get related reactions for a given compartment."
-      description: "Retrieve all related reactions for a given compartment. The
-        result is returned in JSON format. <br /><br />
-        Required parameters: compartment ID (e.g. **golgi_apparatus**) and
-        model name (e.g. **HumanGem**) "
+      description: "This query retrieves all the related reactions for a given compartment. There reactions are associated to compartments via the compartmentalized metabolites."
       operationId: "compartmentRelatedReactionInfo"
       produces:
       - "application/json"
@@ -101,24 +97,23 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the compartment ID, e.g. **golgi_apparatus**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /genes/{id}?model={model}:
     get:
       tags:
       - "Genes"
-      summary: "Get information for a given gene."
-      description: "Retrieve all information for a given gene. The result is
-        returned in JSON format. <br /><br />
-        Required parameters: gene ID (e.g.  **ENSG00000196502**)
-        and model name (e.g. **HumanGem**)"
+      summary: "Get information on a specific gene."
+      description: "This query retrieves all the information for a given gene."
       operationId: "geneInfo"
       produces:
       - "application/json"
@@ -127,13 +122,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the gene ID, e.g. **ENSG00000196502**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /genes/{id}/related-reactions?model={model}:
@@ -141,10 +138,7 @@ paths:
       tags:
       - "Genes"
       summary: "Get related reations for a given gene."
-      description: "Retrieve all related reactions for a given gene. The result is
-        returned in JSON format. <br /><br />
-        Required parameters: gene ID (e.g.  **ENSG00000196502**)
-        and model name (e.g. **HumanGem**)"
+      description: "This query retrieve all the reactions related to the specified gene."
       operationId: "geneRelatedReactionInfo"
       produces:
       - "application/json"
@@ -153,13 +147,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the gene ID, e.g. **ENSG00000196502**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /metabolites/{id}?model={model}:
@@ -167,9 +163,7 @@ paths:
       tags:
       - "Metabolites"
       summary: "Get information for a given metabolite."
-      description: "Retrieve all information related to a given metabolite. The
-        result is returned in JSON format. <br /><br />
-        Required parameters: metabolite ID (e.g. **m01587m**) and model name (e.g. **HumanGem**)"
+      description: "This query retrieves all the information about the specified metabolite."
       operationId: "metaboliteInfo"
       produces:
       - "application/json"
@@ -178,13 +172,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the metabolite ID, e.g. **m01587m**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /metabolites/{id}/related-reactions?model={model}:
@@ -192,9 +188,7 @@ paths:
       tags:
       - "Metabolites"
       summary: "Get related reactions for a given metabolite."
-      description: "Retrieve all related reactions for a given metabolite. The
-        returned result is in JSON format.  <br /><br />
-        Required parameters: metabolite ID (e.g. **m01587m**) and model name (e.g. **HumanGem**)"
+      description: "This query retrives all the related reactions that involve the specified metabolite."
       operationId: "metaboliteRelatedReactionInfo"
       produces:
       - "application/json"
@@ -203,13 +197,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the metabolite ID, e.g. **m01587m**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /metabolites/{id}/related-metabolites?model={model}:
@@ -217,9 +213,9 @@ paths:
       tags:
       - "Metabolites"
       summary: "Get related metabolites for a given metabolite."
-      description: "Retrieve all related metabolites involving a given
-        metabolite. The returned result is in JSON format.  <br /><br />
-        Required parameters: metabolite ID (e.g. **m01587m**) and model name (e.g. **HumanGem**)"
+      description: "This query retrieves all related metabolites involving a given
+        metabolite. Metabolites are compartmentalized, which means that the
+        related metabolites are equivalent metabolites in other compartments."
       operationId: "metaboliteRelatedMetaboliteInfo"
       produces:
       - "application/json"
@@ -228,13 +224,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the metabolite ID, e.g. **m01587m**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /reactions/{id}?model={model}:
@@ -242,9 +240,7 @@ paths:
       tags:
       - "Reactions"
       summary: "Get information for a given reaction."
-      description: "Retrieve all information we have on a reaction. The
-        returned result is in JSON format. <br /><br />
-        Required parameters: reaction ID (e.g.  **HMR_3000**) and model name (e.g. **HumanGem**)"
+      description: "This query retrieves all the information we have on a reaction."
       operationId: "reactionInfo"
       produces:
       - "application/json"
@@ -253,13 +249,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the reaction ID, e.g. **HMR_3000**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /reactions/{id}/related-reactions?model={model}:
@@ -267,9 +265,9 @@ paths:
       tags:
       - "Reactions"
       summary: "Get related reactions involving a given reaction."
-      description: "Retrieve all related reactions involving a given reaction.
-        The returned result is in JSON format. <br /><br />
-        Required parameters: reaction ID (e.g.  **HMR_3000**) and model name (e.g. **HumanGem**)"
+      description: "This query retrieves all related reactions involving a given reaction.
+        A limit of 200 related reactions is applied. These related reactions are
+        computed based on the sharing of related (equivalent) metabolites."
       operationId: "reactionRelatedReactionInfo"
       produces:
       - "application/json"
@@ -278,13 +276,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the reaction ID, e.g. **HMR_3000**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /subsystems/{id}?model={model}:
@@ -292,11 +292,8 @@ paths:
       tags:
       - "Subsystems"
       summary: "Get information for a given subsystem."
-      description: "Retrieve all information (including metabolites,
-        compartments and genes) for a given subsystem. The returned result is in
-        JSON format. <br /><br />
-        Required parameters: subsystem ID (e.g.  **eicosanoid_metabolism**) and
-        model name (e.g. **HumanGem**)"
+      description: "This query retrieves all the information for a given subsystem, which
+        includes names and identifiers for metabolites, genes, and compartments."
       operationId: "subsystemInfo"
       produces:
       - "application/json"
@@ -305,13 +302,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the subsystem ID, e.g. **eicosanoid_metabolism**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /subsystems/{id}/related-reactions?model={model}:
@@ -319,10 +318,8 @@ paths:
       tags:
       - "Subsystems"
       summary: "Get related reactions for a given subsystem."
-      description: "Retrieve all related reactions for a given subsystem. The
-        returned result is in JSON format. <br /><br />
-        Required parameters: subsystem ID (e.g.  **eicosanoid_metabolism**) and
-        model name (e.g. **HumanGem**)"
+      description: "This query retrieves all the reactions for the specified subsystem.
+        The query limits the results to 200 reactions."
       operationId: "subsystemRelatedReactionInfo"
       produces:
       - "application/json"
@@ -331,13 +328,15 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the subsystem ID, e.g. **eicosanoid_metabolism**"
       - name: "model"
-        in: "path"
+        in: "query"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
   /interaction-partners/{id}?model={model}:
@@ -345,9 +344,8 @@ paths:
       tags:
       - "Interaction Partners"
       summary: "Get interaction partners for a given gene."
-      description: "Retrieve all first order interaction partners for a given
-        gene. The returned result is in JSON format. <br /><br />
-        Required parameters: gene ID (e.g.  **ENSG00000196502**) and model name (e.g. **HumanGem**)"
+      description: "This query retrieves all first the order interaction partners for
+        a given gene or metabolite."
       operationId: "geneInteractionPartners"
       produces:
       - "application/json"
@@ -356,45 +354,57 @@ paths:
         in: "path"
         required: true
         type: "string"
+        description: "the gene ID, e.g. **ENSG00000196502** or the metabolite ID, e.g. **slfcys_c**"
       - name: "model"
         in: "path"
         required: true
         type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
-  /maps/listing:
+  /maps/listing?model={model}:
     get:
       tags:
       - "Miscellaneous"
-      summary: "List all compartments and subsystems."
-      description: "Retrieve a list of all compartments and subsystems that are
-        available on Metabolic Atlas. The returned result is in JSON format. <br /><br />
-        Required parameters: None"
+      summary: "List all compartments and subsystems for a GEM."
+      description: "This query retrieves a list of all compartments and subsystems that are
+        available on Metabolic Atlas for the specified GEM. This includes identifiers
+        for the SVG maps."
       operationId: "mapListing"
       produces:
       - "application/json"
+      parameters:
+      - name: "model"
+        in: "query"
+        required: true
+        type: "string"
+        description: "the model name, e.g. **HumanGem**"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
-  /random-components:
+  /random-components?model={model}:
     get:
       tags:
       - "Miscellaneous"
-      summary: "Get information for random components."
-      description: "Retrieve information for a number of random genes,
-        metabolites, compartments, reactions and subsystems. The
-        returned result is in JSON format. <br /><br />
-        Required parameters: None"
+      summary: "Get random components for a GEM."
+      description: "This query retrieves detailed informat for a random sample of
+        genes, metabolites, compartments, reactions and subsystems."
       operationId: "randomComponentInfo"
+      parameters:
+      - name: "model"
+        in: "query"
+        required: true
+        type: "string"
+        description: "the model name, e.g. **HumanGem**"
       produces:
       - "application/json"
       responses:
         "200":
-          description: "Successful operation"
+          description: "Successful query"
         "404":
           description: "Invalid input"
