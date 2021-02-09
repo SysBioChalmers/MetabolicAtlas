@@ -1,7 +1,7 @@
 # Metabolic Atlas
 Welcome to the codebase for the Metabolic Atlas project.
 
-The front-end uses [Vue.js](https://vuejs.org), with help of [Vue CLI](https://cli.vuejs.org/). The backend uses [Django REST framework](http://www.django-rest-framework.org) with [PostgreSQL](https://www.postgresql.org) as the database.  
+The front-end uses [Vue.js](https://vuejs.org), with help of [Vue CLI](https://cli.vuejs.org/). The backend uses [Express](https://expressjs.com) with [neo4j](https://neo4j.com) as the database.  
 
 If you use *Metabolic Atlas* in your scientific work, please cite:
 > Robinson, Jonathan L., et al. "An atlas of human metabolism." *Science Signaling* 13.624 (2020) [doi:10.1126/scisignal.aaz1482 ](https://doi.org/10.1126/scisignal.aaz1482 )
