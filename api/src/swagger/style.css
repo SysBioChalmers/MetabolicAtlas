@@ -1,6 +1,8 @@
 .swagger-ui .topbar {
+  padding: 0.5rem  0 0 0;
+  margin: 0 0 0 0;
   background-color: #eef0ef;
-  line-height: 20px;
+  height:  4rem;
 }
 
 .swagger-ui .topbar a {
@@ -8,12 +10,11 @@
 }
 
 .swagger-ui .topbar-wrapper img[alt="Swagger UI"], .topbar-wrapper span {
-  visibility: collapse;
+  /*visibility: collapse;*/
+  content: url('/api/v2/public/logo.png');
+  height: 3rem;
 }
 
-.swagger-ui .topbar-wrapper .link:before {
-  content: url('/api/v2/public/logo.png');
-}
 
 #footer {
   padding-bottom: 0.5em;
