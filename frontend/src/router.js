@@ -39,7 +39,7 @@ const routes = [
   { path: '/gems/comparison', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Documentation },
-  { path: '/api', beforeEnter() { window.location.href = '/api/v2'; } },
+  { path: '/api', beforeEnter() { window.location.href = '/api'; } },
   { path: '/*', name: 'fourOfour', component: FourOFour },
 ];
 

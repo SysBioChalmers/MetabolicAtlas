@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = '/api/v2/';
+const baseURL = '/api/';
 
 const fetchMapsListing = async ({ model, version }) => {
   const params = { model, version };

@@ -9,7 +9,7 @@ info:
   license:
     name: "GPL version 3"
     url: "https://www.gnu.org/licenses/gpl-3.0.html"
-basePath: "/api/v2"
+basePath: "/api"
 tags:
 - name: "Integrated models"
 - name: "Compartments"

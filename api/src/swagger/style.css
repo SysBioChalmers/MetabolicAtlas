@@ -11,7 +11,7 @@
 
 .swagger-ui .topbar-wrapper img[alt="Swagger UI"], .topbar-wrapper span {
   /*visibility: collapse;*/
-  content: url('/api/v2/public/logo.png');
+  content: url('/api/public/logo.png');
   height: 3rem;
 }
 

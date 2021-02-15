@@ -7,7 +7,7 @@ services:
       dockerfile: ./nginx/prod.Dockerfile
       args:
       - VUE_APP_FTP_SERVER=${SERVER_NAME}
-      - VUE_APP_SVGMAPURL=https://${SERVER_NAME}/api/v2/svg
+      - VUE_APP_SVGMAPURL=https://${SERVER_NAME}/api/svg
     ports:
       - "80:80"
       - "443:443"

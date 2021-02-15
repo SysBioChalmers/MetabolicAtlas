@@ -218,7 +218,7 @@
           Lists of the most relevant software tools, algorithms, or databases published by the SysBio group.
 
           <h5 id="API" class="is-size-5">API</h5>
-          We have a <a href="/api/v2" target="_blank">dedicated interface to facilite the use of the API</a>, with output provided in JSON format. When using this service, we kindly ask users to limit request to 10 per second. The API is still undergoing development; while it is covers the entire content of the models, it might change without prior notice.
+          We have a <a href="/api" target="_blank">dedicated interface to facilite the use of the API</a>, with output provided in JSON format. When using this service, we kindly ask users to limit request to 10 per second. The API is still undergoing development; while it is covers the entire content of the models, it might change without prior notice.
         </div>
       </div>
     </div>
