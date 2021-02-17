@@ -5,12 +5,14 @@
   height:  4rem;
 }
 
-.swagger-ui .topbar a {
+.swagger-ui .topbar-wrapper {
   cursor: pointer;
 }
 
-.swagger-ui .topbar-wrapper img[alt="Swagger UI"], .topbar-wrapper span {
-  /*visibility: collapse;*/
+.swagger-ui .topbar-wrapper img, .topbar-wrapper span{
+  visibility: collapse;
+}
+.swagger-ui  .topbar-wrapper {
   content: url('/api/public/logo.png');
   height: 3rem;
 }

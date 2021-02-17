@@ -5,7 +5,7 @@ function sleep (ms) {
 }
 
 function bindClickEvent() {
-  const el = document.querySelector('.topbar img');
+  const el = document.querySelector('.topbar-wrapper');
 
   if (el) {
     el.onclick = () => {
