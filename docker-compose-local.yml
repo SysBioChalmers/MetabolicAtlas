@@ -17,7 +17,7 @@ services:
     command: yarn serve
     environment:
       - VUE_APP_FTP_SERVER=localhost
-      - VUE_APP_SVGMAPURL=http://localhost/api/svg
+      - VUE_APP_SVGMAPURL=http://localhost/api/v2/svg
     volumes:
       - ./frontend/src:/project/src
       - ./frontend/public:/project/public

@@ -9,7 +9,7 @@ import { default as EventBus } from '@/event-bus';
 import store from './store';
 import linkHandlerMixin from './mixins/linkHandler';
 
-axios.defaults.baseURL = '/api';
+axios.defaults.baseURL = '/api/v2';
 axios.defaults.onDownloadProgress = function onDownloadProgress(progressEvent) {
   const percentCompleted = Math.floor((progressEvent.loaded * 100.0) / progressEvent.total);
   NProgress.set(percentCompleted / 100.0);
