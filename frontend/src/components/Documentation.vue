@@ -44,7 +44,9 @@
                   <span class="icon pr-5 has-text-info"><i class="fa fa-search"></i></span>
                   <b>Global search</b>
                 </a>
-                <a href="#GEMs"><b>GEMs</b></a>
+                <a href="#GEMs">
+                  <span class="icon pr-5 has-text-info"><i class="fa fa-files-o"></i></span>
+                <b>GEMs</b></a>
                 <ul class="menu-list">
                   <li><a href="#Integrated-models">Integrated models</a></li>
                   <li><a href="#Repository">Repository</a></li>
@@ -53,7 +55,9 @@
                 </ul>
               </li>
               <li>
-                <a href="#Resources"><b>Resources</b></a>
+                <a href="#Resources">
+                  <span class="icon pr-5 has-text-info"><i class="fa fa-cogs"></i></span>
+                <b>Resources</b></a>
                 <ul class="menu-list">
                   <li><a href="#API">API</a></li>
                 </ul>
