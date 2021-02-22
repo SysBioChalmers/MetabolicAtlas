@@ -198,7 +198,7 @@
           A genome-scale metabolic model (GEM) is a mathematical representation of a metabolic reaction network.
 
           <h5 id="Integrated-models" class="is-size-5">Integrated GEMs</h5>
-          Currently, Metabolic Atlas contains two integrated models, <i>Yeast-GEM</i> and <i>Human-GEM</i>.
+          Currently, Metabolic Atlas contains seven integrated models, i.e., <i>Fruitfly-GEM</i>, <i>Human-GEM</i>, <i>Mouse-GEM</i>, <i>Rat-GEM</i>, <i>Worm-GEM</i>, <i>Yeast-GEM</i> and <i>Zebrafish-GEM</i>.
 
           <h5 id="Repository" class="is-size-5">GEM Repository</h5>
           The repository lists all models constructed by the SysBio research group; this includes older models that may no longer be maintained (for example HMR 2.0), and others that were recently published. The more recent GEMs can also be found in the <a href="https://www.github.com/SysBioChalmers/" target="_blank">SysBioChalmers organization GitHub</a>.<br>
