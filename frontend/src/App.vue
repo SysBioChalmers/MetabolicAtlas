@@ -10,7 +10,7 @@
           <div class="navbar-brand ml-2">
             <router-link class="navbar-item" :to="{ name: 'home' }" active-class=""
                          @click.native="isMobileMenu = false">
-              <img :src="require('./assets/logo.png')" />
+              <img src="/img/logo.png" />
             </router-link>
             <div class="navbar-burger pr-2" :class="{ 'is-active': isMobileMenu }"
                  @click="isMobileMenu = !isMobileMenu">

@@ -10,7 +10,7 @@
 }
 .swagger-ui .topbar-wrapper {
   cursor: pointer;
-  content: url('/api/v2/public/logo.png');
+  content: url('/img/logo.png');
   height: 3rem;
 }
 
