@@ -1,21 +1,13 @@
-let eventBound = false;
-
-function sleep (ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
 function bindClickEvent() {
   const el = document.querySelector('.topbar-wrapper');
-
   if (el) {
     el.onclick = () => {
       location.href = '/';
     };
-    eventBound = true;
+    let b = document.querySelector('body');
   } else {
-    sleep(50).then(bindClickEvent);
+    setTimeout(bindClickEvent, 100);
   }
 }
-
 
 bindClickEvent();
