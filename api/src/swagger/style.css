@@ -5,28 +5,13 @@
   height:  4rem;
 }
 
-.swagger-ui .topbar-wrapper {
-  cursor: pointer;
-}
-
 .swagger-ui .topbar-wrapper img, .topbar-wrapper span{
   visibility: collapse;
 }
-.swagger-ui  .topbar-wrapper {
+.swagger-ui .topbar-wrapper {
+  cursor: pointer;
   content: url('/api/v2/public/logo.png');
   height: 3rem;
-}
-
-
-#footer {
-  padding-bottom: 0.5em;
-  padding-top: 0.5em;
-  background-color: #eef0ef;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 5rem;
-  font-family: Open Sans, sans-serif;
 }
 
 #imgp img {
@@ -63,4 +48,21 @@
 .swagger-ui .btn.execute {
   background-color: #25543C;
   border-color: #25543C;
+}
+
+.base-url {
+  display: none;
+}
+
+#footer {
+  margin-top: 4rem;
+  background-color: #eef0ef;
+}
+
+.footer img {
+  max-height: 20px;
+}
+
+pre {
+  background-color: #7d8492;
 }
