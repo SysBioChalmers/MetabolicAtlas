@@ -46,7 +46,7 @@
                 </a>
                 <a href="#GEMs">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-files-o"></i></span>
-                <b>GEMs</b></a>
+                  <b>GEMs</b></a>
                 <ul class="menu-list">
                   <li><a href="#Integrated-models">Integrated models</a></li>
                   <li><a href="#Repository">Repository</a></li>
@@ -57,7 +57,7 @@
               <li>
                 <a href="#Resources">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-cogs"></i></span>
-                <b>Resources</b></a>
+                  <b>Resources</b></a>
                 <ul class="menu-list">
                   <li><a href="#API">API</a></li>
                 </ul>
@@ -67,7 +67,7 @@
         </div>
         <div id="documentation" class="column content has-text-justified">
           Metabolic Atlas allows users to vizualize the content of the integrated <a href="#Integrated-models">Genome-scale metabolic models (GEMs)</a> by using the <a href="#GEM-Browser">GEM Browser</a> tool, and enables navigation of the metabolic network maps via the <a href="#Map-Viewer">Map viewer</a> tool. These two tools are available upon selecting one of the integrated models. The selected model is indicated to the right of the Metabolic Atlas logo in the top navigation bar. Leaving the <i>Explore</i> section (or the <i>GEM Browser</i> / <i>Map Viewer</i> tools) will unselect the model, and remove its name from the navigation bar.<br>
-          To browse our integrated GEMs, visit the <router-link :to="{ name: 'gems'}">GEM Repository</router-link> page.<br>
+          To browse our integrated GEMs, visit the <router-link :to="{ name: 'gems', hash: '#gem-repository'}">GEM Repository</router-link> page.<br>
           The <i>GEM Browser</i> and the <i>Map Viewer</i> are closely connected, and users can navigate between the two tools using the buttons in the top navigation bar.
 
           <hr class="mt-6">
@@ -198,7 +198,7 @@
           A genome-scale metabolic model (GEM) is a mathematical representation of a metabolic reaction network.
 
           <h5 id="Integrated-models" class="is-size-5">Integrated GEMs</h5>
-          Currently, Metabolic Atlas contains seven integrated models, i.e., <i>Fruitfly-GEM</i>, <i>Human-GEM</i>, <i>Mouse-GEM</i>, <i>Rat-GEM</i>, <i>Worm-GEM</i>, <i>Yeast-GEM</i> and <i>Zebrafish-GEM</i>.
+          Currently, Metabolic Atlas contains seven integrated models, i.e., <i>Fruitfly-GEM</i>, <i>Human-GEM</i>, <i>Mouse-GEM</i>, <i>Rat-GEM</i>, <i>Worm-GEM</i>, <i>Yeast-GEM</i> and <i>Zebrafish-GEM</i>. Details can be found at the <router-link :to="{ name: 'gems', hash: '#integrated-gems'}">GEM Repository</router-link> page.
 
           <h5 id="Repository" class="is-size-5">GEM Repository</h5>
           The repository lists all models constructed by the SysBio research group; this includes older models that may no longer be maintained (for example HMR 2.0), and others that were recently published. The more recent GEMs can also be found in the <a href="https://www.github.com/SysBioChalmers/" target="_blank">SysBioChalmers organization GitHub</a>.<br>
