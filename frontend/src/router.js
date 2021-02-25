@@ -39,7 +39,6 @@ const routes = [
   { path: '/gems/comparison', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Documentation },
-  { path: '/api', beforeEnter() { window.location.href = '/api/v2'; } },
   { path: '/*', name: 'fourOfour', component: FourOFour },
 ];
 

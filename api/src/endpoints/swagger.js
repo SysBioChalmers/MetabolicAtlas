@@ -9,6 +9,7 @@ const options = {
   customSiteTitle: 'Metabolic Atlas API',
   customCss,
   customJs: 'public/helper.js',
+  customCssUrl: 'https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css',
 };
 
 routes.get('/favicon*', function (req, res) {

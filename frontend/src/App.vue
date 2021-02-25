@@ -10,7 +10,7 @@
           <div class="navbar-brand ml-2">
             <router-link class="navbar-item" :to="{ name: 'home' }" active-class=""
                          @click.native="isMobileMenu = false">
-              <img :src="require('./assets/logo.png')" />
+              <img src="/img/logo.png" />
             </router-link>
             <div class="navbar-burger pr-2" :class="{ 'is-active': isMobileMenu }"
                  @click="isMobileMenu = !isMobileMenu">
@@ -84,23 +84,23 @@
           <div class="content has-text-right has-text-centered-mobile is-size-2-mobile">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
-                <img class="my-0 mx-2" src="./assets/sysbio-logo.png" />
+                <img class="my-0 mx-2" src="/img/sysbio-logo.png" />
               </a>
               <a href="http://www.chalmers.se" title="Chalmers University of Technology">
-                <img class="my-0 mx-2" src="./assets/chalmers.png" />
+                <img class="my-0 mx-2" src="/img/chalmers.png" />
               </a>
               <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
-                <img class="my-0 mx-2" src="./assets/wallenberg.gif" />
+                <img class="my-0 mx-2" src="/img/wallenberg.gif" />
               </a>
               <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
-                <img class="my-0 mx-2" src="./assets/wpcr.jpg" />
+                <img class="my-0 mx-2" src="/img/wpcr.jpg" />
               </a>
               <a href="https://nbis.se/">
-                <img class="my-0 mx-2" src="./assets/nbislogo-green.png"
+                <img class="my-0 mx-2" src="/img/nbislogo-green.png"
                      title="National Bioinformatics Infrastructure Sweden" />
               </a>
               <a href="https://www.scilifelab.se" title="Science for Life Laboratory (SciLifeLab)">
-                <img class="my-0 mx-2" src="./assets/scilifelab.png" />
+                <img class="my-0 mx-2" src="/img/scilifelab.png" />
               </a>
             </p>
           </div>
