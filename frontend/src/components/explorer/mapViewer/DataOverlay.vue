@@ -7,8 +7,7 @@
          title="Load a TSV file with gene IDs and TPM values.
          More information can be found in the documentation.">
       Load custom gene expression data<router-link :to="{ name: 'documentation', hash: '#Data-overlay'}">
-      <span class="icon"><i class="fa fa-info-circle"></i></span>
-      </router-link>
+        <span class="icon"><i class="fa fa-info-circle"></i></span> </router-link>
     </div>
     <div class="file is-centered mb-2">
       <label class="file-label">
