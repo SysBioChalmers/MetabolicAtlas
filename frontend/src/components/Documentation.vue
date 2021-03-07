@@ -24,13 +24,6 @@
                   <li><a href="#compartment-page">Compartment page</a></li>
                   <li><a href="#GEM-Browser-Search">Search</a></li>
                 </ul>
-                <a href="#Interaction-Partners">
-                  <span class="icon pr-5 has-text-info"><i class="fa fa-connectdevelop"></i></span>
-                  <b>Interaction Partners</b>
-                </a>
-                <ul class="menu-list">
-                  <li><a href="#IP-Search">Search</a></li>
-                </ul>
                 <a href="#Map-Viewer">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-map-o"></i></span>
                   <b>Map Viewer</b>
@@ -39,6 +32,13 @@
                   <li><a href="#2D-Viewer">2D Viewer</a></li>
                   <li><a href="#3D-Viewer">3D Viewer</a></li>
                   <li><a href="#Data-overlay">Data Overlay</a></li>
+                </ul>
+                <a href="#Interaction-Partners">
+                  <span class="icon pr-5 has-text-info"><i class="fa fa-connectdevelop"></i></span>
+                  <b>Interaction Partners</b>
+                </a>
+                <ul class="menu-list">
+                  <li><a href="#IP-Search">Search</a></li>
                 </ul>
                 <a href="#Global-search">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-search"></i></span>
