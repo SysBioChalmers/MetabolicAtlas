@@ -40,10 +40,14 @@
                 <ul class="menu-list">
                   <li><a href="#IP-Search">Search</a></li>
                 </ul>
-                <a href="#Global-search">
+                <a href="#Search">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-search"></i></span>
-                  <b>Global search</b>
+                  <b>Search</b>
                 </a>
+                <ul class="menu-list">
+                  <li><a href="#Quick-search">Quick search</a></li>
+                  <li><a href="#Global-search">Global search</a></li>
+                </ul>
                 <a href="#GEMs">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-files-o"></i></span>
                   <b>GEMs</b></a>
@@ -108,9 +112,6 @@
           <h5 id="compartment-page" class="is-size-5">Compartment page</h5>
           <p>Shows information on the current selected compartment. The full list of metabolites, genes and reactions is available through the <a href="#API">API</a>.<br>Similarly to the subsystem page the list of maps/networks where this compartment can be vizualize is displayed on the right.</p>
 
-          <h5 id="GEM-Browser-Search" class="is-size-5">GEM Browser Search</h5>
-          <p>Search for any term in metabolites, genes, reactions, subsystems, or compartments information. The results links redirect to the corresponding <i>GEM Browser</i> page of the component clicked.</p>
-          <p>The <i>GEM Browser</i> search is restricted to the selected GEM and limited to 50 results per component type. Alternatively, users can click on the banner under the search input field to run a <i>Global Search</i>, where the term is searched among all the integrated models' components and is unrestricted. To learn more about the search term possiblities, go to the <a href="#Global-Search">Global Search</a> section of this page.</p>
 
           <hr class="mt-6">
           <h4 id="Interaction-Partners" class="is-size-4">
@@ -181,10 +182,17 @@
           </div>
 
           <hr class="mt-6">
-          <h4 id="Global-search" class="is-size-4">
+          <h4 id="Search" class="is-size-4">
             <span class="icon pr-5 has-text-info"><i class="fa fa-search"></i></span>
-            Global search
+            Search
           </h4>
+          <p>For the convenience of the users, Metabolic Atlas provides two ways of searching: <i>Quick search</i> and <i>Global search</i>. The users can search for any terms in metabolites, genes, reactions, subsystems or compartments information with both searching methods. In addition, proximity searching is enabled so that the searching algorithm will not only search for exact matching of the input keywords but also try to find hits that are similar to the input keywords./p>
+
+          <h5 id="Quick-search" class="is-size-5">Quick search</h5>
+          <p>By clicking the icon <span><i class="fa fa-search"></i></span> in the top navigation bar, the users can perform a quick search of any terms in metabolites, genes, reactions, subsystems or compartments. The found hits will be shown directly under the searching bar if there is any or prompted with <i>No matches</i>. The results links redirect to the corresponding <i>GEM Browser</i> page of the component clicked. One can also click the icon <span><i class="fa fa-table"></i></span> or <span ><i class="fa fa-connectdevelop"></i></span> to left side of each found hit to redirect to the <i>metabolite page</i> or <i>interaction parters page</i> respectively.</p>
+          <p>The <i>Quick search</i> is restricted to the selected GEM on the left side of searching bar and limited to 50 results per component type. Alternatively, users can click on the banner under the search input field to run a <i>Global Search</i>, where the term is searched among all the integrated models' components and is unrestricted. To learn more about the search term possiblities, go to the <a href="#Global-Search">Global Search</a> section of this page.</p>
+
+          <h5 id="Global-search" class="is-size-5">Global search</h5>
           <p>The <i>Global search</i> page queries all the integrated metabolic models. Each metabolic component has its own results table accessible via the dedicated tab. Tabs are inactivated when no results are found. The search text is not restricted to the visible columns; for example, searching an MetaNetX ID will return results for the metabolites and/or reactions matching the ID even though the MetaNetX column is not in the table. The search algorithm matches partial names of components: searching for 'cholesterol' will output all metabolites containing the substring 'cholesterol'. When the name of a metabolite is provided, all metabolites matching or partially matching this name be returned, in addition to a the list of all reactions that involve these matching metabolites. The global search is also able to query reactions in a more advanced way using special patterns:</p>
           <ul>
             <li>Use the compartment letter at the end of a metabolite name, e.g cholesterol[c] to match metabolites associated with that compartment.</li>
@@ -192,6 +200,7 @@
             <li>Use " + " and metabolite terms - ID (m02439c), name (malate) or name with compartment (malate[c]) - to force the presence of multiple metabolites in the retrieved reactions. For example, "pyruvate + malate" returns all reactions involving at least pyruvate <b>and</b> malate.</li>
             <li>Combine the three patterns to refine the results even further.</li>
           </ul>
+
 
           <hr class="mt-6">
           <h4 id="GEMs" class="is-size-4">GEMs</h4>
