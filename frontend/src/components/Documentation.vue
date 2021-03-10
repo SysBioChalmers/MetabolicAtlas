@@ -22,7 +22,6 @@
                   <li><a href="#gene-page">Gene page</a></li>
                   <li><a href="#subsystem-page">Subsystem page</a></li>
                   <li><a href="#compartment-page">Compartment page</a></li>
-                  <li><a href="#GEM-Browser-Search">Search</a></li>
                 </ul>
                 <a href="#Map-Viewer">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-map-o"></i></span>
