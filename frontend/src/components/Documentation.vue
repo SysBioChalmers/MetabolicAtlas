@@ -51,7 +51,7 @@
                   <li><a href="#Integrated-models">Integrated models</a></li>
                   <li><a href="#Repository">Repository</a></li>
                   <li><a href="#Comparison">Comparison</a></li>
-                  <li><a href="#FTP-download">FTP download</a></li>
+                  <li><a href="#FTP-access">FTP access</a></li>
                 </ul>
               </li>
               <li>
@@ -75,7 +75,7 @@
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-table"></i></span>
             GEM Browser
           </h4>
-          <p>The <i>GEM Browser</i> is a set of dedicated pages for different components of the model; reactions, metabolites, genes, subsystems, and compartments. Each of these pages contains a button on right, to report a problem or ask questions to the modellers.</p>
+          <p>The <i>GEM Browser</i> is a set of dedicated pages for different components of the model; reactions, metabolites, genes, subsystems, and compartments. Each of these pages contains a button on the right, to report a problem or ask questions to the modellers.</p>
 
           <h5 id="reaction-page" class="is-size-5">Reaction page</h5>
           <p>This page shows information about the current selected reaction. If provided by the modellers, a list of identifiers from external databases and a list of references (PMIDs) are also shown in the Reference table below.</p>
@@ -208,7 +208,7 @@
           <p>In the first section of the page one can select 2 or 3 integrated GEMs to compare. The comparison is performed dynamically, by inspecting the external identifiers in the database. If a reaction or a metabolite share at least one such external identifier, they are considered to be the shared between the compared models. Otherwise, they are considerend to be unique to the respective model. The table with the comparison is interactive - by clicking on a cell, the comparison details are shown.</p>
           <p>In the second section, the <i>Comparison</i> page provides statistics about the comparison/overlap between Human-GEM and HMR 2.0, and Recon3D. This comparison has been performed manually for an early verion of Human-GEM, and will not be updated.</p>
 
-          <h5 id="FTP-download" class="is-size-5">FTP download</h5>
+          <h5 id="FTP-access" class="is-size-5">FTP access</h5>
           <p>Genome-Scale Metabolic model files can be downloaded from <a :href="`ftp://${ftpUrl}/`">ftp://{{ftpUrl}}</a> or by connecting to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>).</p>
           <span class="has-text-weight-bold lab">Host:</span> <a :href="`ftp://${ftpUrl}/`"> ftp://{{ftpUrl}}</a><br>
           <span class="has-text-weight-bold lab">Login:</span> leave blank<br>

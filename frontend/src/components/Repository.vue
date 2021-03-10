@@ -59,7 +59,7 @@
           While we do not provide support for these models, we are making them available to download.
           For support, the authors should be contacted. They are listed in the <i>References</i> section of each model.
           Click on a row to display more information. To download multiple models at once use the
-          <router-link :to=" { name: 'documentation', hash: '#FTP-download'} ">FTP server</router-link>.
+          <router-link :to=" { name: 'documentation', hash: '#FTP-access'} ">FTP server</router-link>.
         </p>
         <br>
         <loader v-show="showLoader"></loader>
