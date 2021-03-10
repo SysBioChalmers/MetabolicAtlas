@@ -86,14 +86,14 @@
           <p>The top table contains basic information extracted from the GEM. If provided, additional identifiers from external databases will be shown in the External IDs table below.</p>
           <p>On the right side of the page, users can access the <a href="#Interaction-Partners">Interaction Partners</a> tool for the metabolite.</p>
 
-          <h6 class="has-text-grey">Reactions table</h6>
+          <h6 class="has-text-black">Reactions table</h6>
           <p>Lists all the reactions involving the current metabolite as a reactant or a product. The current metabolite is denoted with a black text color in the reaction equations. Since metabolites are specific to a cell compartment, only reactions involving the metabolite in its specific compartment are displayed. To remove this restriction and display additional reactions involving the metabolite in any compartment, click the <i>Expand to all compartments</i> button.</p>
           <p>Note that the number of reactions is limited to 200; to retrieve all the reactions we invite users to use the <a href="#API">API</a>.</p>
 
           <h5 id="gene-page">Gene page</h5>
           <p>Shows information about the current selected gene. The top table contains basic information extracted from the GEM. If provided, additional identifiers from external databases will be shown in the external IDs table.<br>On the right side of the page, users can access the <a href="#Interaction-Partners">Interaction Partners</a> tool for this gene.</p>
 
-          <h6 class="has-text-grey">Reactions table</h6>
+          <h6 class="has-text-black">Reactions table</h6>
           <p>Lists all the reactions catalyzed by the enzyme encoded by the current gene.</p>
           <p>Note that the number of reactions is limited to 200; to retrieve all the reactions we invite users to use the <a href="#API">API</a>.</p>
 
@@ -101,7 +101,7 @@
           <p>This page shows information on the current selected metabolic subsystem. Subsystems correspond to a set of reactions that share a similar metabolic function. Unlike a metabolic pathway, the reactions comprising a subsystem are not necessarily linked into a completely connected network.</p>
           <p>the lists of metabolites and genes contained within the current subsystem are shown in the table, but are restricted to a maximum of 1000 for each category. Use the <a href="#API">API</a> to retrieve the complete set of metabolites and genes for the selected subsystem.<br>On the right of the page, the list of maps/networks where this subsystem can be vizualize is displayed. Users are redirected to the <i>Map Viewer</i> tool when clicking on one of the map name.</p>
 
-          <h6 class="has-text-grey">Reactions table</h6>
+          <h6 class="has-text-black">Reactions table</h6>
           <p>Shows all the reactions that belong to the current subsystem. Note that in some GEMs, a given reaction can be associated with multiple subsystems.</p>
           <p>The number of reactions shown is limited to 1000; to retrieve all associated reactions we invite users to use the <a href="#API">API</a>.</p>
 
@@ -117,7 +117,7 @@
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-connectdevelop"></i></span>
             Interaction Partners
           </h4>
-          <p>For a given metabolite or gene, this tool renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. a edge between two nodes maybe represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, the user is prompted before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. Users can left-click a node to display a context menu with 3 options:</p>
+          <p>For a given metabolite or gene, this tool renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. an edge between two nodes maybe represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, the user is prompted before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. Users can left-click a node to display a context menu with 3 options:</p>
           <ul>
             <li>Load interaction partners: reload the interaction partners graph with the clicked node as the new central node.</li>
             <li>Expand interaction partners: add additional interaction partner nodes for the clicked node to the graph. Expanded interactions are represented with dashed lines.</li>
@@ -127,13 +127,13 @@
           <p>The top-left buttons allow users to (from left to right): customize the graph node's shape and colors, zoom in, zoom out, reset the display, reload the graph (remove expanded interaction partners), and remove any highlighting. The nodes can also be moved around the graph after selection.</p>
           <p>If available, expression levels from the Human Protein Atlas can be enabled and applied on the <i>Interaction Partners</i> graph using the panel on the top-right button. Doing so, will update the gene's node colors according to the legend. Some genes may not have RNA levels available - in such case their color corresponds to the n/a color.</p>
 
-          <h6 class="has-text-grey">Export graph</h6>
+          <h6 class="has-text-black">Export graph</h6>
           Clicking the <i>Export graph</i> button will display two options: GraphML or PNG. GraphML is a Cytoscape compatible format; currently, the colors are not exported in this format.
 
-          <h6 class="has-text-grey">Highlights</h6>
+          <h6 class="has-text-black">Highlights</h6>
           <p>Nodes may belong to multiple compartments and/or subsystems. The filter box allows users to highlight (red label color) the nodes belonging to a given subsystem or compartment. The two filters are additive. Enzymes may catalyze reactions in differents compartments / subsystems; label of genes that encode such enzymes are highlighted in orange on the graph.</p>
 
-          <h6 class="has-text-grey">Reactions table</h6>
+          <h6 class="has-text-black">Reactions table</h6>
           <p>Information of the reactions are listed in this table. Selecting a label of metabolite or gene in the table will select the corresponding node on the graph, and vice versa. Selecting a reaction ID label highlight the reaction on the graph. The search bar above the table can be used to filter out rows to find a given component. The table can be exported via the "Export to TSV" button.</p>
 
           <h5 id="IP-Search" class="is-size-5">Interaction Partners Search</h5>
