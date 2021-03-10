@@ -75,7 +75,7 @@
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-table"></i></span>
             GEM Browser
           </h4>
-          <p>The <i>GEM Browser</i> is a set of dedicated pages for different components of the model; reactions, metabolites, genes, subsystems, and compartments. Each of these pages contains a button on the right, to report a problem or ask questions to the modellers.</p>
+          <p>The <i>GEM Browser</i> is a set of dedicated pages for different components of the model; reactions, metabolites, genes, subsystems, and compartments. Each of these pages contains a button <img src="/img/button-report-issue.png" width="200" style="vertical-align:middle"> on the right. Click this button to report a problem or ask questions to the modellers.</p>
 
           <h5 id="reaction-page" class="is-size-5">Reaction page</h5>
           <p>This page shows information about the current selected reaction. If provided by the modellers, a list of identifiers from external databases and a list of references (PMIDs) are also shown in the Reference table below.</p>
