@@ -16,7 +16,6 @@ import { mapGetters, mapState } from 'vuex';
 import { default as EventBus } from '@/event-bus';
 import RNALegend from '@/components/explorer/mapViewer/RNALegend.vue';
 import { getSingleRNAExpressionColor, getComparisonRNAExpressionColor, multipleColors } from '@/expression-sources/hpa';
-import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'RNAexpression',
@@ -143,11 +142,7 @@ export default {
       this.$emit('secondTissueSelected', tissue);
     },
     async getRnaLevels() {
-      try {
-        await this.$store.dispatch('humanProteinAtlas/getLevels');
-      } catch {
-        this.loadErrorMesssage = messages.unknownError;
-      }
+      await this.$store.dispatch('humanProteinAtlas/getLevels');
     },
     parseHPARNAlevels(tissue, index, callback) {
       const RNAlevels = {};

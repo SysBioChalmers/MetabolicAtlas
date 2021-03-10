@@ -71,6 +71,7 @@
       </transition>
     </nav>
     <router-view></router-view>
+    <ErrorPanel :message="errorMessage" @hideErrorPanel="errorMessage=''" />
     <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
       <div class="columns is-gapless">
         <div class="column is-7-desktop is-5-tablet has-text-centered-mobile">
@@ -129,13 +130,17 @@
 
 <script>
 
+import axios from 'axios';
 import { mapState } from 'vuex';
+import ErrorPanel from '@/components/shared/ErrorPanel';
 import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
+import { default as messages } from '@/helpers/messages';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'App',
   components: {
+    ErrorPanel,
     GemSearch,
   },
   data() {
@@ -179,6 +184,8 @@ export default {
       viewerLastRoute: {},
       isMobileMenu: false,
       showGemSearch: false,
+      messages,
+      errorMessage: '',
     };
   },
   computed: {
@@ -193,6 +200,20 @@ export default {
           document.querySelector('#search').focus();
         });
       }
+    },
+  },
+  mounted() {
+    this.setupErrorCatcher();
+  },
+  methods: {
+    setupErrorCatcher() {
+      axios.interceptors.response.use(
+        response => response,
+        (error) => {
+          this.errorMessage = messages.unknownError;
+          return Promise.reject(error);
+        }
+      );
     },
   },
 };

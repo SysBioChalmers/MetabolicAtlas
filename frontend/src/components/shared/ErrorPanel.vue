@@ -48,13 +48,10 @@ export default {
 
 #errorPanel {
   z-index: 11;
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
+  position: fixed;
   width: 350px;
-  bottom: 2rem;
+  right: 20px;
+  bottom: 80px;
   border: 1px solid gray;
 }
 

@@ -1,20 +1,34 @@
 <template>
-  <a class="button is-primary is-outlined" @click="exportToTSV">
-    <span class="icon is-large"><i class="fa fa-download"></i></span>
-    <span>Export to TSV</span>
-  </a>
+  <span>
+    <a class="button is-primary is-outlined" @click="exportToTSV">
+      <span class="icon is-large"><i class="fa fa-download"></i></span>
+      <span>Export to TSV</span>
+    </a>
+    <ErrorPanel :message="errorMessage" @hideErrorPanel="errorMessage=''" />
+  </span>
 </template>
 
 <script>
 
 import { default as FileSaver } from 'file-saver';
+import ErrorPanel from '@/components/shared/ErrorPanel';
+import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'ExportTSV',
+  components: {
+    ErrorPanel,
+  },
   props: {
     arg: [Number, String, Object, Array],
     filename: String,
     formatFunction: Function,
+  },
+  data() {
+    return {
+      messages,
+      errorMessage: '',
+    };
   },
   methods: {
     exportToTSV() {
@@ -31,7 +45,7 @@ export default {
         });
         FileSaver.saveAs(blob, this.filename);
       } catch (error) {
-        this.props.filename = 'error';
+        this.errorMessage = messages.fileSaveError;
       }
     },
   },

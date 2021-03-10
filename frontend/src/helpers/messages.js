@@ -9,4 +9,5 @@ export default {
   mapViewerName: 'Map Viewer',
   gemBrowserName: 'GEM Browser',
   interPartName: 'Interaction Partners',
+  fileSaveError: 'There was a problem saving the file. Please try using a different browser or contact us.',
 };
