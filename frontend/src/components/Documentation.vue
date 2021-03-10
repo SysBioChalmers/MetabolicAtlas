@@ -195,10 +195,7 @@
           <h5 id="Global-search" class="is-size-5">Global search</h5>
           <p>The <i>Global search</i> page queries all the integrated metabolic models. Each metabolic component has its own results table accessible via the dedicated tab. Tabs are inactivated when no results are found. The search text is not restricted to the visible columns; for example, searching an MetaNetX ID will return results for the metabolites and/or reactions matching the ID even though the MetaNetX column is not in the table. The search algorithm matches partial names of components: searching for 'cholesterol' will output all metabolites containing the substring 'cholesterol'. When the name of a metabolite is provided, all metabolites matching or partially matching this name be returned, in addition to a the list of all reactions that involve these matching metabolites. The global search is also able to query reactions in a more advanced way using special patterns:</p>
           <ul>
-            <li>Use the compartment letter at the end of a metabolite name, e.g cholesterol[c] to match metabolites associated with that compartment.</li>
-            <li>Use " => " and metabolite terms - ID (m02439c), name (malate) or name with compartment (malate[c]) - in the query term to indicate that only reactions should be searched, and to return reactions involve the specified metabolite(s) as reactant/product. For example, "pyruvate =>" will return all reactions in which pyruvate participates as a reactant.</li>
             <li>Use " + " and metabolite terms - ID (m02439c), name (malate) or name with compartment (malate[c]) - to force the presence of multiple metabolites in the retrieved reactions. For example, "pyruvate + malate" returns all reactions involving at least pyruvate <b>and</b> malate.</li>
-            <li>Combine the three patterns to refine the results even further.</li>
           </ul>
 
 
