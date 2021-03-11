@@ -91,7 +91,7 @@
           <p>On the top right of the page, users can access the <a href="#Interaction-Partners">Interaction Partners</a> tool for the metabolite by clicking the button <img src="/img/button-interaction-partners.png" width="200" style="vertical-align:middle">. Below the button for <i>Interaction Parters</i> there is a table from which the users can access the <a href="#Map-Viewer">Map Viewer</a> tool. Clicking the links in this table will redirect you to the corresponding 2D Map or 3D Map pages for this metabolite.</p>
 
 
-          <h5 id="gene-page">Gene page</h5>
+          <h5 id="gene-page" class="is-size-5">Gene page</h5>
           <p>The layout of the Gene page is basically the same as the <a href="#metabolite-page">Metabolite page</a> except that the top table shows the information about the currently selected gene. </p>
 
 
