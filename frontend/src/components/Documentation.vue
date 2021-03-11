@@ -81,8 +81,8 @@
           <p>The <i>GEM Browser</i> is a set of dedicated pages for different components of the model; reactions, metabolites, genes, subsystems, and compartments. Each of these pages contains a button <img src="/img/button-report-issue.png" width="200" style="vertical-align:middle"> on the right. Click this button to report a problem or ask questions to the modellers.</p>
 
           <h5 id="reaction-page" class="is-size-5">Reaction page</h5>
-          <p>This page shows information about the current selected reaction. If provided by the modellers, a list of identifiers from external databases and a list of references (PMIDs) are also shown in the Reference table below.</p>
-          <p>On the right of the page, the list of maps/networks where this reaction can be vizualize - in context with other reactions - is displayed. Users are redirected to the <i>Map Viewer</i> tool when clicking on one of the map name; to return back to the <i>GEM Browser</i>, click the <i>GEM Browser</i> button in the top navigation bar.</p>
+          <p>This page shows information about the current selected reaction. If provided by the modellers, a list of identifiers from external databases and a list of references (PMIDs) are also shown in the <i>References</i> table below.</p>
+          <p>On the right side of the page there is a list of links pointing to 2D or 3D maps in which this reaction is involved. Users will be redirected to the <i>Map Viewer</i> tool when clicking one of the links.</p>
 
           <h5 id="metabolite-page" class="is-size-5">Metabolite page</h5>
           <p>The Metabolite page shows information of the currently selected metabolite. Metabolites in GEMs are often differentiated according to their cell compartment localization (e.g., endoplasmic reticulum). For this reason, one metabolic species, e.g. cholesterol, may correspond to several different metabolite entries in a GEM, such as cholesterol[c], cholesterol[m], etc. (the suffix indicates the compartment in which the metabolite is localized).</p>
