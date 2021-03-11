@@ -49,9 +49,9 @@
                   <li><a href="#Quick-search">Quick search</a></li>
                   <li><a href="#Global-search">Global search</a></li>
                 </ul>
-                <a href="#GEMs">
+                <a href="#GEM">
                   <span class="icon pr-5 has-text-info"><i class="fa fa-files-o"></i></span>
-                  <b>GEMs</b></a>
+                  <b>GEM</b></a>
                 <ul class="menu-list">
                   <li><a href="#Integrated-models">Integrated models</a></li>
                   <li><a href="#Repository">Repository</a></li>
@@ -202,7 +202,9 @@
 
 
           <hr class="mt-6">
-          <h4 id="GEMs" class="is-size-4">GEMs</h4>
+          <h4 id="GEM" class="is-size-4">
+            <span class="icon pr-5 has-text-info"><i class="fa fa-files-o"></i></span>
+          GEM</h4>
           <p>A genome-scale metabolic model (GEM) is a mathematical representation of a metabolic reaction network.</p>
 
           <h5 id="Integrated-models" class="is-size-5">Integrated GEMs</h5>
@@ -213,8 +215,8 @@
             <p>Click on a row in the table to show more information about a GEM. Users can download models in various file formats (when available).</p>
 
           <h5 id="Comparison" class="is-size-5">Comparison</h5>
-          <p>In the first section of the page one can select 2 or 3 integrated GEMs to compare. The comparison is performed dynamically, by inspecting the external identifiers in the database. If a reaction or a metabolite share at least one such external identifier, they are considered to be the shared between the compared models. Otherwise, they are considerend to be unique to the respective model. The table with the comparison is interactive - by clicking on a cell, the comparison details are shown.</p>
-          <p>In the second section, the <i>Comparison</i> page provides statistics about the comparison/overlap between Human-GEM and HMR 2.0, and Recon3D. This comparison has been performed manually for an early verion of Human-GEM, and will not be updated.</p>
+          <p>In the first section of the page one can select 2 or 3 integrated GEMs to compare. The comparison is performed dynamically, by inspecting the external identifiers in the database. If a reaction or a metabolite share at least one such external identifier, they are considered to be shared between the compared models. Otherwise, they are considerend to be unique to the respective model. The comparison table is interactive - by clicking on a cell, the corresponding comparison details are shown on the right panel.</p>
+          <p>In the second section, the <i>Comparison</i> page provides statistics about the comparison/overlap between Human-GEM and HMR 2.0, as well as Human-GEM and Recon3D. This comparison has been performed manually for an early verion of Human-GEM, and will not be updated.</p>
 
           <h5 id="FTP-access" class="is-size-5">FTP access</h5>
           <p>Genome-Scale Metabolic model files can be downloaded from <a :href="`ftp://${ftpUrl}/`">ftp://{{ftpUrl}}</a> or by connecting to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>).</p>
@@ -224,7 +226,9 @@
           <span class="has-text-weight-bold lab">Port:</span> 21
 
           <hr class="mt-6">
-          <h4 id="Resources" class="is-size-4">Resources</h4>
+          <h4 id="Resources" class="is-size-4">
+            <span class="icon pr-5 has-text-info"><i class="fa fa-cogs"></i></span>
+          Resources</h4>
           <p>Lists of the most relevant software tools, algorithms, or databases published by the SysBio group.</p>
 
           <h5 id="API" class="is-size-5">API</h5>
