@@ -73,17 +73,17 @@
         <div id="documentation" class="column content has-text-justified">
           <p>Metabolic Atlas allows users to vizualize the content of the integrated <a href="#Integrated-models">Genome-scale metabolic models (GEMs)</a> by using the <a href="#GEM-Browser">GEM Browser</a> tool, and enables navigation of the metabolic network maps via the <a href="#Map-Viewer">Map viewer</a> tool. These two tools are available upon selecting one of the integrated models. The selected model is indicated to the right of the Metabolic Atlas logo in the top navigation bar. Leaving the <i>Explore</i> section (or the <i>GEM Browser</i> / <i>Map Viewer</i> tools) will unselect the model, and remove its name from the navigation bar.</p>
           <p>To browse our integrated GEMs, visit the <router-link :to="{ name: 'gems', hash: '#integrated-gems'}">GEM Repository</router-link> page.</p>
-          <p>The <i>GEM Browser</i> and the <i>Map Viewer</i> are closely connected, and users can navigate between the two tools using the buttons in the top navigation bar.</p>
+          <p>The <i>GEM Browser</i> and the <i>Map Viewer</i> are closely connected, and users can navigate between these two tools using the buttons in the top navigation bar.</p>
 
           <hr class="mt-6">
           <h4 id="GEM-Browser" class="is-info is-size-4">
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-table"></i></span>
             GEM Browser
           </h4>
-          <p>The <i>GEM Browser</i> is a set of dedicated pages for different components of the model; reactions, metabolites, genes, subsystems, and compartments. Each of these pages contains a button <img src="/img/button-report-issue.png" width="200" style="vertical-align:middle"> on the right. Click this button to report a problem or ask questions to the modellers.</p>
+          <p>The <i>GEM Browser</i> is a set of dedicated pages for various components, i.e., reactions, metabolites, genes, subsystems and compartments of the selected model, which is indicated on the left side of the top navigation bar. Each page contains a button <img src="/img/button-report-issue.png" width="200" style="vertical-align:middle"> on the right. Click this button to report a problem or ask questions to the modellers.</p>
 
           <h5 id="reaction-page" class="is-size-5">Reaction page</h5>
-          <p>This page shows information about the current selected reaction. If provided by the modellers, a list of identifiers from external databases and a list of references (PMIDs) are also shown in the <i>References</i> table below.</p>
+          <p>The Reaction page shows the information about the currently selected reaction. If provided by the modellers, a list of identifiers from external databases and a list of references (PMIDs) are also shown in the <i>References</i> table below.</p>
           <p>On the right side of the page there is a list of links pointing to 2D or 3D Map Viewer pages in which this reaction is involved. Users will be redirected to the <i>Map Viewer</i> tool when clicking one of the links.</p>
 
           <h5 id="metabolite-page" class="is-size-5">Metabolite page</h5>
@@ -106,7 +106,7 @@
           <p>The lists of metabolites and genes contained within the current subsystem are shown in the top table, but are restricted to a maximum of 1000 for each category. Use the <a href="#API">API</a> to retrieve a complete set of metabolites and genes for the selected subsystem. Note that in some GEMs, a given reaction can be associated with multiple subsystems.</p>
 
           <h5 id="compartment-page" class="is-size-5">Compartment page</h5>
-          <p>This page shows the information of the currently selected compartment. It is only the number of metabolites, genes and reactions is shown in the top table. The users can retrieve a full list of metabolites, genes and reactions through the <a href="#API">API</a>. Similarly to the <a href="#metabolite-page">Metabolite page</a> the list of links to the 2D or 3D Map Viewer pages where this compartment can be visualized is displayed on the right side of the page.</p>
+          <p>The Compartment page shows the information of the currently selected compartment. It is only the number of metabolites, genes and reactions is shown in the top table. The users can retrieve a full list of metabolites, genes and reactions through the <a href="#API">API</a>. Similarly to the <a href="#metabolite-page">Metabolite page</a> the list of links to the 2D or 3D Map Viewer pages where this compartment can be visualized is displayed on the right side of the page.</p>
 
 
           <hr class="mt-6">
