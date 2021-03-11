@@ -92,19 +92,18 @@
 
 
           <h5 id="gene-page">Gene page</h5>
-          <p>Shows information about the current selected gene. The top table contains basic information extracted from the GEM. If provided, additional identifiers from external databases will be shown in the external IDs table.<br>On the right side of the page, users can access the <a href="#Interaction-Partners">Interaction Partners</a> tool for this gene.</p>
+          <p>The layout of the Gene page is basically the same as the <a href="#metabolite-page">Metabolite page</a> except that the top table shows the information about the currently selected gene. </p>
 
-          <h6 class="has-text-black">Reactions table</h6>
-          <p>Lists all the reactions catalyzed by the enzyme encoded by the current gene.</p>
-          <p>Note that the number of reactions is limited to 200; to retrieve all the reactions we invite users to use the <a href="#API">API</a>.</p>
 
           <h5 id="subsystem-page" class="is-size-5">Subsystem page</h5>
-          <p>This page shows information on the current selected metabolic subsystem. Subsystems correspond to a set of reactions that share a similar metabolic function. Unlike a metabolic pathway, the reactions comprising a subsystem are not necessarily linked into a completely connected network.</p>
-          <p>the lists of metabolites and genes contained within the current subsystem are shown in the table, but are restricted to a maximum of 1000 for each category. Use the <a href="#API">API</a> to retrieve the complete set of metabolites and genes for the selected subsystem.<br>On the right of the page, the list of maps/networks where this subsystem can be vizualize is displayed. Users are redirected to the <i>Map Viewer</i> tool when clicking on one of the map name.</p>
-
-          <h6 class="has-text-black">Reactions table</h6>
-          <p>Shows all the reactions that belong to the current subsystem. Note that in some GEMs, a given reaction can be associated with multiple subsystems.</p>
-          <p>The number of reactions shown is limited to 1000; to retrieve all associated reactions we invite users to use the <a href="#API">API</a>.</p>
+          <p>The layout of the Subsystem page is also quite similar as the <a href="#metabolite-page">Metabolite page</a> except that</p>
+          <ul>
+          <li>The top table shows information on the current selected metabolic subsystem instead of metabolites. </li>
+          <li>There is no button <img src="/img/button-interaction-partners.png" width="200" style="vertical-align:middle"> on the top right. </li>
+          <li>The maximum number of reactions shown in the <i>Reactions</i> tables is limited to 1000 instead of 200.</li>
+          </ul>
+          <p>Subsystems correspond to a set of reactions that share a similar metabolic function. Unlike a metabolic pathway, the reactions comprising a subsystem are not necessarily linked into a completely connected network.</p>
+          <p>The lists of metabolites and genes contained within the current subsystem are shown in the top table, but are restricted to a maximum of 1000 for each category. Use the <a href="#API">API</a> to retrieve a complete set of metabolites and genes for the selected subsystem. Note that in some GEMs, a given reaction can be associated with multiple subsystems.</p>
 
           <h5 id="compartment-page" class="is-size-5">Compartment page</h5>
           <p>Shows information on the current selected compartment. The full list of metabolites, genes and reactions is available through the <a href="#API">API</a>.<br>Similarly to the subsystem page the list of maps/networks where this compartment can be vizualize is displayed on the right.</p>
