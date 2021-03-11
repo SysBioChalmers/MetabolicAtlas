@@ -106,7 +106,7 @@
           <p>The lists of metabolites and genes contained within the current subsystem are shown in the top table, but are restricted to a maximum of 1000 for each category. Use the <a href="#API">API</a> to retrieve a complete set of metabolites and genes for the selected subsystem. Note that in some GEMs, a given reaction can be associated with multiple subsystems.</p>
 
           <h5 id="compartment-page" class="is-size-5">Compartment page</h5>
-          <p>Shows information on the current selected compartment. The full list of metabolites, genes and reactions is available through the <a href="#API">API</a>.<br>Similarly to the subsystem page the list of maps/networks where this compartment can be vizualize is displayed on the right.</p>
+          <p>This page shows the information of the currently selected compartment. It is only the number of metabolites, genes and reactions is shown in the top table. The users can retrieve a full list of metabolites, genes and reactions through the <a href="#API">API</a>. Similarly to the <a href="#metabolite-page">Metabolite page</a> the list of 2D and 3D maps where this compartment can be visualized is displayed on the right side of the page.</p>
 
 
           <hr class="mt-6">
