@@ -525,7 +525,7 @@ export default {
           this.constructGraph(this.rawElms, this.rawRels, this.fitGraph);
         }, 0);
       } catch (error) {
-        switch (error.status) {
+        switch (error.response.status) {
           case 404:
             this.componentNotFound = true;
             break;
@@ -588,7 +588,7 @@ export default {
           this.constructGraph(this.rawElms, this.rawRels);
         }, 0);
       } catch (error) {
-        switch (error.status) {
+        switch (error.response.status) {
           case 404:
             this.errorMessage = messages.notFoundError;
             break;

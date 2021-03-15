@@ -8,6 +8,11 @@ const querySingleResult = async (statement) => {
 
   try {
     const response = await session.run(statement);
+
+    if (response.records.length === 0) {
+      throw new Error('404');
+    }
+
     result = response.records[0].get(0);
 
     if (Object.values(result).flat().length === 0) {
