@@ -185,7 +185,7 @@
 
           <hr class="mt-6">
           <h4 id="Search" class="is-size-4">
-            <span class="icon pr-5 has-text-info"><i class="fa fa-search"></i></span>
+            <span class="icon pr-5 is-large has-text-info"><i class="fa fa-search"></i></span>
             Search
           </h4>
           <p>For the convenience of the users, Metabolic Atlas provides two ways of searching: <i>Quick search</i> and <i>Global search</i>. The users can search for any terms in metabolites, genes, reactions, subsystems or compartments information with both searching methods. In addition, proximity searching is enabled so that the searching algorithm will not only search for exact matching of the input keywords but also try to find hits that are similar to the input keywords./p>
@@ -203,7 +203,7 @@
 
           <hr class="mt-6">
           <h4 id="GEM" class="is-size-4">
-            <span class="icon pr-5 has-text-info"><i class="fa fa-files-o"></i></span>
+            <span class="icon pr-5 is-large has-text-info"><i class="fa fa-files-o"></i></span>
           GEM</h4>
           <p>A genome-scale metabolic model (GEM) is a mathematical representation of a metabolic reaction network.</p>
 
@@ -227,7 +227,7 @@
 
           <hr class="mt-6">
           <h4 id="Resources" class="is-size-4">
-            <span class="icon pr-5 has-text-info"><i class="fa fa-cogs"></i></span>
+            <span class="icon pr-5 is-large has-text-info"><i class="fa fa-cogs"></i></span>
           Resources</h4>
           <p>Lists of the most relevant software tools, algorithms, or databases published by the SysBio group.</p>
 
