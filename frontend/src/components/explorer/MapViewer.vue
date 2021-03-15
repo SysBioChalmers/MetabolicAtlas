@@ -41,7 +41,7 @@
         </div>
         <div v-if="!currentMap"
              class="column is-unselectable om-1 fixed-height-mobile p-0 m-0">
-          <NotFound v-if="mapNotFound" :type="type" :component-id="$route.params.map_id"></NotFound>
+          <NotFound v-if="mapNotFound" type="map" :component-id="$route.params.map_id"></NotFound>
           <p v-else class="is-size-5 has-text-centered" style="padding: 10%;">
             <a @click="showingMapListing = true">Show the map list and choose a compartment or subsystem map</a>
           </p>
