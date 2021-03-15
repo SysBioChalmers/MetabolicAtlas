@@ -259,7 +259,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .menu-list > a {
-    padding-left: 0;
+  .menu-list {
+    ul {
+      margin-top: 0;
+    }
   }
 </style>
