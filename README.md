@@ -10,7 +10,7 @@ Welcome to the codebase for the Metabolic Atlas project.
        * [Fetch repositories](#fetch-repositories)
        * [Add docker environment](#add-docker-environment)
        * [Load helper commands](#load-helper-commands)
-       * [Build docker images](#build-docker-images)
+       * [Build the project](#build-the-project)
        * [Start docker containers](#start-docker-containers)
        * [Description of helper commands](#description-of-helper-commands)
    * [Licenses](#licenses)
@@ -45,13 +45,13 @@ Clone the three required repositories by
 After that, change to the folder `MetabolicAtlas`
 
 ### Add docker environment
-In the folder `MetabolicAtlas` that has been cloned, add a `.env` file based on the `.env.sample` file :
+In the folder `MetabolicAtlas` that has been cloned, add a `.env` file based on the `.env.sample` file:
 ```bash
 cp .env.sample .env
 ```
 and modify this `.env` file.
 
-The content of the file `.env` that has just been copied from `.env.sample` is shown below. Please change the value of `NEO4J_PASSWORD` with your preference. Other values can be kept as they are if you have clones the repositories with the instructions in the previous step and havn't changed the folder names. Otherwise, change the location of `DATA_FILES_PATH` and `DATA_GENERATOR_PATH` accordingly.
+The content of the file `.env` that has just been copied from `.env.sample` is shown below. Please change the value of `NEO4J_PASSWORD` with your preference. Other values can be kept as they are if you have fetched the repositories with the instruction in the previous step and haven't changed the folder names. Otherwise, change the location of `DATA_FILES_PATH` and `DATA_GENERATOR_PATH` accordingly.
 
 ```
 CERTBOT_EMAIL=
@@ -85,7 +85,7 @@ To load the list of helper commands:
 source proj.sh
 ```
 
-### Build docker images
+### Build the project
 Build databases and docker images of the project by:
 ```bash
 build-stack
