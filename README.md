@@ -30,13 +30,54 @@ Docker, along with docker-compose, is used to manage the dependencies of this pr
 ## Get started
 
 ### Fetch repositories
+Apart from the current repository, two additional repositories are required in
+order to deploy Metabolic Atlas locally, they are
+
+* [neo4j-data-generation](https://github.com/MetabolicAtlas/neo4j-data-generation): for generating neo4j database
+* [data-files](https://github.com/MetabolicAtlas/data-files): containing integrated GEMs
+
+Clone the three required repositories by 
+
+    git clone https://github.com/MetabolicAtlas/MetabolicAtlas
+    git clone https://github.com/MetabolicAtlas/neo4j-data-generation
+    git clone https://github.com/MetabolicAtlas/data-files && pushd data-files; git lfs pull; popd
+
+After that, change to the folder `MetabolicAtlas`
 
 ### Add docker environment
-Add a `.env` file based on the `.env.sample` file:
+In the folder `MetabolicAtlas` that has been cloned, add a `.env` file based on the `.env.sample` file :
 ```bash
 cp .env.sample .env
 ```
-and modify this `.env` file. 
+and modify this `.env` file.
+
+The content of the file `.env` that has just been copied from `.env.sample` is shown below. Please change the value of `NEO4J_PASSWORD` with your preference. Other values can be kept as they are if you have clones the repositories with the instructions in the previous step and havn't changed the folder names. Otherwise, change the location of `DATA_FILES_PATH` and `DATA_GENERATOR_PATH` accordingly.
+
+```
+CERTBOT_EMAIL=
+SERVER_NAME=localhost
+DATA_FILES_PATH=../data-files
+DATA_GENERATOR_PATH=../neo4j-data-generation
+
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=password-unhackable
+
+FTP_MIN_PORT=30000
+FTP_MAX_PORT=31000
+
+PORT_NGINX=80
+PORT_FRONTEND=81
+PORT_NEO4J_1=7474
+PORT_NEO4J_2=7687
+
+IP_FILTER="allow 129.16.0.0/16; allow 130.238.0.0/16; deny all;"
+```
+
+
+NOTE: if you want to try out the latest features of MetabolicAtlas, change the branch to `develop` by 
+```bash
+git checkout develop
+```
 
 ### Load helper commands
 To load the list of helper commands:
@@ -45,18 +86,18 @@ source proj.sh
 ```
 
 ### Build docker images
-Build and run the project:
+Build databases and docker images of the project by:
 ```bash
 build-stack
-start-stack
 ```
 
-### Start docker container
+### Start docker containers
+Start docker containers of the project by
 ```bash
 start-stack
 ```
 
-The frontend should be available at: `http://localhost/`. If you encounter any problems try running `restart-stack`, or look at the logs `logs backend` / `logs frontend`.
+Given successful deployment, the frontend should be accessible at: `http://localhost/`. If you encounter any problems try running `restart-stack`, or look at the logs `logs backend` / `logs frontend`.
 
 ### Description of helper commands
 
