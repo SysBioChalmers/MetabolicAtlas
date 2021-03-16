@@ -134,12 +134,16 @@
           <div class="columns m-0">
             <div class="column p-0 is-8 content">
               <p>The <i>Data overlay</i> panel is by default hidden in the <i>Map Viewer</i> and can be activated by clicking the "Data overlay" button on the right of 2D map or 3D graph. By clicking the "Data overlay" button the users can toggle the hidden/display of this panel. On the <i>Data overlay</i> panel, gene expression levels for genes from <a href="https://www.proteinatlas.org/about/releases#18" target="_blank">The Human Protein Atlas v18</a> can be loaded by selecting one of the tissues in the drop down list. Once selected, the RNA levels corresponding to the chosen tissue will be used to color each gene on the respective map, according to the color legend (an example of the color legend is shown <b>Figure 1</b>). To clear the RNA levels, select the <i>None</i> option in the drop down list. RNA levels are available for both 2D and 3D Map Viewer. The data is obtained from version 18 of the Protein Atlas with the units in log<sub>2</sub>(TPM+1) associated with a gradient colorbar.</p>
-              <p>The <i>Data overlay</i> sidebar allows uploading of the custom data in <a target="_blank" href="https://en.wikipedia.org/wiki/Tab-separated_values">TSV format</a>. If the file is parsed correctly, the file name will be highlighted in green; in case errors are detected, it will be highlighted in red. The expected custom data file should contain at least two columns with headers and using tab delimiter. The first column has to contain gene IDs, identical to the ones in the model. Any missing genes or missing values will be assigned an "n/a" value and highlighted in gray. The rest of the columns act as data series, with each column being a new data serie, as shown in the example to the right (<b>Figure 2</b>). The headers of these data series will be shown automatically in the dropdown options for the uploaded data. The values are expected in TPM.</p>
-              <p>If multiple data are selected in the <i>Data overlay</i> sidebar, the overlay will switch to the comparison mode, using a differently colored legend (see <b>Figure 3</b>) for the log fold change between the selected data.</p>
+              <p>If multiple data are selected in the <i>Data overlay</i> sidebar, the overlay will switch to the comparison mode, using a differently colored legend (see <b>Figure 2</b>) for the log fold change between the selected data.</p>
+              <p>The <i>Data overlay</i> sidebar allows uploading of the custom data in <a target="_blank" href="https://en.wikipedia.org/wiki/Tab-separated_values">TSV format</a>. If the file is parsed correctly, the file name will be highlighted in green; in case errors are detected, it will be highlighted in red. The expected custom data file should contain at least two columns with headers and using tab delimiter. The first column has to contain gene IDs, identical to the ones in the model. Any missing genes or missing values will be assigned an "n/a" value and highlighted in gray. The rest of the columns act as data series, with each column being a new data serie, as shown in the example to the right (<b>Figure 3</b>). The headers of these data series will be shown automatically in the dropdown options for the uploaded data. The values are expected in TPM.</p>
             </div>
             <div class="column">
               <RNALegend></RNALegend>
               <p style="font-size:80%"><b>Figure 1: Color legend for RNA level in Data overlay when only one data is selected.</b></p>
+
+              <br>
+              <RNALegend text="log<sub>2</sub>(TPM<sub>T2</sub>+1 / TPM<sub>T1</sub>+1)" left-value="-5" right-value="5" :gradient="`${multipleColors}`"></RNALegend>
+              <p style="font-size:80%"><b>Figure 2: Color legend for RNA level in Data overlay when multiple data are selected.</b></p>
 
               <br>
               <blockquote>
@@ -148,10 +152,7 @@
                 ENSG00000175535&emsp;572<br>
                 ENSG00000187021&emsp;3498&emsp;1768
               </blockquote>
-              <p style="font-size:80%"><b>Figure 2: Example file for custom data to be uploaded in Data overlay</b></p>
-              <br>
-              <RNALegend text="log<sub>2</sub>(TPM<sub>T2</sub>+1 / TPM<sub>T1</sub>+1)" left-value="-5" right-value="5" :gradient="`${multipleColors}`"></RNALegend>
-              <p style="font-size:80%"><b>Figure 3: Color legend for RNA level in Data overlay when multiple data are selected.</b></p>
+              <p style="font-size:80%"><b>Figure 3: Example file for custom data to be uploaded in Data overlay</b></p>
             </div>
           </div>
 
