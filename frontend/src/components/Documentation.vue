@@ -72,7 +72,7 @@
         </div>
         <div id="documentation" class="column content has-text-justified">
           <p>Metabolic Atlas allows users to vizualize the content of the integrated <a href="#Integrated-models">Genome-scale metabolic models (GEMs)</a> by using the <a href="#GEM-Browser">GEM Browser</a> tool, and enables navigation of the metabolic network maps via the <a href="#Map-Viewer">Map viewer</a> tool. These two tools are available upon selecting one of the integrated models. The selected model is indicated to the right of the Metabolic Atlas logo in the top navigation bar. Leaving the <i>Explore</i> section (or the <i>GEM Browser</i> / <i>Map Viewer</i> tools) will unselect the model, and remove its name from the navigation bar.</p>
-          <p>To browse our integrated GEMs, visit the <router-link :to="{ name: 'gems', hash: '#integrated-gems'}">GEM Repository</router-link> page.</p>
+          <p>To read more about our integrated models, visit the <router-link :to="{ name: 'gems', hash: '#Integrated-models'}">GEM Repository</router-link> page.</p>
 
           <hr class="mt-6">
           <h4 id="GEM-Browser" class="is-info is-size-4">
@@ -207,7 +207,7 @@
           <p>A genome-scale metabolic model (GEM) is a mathematical representation of a metabolic reaction network.</p>
 
           <h5 id="Integrated-models" class="is-size-5">Integrated GEMs</h5>
-          <p>Currently, Metabolic Atlas contains seven integrated models, i.e., <i>Fruitfly-GEM</i>, <i>Human-GEM</i>, <i>Mouse-GEM</i>, <i>Rat-GEM</i>, <i>Worm-GEM</i>, <i>Yeast-GEM</i> and <i>Zebrafish-GEM</i>. Details can be found at the <router-link :to="{ name: 'gems', hash: '#integrated-gems'}">GEM Repository</router-link> page.</p>
+          <p>Currently, Metabolic Atlas contains seven integrated models, i.e., <i>Fruitfly-GEM</i>, <i>Human-GEM</i>, <i>Mouse-GEM</i>, <i>Rat-GEM</i>, <i>Worm-GEM</i>, <i>Yeast-GEM</i> and <i>Zebrafish-GEM</i>. Details can be found at the <router-link :to="{ name: 'gems', hash: '#Integrated-models'}">GEM Repository</router-link> page.</p>
 
           <h5 id="Repository" class="is-size-5">GEM Repository</h5>
           <p>The repository lists all models constructed by the SysBio research group; this includes older models that may no longer be maintained (for example HMR 2.0), and others that were recently published. The more recent GEMs can also be found in the <a href="https://www.github.com/SysBioChalmers/" target="_blank">SysBioChalmers organization GitHub</a>.</p>
