@@ -97,7 +97,7 @@ Start docker containers of the project by
 start-stack
 ```
 
-Given successful deployment, the frontend should be accessible at: `http://localhost/`. If you encounter any problems try running `restart-stack`, or look at the logs `logs backend` / `logs frontend`.
+Given successful deployment, the frontend should be accessible at: `http://localhost/`. If you encounter any problems try running `restart-stack`, or look at the logs `logs api` / `logs frontend`.
 
 ### Description of helper commands
 
