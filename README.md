@@ -103,10 +103,9 @@ Given successful deployment, the frontend should be accessible at: `http://local
 
 * To bootstrap the project: `build-stack`
 * To run the project: `start-stack`
-* To stop the project: `stop-stack`
-* To clean the project (delete containers and volumes): `clean-stack`
 * To display real-time logs: `logs [container-name: frontend/api/nginx/neo4j/ftp]`
 * To stop the project: `stop-stack`
+* To clean the project (delete containers and volumes): `clean-stack`
 * To import a database: `import-db`
 
 ## Licenses
