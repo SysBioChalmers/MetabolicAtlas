@@ -1,40 +1,20 @@
-# Metabolic Atlas
-Welcome to the codebase for the Metabolic Atlas project.
-
-## Table of Contents
-
-   * [Software environment](#software-environment)
-   * [References](#references)
-   * [Prerequisites](#prerequisites)
-   * [Get started](#get-started)
-       * [Fetch repositories](#fetch-repositories)
-       * [Add docker environment](#add-docker-environment)
-       * [Load helper commands](#load-helper-commands)
-       * [Build the project](#build-the-project)
-       * [Start docker containers](#start-docker-containers)
-       * [Description of helper commands](#description-of-helper-commands)
-   * [Licenses](#licenses)
-
-
-## Software environment
-The front-end uses [Vue.js](https://vuejs.org), with help of [Vue CLI](https://cli.vuejs.org/). The backend uses [Django REST framework](http://www.django-rest-framework.org) with [PostgreSQL](https://www.postgresql.org) as the database.  
-
-
-## References
+Welcome to the codebase for the Metabolic Atlas project.  
 If you use *Metabolic Atlas* in your scientific work, please cite:
 > Robinson, Jonathan L., et al. "An atlas of human metabolism." *Science Signaling* 13.624 (2020) [doi:10.1126/scisignal.aaz1482 ](https://doi.org/10.1126/scisignal.aaz1482 )
 
-## Prerequisites
-Docker, along with docker-compose, is used to manage the dependencies of this project. To install Docker, download it from [here](https://www.docker.com/products/docker) (docker-compose should also be installed).
 
 ## Get started
+The front-end uses [Vue.js](https://vuejs.org), with help of [Vue CLI](https://cli.vuejs.org/). The backend uses [ExpressJS](https://expressjs.com/) and [Neo4j](https://neo4j.com/) as the database.  
 
-### Fetch repositories
+[Docker](https://www.docker.com/products/docker) and docker-compose are used to manage the dependencies of this project. Start by installing these if they are not present on the system.
+
+If you want to try out the latest features of MetabolicAtlas, change the branch to `develop`.
+
 Apart from the current repository, two additional repositories are required in
 order to deploy Metabolic Atlas locally, they are
 
 * [neo4j-data-generation](https://github.com/MetabolicAtlas/neo4j-data-generation): for generating neo4j database
-* [data-files](https://github.com/MetabolicAtlas/data-files): containing integrated GEMs
+* [data-files](https://github.com/MetabolicAtlas/data-files): contains all the data necessary data (integrated models, maps, FTP repository) using Git LFS
 
 Clone the three required repositories by 
 
@@ -42,16 +22,14 @@ Clone the three required repositories by
     git clone https://github.com/MetabolicAtlas/neo4j-data-generation
     git clone https://github.com/MetabolicAtlas/data-files && pushd data-files; git lfs pull; popd
 
-After that, change to the folder `MetabolicAtlas`
 
-### Add docker environment
 In the folder `MetabolicAtlas` that has been cloned, add a `.env` file based on the `.env.sample` file:
 ```bash
 cp .env.sample .env
 ```
 and modify this `.env` file.
 
-The content of the file `.env` that has just been copied from `.env.sample` is shown below. Please change the value of `NEO4J_PASSWORD` with your preference. Other values can be kept as they are if you have fetched the repositories with the instruction in the previous step and haven't changed the folder names. Otherwise, change the location of `DATA_FILES_PATH` and `DATA_GENERATOR_PATH` accordingly.
+The content of the file `.env` that has just been copied from `.env.sample` is shown below. Make sure the paths for `DATA_FILES_PATH` and `DATA_GENERATOR_PATH` are correct for your setup.
 
 ```
 CERTBOT_EMAIL=
@@ -70,43 +48,35 @@ PORT_FRONTEND=81
 PORT_NEO4J_1=7474
 PORT_NEO4J_2=7687
 
-IP_FILTER="allow 129.16.0.0/16; allow 130.238.0.0/16; deny all;"
+IP_FILTER=""
 ```
 
-
-NOTE: if you want to try out the latest features of MetabolicAtlas, change the branch to `develop` by 
-```bash
-git checkout develop
-```
-
-### Load helper commands
-To load the list of helper commands:
+To load the list of helper commands run:
 ```bash
 source proj.sh
 ```
 
-### Build the project
-Build databases and docker images of the project by:
+One of the helper commands createes the databae and builds the Docker images of the project:
 ```bash
 build-stack
 ```
 
-### Start docker containers
-Start docker containers of the project by
+Finnaly, start the Docker containers of with
 ```bash
 start-stack
 ```
 
-Given successful deployment, the frontend should be accessible at: `http://localhost/`. If you encounter any problems try running `start-stack` again, or look at the logs `logs api` / `logs frontend`.
+Given successful deployment, the frontend should be accessible at: `http://localhost/`. If you encounter any problems try looking at the logs `logs api` / `logs frontend`.
 
-### Description of helper commands
+## Description of helper commands
 
 * To bootstrap the project: `build-stack`
 * To run the project: `start-stack`
-* To display real-time logs: `logs [container-name: frontend/api/nginx/neo4j/ftp]`
 * To stop the project: `stop-stack`
 * To clean the project (delete containers and volumes): `clean-stack`
-* To import a database: `import-db`
+* To display real-time logs: `logs [container-name: frontend/api/nginx/neo4j/ftp]`
+* To deploy the project: `deploy-stack`
+* To (re-)import the Neo4j database: `import-db`
 
 ## Licenses
 
