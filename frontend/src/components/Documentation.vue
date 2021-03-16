@@ -186,10 +186,10 @@
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-search"></i></span>
             Search
           </h4>
-          <p>For the convenience of the users, Metabolic Atlas provides two ways of searching: <i>Quick search</i> and <i>Global search</i>. The users can search for any terms in metabolites, genes, reactions, subsystems or compartments information with both searching methods. In addition, proximity searching is enabled so that the searching algorithm will not only search for exact matching of the input keywords but also try to find hits that are similar to the input keywords./p>
+          <p>For the convenience of the users, Metabolic Atlas provides two ways of searching: <i>Quick search</i> and <i>Global search</i>. The users can search for any terms in metabolites, genes, reactions, subsystems or compartments information with both searching methods. In addition, proximity searching is enabled so that the searching algorithm will not only search for exact matching of the input keywords but also try to find hits that are similar to the input keywords.</p>
 
           <h5 id="Quick-search" class="is-size-5">Quick search</h5>
-          <p>By clicking the icon <span><i class="fa fa-search"></i></span> in the top navigation bar, the users can perform a quick search of any terms in metabolites, genes, reactions, subsystems or compartments. The found hits will be shown directly under the searching bar if there is any or prompted with <i>No matches</i>. The results links redirect to the corresponding <i>GEM Browser</i> page of the component clicked. One can also click the icon <span><i class="fa fa-table"></i></span> or <span ><i class="fa fa-connectdevelop"></i></span> to left side of each found hit to redirect to the <i>metabolite page</i> or <i>interaction parters page</i> respectively.</p>
+          <p>By clicking the icon <span><i class="fa fa-search"></i></span> in the top navigation bar, the users can perform a quick search of any terms in metabolites, genes, reactions, subsystems or compartments. The found hits will be shown directly under the searching bar if there is any or prompted with <i>No matches</i>. The results links redirect to the corresponding <i>GEM Browser</i> page of the component clicked. One can also click the icon <span><i class="fa fa-table"></i></span> or <span><i class="fa fa-connectdevelop"></i></span> to left side of each found hit to redirect to the <i>metabolite page</i> or <i>interaction parters page</i> respectively.</p>
           <p>The <i>Quick search</i> is restricted to the selected GEM on the left side of searching bar and limited to 50 results per component type. Alternatively, users can click on the banner under the search input field to run a <i>Global Search</i>, where the term is searched among all the integrated models' components and is unrestricted. To learn more about the search term possiblities, go to the <a href="#Global-Search">Global Search</a> section of this page.</p>
 
           <h5 id="Global-search" class="is-size-5">Global search</h5>
@@ -202,7 +202,8 @@
           <hr class="mt-6">
           <h4 id="GEM" class="is-size-4">
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-files-o"></i></span>
-          GEM</h4>
+            GEM
+          </h4>
           <p>A genome-scale metabolic model (GEM) is a mathematical representation of a metabolic reaction network.</p>
 
           <h5 id="Integrated-models" class="is-size-5">Integrated GEMs</h5>
@@ -210,15 +211,15 @@
 
           <h5 id="Repository" class="is-size-5">GEM Repository</h5>
           <p>The repository lists all models constructed by the SysBio research group; this includes older models that may no longer be maintained (for example HMR 2.0), and others that were recently published. The more recent GEMs can also be found in the <a href="https://www.github.com/SysBioChalmers/" target="_blank">SysBioChalmers organization GitHub</a>.</p>
-            <p>Click on a row in the table to show more information about a GEM. Users can download models in various file formats (when available).</p>
+          <p>Click on a row in the table to show more information about a GEM. Users can download models in various file formats (when available).</p>
 
           <h5 id="Comparison" class="is-size-5">Comparison</h5>
           <p>In the first section of the page one can select 2 or 3 integrated GEMs to compare. The comparison is performed dynamically, by inspecting the external identifiers in the database. If a reaction or a metabolite share at least one such external identifier, they are considered to be shared between the compared models. Otherwise, they are considerend to be unique to the respective model. The comparison table is interactive - by clicking on a cell, the corresponding comparison details are shown on the right panel.</p>
           <p>In the second section, the <i>Comparison</i> page provides statistics about the comparison/overlap between Human-GEM and HMR 2.0, as well as Human-GEM and Recon3D. This comparison has been performed manually for an early verion of Human-GEM, and will not be updated.</p>
 
           <h5 id="FTP-access" class="is-size-5">FTP access</h5>
-          <p>Genome-Scale Metabolic model files can be downloaded from <a :href="`ftp://${ftpUrl}/`">ftp://{{ftpUrl}}</a> or by connecting to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>).</p>
-          <span class="has-text-weight-bold lab">Host:</span> <a :href="`ftp://${ftpUrl}/`"> ftp://{{ftpUrl}}</a><br>
+          <p>Genome-Scale Metabolic model files can be downloaded from <a :href="`ftp://${ftpUrl}/`">ftp://{{ ftpUrl }}</a> or by connecting to the FTP using your favorite FTP client (e.g. <a href="https://filezilla-project.org/">FileZilla</a>).</p>
+          <span class="has-text-weight-bold lab">Host:</span> <a :href="`ftp://${ftpUrl}/`"> ftp://{{ ftpUrl }}</a><br>
           <span class="has-text-weight-bold lab">Login:</span> leave blank<br>
           <span class="has-text-weight-bold lab">Password:</span> leave blank<br>
           <span class="has-text-weight-bold lab">Port:</span> 21
@@ -226,7 +227,8 @@
           <hr class="mt-6">
           <h4 id="Resources" class="is-size-4">
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-cogs"></i></span>
-          Resources</h4>
+            Resources
+          </h4>
           <p>Lists of the most relevant software tools, algorithms, or databases published by the SysBio group.</p>
 
           <h5 id="API" class="is-size-5">API</h5>
