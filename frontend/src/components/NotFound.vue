@@ -1,24 +1,24 @@
 <template>
   <div class="column has-text-centered is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile">
     <div class="box has-background-light content">
-        <template v-if="type">
-          <p class="title is-size-5">
-            <span class="is-capitalized">{{ type }}&nbsp;</span> "&nbsp;{{ componentId }}&nbsp;" &nbsp;not found
-          </p>
-          <template v-if="type === 'model'">
-            <p>Visit the Explore page to select one of the integrated models</p>
-          </template>
-          <template v-else>
-            <p>
-              Probably there is a typo in the {{ type }} identifier in the URL
-              <br>
-              Use the
-              <span v-if="type === 'map'">{{ type }} listing</span>
-              <span v-else>search bar above </span>
-              to find other {{ type }}s
-            </p>
-          </template>
+      <template v-if="type">
+        <p class="title is-size-5">
+          <span class="is-capitalized">{{ type }}&nbsp;</span> "&nbsp;{{ componentId }}&nbsp;" &nbsp;not found
+        </p>
+        <template v-if="type === 'model'">
+          <p>Visit the Explore page to select one of the integrated models</p>
         </template>
+        <template v-else>
+          <p>
+            Probably there is a typo in the {{ type }} identifier in the URL
+            <br>
+            Use the
+            <span v-if="type === 'map'">{{ type }} listing</span>
+            <span v-else>search bar above </span>
+            to find other {{ type }}s
+          </p>
+        </template>
+      </template>
       <template v-else>
         <h1 class="is-size-1 has-text-weight-bold">¯\_(ツ)_/¯<br>404</h1><br>
         <p class="is-size-5">
