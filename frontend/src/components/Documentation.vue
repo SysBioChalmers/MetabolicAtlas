@@ -98,7 +98,6 @@
           <p>The layout of the Subsystem page is also quite similar as the <a href="#metabolite-page">Metabolite page</a> except that:</p>
           <ul>
             <li>The top table shows information on the current selected metabolic subsystem instead of metabolites. </li>
-            <li>There is no button <img src="/img/button-interaction-partners.png" width="200" style="vertical-align:middle"> on the top right. </li>
             <li>The maximum number of reactions shown in the <i>Reactions</i> tables is limited to 1000 instead of 200.</li>
           </ul>
           <p>Subsystems correspond to a set of reactions that share a similar metabolic function. Unlike a metabolic pathway, the reactions comprising a subsystem are not necessarily linked into a completely connected network.</p>
