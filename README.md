@@ -56,12 +56,12 @@ To load the list of helper commands run:
 source proj.sh
 ```
 
-One of the helper commands createes the databae and builds the Docker images of the project:
+Run the helper command that creates the database and builds the Docker images of the project:
 ```bash
 build-stack
 ```
 
-Finnaly, start the Docker containers of with
+Finally, start the Docker containers with
 ```bash
 start-stack
 ```
