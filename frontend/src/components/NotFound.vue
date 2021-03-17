@@ -3,7 +3,7 @@
     <div class="box has-background-light content">
       <template v-if="type">
         <p class="title is-size-5">
-          <span class="is-capitalized">{{ type }}&nbsp;</span> "&nbsp;{{ componentId }}&nbsp;" &nbsp;not found
+          <span class="is-capitalized">{{ type }}</span><code>{{ componentId }}</code>not found
         </p>
         <template v-if="type === 'model'">
           <p>Visit the Explore page to select one of the integrated models</p>
@@ -46,5 +46,8 @@ export default {
 
 </script>
 
-<style>
+<style lang="scss" scoped>
+code {
+  font-size: 1em;
+}
 </style>
