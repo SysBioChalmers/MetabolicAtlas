@@ -49,7 +49,7 @@
         </div>
       </div>
       <br>
-      <h3 class="title is-3">News</h3>
+      <h3 id="News" class="title is-3">News</h3>
       <div class="timeline is-centered">
         <header class="timeline-header">
           <span class="tag is-large has-text-primary has-text-weight-bold">today</span>
