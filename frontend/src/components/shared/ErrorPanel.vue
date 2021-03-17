@@ -6,7 +6,7 @@
         <button v-if="hasHideListener" class="delete" aria-label="delete" @click="$emit('hideErrorPanel')" />
       </div>
       <div class="message-body has-text-centered">
-        <h5 class="title is-6">{{ message }}</h5>
+        <h5 class="title is-6" v-html="message" />
       </div>
     </article>
   </transition>
