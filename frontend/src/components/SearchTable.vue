@@ -16,7 +16,7 @@
             <p class="control has-icons-right has-icons-left">
               <input id="search" v-model="searchTerm" data-hj-whitelist
                      class="input" type="text"
-                     placeholder="uracil, SULT1A3, ATP => cAMP + PPi, Acyl-CoA hydrolysis"
+                     placeholder="uracil, SULT1A3, Acyl-CoA hydrolysis"
                      @keyup.enter="updateSearch()">
               <span v-show="showSearchCharAlert" class="has-text-info icon is-right" style="width: 220px">
                 Type at least 2 characters
@@ -81,9 +81,6 @@
                 <span>Reactions</span>
                 <ul>
                   <li>ID</li>
-                  <li>Equation (see the
-                    <router-link :to="{ name: 'documentation', hash: '#Global-search'}">documentation</router-link>
-                    for more information)</li>
                   <li>EC code</li>
                   <li>External identifiers</li>
                   <li>PMID</li>

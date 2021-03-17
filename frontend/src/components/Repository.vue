@@ -5,7 +5,7 @@
         {{ errorMessage }}
       </div>
       <div v-else>
-        <h3 class="title is-3">Integrated GEMs</h3>
+        <h3 id="Integrated-models" class="title is-3">Integrated models</h3>
         <p class="has-text-justified">
           These models are integrated into the Metabolic Atlas database;
           they can be explored via {{ messages.gemBrowserName }}, {{ messages.mapViewerName }} and
@@ -54,12 +54,12 @@
           </div>
         </div>
         <br>
-        <h3 class="title is-3">GEM Repository</h3>
+        <h3 id="GEM-repository" class="title is-3">GEM Repository</h3>
         <p class="has-text-justified">
           While we do not provide support for these models, we are making them available to download.
           For support, the authors should be contacted. They are listed in the <i>References</i> section of each model.
           Click on a row to display more information. To download multiple models at once use the
-          <router-link :to=" { name: 'documentation', hash: '#FTP-download'} ">FTP server</router-link>.
+          <router-link :to=" { name: 'documentation', hash: '#FTP-access'} ">FTP server</router-link>.
         </p>
         <br>
         <loader v-show="showLoader"></loader>
