@@ -210,7 +210,7 @@ export default {
       axios.interceptors.response.use(
         response => response,
         (error) => {
-          if (error.response.status !== 404) {
+          if (!error.response || error.response.status !== 404) {
             // not found error should be handled in the relevant child components
             this.errorMessage = messages.unknownError;
           }
