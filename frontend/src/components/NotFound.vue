@@ -13,7 +13,7 @@
             Probably there is a typo in the {{ type }} identifier in the URL
             <br>
             Use the
-            <span v-if="type === 'map'">{{ type }} listing</span>
+            <span v-if="type === 'map'">list of {{ type }}s</span>
             <span v-else>search bar above </span>
             to find other {{ type }}s
           </p>
