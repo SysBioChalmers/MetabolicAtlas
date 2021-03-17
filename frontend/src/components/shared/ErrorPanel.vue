@@ -50,7 +50,7 @@ export default {
   z-index: 11;
   position: fixed;
   width: 350px;
-  right: 20px;
+  left: calc(50% - 175px);
   bottom: 80px;
   border: 1px solid gray;
 }
