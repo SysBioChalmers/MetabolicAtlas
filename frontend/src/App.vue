@@ -218,6 +218,12 @@ export default {
           return Promise.reject(error);
         }
       );
+
+      this.$router.afterEach(() => {
+        if (this.errorMessage !== '') {
+          this.errorMessage = '';
+        }
+      });
     },
   },
 };
