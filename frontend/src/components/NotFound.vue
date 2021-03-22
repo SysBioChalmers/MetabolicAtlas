@@ -5,19 +5,15 @@
         <p class="title is-size-5">
           <span class="is-capitalized">{{ type }}</span><code>{{ componentId }}</code>not found
         </p>
-        <template v-if="type === 'model'">
-          <p>Visit the Explore page to select one of the integrated models</p>
-        </template>
-        <template v-else>
-          <p>
-            Probably there is a typo in the {{ type }} identifier in the URL
-            <br>
-            Use the
-            <span v-if="type === 'map'">list of {{ type }}s</span>
-            <span v-else>search bar above </span>
-            to find other {{ type }}s
-          </p>
-        </template>
+        <p v-if="type === 'model'">{{ messages.modelNotFound }}</p>
+        <p v-else>
+          Probably there is a typo in the {{ type }} identifier in the URL
+          <br>
+          Use the
+          <span v-if="type === 'map'">list of {{ type }}s</span>
+          <span v-else>search bar above </span>
+          to find other {{ type }}s
+        </p>
       </template>
       <template v-else>
         <h1 class="is-size-1 has-text-weight-bold">¯\_(ツ)_/¯<br>404</h1><br>
@@ -36,11 +32,18 @@
 </template>
 <script>
 
+import { default as messages } from '@/helpers/messages';
+
 export default {
   name: 'NotFound',
   props: {
     type: String,
     componentId: String,
+  },
+  data() {
+    return {
+      messages,
+    };
   },
 };
 
