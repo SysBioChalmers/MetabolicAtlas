@@ -15,7 +15,8 @@ const querySingleResult = async (statement) => {
 
     result = response.records[0].get(0);
 
-    if (Object.values(result).flat().length === 0) {
+    if (Object.values(result).flat().filter(x => x !== 0).length === 0) {
+      // the result contains only empty lists of 0 values
       throw new Error('404');
     }
   } catch (e) {
