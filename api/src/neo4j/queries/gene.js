@@ -1,4 +1,5 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
+import queryListResult from 'neo4j/queryHandlers/list';
 import reformatExternalDbs from 'neo4j/shared/formatter';
 import parseParams from 'neo4j/shared/helper';
 
@@ -46,5 +47,13 @@ RETURN apoc.map.mergeList(COLLECT(value.data)) as gene
   return { ...gene, externalDbs: reformatExternalDbs(gene.externalDbs) };
 };
 
+const getGenesForHPA = async () => {
+  const statement = `
+MATCH (g:Gene:HumanGem)-[:V1_3_0]-(:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
+RETURN DISTINCT [g.id, ss.name, s.id]
+`;
 
-export default getGene;
+  return queryListResult(statement);
+};
+
+export { getGene, getGenesForHPA };

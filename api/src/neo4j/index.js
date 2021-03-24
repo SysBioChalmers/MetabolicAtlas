@@ -1,5 +1,8 @@
 import getCompartment from 'neo4j/queries/compartment';
-import getGene from 'neo4j/queries/gene';
+import {
+  getGene,
+  getGenesForHPA,
+} from 'neo4j/queries/gene';
 import getReaction from 'neo4j/queries/reaction';
 import getSubsystem from 'neo4j/queries/subsystem';
 import getMetabolite from 'neo4j/queries/metabolite';
@@ -24,6 +27,7 @@ import {
 export {
   getCompartment,
   getGene,
+  getGenesForHPA,
   getReaction,
   getSubsystem,
   getMetabolite,
