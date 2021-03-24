@@ -56,4 +56,24 @@ RETURN DISTINCT [g.id, ss.name, s.id]
   return queryListResult(statement);
 };
 
-export { getGene, getGenesForHPA };
+const getGeneDetailsForHPA = async ({ id }) => {
+  const statement = `
+MATCH (g:Gene:HumanGem {id:'${id}'})-[:V1_3_0]-(:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
+RETURN DISTINCT { id: s.id, name: ss.name }
+`;
+
+  const result = await queryListResult(statement);
+
+  const subsystems = result.map(({ id, name }) => ({
+    name,
+    subsystem_url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/subsystem/${id}`,
+  }));
+
+  return {
+    gene_url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/gene/${id}`, 
+    subsystems,
+    doc: 'A subsystem can contain the same chemical metabolite that comes from different compartments.',
+  };
+};
+
+export { getGene, getGenesForHPA, getGeneDetailsForHPA };

@@ -3,6 +3,7 @@ import {
   getCompartment,
   getGene,
   getGenesForHPA,
+  getGeneDetailsForHPA,
   getMetabolite,
   getReaction,
   getSubsystem,
@@ -43,6 +44,7 @@ neo4jRoutes.get('/compartments/:id/related-reactions', async (req, res) => fetch
 neo4jRoutes.get('/genes/:id', async (req, res) => fetchWith(req, res, getGene));
 neo4jRoutes.get('/genes/:id/related-reactions', async (req, res) => fetchWith(req, res, getRelatedReactionsForGene));
 neo4jRoutes.get('/hpa/genes', async (req, res) => fetchWith(req, res, getGenesForHPA));
+neo4jRoutes.get('/hpa/gene/:id', async (req, res) => fetchWith(req, res, getGeneDetailsForHPA));
 
 neo4jRoutes.get('/metabolites/:id', async (req, res) => fetchWith(req, res, getMetabolite));
 neo4jRoutes.get('/metabolites/:id/related-reactions', async (req, res) => fetchWith(req, res, getRelatedReactionsForMetabolite));
