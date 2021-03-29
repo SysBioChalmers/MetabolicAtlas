@@ -58,15 +58,64 @@ RETURN DISTINCT [g.id, ss.name, s.id]
 
 const getGeneDetailsForHPA = async ({ id }) => {
   const statement = `
-MATCH (g:Gene:HumanGem {id:'${id}'})-[:V1_3_0]-(:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
-RETURN DISTINCT { id: s.id, name: ss.name }
+MATCH (:Gene:HumanGem {id:'${id}'})-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
+WITH DISTINCT s.id as sids, COLLECT(r.id) as rids, ss
+UNWIND sids as sid
+CALL apoc.cypher.run("
+  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(cm:CompartmentalizedMetabolite)
+  USING JOIN ON r
+  WITH DISTINCT cm
+  MATCH (cm)-[:V1_3_0]-(c:Compartment)-[:V1_3_0]-(cs:CompartmentState)
+  USING JOIN ON c
+  RETURN DISTINCT { id: $sid, compartments: COLLECT(DISTINCT(cs.name)), model_metabolite_count: COUNT(DISTINCT(cm.id)) } as data
+
+  UNION
+
+  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(g:Gene)
+  USING JOIN ON r
+  RETURN DISTINCT { id: $sid, genes: COLLECT(DISTINCT(g.id)) } as data
+
+  UNION
+
+  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)
+  RETURN DISTINCT { id: $sid, reaction_count: COUNT(DISTINCT(r.id)) } as data
+
+  UNION
+
+  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)
+  WHERE r.id IN $rids
+  RETURN DISTINCT { id: $sid, reactions_catalysed: COUNT(DISTINCT(r)) } as data
+
+  UNION
+
+  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(ssvg:SvgMap)
+  RETURN { id: $sid,  svgs: COLLECT(DISTINCT(ssvg.filename)) } as data
+", { sid: sid, rids: rids }) yield value
+RETURN DISTINCT {
+  id: sid,
+  name: ss.name,
+  details: apoc.map.mergeList(apoc.coll.flatten(
+    apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
+  ))
+}
 `;
 
   const result = await queryListResult(statement);
-
-  const subsystems = result.map(({ id, name }) => ({
+  
+  const subsystems = result.map(({
+    id,
     name,
+    details: { compartments, genes, reactions_catalysed, model_metabolite_count, reaction_count, svgs }
+  }) => ({
+    name,
+    compartments,
+    genes,
+    reactions_catalysed,
+    map_url: `https://metabolicatlas.org/api/v2/svg/Human-GEM/${svgs[0]}`,
     subsystem_url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/subsystem/${id}`,
+    model_metabolite_count,
+    reaction_count,
+    gene_count: genes.length
   }));
 
   return {
