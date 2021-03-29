@@ -68,7 +68,7 @@ CALL apoc.cypher.run("
   WITH DISTINCT cm
   MATCH (cm)-[:V1_3_0]-(c:Compartment)-[:V1_3_0]-(cs:CompartmentState)
   USING JOIN ON c
-  RETURN DISTINCT { id: $sid, compartments: COLLECT(DISTINCT(cs.name)), model_metabolite_count: COUNT(DISTINCT(cm.id)) } as data
+  RETURN DISTINCT { id: $sid, compartments: COLLECT(DISTINCT(cs.name)), compartment_metabolite_count: COUNT(DISTINCT(cm.id)) } as data
 
   UNION
 
@@ -106,7 +106,7 @@ RETURN DISTINCT {
   const subsystems = result.map(({
     id,
     name,
-    details: { compartments, genes, reactions_catalysed, model_metabolite_count, reaction_count, svgs }
+    details: { compartments, genes, reactions_catalysed, compartment_metabolite_count, reaction_count, svgs }
   }) => ({
     name,
     compartments,
@@ -114,7 +114,7 @@ RETURN DISTINCT {
     reactions_catalysed,
     map_url: `https://metabolicatlas.org/api/v2/svg/Human-GEM/${svgs[0]}`,
     subsystem_url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/subsystem/${id}`,
-    model_metabolite_count,
+    compartment_metabolite_count,
     reaction_count,
     gene_count: genes.length
   }));
