@@ -49,7 +49,8 @@ RETURN apoc.map.mergeList(COLLECT(value.data)) as gene
 
 const getGenesForHPA = async () => {
   const statement = `
-MATCH (g:Gene:HumanGem)-[:V1_3_0]-(:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
+MATCH (g:Gene:HumanGem)-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
+USING JOIN ON r
 RETURN DISTINCT [g.id, ss.name, s.id]
 `;
 
