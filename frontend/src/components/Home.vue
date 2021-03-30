@@ -38,11 +38,13 @@
 
       <div class="has-background-white-ter py-6">
         <div class="container px-6">
-          <p class="title is-size-4 has-text-centered has-text-primary pt-4">
-            <span class="icon is-large fa-lg">
-              <i :class="`fa fa-${news.icon}`"></i>
-            </span>
-            {{ news.title }}
+          <p class="title is-size-4 has-text-centered pt-4">
+                <router-link :to="news.route" class="has-text-primary">
+                  <span class="icon is-large fa-lg">
+                    <i :class="`fa fa-${news.icon}`"></i>
+                  </span>
+                  {{ news. title }}
+                </router-link>
           </p>
           <div class="columns is-variable is-8 is-vcentered pt-3">
             <div class="column is-6 is-size-5">
@@ -82,11 +84,13 @@
           <!-- eslint-disable -->
           <div v-for="features in [features1, features2]" class="columns is-variable is-8">
             <div v-for="item in features" :key="item.title" class="column is-6 is-size-5">
-              <p class="title is-size-4 has-text-primary">
-                <span class="icon is-large fa-lg">
-                  <i :class="`fa fa-${item.icon}`"></i>
-                </span>
-                {{ item. title }}
+              <p class="title is-size-4">
+                <router-link :to="item.route" class="has-text-primary">
+                  <span class="icon is-large fa-lg">
+                    <i :class="`fa fa-${item.icon}`"></i>
+                  </span>
+                  {{ item. title }}
+                </router-link>
               </p>
               <div class="columns pb-6 is-mobile">
                 <div class="column is-8 px-3">
@@ -107,11 +111,13 @@
         <div class="container px-6">
           <div class="columns is-variable is-8 is-vcentered py-6">
             <div class="column is-offset-1 is-5 is-size-5">
-              <p class="title is-size-4 has-text-centered has-text-primary">
-                <span class="icon is-large fa-lg">
-                  <i :class="`fa fa-${repository.icon}`"></i>
-                </span>
-                {{ repository.title }}
+              <p class="title is-size-4 has-text-centered">
+                <router-link :to="repository.route" class="has-text-primary">
+                  <span class="icon is-large fa-lg">
+                    <i :class="`fa fa-${repository.icon}`"></i>
+                  </span>
+                  {{ repository. title }}
+                </router-link>
               </p>
               <p v-html="repository.text"></p>
             </div>
@@ -141,11 +147,13 @@
         <div class="container px-6">
           <div class="columns is-variable is-8">
             <div v-for="item in comRes" :key="item.title" class="column is-6 is-size-5 py-6">
-              <p class="title is-size-4 has-text-primary">
-                <span class="icon is-large fa-lg">
-                  <i :class="`fa fa-${item.icon}`"></i>
-                </span>
-                {{ item. title }}
+              <p class="title is-size-4">
+                <router-link :to="item.route" class="has-text-primary">
+                  <span class="icon is-large fa-lg">
+                    <i :class="`fa fa-${item.icon}`"></i>
+                  </span>
+                  {{ item. title }}
+                </router-link>
               </p>
               <p v-html="item.text"></p>
             </div>
