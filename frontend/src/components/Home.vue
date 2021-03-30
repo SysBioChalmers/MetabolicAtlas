@@ -1,12 +1,14 @@
 <template>
   <div class="extended-section">
     <section class="hero is-medium is-primary is-bold">
-      <div class="hero-body has-text-centered">
-        <p class="is-size-1 title">METABOLIC ATLAS </p>
-        <p class="is-size-5">
-          <b>Metabolic Atlas</b> integrates open source genome-scale metabolic models for easy browsing and analysis
-        </p>
-      </div>
+      <router-link :to="{ name: 'explorer'}">
+        <div class="hero-body has-text-centered">
+          <p class="is-size-1 title">METABOLIC ATLAS </p>
+          <p class="is-size-5">
+            <b>Metabolic Atlas</b> integrates open source genome-scale metabolic models for easy browsing and analysis
+          </p>
+        </div>
+      </router-link>
     </section>
 
     <section id="home">
@@ -228,7 +230,7 @@ export default {
           route: { name: 'search', query: { term: 'glyoxalate' } },
           icon: 'download' },
         { title: 'Compare',
-          text: 'Some text describing the <b>Comparison</b> feature.',
+          text: 'The integrated models can be compared on-the-fly via the external identifiers they share. Moreover, a 3-way comparison can be performed as well.',
           img: require('../assets/export.jpg'),
           cardLink: 'Export TSV for glyoxolate metabolites',
           route: { name: 'search', query: { term: 'glyoxalate' } },
