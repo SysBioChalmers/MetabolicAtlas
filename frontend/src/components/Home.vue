@@ -1,11 +1,11 @@
 <template>
   <div class="extended-section">
     <section class="hero is-medium is-primary is-bold">
-      <router-link :to="{ name: 'explorer'}">
+      <router-link :to="{ name: 'explorer', params: { model: 'Human-GEM' } }">
         <div class="hero-body has-text-centered">
           <p class="is-size-1 title">METABOLIC ATLAS </p>
           <p class="is-size-5">
-            <b>Metabolic Atlas</b> integrates open source genome-scale metabolic models for easy browsing and analysis
+            open source genome-scale metabolic models for easy browsing and analysis
           </p>
         </div>
       </router-link>
