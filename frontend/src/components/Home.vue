@@ -2,17 +2,19 @@
   <div class="extended-section">
     <section class="hero is-medium is-primary is-bold">
       <div class="hero-body has-text-centered">
-        <p class="is-size-1 title">METABOLIC ATLAS 2.0</p>
-        <p class="is-size-5"><b>Metabolic Atlas</b> integrates open source genome-scale metabolic models (GEMs) of human, yeast for easy browsing and analysis.<br>Detailed biochemical information is provided for individual model components, such as reactions, metabolites, and genes.<br>1.0: <a href="https://doi.org/10.1126/scisignal.aaz1482" target="_blank">Robinson, J., et al, 2020. <i>An atlas of human metabolism</i>. Sci. Signal. 13, eaaz1482 </a><br>2.0: For the additional integration of the mouse and rat GEMs, the article is under consideration.</p>
+        <p class="is-size-1 title">METABOLIC ATLAS </p>
+        <p class="is-size-5">
+          <b>Metabolic Atlas</b> integrates open source genome-scale metabolic models for easy browsing and analysis
+        </p>
       </div>
     </section>
 
     <section id="home">
 
-      <div class="block">
-        <div class="container is-fullhd py-6">
-          <div v-for="item in news" :key="item.title" class="columns is-variable is-8 is-vcentered py-6">
-            <div class="column is-offset-1 is-5 is-size-5">
+      <div class="py-6">
+        <div class="container px-6">
+          <div class="columns is-multiline is-mobile is-variable is-8 is-centered is-vcentered">
+            <div v-for="item in tools" :key="item.title" class="column is-3-desktop is-6-mobile is-size-5 px-6">
               <router-link :to="item.route">
                 <div class="card" :class="{ 'hoverable': item.cardLink}">
                   <div class="card-image">
@@ -22,7 +24,7 @@
                   </div>
                   <template v-if="item.cardLink">
                     <footer class="card-footer has-text-centered">
-                      <a class="card-footer-item has-text-weight-bold is-size-5">
+                      <a class="card-footer-item has-text-weight-bold is-size-4">
                         {{ item.cardLink }}
                       </a>
                     </footer>
@@ -30,14 +32,21 @@
                 </div>
               </router-link>
             </div>
-            <div class="column is-5 is-size-5">
-              <p class="title is-size-4 has-text-centered has-text-primary">
-                {{ item.title }}
-                <span class="icon is-large fa-lg">
-                  <i :class="`fa fa-${item.icon}`"></i>
-                </span>
-              </p>
-              <p v-html="item.text"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="has-background-white-ter py-6">
+        <div class="container px-6">
+          <p class="title is-size-4 has-text-centered has-text-primary pt-4">
+            <span class="icon is-large fa-lg">
+              <i :class="`fa fa-${news.icon}`"></i>
+            </span>
+            {{ news.title }}
+          </p>
+          <div class="columns is-variable is-8 is-vcentered pt-3">
+            <div class="column is-6 is-size-5">
+              <p v-html="news.text"></p>
               <table>
                 <template v-for="el in newsItems">
                   <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
@@ -56,80 +65,68 @@
                 </template>
               </table>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="block has-background-white-ter">
-        <div class="container is-fullhd py-6">
-          <div class="columns is-variable is-8 is-vcentered py-6">
-            <div v-for="item in tools" :key="item.title" class="column is-4 is-size-5">
-              <router-link :to="item.route">
-                <div class="card" :class="{ 'hoverable': item.cardLink}">
-                  <div class="card-image">
-                    <figure class="image is-4by3">
-                      <img :src="item.img" :alt="item.title" />
-                    </figure>
-                  </div>
-                  <template v-if="item.cardLink">
-                    <footer class="card-footer has-text-centered">
-                      <a class="card-footer-item has-text-weight-bold is-size-5">
-                        {{ item.cardLink }}
-                      </a>
-                    </footer>
-                  </template>
-                </div>
-              </router-link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="block">
-        <div class="container is-fullhd py-6">
-          <!-- eslint-disable -->
-          <div v-for="features in [features1, features2]" class="columns is-variable is-8 is-vcentered py-6">
-            <div v-for="item in features" :key="item.title" class="column is-6 is-size-5">
-              <div class="columns">
-                <div class="column is-8">
-                  <p class="is-size-4 title">{{ item. title }}</p>
-                  <p v-html="item.text"></p>
-                </div>
-                <div class="column">
-                  <router-link :to="item.route">
-                    <img :class="{ 'hoverable': item.cardLink}" :src="item.img" :alt="item.title" />
-                  </router-link>
-                </div>
+            <div class="column is-6 is-size-5">
+              <div class="box">
+                <p>Version 2.0: Article under consideration.</p>
+              </div>
+              <div class="box">
+                <p>Version 1.0: <a href="https://doi.org/10.1126/scisignal.aaz1482" target="_blank">Robinson, J., et al, 2020. <i>An atlas of human metabolism</i>. Sci. Signal. 13, eaaz1482</a></p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="block has-background-white-ter">
-        <div class="container is-fullhd py-6">
-          <div v-for="item in repository" :key="item.title" class="columns is-variable is-8 is-vcentered py-6">
-            <div class="column is-offset-1 is-5 is-size-5">
-              <p class="title is-size-4 has-text-centered has-text-primary">
-                {{ item.title }}
+      <div class="py-6">
+        <div class="container px-6 pt-6">
+          <!-- eslint-disable -->
+          <div v-for="features in [features1, features2]" class="columns is-variable is-8">
+            <div v-for="item in features" :key="item.title" class="column is-6 is-size-5">
+              <p class="title is-size-4 has-text-primary">
                 <span class="icon is-large fa-lg">
                   <i :class="`fa fa-${item.icon}`"></i>
                 </span>
+                {{ item. title }}
               </p>
-              <p v-html="item.text"></p>
+              <div class="columns pb-6 is-mobile">
+                <div class="column is-8 px-3">
+                  <p v-html="item.text"></p>
+                </div>
+                <div class="column p-0">
+                  <router-link :to="item.route">
+                    <img :class="{ 'hoverable': item.cardLink}" :src="item.img" :alt="item.title" />
+                  </router-link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="has-background-white-ter py-6">
+        <div class="container px-6">
+          <div class="columns is-variable is-8 is-vcentered py-6">
+            <div class="column is-offset-1 is-5 is-size-5">
+              <p class="title is-size-4 has-text-centered has-text-primary">
+                <span class="icon is-large fa-lg">
+                  <i :class="`fa fa-${repository.icon}`"></i>
+                </span>
+                {{ repository.title }}
+              </p>
+              <p v-html="repository.text"></p>
             </div>
             <div class="column is-5 is-size-5">
-              <router-link :to="item.route">
-                <div class="card" :class="{ 'hoverable': item.cardLink}">
+              <router-link :to="repository.route">
+                <div class="card" :class="{ 'hoverable': repository.cardLink}">
                   <div class="card-image">
                     <figure class="image is-4by3">
-                      <img :src="item.img" :alt="item.title" />
+                      <img :src="repository.img" :alt="repository.title" />
                     </figure>
                   </div>
-                  <template v-if="item.cardLink">
+                  <template v-if="repository.cardLink">
                     <footer class="card-footer has-text-centered">
                       <a class="card-footer-item has-text-weight-bold is-size-5">
-                        {{ item.cardLink }}
+                        {{ repository.cardLink }}
                       </a>
                     </footer>
                   </template>
@@ -140,27 +137,24 @@
         </div>
       </div>
 
-      <div class="block">
-        <div class="container is-fullhd py-6">
-          <div class="columns is-variable is-8 is-vcentered py-6">
-            <div v-for="item in comRes" :key="item.title" class="column is-6 is-size-5">
-              <div class="columns">
-                <div class="column is-8">
-                  <p class="is-size-4 title">{{ item. title }}</p>
-                  <p v-html="item.text"></p>
-                </div>
-                <div class="column">
-                  <router-link :to="item.route">
-                    <img :class="{ 'hoverable': item.cardLink}" :src="item.img" :alt="item.title" />
-                  </router-link>
-                </div>
-              </div>
+      <div class="py-6">
+        <div class="container px-6">
+          <div class="columns is-variable is-8">
+            <div v-for="item in comRes" :key="item.title" class="column is-6 is-size-5 py-6">
+              <p class="title is-size-4 has-text-primary">
+                <span class="icon is-large fa-lg">
+                  <i :class="`fa fa-${item.icon}`"></i>
+                </span>
+                {{ item. title }}
+              </p>
+              <p v-html="item.text"></p>
             </div>
           </div>
         </div>
       </div>
 
     </section>
+
   </div>
 </template>
 
@@ -172,25 +166,25 @@ export default {
   name: 'Home',
   data() {
     return {
-      news: [
-        { title: 'Latest news',
-          text: 'Here goes all the news, which ideally should link to the news page under About.',
-          img: require('../assets/gemBrowser.jpg'),
-          cardLink: 'More news',
-          route: { name: 'about', hash: '#News' },
-          icon: 'newspaper-o' },
-      ],
+      news: {
+        title: 'Latest news',
+        text: 'Here goes all the news, which ideally should link to the news page under About.',
+        img: require('../assets/gemBrowser.jpg'),
+        cardLink: 'More news',
+        route: { name: 'about', hash: '#News' },
+        icon: 'newspaper-o',
+      },
       tools: [
         { title: messages.gemBrowserName,
           text: 'The <b>GEM Browser</b> enables powerful query and exploration of model content in tabular format.<br><br>A wide range of attributes, including reaction equations, metabolite formulas, gene rules and subsystem contents, are presented as a detailed network of individual model components. They are highly interconnected and rationally associated to easily navigate and switch between them.<br><br>Visit the documentation to learn about the different functionalities provided by the GEM Browser.',
           img: require('../assets/gemBrowser.jpg'),
-          cardLink: 'Explore Human-GEM with the GEM Browser',
+          cardLink: 'GEM Browser',
           route: { name: 'browser', params: { model: 'Human-GEM' } },
           icon: 'table' },
         { title: messages.mapViewerName,
           text: 'For easy visualization, <b>Metabolic Atlas</b> handles both 2D and 3D maps. For each of the integrated models, the website automatically generates 3D graphs at both compartment and subsystem level.<br><br>Both compartment and subsystem 2D maps of the Human-GEM have been created by Human-GEM contributors and are manually curated. On these maps, one can search for reactions, metabolites or genes. Moreover, RNA expression data from Human Protein Atlas can be overlaid.<br><br>By clicking on an element on the map, more information of that element will be shown on the left sidebar. From there, one can navigate back to the <b>GEM Browser</b> for detailed information.',
           img: require('../assets/mapViewer.jpg'),
-          cardLink: 'Explore the Golgi apparatus with the Map Viewer',
+          cardLink: 'Map Viewer',
           route: { name: 'viewer',
             params: { model: 'Human-GEM', type: 'compartment', map_id: 'golgi_apparatus' },
             query: { dim: '2d' } },
@@ -198,7 +192,7 @@ export default {
         { title: messages.interPartName,
           text: `The <b>Interaction Partners</b> graph shows connectivity between metabolites and genes based on their associated reactions.<br><br>The graph is dynamically generated and is customizable. One can interact with a restricted part of the metabolic network, or further expand the interaction partners of any element already on the graph. Moreover, RNA expression data from the Human Protein Atlas can be overlaid onto the graph. <br><br>This feature is available only for metabolites and genes, and is accessible via the <b>${messages.gemBrowserName}</b>.`,
           img: require('../assets/interaction.jpg'),
-          cardLink: 'View glyoxalate[p] in Interaction Partners',
+          cardLink: 'Interaction Partners',
           route: { name: 'interaction', params: { model: 'Human-GEM', id: 'm02007p' } },
           icon: 'connectdevelop' },
       ],
@@ -232,27 +226,23 @@ export default {
           route: { name: 'search', query: { term: 'glyoxalate' } },
           icon: 'download' },
       ],
-      repository: [
-        { title: 'GEM Repository',
-          text: 'Over 350 GEMs can be downloaded from the <b>GEM Repository</b> or directly from the <b>Metabolic Atlas FTP server</b>. The tabular view enables customized selection.<br><br>Clicking on each of the models brings up more information about the model, including a text description and, if available, references. For support, the original authors should be contacted.',
-          img: require('../assets/gems.jpg'),
-          cardLink: 'GEM Repository',
-          route: { name: 'gems' },
-          icon: 'files-o' },
-      ],
+      repository: {
+        title: 'GEM Repository',
+        text: 'Over 350 GEMs can be downloaded from the <b>GEM Repository</b> or directly from the <b>Metabolic Atlas FTP server</b>. The tabular view enables customized selection.<br><br>Clicking on each of the models brings up more information about the model, including a text description and, if available, references. For support, the original authors should be contacted.',
+        img: require('../assets/gems.jpg'),
+        cardLink: 'GEM Repository',
+        route: { name: 'gems' },
+        icon: 'files-o',
+      },
       comRes: [
-        { title: 'Community',
-          text: '<p>We are grateful for the efforts of scientists all over the world in creating the knowledge required to assemble high quality genome scale metabolic models. We are passionate about continuing on this journey of open curation of models.<br><br>We invite you to explore the world of GEMs through Metabolic Atlas, and hope it will enhance your interest in this field. We wish to continuously improve Metabolic Atlas for the community. Email us with any feedback, suggestions, or requests at <a href="mailto:">contact [at] metabolicatlas [dot] org</a>.</p>',
-          img: require('../assets/resources.jpg'),
-          cardLink: 'Contact us',
-          route: { name: 'team' },
-          icon: 'users' },
         { title: 'Resources',
           text: 'Working with metabolic models requires a set of tools and external databases, which we have collected together for one-click access.<br><br>Additionally, Metabolic Atlas is open to further integrations.',
-          img: require('../assets/resources.jpg'),
-          cardLink: 'See tools',
           route: { name: 'resources' },
           icon: 'gears' },
+        { title: 'Community',
+          text: '<p>We are grateful for the efforts of scientists all over the world in creating the knowledge required to assemble high quality genome scale metabolic models. We are passionate about continuing on this journey of open curation of models.<br><br>We invite you to explore the world of GEMs through Metabolic Atlas, and hope it will enhance your interest in this field. We wish to continuously improve Metabolic Atlas for the community. Email us with any feedback, suggestions, or requests at <a href="mailto:">contact [at] metabolicatlas [dot] org</a>.</p>',
+          route: { name: 'team' },
+          icon: 'users' },
       ],
       newsItems: [
         { date: '2020.04.27',
@@ -284,9 +274,6 @@ export default {
           text: 'Metabolic Atlas is publicly available as v1.0' },
       ],
     };
-  },
-  beforeMount() {
-    this.currentMenu = this.menu[0]; // eslint-disable-line prefer-destructuring
   },
 };
 

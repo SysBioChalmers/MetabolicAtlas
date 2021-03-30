@@ -74,7 +74,7 @@
     <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
       <div class="columns is-gapless">
         <div class="column is-7-desktop is-5-tablet has-text-centered-mobile">
-          <p>2020 ©
+          <p>2021 ©
             <span class="is-hidden-tablet-only">
               &nbsp;Department of Biology and Biological Engineering |
             </span>
