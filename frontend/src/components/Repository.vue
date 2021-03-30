@@ -15,7 +15,7 @@
           <div v-for="model in integratedModels" :key="model.short_name"
                class="column is-4-widescreen is-5-desktop is-6-tablet">
             <div class="card">
-              <header class="card-header clickable has-background-primary-lighter"
+              <header class="card-header is-clickable has-background-primary-lighter"
                       @click="selectModel(model.short_name)">
                 <p class="card-header-title py-2 has-text-primary">
                   {{ model.short_name }} {{ model.version }}

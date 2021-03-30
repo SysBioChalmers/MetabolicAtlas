@@ -33,7 +33,7 @@
           <thead>
             <tr class="has-background-white-ter">
               <th v-for="f in fields" v-show="showCol(f.name)"
-                  :key="f.name" class="is-unselectable clickable"
+                  :key="f.name" class="is-unselectable is-clickable"
                   :title="`Sort by ${f.display}`"
                   @click="sortTable(f.name, null, null)">
                 {{ f.display.replace(' ', '&nbsp;') }}

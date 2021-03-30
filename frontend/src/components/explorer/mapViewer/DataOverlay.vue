@@ -46,7 +46,7 @@
               <option>None</option>
               <option v-for="tissue in HPATissues" :key="tissue"
                       :selected="tissue === tissue1"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>
@@ -59,7 +59,7 @@
               @change="(e) => setFirstTissue('custom', e.target.value)">
               <option v-if="!disabledCustomSelectData">None</option>
               <option v-for="tissue in customTissues" :key="tissue"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>
@@ -75,7 +75,7 @@
               <option>None</option>
               <option v-for="tissue in HPATissues" :key="tissue"
                       :selected="tissue === tissue2"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>
@@ -89,7 +89,7 @@
               <option v-if="!disabledCustomSelectData">None</option>
               <option v-for="tissue in customTissues"
                       :key="tissue"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>

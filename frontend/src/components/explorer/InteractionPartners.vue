@@ -127,7 +127,7 @@
                       </select>
                     </div>
                     <span>Color:</span>
-                    <span class="color-span clickable"
+                    <span class="color-span is-clickable"
                           :style="{ background: nodeDisplayParams.geneNodeColor.hex }"
                           @click="toggleGeneColorPicker()">
                       <compact-picker v-show="showColorPickerEnz"
@@ -149,7 +149,7 @@
                       </select>
                     </div>
                     <span>Color:</span>
-                    <span class="color-span clickable"
+                    <span class="color-span is-clickable"
                           :style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
                           @click="toggleMetaboliteColorPicker()">
                       <compact-picker v-show="showColorPickerMeta"

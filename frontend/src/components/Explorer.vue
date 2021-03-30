@@ -17,7 +17,7 @@
                (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1))"
              :key="cmodel.short_name" class="column is-5-desktop is-half-tablet">
           <div id="selectedModel" style="height: 100%"
-               class="box has-text-centered clickable hoverable"
+               class="box has-text-centered is-clickable hoverable"
                :class="cmodel.short_name === model.short_name ? 'selectedBox' : ''"
                :title="`Select ${cmodel.short_name} as the model to explore`"
                @mousedown.prevent="selectModel(cmodel.short_name)">

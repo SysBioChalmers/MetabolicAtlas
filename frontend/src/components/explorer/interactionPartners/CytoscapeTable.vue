@@ -33,7 +33,7 @@
           <table id="cytoTable" ref="table" class="table is-bordered is-narrow is-fullwidth">
             <thead>
               <tr style="background: #F8F4F4">
-                <th v-for="s in columns" :key="s.field" class="is-unselectable clickable" @click="sortBy(s.field)">
+                <th v-for="s in columns" :key="s.field" class="is-unselectable is-clickable" @click="sortBy(s.field)">
                   {{ s.display }}
                 </th>
               </tr>
@@ -42,7 +42,7 @@
               <tr v-for="r in matchingReactions" :key="r.id">
                 <td v-for="s in columns" :key="s.field">
                   <template v-if="s.field === 'id'">
-                    <span class="tag is-rounded clickable" :class="[{ 'hl': isSelected(r.id) }, '']"
+                    <span class="tag is-rounded is-clickable" :class="[{ 'hl': isSelected(r.id) }, '']"
                           @click="HLreaction(r.id)">
                       <span class="is-size-6">{{ r.id }}</span>
                     </span>
@@ -50,7 +50,7 @@
                   <template v-else-if="['reactants', 'products', 'genes'].includes(s.field)">
                     <template v-for="el in r[s.field]">
                       <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                      <span class="tag is-rounded clickable is-medium"
+                      <span class="tag is-rounded is-clickable is-medium"
                             :title="s.field !== 'genes' ? `${el.id} - ${el.compartment_str}` : el.id"
                             :class="[{ 'hl': isSelected(el.id) }, '']" @click="highlight(el.id)">
                         <span class="">{{ el.name || el.id }}</span>
@@ -67,7 +67,7 @@
               <tr v-for="r in unMatchingReactions" :key="r.id">
                 <td v-for="s in columns" :key="s.field">
                   <template v-if="s.field === 'id'">
-                    <span class="tag is-rounded clickable" :class="[{ 'hl': isSelected(r.id) }, '']"
+                    <span class="tag is-rounded is-clickable" :class="[{ 'hl': isSelected(r.id) }, '']"
                           @click="HLreaction(r.id)">
                       <span class="is-size-6">{{ r.id }}</span>
                     </span>
@@ -75,7 +75,7 @@
                   <template v-else-if="['reactants', 'products', 'genes'].includes(s.field)">
                     <template v-for="el in r[s.field]">
                       <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                      <span class="tag is-rounded clickable is-medium"
+                      <span class="tag is-rounded is-clickable is-medium"
                             :title="s.field !== 'genes' ? `${el.id} - ${el.compartment_str}` : el.id"
                             :class="[{ 'hl': isSelected(el.id) }, '']" @click="highlight(el.id)">
                         <span class="">{{ el.name || el.id }}</span>

@@ -30,7 +30,7 @@
               </template>
             </template>
             <!-- eslint-disable-next-line max-len -->
-            <li v-if="limitedMapsDim[mapKey]" class="clickable" title="View all maps" @click="mapLimitPerDim = 1000">...</li>
+            <li v-if="limitedMapsDim[mapKey]" class="is-clickable" title="View all maps" @click="mapLimitPerDim = 1000">...</li>
           </ul>
         </template>
       </div>
