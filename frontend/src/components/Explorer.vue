@@ -12,10 +12,10 @@
           <p class="has-text-weight-bold is-size-5">1. Select a model:</p>
         </div>
       </div>
-      <div v-if="model" class="columns is-multiline is-centered">
+      <div v-if="model" class="columns is-multiline is-centered is-variable is-4">
         <div v-for="cmodel in Object.values(models).sort((a, b) =>
                (a.short_name.toLowerCase() < b.short_name.toLowerCase() ? -1 : 1))"
-             :key="cmodel.short_name" class="column is-5-desktop is-half-tablet">
+             :key="cmodel.short_name" class="column is-4-desktop is-half-tablet">
           <div id="selectedModel" style="height: 100%"
                class="box has-text-centered is-clickable hoverable"
                :class="cmodel.short_name === model.short_name ? 'selectedBox' : ''"
@@ -28,7 +28,9 @@
               <span v-else><i class="fa fa-square-o">&nbsp;</i></span>
               &nbsp;{{ cmodel.short_name }} {{ cmodel.version }}
             </p>
-            <p>{{ cmodel.full_name }}</p>
+            <p class="subtitle is-italic">
+              {{ cmodel.full_name.split(" ").splice(-2).join(" ") }}
+            </p>
             <p class="has-text-grey is-touch-hidden">
               {{ cmodel.reaction_count }} reactions -
               {{ cmodel.metabolite_count }} metabolites -
@@ -43,7 +45,7 @@
           <p class="has-text-weight-bold is-size-5">2. Select a tool:</p>
         </div>
       </div>
-      <div v-if="model" class="columns is-multiline is-centered">
+      <div v-if="model" class="columns is-multiline is-centered is-variable is-4">
         <div v-for="tool in explorerTools" :key="tool.name"
              class="column is-one-fifth-widescreen is-4-desktop is-4-tablet">
           <router-link :to="{ name: tool.routeName, params: { model: model.short_name } }"
