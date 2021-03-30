@@ -48,6 +48,14 @@
           </p>
           <div class="columns is-variable is-8 is-vcentered pt-3">
             <div class="column is-6 is-size-5">
+              <div class="box">
+                <p>Version 2.0: Article under consideration.</p>
+              </div>
+              <div class="box">
+                <p>Version 1.0: <a href="https://doi.org/10.1126/scisignal.aaz1482" target="_blank">Robinson, J., et al, 2020. <i>An atlas of human metabolism</i>. Sci. Signal. 13, eaaz1482</a></p>
+              </div>
+            </div>
+            <div class="column is-6 is-size-5">
               <p v-html="news.text"></p>
               <table>
                 <template v-for="el in newsItems">
@@ -66,14 +74,6 @@
                   </tr>
                 </template>
               </table>
-            </div>
-            <div class="column is-6 is-size-5">
-              <div class="box">
-                <p>Version 2.0: Article under consideration.</p>
-              </div>
-              <div class="box">
-                <p>Version 1.0: <a href="https://doi.org/10.1126/scisignal.aaz1482" target="_blank">Robinson, J., et al, 2020. <i>An atlas of human metabolism</i>. Sci. Signal. 13, eaaz1482</a></p>
-              </div>
             </div>
           </div>
         </div>
@@ -121,7 +121,7 @@
               </p>
               <p v-html="repository.text"></p>
             </div>
-            <div class="column is-5 is-size-5">
+            <div class="column is-5 is-offset-3-mobile is-6-mobile is-size-5">
               <router-link :to="repository.route">
                 <div class="card" :class="{ 'hoverable': repository.cardLink}">
                   <div class="card-image">
