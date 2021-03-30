@@ -57,6 +57,8 @@ RETURN DISTINCT [g.id, ss.name, s.id]
   return queryListResult(statement);
 };
 
+const BASE_URL = 'https://metabolicatlas.org';
+
 const getGeneDetailsForHPA = async ({ id }) => {
   const statement = `
 MATCH (:Gene:HumanGem {id:'${id}'})-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
@@ -120,8 +122,8 @@ RETURN DISTINCT {
     compartments,
     genes,
     reactions_catalysed,
-    map_url: `https://metabolicatlas.org/api/v2/svg/Human-GEM/${svgs[0]}`,
-    subsystem_url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/subsystem/${id}`,
+    map_url: `${BASE_URL}/api/v2/svg/Human-GEM/${svgs[0]}`,
+    subsystem_url: `${BASE_URL}/explore/Human-GEM/gem-browser/subsystem/${id}`,
     model_metabolite_count,
     compartment_metabolite_count,
     reaction_count,
@@ -129,7 +131,7 @@ RETURN DISTINCT {
   }));
 
   return {
-    gene_url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/gene/${id}`, 
+    gene_url: `${BASE_URL}/explore/Human-GEM/gem-browser/gene/${id}`, 
     subsystems,
     doc: 'A subsystem can contain the same chemical metabolite that comes from different compartments.',
   };
