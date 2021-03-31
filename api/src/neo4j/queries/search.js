@@ -48,7 +48,7 @@ CALL apoc.cypher.run('
   MATCH (:CompartmentalizedMetabolite:${model} {id: $cmid})-[${version}]-(:Reaction)-[${version}]-(s:Subsystem)
   WITH DISTINCT s
   MATCH (s)-[${version}]-(ss:SubsystemState)
-  RETURN { id: $cmid, subsystem: COLLECT(DISTINCT({id: s.id, name: ss.name})) } as data
+  RETURN { id: $cmid, subsystem: COLLECT({id: s.id, name: ss.name}) } as data
 ', {cmid:cmid}) yield value
 RETURN apoc.map.mergeList(apoc.coll.flatten(
 	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
@@ -84,13 +84,14 @@ CALL apoc.cypher.run("
   MATCH (r)-[${version}]-(s:Subsystem)
   WITH DISTINCT s
   MATCH (s)-[${version}]-(ss:SubsystemState)
-  RETURN { id: $gid, subsystem: COLLECT(DISTINCT({ id: s.id, name: ss.name })) } as data
+  RETURN { id: $gid, subsystem: COLLECT({ id: s.id, name: ss.name }) } as data
   
   UNION
   
   MATCH (:Gene:${model} {id: $gid})-[${version}]-(:Reaction)-[${version}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
   MATCH (cm)-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
+  USING JOIN on c
   RETURN { id: $gid, compartment: COLLECT(DISTINCT({ id: c.id, name: cs.name })) } as data
 ", {gid:gid}) yield value
 RETURN apoc.map.mergeList(apoc.coll.flatten(
@@ -120,7 +121,8 @@ CALL apoc.cypher.run("
   UNION
   
   MATCH (r:Reaction:${model} {id: $rid})-[cmE${version}]-(cm:CompartmentalizedMetabolite)-[${version}]-(:Metabolite)-[${version}]-(ms:MetaboliteState)
-  MATCH (cm)-[${version}]-(:Compartment)-[${version}]-(cs:CompartmentState)
+  MATCH (cm)-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
+  USING JOIN on c
   RETURN { id: $rid, metabolites: COLLECT(DISTINCT(ms {id: cm.id, compartment: cs.name, fullName: COALESCE(ms.name, '') + ' [' + COALESCE(cs.letterCode, '') + ']', stoichiometry: cmE.stoichiometry, outgoing: startnode(cmE)=cm, .*})) } as data
 `;
   }
@@ -129,6 +131,7 @@ CALL apoc.cypher.run("
   UNION
   
   MATCH (:Reaction:${model} {id: $rid})-[${version}]-(s:Subsystem)-[${version}]-(ss:SubsystemState)
+  USING JOIN on s
   RETURN { id: $rid, subsystem: COLLECT(DISTINCT({ id: s.id, name: ss.name })) } as data
   
   UNION
@@ -136,6 +139,7 @@ CALL apoc.cypher.run("
   MATCH (:Reaction:${model} {id: $rid})-[${version}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
   MATCH (cm)-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
+  USING JOIN on c
   RETURN { id: $rid, compartment: COLLECT(DISTINCT({ id: c.id, name: cs.name })) } as data
 ", {rid:rid}) yield value
 RETURN apoc.map.mergeList(apoc.coll.flatten(
@@ -188,6 +192,7 @@ CALL apoc.cypher.run("
   MATCH (:Subsystem:${model} {id: $sid})-[${version}]-(:Reaction)-[${version}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
   MATCH (cm)-[${version}]-(c:Compartment)-[${version}]-(cs:CompartmentState)
+  USING JOIN on c
   RETURN { id: $sid, compartment: COLLECT(DISTINCT({ id: c.id, name: cs.name })) } as data
 ", {sid:sid}) yield value
 RETURN apoc.map.mergeList(apoc.coll.flatten(
