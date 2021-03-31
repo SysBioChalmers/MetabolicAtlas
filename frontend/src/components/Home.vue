@@ -18,19 +18,17 @@
           <div class="columns is-multiline is-mobile is-variable is-8 is-centered is-vcentered">
             <div v-for="item in tools" :key="item.title" class="column is-3-desktop is-6-mobile is-size-5 px-6">
               <router-link :to="item.route">
-                <div class="card" :class="{ 'hoverable': item.cardLink}">
+                <div class="card hoverable">
                   <div class="card-image">
                     <figure class="image is-4by3">
                       <img :src="item.img" :alt="item.title" />
                     </figure>
                   </div>
-                  <template v-if="item.cardLink">
-                    <footer class="card-footer has-text-centered">
-                      <a class="card-footer-item has-text-weight-bold is-size-4">
-                        {{ item.cardLink }}
-                      </a>
-                    </footer>
-                  </template>
+                  <footer class="card-footer has-text-centered">
+                    <a class="card-footer-item has-text-weight-bold is-size-4">
+                      {{ item.cardLink }}
+                    </a>
+                  </footer>
                 </div>
               </router-link>
             </div>
@@ -100,7 +98,7 @@
                 </div>
                 <div class="column p-0">
                   <router-link :to="item.route">
-                    <img :class="{ 'hoverable': item.cardLink}" :src="item.img" :alt="item.title" />
+                    <img class="hoverable" :src="item.img" :alt="item.title" />
                   </router-link>
                 </div>
               </div>
@@ -125,19 +123,12 @@
             </div>
             <div class="column is-5 is-offset-3-mobile is-6-mobile is-size-5">
               <router-link :to="repository.route">
-                <div class="card" :class="{ 'hoverable': repository.cardLink}">
+                <div class="card hoverable">
                   <div class="card-image">
                     <figure class="image is-4by3">
                       <img :src="repository.img" :alt="repository.title" />
                     </figure>
                   </div>
-                  <template v-if="repository.cardLink">
-                    <footer class="card-footer has-text-centered">
-                      <a class="card-footer-item has-text-weight-bold is-size-5">
-                        {{ repository.cardLink }}
-                      </a>
-                    </footer>
-                  </template>
                 </div>
               </router-link>
             </div>
@@ -180,7 +171,6 @@ export default {
         title: 'Latest news',
         text: 'Here goes all the news, which ideally should link to the news page under About.',
         img: require('../assets/gemBrowser.jpg'),
-        cardLink: 'More news',
         route: { name: 'about', hash: '#News' },
         icon: 'newspaper-o',
       },
@@ -210,12 +200,10 @@ export default {
         { title: 'Search',
           text: 'The menu bar contains a shortcut to the <b>Global search</b> function, which enables users to easily search cellular components across all the integrated models. Further filtering is also available, based on result type (e.g. metabolite) and its parameters (e.g. compartment).',
           img: require('../assets/search.jpg'),
-          cardLink: 'Search within all integrated GEMs',
           route: { name: 'search', query: { term: '' } },
           icon: 'search' },
         { title: 'Analyze',
           text: 'Gene expression data from the Human Protein Atlas can be viewed in the 2D and 3D maps and Interaction Partners. User data can also be overlaid onto the maps, with the option of comparing datasets, for example against normal tissue. Additional types of omics integrations are under development.',
-          cardLink: 'Compare gene expression in the endoplasmic reticulum',
           img: require('../assets/analyze.jpg'),
           route: { name: 'viewer',
             params: { model: 'Human-GEM', type: 'compartment', map_id: 'endoplasmic_reticulum' },
@@ -226,13 +214,11 @@ export default {
         { title: 'Export',
           text: '<b>Metabolic Atlas</b> provides open access to the models and associated annotations. Most of the data provided on the website is convenient to export, for example via <b>Export to TSV</b> buttons.<br><br>For the ones interested in extracting data in JSON format, we have documented our API.',
           img: require('../assets/export.jpg'),
-          cardLink: 'Export TSV for glyoxolate metabolites',
           route: { name: 'search', query: { term: 'glyoxalate' } },
           icon: 'download' },
         { title: 'Compare',
           text: 'The integrated models can be compared on-the-fly via the external identifiers they share. Moreover, a 3-way comparison can be performed as well.',
           img: require('../assets/export.jpg'),
-          cardLink: 'Export TSV for glyoxolate metabolites',
           route: { name: 'search', query: { term: 'glyoxalate' } },
           icon: 'download' },
       ],
@@ -240,7 +226,6 @@ export default {
         title: 'GEM Repository',
         text: 'Over 350 GEMs can be downloaded from the <b>GEM Repository</b> or directly from the <b>Metabolic Atlas FTP server</b>. The tabular view enables customized selection.<br><br>Clicking on each of the models brings up more information about the model, including a text description and, if available, references. For support, the original authors should be contacted.',
         img: require('../assets/gems.jpg'),
-        cardLink: 'GEM Repository',
         route: { name: 'gems' },
         icon: 'files-o',
       },
