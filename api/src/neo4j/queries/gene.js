@@ -2,6 +2,9 @@ import querySingleResult from 'neo4j/queryHandlers/single';
 import queryListResult from 'neo4j/queryHandlers/list';
 import reformatExternalDbs from 'neo4j/shared/formatter';
 import parseParams from 'neo4j/shared/helper';
+import integratedGemsRepoJson from 'data/integratedModels.json';
+
+const BASE_URL = 'https://metabolicatlas.org';
 
 const getGene = async ({ id, model, version }) => {
   const [m, v] = parseParams(model, version);
@@ -47,9 +50,19 @@ RETURN apoc.map.mergeList(COLLECT(value.data)) as gene
   return { ...gene, externalDbs: reformatExternalDbs(gene.externalDbs) };
 };
 
+const getHumanLabelAndVersion = () => {
+  const humanGem = integratedGemsRepoJson.find(g => g.short_name === 'Human-GEM'); 
+  const label = `:${humanGem.short_name.split('-').map(s => s[0] + s.slice(1).toLowerCase()).join('')}`;
+  const version = `:V${humanGem.version.split('.').join('_')}`;
+  return [label, version];
+};
+
+
 const getGenesForHPA = async () => {
+  const [l, v] = getHumanLabelAndVersion();
+
   const statement = `
-MATCH (g:Gene:HumanGem)-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
+MATCH (g:Gene${l})-[${v}]-(r:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
 USING JOIN ON r
 RETURN DISTINCT [g.id, ss.name, s.id]
 `;
@@ -57,41 +70,42 @@ RETURN DISTINCT [g.id, ss.name, s.id]
   return queryListResult(statement);
 };
 
-const BASE_URL = 'https://metabolicatlas.org';
 
 const getGeneDetailsForHPA = async ({ id }) => {
+  const [l, v] = getHumanLabelAndVersion();
+
   const statement = `
-MATCH (:Gene:HumanGem {id:'${id}'})-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(s:Subsystem)-[:V1_3_0]-(ss:SubsystemState)
+MATCH (:Gene${l} {id:'${id}'})-[${v}]-(r:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
 WITH DISTINCT s.id as sids, COLLECT(r.id) as rids, ss
 UNWIND sids as sid
 CALL apoc.cypher.run("
-  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(cm:CompartmentalizedMetabolite)
+  MATCH (:Subsystem {id: $sid})-[${v}]-(r:Reaction)-[${v}]-(cm:CompartmentalizedMetabolite)
   USING JOIN ON r
   WITH DISTINCT cm
-  MATCH (m:Metabolite)-[:V1_3_0]-(cm)-[:V1_3_0]-(c:Compartment)-[:V1_3_0]-(cs:CompartmentState)
+  MATCH (m:Metabolite)-[${v}]-(cm)-[${v}]-(c:Compartment)-[${v}]-(cs:CompartmentState)
   USING JOIN ON c
   RETURN DISTINCT { id: $sid, compartments: COLLECT(DISTINCT(cs.name)), model_metabolite_count: COUNT(DISTINCT(m.id)), compartment_metabolite_count: COUNT(DISTINCT(cm.id)) } as data
 
   UNION
 
-  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)-[:V1_3_0]-(g:Gene)
+  MATCH (:Subsystem {id: $sid})-[${v}]-(r:Reaction)-[${v}]-(g:Gene)
   USING JOIN ON r
   RETURN DISTINCT { id: $sid, genes: COLLECT(DISTINCT(g.id)) } as data
 
   UNION
 
-  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)
+  MATCH (:Subsystem {id: $sid})-[${v}]-(r:Reaction)
   RETURN DISTINCT { id: $sid, reaction_count: COUNT(DISTINCT(r.id)) } as data
 
   UNION
 
-  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(r:Reaction)
+  MATCH (:Subsystem {id: $sid})-[${v}]-(r:Reaction)
   WHERE r.id IN $rids
   RETURN DISTINCT { id: $sid, reactions_catalysed: COUNT(DISTINCT(r)) } as data
 
   UNION
 
-  MATCH (:Subsystem {id: $sid})-[:V1_3_0]-(ssvg:SvgMap)
+  MATCH (:Subsystem {id: $sid})-[${v}]-(ssvg:SvgMap)
   RETURN { id: $sid,  svgs: COLLECT(DISTINCT(ssvg.filename)) } as data
 ", { sid: sid, rids: rids }) yield value
 RETURN DISTINCT {
