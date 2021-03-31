@@ -53,7 +53,7 @@ WHERE NOT (svg)--()
 RETURN svg { id: svg.id, name: svg.customName, svgs: [svg {.*}]}
 `;
 
-  const [componentSvgs, customSvgs] = await Promise.all([
+  const [componentSvgs, customs] = await Promise.all([
     queryListResult(componentSvgsQuery),
     queryListResult(customSvgsQuery),
   ]);
@@ -61,11 +61,8 @@ RETURN svg { id: svg.id, name: svg.customName, svgs: [svg {.*}]}
   const mapListing = {
     compartments: componentSvgs.filter(o => !!o.compartment).reduce((l, o) => [...l, o.compartment] , []),
     subsystems: componentSvgs.filter(o => !!o.subsystem).reduce((l, o) => [...l, o.subsystem] , []),
+    customs,
   };
-
-  if (customSvgs.length > 0) {
-    mapListing.customs = customSvgs;
-  }
 
   return mapListing;
 };
