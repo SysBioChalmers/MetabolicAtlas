@@ -117,11 +117,7 @@ export default {
   },
   methods: {
     async getTilesData() {
-      try {
-        await this.$store.dispatch('browserTiles/getBrowserTiles', this.model);
-      } catch {
-        this.errorMessage = messages.unknownError;
-      }
+      await this.$store.dispatch('browserTiles/getBrowserTiles', this.model);
     },
   },
 };

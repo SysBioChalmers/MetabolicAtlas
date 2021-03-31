@@ -1,13 +1,10 @@
 <template>
   <div class="section extended-section">
     <div class="container is-fullhd">
-      <div v-if="modelErrorMessage" class="columns is-centered">
-        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-          {{ errorMessage }}
-        </div>
-      </div>
-      <div v-if="componentNotFound" class="columns is-centered">
-        <notFound :type="type" :component-id="cName"></notFound>
+      <div v-if="modelNotFound || componentNotFound" class="columns is-centered">
+        <NotFound
+          :type="modelNotFound ? 'model' : type"
+          :component-id="modelNotFound ? $route.params.model : cName" />
       </div>
       <div v-else>
         <div class="columns">
@@ -74,7 +71,6 @@ import NotFound from '@/components/NotFound';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import GemContact from '@/components/shared/GemContact';
 import { buildCustomLink } from '@/helpers/utils';
-import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'Compartment',
@@ -88,12 +84,11 @@ export default {
     return {
       cName: '',
       type: 'compartment',
-      modelErrorMessage: '',
+      modelNotFound: false,
       showFullSubsystem: false,
       limitSubsystem: 30,
       componentNotFound: false,
       showLoaderMessage: '',
-      messages,
     };
   },
   computed: {
@@ -126,7 +121,7 @@ export default {
     if (!this.model || this.model.short_name !== this.$route.params.model) {
       const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
       if (!modelSelectionSuccessful) {
-        this.modelErrorMessage = `Error: ${messages.modelNotFound}`;
+        this.modelNotFound = true;
       }
     }
     this.setup();

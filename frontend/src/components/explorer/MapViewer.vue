@@ -41,7 +41,8 @@
         </div>
         <div v-if="!currentMap"
              class="column is-unselectable om-1 fixed-height-mobile p-0 m-0">
-          <p class="is-size-5 has-text-centered" style="padding: 10%;">
+          <NotFound v-if="mapNotFound" type="map" :component-id="$route.params.map_id"></NotFound>
+          <p v-else class="is-size-5 has-text-centered" style="padding: 10%;">
             <a @click="showingMapListing = true">Show the map list and choose a compartment or subsystem map</a>
           </p>
         </div>
@@ -54,14 +55,7 @@
                         :current-map="currentMap"
                         @unSelect="unSelect"
                         @updatePanelSelectionData="updatePanelSelectionData" />
-          <transition name="slide-fade">
-            <article v-if="loadMapErrorMessage" id="errorPanel" class="message is-danger">
-              <div class="message-header">
-                <b>Oops!..</b>
-              </div>
-              <div class="message-body has-text-centered"><h5 class="title is-6">{{ loadMapErrorMessage }}</h5></div>
-            </article>
-          </transition>
+          <ErrorPanel :message="loadMapErrorMessage" @hideErrorPanel="loadMapErrorMessage=''" />
         </div>
         <div id="dataOverlayBar"
              class="column is-narrow has-text-white is-unselectable is-hidden-mobile fixed-height-desktop p-1"
@@ -94,7 +88,9 @@
 import { mapGetters, mapState } from 'vuex';
 import { debounce } from 'vue-debounce';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
+import ErrorPanel from '@/components/shared/ErrorPanel';
 import MapsListing from '@/components/explorer/mapViewer/MapsListing.vue';
+import NotFound from '@/components/NotFound';
 import SidebarDataPanels from '@/components/explorer/mapViewer/SidebarDataPanels.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
 import ThreeDViewer from '@/components/explorer/mapViewer/ThreeDviewer';
@@ -105,7 +101,9 @@ export default {
   name: 'MapViewer',
   components: {
     DataOverlay,
+    ErrorPanel,
     MapsListing,
+    NotFound,
     SidebarDataPanels,
     Svgmap,
     ThreeDViewer,
@@ -121,6 +119,7 @@ export default {
         data: null,
         error: false,
       },
+      mapNotFound: false,
       messages,
     };
   },
@@ -202,14 +201,17 @@ export default {
                   this.currentMap = { ...item };
                   this.currentMap.svgs = [item.svgs[k]];
                   this.currentMap.type = categories[i].slice(0, -1);
+                  this.mapNotFound = false;
                   return;
                 }
               }
             } else if (item.id === id) {
               this.currentMap = item;
               this.currentMap.type = categories[i].slice(0, -1);
+              this.mapNotFound = false;
               return;
             }
+            this.mapNotFound = true;
           }
         }
       }
@@ -323,29 +325,6 @@ export default {
   }
   @media (max-width: $tablet) {
     display: none;
-  }
-}
-
-#errorPanel {
-  z-index: 11;
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  width: 350px;
-  bottom: 2rem;
-  border: 1px solid gray;
-
-  .slide-fade-enter-active {
-    transition: all .3s ease;
-  }
-  .slide-fade-leave-active {
-    transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-  }
-  .slide-fade-enter, .slide-fade-leave-active {
-    transform: translateY(200px);
-    opacity: 0;
   }
 }
 </style>

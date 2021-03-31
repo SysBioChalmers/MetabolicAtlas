@@ -1,13 +1,10 @@
 <template>
   <div class="section extended-section">
     <div class="container is-fullhd">
-      <div v-if="modelErrorMessage" class="columns is-centered">
-        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
-          {{ modelErrorMessage }}
-        </div>
-      </div>
-      <div v-if="componentNotFound" class="columns is-centered">
-        <notFound :type="type" :component-id="geneId"></notFound>
+      <div v-if="modelNotFound || componentNotFound" class="columns is-centered">
+        <NotFound
+          :type="modelNotFound ? 'model' : type"
+          :component-id="modelNotFound ? $route.params.model : geneId" />
       </div>
       <div v-else>
         <div class="container is-fullhd columns">
@@ -102,7 +99,7 @@ export default {
       limitReaction: 200,
       componentNotFound: false,
       showLoaderMessage: '',
-      modelErrorMessage: '',
+      modelNotFound: false,
       messages,
     };
   },
@@ -122,7 +119,7 @@ export default {
     if (!this.model || this.model.short_name !== this.$route.params.model) {
       const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
       if (!modelSelectionSuccessful) {
-        this.modelErrorMessage = `Error: ${messages.modelNotFound}`;
+        this.modelNotFound = true;
       }
     }
     this.setup();

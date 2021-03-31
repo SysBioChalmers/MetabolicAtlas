@@ -32,6 +32,10 @@ const fetchWith = async (req, res, queryHandler) => {
     const result = await queryHandler({ id, version, limit, model, full, searchTerm });
     res.json(result);
   } catch (e) {
+    if (e.message === '404') {
+      return res.sendStatus(404);
+    }
+
     res.status(400).send(e.message);
   }
 };
