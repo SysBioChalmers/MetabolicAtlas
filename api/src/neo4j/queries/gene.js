@@ -84,7 +84,7 @@ CALL apoc.cypher.run("
   WITH DISTINCT cm
   MATCH (m:Metabolite)-[${v}]-(cm)-[${v}]-(c:Compartment)-[${v}]-(cs:CompartmentState)
   USING JOIN ON c
-  RETURN DISTINCT { id: $sid, compartments: COLLECT(DISTINCT(cs.name)), model_metabolite_count: COUNT(DISTINCT(m.id)), compartment_metabolite_count: COUNT(DISTINCT(cm.id)) } as data
+  RETURN DISTINCT { id: $sid, compartments: COLLECT(DISTINCT(cs.name)), model_metabolite_count: COUNT(DISTINCT(m)), compartment_metabolite_count: COUNT(cm) } as data
 
   UNION
 
@@ -95,7 +95,7 @@ CALL apoc.cypher.run("
   UNION
 
   MATCH (:Subsystem {id: $sid})-[${v}]-(r:Reaction)
-  RETURN DISTINCT { id: $sid, reaction_count: COUNT(DISTINCT(r.id)) } as data
+  RETURN DISTINCT { id: $sid, reaction_count: COUNT(DISTINCT(r)) } as data
 
   UNION
 
