@@ -43,6 +43,7 @@ services:
       - NODE_ENV=develop
     volumes:
       - ./api/src:/project/src
+      - ./api/svg:/project/svg
       - ./api/public:/project/public
     command: yarn develop
 

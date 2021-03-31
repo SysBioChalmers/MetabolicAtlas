@@ -1,6 +1,6 @@
 <template>
   <div id="maps-listing">
-    <div v-for="category in Object.keys(mapsListing).sort()"
+    <div v-for="category in Object.keys(mapsListing).filter(c => mapsListing[c].length > 0).sort()"
          :key="category" class="card my-3">
       <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
       <span v-for="item in mapsListing[category]" :key="item.id">

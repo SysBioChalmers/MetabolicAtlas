@@ -7,7 +7,7 @@
           <i>{{ currentMap.name }}</i>
         </p>
       </header>
-      <footer class="card-footer">
+      <footer v-if="currentMap.type !== 'custom'" class="card-footer">
         <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                      :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>

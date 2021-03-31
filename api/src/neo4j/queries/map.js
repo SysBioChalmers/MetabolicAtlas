@@ -5,7 +5,7 @@ import parseParams from 'neo4j/shared/helper';
 const getMapsListing = async ({ model, version }) => {
   const [m, v] = parseParams(model, version);
 
-  const statement = `
+  const componentSvgsQuery = `
 MATCH (:CompartmentState)-[${v}]-(c:Compartment${m})
 CALL apoc.cypher.run("
   MATCH (cs:CompartmentState)-[${v}]-(:Compartment${m} {id: $cid})
@@ -47,11 +47,21 @@ RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
 )) } as data ORDER BY data.subsystem.name
 `;
 
-  const result = await queryListResult(statement);
+  const customSvgsQuery = `
+MATCH (svg:SvgMap${m})
+WHERE NOT (svg)--()
+RETURN svg { id: svg.id, name: svg.customName, svgs: [svg {.*}]}
+`;
+
+  const [componentSvgs, customs] = await Promise.all([
+    queryListResult(componentSvgsQuery),
+    queryListResult(customSvgsQuery),
+  ]);
 
   const mapListing = {
-    compartments: result.filter(o => !!o.compartment).reduce((l, o) => [...l, o.compartment] , []),
-    subsystems: result.filter(o => !!o.subsystem).reduce((l, o) => [...l, o.subsystem] , []),
+    compartments: componentSvgs.filter(o => !!o.compartment).reduce((l, o) => [...l, o.compartment] , []),
+    subsystems: componentSvgs.filter(o => !!o.subsystem).reduce((l, o) => [...l, o.subsystem] , []),
+    customs,
   };
 
   return mapListing;
