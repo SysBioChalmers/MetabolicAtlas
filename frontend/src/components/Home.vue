@@ -1,6 +1,6 @@
 <template>
   <div class="extended-section">
-    <section class="hero is-medium is-primary is-bold">
+    <section class="hero is-primary is-bold py-6">
       <router-link :to="{ name: 'explorer', params: { model: 'Human-GEM' } }">
         <div class="hero-body has-text-centered">
           <p class="is-size-1 title">METABOLIC ATLAS </p>
