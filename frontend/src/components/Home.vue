@@ -242,7 +242,7 @@ export default {
           icon: 'gears' },
         { title: 'Community',
           text: '<p>We are grateful for the efforts of scientists all over the world in creating the knowledge required to assemble high quality genome scale metabolic models. We are passionate about continuing on this journey of open curation of models.<br><br>We invite you to explore the world of GEMs through Metabolic Atlas, and hope it will enhance your interest in this field. We wish to continuously improve Metabolic Atlas for the community. Email us with any feedback, suggestions, or requests at <a href="mailto:">contact [at] metabolicatlas [dot] org</a>.</p>',
-          route: { name: 'team' },
+          route: { name: 'about' },
           icon: 'users' },
       ],
       newsItems: [
