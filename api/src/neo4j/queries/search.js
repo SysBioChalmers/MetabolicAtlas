@@ -48,7 +48,7 @@ CALL apoc.cypher.run('
   MATCH (:CompartmentalizedMetabolite:${model} {id: $cmid})-[${version}]-(:Reaction)-[${version}]-(s:Subsystem)
   WITH DISTINCT s
   MATCH (s)-[${version}]-(ss:SubsystemState)
-  RETURN { id: $cmid, subsystem: COLLECT(DISTINCT({id: s.id, name: ss.name})) } as data
+  RETURN { id: $cmid, subsystem: COLLECT({id: s.id, name: ss.name}) } as data
 ', {cmid:cmid}) yield value
 RETURN apoc.map.mergeList(apoc.coll.flatten(
 	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
@@ -84,7 +84,7 @@ CALL apoc.cypher.run("
   MATCH (r)-[${version}]-(s:Subsystem)
   WITH DISTINCT s
   MATCH (s)-[${version}]-(ss:SubsystemState)
-  RETURN { id: $gid, subsystem: COLLECT(DISTINCT({ id: s.id, name: ss.name })) } as data
+  RETURN { id: $gid, subsystem: COLLECT({ id: s.id, name: ss.name }) } as data
   
   UNION
   
