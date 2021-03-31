@@ -106,7 +106,7 @@ CALL apoc.cypher.run("
   UNION
 
   MATCH (:Subsystem {id: $sid})-[${v}]-(ssvg:SvgMap)
-  RETURN { id: $sid,  svgs: COLLECT(DISTINCT(ssvg.filename)) } as data
+  RETURN { id: $sid,  svgs: COLLECT(ssvg.filename) } as data
 ", { sid: sid, rids: rids }) yield value
 RETURN DISTINCT {
   id: sid,
