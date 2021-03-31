@@ -46,10 +46,15 @@
               {{ news. title }}
             </router-link>
           </p>
-          <div class="columns is-variable is-8 is-vcentered pt-3">
+          <div class="columns is-variable is-8 pt-3">
             <div class="column is-6 is-size-5">
+              <p>The main versions of <b>Metabolic Atlas</b> are associated with scientific articles as follows.</p><br>
               <div class="box">
-                <p>Version 2.0: Article under consideration.</p>
+                <p>Version 2.0:
+                  <i>Genome-scale reconstruction of metabolic networks of model animals
+                     represents a platform for translational research</i>.
+                  Article under consideration.
+                </p>
               </div>
               <div class="box">
                 <p>Version 1.0: <a href="https://doi.org/10.1126/scisignal.aaz1482" target="_blank">Robinson, J., et al, 2020. <i>An atlas of human metabolism</i>. Sci. Signal. 13, eaaz1482</a></p>
@@ -174,7 +179,7 @@ export default {
   data() {
     return {
       news: {
-        title: 'Latest news',
+        title: "What's new",
         text: 'Here goes all the news, which ideally should link to the news page under About.',
         img: require('../assets/gemBrowser.jpg'),
         route: { name: 'about', hash: '#News' },
