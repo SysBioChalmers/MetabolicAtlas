@@ -93,12 +93,18 @@
                 </router-link>
               </p>
               <div class="columns pb-6 is-mobile">
-                <div class="column is-8 px-3">
+                <div class="column is-7 px-3">
                   <p v-html="item.text"></p>
                 </div>
                 <div class="column p-0">
                   <router-link :to="item.route">
-                    <img class="hoverable" :src="item.img" :alt="item.title" />
+                    <div clas="card hoverable">
+                      <div class="card-image">
+                        <figure class="image is-4by3">
+                          <img class="hoverable" :src="item.img" :alt="item.title" />
+                        </figure>
+                      </div>
+                    </div>
                   </router-link>
                 </div>
               </div>
@@ -198,7 +204,7 @@ export default {
       ],
       features1: [
         { title: 'Search',
-          text: 'The menu bar contains a shortcut to the <b>Global search</b> function, which enables users to easily search cellular components across all the integrated models. Further filtering is also available, based on result type (e.g. metabolite) and its parameters (e.g. compartment).',
+          text: 'The menu bar contains a shortcut to the <b>Global search</b> function, which enables users to easily search cellular components across all the integrated models available for further filtering.',
           img: require('../assets/search.jpg'),
           route: { name: 'search', query: { term: '' } },
           icon: 'search' },
@@ -212,7 +218,7 @@ export default {
       ],
       features2: [
         { title: 'Export',
-          text: '<b>Metabolic Atlas</b> provides open access to the models and associated annotations. Most of the data provided on the website is convenient to export, for example via <b>Export to TSV</b> buttons.<br><br>For the ones interested in extracting data in JSON format, we have documented our API.',
+          text: 'Most of the data provided on the website is convenient to export, for example via <b>Export to TSV</b> buttons. For the extracting data in JSON format, we have documented our API.',
           img: require('../assets/export.jpg'),
           route: { name: 'search', query: { term: 'glyoxalate' } },
           icon: 'download' },
