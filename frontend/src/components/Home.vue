@@ -15,8 +15,8 @@
 
       <div class="py-6">
         <div class="container px-6">
-          <div class="columns is-multiline is-mobile is-variable is-8 is-centered is-vcentered">
-            <div v-for="item in tools" :key="item.title" class="column is-3-desktop is-6-mobile is-size-5 px-6">
+          <div class="columns is-multiline is-mobile is-variable is-8-tablet is-centered is-vcentered">
+            <div v-for="item in tools" :key="item.title" class="column is-3-desktop is-6-mobile is-size-5">
               <router-link :to="item.route">
                 <div class="card hoverable">
                   <div class="card-image">
@@ -25,7 +25,7 @@
                     </figure>
                   </div>
                   <footer class="card-footer has-text-centered">
-                    <a class="card-footer-item has-text-weight-bold is-size-4">
+                    <a class="card-footer-item has-text-weight-bold is-size-4 is-size-5-mobile">
                       {{ item.cardLink }}
                     </a>
                   </footer>
@@ -39,12 +39,12 @@
       <div class="has-background-white-ter py-6">
         <div class="container px-6">
           <p class="title is-size-4 has-text-centered pt-4">
-                <router-link :to="news.route" class="has-text-primary">
-                  <span class="icon is-large fa-lg">
-                    <i :class="`fa fa-${news.icon}`"></i>
-                  </span>
-                  {{ news. title }}
-                </router-link>
+            <router-link :to="news.route" class="has-text-primary">
+              <span class="icon is-large fa-lg">
+                <i :class="`fa fa-${news.icon}`"></i>
+              </span>
+              {{ news. title }}
+            </router-link>
           </p>
           <div class="columns is-variable is-8 is-vcentered pt-3">
             <div class="column is-6 is-size-5">
@@ -92,11 +92,11 @@
                   {{ item. title }}
                 </router-link>
               </p>
-              <div class="columns pb-6 is-mobile">
+              <div class="columns pb-6">
                 <div class="column is-7 px-3">
                   <p v-html="item.text"></p>
                 </div>
-                <div class="column p-0">
+                <div class="column is-offset-1-mobile is-10-mobile">
                   <router-link :to="item.route">
                     <div clas="card hoverable">
                       <div class="card-image">
@@ -127,7 +127,7 @@
               </p>
               <p v-html="repository.text"></p>
             </div>
-            <div class="column is-5 is-offset-3-mobile is-6-mobile is-size-5">
+            <div class="column is-5 is-offset-1-mobile is-10-mobile">
               <router-link :to="repository.route">
                 <div class="card hoverable">
                   <div class="card-image">
