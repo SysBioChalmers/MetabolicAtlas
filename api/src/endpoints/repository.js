@@ -41,4 +41,6 @@ routes.get('/models', async (req, res) => {
   }
 });
 
+routes.use('/models', express.static('repository'));
+
 export default routes;

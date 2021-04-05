@@ -128,7 +128,10 @@
                 <template v-for="file in selectedModel.files">
                   <a :key="file.path" class="button" :href="`${filesURL}${file.path}`">{{ file.format }}</a>&nbsp;
                 </template>
-                <br><br>
+                <div class="notification">
+                  To download multiple models at once use the
+                  <router-link :to=" { name: 'documentation', hash: '#FTP-access'} ">FTP server</router-link>.
+                </div>
               </template>
             </div>
           </div>
@@ -263,7 +266,7 @@ export default {
         ofLabel: 'of',
       },
       messages,
-      filesURL: `ftp://${process.env.VUE_APP_FTP_SERVER}/`,
+      filesURL: `${process.env.VUE_APP_REPOSITORY_FILES_URL}/`,
     };
   },
   computed: {
@@ -343,4 +346,10 @@ export default {
 
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+  .modal {
+    .notification {
+      margin-top: 1rem;
+    }
+  }
+</style>
