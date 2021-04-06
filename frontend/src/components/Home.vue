@@ -52,7 +52,7 @@
               <div class="box">
                 <p>Version 2.0:
                   <i>Genome-scale reconstruction of metabolic networks of model animals
-                     represents a platform for translational research</i>.
+                    represents a platform for translational research</i>.
                   Article under consideration.
                 </p>
               </div>
