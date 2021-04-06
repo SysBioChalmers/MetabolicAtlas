@@ -180,7 +180,7 @@ export default {
     return {
       news: {
         title: "What's new",
-        text: 'Here goes all the news, which ideally should link to the news page under About.',
+        text: '',
         img: require('../assets/gemBrowser.jpg'),
         route: { name: 'about', hash: '#News' },
         icon: 'newspaper-o',
