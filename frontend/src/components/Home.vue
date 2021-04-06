@@ -103,7 +103,7 @@
                 </div>
                 <div class="column is-offset-1-mobile is-10-mobile">
                   <router-link :to="item.route">
-                    <div clas="card hoverable">
+                    <div class="card hoverable">
                       <div class="card-image">
                         <figure class="image is-4by3">
                           <img class="hoverable" :src="item.img" :alt="item.title" />
