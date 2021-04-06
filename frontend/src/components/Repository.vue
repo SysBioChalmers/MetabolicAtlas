@@ -27,7 +27,7 @@
                 </div>
               </header>
               <div class="card-content px-4 py-2 card-fullheight">
-                <p class="has-text-justified">
+                <p>
                   {{ model.full_name }}, updated {{ model.date || "n/a" }} from
                   <a :href="model.link" target="_blank">
                     GitHub<span class="icon"><i class="fa fa-github"></i></span>
