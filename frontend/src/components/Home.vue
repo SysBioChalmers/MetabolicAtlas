@@ -67,7 +67,7 @@
                   <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                   <tr v-if="el.date">
                     <td>{{ el.date }}</td>
-                    <td>
+                    <td class="pl-3">
                       <router-link :to="{ name: 'about', hash: `#${el.hash}` }">
                         {{ el.text }}
                       </router-link>
