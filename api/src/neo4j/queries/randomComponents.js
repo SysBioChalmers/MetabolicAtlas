@@ -2,10 +2,24 @@ import queryListResult from 'neo4j/queryHandlers/list';
 import reformatExternalDbs from 'neo4j/shared/formatter';
 import parseParams from 'neo4j/shared/helper';
 
-const getRandomComponents = async ({ model, version }) => {
-  const [m, v] = parseParams(model, version);
+const getRandomComponents = async ({ model, version, componentTypes = {
+  compartment: true,
+  compartmentalizedMetabolite: true,
+  gene: true,
+  reaction: true,
+  subsystem: true,
+}}) => {
+  if (Object.values(componentTypes).filter(v => v === true).length === 0) {
+    throw new Error ('At least 1 component type is needed');
+  }
 
-  const statement = `
+  const [m, v] = parseParams(model, version);
+  const { compartment, compartmentalizedMetabolite, gene, reaction, subsystem } = componentTypes;
+
+  let statement = '';
+
+  if (gene) {
+    statement += `
 MATCH (:GeneState)-[${v}]-(g:Gene${m})
 WITH g.id as gid, rand() as r
 ORDER BY r LIMIT 2
@@ -22,9 +36,16 @@ CALL apoc.cypher.run("
 RETURN { gene: apoc.map.mergeList(apoc.coll.flatten(
 	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
 )) } as xs
+`;
+  }
 
-UNION
+  if (compartmentalizedMetabolite) {
+    if (statement.length > 0) {
+      statement += `
+UNION`;
+    }
 
+    statement += `
 MATCH (:Metabolite)-[${v}]-(cm:CompartmentalizedMetabolite${m})
 WITH cm.id as cmid, rand() as r
 ORDER BY r LIMIT 2
@@ -41,9 +62,16 @@ CALL apoc.cypher.run("
 RETURN { metabolite: apoc.map.mergeList(apoc.coll.flatten(
 	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
 )) } as xs
+`;
+  }
 
-UNION
+  if (compartment) {
+    if (statement.length > 0) {
+      statement += `
+UNION`;
+    }
 
+    statement += `
 MATCH (:CompartmentState)-[${v}]-(c:Compartment${m})
 WITH c.id as cid, rand() as r
 ORDER BY r LIMIT 1
@@ -61,9 +89,15 @@ CALL apoc.cypher.run("
   RETURN { majorSubsystems: COLLECT(DISTINCT(sss.name))[..15] } as data
 ", {cid:cid}) yield value
 RETURN { compartment: apoc.map.mergeList(COLLECT(value.data)) } as xs
+`;
+  }
 
-UNION
-
+  if (reaction) {
+    if (statement.length > 0) {
+      statement += `
+UNION`;
+    }
+    statement += `
 MATCH (rs:ReactionState)-[${v}]-(re:Reaction${m})
 WITH re, rs, rand() as r
 ORDER BY r LIMIT 2
@@ -77,9 +111,15 @@ OPTIONAL MATCH (re)-[${v}]-(g:Gene)
 WITH re, rs, reactants, products, comps, count(g) as geneCount
 OPTIONAL MATCH (re)-[${v}]-(s:Subsystem)
 RETURN { reaction: { id: re.id, name: rs.name, reactants: reactants, products: products, geneCount: geneCount, compartmentCount: size(comps), subsystemCount: count(s) }, reversible: rs.reversible } as xs
+`;
+  }
 
-UNION
-
+  if (subsystem) {
+    if (statement.length > 0) {
+      statement += `
+UNION`;
+    }
+    statement += `
 MATCH (:SubsystemState)-[${v}]-(s:Subsystem${m})
 WITH s.id as sid, rand() as r
 ORDER BY r LIMIT 2
@@ -102,6 +142,7 @@ RETURN { subsystem: apoc.map.mergeList(apoc.coll.flatten(
 	apoc.map.values(apoc.map.groupByMulti(COLLECT(value.data), "id"), [value.data.id])
 )) } as xs
 `;
+  }
 
   const rows = await queryListResult(statement);
   return rows.reduce((obj, row) => {

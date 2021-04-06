@@ -26,10 +26,16 @@ const CACHED_3D_NETWORKS = {};
 
 const fetchWith = async (req, res, queryHandler) => {
   const { id } = req.params;
-  const { model, version, limit, full, searchTerm } = req.query;
+  const { model, version, limit, full, searchTerm, componentTypes } = req.query;
 
   try {
-    const result = await queryHandler({ id, version, limit, model, full, searchTerm });
+    const payload = { id, version, model, limit, full, searchTerm };
+
+    if (componentTypes) {
+      payload.componentTypes = JSON.parse(componentTypes);
+    }
+
+    const result = await queryHandler(payload);
     res.json(result);
   } catch (e) {
     if (e.message === '404') {
