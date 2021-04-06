@@ -1,4 +1,4 @@
-import browserTilesApi from '@/api/browserTiles';
+import randomComponentsApi from '@/api/randomComponents';
 
 const data = {
   tileComponents: null,
@@ -11,7 +11,7 @@ const actions = {
       model: model.apiName,
       version: model.apiVersion,
     };
-    const tileComponents = await browserTilesApi.fetchBrowserTiles(payload);
+    const tileComponents = await randomComponentsApi.fetchRandomComponents(payload);
     commit('setTileComponents', tileComponents);
   },
 };
