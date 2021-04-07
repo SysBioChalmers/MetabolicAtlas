@@ -345,11 +345,3 @@ export default {
 };
 
 </script>
-
-<style lang="scss" scoped>
-  .modal {
-    .notification {
-      margin-top: 1rem;
-    }
-  }
-</style>
