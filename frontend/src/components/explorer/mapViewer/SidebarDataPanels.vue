@@ -44,7 +44,7 @@
       </div>
       <div v-else-if="selectionData.data && ['metabolite', 'gene', 'reaction'].includes(selectionData.type)"
            class="card my-3">
-        <header class="card-header clickable"
+        <header class="card-header is-clickable"
                 @click.prevent="showSelectionCardContent = !showSelectionCardContent">
           <p class="card-header-title is-inline is-capitalized is-unselectable">
             {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
@@ -124,7 +124,7 @@
     </template>
     <template v-else>
       <div class="card my-3">
-        <header class="card-header clickable">
+        <header class="card-header is-clickable">
           <p class="card-header-title is-inline is-unselectable has-text-weight-normal">
             This {{ selectionData.type }} does not exist in {{ model.short_name }}.
             Email us at contact@metabolicatlas.org

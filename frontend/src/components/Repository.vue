@@ -11,11 +11,11 @@
           they can be explored via {{ messages.gemBrowserName }}, {{ messages.mapViewerName }} and
           {{ messages.interPartName }}.
         </p><br><br>
-        <div id="integrated" class="columns is-multiline is-variable is-6">
+        <div id="integrated" class="columns is-multiline is-variable is-6 is-centered">
           <div v-for="model in integratedModels" :key="model.short_name"
                class="column is-4-widescreen is-5-desktop is-6-tablet">
             <div class="card">
-              <header class="card-header clickable has-background-primary-lighter"
+              <header class="card-header is-clickable has-background-primary-lighter"
                       @click="selectModel(model.short_name)">
                 <p class="card-header-title py-2 has-text-primary">
                   {{ model.short_name }} {{ model.version }}
@@ -26,13 +26,9 @@
                   </span>
                 </div>
               </header>
-              <div class="card-content py-2 card-fullheight">
-                <p class="has-text-justified">{{ model.full_name }}</p><br>
+              <div class="card-content px-4 py-2 card-fullheight">
                 <p>
-                  Reactions: {{ model.reaction_count }}<br>
-                  Metabolites: {{ model.metabolite_count }}<br>
-                  Genes: {{ model.gene_count }}<br><br>
-                  Updated {{ model.date || "n/a" }} from
+                  {{ model.full_name }}, updated {{ model.date || "n/a" }} from
                   <a :href="model.link" target="_blank">
                     GitHub<span class="icon"><i class="fa fa-github"></i></span>
                   </a>
@@ -41,12 +37,12 @@
               <footer class="card-footer">
                 <router-link class="card-footer-item is-info is-outlined"
                              :to="{ name: 'browser', params: { model: model.short_name } }">
-                  <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
+                  <span class="icon pr-4"><i class="fa fa-table fa-lg"></i></span>
                   <span>{{ messages.gemBrowserName }}</span>
                 </router-link>
                 <router-link class="card-footer-item is-info is-outlined"
                              :to="{ name: 'viewer', params: { model: model.short_name } }">
-                  <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
+                  <span class="icon pr-4"><i class="fa fa-map-o fa-lg"></i></span>
                   <span>{{ messages.mapViewerName }}</span>
                 </router-link>
               </footer>

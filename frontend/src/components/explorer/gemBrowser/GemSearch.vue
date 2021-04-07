@@ -33,7 +33,7 @@
     </div>
     <div v-show="showResults && searchTermString.length > 1" id="searchResults" ref="searchResults">
       <div v-show="searchResults.length !== 0 && !showLoader"
-           class="notification is-large is-unselectable has-text-centered clickable py-1 mb-1"
+           class="notification is-large is-unselectable has-text-centered is-clickable py-1 mb-1"
            @mousedown="globalSearch()">
         Limited to 50 results per type. Click here to search all integrated GEMs
       </div>
@@ -41,23 +41,23 @@
         <template v-for="type in resultsOrder">
           <div v-for="(r, i2) in searchResults[type]" :key="`${r.id}-${i2}`" class="searchResultSection px-1 py-0">
             <hr v-if="i2 !== 0" class="m-0">
-            <router-link class="clickable"
+            <router-link class="is-clickable"
                          :to="{ name: type, params: { model: searchModel.short_name, id: r.id } }"
                          @click.native="handleClickResult">
               <span v-if="type === 'metabolite' || type === 'gene'" class="search-result-icons pr-1">
-                <router-link class="clickable"
+                <router-link class="is-clickable"
                              :to="{ name: type, params: { model: searchModel.short_name, id: r.id } }"
                              @click.native="handleClickResult">
                   <span class="icon is-medium is-left" title="Gem Browser"><i class="fa fa-table" /></span>
                 </router-link>
-                <router-link class="clickable"
+                <router-link class="is-clickable"
                              :to="{ name: 'interaction', params: { model: searchModel.short_name, id: r.id } }"
                              @click.native="handleClickResult">
                   <span class="icon is-medium is-left" title="Interaction Partners"><i class="fa fa-connectdevelop" /></span>
                 </router-link>
               </span>
               <b class="is-capitalized">{{ type }}: </b>
-              <label class="clickable" v-html="formatSearchResultLabel(type, r, searchTermString)"></label>
+              <label class="is-clickable" v-html="formatSearchResultLabel(type, r, searchTermString)"></label>
             </router-link>
           </div>
           <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
