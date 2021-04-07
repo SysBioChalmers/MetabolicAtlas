@@ -128,7 +128,7 @@
                 <template v-for="file in selectedModel.files">
                   <a :key="file.path" class="button" :href="`${filesURL}${file.path}`">{{ file.format }}</a>&nbsp;
                 </template>
-                <div class="notification">
+                <div class="notification mt-4">
                   To download multiple models at once use the
                   <router-link :to=" { name: 'documentation', hash: '#FTP-access'} ">FTP server</router-link>.
                 </div>
