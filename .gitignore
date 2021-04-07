@@ -88,6 +88,9 @@ pids
 # GEM repository in FTP
 ftp-models/
 
+# GEM repository in FTP
+api/repository/
+
 # SVG folder in API
 svg/
 
