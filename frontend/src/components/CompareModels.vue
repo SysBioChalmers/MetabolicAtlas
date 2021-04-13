@@ -350,10 +350,14 @@ export default {
       const { models } = this.$route.query;
 
       if (models) {
-        this.selectedModels = [models].flat().map((m) => {
+        const mappedModels = [models].flat().map((m) => {
           const [apiName, version] = m.split('-');
           return this.modelList.find(x => x.apiName === apiName && x.version === version);
         });
+        const matchingModels = mappedModels.filter(m => m);
+        const uniqueMatchingModels = new Set(matchingModels);
+
+        this.selectedModels = [...uniqueMatchingModels].splice(0, this.maxModels);
       } else {
         const [m1, m2] = this.modelList;
         this.selectedModels = [m1, m2];
