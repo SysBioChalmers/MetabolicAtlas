@@ -1,6 +1,6 @@
 import driver from 'neo4j/driver';
 
-const querySingleResult = async (statement) => {
+const querySingleResult = async (statement, throwEmptyResponse = true) => {
   const session = driver.session();
 
   let result;
@@ -9,13 +9,13 @@ const querySingleResult = async (statement) => {
   try {
     const response = await session.run(statement);
 
-    if (response.records.length === 0) {
+    if (throwEmptyResponse && response.records.length === 0) {
       throw new Error('404');
     }
 
     result = response.records[0].get(0);
 
-    if (Object.values(result).flat().filter(x => x !== 0).length === 0) {
+    if (throwEmptyResponse && Object.values(result).flat().filter(x => x !== 0).length === 0) {
       // the result contains only empty lists of 0 values
       throw new Error('404');
     }
