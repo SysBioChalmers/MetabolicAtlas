@@ -12,10 +12,9 @@
       <div class="comparison-container">
         <div class="comparison-container__picker">
           <div class="tags">
-            <span v-for="m in modelList" :key="m.apiName" class="tag is-medium"
-                  :disabled="shouldDisable(m)">
+            <span v-for="m in modelList" :key="m.apiName" class="tag is-medium">
               <label class="checkbox" :disabled="shouldDisable(m)">
-                <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox">
+                <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox" :disabled="shouldDisable(m)">
                 {{ m.short_name }}
               </label>
             </span>
