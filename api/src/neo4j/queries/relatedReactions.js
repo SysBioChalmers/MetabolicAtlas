@@ -67,6 +67,7 @@ CALL apoc.cypher.run("
   MATCH (:Reaction${m} {id: $rid})-[${v}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
   MATCH (cm)-[${v}]-(c:Compartment)-[${v}]-(cs:CompartmentState)
+  USING JOIN on c
   RETURN { id: $rid, compartments: COLLECT(DISTINCT(cs {id: c.id, .*})) } as data
  
   UNION
@@ -87,8 +88,9 @@ CALL apoc.cypher.run("
  
   MATCH (:Reaction${m} {id: $rid})-[cmE${v}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm, cmE
-  MATCH (cm)-[${v}]-(:Metabolite)-[${v}]-(ms:MetaboliteState)
   MATCH (cm)-[${v}]-(c:Compartment)-[${v}]-(cs:CompartmentState)
+  USING JOIN on c
+  OPTIONAL MATCH (cm)-[${v}]-(:Metabolite)-[${v}]-(ms:MetaboliteState)
   RETURN { id: $rid, metabolites: COLLECT(DISTINCT(ms {id: cm.id, fullName: COALESCE(ms.name, '') + ' [' + COALESCE(cs.letterCode, '') + ']',  compartmentId: c.id, stoichiometry: cmE.stoichiometry, outgoing: startnode(cmE)=cm, .*})) } as data
 ", {rid:rid}) yield value
 RETURN apoc.map.mergeList(apoc.coll.flatten(
