@@ -67,12 +67,12 @@ UNION
 MATCH (rs:ReactionState)-[${v}]-(re:Reaction${m})
 WITH re, rs, rand() as r
 ORDER BY r LIMIT 2
-MATCH (re)<-[${v}]-(:CompartmentalizedMetabolite)-[${v}*2]-(ms:MetaboliteState)
-WITH re, rs, collect(ms.name) as reactants
-MATCH (re)-[${v}]->(:CompartmentalizedMetabolite)-[${v}*2]-(ms:MetaboliteState)
-WITH re, rs, reactants, collect(ms.name) as products
 MATCH (re)-[${v}*2]-(c:Compartment)
-WITH re, rs, reactants, products, collect(distinct c) as comps
+WITH re, rs, collect(distinct c) as comps
+OPTIONAL MATCH (re)<-[${v}]-(:CompartmentalizedMetabolite)-[${v}*2]-(ms:MetaboliteState)
+WITH re, rs, comps, collect(ms.name) as reactants
+OPTIONAL MATCH (re)-[${v}]->(:CompartmentalizedMetabolite)-[${v}*2]-(ms:MetaboliteState)
+WITH re, rs, comps, reactants, collect(ms.name) as products
 OPTIONAL MATCH (re)-[${v}]-(g:Gene)
 WITH re, rs, reactants, products, comps, count(g) as geneCount
 OPTIONAL MATCH (re)-[${v}]-(s:Subsystem)
