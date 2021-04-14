@@ -387,7 +387,7 @@ paths:
           description: "Successful query"
         "404":
           description: "Invalid input"
-  /random-components?model={model}:
+  /random-components?model={model}&componentTypes={componentTypes}:
     get:
       tags:
       - "Miscellaneous"
@@ -401,6 +401,10 @@ paths:
         required: true
         type: "string"
         description: "the model name, e.g. **HumanGem**"
+      - name: "componentTypes"
+        in: "query"
+        type: "object"
+        description: 'optional list of component types to return, by default all are returned, e.g. **{"gene":true, "compartmentalizedMetabolite": true}**'
       produces:
       - "application/json"
       responses:

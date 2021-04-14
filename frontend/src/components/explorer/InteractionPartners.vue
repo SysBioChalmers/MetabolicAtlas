@@ -20,23 +20,45 @@
           </div>
         </div>
         <br><br>
-        <div v-if="!mainNodeID">
-          <div class="columns is-centered has-text-centered">
+        <div v-if="!mainNodeID" class="columns">
+          <div class="column is-half">
             <p class="is-capitalized subtitle is-size-3 has-text-weight-light has-text-grey-light">
               Demo
             </p>
+            <!-- eslint-disable max-len -->
+            <p>For a given metabolite or gene, this page shows the other metabolites and genes with which it is connected via reactions. For more, see the <router-link :to="{ name: 'documentation', hash: '#Interaction-Partners' }">documentation on {{ messages.interPartName }}</router-link>.
+            </p>
+            <br>
+            <video poster="@/assets/interPart-cover.jpg" playsinline controls muted loop>
+              <source src="@/assets/interPart.mp4" type="video/mp4">
+            </video>
+            <br><br>
           </div>
-          <div class="columns is-centered has-text-justified">
-            <div class="column is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile">
-              <!-- eslint-disable max-len -->
-              <p>For a given metabolite or gene, this page shows the other metabolites and genes with which it is connected via reactions. For more, see the <router-link :to="{ name: 'documentation', hash: '#Interaction-Partners' }">documentation on {{ messages.interPartName }}</router-link>.
-              </p>
+          <div class="column is-half">
+            <div class="has-text-centered">
+              <a id="randomButton" class="button is-rounded is-outlined is-success"
+                 :class="randomComponents ? '' : 'is-loading'"
+                 title="Fetch another random set of components" @click="getRandomComponents()">
+                <span class="icon">
+                  <i class="fa fa-random"></i>
+                </span>
+                <span v-if="model">random components of {{ model.short_name || 'a model' }}</span>
+              </a>
               <br>
-              <video poster="@/assets/interPart-cover.jpg" playsinline controls muted loop>
-                <source src="@/assets/interPart.mp4" type="video/mp4">
-              </video>
-              <br><br>
             </div>
+            <br>
+            <transition name="fade">
+              <div v-if="randomComponents" class="tile is-ancestor">
+                <div class="tile is-vertical">
+                  <tile type="interaction" label="gene" :data="randomComponents.genes[0]" class="is-half" />
+                  <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[0]" class="is-half" />
+                </div>
+                <div class="tile is-vertical">
+                  <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[1]" class="is-half" />
+                  <tile type="interaction" label="gene" :data="randomComponents.genes[1]" class="is-half" />
+                </div>
+              </div>
+            </transition>
           </div>
         </div>
         <template v-if="componentNotFound">
@@ -275,6 +297,7 @@ import CytoscapeTable from '@/components/explorer/interactionPartners/CytoscapeT
 import Loader from '@/components/Loader';
 import RNALegend from '@/components/explorer/mapViewer/RNALegend.vue';
 import NotFound from '@/components/NotFound';
+import Tile from '@/components/explorer/gemBrowser/Tile';
 
 import { default as transform } from '@/data-mappers/hmr-closest-interaction-partners';
 import { default as changeGraphStyle } from '@/graph-stylers/hmr-closest-interaction-partners';
@@ -294,6 +317,7 @@ export default {
     Loader,
     'compact-picker': Compact,
     RNALegend,
+    Tile,
   },
   data() {
     return {
@@ -401,6 +425,7 @@ export default {
       levels: state => state.humanProteinAtlas.levels,
       tooLargeNetworkGraph: state => state.interactionPartners.tooLargeNetworkGraph,
       expansion: state => state.interactionPartners.expansion,
+      randomComponents: state => state.interactionPartners.randomComponents,
     }),
     ...mapGetters({
       component: 'interactionPartners/component',
@@ -439,8 +464,15 @@ export default {
       this.fitGraph();
     });
     await this.setup();
+
+    if (!this.mainNodeID) {
+      await this.getRandomComponents();
+    }
   },
   methods: {
+    async getRandomComponents() {
+      await this.$store.dispatch('interactionPartners/getRandomComponents', this.model);
+    },
     async setup() {
       this.mainNodeID = this.$route.params.id;
       this.mainNode = null;
@@ -991,7 +1023,7 @@ export default {
 };
 </script>
 
-<style lang='scss'>
+<style lang='scss' scoped>
 .interaction-partners {
 
   h1, h2 {
@@ -1112,14 +1144,13 @@ export default {
     min-width: 240px;
   }
 
-  .slide-fade-enter-active {
-    transition: all .3s ease;
+  .fade-enter-active {
+    transition: opacity .5s ease;
   }
-  .slide-fade-leave-active {
-    transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  .fade-leave-active {
+    transition: opacity .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
   }
-  .slide-fade-enter, .slide-fade-leave-active {
-    transform: translateX(200px);
+  .fade-enter, .fade-leave-active {
     opacity: 0;
   }
 }
