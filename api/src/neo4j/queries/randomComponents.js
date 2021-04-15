@@ -85,7 +85,8 @@ CALL apoc.cypher.run("
   MATCH (:Compartment${m} {id: $cid})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(:Reaction)-[${v}]-(g:Gene)
   RETURN { geneCount: count(distinct g) } as data
   UNION
-  MATCH (:Compartment${m} {id: $cid})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(:Reaction)-[${v}]-(:Subsystem)-[${v}]-(sss:SubsystemState)
+  MATCH (:Compartment${m} {id: $cid})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(sss:SubsystemState)
+  USING JOIN on s
   RETURN { majorSubsystems: COLLECT(DISTINCT(sss.name))[..15] } as data
 ", {cid:cid}) yield value
 RETURN { compartment: apoc.map.mergeList(COLLECT(value.data)) } as xs
