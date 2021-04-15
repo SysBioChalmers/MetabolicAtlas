@@ -7,8 +7,8 @@ const querySingleResult = async (statement) => {
   let error;
 
   try {
-    const response = await session.run(statement);
-
+    const response = await session.readTransaction(t => t.run(statement));
+    
     if (response.records.length === 0) {
       throw new Error('404');
     }

@@ -7,7 +7,7 @@ const queryListResult = async (statement) => {
   let error;
 
   try {
-    const response = await session.run(statement);
+    const response = await session.readTransaction(t => t.run(statement));
     result = response.records.map((r) => r.get(0));
   } catch (e) {
     error = e;
