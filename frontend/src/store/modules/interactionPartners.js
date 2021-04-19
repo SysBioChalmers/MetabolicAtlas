@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 import interactionPartnersApi from '@/api/interactionPartners';
+import randomComponentsApi from '@/api/randomComponents';
 import { chemicalName } from '@/helpers/chemical-formatters';
 import { constructCompartmentStr } from '@/helpers/utils';
 
@@ -8,6 +9,7 @@ const data = {
   interactionPartners: {},
   tooLargeNetworkGraph: false,
   expansion: {},
+  randomComponents: null,
 };
 
 const getters = {
@@ -35,6 +37,17 @@ const actions = {
 
     commit('setTooLargeNetworkGraph', !interactionPartners.reactions);
     commit('setInteractionPartners', formatInteractionPartners(interactionPartners));
+  },
+
+  async getRandomComponents({ commit }, model) {
+    commit('setRandomComponents', null);
+    const payload = {
+      model: model.apiName,
+      version: model.apiVersion,
+      componentTypes: { gene: true, compartmentalizedMetabolite: true },
+    };
+    const randomComponents = await randomComponentsApi.fetchRandomComponents(payload);
+    commit('setRandomComponents', randomComponents);
   },
 
   async loadExpansion(args, { model, id }) {
@@ -67,6 +80,9 @@ const mutations = {
   },
   setExpansion: (state, expansion) => {
     state.expansion = expansion;
+  },
+  setRandomComponents: (state, randomComponents) => {
+    state.randomComponents = randomComponents;
   },
 };
 

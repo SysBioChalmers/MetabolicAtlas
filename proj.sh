@@ -41,7 +41,7 @@ function logs {
 
 function deploy-stack {
   generate-data
-  docker-compose -f docker-compose.yml -f docker-compose-prod.yml --context $1 up -d --build
+  docker --context $1 compose -f docker-compose.yml -f docker-compose-prod.yml up -d --build --force-recreate
 }
 
 function import-db {

@@ -4,7 +4,7 @@
     <div class="tile is-child is-clickable box hoverable"
          :title="`Click to view ${data.name || data.id}`">
       <p class="is-capitalized subtitle is-size-4-desktop is-size-5-tablet
-         has-text-weight-light has-text-grey-light">{{ type }}</p>
+         has-text-weight-light has-text-grey-light">{{ label || type }}</p>
       <template v-if="type === 'metabolite'">
         <span class="is-capitalized"><b>{{ data.name }}</b></span>
         with {{ model.short_name }} ID <b>{{ data.id }}</b> is in
@@ -69,6 +69,7 @@ export default {
     type: String,
     data: Object,
     size: String,
+    label: String,
   },
   computed: {
     ...mapState({
