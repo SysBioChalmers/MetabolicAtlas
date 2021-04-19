@@ -21,9 +21,9 @@ RETURN { ${ma.model}: COUNT(DISTINCT(a)), ${mb.model}: COUNT(DISTINCT(b)) }
 `;
 
   const promises = [
-    querySingleResult(aStatement),
-    querySingleResult(bStatement),
-    querySingleResult(compareStatement),
+    querySingleResult(aStatement, false),
+    querySingleResult(bStatement, false),
+    querySingleResult(compareStatement, false),
   ];
 
   return Promise.all(promises);
@@ -43,7 +43,7 @@ RETURN { ${ma.model}: COUNT(DISTINCT(a)), ${mb.model}: COUNT(DISTINCT(b)), ${mc.
     compareTwo({ type, models: [ma, mb] }),
     compareTwo({ type, models: [ma, mc] }),
     compareTwo({ type, models: [mb, mc] }),
-    querySingleResult(statement),
+    querySingleResult(statement, false),
   ];
 
   const results = await Promise.all(promises);
@@ -72,7 +72,7 @@ RETURN { ${ma.model}: COUNT(DISTINCT(a)), ${mb.model}: COUNT(DISTINCT(b)), ${mc.
     compareThree({ type, models: [ma, mb, md] }),
     compareThree({ type, models: [ma, mc, md] }),
     compareThree({ type, models: [mb, mc, md] }),
-    querySingleResult(statement),
+    querySingleResult(statement, false),
   ];
 
   const results = await Promise.all(promises);
@@ -141,9 +141,9 @@ RETURN { unique: COLLECT(DISTINCT(a.id)) }
   }
 
   const promises = [
-    querySingleResult(selfStatement),
-    querySingleResult(commonStatement),
-    querySingleResult(uniqueStatement),
+    querySingleResult(selfStatement, false),
+    querySingleResult(commonStatement, false),
+    querySingleResult(uniqueStatement, false),
   ];
 
   const results = await Promise.all(promises);

@@ -12,10 +12,9 @@
       <div class="comparison-container">
         <div class="comparison-container__picker">
           <div class="tags">
-            <span v-for="m in modelList" :key="m.apiName" class="tag is-medium"
-                  :disabled="shouldDisable(m)">
+            <span v-for="m in modelList" :key="m.apiName" class="tag is-medium">
               <label class="checkbox" :disabled="shouldDisable(m)">
-                <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox">
+                <input :id="m.apiName" v-model="selectedModels" :value="m" type="checkbox" :disabled="shouldDisable(m)">
                 {{ m.short_name }}
               </label>
             </span>
@@ -351,10 +350,14 @@ export default {
       const { models } = this.$route.query;
 
       if (models) {
-        this.selectedModels = [models].flat().map((m) => {
+        const mappedModels = [models].flat().map((m) => {
           const [apiName, version] = m.split('-');
           return this.modelList.find(x => x.apiName === apiName && x.version === version);
         });
+        const matchingModels = mappedModels.filter(m => m);
+        const uniqueMatchingModels = new Set(matchingModels);
+
+        this.selectedModels = [...uniqueMatchingModels].splice(0, this.maxModels);
       } else {
         const [m1, m2] = this.modelList;
         this.selectedModels = [m1, m2];
