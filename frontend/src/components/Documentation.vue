@@ -244,7 +244,7 @@ export default {
   data() {
     return {
       multipleColors,
-      ftpUrl: process.env.VUE_APP_FTP_SERVER,
+      ftpUrl: 'metabolicatlas.org',
     };
   },
 };

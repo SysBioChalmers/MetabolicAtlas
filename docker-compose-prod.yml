@@ -6,7 +6,6 @@ services:
       context: .
       dockerfile: ./nginx/prod.Dockerfile
       args:
-      - VUE_APP_FTP_SERVER=${SERVER_NAME}
       - VUE_APP_REPOSITORY_FILES_URL=http://${SERVER_NAME}/api/v2/repository
     ports:
       - "80:80"

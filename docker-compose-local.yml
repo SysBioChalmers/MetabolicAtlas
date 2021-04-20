@@ -16,7 +16,6 @@ services:
     build: frontend
     command: yarn serve
     environment:
-      - VUE_APP_FTP_SERVER=localhost
       - VUE_APP_REPOSITORY_FILES_URL=http://localhost/api/v2/repository
     volumes:
       - ./frontend/src:/project/src
