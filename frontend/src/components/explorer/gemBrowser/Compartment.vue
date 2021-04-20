@@ -130,15 +130,13 @@ export default {
     async setup() {
       this.showLoaderMessage = 'Loading compartment data';
       this.cName = this.$route.params.id;
-      if (this.cName !== this.compartment.id) {
-        try {
-          const payload = { model: this.model, id: this.cName };
-          await this.$store.dispatch('compartments/getCompartmentSummary', payload);
-          this.componentNotFound = false;
-          this.showLoaderMessage = '';
-        } catch {
-          this.componentNotFound = true;
-        }
+      try {
+        const payload = { model: this.model, id: this.cName };
+        await this.$store.dispatch('compartments/getCompartmentSummary', payload);
+        this.componentNotFound = false;
+        this.showLoaderMessage = '';
+      } catch {
+        this.componentNotFound = true;
       }
     },
   },
