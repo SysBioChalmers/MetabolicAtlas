@@ -136,7 +136,6 @@ export default {
       } catch {
         this.reactions = [];
         this.componentNotFound = true;
-        document.getElementById('search').focus();
       }
     },
     reformatTableKey(k) { return reformatTableKey(k); },

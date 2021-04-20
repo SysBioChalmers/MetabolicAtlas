@@ -168,7 +168,6 @@ export default {
         await this.getRelatedMetabolites();
       } catch {
         this.componentNotFound = true;
-        document.getElementById('search').focus();
       }
     },
     async getRelatedMetabolites() {

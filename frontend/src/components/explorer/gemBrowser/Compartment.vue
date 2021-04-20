@@ -138,7 +138,6 @@ export default {
           this.showLoaderMessage = '';
         } catch {
           this.componentNotFound = true;
-          document.getElementById('search').focus();
         }
       }
     },
