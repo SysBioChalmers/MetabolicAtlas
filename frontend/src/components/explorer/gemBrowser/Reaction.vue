@@ -158,7 +158,6 @@ export default {
         await this.getRelatedReactions();
       } catch {
         this.componentNotFound = true;
-        document.getElementById('search').focus();
       }
     },
     async getRelatedReactions() {
