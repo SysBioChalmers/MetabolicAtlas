@@ -110,10 +110,18 @@ export default {
       model: state => state.models.model,
     }),
   },
+  mounted() {
+    const modelShortName = this.$route.params.model;
+    if (modelShortName && this.model && modelShortName !== this.model.short_name) {
+      this.selectModel(modelShortName);
+    }
+  },
   methods: {
     async selectModel(modelShortName) {
-      if (modelShortName !== this.model.short_name) {
+      if (modelShortName !== this.$route.params.model) {
         this.$router.replace({ params: { model: modelShortName } });
+      }
+      if (modelShortName !== this.model.short_name) {
         this.$store.dispatch('models/selectModel', modelShortName);
       }
     },
