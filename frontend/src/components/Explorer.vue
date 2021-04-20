@@ -117,7 +117,7 @@ export default {
     }
   },
   methods: {
-    async selectModel(modelShortName) {
+    selectModel(modelShortName) {
       if (modelShortName !== this.$route.params.model) {
         this.$router.replace({ params: { model: modelShortName } });
       }
