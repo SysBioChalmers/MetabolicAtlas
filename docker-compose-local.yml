@@ -18,7 +18,6 @@ services:
     environment:
       - VUE_APP_FTP_SERVER=localhost
       - VUE_APP_REPOSITORY_FILES_URL=http://localhost/api/v2/repository
-      - VUE_APP_SVGMAPURL=http://localhost/api/v2/svg
     volumes:
       - ./frontend/src:/project/src
       - ./frontend/public:/project/public

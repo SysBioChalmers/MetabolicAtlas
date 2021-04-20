@@ -1,15 +1,13 @@
 import axios from 'axios';
 
-const baseURL = '/api/v2/';
-
 const fetchMapsListing = async ({ model, version }) => {
   const params = { model, version };
   const { data } = await axios.get('/maps/listing', { params });
   return data;
 };
 
-const fetchSvgMap = async (mapUrl, model, svgName) => {
-  const { data } = await axios({ url: `${mapUrl}/${model}/${svgName}`, baseURL });
+const fetchSvgMap = async (model, svgName) => {
+  const { data } = await axios({ url: `svg/${model}/${svgName}` });
   return data;
 };
 

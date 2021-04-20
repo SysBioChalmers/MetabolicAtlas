@@ -73,7 +73,6 @@ export default {
       selectedItemHistory: {},
 
       HPARNAlevels: {}, // enz id as key, [current tissue level, color] as value
-      svgMapURL: process.env.VUE_APP_SVGMAPURL,
       defaultGeneColor: '#feb',
       messages,
 
@@ -152,7 +151,7 @@ export default {
         return;
       }
       this.$store.dispatch('maps/setLoading', true);
-      const payload = { mapUrl: this.svgMapURL, model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
+      const payload = { model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
       await this.$store.dispatch('maps/getSvgMap', payload);
     },
     toggleGenes() {
