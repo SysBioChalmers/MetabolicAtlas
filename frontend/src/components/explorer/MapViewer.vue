@@ -238,6 +238,8 @@ export default {
 #mapViewerContainer {
 
   #mapSidebar {
+    word-wrap: break-word;
+
     .buttons {
 
       button {
