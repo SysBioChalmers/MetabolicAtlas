@@ -19,7 +19,7 @@ Vue.use(vueDebounce);
 
 if (navigator.doNotTrack !== '1') {
   Vue.use(VueMatomo, {
-    host: 'https://sysbiowiki.se:4433/',
+    host: 'https://csbi.chalmers.se/',
     siteId: process.env.VUE_APP_MATOMOID,
     router,
   });

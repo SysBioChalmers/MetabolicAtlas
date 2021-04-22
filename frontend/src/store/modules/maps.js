@@ -66,9 +66,9 @@ const actions = {
     commit('setMapsListing', mapsListing);
   },
 
-  async getSvgMap({ commit }, { mapUrl, model, svgName }) {
+  async getSvgMap({ commit }, { model, svgName }) {
     commit('setSvgMap', null);
-    const svgMap = await mapsApi.fetchSvgMap(mapUrl, model, svgName);
+    const svgMap = await mapsApi.fetchSvgMap(model, svgName);
     commit('setSvgMap', svgMap);
   },
 

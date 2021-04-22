@@ -6,9 +6,7 @@ services:
       context: .
       dockerfile: ./nginx/prod.Dockerfile
       args:
-      - VUE_APP_FTP_SERVER=${SERVER_NAME}
       - VUE_APP_REPOSITORY_FILES_URL=http://${SERVER_NAME}/api/v2/repository
-      - VUE_APP_SVGMAPURL=https://${SERVER_NAME}/api/v2/svg
     ports:
       - "80:80"
       - "443:443"
@@ -23,7 +21,6 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.35'
           memory: 2.5G
         limits:
           cpus: '0.40'
@@ -37,7 +34,6 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.25'
           memory: 1.5G
         limits:
           cpus: '0.30'
@@ -52,7 +48,6 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '1.00'
           memory: 9G
         limits:
           cpus: '1.15'
@@ -71,7 +66,6 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.05'
           memory: 150M
         limits:
           cpus: '0.10'
