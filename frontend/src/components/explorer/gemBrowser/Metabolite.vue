@@ -188,6 +188,6 @@ export default {
 
 <style lang="scss">
 #chebi-img {
-   border: 1px solid #dbdbdb;
+   border: 1px solid $grey-lighter;
 }
 </style>
