@@ -213,6 +213,9 @@ export default {
       this.showFileLoader = true;
     });
   },
+  updated() {
+    setTimeout(() => document.getElementById('searchInput').focus());
+  },
   methods: {
     reloadGeneExpressionData() {
       if (this.mapLoaded && this.HPATissues.length > 0) {
