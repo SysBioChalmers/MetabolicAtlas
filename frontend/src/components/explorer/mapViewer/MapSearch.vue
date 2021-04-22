@@ -75,9 +75,7 @@ export default {
       this.currentSearchMatch = 0;
     },
     loading(now, before) {
-      if (before === true && now === false) {
-        setTimeout(() => document.getElementById('searchInput').focus());
-      }
+      this.focusOnInputSearch(now, before);
     },
   },
   created() {
@@ -141,6 +139,11 @@ export default {
         this.currentSearchMatch = 0;
       }
       this.$emit('centerViewOn', this.matches[this.currentSearchMatch]);
+    },
+    focusOnInputSearch(now, before) {
+      if (before === true && now === false) {
+        setTimeout(() => document.getElementById('searchInput').focus());
+      }
     },
   },
 };
