@@ -74,6 +74,11 @@ export default {
       }
       this.currentSearchMatch = 0;
     },
+    loading(now, before) {
+      if (before === true && now === false) {
+        setTimeout(() => document.getElementById('searchInput').focus());
+      }
+    },
   },
   created() {
     this.search = debounce(this.search, 300);
