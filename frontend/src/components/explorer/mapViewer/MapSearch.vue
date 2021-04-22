@@ -74,8 +74,11 @@ export default {
       }
       this.currentSearchMatch = 0;
     },
+    // workaround for the bug that 2D search bar can not type in text
     loading(now, before) {
-      this.focusOnInputSearch(now, before);
+      if (before === true && now === false) {
+        this.focusOnInputSearch();
+      }
     },
   },
   created() {
@@ -140,10 +143,8 @@ export default {
       }
       this.$emit('centerViewOn', this.matches[this.currentSearchMatch]);
     },
-    focusOnInputSearch(now, before) {
-      if (before === true && now === false) {
-        setTimeout(() => document.getElementById('searchInput').focus());
-      }
+    focusOnInputSearch() {
+      setTimeout(() => document.getElementById('searchInput').focus());
     },
   },
 };
