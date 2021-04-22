@@ -70,9 +70,9 @@
             <div v-if="metabolite && metabolite.externalDbs && metabolite.externalDbs.ChEBI"
                  class="column is-3-widescreen is-2-desktop is-full-tablet has-text-centered px-2">
               <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank">
-                <img id="chebi-img" :src="`https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${metabolite.externalDbs.ChEBI[0].id.slice(6)}&dimensions=400`" class="hoverable"/>
-                <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank"  style="display: block;">
-                  {{metabolite.name}} via ChEBI</a>
+                <img id="chebi-img" :src="`https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${metabolite.externalDbs.ChEBI[0].id.slice(6)}&dimensions=400`" class="hoverable" />
+                <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank" style="display: block;">
+                  {{ metabolite.name }} via ChEBI</a>
               </a>
             </div>
             <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
