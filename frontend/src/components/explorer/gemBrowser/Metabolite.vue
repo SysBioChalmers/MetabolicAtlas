@@ -188,8 +188,6 @@ export default {
 
 <style lang="scss">
 #chebi-img {
-   max-width: 400px;
-   width:100%;
    border: 1px solid #dbdbdb;
 }
 </style>
