@@ -47,7 +47,7 @@
         <header class="card-header is-clickable"
                 @click.prevent="showSelectionCardContent = !showSelectionCardContent">
           <p class="card-header-title is-inline is-capitalized is-unselectable">
-            {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
+            {{ selectionData.type }}: <i>{{ selectionData.data.name || selectionData.data.id }}</i>
           </p>
           <a href="#" class="card-header-icon" aria-label="more options">
             <span class="icon">
@@ -143,12 +143,12 @@ export default {
       errorMessage: '',
       selectedElementDataKeys: {
         metabolite: [
-          { name: 'name' },
+          { name: 'id' },
           { name: 'formula' },
           { name: 'compartment' },
         ],
         gene: [
-          { name: 'name', display: 'Gene&nbsp;name' },
+          { name: 'id', display: 'Gene&nbsp;id' },
           { name: 'alternateName', display: 'Alt&nbsp;name' },
           { name: 'synonyms', display: 'Synonym(s)' },
         ],
