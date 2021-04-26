@@ -19,7 +19,7 @@ Vue.use(vueDebounce);
 
 if (navigator.doNotTrack !== '1') {
   Vue.use(VueMatomo, {
-    host: 'https://csbi.chalmers.se/',
+    host: 'https://csbi.chalmers.se/matomo',
     siteId: process.env.VUE_APP_MATOMOID,
     router,
   });
