@@ -33,6 +33,7 @@
 
 import { mapState } from 'vuex';
 import { debounce } from 'vue-debounce';
+import { default as EventBus } from '@/event-bus';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -83,6 +84,10 @@ export default {
   },
   created() {
     this.search = debounce(this.search, 300);
+    EventBus.$off('apply2DHPARNAlevels');
+    EventBus.$on('apply2DHPARNAlevels', () => {
+      this.focusOnInputSearch();
+    });
   },
   methods: {
     handleChange(term) {
