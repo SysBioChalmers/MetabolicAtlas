@@ -2,6 +2,15 @@ import querySingleResult from 'neo4j/queryHandlers/single';
 import reformatExternalDbs from 'neo4j/shared/formatter';
 import parseParams from 'neo4j/shared/helper';
 
+const formatGeneRule = ({ geneRule, genes }) => geneRule.split(/\s+/).map(w => {
+  if (w.match(/and|or/)) {
+    return w;
+  }
+
+  const gene = genes.find(g => g.id === w);
+  return gene.name;
+}).join(' ');
+
 const getReaction = async ({ id, model, version }) => {
   const [m, v] = parseParams(model, version);
 
@@ -59,6 +68,10 @@ RETURN apoc.map.mergeList(COLLECT(value.data)) as reaction
 `;
 
   const reaction = await querySingleResult(statement);
+  if (reaction.geneRule) {
+    reaction.geneRule = formatGeneRule(reaction);
+  }
+
   return { ...reaction, externalDbs: reformatExternalDbs(reaction.externalDbs) };
 };
 

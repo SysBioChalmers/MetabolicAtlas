@@ -190,9 +190,10 @@ export default {
             }
             const prefix = e[0] === '(' ? '(' : '';
             const suffix = e.slice(-1) === ')' ? ')' : '';
-            const newE = e.replace(/^\(+|\)+$/g, '');
-            const tag = newGRnameArr ? newGRnameArr[i] : newE;
-            const customLink = buildCustomLink({ model: this.model.short_name, type: 'gene', id: newE, title: tag });
+            const newEName = e.replace(/^\(+|\)+$/g, '');
+            const newEId = this.reaction.genes.find(g => g.name === newEName).id;
+            const tag = newGRnameArr ? newGRnameArr[i] : newEName;
+            const customLink = buildCustomLink({ model: this.model.short_name, type: 'gene', id: newEId, title: tag });
             return `${prefix}<span class="tag">${customLink}</span>${suffix}`;
           });
         newGR = newGRArr.join(' ');
