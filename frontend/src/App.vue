@@ -367,7 +367,7 @@ html {
 
 .footer {
   img {
-    max-height: 20px;
+    max-height: 30px;
   }
 }
 
