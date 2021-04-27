@@ -73,16 +73,9 @@
     <router-view></router-view>
     <ErrorPanel :message="errorMessage" @hideErrorPanel="errorMessage=''" />
     <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
-      <div class="columns is-gapless">
-        <div class="column is-7-desktop is-5-tablet has-text-centered-mobile">
-          <p>2021 ©
-            <span class="is-hidden-tablet-only">
-              &nbsp;Department of Biology and Biological Engineering |
-            </span>
-            &nbsp;Chalmers University of Technology</p>
-        </div>
-        <div class="column">
-          <div class="content has-text-right has-text-centered-mobile is-size-2-mobile">
+      <div class="columns columns is-gapless is-multiline">
+        <div class="column is-full">
+          <div class="content has-text-centered">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
                 <img class="my-0 mx-2" src="/img/sysbio-logo.png" />
@@ -105,6 +98,13 @@
               </a>
             </p>
           </div>
+        </div>
+        <div class="column has-text-centered">
+          <p>2021 ©
+            <span class="is-hidden-tablet-only">
+              &nbsp;Department of Biology and Biological Engineering |
+            </span>
+            &nbsp;Chalmers University of Technology</p>
         </div>
       </div>
     </footer>
