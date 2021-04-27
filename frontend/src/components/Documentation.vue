@@ -157,10 +157,12 @@
             Interaction Partners
           </h4>
           <div id="interaction-partners-intro">
-            <video id="interaction-partners-video"
-                   poster="@/assets/interPart-cover.jpg" playsinline controls muted loop>
-              <source src="@/assets/interPart.mp4" type="video/mp4">
-            </video>
+            <figure id="interaction-partners-video">
+              <video poster="@/assets/interPart-cover.jpg" playsinline controls muted loop>
+                <source src="@/assets/interPart.mp4" type="video/mp4">
+              </video>
+              <figcaption>demo of the interaction partners tool</figcaption>
+            </figure>
             <div>
               <p>For a given metabolite or gene, this tool renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. an edge between two nodes may represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, there is a prompt before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. One can left-click a node to display a context menu with 3 options:</p>
               <ul>
@@ -273,6 +275,11 @@ export default {
 
   #interaction-partners-video {
     margin: 1rem 0;
+
+    figcaption {
+      font-size: 80%;
+      font-weight: bold;
+    }
   }
 
   @media screen and (min-width: $tablet) {
@@ -283,7 +290,7 @@ export default {
     #interaction-partners-video {
       float: right;
       width: 50%;
-      margin: 0 0 1rem 1rem;
+      margin: 0 0 1rem 1.5rem;
     }
   }
 </style>
