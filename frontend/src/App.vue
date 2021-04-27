@@ -86,7 +86,7 @@
               <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
                 <img class="my-0 mx-2" src="/img/wallenberg.gif" />
               </a>
-              <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
+              <a href="https://www.kth.se/wcpr" title="CBH | KTH Royal Institute of Technology">
                 <img class="my-0 mx-2" src="/img/wpcr.jpg" />
               </a>
               <a href="https://nbis.se/">
