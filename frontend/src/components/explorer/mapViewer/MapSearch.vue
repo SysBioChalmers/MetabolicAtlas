@@ -33,6 +33,7 @@
 
 import { mapState } from 'vuex';
 import { debounce } from 'vue-debounce';
+import { default as EventBus } from '@/event-bus';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
@@ -74,9 +75,19 @@ export default {
       }
       this.currentSearchMatch = 0;
     },
+    // workaround for the bug that 2D search bar can not type in text
+    loading(now, before) {
+      if (before === true && now === false) {
+        this.focusOnInputSearch();
+      }
+    },
   },
   created() {
     this.search = debounce(this.search, 300);
+    EventBus.$off('apply2DHPARNAlevels');
+    EventBus.$on('apply2DHPARNAlevels', () => {
+      this.focusOnInputSearch();
+    });
   },
   methods: {
     handleChange(term) {
@@ -136,6 +147,9 @@ export default {
         this.currentSearchMatch = 0;
       }
       this.$emit('centerViewOn', this.matches[this.currentSearchMatch]);
+    },
+    focusOnInputSearch() {
+      setTimeout(() => document.getElementById('searchInput').focus());
     },
   },
 };
