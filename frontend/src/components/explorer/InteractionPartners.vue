@@ -19,7 +19,6 @@
             </h5>
           </div>
         </div>
-        <br><br>
         <div v-if="!mainNodeID">
           <div class="has-text-centered">
             <a id="randomButton" class="button is-rounded is-outlined is-success"
