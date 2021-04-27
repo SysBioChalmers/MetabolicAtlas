@@ -10,8 +10,8 @@ function generate-data {
   /bin/cp -r $DATA_FILES_PATH/integrated-models/integratedModels.json api/src/data/
   /bin/cp -r $DATA_FILES_PATH/gemsRepository.json api/src/data/
   /bin/cp -r $DATA_FILES_PATH/svg api/
-  /bin/cp -r $DATA_FILES_PATH/ftp-models ftp/
-  /bin/mkdir -p api/repository && /bin/cp -r $DATA_FILES_PATH/ftp-models/* api/repository/
+  /bin/cp -r $DATA_FILES_PATH/repository ftp/
+  /bin/cp -r $DATA_FILES_PATH/repository api/
 }
 
 function build-stack {
