@@ -20,46 +20,31 @@
           </div>
         </div>
         <br><br>
-        <div v-if="!mainNodeID" class="columns">
-          <div class="column is-half">
-            <p class="is-capitalized subtitle is-size-3 has-text-weight-light has-text-grey-light">
-              Demo
-            </p>
-            <!-- eslint-disable max-len -->
-            <p>For a given metabolite or gene, this page shows the other metabolites and genes with which it is connected via reactions. For more, see the <router-link :to="{ name: 'documentation', hash: '#Interaction-Partners' }">documentation on {{ messages.interPartName }}</router-link>.
-            </p>
+        <div v-if="!mainNodeID">
+          <div class="has-text-centered">
+            <a id="randomButton" class="button is-rounded is-outlined is-success"
+               :class="randomComponents ? '' : 'is-loading'"
+               title="Fetch another random set of components" @click="getRandomComponents()">
+              <span class="icon">
+                <i class="fa fa-random"></i>
+              </span>
+              <span v-if="model">random components of {{ model.short_name || 'a model' }}</span>
+            </a>
             <br>
-            <video poster="@/assets/interPart-cover.jpg" playsinline controls muted loop>
-              <source src="@/assets/interPart.mp4" type="video/mp4">
-            </video>
-            <br><br>
           </div>
-          <div class="column is-half">
-            <div class="has-text-centered">
-              <a id="randomButton" class="button is-rounded is-outlined is-success"
-                 :class="randomComponents ? '' : 'is-loading'"
-                 title="Fetch another random set of components" @click="getRandomComponents()">
-                <span class="icon">
-                  <i class="fa fa-random"></i>
-                </span>
-                <span v-if="model">random components of {{ model.short_name || 'a model' }}</span>
-              </a>
-              <br>
-            </div>
-            <br>
-            <transition name="fade">
-              <div v-if="randomComponents" class="tile is-ancestor">
-                <div class="tile is-vertical">
-                  <tile type="interaction" label="gene" :data="randomComponents.genes[0]" class="is-half" />
-                  <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[0]" class="is-half" />
-                </div>
-                <div class="tile is-vertical">
-                  <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[1]" class="is-half" />
-                  <tile type="interaction" label="gene" :data="randomComponents.genes[1]" class="is-half" />
-                </div>
+          <br>
+          <transition name="fade">
+            <div v-if="randomComponents" class="tile is-ancestor">
+              <div class="tile is-vertical">
+                <tile type="interaction" label="gene" :data="randomComponents.genes[0]" class="is-half" />
+                <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[0]" class="is-half" />
               </div>
-            </transition>
-          </div>
+              <div class="tile is-vertical">
+                <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[1]" class="is-half" />
+                <tile type="interaction" label="gene" :data="randomComponents.genes[1]" class="is-half" />
+              </div>
+            </div>
+          </transition>
         </div>
         <template v-if="componentNotFound">
           <div class="columns is-centered">
