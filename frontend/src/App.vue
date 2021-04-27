@@ -101,7 +101,7 @@
         </div>
         <div class="column has-text-centered">
           <p>2021 ©
-            <span class="is-hidden-tablet-only">
+            <span class="is-hidden-touch">
               &nbsp;Department of Biology and Biological Engineering |
             </span>
             &nbsp;Chalmers University of Technology</p>
