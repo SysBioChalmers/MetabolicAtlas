@@ -148,7 +148,7 @@ export default {
           { name: 'compartment' },
         ],
         gene: [
-          { name: 'id', display: 'Gene&nbsp;id' },
+          { name: 'id' },
           { name: 'alternateName', display: 'Alt&nbsp;name' },
           { name: 'synonyms', display: 'Synonym(s)' },
         ],
