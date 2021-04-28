@@ -164,7 +164,7 @@
               <figcaption>Demo of the interaction partners tool</figcaption>
             </figure>
             <div>
-              <p>For a given metabolite or gene, this tool (a demo video is shown on the right) renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. an edge between two nodes may represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, there is a prompt before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. One can left-click a node to display a context menu with 3 options:</p>
+              <p>For a given metabolite or gene, this tool (shown in the demo video) renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. an edge between two nodes may represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, there is a prompt before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. One can left-click a node to display a context menu with 3 options:</p>
               <ul>
                 <li>Load interaction partners: reload the interaction partners graph with the clicked node as the new central node.</li>
                 <li>Expand interaction partners: add additional interaction partner nodes for the clicked node to the graph. Expanded interactions are represented with dashed lines.</li>
@@ -279,6 +279,7 @@ export default {
     figcaption {
       font-size: 80%;
       font-weight: bold;
+      font-style: normal;
     }
   }
 
