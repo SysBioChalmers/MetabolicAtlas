@@ -1,6 +1,6 @@
 FROM stilliard/pure-ftpd:hardened
 
-COPY ftp-models /var/ftp/models
+COPY repository /var/ftp/models
 RUN useradd -d /var/ftp -s /sbin/nologin ftp
 
 COPY ./prep-cert.sh /project/prep-cert.sh
