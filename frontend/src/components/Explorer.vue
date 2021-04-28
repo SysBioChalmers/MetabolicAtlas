@@ -112,7 +112,7 @@ export default {
   },
   mounted() {
     const modelShortName = this.$route.params.model;
-    if (modelShortName && this.model && modelShortName !== this.model.short_name) {
+    if (modelShortName && this.model) {
       this.selectModel(modelShortName);
     }
   },

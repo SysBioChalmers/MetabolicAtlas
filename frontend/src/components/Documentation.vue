@@ -156,12 +156,23 @@
             <span class="icon pr-5 is-large has-text-info"><i class="fa fa-connectdevelop"></i></span>
             Interaction Partners
           </h4>
-          <p>For a given metabolite or gene, this tool renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. an edge between two nodes may represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, there is a prompt before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. One can left-click a node to display a context menu with 3 options:</p>
-          <ul>
-            <li>Load interaction partners: reload the interaction partners graph with the clicked node as the new central node.</li>
-            <li>Expand interaction partners: add additional interaction partner nodes for the clicked node to the graph. Expanded interactions are represented with dashed lines.</li>
-            <li>Highlight reaction: some nodes may be involve in many different reactions. Select a reaction from the list to show the other interaction partners associated with the selected reaction (other interaction partners will be grayed-out). The directionality of each edge is indicated as a triangle, or diamonds in case of reversible reactions. To remove the highlight, click on the <span><i class="fa fa-eraser"></i></span> eraser button at the top of the graph.</li>
-          </ul>
+          <div id="interaction-partners-intro">
+            <figure id="interaction-partners-video">
+              <video poster="@/assets/interPart-cover.jpg" playsinline controls muted loop>
+                <source src="@/assets/interPart.mp4" type="video/mp4">
+              </video>
+              <figcaption>Demo of the interaction partners tool</figcaption>
+            </figure>
+            <div>
+              <p>For a given metabolite or gene, this tool (shown in the demo video) renders a connected graph of the other metabolites and genes with which it interacts via shared reaction(s). The metabolite or gene of interest is centered on the graph. Connectivity is determined based on the reactions with which this metabolite or gene is associated, i.e. an edge between two nodes may represente a connections that occurs in multiple reactions. For medium-sized networks of interaction partners, there is a prompt before generating the graph. For very large networks (e.g. for H<sub>2</sub>O) the graph will not be generated. One can left-click a node to display a context menu with 3 options:</p>
+              <ul>
+                <li>Load interaction partners: reload the interaction partners graph with the clicked node as the new central node.</li>
+                <li>Expand interaction partners: add additional interaction partner nodes for the clicked node to the graph. Expanded interactions are represented with dashed lines.</li>
+                <li>Highlight reaction: some nodes may be involved in many different reactions. Select a reaction from the list to show the other interaction partners associated with the selected reaction (other interaction partners will be grayed-out). The directionality of each edge is indicated as a triangle, or diamonds in case of reversible reactions. To remove the highlight, click on the <span><i class="fa fa-eraser"></i></span> eraser button at the top of the graph.</li>
+              </ul>
+            </div>
+          </div>
+          <br>
           <p>Clicking/selecting a node (shown as black colored node) also shows links on the right sidebar to quickly reset the <i>Interaction Partners</i> for that node or navigate to the corresponding <a href="#GEM-Browser">GEM Browser</a> page.</p>
           <p>The top-left buttons on the graph allow one to (from left to right): customize the graph node's shape and colors, zoom in, zoom out, reset the display, reload the graph (remove expanded interaction partners), and remove any highlighting. The nodes can also be moved around the graph after selection.</p>
           <p>If available, expression levels from the <a href="https://www.proteinatlas.org/">Human Protein Atlas</a> can be enabled and applied on the <i>Interaction Partners</i> graph with the panel on the top right, by selecting one of the tissues in the drop down list. The action will update the color of gene's nodes according to the legend. Some genes may not have RNA levels available in Human Protein Atlas, and in such case their color corresponds to the n/a color.</p>
@@ -254,6 +265,33 @@ export default {
   .menu-list {
     ul {
       margin-top: 0;
+    }
+  }
+
+  #interaction-partners-intro {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  #interaction-partners-video {
+    margin: 1rem 0;
+
+    figcaption {
+      font-size: 80%;
+      font-weight: bold;
+      font-style: normal;
+    }
+  }
+
+  @media screen and (min-width: $tablet) {
+    #interaction-partners-intro {
+      display: block;
+    }
+
+    #interaction-partners-video {
+      float: right;
+      width: 50%;
+      margin: 0 0 1rem 1.5rem;
     }
   }
 </style>
