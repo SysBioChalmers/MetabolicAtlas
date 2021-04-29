@@ -194,6 +194,10 @@ export default {
           color = colorToRGBArray('#fff');
         }
 
+        if (node.g === 'm') {
+          node.n = node.id; // eslint-disable-line
+        }
+
         return {
           ...node,
           color,

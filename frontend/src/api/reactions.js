@@ -1,6 +1,21 @@
 import axios from 'axios';
 import { constructCompartmentStr, reformatChemicalReactionHTML } from '@/helpers/utils';
 
+const formatGeneRule = (reaction) => {
+  const { geneRule, genes } = reaction;
+
+  if (!geneRule) {
+    return null;
+  }
+  return geneRule.split(/\s+/).map((w) => {
+    if (w.match(/and|or/)) {
+      return w;
+    }
+    const gene = genes.find(g => g.id === w);
+    return gene.name;
+  }).join(' ');
+};
+
 const fetchReactionData = async ({ id, model, version }) => {
   const params = { model, version };
   let { data } = await axios.get(`/reactions/${id}`, { params });
@@ -10,6 +25,7 @@ const fetchReactionData = async ({ id, model, version }) => {
     compartment_str: data.compartments.map(c => c.name).join(', '),
     reactants: data.metabolites.filter(m => m.outgoing),
     products: data.metabolites.filter(m => !m.outgoing),
+    geneRule: formatGeneRule(data),
   };
 
   return {
