@@ -74,7 +74,7 @@
     <ErrorPanel :message="errorMessage" @hideErrorPanel="errorMessage=''" />
     <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
       <div class="columns columns is-gapless is-multiline">
-        <div class="column is-full">
+        <div id="footer-logos" class="column is-full">
           <div class="content has-text-centered">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
@@ -99,7 +99,7 @@
             </p>
           </div>
         </div>
-        <div class="column has-text-centered">
+        <div id="footer-copyright" class="column has-text-centered">
           <p>2021 ©
             <span class="is-hidden-touch">
               &nbsp;Department of Biology and Biological Engineering |
