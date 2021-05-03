@@ -141,12 +141,6 @@ export default {
       this.handleQueryParamsWatch(newQuery, oldQuery);
     },
   },
-  async beforeCreate() {
-    const copyright = document.getElementById('footer-copyright');
-    copyright.className = 'column';
-    const logos = document.getElementById('footer-logos');
-    logos.style.display = 'none';
-  },
   async created() {
     this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
     window.onpopstate = this.handleQueryParamsWatch();
@@ -169,12 +163,16 @@ export default {
     await this.$store.dispatch('maps/getMapsListing', this.model);
     this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
     this.loadMapFromParams();
+    const footer = document.getElementById('footer');
+    footer.querySelector('#footer-logos').style.display = 'none';
+    footer.querySelector('#copyright-standard').style.display = 'none';
+    footer.querySelector('#copyright-mapviewer').style.display = 'block';
   },
   async beforeDestroy() {
-    const copyright = document.getElementById('footer-copyright');
-    copyright.className = 'column has-text-centered';
-    const logos = document.getElementById('footer-logos');
-    logos.style.display = '';
+    const footer = document.getElementById('footer');
+    footer.querySelector('#footer-logos').style.display = '';
+    footer.querySelector('#copyright-standard').style.display = 'block';
+    footer.querySelector('#copyright-mapviewer').style.display = 'none';
   },
   methods: {
     dimensionalState(showing2D) {

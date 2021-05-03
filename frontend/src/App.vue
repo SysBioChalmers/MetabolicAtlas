@@ -73,7 +73,7 @@
     <router-view></router-view>
     <ErrorPanel :message="errorMessage" @hideErrorPanel="errorMessage=''" />
     <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
-      <div class="columns columns is-gapless is-multiline">
+      <div class="columns is-gapless mb-0">
         <div id="footer-logos" class="column is-full">
           <div class="content has-text-centered">
             <p>
@@ -99,12 +99,17 @@
             </p>
           </div>
         </div>
-        <div id="footer-copyright" class="column has-text-centered">
+      </div>
+      <div class="columns is-gapless">
+        <div id="copyright-standard" class="column has-text-centered mt-1">
           <p>2021 ©
             <span class="is-hidden-touch">
               &nbsp;Department of Biology and Biological Engineering |
             </span>
             &nbsp;Chalmers University of Technology</p>
+        </div>
+        <div id="copyright-mapviewer" class="column has-text-centered-mobile">
+          <p>2021 © &nbsp;Chalmers University of Technology</p>
         </div>
       </div>
     </footer>
@@ -368,6 +373,9 @@ html {
 .footer {
   img {
     max-height: 30px;
+  }
+  #copyright-mapviewer {
+    display: none;
   }
 }
 
