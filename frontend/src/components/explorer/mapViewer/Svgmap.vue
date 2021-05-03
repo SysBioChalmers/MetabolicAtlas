@@ -153,6 +153,37 @@ export default {
       this.$store.dispatch('maps/setLoading', true);
       const payload = { model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
       await this.$store.dispatch('maps/getSvgMap', payload);
+      this.bindKeyboardShortcuts();
+    },
+    bindKeyboardShortcuts() {
+      document.addEventListener('keydown', (event) => {
+        const key = event.key || event.keyCode;
+
+        switch (key) {
+          case 'ArrowLeft':
+          case 37:
+            this.relativePan(-10, 0);
+            break;
+          case 'ArrowUp':
+          case 38:
+            this.relativePan(0, -10);
+            break;
+          case 'ArrowRight':
+          case 39:
+            this.relativePan(10, 0);
+            break;
+          case 'ArrowDown':
+          case 40:
+            this.relativePan(0, 10);
+            break;
+          default:
+            return;
+        }
+        event.preventDefault();
+      });
+    },
+    relativePan(x, y) {
+      this.panzoom.pan(x, y, { relative: true });
     },
     toggleGenes() {
       if ($('.enz, .ee').first().attr('visibility') === 'hidden') {
