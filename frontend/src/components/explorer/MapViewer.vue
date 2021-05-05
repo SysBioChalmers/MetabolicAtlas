@@ -153,7 +153,6 @@ export default {
         EventBus.$emit('unselectSecondTissue');
       }
     });
-
     if (!this.model || this.model.short_name !== this.$route.params.model) {
       const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
       if (!modelSelectionSuccessful) {
@@ -163,16 +162,6 @@ export default {
     await this.$store.dispatch('maps/getMapsListing', this.model);
     this.$store.dispatch('maps/initFromQueryParams', this.$route.query);
     this.loadMapFromParams();
-    const footer = document.getElementById('footer');
-    footer.querySelector('#footer-logos').style.display = 'none';
-    footer.querySelector('#copyright-standard').style.display = 'none';
-    footer.querySelector('#copyright-mapviewer').style.display = 'block';
-  },
-  async beforeDestroy() {
-    const footer = document.getElementById('footer');
-    footer.querySelector('#footer-logos').style.display = '';
-    footer.querySelector('#copyright-standard').style.display = 'block';
-    footer.querySelector('#copyright-mapviewer').style.display = 'none';
   },
   methods: {
     dimensionalState(showing2D) {
