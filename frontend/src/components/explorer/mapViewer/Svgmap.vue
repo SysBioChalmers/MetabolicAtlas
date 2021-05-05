@@ -158,23 +158,23 @@ export default {
     bindKeyboardShortcuts() {
       document.addEventListener('keydown', (event) => {
         const key = event.key || event.keyCode;
-
+        const panDistance = 10;
         switch (key) {
           case 'ArrowLeft':
           case 37:
-            this.relativePan(-10, 0);
+            this.relativePan(-panDistance, 0);
             break;
           case 'ArrowUp':
           case 38:
-            this.relativePan(0, -10);
+            this.relativePan(0, -panDistance);
             break;
           case 'ArrowRight':
           case 39:
-            this.relativePan(10, 0);
+            this.relativePan(panDistance, 0);
             break;
           case 'ArrowDown':
           case 40:
-            this.relativePan(0, 10);
+            this.relativePan(0, panDistance);
             break;
           default:
             return;
