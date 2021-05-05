@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: ./nginx/prod.Dockerfile
-      args:
-      - VUE_APP_REPOSITORY_FILES_URL=http://${SERVER_NAME}/api/v2/repository
     ports:
       - "80:80"
       - "443:443"
