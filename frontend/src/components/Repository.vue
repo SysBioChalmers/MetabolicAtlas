@@ -122,7 +122,9 @@
               <template v-if="selectedModel.files">
                 <h4 class="subtitle is-size-4">Files</h4>
                 <template v-for="file in selectedModel.files">
-                  <a :key="file.path" class="button" :href="`${filesURL}${file.path}`">{{ file.format }}</a>&nbsp;
+                  <a :key="file.path" class="button" :href="`/api/v2/repository/${file.path}`">
+                    {{ file.format }}
+                  </a>&nbsp;
                 </template>
                 <div class="notification mt-4">
                   To download multiple models at once use the
@@ -262,7 +264,6 @@ export default {
         ofLabel: 'of',
       },
       messages,
-      filesURL: `${process.env.VUE_APP_REPOSITORY_FILES_URL}/`,
     };
   },
   computed: {
