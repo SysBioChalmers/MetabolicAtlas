@@ -73,16 +73,9 @@
     <router-view></router-view>
     <ErrorPanel :message="errorMessage" @hideErrorPanel="errorMessage=''" />
     <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
-      <div class="columns is-gapless">
-        <div class="column is-7-desktop is-5-tablet has-text-centered-mobile">
-          <p>2021 ©
-            <span class="is-hidden-tablet-only">
-              &nbsp;Department of Biology and Biological Engineering |
-            </span>
-            &nbsp;Chalmers University of Technology</p>
-        </div>
-        <div class="column">
-          <div class="content has-text-right has-text-centered-mobile is-size-2-mobile">
+      <div class="columns is-gapless mb-0">
+        <div v-show="!showCompactFooter()" class="column is-full">
+          <div class="content has-text-centered">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
                 <img class="my-0 mx-2" src="/img/sysbio-logo.png" />
@@ -93,7 +86,7 @@
               <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
                 <img class="my-0 mx-2" src="/img/wallenberg.gif" />
               </a>
-              <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
+              <a href="https://www.kth.se/wcpr" title="CBH | KTH Royal Institute of Technology">
                 <img class="my-0 mx-2" src="/img/wpcr.jpg" />
               </a>
               <a href="https://nbis.se/">
@@ -105,6 +98,18 @@
               </a>
             </p>
           </div>
+        </div>
+      </div>
+      <div class="columns is-gapless">
+        <div v-show="!showCompactFooter()" class="column has-text-centered mt-1">
+          <p>2021 ©
+            <span class="is-hidden-touch">
+              &nbsp;Department of Biology and Biological Engineering |
+            </span>
+            &nbsp;Chalmers University of Technology</p>
+        </div>
+        <div v-show="showCompactFooter()" class="column has-text-centered-mobile">
+          <p>2021 © &nbsp;Chalmers University of Technology</p>
         </div>
       </div>
     </footer>
@@ -224,6 +229,9 @@ export default {
           this.errorMessage = '';
         }
       });
+    },
+    showCompactFooter() {
+      return this.$route.name === 'viewer';
     },
   },
 };
@@ -367,7 +375,7 @@ html {
 
 .footer {
   img {
-    max-height: 20px;
+    max-height: 30px;
   }
 }
 

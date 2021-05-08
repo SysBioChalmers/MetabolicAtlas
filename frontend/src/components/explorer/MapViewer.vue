@@ -153,7 +153,6 @@ export default {
         EventBus.$emit('unselectSecondTissue');
       }
     });
-
     if (!this.model || this.model.short_name !== this.$route.params.model) {
       const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
       if (!modelSelectionSuccessful) {
