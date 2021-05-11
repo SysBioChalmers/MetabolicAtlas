@@ -24,6 +24,7 @@ import {
   getComparisonOverview,
   getComparisonDetails,
 } from 'neo4j/queries/compare';
+import getComponentsForExternalDb from 'neo4j/queries/externalDb';
 
 export {
   getCompartment,
@@ -47,4 +48,5 @@ export {
   get3dNetwork,
   getComparisonOverview,
   getComparisonDetails,
+  getComponentsForExternalDb,
 };
