@@ -1,5 +1,4 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
-import reformatExternalDbs from 'neo4j/shared/formatter';
 
 const getComponentsForExternalDb = async ({ dbName, externalId }) => {
   const statement = `
