@@ -19,6 +19,7 @@ import Repository from '@/components/Repository';
 import CompareModels from '@/components/CompareModels';
 import FourOFour from '@/components/FourOFour';
 import Resources from '@/components/Resources';
+import ExternalDb from '@/components/ExternalDb';
 
 Vue.use(VueRouter);
 
@@ -39,6 +40,7 @@ const routes = [
   { path: '/gems/comparison', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Documentation },
+  { path: '/external-db/:dbName/:externalId', name: 'externalDb', component: ExternalDb },
   { path: '/*', name: 'fourOfour', component: FourOFour },
 ];
 

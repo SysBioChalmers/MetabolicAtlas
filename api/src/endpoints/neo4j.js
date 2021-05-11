@@ -146,7 +146,7 @@ neo4jRoutes.get('/comparison-details', async (req, res) => {
   }
 });
 
-neo4jRoutes.get('/external-dbs/:dbName/:externalId', async (req, res) => {
+neo4jRoutes.get('/external-db/:dbName/:externalId', async (req, res) => {
   const { dbName, externalId } = req.params;
 
   try {
