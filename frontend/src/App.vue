@@ -207,7 +207,7 @@ export default {
       }
     },
   },
-  mounted() {
+  created() {
     this.setupErrorCatcher();
   },
   methods: {

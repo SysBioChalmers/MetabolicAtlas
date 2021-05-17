@@ -153,6 +153,10 @@ neo4jRoutes.get('/external-db/:dbName/:externalId', async (req, res) => {
     const result = await getComponentsForExternalDb({ dbName, externalId });
     res.json(result);
   } catch (e) {
+    if (e.message === '404') {
+      return res.sendStatus(404);
+    }
+
     res.status(400).send(e.message);
   }
 });
