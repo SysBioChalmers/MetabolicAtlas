@@ -45,7 +45,7 @@
     <div class="card my-3">
       <div class="card-content py-2 p-3">
         <div class="has-text-centered title is-size-6">Data 1</div>
-        <div class="control">
+        <div v-if="dataSourcesAvailable" class="control">
           <p>RNA levels from <a href="https://www.proteinatlas.org" target="_blank">proteinAtlas.org</a></p>
           <div class="select is-fullwidth">
             <select :disabled="disabledRNAlvl" @change="(e) => setFirstTissue('HPA', e.target.value)">
@@ -56,7 +56,7 @@
             </select>
           </div>
         </div>
-        <p>Or uploaded data</p>
+        <p>{{dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data'}}</p>
         <div class="control">
           <div class="select is-fullwidth">
             <select
@@ -74,7 +74,7 @@
     <div class="card my-3">
       <div class="card-content py-2 p-3">
         <div class="has-text-centered title is-size-6">Data 2 (for comparison)</div>
-        <div class="control">
+        <div v-if="dataSourcesAvailable" class="control">
           <p>RNA levels from <a href="https://www.proteinatlas.org" target="_blank">proteinAtlas.org</a></p>
           <div class="select is-fullwidth">
             <select :disabled="disabledRNAlvl" @change="(e) => setSecondTissue('HPA', e.target.value)">
@@ -85,7 +85,7 @@
             </select>
           </div>
         </div>
-        <div>Or uploaded data</div>
+        <div>{{dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data'}}</div>
         <div class="control">
           <div class="select is-fullwidth">
             <select
@@ -195,6 +195,9 @@ export default {
         return this.isSelectedHPAtissue2 ? this.tissue2 : this.customTissue2;
       }
       return '';
+    },
+    dataSourcesAvailable() {
+      return this.model.short_name === 'Human-GEM';
     },
   },
   watch: {
