@@ -204,7 +204,7 @@ export default {
           text: `The <b>Interaction Partners</b> graph shows connectivity between metabolites and genes based on their associated reactions.<br><br>The graph is dynamically generated and is customizable. One can interact with a restricted part of the metabolic network, or further expand the interaction partners of any element already on the graph. Moreover, RNA expression data from the Human Protein Atlas can be overlaid onto the graph. <br><br>This feature is available only for metabolites and genes, and is accessible via the <b>${messages.gemBrowserName}</b>.`,
           img: require('../assets/interaction.jpg'),
           cardLink: 'Interaction Partners',
-          route: { name: 'interaction', params: { model: 'Human-GEM', id: 'm02007p' } },
+          route: { name: 'interaction', params: { model: 'Human-GEM' } },
           icon: 'connectdevelop' },
       ],
       features1: [
