@@ -67,7 +67,7 @@
               </div>
               <ExtIdTable :type="type" :external-dbs="metabolite.externalDbs"></ExtIdTable>
             </div>
-            <div v-if="metabolite && metabolite.externalDbs && metabolite.externalDbs.ChEBI"
+            <div v-if="chebiImagePresent"
                  class="column is-3-widescreen is-2-desktop is-full-tablet has-text-centered px-2">
               <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank">
                 <img id="chebi-img" :src="`https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${metabolite.externalDbs.ChEBI[0].id.slice(6)}&dimensions=400`" class="hoverable" />
@@ -97,6 +97,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { mapState } from 'vuex';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
@@ -138,6 +139,7 @@ export default {
       showLoaderMessage: '',
       modelNotFound: false,
       messages,
+      chebiImagePresent: false,
     };
   },
   computed: {
@@ -166,6 +168,10 @@ export default {
         const payload = { model: this.model, id: this.metaboliteId };
         await this.$store.dispatch('metabolites/getMetaboliteData', payload);
         this.componentNotFound = false;
+        if (this.metabolite.externalDbs.ChEBI) {
+          const { data } = await axios.get(`https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${this.metabolite.externalDbs.ChEBI[0].id.slice(6)}`);
+          this.chebiImagePresent = data !== '';
+        }
         this.showLoaderMessage = '';
         await this.getRelatedMetabolites();
       } catch {
