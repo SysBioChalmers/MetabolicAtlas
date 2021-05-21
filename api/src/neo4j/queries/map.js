@@ -17,6 +17,11 @@ CALL apoc.cypher.run("
   RETURN { id: $cid, reactionCount: COUNT(DISTINCT(r)) } as data
   
   UNION
+
+  MATCH (:Compartment${m} {id: $cid})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)
+  RETURN { id: $cid, reactionList: COLLECT(DISTINCT(r.id)) } as data
+  
+  UNION
   
   MATCH (csvg:SvgMap)-[${v}]-(:Compartment${m} {id: $cid})
   RETURN { id: $cid, svgs: COLLECT(DISTINCT(csvg {.*})) } as data
