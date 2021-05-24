@@ -41,6 +41,11 @@ CALL apoc.cypher.run("
   
   MATCH (:Subsystem${m} {id: $sid})-[${v}]-(r:Reaction)
   RETURN { id: $sid, reactionCount: COUNT(DISTINCT(r)) } as data
+
+  UNION
+  
+  MATCH (:Subsystem${m} {id: $sid})-[${v}]-(r:Reaction)
+  RETURN { id: $sid, reactionList: COLLECT(DISTINCT(r.id)) } as data
   
   UNION
   

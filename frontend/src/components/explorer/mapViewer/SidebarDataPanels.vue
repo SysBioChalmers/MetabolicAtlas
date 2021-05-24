@@ -9,10 +9,16 @@
       </header>
       <footer v-if="currentMap.type !== 'custom'" class="card-footer">
         <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
-                     :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
+                    :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
           <span>{{ messages.gemBrowserName }}</span>
         </router-link>
+      </footer>
+      <footer class="card-footer">
+        <p v-if="modelNumberOfReactions" class="p-0 pr-3 card-footer-item has-text-centered">
+          <b>Reaction coverage:</b> {{ mapNumberOfReactions }} out of {{ modelNumberOfReactions }}
+          reactions is on the map </p>
+        <p v-else class="p-0 pr-3 card-footer-item has-text-centered"> Reaction coverage not available </p>
       </footer>
     </div>
     <template v-if="loading">
@@ -166,7 +172,11 @@ export default {
     ...mapState({
       model: state => state.models.model,
       loading: state => state.maps.loadingElement,
+      mapNumberOfReactions: state => state.maps.mapNumberOfReactions,
     }),
+    modelNumberOfReactions() {
+      return this.currentMap.reactionList ? this.currentMap.reactionList.length : null;
+    },
   },
   methods: {
     selectionHasNoData() {
