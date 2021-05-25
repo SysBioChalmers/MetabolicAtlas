@@ -75,7 +75,7 @@
                   {{ metabolite.name }} via ChEBI</a>
               </a>
             </div>
-            <div class="column is-2-widescreen is-3-desktop is-full-tablet has-text-centered">
+            <div class="column is-3-widescreen is-3-desktop is-full-tablet has-text-centered">
               <router-link v-if="model" class="button is-info is-fullwidth is-outlined"
                            :to="{ name: 'interaction',
                                   params: { model: model.short_name, id: metaboliteId } }">
