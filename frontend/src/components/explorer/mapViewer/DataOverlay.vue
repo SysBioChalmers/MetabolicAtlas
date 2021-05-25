@@ -56,7 +56,7 @@
             </select>
           </div>
         </div>
-        <p>{{dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data'}}</p>
+        <p>{{ dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data' }}</p>
         <div class="control">
           <div class="select is-fullwidth">
             <select
@@ -85,7 +85,7 @@
             </select>
           </div>
         </div>
-        <div>{{dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data'}}</div>
+        <div>{{ dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data' }}</div>
         <div class="control">
           <div class="select is-fullwidth">
             <select
