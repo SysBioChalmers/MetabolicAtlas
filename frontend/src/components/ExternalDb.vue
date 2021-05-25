@@ -1,22 +1,27 @@
 <template>
-  <div class="section extended-section">
-    <template v-if="externalDb">
-      <h3 class="title is-3">
-        References to external id {{ externalDb.externalId }}
+  <section class="section extended-section">
+    <div v-if="externalDb" class="container is-fullhd">
+      <h3 class="title">
+        {{ externalDb.dbName }} {{ components[0].componentType }} {{ externalDb.externalId }}
       </h3>
-      <h6 v-if="externalDb.url" class="subtitle is-6">
-        Link: <a :href="externalDb.url" target="_blank"> {{ externalDb.url }} </a>
-      </h6>
-      <ul id="example-1">
-        <li v-for="c in components" :key="c.id">
+      <h4 class="subtitle">
+        The following Metabolic Atlas
+        {{ components.length === 1 ? 'component is' : 'components are' }}
+        associated with this external DB reference.
+      </h4>
+      <div class="tags are-medium is-flex-direction-column is-align-items-flex-start">
+        <span v-for="c in components" :key="c.id + c.model + c.version" class="tag is-light">
           <router-link :to="{ name: c.componentType.toLowerCase(), params: { model:
             c.model, id: c.id } }">
             {{ c.componentType }} {{ c.id }} from {{ c.model }} {{ c.version }}
           </router-link>
-        </li>
-      </ul>
-    </template>
-  </div>
+        </span>
+      </div>
+      <p v-if="externalDb.url">
+        For more details, visit <a :href="externalDb.url" target="_blank"> {{ externalDb.url }} </a>.
+      </p>
+    </div>
+  </section>
 </template>
 
 <script>
