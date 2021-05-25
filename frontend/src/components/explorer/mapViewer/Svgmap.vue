@@ -164,7 +164,7 @@ export default {
         });
       });
       this.bindKeyboardShortcuts();
-      this.$store.dispatch('maps/setMapNumberOfReactions', svgReactionsIdList.length);
+      this.$store.dispatch('maps/setMapReactionList', svgReactionsIdList);
     },
     bindKeyboardShortcuts() {
       document.addEventListener('keydown', (event) => {

@@ -38,7 +38,7 @@ const data = {
   backgroundColor: BG_COLORS.light,
   loading: true,
   loadingElement: false,
-  mapNumberOfReactions: null,
+  svgReactionsIdList: null,
 };
 
 const getters = {
@@ -229,8 +229,8 @@ const actions = {
       commit('setTissue2', null);
     }
   },
-  setMapNumberOfReactions({ commit }, numberOfReactions) {
-    commit('setMapNumberOfReactions', numberOfReactions);
+  setMapReactionList({ commit }, svgReactionsIdList) {
+    commit('setMapReactionList', svgReactionsIdList);
   },
 };
 
@@ -298,8 +298,8 @@ const mutations = {
   setLoadingElement: (state, loadingElement) => {
     state.loadingElement = loadingElement;
   },
-  setMapNumberOfReactions: (state, numberOfReactions) => {
-    state.mapNumberOfReactions = numberOfReactions;
+  setMapReactionList: (state, svgReactionsIdList) => {
+    state.svgReactionsIdList = svgReactionsIdList;
   },
 };
 
