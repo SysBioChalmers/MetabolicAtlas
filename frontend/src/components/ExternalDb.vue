@@ -8,10 +8,10 @@
         Link: <a :href="externalDb.url" target="_blank"> {{ externalDb.url }} </a>
       </h6>
       <ul id="example-1">
-        <li v-for="component in components" :key="component.id">
-          <router-link :to="{ name: component.componentType.toLowerCase(), params: { model:
-            component.model.replace('Gem', '-GEM'), id: component.id } }">
-            {{ component.componentType }} {{ component.id }} from {{ component.model }}
+        <li v-for="c in components" :key="c.id">
+          <router-link :to="{ name: c.componentType.toLowerCase(), params: { model:
+            c.model, id: c.id } }">
+            {{ c.componentType }} {{ c.id }} from {{ c.model }} {{ c.version }}
           </router-link>
         </li>
       </ul>
