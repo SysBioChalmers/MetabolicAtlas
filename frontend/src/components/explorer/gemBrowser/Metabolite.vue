@@ -149,6 +149,20 @@ export default {
       relatedMetabolites: state => state.metabolites.relatedMetabolites,
     }),
   },
+  metaInfo() {
+    if (!this.model || !this.metabolite.name) {
+      return {};
+    }
+
+    return {
+      title: `${this.metabolite.name} | ${this.model.short_name} ${this.model.version}`,
+      meta: [{
+        vmid: 'description',
+        name: 'description',
+        content: `The ${this.metabolite.name} metabolite of ${this.model.short_name} (${this.model.version}) can be found in the ${this.metabolite.compartment.name} compartment and ${this.metabolite.subsystems.length} subsystems.`,
+      }],
+    };
+  },
   watch: {
     '$route.params': 'setup',
   },

@@ -134,6 +134,20 @@ export default {
       relatedReactions: state => state.reactions.relatedReactions,
     }),
   },
+  metaInfo() {
+    if (!this.model || !this.reaction.id) {
+      return {};
+    }
+
+    return {
+      title: `${this.reaction.id} | ${this.model.short_name} ${this.model.version}`,
+      meta: [{
+        vmid: 'description',
+        name: 'description',
+        content: `The ${this.reaction.id} reaction of ${this.model.short_name} (${this.model.version}) can be found in the ${this.reaction.compartments.[0].name} compartment and ${this.reaction.subsystems[0].name} subsystem.`,
+      }],
+    };
+  },
   watch: {
     '$route.params': 'setup',
   },

@@ -125,6 +125,20 @@ export default {
       showLoaderMessage: '',
     };
   },
+  metaInfo() {
+    if (!this.model || !this.info.name) {
+      return {};
+    }
+
+    return {
+      title: `${this.info.name} | ${this.model.short_name} ${this.model.version}`,
+      meta: [{
+        vmid: 'description',
+        name: 'description',
+        content: `The ${this.info.name} subsystem of ${this.model.short_name} (${this.model.version}) can be found in ${this.info.compartments.length} compartments, and contains ${this.metabolites.length} metabolites and ${this.genes.length} genes.`,
+      }],
+    };
+  },
   computed: {
     ...mapState({
       model: state => state.models.model,

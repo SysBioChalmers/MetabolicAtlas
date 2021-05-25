@@ -112,6 +112,20 @@ export default {
       geneName: 'genes/geneName',
     }),
   },
+  metaInfo() {
+    if (!this.model || !this.gene.geneName) {
+      return {};
+    }
+
+    return {
+      title: `${this.gene.geneName} | ${this.model.short_name} ${this.model.version}`,
+      meta: [{
+        vmid: 'description',
+        name: 'description',
+        content: `The ${this.gene.geneName} gene of ${this.model.short_name} (${this.model.version}) can be found in the ${this.gene.compartments[0].name} compartment and ${this.gene.subsystems.length} subsystems.`,
+      }],
+    };
+  },
   watch: {
     '$route.params': 'setup',
   },
