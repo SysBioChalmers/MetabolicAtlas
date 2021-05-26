@@ -17,11 +17,17 @@
       <div>
         <div v-if="showModal" class="modal is-active">
           <div class="modal-background"></div>
-          <div class="modal-content">
-            <div class="box">
-              <table class="table main-table is-fullwidth m-0">
+          <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
+            has-background-white">
+            <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions </h4>
+            <p class="pb-4"> The map only displays {{ mapReactionList.length }} out of the
+              {{ modelNumberOfReactions }} reactions in the model since the map is manually
+              curated and some reactions are not possible to add to the map
+            </p>
+            <table class="table main-table is-fullwidth m-0">
+              <tbody>
                 <tr>
-                  <td class="td-key has-background-primary has-text-white-bis" >Missing reactionIDs on the map</td>
+                  <td class="td-key has-background-primary has-text-white-bis" >Missing reactions on the map</td>
                   <td>
                     <div v-html="missingReactionIdListHtml"></div>
                     <div v-if="!showFullReactionListMissing &&  modelNumberOfReactions > displayedReaction">
@@ -37,7 +43,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="td-key has-background-primary has-text-white-bis">All reactionIDs in the model</td>
+                  <td class="td-key has-background-primary has-text-white-bis">All reactions in the model</td>
                     <div v-html="totalReactionIdListHtml"></div>
                     <div v-if="!showFullReactionListTotal &&  modelNumberOfReactions > displayedReaction">
                       <br>
@@ -51,8 +57,8 @@
                     </div>
                   <td></td>
                 </tr>
-              </table>
-            </div>
+              </tbody>
+            </table>
           </div>
           <button class="modal-close" @click="closeModal"></button>
         </div>
