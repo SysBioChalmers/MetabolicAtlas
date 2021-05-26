@@ -24,9 +24,9 @@
                   <td class="td-key has-background-primary has-text-white-bis" >Missing reactionIDs on the map</td>
                   <td>
                     <div v-html="missingReactionIdListHtml"></div>
-                    <div v-if="!showFullReactionList &&  modelNumberOfReactions > displayedReaction">
+                    <div v-if="!showFullReactionListMissing &&  modelNumberOfReactions > displayedReaction">
                       <br>
-                      <button class="is-small button" @click="showFullReactionList=true">
+                      <button class="is-small button" @click="showFullReactionListMissing=true">
                         ... and {{ missingReactionList.length - displayedReaction }} more
                       </button>
                       <span v-show="missingReactionList.length >= limitReaction"
@@ -39,9 +39,9 @@
                 <tr>
                   <td class="td-key has-background-primary has-text-white-bis">All reactionIDs in the model</td>
                     <div v-html="totalReactionIdListHtml"></div>
-                    <div v-if="!showFullReactionList &&  modelNumberOfReactions > displayedReaction">
+                    <div v-if="!showFullReactionListTotal &&  modelNumberOfReactions > displayedReaction">
                       <br>
-                      <button class="is-small button" @click="showFullReactionList=true">
+                      <button class="is-small button" @click="showFullReactionListTotal=true">
                         ... and {{ modelNumberOfReactions - displayedReaction }} more
                       </button>
                       <span v-show="modelNumberOfReactions >= limitReaction"
@@ -54,7 +54,7 @@
               </table>
             </div>
           </div>
-          <button class="modal-close" @click="showModal = false"></button>
+          <button class="modal-close" @click="closeModal"></button>
         </div>
       </div>
 
@@ -214,7 +214,8 @@ export default {
       showSelectionCardContent: true,
       messages,
       showModal: false,
-      showFullReactionList: false,
+      showFullReactionListMissing: false,
+      showFullReactionListTotal: false,
       displayedReaction: 40,
       limitReaction: 999999999,
       missingNumberOfReactions: null,
@@ -233,7 +234,7 @@ export default {
       const l = ['<span class="tags">'];
       for (let i = 0; i < this.modelNumberOfReactions; i += 1) {
         const r = this.currentMap.reactionList[i];
-        if ((!this.showFullReactionList && i === this.displayedReaction)
+        if ((!this.showFullReactionListTotal && i === this.displayedReaction)
           || i === this.limitReaction) {
           break;
         }
@@ -256,7 +257,7 @@ export default {
       const l = ['<span class="tags">'];
       for (let i = 0; i < this.missingReactionList.length; i += 1) {
         const r = this.missingReactionList[i];
-        if ((!this.showFullReactionList && i === this.displayedReaction)
+        if ((!this.showFullReactionListMissing && i === this.displayedReaction)
           || i === this.limitReaction) {
           break;
         }
@@ -290,6 +291,11 @@ export default {
     reformatStringToLink,
     chemicalFormula,
     reformatChemicalReactionHTML,
+    closeModal() {
+      this.showModal = false;
+      this.showFullReactionListMissing = false;
+      this.showFullReactionListTotal = false;
+    },
   },
 };
 </script>
