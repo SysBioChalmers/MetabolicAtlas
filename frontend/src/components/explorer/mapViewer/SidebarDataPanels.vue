@@ -7,15 +7,13 @@
           <i>{{ currentMap.name }}</i>
         </p>
       </header>
-      <div class="card-content p-4">
+      <div v-if="currentMap.reactionList && mapReactionList.length !== modelNumberOfReactions"
+      class="card-content p-4 sidebarCardHover">
         <div class="content" @click="showModal = true">
           <modal v-show="showModal" @close="showModal = false"></modal>
-          <p v-if="currentMap.reactionList">
-          <span>Reaction coverage:</span> {{ mapReactionList.length }}
-          out of {{ modelNumberOfReactions }} reactions are on the map </p>
-        <p v-else class="has-text-centered"> Reaction coverage not available </p>
+          <p> Please note that only {{ mapReactionList.length }}
+          out of {{ modelNumberOfReactions }} reactions are shown on the map </p>
       </div>
-
       <div>
         <div v-if="showModal" class="modal is-active">
           <div class="modal-background"></div>
@@ -62,7 +60,7 @@
 
 
     </div>
-      <footer v-if="currentMap.type !== 'custom'" class="card-footer">
+      <footer v-if="currentMap.type !== 'custom'" class="card-footer sidebarCardHover">
         <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
                     :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
@@ -305,5 +303,10 @@ export default {
     .loading .button {
       width: 100%;
     }
+  }
+
+  .sidebarCardHover:hover {
+    background: rgba(51,68,109,.03);
+    cursor: pointer;
   }
 </style>
