@@ -11,7 +11,7 @@ CALL apoc.cypher.run("
   
   UNION
     
-  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(cm:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
   USING JOIN on r
   RETURN { subsystems: COLLECT(DISTINCT({id: s.id, name: ss.name})) } as data
   
