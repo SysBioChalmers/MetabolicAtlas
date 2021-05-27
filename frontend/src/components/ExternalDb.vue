@@ -5,9 +5,8 @@
         {{ externalDb.dbName }} {{ components[0].componentType }} {{ externalDb.externalId }}
       </h3>
       <h4 class="subtitle">
-        The following Metabolic Atlas
-        {{ components.length === 1 ? 'component is' : 'components are' }}
-        associated with this external DB reference.
+        This database identifier is associated with the following Metabolic Atlas
+        {{ components.length === 1 ? 'component' : 'components' }}:
       </h4>
       <div class="tags are-medium is-flex-direction-column is-align-items-flex-start">
         <span v-for="c in components" :key="c.id + c.model + c.version" class="tag is-light">
