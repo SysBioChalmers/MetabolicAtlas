@@ -9,11 +9,13 @@
         {{ components.length === 1 ? 'component' : 'components' }}:
       </h4>
       <div class="tags are-medium is-flex-direction-column is-align-items-flex-start">
-        <span v-for="c in components" :key="c.id + c.model + c.version" class="tag is-light">
+        <span v-for="c in components" :key="c.id + c.model + c.version">
+          {{ c.componentType }}
           <router-link :to="{ name: c.componentType.toLowerCase(), params: { model:
             c.model, id: c.id } }">
-            {{ c.componentType }} {{ c.id }} from {{ c.model }} {{ c.version }}
+            <span class="tag is-light">{{ c.id }}</span>
           </router-link>
+          from {{ c.model }} {{ c.version }}
         </span>
       </div>
       <p v-if="externalDb.url">
