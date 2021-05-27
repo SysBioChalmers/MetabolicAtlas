@@ -1,7 +1,7 @@
 <template>
   <section class="section extended-section">
     <div v-if="externalDb" class="container is-fullhd">
-      <h3 class="title">
+      <h3 class="title is-3">
         {{ externalDb.dbName }} {{ components[0].componentType }} {{ externalDb.externalId }}
       </h3>
       <h4 class="subtitle">
