@@ -11,22 +11,22 @@ CALL apoc.cypher.run("
   
   UNION
     
-  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
-  USING JOIN on r
-  RETURN { subsystems: COLLECT(DISTINCT({id: s.id, name: ss.name})) } as data
-  
-  UNION
-  
-  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(cm:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)-[${v}]-(g:Gene)
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(cm:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
   USING JOIN on r
   RETURN {
+    subsystems: COLLECT(DISTINCT({id: s.id, name: ss.name})) ,
     reactionsCount: COUNT(DISTINCT(r)) ${ full ? ', reactions: COLLECT(DISTINCT(r))' : ''},
-    metabolitesCount: COUNT(DISTINCT(cm)) ${ full ? ', metabolites: COLLECT(DISTINCT(cm))' : ''},
-    genesCount: COUNT(DISTINCT(g)) ${ full ? ', genes: COLLECT(DISTINCT(g))' : ''}
+    metabolitesCount: COUNT(DISTINCT(cm)) ${ full ? ', metabolites: COLLECT(DISTINCT(cm))' : ''}
   } as data
-  
+
   UNION
   
+  MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(:CompartmentalizedMetabolite)-[${v}]-(r:Reaction)-[${v}]-(g:Gene)
+  USING JOIN on r
+  RETURN { genesCount: COUNT(DISTINCT(g)) ${ full ? ', genes: COLLECT(DISTINCT(g))' : ''} } as data
+
+  UNION
+
   MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(e:ExternalDb)
   RETURN { externalDbs: COLLECT(DISTINCT(e {.*})) } as data
   
