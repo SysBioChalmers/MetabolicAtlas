@@ -11,10 +11,12 @@
       <div class="tags are-medium is-flex-direction-column is-align-items-flex-start">
         <span v-for="c in components" :key="c.id + c.model + c.version">
           {{ c.componentType }}
-          <router-link :to="{ name: c.componentType.toLowerCase(), params: { model:
-            c.model, id: c.id } }">
-            <span class="tag is-light">{{ c.id }}</span>
-          </router-link>
+          <span class="tag is-light">
+            <router-link :to="{ name: c.componentType.toLowerCase(), params: { model:
+              c.model, id: c.id } }">
+              {{ c.id }}
+            </router-link>
+          </span>
           from {{ c.model }} {{ c.version }}
         </span>
       </div>
