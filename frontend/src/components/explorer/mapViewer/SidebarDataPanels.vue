@@ -10,8 +10,8 @@
       <div v-if="currentMap.reactionList && mapReactionList.length !== modelNumberOfReactions"
       class="card-content p-4 sidebarCardHover">
         <div class="content mb-0" @click="showModal = true">
-          Please note that only {{ mapReactionList.length }}
-          out of {{ modelNumberOfReactions }} reactions are shown on the map
+          Please note that {{ missingReactionList.length }}
+          of the reactions in the model are not shown on the map
       </div>
       <div>
         <div v-if="showModal" class="modal is-active">
