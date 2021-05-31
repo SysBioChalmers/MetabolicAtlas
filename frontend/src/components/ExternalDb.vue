@@ -8,18 +8,18 @@
         This database identifier is associated with the following Metabolic Atlas
         {{ components.length === 1 ? 'component' : 'components' }}:
       </p>
-      <div class="tags are-medium is-flex-direction-column is-align-items-flex-start">
-        <span v-for="c in components" :key="c.id + c.model + c.version">
+      <ul class="is-flex-direction-column is-align-items-flex-start mb-4 ml-5">
+        <li v-for="c in components" :key="c.id + c.model + c.version" class="my-1">
           {{ c.componentType }}
-          <span class="tag is-light">
+          <span class="tag is-light is-medium">
             <router-link :to="{ name: c.componentType.toLowerCase(), params: { model:
               c.model, id: c.id } }">
               {{ c.id }}
             </router-link>
           </span>
           from {{ c.model }} {{ c.version }}
-        </span>
-      </div>
+        </li>
+      </ul>
       <p v-if="externalDb.url">
         For more details, visit <a :href="externalDb.url" target="_blank"> {{ externalDb.url }} </a>.
       </p>
