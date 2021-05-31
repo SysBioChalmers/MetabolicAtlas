@@ -18,10 +18,12 @@
           <div class="modal-background"></div>
           <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
             has-background-white">
-            <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions </h4>
-            <p class="pb-4"> The map only displays {{ mapReactionList.length }} out of the
-              {{ modelNumberOfReactions }} reactions in the model since the map is manually
-              curated and some reactions are not possible to add to the map
+            <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
+            <p class="pb-4"> There are {{ missingReactionList.length }}
+                reactions not shown on the map as compared to the model since
+                the map is manually curated and some reactions are not possible
+                to add to the map. The number of reaction shown on the map is
+                {{ mapReactionList.length }}.
             </p>
             <table class="table main-table is-fullwidth m-0">
               <tbody>
@@ -29,7 +31,7 @@
                   <td class="td-key has-background-primary has-text-white-bis" >Missing reactions on the map</td>
                   <td>
                     <div v-html="missingReactionIdListHtml"></div>
-                    <div v-if="!showFullReactionListMissing &&  modelNumberOfReactions > displayedReaction">
+                    <div v-if="!showFullReactionListMissing &&  missingReactionList.length > displayedReaction">
                       <br>
                       <button class="is-small button" @click="showFullReactionListMissing=true">
                         ... and {{ missingReactionList.length - displayedReaction }} more
@@ -42,15 +44,15 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="td-key has-background-primary has-text-white-bis">All reactions in the model</td>
+                  <td class="td-key has-background-primary has-text-white-bis">Reactions shown on the map</td>
                   <td>
-                    <div v-html="totalReactionIdListHtml"></div>
-                    <div v-if="!showFullReactionListTotal &&  modelNumberOfReactions > displayedReaction">
+                    <div v-html="mapReactionIdListHtml"></div>
+                    <div v-if="!showFullReactionListMap &&  mapReactionList.length > displayedReaction">
                       <br>
-                      <button class="is-small button" @click="showFullReactionListTotal=true">
-                        ... and {{ modelNumberOfReactions - displayedReaction }} more
+                      <button class="is-small button" @click="showFullReactionListMap=true">
+                        ... and {{ mapReactionList.length - displayedReaction }} more
                       </button>
-                      <span v-show="modelNumberOfReactions >= limitReaction"
+                      <span v-show="mapReactionList.length >= limitReaction"
                             class="tag is-medium is-warning is-pulled-right">
                         The number of reactions displayed is limited to {{ limitReaction }}
                       </span>
@@ -236,11 +238,11 @@ export default {
     modelNumberOfReactions() {
       return this.currentMap.reactionList ? this.currentMap.reactionList.length : null;
     },
-    totalReactionIdListHtml() {
+    mapReactionIdListHtml() {
       const l = ['<span class="tags">'];
-      for (let i = 0; i < this.modelNumberOfReactions; i += 1) {
-        const r = this.currentMap.reactionList[i];
-        if ((!this.showFullReactionListTotal && i === this.displayedReaction)
+      for (let i = 0; i < this.mapReactionList.length; i += 1) {
+        const r = this.mapReactionList[i];
+        if ((!this.showFullReactionListMap && i === this.displayedReaction)
           || i === this.limitReaction) {
           break;
         }
@@ -300,7 +302,7 @@ export default {
     closeModal() {
       this.showModal = false;
       this.showFullReactionListMissing = false;
-      this.showFullReactionListTotal = false;
+      this.showFullReactionListMap = false;
     },
   },
 };
