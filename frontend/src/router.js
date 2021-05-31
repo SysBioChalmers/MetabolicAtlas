@@ -40,7 +40,7 @@ const routes = [
   { path: '/gems/comparison', name: 'comparemodels', component: CompareModels },
   { path: '/resources', name: 'resources', component: Resources },
   { path: '/documentation', name: 'documentation', component: Documentation },
-  { path: '/external-db/:dbName/:externalId', name: 'externalDb', component: ExternalDb },
+  { path: '/identifier/:dbName/:identifierId', name: 'identifier', component: ExternalDb },
   { path: '/*', name: 'fourOfour', component: FourOFour },
 ];
 

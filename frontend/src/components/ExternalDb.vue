@@ -41,7 +41,7 @@ export default {
   async beforeMount() {
     await this.$store.dispatch('externalDb/getComponentsForExternalDb', {
       dbName: this.$route.params.dbName,
-      externalId: this.$route.params.externalId,
+      externalId: this.$route.params.identifierId,
     });
   },
 };
