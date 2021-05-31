@@ -38,7 +38,7 @@ const data = {
   backgroundColor: BG_COLORS.light,
   loading: true,
   loadingElement: false,
-  svgReactionsIdList: null,
+  svgReactionsIdList: [],
 };
 
 const getters = {
