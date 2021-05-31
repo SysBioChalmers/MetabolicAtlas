@@ -14,60 +14,56 @@
           of the reactions in the model are not shown on the map
           <span class="icon"><i class="fa fa-info-circle"></i></span>
         </div>
-        <div>
-          <div v-if="showModal" class="modal is-active">
-            <div class="modal-background" @click="closeModal"></div>
-            <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
-            has-background-white">
-              <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
-              <p class="pb-4"> There are {{ missingReactionList.length }}
-                reactions not shown on the map as compared to the model since
-                the map is manually curated and some reactions are not possible
-                to add to the map. The number of reaction shown on the map is
-                {{ mapReactionList.length }}.
-              </p>
-              <table class="table main-table is-fullwidth m-0">
-                <tbody>
-                  <tr>
-                    <td class="td-key has-background-primary has-text-white-bis">Missing reactions on the map</td>
-                    <td>
-                      <div v-html="missingReactionIdListHtml"></div>
-                      <div v-if="!showFullReactionListMissing && missingReactionList.length > displayedReaction">
-                        <br>
-                        <button class="is-small button" @click="showFullReactionListMissing=true">
-                          ... and {{ missingReactionList.length - displayedReaction }} more
-                        </button>
-                        <span v-show="missingReactionList.length >= limitReaction"
-                              class="tag is-medium is-warning is-pulled-right">
-                          The number of reactions displayed is limited to {{ limitReaction }}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="td-key has-background-primary has-text-white-bis">Reactions shown on the map</td>
-                    <td>
-                      <div v-html="mapReactionIdListHtml"></div>
-                      <div v-if="!showFullReactionListMap && mapReactionList.length > displayedReaction">
-                        <br>
-                        <button class="is-small button" @click="showFullReactionListMap=true">
-                          ... and {{ mapReactionList.length - displayedReaction }} more
-                        </button>
-                        <span v-show="mapReactionList.length >= limitReaction"
-                              class="tag is-medium is-warning is-pulled-right">
-                          The number of reactions displayed is limited to {{ limitReaction }}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <button class="modal-close is-large" @click="closeModal"></button>
+        <div v-if="showModal" class="modal is-active">
+          <div class="modal-background" @click="closeModal"></div>
+          <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
+          has-background-white">
+            <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
+            <p class="pb-4"> There are {{ missingReactionList.length }}
+              reactions not shown on the map as compared to the model since
+              the map is manually curated and some reactions are not possible
+              to add to the map. The number of reaction shown on the map is
+              {{ mapReactionList.length }}.
+            </p>
+            <table class="table main-table is-fullwidth m-0">
+              <tbody>
+                <tr>
+                  <td class="td-key has-background-primary has-text-white-bis">Missing reactions on the map</td>
+                  <td>
+                    <div v-html="missingReactionIdListHtml"></div>
+                    <div v-if="!showFullReactionListMissing && missingReactionList.length > displayedReaction">
+                      <br>
+                      <button class="is-small button" @click="showFullReactionListMissing=true">
+                        ... and {{ missingReactionList.length - displayedReaction }} more
+                      </button>
+                      <span v-show="missingReactionList.length >= limitReaction"
+                            class="tag is-medium is-warning is-pulled-right">
+                        The number of reactions displayed is limited to {{ limitReaction }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td-key has-background-primary has-text-white-bis">Reactions shown on the map</td>
+                  <td>
+                    <div v-html="mapReactionIdListHtml"></div>
+                    <div v-if="!showFullReactionListMap && mapReactionList.length > displayedReaction">
+                      <br>
+                      <button class="is-small button" @click="showFullReactionListMap=true">
+                        ... and {{ mapReactionList.length - displayedReaction }} more
+                      </button>
+                      <span v-show="mapReactionList.length >= limitReaction"
+                            class="tag is-medium is-warning is-pulled-right">
+                        The number of reactions displayed is limited to {{ limitReaction }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+          <button class="modal-close is-large" @click="closeModal"></button>
         </div>
-
-
       </div>
       <footer v-if="currentMap.type !== 'custom'" class="card-footer sidebarCardHover">
         <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
