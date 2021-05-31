@@ -220,7 +220,7 @@ export default {
       messages,
       showModal: false,
       showFullReactionListMissing: false,
-      showFullReactionListTotal: false,
+      showFullReactionListMap: false,
       displayedReaction: 40,
       limitReaction: 999999999,
       missingNumberOfReactions: null,
