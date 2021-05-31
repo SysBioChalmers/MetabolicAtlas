@@ -43,6 +43,7 @@
                 </tr>
                 <tr>
                   <td class="td-key has-background-primary has-text-white-bis">All reactions in the model</td>
+                  <td>
                     <div v-html="totalReactionIdListHtml"></div>
                     <div v-if="!showFullReactionListTotal &&  modelNumberOfReactions > displayedReaction">
                       <br>
@@ -54,7 +55,7 @@
                         The number of reactions displayed is limited to {{ limitReaction }}
                       </span>
                     </div>
-                  <td></td>
+                  </td>
                 </tr>
               </tbody>
             </table>
