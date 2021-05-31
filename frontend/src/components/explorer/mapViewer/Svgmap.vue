@@ -153,18 +153,9 @@ export default {
       this.$store.dispatch('maps/setLoading', true);
       const payload = { model: this.model.short_name, svgName: this.mapData.svgs[0].filename };
       await this.$store.dispatch('maps/getSvgMap', payload);
-      const svgWrapper = document.querySelector('#svg-wrapper');
-      const svgReactionsIdList = [];
-      Object.entries(svgWrapper.children).forEach((item) => {
-        const nodesChildren = item[1].children.nodes.children;
-        Object.entries(nodesChildren).forEach((child) => {
-          if (child[1].className.animVal === 'rea') {
-            svgReactionsIdList.push(child[1].id);
-          }
-        });
-      });
-      this.bindKeyboardShortcuts();
+      const svgReactionsIdList = this.getSvgReactionIdList();
       this.$store.dispatch('maps/setMapReactionList', svgReactionsIdList);
+      this.bindKeyboardShortcuts();
     },
     bindKeyboardShortcuts() {
       document.addEventListener('keydown', (event) => {
@@ -539,6 +530,19 @@ export default {
       } else {
         this.panzoom.pan(panX, panY);
       }
+    },
+    getSvgReactionIdList() {
+      const svgWrapper = document.querySelector('#svg-wrapper');
+      const svgReactionsIdList = [];
+      Object.entries(svgWrapper.children).forEach((item) => {
+        const nodesChildren = item[1].children.nodes.children;
+        Object.entries(nodesChildren).forEach((child) => {
+          if (child[1].className.animVal === 'rea') {
+            svgReactionsIdList.push(child[1].id);
+          }
+        });
+      });
+      return svgReactionsIdList;
     },
     reformatChemicalReactionHTML,
   },
