@@ -7,7 +7,7 @@
           <i>{{ currentMap.name }}</i>
         </p>
       </header>
-      <div v-if="currentMap.reactionList && mapReactionList.length !== modelNumberOfReactions"
+      <div v-if="currentMap.reactionList && missingReactionList.length > 0"
       class="card-content p-4 sidebarCardHover">
         <div class="content mb-0" @click="showModal = true">
           Please note that {{ missingReactionList.length }}
