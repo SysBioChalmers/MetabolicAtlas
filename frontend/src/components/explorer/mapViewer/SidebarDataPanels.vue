@@ -16,7 +16,7 @@
       </div>
       <div>
         <div v-if="showModal" class="modal is-active">
-          <div class="modal-background"></div>
+          <div class="modal-background" @click="closeModal"></div>
           <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
             has-background-white">
             <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
@@ -63,7 +63,7 @@
               </tbody>
             </table>
           </div>
-          <button class="modal-close" @click="closeModal"></button>
+          <button class="modal-close is-large" @click="closeModal"></button>
         </div>
       </div>
 
