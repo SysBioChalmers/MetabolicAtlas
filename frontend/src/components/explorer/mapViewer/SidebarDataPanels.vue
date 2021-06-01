@@ -36,10 +36,6 @@
                       <button class="is-small button" @click="showFullReactionListMissing=true">
                         ... and {{ missingReactionList.length - displayedReaction }} more
                       </button>
-                      <span v-show="missingReactionList.length >= limitReaction"
-                            class="tag is-medium is-warning is-pulled-right">
-                        The number of reactions displayed is limited to {{ limitReaction }}
-                      </span>
                     </div>
                   </td>
                 </tr>
@@ -52,10 +48,6 @@
                       <button class="is-small button" @click="showFullReactionListMap=true">
                         ... and {{ mapReactionList.length - displayedReaction }} more
                       </button>
-                      <span v-show="mapReactionList.length >= limitReaction"
-                            class="tag is-medium is-warning is-pulled-right">
-                        The number of reactions displayed is limited to {{ limitReaction }}
-                      </span>
                     </div>
                   </td>
                 </tr>
@@ -222,7 +214,6 @@ export default {
       showFullReactionListMissing: false,
       showFullReactionListMap: false,
       displayedReaction: 40,
-      limitReaction: 999999999,
       missingNumberOfReactions: null,
     };
   },
@@ -239,8 +230,7 @@ export default {
       const l = ['<span class="tags">'];
       for (let i = 0; i < this.mapReactionList.length; i += 1) {
         const r = this.mapReactionList[i];
-        if ((!this.showFullReactionListMap && i === this.displayedReaction)
-          || i === this.limitReaction) {
+        if (!this.showFullReactionListMap && i === this.displayedReaction) {
           break;
         }
         const customLink = buildCustomLink({ model: this.model.short_name, type: 'reaction', id: r, title: r, cssClass: 'target="_blank"' });
@@ -262,8 +252,7 @@ export default {
       const l = ['<span class="tags">'];
       for (let i = 0; i < this.missingReactionList.length; i += 1) {
         const r = this.missingReactionList[i];
-        if ((!this.showFullReactionListMissing && i === this.displayedReaction)
-          || i === this.limitReaction) {
+        if (!this.showFullReactionListMissing && i === this.displayedReaction) {
           break;
         }
         const customLink = buildCustomLink({ model: this.model.short_name, type: 'reaction', id: r, title: r, cssClass: 'target="_blank"' });
