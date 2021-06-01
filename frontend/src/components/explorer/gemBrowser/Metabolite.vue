@@ -155,11 +155,11 @@ export default {
     }
 
     return {
-      title: `${this.metabolite.name} | ${this.model.short_name} ${this.model.version}`,
+      title: `${this.metabolite.name}, Metabolite in ${this.model.short_name}`,
       meta: [{
         vmid: 'description',
         name: 'description',
-        content: `The ${this.metabolite.name} metabolite of ${this.model.short_name} (${this.model.version}) can be found in the ${this.metabolite.compartment.name} compartment and ${this.metabolite.subsystems.length} subsystems.`,
+        content: `The metabolite ${this.metabolite.name} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.metabolite.compartment.name} compartment and the ${this.metabolite.subsystems[0].name} subsystem.`,
       }],
     };
   },

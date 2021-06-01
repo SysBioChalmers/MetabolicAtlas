@@ -120,11 +120,11 @@ export default {
     }
 
     return {
-      title: `${this.compartment.name} | ${this.model.short_name} ${this.model.version}`,
+      title: `${this.compartment.name}, Compartment in ${this.model.short_name}`,
       meta: [{
         vmid: 'description',
         name: 'description',
-        content: `The ${this.compartment.name} compartment of ${this.model.short_name} (${this.model.version}) consists of ${this.compartment.subsystemCount} subsystems, ${this.compartment.reactionsCount} reactions, ${this.compartment.metabolitesCount} metabolites, and ${this.compartment.genesCount} genes.`,
+        content: `The compartment ${this.compartment.name} in ${this.model.short_name} (version ${this.model.version}) consists of ${this.compartment.subsystemCount} subsystems, ${this.compartment.reactionsCount} reactions, ${this.compartment.metabolitesCount} metabolites, and ${this.compartment.genesCount} genes.`,
       }],
     };
   },

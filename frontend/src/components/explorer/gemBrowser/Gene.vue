@@ -118,12 +118,24 @@ export default {
     }
 
     return {
-      title: `${this.gene.geneName} | ${this.model.short_name} ${this.model.version}`,
-      meta: [{
-        vmid: 'description',
-        name: 'description',
-        content: `The ${this.gene.geneName} gene of ${this.model.short_name} (${this.model.version}) can be found in the ${this.gene.compartments[0].name} compartment and ${this.gene.subsystems.length} subsystems.`,
-      }],
+      title: `${this.gene.geneName}, Gene in ${this.model.short_name}`,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: `The gene ${this.gene.geneName} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.gene.compartments[0].name} compartment and the ${this.gene.subsystems[0].name} subsystem.`,
+        },
+        {
+          vmid: 'identifier',
+          name: 'identifier',
+          content: this.gene.id,
+        },
+        {
+          vmid: 'name',
+          name: 'name',
+          content: this.gene.geneName,
+        },
+      ],
     };
   },
   watch: {

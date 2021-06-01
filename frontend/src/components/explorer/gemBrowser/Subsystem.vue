@@ -131,11 +131,11 @@ export default {
     }
 
     return {
-      title: `${this.info.name} | ${this.model.short_name} ${this.model.version}`,
+      title: `${this.info.name}, Subsystem in ${this.model.short_name}`,
       meta: [{
         vmid: 'description',
         name: 'description',
-        content: `The ${this.info.name} subsystem of ${this.model.short_name} (${this.model.version}) can be found in ${this.info.compartments.length} compartments, and contains ${this.metabolites.length} metabolites and ${this.genes.length} genes.`,
+        content: `The subsystem ${this.info.name} in ${this.model.short_name} (version ${this.model.version}) can be found in ${this.info.compartments.length} compartments, and contains ${this.metabolites.length} metabolites and ${this.genes.length} genes.`,
       }],
     };
   },

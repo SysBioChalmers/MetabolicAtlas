@@ -140,11 +140,11 @@ export default {
     }
 
     return {
-      title: `${this.reaction.id} | ${this.model.short_name} ${this.model.version}`,
+      title: `${this.reaction.id}, Reaction in ${this.model.short_name}`,
       meta: [{
         vmid: 'description',
         name: 'description',
-        content: `The ${this.reaction.id} reaction of ${this.model.short_name} (${this.model.version}) can be found in the ${this.reaction.compartments.[0].name} compartment and ${this.reaction.subsystems[0].name} subsystem.`,
+        content: `The reaction ${this.reaction.id} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.reaction.compartments.[0].name} compartment and the ${this.reaction.subsystems[0].name} subsystem.`,
       }],
     };
   },
