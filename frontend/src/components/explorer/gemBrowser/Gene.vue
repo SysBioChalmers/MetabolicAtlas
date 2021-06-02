@@ -125,17 +125,18 @@ export default {
           name: 'description',
           content: `The gene ${this.gene.geneName} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.gene.compartments[0].name} compartment and the ${this.gene.subsystems[0].name} subsystem.`,
         },
-        {
-          vmid: 'identifier',
-          name: 'identifier',
-          content: this.gene.id,
-        },
-        {
-          vmid: 'name',
-          name: 'name',
-          content: this.gene.geneName,
-        },
       ],
+      script: [{
+        type: 'application/ld+json',
+        json: {
+          '@context': 'http://schema.org',
+          '@id': `https://metabolicatlas.org/explore/Human-GEM/gem-browser/gene/${this.gene.id}`,
+          '@type': 'Gene',
+          'dct:conformsTo': 'https://bioschemas.org/profiles/Gene/1.0-RELEASE',
+          identifier: this.gene.id,
+          name: this.gene.geneName,
+        },
+      }],
     };
   },
   watch: {
