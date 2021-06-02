@@ -14,6 +14,7 @@ import search from './modules/search';
 import humanProteinAtlas from './modules/humanProteinAtlas';
 import europepmc from './modules/europepmc';
 import compare from './modules/compare';
+import externalDb from './modules/externalDb';
 
 Vue.use(Vuex);
 
@@ -33,5 +34,6 @@ export default new Vuex.Store({
     humanProteinAtlas,
     europepmc,
     compare,
+    externalDb,
   },
 });
