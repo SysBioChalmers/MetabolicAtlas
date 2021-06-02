@@ -8,11 +8,11 @@
         </p>
       </header>
       <div v-if="currentMap.reactionList && missingReactionList.length > 0"
-           class="card-content p-4 sidebarCardHover">
-        <div class="content mb-0" @click="showModal = true">
+           class="card-content p-4">
+        <div class="content mb-0">
           Please note that {{ missingReactionList.length }}
-          of the reactions in the {{ currentMap.type }} are not shown on the map
-          <span class="icon"><i class="fa fa-info-circle"></i></span>
+          of the reactions in the {{ currentMap.type }} are not shown on the map.
+          <a @click="showModal = true"> See comparison </a>
         </div>
         <div v-if="showModal" class="modal is-active">
           <div class="modal-background" @click="closeModal"></div>
@@ -303,10 +303,5 @@ export default {
     .loading .button {
       width: 100%;
     }
-  }
-
-  .sidebarCardHover:hover {
-    background: rgba(51,68,109,.03);
-    cursor: pointer;
   }
 </style>
