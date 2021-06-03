@@ -22,7 +22,7 @@
             <p class="pb-4">
               There are {{ missingReactionList.length }} reactions not shown on the map. Some reactions
               are missing as the {{ currentMap.type }} is being updated much more often than the maps.
-              Also, as the maps are manually curated, occasionally some reactions are cannot be added.
+              Also, as the maps are manually curated, occasionally some reactions cannot be added.
               The number of reactions shown are {{ mapReactionList.length }}.
             </p>
             <table class="table main-table is-fullwidth m-0">
