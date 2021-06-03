@@ -20,10 +20,10 @@
           has-background-white">
             <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
             <p class="pb-4">
-             There are {{ missingReactionList.length }} reactions not shown on the map. Some reactions
-             are missing as the {{ currentMap.type }} is being updated much more often than the maps.
-             Also, as the maps are manually curated, occasionally some reactions are cannot be added.
-             The number of reactions shown are {{ mapReactionList.length }}.
+              There are {{ missingReactionList.length }} reactions not shown on the map. Some reactions
+              are missing as the {{ currentMap.type }} is being updated much more often than the maps.
+              Also, as the maps are manually curated, occasionally some reactions are cannot be added.
+              The number of reactions shown are {{ mapReactionList.length }}.
             </p>
             <table class="table main-table is-fullwidth m-0">
               <tbody>
