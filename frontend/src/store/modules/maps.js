@@ -55,11 +55,6 @@ const getters = {
 };
 
 const actions = {
-  async getAvailableMaps({ commit }, { model, mapType, id }) {
-    const maps = await mapsApi.fetchAvailableMaps(model, mapType, id);
-    commit('setAvailableMaps', maps);
-  },
-
   async getMapsListing({ commit }, model) {
     const payload = { model: model.apiName, version: model.apiVersion };
     const mapsListing = await mapsApi.fetchMapsListing(payload);
