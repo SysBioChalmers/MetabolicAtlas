@@ -57,6 +57,7 @@ services:
 
   ftp:
     environment:
+      - FTP_IP=${FTP_IP}
       - FLAGS=-Y 1
     volumes:
       - letsencrypt:/etc/letsencrypt:ro

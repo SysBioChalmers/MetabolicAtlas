@@ -47,4 +47,5 @@ services:
 
   ftp:
     environment:
+      - FTP_IP=127.0.0.1
       - FLAGS=-Y 0 -d -d
