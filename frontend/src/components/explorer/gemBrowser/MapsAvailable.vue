@@ -7,33 +7,27 @@
       </p>
     </header>
     <div v-if="mapAvailableLimited" class="card-content p-2">
-      <div v-for="mapKey in mapKeys" :key="mapKey"
-           class="content has-text-left p-0">
-        <template>
-          <div>{{ mapKey.toUpperCase() }} maps</div>
-          <ul class="py-0 px-4">
-            <template v-for="mapType in Object.keys(mapAvailableLimited[mapKey])">
-              <template v-for="map in mapAvailableLimited[mapKey][mapType]">
-                <li :key="map.id">
-                  <router-link v-if="viewerSelectedID"
-                               :to="{ name: 'viewer',
-                                      params: { model: model.short_name, type: mapType, map_id: map.id, reload: true },
-                                      query: { dim: mapKey, search: viewerSelectedID, sel: viewerSelectedID } }">
-                    {{ map.customName }}
-                  </router-link>
-                  <router-link v-else :to="{ name: 'viewer',
-                                             params: { model: model.short_name, type: mapType, map_id: map.id},
-                                             query: { dim: mapKey } }">
-                    {{ map.customName }}
-                  </router-link>
-                </li>
-              </template>
-            </template>
-            <!-- eslint-disable-next-line max-len -->
-            <li v-if="limitedMapsDim[mapKey]" class="is-clickable" title="View all maps" @click="mapLimitPerDim = 1000">...</li>
-          </ul>
-        </template>
-      </div>
+      <table class="table test-table">
+        <tbody>
+          <tr v-for="customName in Object.keys(groupedMaps).sort()" :key="customName" class="m-3">
+            <td>{{ customName }}</td>
+            <td v-for="mapKey in ['2d', '3d']" :key="mapKey">
+              <router-link v-if="groupedMaps[customName][mapKey] && viewerSelectedID"
+                         :to="{ name: 'viewer',
+                                params: { model: model.short_name, map_id: groupedMaps[customName][mapKey],
+                                          reload: true },
+                                query: { dim: mapKey, search: viewerSelectedID, sel: viewerSelectedID } }">
+              {{ mapKey.toUpperCase() }}
+              </router-link>
+              <router-link v-else-if="groupedMaps[customName][mapKey]" :to="{ name: 'viewer',
+              params: { model: model.short_name, map_id: groupedMaps[customName][mapKey]},
+              query: { dim: mapKey } }">
+              {{ mapKey.toUpperCase() }}
+              </router-link>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -91,6 +85,25 @@ export default {
     },
     mapKeys() {
       return ['2d', '3d'].filter(d => this.mapsAvailable[d].compartment.length > 0 || this.mapsAvailable[d].subsystem.length > 0);
+    },
+    groupedMaps() {
+      const maps = {};
+      const mapCopy = JSON.parse(JSON.stringify(this.mapsAvailable));
+      ['2d', '3d'].forEach((d) => {
+        mapCopy[d].compartment.forEach((c) => {
+          if (!(c.customName in maps)) {
+            maps[c.customName] = { '2d': '', '3d': '' };
+          }
+          maps[c.customName][d] = c.id;
+        });
+        mapCopy[d].subsystem.forEach((c) => {
+          if (!(c.customName in maps)) {
+            maps[c.customName] = { '2d': '', '3d': '' };
+          }
+          maps[c.customName][d] = c.id;
+        });
+      });
+      return maps;
     },
   },
 };
