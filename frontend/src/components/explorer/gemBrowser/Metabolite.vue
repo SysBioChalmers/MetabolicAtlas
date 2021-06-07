@@ -161,6 +161,18 @@ export default {
         name: 'description',
         content: `The metabolite ${this.metabolite.name} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.metabolite.compartment.name} compartment and the ${this.metabolite.subsystems[0].name} subsystem.`,
       }],
+      script: [{
+        type: 'application/ld+json',
+        json: {
+          '@context': 'http://schema.org',
+          '@id': `https://metabolicatlas.org/explore/Human-GEM/gem-browser/metabolite/${this.metabolite.id}`,
+          '@type': 'MolecularEntity',
+          'dct:conformsTo': 'https://bioschemas.org/profiles/MolecularEntity/0.5-RELEASE',
+          identifier: this.metabolite.id,
+          name: this.metabolite.name,
+          url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/metabolite/${this.metabolite.id}`,
+        },
+      }],
     };
   },
   watch: {
