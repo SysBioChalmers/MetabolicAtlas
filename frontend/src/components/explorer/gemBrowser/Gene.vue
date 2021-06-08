@@ -71,7 +71,7 @@ import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
 import GemContact from '@/components/shared/GemContact';
-import { reformatTableKey } from '@/helpers/utils';
+import { generateSocialMetaTags, reformatTableKey } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -117,15 +117,12 @@ export default {
       return {};
     }
 
+    const title = `${this.gene.geneName}, Gene in ${this.model.short_name}`;
+    const description = `The gene ${this.gene.geneName} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.gene.compartments[0].name} compartment and the ${this.gene.subsystems[0].name} subsystem.`;
+
     return {
-      title: `${this.gene.geneName}, Gene in ${this.model.short_name}`,
-      meta: [
-        {
-          vmid: 'description',
-          name: 'description',
-          content: `The gene ${this.gene.geneName} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.gene.compartments[0].name} compartment and the ${this.gene.subsystems[0].name} subsystem.`,
-        },
-      ],
+      title,
+      meta: generateSocialMetaTags({ title, description }),
       script: [{
         type: 'application/ld+json',
         json: {

@@ -94,7 +94,7 @@ import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import GemContact from '@/components/shared/GemContact';
 import References from '@/components/shared/References';
-import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, equationSign } from '@/helpers/utils';
+import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, equationSign, generateSocialMetaTags } from '@/helpers/utils';
 
 export default {
   name: 'Reaction',
@@ -139,13 +139,12 @@ export default {
       return {};
     }
 
+    const title = `${this.reaction.id}, Reaction in ${this.model.short_name}`;
+    const description = `The reaction ${this.reaction.id} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.reaction.compartments.[0].name} compartment and the ${this.reaction.subsystems[0].name} subsystem.`;
+
     return {
-      title: `${this.reaction.id}, Reaction in ${this.model.short_name}`,
-      meta: [{
-        vmid: 'description',
-        name: 'description',
-        content: `The reaction ${this.reaction.id} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.reaction.compartments.[0].name} compartment and the ${this.reaction.subsystems[0].name} subsystem.`,
-      }],
+      title,
+      meta: generateSocialMetaTags({ title, description }),
     };
   },
   watch: {

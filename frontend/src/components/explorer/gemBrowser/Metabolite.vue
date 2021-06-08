@@ -106,7 +106,7 @@ import NotFound from '@/components/NotFound';
 import Loader from '@/components/Loader';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import { chemicalFormula } from '@/helpers/chemical-formatters';
-import { reformatTableKey } from '@/helpers/utils';
+import { generateSocialMetaTags, reformatTableKey } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -154,13 +154,12 @@ export default {
       return {};
     }
 
+    const title = `${this.metabolite.name}, Metabolite in ${this.model.short_name}`;
+    const description = `The metabolite ${this.metabolite.name} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.metabolite.compartment.name} compartment and the ${this.metabolite.subsystems[0].name} subsystem.`;
+
     return {
-      title: `${this.metabolite.name}, Metabolite in ${this.model.short_name}`,
-      meta: [{
-        vmid: 'description',
-        name: 'description',
-        content: `The metabolite ${this.metabolite.name} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.metabolite.compartment.name} compartment and the ${this.metabolite.subsystems[0].name} subsystem.`,
-      }],
+      title,
+      meta: generateSocialMetaTags({ title, description }),
       script: [{
         type: 'application/ld+json',
         json: {

@@ -70,7 +70,7 @@ import Loader from '@/components/Loader';
 import NotFound from '@/components/NotFound';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import GemContact from '@/components/shared/GemContact';
-import { buildCustomLink } from '@/helpers/utils';
+import { buildCustomLink, generateSocialMetaTags } from '@/helpers/utils';
 
 export default {
   name: 'Compartment',
@@ -119,13 +119,12 @@ export default {
       return {};
     }
 
+    const title = `${this.compartment.name}, Compartment in ${this.model.short_name}`;
+    const description = `The compartment ${this.compartment.name} in ${this.model.short_name} (version ${this.model.version}) consists of ${this.compartment.subsystemCount} subsystems, ${this.compartment.reactionsCount} reactions, ${this.compartment.metabolitesCount} metabolites, and ${this.compartment.genesCount} genes.`;
+
     return {
-      title: `${this.compartment.name}, Compartment in ${this.model.short_name}`,
-      meta: [{
-        vmid: 'description',
-        name: 'description',
-        content: `The compartment ${this.compartment.name} in ${this.model.short_name} (version ${this.model.version}) consists of ${this.compartment.subsystemCount} subsystems, ${this.compartment.reactionsCount} reactions, ${this.compartment.metabolitesCount} metabolites, and ${this.compartment.genesCount} genes.`,
-      }],
+      title,
+      meta: generateSocialMetaTags({ title, description }),
     };
   },
   watch: {
