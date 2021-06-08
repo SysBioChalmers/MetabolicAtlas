@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import $ from 'jquery';
 import VueRouter from 'vue-router';
 import NProgress from 'nprogress';
 import Home from '@/components/Home';
@@ -48,9 +47,7 @@ const router = new VueRouter({
   mode: 'history',
   routes,
   scrollBehavior(to) {
-    if (to.hash) {
-      $(window).scrollTop($(to.hash).offset().top);
-    }
+    return to.hash ? { selector: to.hash } : {};
   },
 });
 
