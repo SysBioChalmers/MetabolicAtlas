@@ -255,7 +255,7 @@ export default {
   data() {
     return {
       multipleColors,
-      ftpUrl: 'metabolicatlas.org',
+      ftpUrl: 'ftp.metabolicatlas.org',
     };
   },
 };
