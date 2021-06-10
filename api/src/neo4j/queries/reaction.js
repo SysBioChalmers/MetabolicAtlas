@@ -47,13 +47,15 @@ CALL apoc.cypher.run("
   
   MATCH (r:Reaction${m} {id: '${id}'})-[${v}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
-  MATCH (cm)-[${v}]-(:Compartment)-[${v}]-(csvg:SvgMap)
-  RETURN { compartmentSVGs: COLLECT(DISTINCT(csvg {.*})) } as data
+  MATCH (cm)-[${v}]-(c:Compartment)-[${v}]-(csvg:SvgMap)
+  WITH {compartmentId: c.id, compartmentSVGs: COLLECT(DISTINCT(csvg {.*}))} as compartmentSVG
+  RETURN { compartmentSVGs: COLLECT(compartmentSVG) } as data
   
   UNION
   
-  MATCH (r:Reaction${m} {id: '${id}'})-[${v}]-(:Subsystem)-[${v}]-(ssvg:SvgMap)
-  RETURN { subsystemSVGs: COLLECT(DISTINCT(ssvg {.*})) } as data
+  MATCH (r:Reaction${m} {id: '${id}'})-[${v}]-(s:Subsystem)-[${v}]-(ssvg:SvgMap)
+  WITH {subsystemId: s.id, subsystemSVGs: COLLECT(DISTINCT(ssvg {.*}))} as subsystemSVG
+  RETURN { subsystemSVGs: COLLECT(subsystemSVG) } as data
 ", {}) yield value
 RETURN apoc.map.mergeList(COLLECT(value.data)) as reaction
 `;

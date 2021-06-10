@@ -6,24 +6,39 @@
         <span>{{ messages.mapViewerName }}</span>
       </p>
     </header>
-    <div v-if="mapAvailableLimited" class="card-content p-2">
+    <div v-if="mapsAvailable.length !== 0" class="card-content p-2">
       <table class="table test-table">
         <tbody>
-          <tr v-for="customName in Object.keys(groupedMaps).sort()" :key="customName" class="m-3">
-            <td>{{ customName }}</td>
-            <td v-for="mapKey in ['2d', '3d']" :key="mapKey">
-              <router-link v-if="groupedMaps[customName][mapKey] && viewerSelectedID"
-                         :to="{ name: 'viewer',
-                                params: { model: model.short_name, map_id: groupedMaps[customName][mapKey],
-                                          reload: true },
-                                query: { dim: mapKey, search: viewerSelectedID, sel: viewerSelectedID } }">
-              {{ mapKey.toUpperCase() }}
-              </router-link>
-              <router-link v-else-if="groupedMaps[customName][mapKey]" :to="{ name: 'viewer',
-              params: { model: model.short_name, map_id: groupedMaps[customName][mapKey]},
-              query: { dim: mapKey } }">
-              {{ mapKey.toUpperCase() }}
-              </router-link>
+          <tr v-for="component in mapsAvailable" :key="component.id">
+            <td> {{ component.customName }} </td>
+            <td v-if="component.svgMaps.length===0"> </td>
+            <td v-else-if="component.svgMaps.length===1">
+              <router-link :to="{ name: 'viewer',
+                                  params: { model: model.short_name, map_id: component.svgMaps[0].id,
+                                            reload: true },
+                                  query: { dim: '2d', search: viewerSelectedID, sel: viewerSelectedID } }">
+                2D
+                </router-link>
+            </td>
+             <td v-else>
+               <div class="select is-small is-link">
+                <select @change="(e) => routeSelected2DMap(component.svgMaps, e.target.value)">
+                  <option selected disabled>
+                    2D
+                  </option>
+                  <option v-for="map in sorted(component)" :key="map.id">
+                    {{ map.customName }}
+                  </option>
+                </select>
+              </div>
+            </td>
+            <td>
+              <router-link :to="{ name: 'viewer',
+                                  params: { model: model.short_name, map_id: component.id,
+                                            reload: true },
+                                  query: { dim: '3d', search: viewerSelectedID, sel: viewerSelectedID } }">
+                3D
+                </router-link>
             </td>
           </tr>
         </tbody>
@@ -59,51 +74,21 @@ export default {
       model: state => state.models.model,
       mapsAvailable: state => state.maps.availableMaps,
     }),
-    mapAvailableLimited() {
-      /* eslint-disable vue/no-side-effects-in-computed-properties */
-      // TODO: move this into vuex
-      if (Object.keys(this.mapsAvailable).length === 0) {
-        return null;
-      }
-      const limited = JSON.parse(JSON.stringify(this.mapsAvailable)); // copy
-      ['2d', '3d'].forEach((d) => {
-        this.limitedMapsDim[d] = false;
-        if (limited[d].compartment.length > this.mapLimitPerDim) {
-          this.limitedMapsDim[d] = true;
-          limited[d].compartment = limited[d].compartment.slice(0, this.mapLimitPerDim);
-          limited[d].subsystem = [];
-        } else {
-          const remainingEntries = this.mapLimitPerDim - limited[d].compartment.length;
-          if (limited[d].subsystem.length > remainingEntries) {
-            limited[d].subsystem = limited[d].subsystem.slice(0, remainingEntries);
-            this.limitedMapsDim[d] = true;
-          }
+  },
+  methods: {
+    sorted(component) {
+      return { ...component }.svgMaps.sort((a, b) => a.id.localeCompare(b.id));
+    },
+    routeSelected2DMap(svgmaps, nameSelectedMap) {
+      let svgId = '';
+      svgmaps.forEach((map) => {
+        if (map.customName === nameSelectedMap) {
+          svgId = map.id;
         }
       });
-      /* eslint-enable vue/no-side-effects-in-computed-properties */
-      return limited;
-    },
-    mapKeys() {
-      return ['2d', '3d'].filter(d => this.mapsAvailable[d].compartment.length > 0 || this.mapsAvailable[d].subsystem.length > 0);
-    },
-    groupedMaps() {
-      const maps = {};
-      const mapCopy = JSON.parse(JSON.stringify(this.mapsAvailable));
-      ['2d', '3d'].forEach((d) => {
-        mapCopy[d].compartment.forEach((c) => {
-          if (!(c.customName in maps)) {
-            maps[c.customName] = { '2d': '', '3d': '' };
-          }
-          maps[c.customName][d] = c.id;
-        });
-        mapCopy[d].subsystem.forEach((c) => {
-          if (!(c.customName in maps)) {
-            maps[c.customName] = { '2d': '', '3d': '' };
-          }
-          maps[c.customName][d] = c.id;
-        });
-      });
-      return maps;
+      this.$router.push({ name: 'viewer',
+        params: { model: this.model.short_name, map_id: svgId, reload: true },
+        query: { dim: '2d', search: this.viewerSelectedID, sel: this.viewerSelectedID } });
     },
   },
 };

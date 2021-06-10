@@ -11,19 +11,30 @@ const actions = {
   async getReactionData({ commit }, { model, id }) {
     const payload = { id, model: model.apiName, version: model.apiVersion };
     const { pubmedIds, ...reaction } = await reactionsApi.fetchReactionData(payload);
-
     commit('setReaction', reaction);
 
-    commit('maps/setAvailableMaps', {
-      '2d': {
-        compartment: reaction.compartmentSVGs,
-        subsystem: reaction.subsystemSVGs,
-      },
-      '3d': {
-        compartment: reaction.compartments.map(c => ({ id: c.id, customName: c.name })),
-        subsystem: reaction.subsystems.map(s => ({ id: s.id, customName: s.name })),
-      },
-    }, { root: true });
+    const compartmentMaps = [...reaction.compartments].sort((a, b) => a.id.localeCompare(b.id)).map((c) => {
+      const compartmentWithSVGs = reaction.compartmentSVGs.find(({ compartmentId }) => compartmentId === c.id);
+      const svgMaps = compartmentWithSVGs ? compartmentWithSVGs.compartmentSVGs : [];
+      return {
+        id: c.id,
+        customName: c.name,
+        svgMaps,
+      };
+    });
+    const subsystemMaps = [...reaction.subsystems].sort((a, b) => a.id.localeCompare(b.id)).map((s) => {
+      const subsystemsWithSVGs = reaction.subsystemSVGs.find(({ subsystemId }) => subsystemId === s.id);
+      const svgMaps = subsystemsWithSVGs ? subsystemsWithSVGs.subsystemSVGs : [];
+      return {
+        id: s.id,
+        customName: s.name,
+        svgMaps,
+      };
+    });
+
+    commit('maps/setAvailableMaps', [
+      ...compartmentMaps, ...subsystemMaps,
+    ], { root: true });
 
     const pmids = pubmedIds.map(pm => pm.id);
     commit('setReferenceList', pmids);
