@@ -23,6 +23,15 @@
             <ExtIdTable :type="componentType" :external-dbs="externalDbs"></ExtIdTable>
           </div>
           <div class="column is-3-widescreen is-3-desktop is-half-tablet has-text-centered">
+            <router-link v-if="interactionPartnerId" class="button is-info is-fullwidth is-outlined"
+                            :to="{
+                            name: 'interaction',
+                            params: { model: interactionPartnerModel, id: interactionPartnerId }
+                            }">
+                <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
+                <span>{{ messages.interPartName }}</span>
+            </router-link>
+            <br>
             <maps-available :id="componentId" :type="componentType" :element-i-d="''"></maps-available>
             <gem-contact :id="componentId" :type="componentType" />
           </div>
@@ -43,6 +52,7 @@ import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
 import GemContact from '@/components/shared/GemContact';
+import { default as messages } from '@/helpers/messages';
 
 export default {
   components: {
@@ -59,6 +69,8 @@ export default {
     externalDbs: { type: Object, default: () => {} },
     queryComponentAction: { type: String },
     includeReactionTable: { type: Boolean, default: true },
+    interactionPartnerId: { type: String, default: '' },
+    interactionPartnerModel: { type: String, default: '' },
   },
   data() {
     return {
@@ -66,6 +78,7 @@ export default {
       modelNotFound: false,
       componentNotFound: false,
       showLoaderMessage: '',
+      messages,
     };
   },
   computed: {
