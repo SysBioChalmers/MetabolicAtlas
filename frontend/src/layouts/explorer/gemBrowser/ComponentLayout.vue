@@ -32,7 +32,8 @@
                 <span>{{ messages.interPartName }}</span>
             </router-link>
             <br>
-            <maps-available :id="componentId" :type="componentType" :element-i-d="''"></maps-available>
+            <maps-available :id="componentId" :type="componentType"
+            :viewer-selected-i-d="viewerSelectedID"></maps-available>
             <gem-contact :id="componentId" :type="componentType" />
           </div>
         </div>
@@ -71,6 +72,7 @@ export default {
     includeReactionTable: { type: Boolean, default: true },
     interactionPartnerId: { type: String, default: '' },
     interactionPartnerModel: { type: String, default: '' },
+    viewerSelectedID: { type: String, default: '' },
   },
   data() {
     return {
