@@ -26,7 +26,7 @@
             <router-link v-if="interactionPartnerId" class="button is-info is-fullwidth is-outlined"
                             :to="{
                             name: 'interaction',
-                            params: { model: interactionPartnerModel, id: interactionPartnerId }
+                            params: { model: model.short_name, id: interactionPartnerId }
                             }">
                 <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
                 <span>{{ messages.interPartName }}</span>
@@ -72,7 +72,6 @@ export default {
     queryComponentAction: { type: String },
     includeReactionTable: { type: Boolean, default: true },
     interactionPartnerId: { type: String, default: '' },
-    interactionPartnerModel: { type: String, default: '' },
     viewerSelectedID: { type: String, default: '' },
     selectedElmId: { type: String, required: false, default: null },
     relatedMetCount: { type: Number, required: false, default: 0 },
