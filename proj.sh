@@ -20,7 +20,7 @@ function build-stack {
 }
 
 function start-stack {
-  docker compose -f docker-compose.yml -f docker-compose-local.yml up -d
+  docker-compose -f docker-compose.yml -f docker-compose-local.yml up -d
   docker cp frontend:/project/yarn.lock frontend/yarn.lock
   docker cp api:/project/yarn.lock api/yarn.lock
 }
