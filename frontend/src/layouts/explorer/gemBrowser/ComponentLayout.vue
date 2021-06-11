@@ -23,10 +23,10 @@
             <ExtIdTable :type="componentType" :external-dbs="externalDbs"></ExtIdTable>
           </div>
           <div class="column is-3-widescreen is-3-desktop is-half-tablet has-text-centered">
-            <router-link v-if="interactionPartnerId" class="button is-info is-fullwidth is-outlined"
+            <router-link v-if="interactionPartner" class="button is-info is-fullwidth is-outlined"
                             :to="{
                             name: 'interaction',
-                            params: { model: model.short_name, id: interactionPartnerId }
+                            params: { model: model.short_name, id: componentId }
                             }">
                 <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
                 <span>{{ messages.interPartName }}</span>
@@ -71,7 +71,7 @@ export default {
     externalDbs: { type: Object, default: () => {} },
     queryComponentAction: { type: String },
     includeReactionTable: { type: Boolean, default: true },
-    interactionPartnerId: { type: String, default: '' },
+    interactionPartner: { type: Boolean, default: false },
     viewerSelectedID: { type: String, default: '' },
     selectedElmId: { type: String, required: false, default: null },
     relatedMetCount: { type: Number, required: false, default: 0 },
