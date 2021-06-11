@@ -11,7 +11,7 @@ routes.get('/all', async (req, res) => {
 
     res.json(HPA_JSON);
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).send(e.message);
   }
 });
 

@@ -14,7 +14,7 @@ routes.get('/integrated_models', async (req, res) => {
 
     res.json(models);
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).send(e.message);
   }
 });
 
@@ -29,7 +29,7 @@ routes.get('/integrated_models/:name', async (req, res) => {
       res.sendStatus(404);
     }
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).send(e.message);
   }
 });
 
@@ -37,7 +37,7 @@ routes.get('/models', async (req, res) => {
   try {
     res.json(gemsRepoJson);
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).send(e.message);
   }
 });
 
