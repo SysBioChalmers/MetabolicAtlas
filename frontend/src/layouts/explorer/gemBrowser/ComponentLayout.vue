@@ -37,7 +37,8 @@
             <gem-contact :id="componentId" :type="componentType" />
           </div>
         </div>
-        <reaction-table v-if="model && includeReactionTable" :source-name="componentId" :type="componentType" />
+        <reaction-table v-if="model && includeReactionTable" :source-name="componentId" :type="componentType"
+        :selected-elm-id="selectedElmId" :related-met-count="relatedMetCount"/>
       </div>
     </div>
   </div>
@@ -73,6 +74,8 @@ export default {
     interactionPartnerId: { type: String, default: '' },
     interactionPartnerModel: { type: String, default: '' },
     viewerSelectedID: { type: String, default: '' },
+    selectedElmId: { type: String, required: false, default: null },
+    relatedMetCount: { type: Number, required: false, default: 0 },
   },
   data() {
     return {
