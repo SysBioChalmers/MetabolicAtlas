@@ -38,7 +38,7 @@
           </div>
         </div>
         <reaction-table v-if="model && includeReactionTable" :source-name="componentId" :type="componentType"
-        :selected-elm-id="selectedElmId" :related-met-count="relatedMetCount"/>
+        :selected-elm-id="selectedElm ? componentId : null" :related-met-count="relatedMetCount"/>
       </div>
     </div>
   </div>
@@ -73,7 +73,7 @@ export default {
     includeReactionTable: { type: Boolean, default: true },
     interactionPartner: { type: Boolean, default: false },
     viewerSelectedID: { type: String, default: '' },
-    selectedElmId: { type: String, required: false, default: null },
+    selectedElm: { type: Boolean, required: false, default: true },
     relatedMetCount: { type: Number, required: false, default: 0 },
   },
   data() {
