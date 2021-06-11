@@ -16,7 +16,7 @@
         </div>
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
         <div v-else class="columns is-multiline is-variable is-8">
-          <div class="column is-9-widescreen is-9-desktop is-full-tablet">
+          <div class="gembrowser-table column is-9-widescreen is-9-desktop is-full-tablet">
             <div class="table-container">
               <slot name="table" />
             </div>
