@@ -84,7 +84,6 @@ export default {
   },
   created() {
     this.search = debounce(this.search, 300);
-    EventBus.$off('apply2DHPARNAlevels');
     EventBus.$on('apply2DHPARNAlevels', () => {
       this.focusOnInputSearch();
     });
