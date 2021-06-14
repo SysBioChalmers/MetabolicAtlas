@@ -11,7 +11,22 @@ const formatGeneRule = (reaction) => {
     if (w.match(/and|or/)) {
       return w;
     }
-    const gene = genes.find(g => g.id === w);
+
+    let gid = w;
+
+    if (gid[0] === '(') {
+      gid = gid.slice(1);
+      const gene = genes.find(g => g.id === gid);
+      return `(${gene.name}`;
+    }
+
+    if (gid[gid.length - 1] === ')') {
+      gid = gid.slice(0, -1);
+      const gene = genes.find(g => g.id === gid);
+      return `${gene.name})`;
+    }
+
+    const gene = genes.find(g => g.id === gid);
     return gene.name;
   }).join(' ');
 };
