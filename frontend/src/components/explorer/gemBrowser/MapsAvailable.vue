@@ -8,7 +8,7 @@
     </header>
     <div v-if="mapsAvailable.length !== 0" class="card-content p-2">
       <table class="table test-table">
-        <tbody>
+        <tbody class="has-text-left">
           <tr v-for="component in mapsAvailable" :key="component.id">
             <td> {{ component.customName }} </td>
             <td v-if="component.svgMaps.length===0"> </td>
