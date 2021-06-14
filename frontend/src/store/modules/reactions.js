@@ -15,7 +15,7 @@ const actions = {
 
     const compartmentMaps = [...reaction.compartments].sort((a, b) => a.id.localeCompare(b.id)).map((c) => {
       const compartmentWithSVGs = reaction.compartmentSVGs.find(({ compartmentId }) => compartmentId === c.id);
-      const svgMaps = compartmentWithSVGs ? compartmentWithSVGs.compartmentSVGs : [];
+      const svgMaps = compartmentWithSVGs ? compartmentWithSVGs.compartmentSVGs.sort((a, b) => a.id.localeCompare(b.id)) : []; // eslint-disable-line max-len
       return {
         id: c.id,
         customName: c.name,
@@ -24,7 +24,7 @@ const actions = {
     });
     const subsystemMaps = [...reaction.subsystems].sort((a, b) => a.id.localeCompare(b.id)).map((s) => {
       const subsystemsWithSVGs = reaction.subsystemSVGs.find(({ subsystemId }) => subsystemId === s.id);
-      const svgMaps = subsystemsWithSVGs ? subsystemsWithSVGs.subsystemSVGs : [];
+      const svgMaps = subsystemsWithSVGs ? subsystemsWithSVGs.subsystemSVGs.sort((a, b) => a.id.localeCompare(b.id)) : []; // eslint-disable-line max-len
       return {
         id: s.id,
         customName: s.name,

@@ -26,7 +26,7 @@
                   <option selected disabled>
                     2D
                   </option>
-                  <option v-for="map in sorted(component)" :key="map.id">
+                  <option v-for="map in component.svgMaps" :key="map.id">
                     {{ map.customName }}
                   </option>
                 </select>
@@ -76,9 +76,6 @@ export default {
     }),
   },
   methods: {
-    sorted(component) {
-      return { ...component }.svgMaps.sort((a, b) => a.id.localeCompare(b.id));
-    },
     routeSelected2DMap(svgmaps, nameSelectedMap) {
       let svgId = '';
       svgmaps.forEach((map) => {
