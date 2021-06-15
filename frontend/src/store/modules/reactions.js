@@ -13,27 +13,8 @@ const actions = {
     const { pubmedIds, ...reaction } = await reactionsApi.fetchReactionData(payload);
     commit('setReaction', reaction);
 
-    const compartmentMaps = [...reaction.compartments].sort((a, b) => a.id.localeCompare(b.id)).map((c) => {
-      const compartmentWithSVGs = reaction.compartmentSVGs.find(({ compartmentId }) => compartmentId === c.id);
-      const svgMaps = compartmentWithSVGs ? compartmentWithSVGs.compartmentSVGs.sort((a, b) => a.id.localeCompare(b.id)) : []; // eslint-disable-line max-len
-      return {
-        id: c.id,
-        customName: c.name,
-        svgMaps,
-      };
-    });
-    const subsystemMaps = [...reaction.subsystems].sort((a, b) => a.id.localeCompare(b.id)).map((s) => {
-      const subsystemsWithSVGs = reaction.subsystemSVGs.find(({ subsystemId }) => subsystemId === s.id);
-      const svgMaps = subsystemsWithSVGs ? subsystemsWithSVGs.subsystemSVGs.sort((a, b) => a.id.localeCompare(b.id)) : []; // eslint-disable-line max-len
-      return {
-        id: s.id,
-        customName: s.name,
-        svgMaps,
-      };
-    });
-
     commit('maps/setAvailableMaps', [
-      ...compartmentMaps, ...subsystemMaps,
+      ...reaction.compartmentSVGs, ...reaction.subsystemSVGs,
     ], { root: true });
 
     const pmids = pubmedIds.map(pm => pm.id);
