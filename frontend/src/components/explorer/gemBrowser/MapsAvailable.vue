@@ -13,36 +13,28 @@
             <td> {{ component.customName }} </td>
             <td v-if="component.svgMaps.length===0"> </td>
             <td v-else-if="component.svgMaps.length===1">
-              <div class="button is-outlined is-small link-button">
-                <router-link :to="{ name: 'viewer',
-                                    params: { model: model.short_name, map_id: component.svgMaps[0].id,
-                                              reload: true },
-                                    query: { dim: '2d', search: viewerSelectedID, sel: viewerSelectedID } }">
-                  2D
-                  </router-link>
-              </div>
+              <button class="button is-outlined is-small link-button"
+              @click="routeSVGmap(component.svgMaps[0].id, '2d')">
+                  <span class="has-text-link"> 2D </span>
+              </button>
             </td>
              <td v-else>
                <div class="select is-small">
-                <select @change="(e) => routeSelected2DMap(component.svgMaps, e.target.value)">
+                <select class="has-text-link" @change="(e) => routeSVGmap(e.target.value, '2d')">
                   <option selected disabled>
                     2D
                   </option>
-                  <option v-for="map in component.svgMaps" :key="map.id">
+                  <option v-for="map in component.svgMaps"  :key="map.id" :value="map.id">
                     {{ map.customName }}
                   </option>
                 </select>
               </div>
             </td>
             <td>
-              <div class="button is-outlined is-small link-button">
-                <router-link :to="{ name: 'viewer',
-                                    params: { model: model.short_name, map_id: component.id,
-                                              reload: true },
-                                    query: { dim: '3d', search: viewerSelectedID, sel: viewerSelectedID } }">
-                  3D
-                  </router-link>
-              </div>
+              <button class="button is-outlined is-small link-button"
+              @click="routeSVGmap(component.id, '3d')">
+                <span class="has-text-link"> 3D </span>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -80,16 +72,10 @@ export default {
     }),
   },
   methods: {
-    routeSelected2DMap(svgmaps, nameSelectedMap) {
-      let svgId = '';
-      svgmaps.forEach((map) => {
-        if (map.customName === nameSelectedMap) {
-          svgId = map.id;
-        }
-      });
+    routeSVGmap(svgId, dimension) {
       this.$router.push({ name: 'viewer',
         params: { model: this.model.short_name, map_id: svgId, reload: true },
-        query: { dim: '2d', search: this.viewerSelectedID, sel: this.viewerSelectedID } });
+        query: { dim: dimension, search: this.viewerSelectedID, sel: this.viewerSelectedID } });
     },
   },
 };
