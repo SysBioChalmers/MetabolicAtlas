@@ -13,15 +13,17 @@
             <td> {{ component.customName }} </td>
             <td v-if="component.svgMaps.length===0"> </td>
             <td v-else-if="component.svgMaps.length===1">
-              <router-link :to="{ name: 'viewer',
-                                  params: { model: model.short_name, map_id: component.svgMaps[0].id,
-                                            reload: true },
-                                  query: { dim: '2d', search: viewerSelectedID, sel: viewerSelectedID } }">
-                2D
-                </router-link>
+              <div class="button is-outlined is-small link-button">
+                <router-link :to="{ name: 'viewer',
+                                    params: { model: model.short_name, map_id: component.svgMaps[0].id,
+                                              reload: true },
+                                    query: { dim: '2d', search: viewerSelectedID, sel: viewerSelectedID } }">
+                  2D
+                  </router-link>
+              </div>
             </td>
              <td v-else>
-               <div class="select is-small is-link">
+               <div class="select is-small">
                 <select @change="(e) => routeSelected2DMap(component.svgMaps, e.target.value)">
                   <option selected disabled>
                     2D
@@ -33,12 +35,14 @@
               </div>
             </td>
             <td>
-              <router-link :to="{ name: 'viewer',
-                                  params: { model: model.short_name, map_id: component.id,
-                                            reload: true },
-                                  query: { dim: '3d', search: viewerSelectedID, sel: viewerSelectedID } }">
-                3D
-                </router-link>
+              <div class="button is-outlined is-small link-button">
+                <router-link :to="{ name: 'viewer',
+                                    params: { model: model.short_name, map_id: component.id,
+                                              reload: true },
+                                    query: { dim: '3d', search: viewerSelectedID, sel: viewerSelectedID } }">
+                  3D
+                  </router-link>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -95,5 +99,8 @@ export default {
 .card-content {
   overflow-y: auto;
   max-height: 400px;
+}
+.link-button {
+  border-radius: 4px;
 }
 </style>
