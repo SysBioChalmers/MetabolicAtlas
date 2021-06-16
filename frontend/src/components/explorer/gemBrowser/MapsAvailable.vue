@@ -73,9 +73,16 @@ export default {
   },
   methods: {
     routeSVGmap(svgId, dimension) {
-      this.$router.push({ name: 'viewer',
-        params: { model: this.model.short_name, map_id: svgId, reload: true },
-        query: { dim: dimension, search: this.viewerSelectedID, sel: this.viewerSelectedID } });
+      console.log('Zup');
+      if (this.viewerSelectedID) {
+        this.$router.push({ name: 'viewer',
+          params: { model: this.model.short_name, map_id: svgId, reload: true },
+          query: { dim: dimension, search: this.viewerSelectedID, sel: this.viewerSelectedID } });
+      } else {
+        this.$router.push({ name: 'viewer',
+          params: { model: this.model.short_name, map_id: svgId },
+          query: { dim: dimension } });
+      }
     },
   },
 };
