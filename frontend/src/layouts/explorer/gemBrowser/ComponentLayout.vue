@@ -125,8 +125,8 @@ export default {
         const payload = { model: this.model, id: this.componentId };
         await this.$store.dispatch(this.queryComponentAction, payload);
         this.componentNotFound = false;
-        if (this.$listeners && this.$listeners.doAfterLoad) {
-          this.$emit('doAfterLoad');
+        if (this.$listeners && this.$listeners.handleCallback) {
+          this.$emit('handleCallback');
         }
         this.showLoaderMessage = '';
       } catch {

@@ -4,7 +4,7 @@
     :external-dbs="reaction.externalDbs" query-component-action="reactions/getReactionData"
     :viewer-selected-i-d="reaction.id" :include-reaction-table="false"
     :reference-list="referenceList"
-     @doAfterLoad="doAfterLoad"
+     @handleCallback="handleCallback"
   >
     <template v-slot:table>
       <table v-if="reaction && Object.keys(reaction).length !== 0" class="table main-table is-fullwidth">
@@ -105,7 +105,7 @@ export default {
     }),
   },
   methods: {
-    async doAfterLoad() {
+    async handleCallback() {
       try {
         const payload = { model: this.model, id: this.rId };
         await this.$store.dispatch('reactions/getRelatedReactionsForReaction', payload);

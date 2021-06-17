@@ -5,7 +5,7 @@
     :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
     :interaction-partner="true" :viewer-selected-i-d="metabolite.id"
     :related-met-count="relatedMetabolites.length" :is-metabolite="true"
-    @doAfterLoad="doAfterLoad"
+    @handleCallback="handleCallback"
   >
     <template v-slot:table>
       <table v-if="metabolite" class="table main-table is-fullwidth">
@@ -108,7 +108,7 @@ export default {
     }),
   },
   methods: {
-    async doAfterLoad() {
+    async handleCallback() {
       if (this.metabolite.externalDbs.ChEBI) {
         const link = `https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${this.metabolite.externalDbs.ChEBI[0].id.slice(6)}`;
         const { data } = await axios.get(link);
