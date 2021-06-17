@@ -3,7 +3,7 @@
       :component-type="type" :component-name="metabolite.name"
       :compartment-name="(metabolite && metabolite.compartment) ? metabolite.compartment.name : ''"
       :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
-      :chebi="this.metabolite.externalDbs.ChEBI ? metabolite.externalDbs.ChEBI[0] : {}"
+      :chebi="this.metabolite.externalDbs.ChEBI ? metabolite.externalDbs.ChEBI[0] : null"
       :interaction-partner="true" :viewer-selected-i-d="metabolite.id"
       :related-met-count="relatedMetabolites.length"
   >

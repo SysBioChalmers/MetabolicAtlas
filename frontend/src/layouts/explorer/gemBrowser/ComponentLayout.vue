@@ -83,7 +83,7 @@ export default {
     viewerSelectedID: { type: String, default: '' },
     selectedElm: { type: Boolean, required: false, default: true },
     relatedMetCount: { type: Number, required: false, default: 0 },
-    chebi: { type: Object, required: false, default: () => {} },
+    chebi: { type: Object, required: false, default: null },
 
   },
   data() {
