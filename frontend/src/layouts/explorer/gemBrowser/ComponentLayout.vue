@@ -23,6 +23,7 @@
               <slot name="table" />
             </div>
             <ExtIdTable :type="componentType" :external-dbs="externalDbs"></ExtIdTable>
+            <references v-if="referenceList" :reference-list="referenceList" />
           </div>
           <slot v-if="isMetabolite" name="chebi" />
           <div class="column is-3-widescreen is-3-desktop is-half-tablet has-text-centered">
@@ -56,6 +57,7 @@ import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
 import GemContact from '@/components/shared/GemContact';
+import References from '@/components/shared/References';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -66,6 +68,7 @@ export default {
     ReactionTable,
     ExtIdTable,
     GemContact,
+    References,
   },
   props: {
     componentType: { type: String },
@@ -79,6 +82,7 @@ export default {
     selectedElm: { type: Boolean, required: false, default: true },
     relatedMetCount: { type: Number, required: false, default: 0 },
     isMetabolite: { type: Boolean, default: false },
+    referenceList: { type: Object, default: null },
   },
   data() {
     return {
