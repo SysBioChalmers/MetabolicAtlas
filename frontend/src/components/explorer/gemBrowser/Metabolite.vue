@@ -1,110 +1,63 @@
 <template>
-  <div class="section extended-section">
-    <div class="container is-fullhd">
-      <div v-if="modelNotFound || componentNotFound" class="columns is-centered">
-        <NotFound
-          :type="modelNotFound ? 'model' : type"
-          :component-id="modelNotFound ? $route.params.model : metaboliteId" />
-      </div>
-      <div v-else>
-        <div class="columns">
-          <div class="column">
-            <h3 class="title is-3">
-              <span class="is-capitalized">{{ type }}</span> {{ metabolite.name }}
-              <span v-if="metabolite && metabolite.compartment" class="has-text-weight-light has-text-grey-light">
-                in {{ metabolite.compartment.name }}
-              </span>
-            </h3>
-          </div>
-        </div>
-        <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
-        <template v-else>
-          <div class="columns is-multiline metabolite-table is-variable is-8">
-            <div class="column">
-              <div class="table-container">
-                <table v-if="metabolite" class="table main-table is-fullwidth">
-                  <tr v-for="el in mainTableKey" :key="el.name">
-                    <td v-if="el.display"
-                        class="td-key has-background-primary has-text-white-bis" v-html="el.display">
-                    </td>
-                    <td v-else-if="el.name === 'id'"
-                        class="td-key has-background-primary has-text-white-bis">
-                      {{ model ? model.short_name : '' }} ID
-                    </td>
-                    <td v-else class="td-key has-background-primary has-text-white-bis">
-                      {{ reformatTableKey(el.name) }}
-                    </td>
-                    <td v-if="metabolite[el.name] !== null">
-                      <span v-if="el.name === 'formula'"
-                            v-html="chemicalFormula(metabolite[el.name], metabolite.charge)">
-                      </span>
-                      <span v-else-if="el.modifier" v-html="el.modifier(metabolite[el.name])">
-                      </span>
-                      <span v-else-if="el.name === 'compartment' && metabolite[el.name]">
-                        <!-- eslint-disable-next-line max-len -->
-                        <router-link :to="{ name: 'compartment', params: { model: model.short_name, id: metabolite[el.name].id } }"
-                        >{{ metabolite[el.name].id }}</router-link>
-                      </span>
-                      <span v-else>
-                        {{ metabolite[el.name] }}
-                      </span>
-                    </td>
-                    <td v-else> - </td>
-                  </tr>
-                  <tr v-if="relatedMetabolites.length !== 0">
-                    <td class="td-key has-background-primary has-text-white-bis">Related metabolite(s)</td>
-                    <td>
-                      <span v-for="(rm, i) in relatedMetabolites" :key="rm.id">
-                        <br v-if="i !== 0">
-                        <!-- eslint-disable-next-line max-len -->
-                        <router-link :to="{ name: 'metabolite', params: { model: model.short_name, id: rm.id } }">
-                          {{ rm.fullName }}
-                        </router-link> in {{ rm.compartment.name }}
-                      </span>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-              <ExtIdTable :type="type" :external-dbs="metabolite.externalDbs"></ExtIdTable>
-            </div>
-            <div v-if="chebiImageLink"
-                 class="column is-3-widescreen is-2-desktop is-full-tablet has-text-centered px-2">
-              <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank">
-                <img id="chebi-img" :src="chebiImageLink" class="hoverable" />
-                <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank" style="display: block;">
-                  {{ metabolite.name }} via ChEBI</a>
-              </a>
-            </div>
-            <div class="column is-3-widescreen is-3-desktop is-full-tablet has-text-centered">
-              <router-link v-if="model" class="button is-info is-fullwidth is-outlined"
-                           :to="{ name: 'interaction',
-                                  params: { model: model.short_name, id: metaboliteId } }">
-                <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
-                <span>{{ messages.interPartName }}</span>
-              </router-link>
-              <br>
+  <component-layout
+      :component-type="type" :component-name="metabolite.name"
+      :compartment-name="(metabolite && metabolite.compartment) ? metabolite.compartment.name : ''"
+      :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
+      :chebi="this.metabolite.externalDbs.ChEBI ? metabolite.externalDbs.ChEBI[0] : {}"
+      :interaction-partner="true" :viewer-selected-i-d="metabolite.id"
+      :related-met-count="relatedMetabolites.length"
+  >
+    <template v-slot:table>
+      <table v-if="metabolite" class="table main-table is-fullwidth">
+        <tr v-for="el in mainTableKey" :key="el.name">
+          <td v-if="el.display"
+              class="td-key has-background-primary has-text-white-bis" v-html="el.display">
+          </td>
+          <td v-else-if="el.name === 'id'"
+              class="td-key has-background-primary has-text-white-bis">
+            {{ model ? model.short_name : '' }} ID
+          </td>
+          <td v-else class="td-key has-background-primary has-text-white-bis">
+            {{ reformatTableKey(el.name) }}
+          </td>
+          <td v-if="metabolite[el.name] !== null">
+            <span v-if="el.name === 'formula'"
+                  v-html="chemicalFormula(metabolite[el.name], metabolite.charge)">
+            </span>
+            <span v-else-if="el.modifier" v-html="el.modifier(metabolite[el.name])">
+            </span>
+            <span v-else-if="el.name === 'compartment' && metabolite[el.name]">
               <!-- eslint-disable-next-line max-len -->
-              <maps-available :id="metaboliteId" :type="type" :viewer-selected-i-d="metabolite.id" />
-              <gem-contact :id="metaboliteId" :type="type" />
-            </div>
-          </div>
-          <reaction-table :selected-elm-id="metaboliteId" :source-name="metaboliteId" :type="type"
-                          :related-met-count="relatedMetabolites.length" />
-        </template>
-      </div>
-    </div>
-  </div>
+              <router-link :to="{ name: 'compartment', params: { model: model.short_name, id: metabolite[el.name].id } }"
+              >{{ metabolite[el.name].id }}</router-link>
+            </span>
+            <span v-else>
+              {{ metabolite[el.name] }}
+            </span>
+          </td>
+          <td v-else> - </td>
+        </tr>
+        <tr v-if="relatedMetabolites.length !== 0">
+          <td class="td-key has-background-primary has-text-white-bis">Related metabolite(s)</td>
+          <td>
+            <span v-for="(rm, i) in relatedMetabolites" :key="rm.id">
+              <br v-if="i !== 0">
+              <!-- eslint-disable-next-line max-len -->
+              <router-link :to="{ name: 'metabolite', params: { model: model.short_name, id: rm.id } }">
+                {{ rm.fullName }}
+              </router-link> in {{ rm.compartment.name }}
+            </span>
+          </td>
+        </tr>
+      </table>
+    </template>
+  </component-layout>
 </template>
 
 <script>
 import axios from 'axios';
 import { mapState } from 'vuex';
-import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
-import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
-import GemContact from '@/components/shared/GemContact';
-import NotFound from '@/components/NotFound';
-import Loader from '@/components/Loader';
-import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
+import ComponentLayout from '@/layouts/explorer/gemBrowser/ComponentLayout';
 import { chemicalFormula } from '@/helpers/chemical-formatters';
 import { reformatTableKey } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
@@ -112,12 +65,7 @@ import { default as messages } from '@/helpers/messages';
 export default {
   name: 'Metabolite',
   components: {
-    NotFound,
-    Loader,
-    ExtIdTable,
-    MapsAvailable,
-    ReactionTable,
-    GemContact,
+    ComponentLayout,
   },
   data() {
     return {

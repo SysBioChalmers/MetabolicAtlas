@@ -16,12 +16,20 @@
         </div>
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
         <div v-else class="columns is-multiline is-variable is-8">
-          <div class="gembrowser-table column is-9-widescreen is-9-desktop is-full-tablet">
+          <div class="gembrowser-table column">
             <div class="table-container">
               <slot name="table" />
             </div>
             <ExtIdTable :type="componentType" :external-dbs="externalDbs"></ExtIdTable>
           </div>
+          <div v-if="chebiImageLink"
+                 class="column is-3-widescreen is-2-desktop is-full-tablet has-text-centered px-2">
+              <a :href="chebi.url" target="_blank">
+                <img id="chebi-img" :src="chebiImageLink" class="hoverable" />
+                <a :href="chebi.url" target="_blank" style="display: block;">
+                  {{ componentName }} via ChEBI</a>
+              </a>
+            </div>
           <div class="column is-3-widescreen is-3-desktop is-half-tablet has-text-centered">
             <router-link v-if="interactionPartner" class="button is-info is-fullwidth is-outlined"
                             :to="{
@@ -46,7 +54,7 @@
 
 
 <script>
-
+import axios from 'axios';
 import { mapState } from 'vuex';
 import NotFound from '@/components/NotFound';
 import Loader from '@/components/Loader';
@@ -75,6 +83,8 @@ export default {
     viewerSelectedID: { type: String, default: '' },
     selectedElm: { type: Boolean, required: false, default: true },
     relatedMetCount: { type: Number, required: false, default: 0 },
+    chebi: { type: Object, required: false, default: () => {} },
+
   },
   data() {
     return {
@@ -83,6 +93,7 @@ export default {
       componentNotFound: false,
       showLoaderMessage: '',
       messages,
+      chebiImageLink: null,
     };
   },
   computed: {
@@ -112,6 +123,13 @@ export default {
         const payload = { model: this.model, id: this.componentId };
         await this.$store.dispatch(this.queryComponentAction, payload);
         this.componentNotFound = false;
+        if (this.chebi) {
+          const link = `https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${this.chebi.id.slice(6)}`;
+          const { data } = await axios.get(link);
+          if (data !== '') {
+            this.chebiImageLink = `${link}&dimensions=400`;
+          }
+        }
         this.showLoaderMessage = '';
       } catch {
         this.componentNotFound = true;
