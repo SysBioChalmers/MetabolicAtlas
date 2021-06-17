@@ -1,11 +1,11 @@
 <template>
   <component-layout
-      :component-type="type" :component-name="metabolite.name"
-      :compartment-name="(metabolite && metabolite.compartment) ? metabolite.compartment.name : ''"
-      :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
-      :chebi="this.metabolite.externalDbs.ChEBI ? metabolite.externalDbs.ChEBI[0] : null"
-      :interaction-partner="true" :viewer-selected-i-d="metabolite.id"
-      :related-met-count="relatedMetabolites.length"
+    :component-type="type" :component-name="metabolite.name"
+    :compartment-name="(metabolite && metabolite.compartment) ? metabolite.compartment.name : ''"
+    :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
+    :interaction-partner="true" :viewer-selected-i-d="metabolite.id"
+    :related-met-count="relatedMetabolites.length" :is-metabolite="true"
+    @doAfterLoad="doAfterLoad"
   >
     <template v-slot:table>
       <table v-if="metabolite" class="table main-table is-fullwidth">
@@ -50,6 +50,16 @@
           </td>
         </tr>
       </table>
+    </template>
+    <template v-slot:chebi>
+      <div v-if="chebiImageLink"
+           class="column is-3-widescreen is-2-desktop is-full-tablet has-text-centered px-2">
+        <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank">
+          <img id="chebi-img" :src="chebiImageLink" class="hoverable" />
+          <a :href="metabolite.externalDbs.ChEBI[0].url" target="_blank" style="display: block;">
+            {{ metabolite.name }} via ChEBI</a>
+        </a>
+      </div>
     </template>
   </component-layout>
 </template>
@@ -97,39 +107,16 @@ export default {
       relatedMetabolites: state => state.metabolites.relatedMetabolites,
     }),
   },
-  watch: {
-    '$route.params': 'setup',
-  },
-  async created() {
-    if (!this.model || this.model.short_name !== this.$route.params.model) {
-      const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
-      if (!modelSelectionSuccessful) {
-        this.modelNotFound = true;
-      }
-    }
-    this.setup();
-  },
   methods: {
-    async setup() {
-      this.showLoaderMessage = 'Loading metabolite data';
-      try {
-        const payload = { model: this.model, id: this.metaboliteId };
-        await this.$store.dispatch('metabolites/getMetaboliteData', payload);
-        this.componentNotFound = false;
-        if (this.metabolite.externalDbs.ChEBI) {
-          const link = `https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${this.metabolite.externalDbs.ChEBI[0].id.slice(6)}`;
-          const { data } = await axios.get(link);
-          if (data !== '') {
-            this.chebiImageLink = `${link}&dimensions=400`;
-          }
+    async doAfterLoad() {
+      if (this.metabolite.externalDbs.ChEBI) {
+        const link = `https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${this.metabolite.externalDbs.ChEBI[0].id.slice(6)}`;
+        const { data } = await axios.get(link);
+        if (data !== '') {
+          this.chebiImageLink = `${link}&dimensions=400`;
         }
-        this.showLoaderMessage = '';
-        await this.getRelatedMetabolites();
-      } catch {
-        this.componentNotFound = true;
       }
-    },
-    async getRelatedMetabolites() {
+
       try {
         const payload = { model: this.model, id: this.metaboliteId };
         await this.$store.dispatch('metabolites/getRelatedMetabolites', payload);

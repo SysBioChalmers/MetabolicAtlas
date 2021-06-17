@@ -11,6 +11,8 @@
           <div class="column">
             <h3 class="title is-3">
               <span class="is-capitalized">{{ componentType }}</span> {{ componentName }}
+              <span v-if="compartmentName" class="has-text-weight-light has-text-grey-light">
+                in {{ compartmentName }} </span>
             </h3>
           </div>
         </div>
@@ -22,31 +24,24 @@
             </div>
             <ExtIdTable :type="componentType" :external-dbs="externalDbs"></ExtIdTable>
           </div>
-          <div v-if="chebiImageLink"
-                 class="column is-3-widescreen is-2-desktop is-full-tablet has-text-centered px-2">
-              <a :href="chebi.url" target="_blank">
-                <img id="chebi-img" :src="chebiImageLink" class="hoverable" />
-                <a :href="chebi.url" target="_blank" style="display: block;">
-                  {{ componentName }} via ChEBI</a>
-              </a>
-            </div>
+          <slot v-if="isMetabolite" name="chebi" />
           <div class="column is-3-widescreen is-3-desktop is-half-tablet has-text-centered">
             <router-link v-if="interactionPartner" class="button is-info is-fullwidth is-outlined"
-                            :to="{
-                            name: 'interaction',
-                            params: { model: model.short_name, id: componentId }
-                            }">
-                <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
-                <span>{{ messages.interPartName }}</span>
+                         :to="{
+                           name: 'interaction',
+                           params: { model: model.short_name, id: componentId }
+                         }">
+              <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
+              <span>{{ messages.interPartName }}</span>
             </router-link>
             <br>
             <maps-available :id="componentId" :type="componentType"
-            :viewer-selected-i-d="viewerSelectedID"></maps-available>
+                            :viewer-selected-i-d="viewerSelectedID"></maps-available>
             <gem-contact :id="componentId" :type="componentType" />
           </div>
         </div>
         <reaction-table v-if="model && includeReactionTable" :source-name="componentId" :type="componentType"
-        :selected-elm-id="selectedElm ? componentId : null" :related-met-count="relatedMetCount"/>
+                        :selected-elm-id="selectedElm ? componentId : null" :related-met-count="relatedMetCount" />
       </div>
     </div>
   </div>
@@ -54,7 +49,6 @@
 
 
 <script>
-import axios from 'axios';
 import { mapState } from 'vuex';
 import NotFound from '@/components/NotFound';
 import Loader from '@/components/Loader';
@@ -76,6 +70,7 @@ export default {
   props: {
     componentType: { type: String },
     componentName: { type: String },
+    compartmentName: { type: String, default: '' },
     externalDbs: { type: Object, default: () => {} },
     queryComponentAction: { type: String },
     includeReactionTable: { type: Boolean, default: true },
@@ -83,8 +78,7 @@ export default {
     viewerSelectedID: { type: String, default: '' },
     selectedElm: { type: Boolean, required: false, default: true },
     relatedMetCount: { type: Number, required: false, default: 0 },
-    chebi: { type: Object, required: false, default: null },
-
+    isMetabolite: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -93,7 +87,6 @@ export default {
       componentNotFound: false,
       showLoaderMessage: '',
       messages,
-      chebiImageLink: null,
     };
   },
   computed: {
@@ -123,12 +116,8 @@ export default {
         const payload = { model: this.model, id: this.componentId };
         await this.$store.dispatch(this.queryComponentAction, payload);
         this.componentNotFound = false;
-        if (this.chebi) {
-          const link = `https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=${this.chebi.id.slice(6)}`;
-          const { data } = await axios.get(link);
-          if (data !== '') {
-            this.chebiImageLink = `${link}&dimensions=400`;
-          }
+        if (this.$listeners && this.$listeners.doAfterLoad) {
+          this.$emit('doAfterLoad');
         }
         this.showLoaderMessage = '';
       } catch {
