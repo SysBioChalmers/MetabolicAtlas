@@ -7,7 +7,7 @@
       </p>
     </header>
     <div v-if="mapsAvailable.length !== 0" class="card-content p-2">
-      <table class="table test-table">
+      <table class="table maps-table">
         <tbody class="has-text-left">
           <tr v-for="component in mapsAvailable" :key="component.id">
             <td> {{ component.customName }} </td>
@@ -95,5 +95,8 @@ export default {
 }
 .link-button {
   border-radius: 4px;
+}
+.maps-table tr td:first-child {
+  max-width: 150px;
 }
 </style>
