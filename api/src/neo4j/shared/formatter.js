@@ -4,8 +4,8 @@ export const reformatExternalDbs = (externalDbs) => externalDbs.reduce((dbs, db)
   return { ...dbs, [db.dbName]: dbRefs };
 }, {});
 
-export const reformatCompartmentSVGs = (reaction) => [...reaction.compartments].sort((a, b) => a.id.localeCompare(b.id)).map((c) => {
-  const compartmentWithSVGs = reaction.compartmentSVGs.find(({ compartmentId }) => compartmentId === c.id);
+export const reformatCompartmentSVGs = (component) => [...component.compartments].sort((a, b) => a.id.localeCompare(b.id)).map((c) => {
+  const compartmentWithSVGs = component.compartmentSVGs.find(({ compartmentId }) => compartmentId === c.id);
   const svgMaps = compartmentWithSVGs ? compartmentWithSVGs.compartmentSVGs.sort((a, b) => a.id.localeCompare(b.id)) : [];
   return {
     id: c.id,
@@ -14,8 +14,8 @@ export const reformatCompartmentSVGs = (reaction) => [...reaction.compartments].
   };
 })
 
-export const reformatSubsystemSVGs = (reaction) => [...reaction.subsystems].sort((a, b) => a.id.localeCompare(b.id)).map((s) => {
-  const subsystemsWithSVGs = reaction.subsystemSVGs.find(({ subsystemId }) => subsystemId === s.id);
+export const reformatSubsystemSVGs = (component) => [...component.subsystems].sort((a, b) => a.id.localeCompare(b.id)).map((s) => {
+  const subsystemsWithSVGs = component.subsystemSVGs.find(({ subsystemId }) => subsystemId === s.id);
   const svgMaps = subsystemsWithSVGs ? subsystemsWithSVGs.subsystemSVGs.sort((a, b) => a.id.localeCompare(b.id)) : [];
   return {
     id: s.id,
