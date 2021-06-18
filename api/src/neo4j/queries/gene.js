@@ -1,6 +1,6 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import queryListResult from 'neo4j/queryHandlers/list';
-import reformatExternalDbs from 'neo4j/shared/formatter';
+import { reformatExternalDbs, reformatCompartmentSVGs, reformatSubsystemSVGs } from 'neo4j/shared/formatter';
 import parseParams from 'neo4j/shared/helper';
 import integratedGemsRepoJson from 'data/integratedModels.json';
 
@@ -35,19 +35,21 @@ CALL apoc.cypher.run("
   
   MATCH (:Gene${m} {id: '${id}'})-[${v}]-(:Reaction)-[${v}]-(cm:CompartmentalizedMetabolite)
   WITH DISTINCT cm
-  MATCH (cm)-[${v}]-(:Compartment)-[${v}]-(csvg:SvgMap)
-  RETURN { compartmentSVGs: COLLECT(DISTINCT(csvg {.*})) } as data
+  MATCH (cm)-[${v}]-(c:Compartment)-[${v}]-(csvg:SvgMap)
+  WITH {compartmentId: c.id, compartmentSVGs: COLLECT(DISTINCT(csvg {.*}))} as compartmentSVG
+  RETURN { compartmentSVGs: COLLECT(compartmentSVG) } as data
   
   UNION
   
-  MATCH (:Gene${m} {id: '${id}'})-[${v}]-(:Reaction)-[${v}]-(:Subsystem)-[${v}]-(ssvg:SvgMap)
-  RETURN { subsystemSVGs: COLLECT(DISTINCT(ssvg {.*})) } as data
+  MATCH (:Gene${m} {id: '${id}'})-[${v}]-(:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ssvg:SvgMap)
+  WITH {subsystemId: s.id, subsystemSVGs: COLLECT(DISTINCT(ssvg {.*}))} as subsystemSVG
+  RETURN { subsystemSVGs: COLLECT(subsystemSVG) } as data
 ", {}) yield value
 RETURN apoc.map.mergeList(COLLECT(value.data)) as gene
 `;
 
   const gene = await querySingleResult(statement);
-  return { ...gene, externalDbs: reformatExternalDbs(gene.externalDbs) };
+  return { ...gene, compartmentSVGs: reformatCompartmentSVGs(gene), subsystemSVGs: reformatSubsystemSVGs(gene), externalDbs: reformatExternalDbs(gene.externalDbs) };
 };
 
 const getHumanLabelAndVersion = () => {
