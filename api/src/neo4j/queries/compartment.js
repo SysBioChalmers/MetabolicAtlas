@@ -33,7 +33,8 @@ CALL apoc.cypher.run("
   UNION
   
   MATCH (:Compartment${m} {id: '${id}'})-[${v}]-(csvg:SvgMap)
-  RETURN { compartmentSVGs: COLLECT(DISTINCT(csvg {.*})) } as data
+  WITH {compartmentId: '${id}', compartmentSVGs: COLLECT(DISTINCT(csvg {.*}))} as compartmentSVG
+  RETURN { compartmentSVGs: COLLECT(compartmentSVG) } as data
 ", {}) yield value
 RETURN apoc.map.mergeList(COLLECT(value.data)) as compartment
 `;
@@ -44,7 +45,11 @@ RETURN apoc.map.mergeList(COLLECT(value.data)) as compartment
       ...info,
       subsystemCount: subsystems.length,
     },
-    compartmentSVGs,
+    compartmentSVGs: [{
+      id: info.id,
+      customName: info.name,
+      svgMaps: compartmentSVGs[0] ? compartmentSVGs[0].compartmentSVGs.sort((a, b) => a.id.localeCompare(b.id)) : [],
+    }],
     externalDbs,
     subsystems,
   };

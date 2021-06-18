@@ -14,7 +14,7 @@
         </div>
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
         <div v-else class="columns is-multiline is-variable is-8">
-          <div class="subsystem-table column is-10-widescreen is-9-desktop is-full-tablet">
+          <div class="subsystem-table column">
             <div class="table-container">
               <table v-if="compartment && Object.keys(compartment).length != 0"
                      class="table main-table is-fullwidth">
@@ -54,7 +54,7 @@
               of reactions / metabolites / genes is available using our
               <a href="/api/v2" target="_blank">API</a></p>
           </div>
-          <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
+          <div class="column is-narrow">
             <maps-available :id="cName" :type="type" :element-i-d="''" />
             <gem-contact :id="cName" :type="type" />
           </div>
