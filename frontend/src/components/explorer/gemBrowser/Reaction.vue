@@ -1,10 +1,10 @@
 <template>
-<component-layout
+  <component-layout
     :component-type="type" :component-name="reaction.id"
     :external-dbs="reaction.externalDbs" query-component-action="reactions/getReactionData"
     :viewer-selected-i-d="reaction.id" :include-reaction-table="false"
     :reference-list="referenceList"
-     @handleCallback="handleCallback"
+    @handleCallback="handleCallback"
   >
     <template v-slot:table>
       <table v-if="reaction && Object.keys(reaction).length !== 0" class="table main-table is-fullwidth">

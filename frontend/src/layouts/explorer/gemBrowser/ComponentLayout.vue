@@ -24,10 +24,10 @@
             </div>
             <ExtIdTable v-if="externalDbs" :type="componentType" :external-dbs="externalDbs"></ExtIdTable>
             <p v-if="model && !externalDbs">The
-            <a :href="`/api/v2/${model.apiVersion}/compartments/${componentId}?full=true`"
-                target="_blank">complete list in JSON format</a>
-            of reactions / metabolites / genes is available using our
-            <a href="/api/v2" target="_blank">API</a></p>
+              <a :href="`/api/v2/${model.apiVersion}/compartments/${componentId}?full=true`"
+                 target="_blank">complete list in JSON format</a>
+              of reactions / metabolites / genes is available using our
+              <a href="/api/v2" target="_blank">API</a></p>
             <references v-if="referenceList" :reference-list="referenceList" />
           </div>
           <slot v-if="isMetabolite" name="chebi" />

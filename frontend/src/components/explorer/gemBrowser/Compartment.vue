@@ -1,12 +1,12 @@
 <template>
   <component-layout
-      :component-type="type" :component-name="compartment.name"
-      query-component-action="compartments/getCompartmentSummary"
-      :include-reaction-table="false"
+    :component-type="type" :component-name="compartment.name"
+    query-component-action="compartments/getCompartmentSummary"
+    :include-reaction-table="false"
   >
     <template v-slot:table>
       <table v-if="compartment && Object.keys(compartment).length != 0"
-              class="table main-table is-fullwidth">
+             class="table main-table is-fullwidth">
         <tr>
           <td class="td-key has-background-primary has-text-white-bis">Name</td>
           <td> {{ compartment.name }}</td>
