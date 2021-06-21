@@ -9,7 +9,6 @@ const actions = {
   async getMetaboliteData({ commit }, { model, id }) {
     const payload = { id, model: model.apiName, version: model.apiVersion };
     const metabolite = await metabolitesApi.fetchMetaboliteData(payload);
-    console.log('METABOLI', metabolite);
     commit('setMetabolite', metabolite);
 
     commit('maps/setAvailableMaps', [
