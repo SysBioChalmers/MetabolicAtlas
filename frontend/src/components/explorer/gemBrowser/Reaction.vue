@@ -188,8 +188,15 @@ export default {
             if (e === 'or' || e === 'and') {
               return e;
             }
-            const prefix = e[0] === '(' ? '(' : '';
-            const suffix = e.slice(-1) === ')' ? ')' : '';
+            let prefix = '';
+            let suffix = '';
+            if (e[0] === '(') {
+              prefix = e[1] === '(' ? '((' : '(';
+            }
+            if (e.slice(-1) === ')') {
+              suffix = e.slice(-2) === '))' ? '))' : ')';
+            }
+
             const newEName = e.replace(/^\(+|\)+$/g, '');
             const newEId = this.reaction.genes.find(g => g.name === newEName).id;
             const tag = newGRnameArr ? newGRnameArr[i] : newEName;

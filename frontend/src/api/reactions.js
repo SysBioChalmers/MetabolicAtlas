@@ -13,21 +13,25 @@ const formatGeneRule = (reaction) => {
     }
 
     let gid = w;
+    let prefix = '';
+    let suffix = '';
 
-    if (gid[0] === '(') {
+    if (gid.slice(0, 2) === '((') {
+      gid = gid.slice(2);
+      prefix = '((';
+    } else if (gid.slice(0, 1) === '(') {
       gid = gid.slice(1);
-      const gene = genes.find(g => g.id === gid);
-      return `(${gene.name}`;
-    }
-
-    if (gid[gid.length - 1] === ')') {
+      prefix = '(';
+    } else if (gid.slice(-2) === '))') {
+      gid = gid.slice(0, -2);
+      suffix = '))';
+    } else if (gid.slice(-1) === ')') {
       gid = gid.slice(0, -1);
-      const gene = genes.find(g => g.id === gid);
-      return `${gene.name})`;
+      suffix = ')';
     }
 
     const gene = genes.find(g => g.id === gid);
-    return gene.name;
+    return `${prefix}${gene.name}${suffix}`;
   }).join(' ');
 };
 
