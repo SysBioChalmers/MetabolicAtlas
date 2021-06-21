@@ -15,9 +15,7 @@ const actions = {
     const compartmentSummary = await compartmentsApi.fetchCompartmentSummary(payload);
     commit('setCompartmentSummary', compartmentSummary);
 
-    commit('maps/setAvailableMaps', [
-      ...compartmentSummary.compartmentSVGs,
-    ], { root: true });
+    commit('maps/setAvailableMaps', compartmentSummary.compartmentSVGs, { root: true });
   },
 };
 
