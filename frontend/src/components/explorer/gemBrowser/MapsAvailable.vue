@@ -14,17 +14,17 @@
             <td v-if="component.svgMaps.length===0"> </td>
             <td v-else-if="component.svgMaps.length===1">
               <button class="button is-outlined is-small link-button"
-              @click="routeSVGmap(component.svgMaps[0].id, '2d')">
-                  <span class="has-text-link"> 2D </span>
+                      @click="routeSVGmap(component.svgMaps[0].id, '2d')">
+                <span class="has-text-link"> 2D </span>
               </button>
             </td>
-             <td v-else>
-               <div class="select is-small">
+            <td v-else>
+              <div class="select is-small">
                 <select class="has-text-link" @change="(e) => routeSVGmap(e.target.value, '2d')">
                   <option selected disabled>
                     2D
                   </option>
-                  <option v-for="map in component.svgMaps"  :key="map.id" :value="map.id">
+                  <option v-for="map in component.svgMaps" :key="map.id" :value="map.id">
                     {{ map.customName }}
                   </option>
                 </select>
@@ -32,7 +32,7 @@
             </td>
             <td>
               <button class="button is-outlined is-small link-button"
-              @click="routeSVGmap(component.id, '3d')">
+                      @click="routeSVGmap(component.id, '3d')">
                 <span class="has-text-link"> 3D </span>
               </button>
             </td>
