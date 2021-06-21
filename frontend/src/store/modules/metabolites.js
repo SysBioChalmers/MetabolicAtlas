@@ -9,18 +9,12 @@ const actions = {
   async getMetaboliteData({ commit }, { model, id }) {
     const payload = { id, model: model.apiName, version: model.apiVersion };
     const metabolite = await metabolitesApi.fetchMetaboliteData(payload);
+    console.log('METABOLI', metabolite);
     commit('setMetabolite', metabolite);
 
-    commit('maps/setAvailableMaps', {
-      '2d': {
-        compartment: metabolite.compartmentSVGs,
-        subsystem: metabolite.subsystemSVGs,
-      },
-      '3d': {
-        compartment: [{ id: metabolite.compartment.id, customName: metabolite.compartment.name }],
-        subsystem: metabolite.subsystems.map(s => ({ id: s.id, customName: s.name })),
-      },
-    }, { root: true });
+    commit('maps/setAvailableMaps', [
+      ...metabolite.compartmentSVGs, ...metabolite.subsystemSVGs,
+    ], { root: true });
   },
   async getRelatedMetabolites({ commit }, { model, id }) {
     const payload = { id, model: model.apiName, version: model.apiVersion };

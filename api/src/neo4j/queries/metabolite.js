@@ -1,5 +1,5 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
-import reformatExternalDbs from 'neo4j/shared/formatter';
+import { reformatExternalDbs, reformatCompartmentSVGs, reformatSubsystemSVGs } from 'neo4j/shared/formatter';
 import parseParams from 'neo4j/shared/helper';
 
 const getMetabolite = async ({ id, model, version }) => {
@@ -17,8 +17,9 @@ CALL apoc.cypher.run('
   
   UNION
   
-  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(:Compartment)-[${v}]-(csvg:SvgMap)
-  RETURN { compartmentSVGs: COLLECT(DISTINCT(csvg {.*})) } as data
+  MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(c:Compartment)-[${v}]-(csvg:SvgMap)
+  WITH {compartmentId: c.id, compartmentSVGs: COLLECT(DISTINCT(csvg {.*}))} as compartmentSVG
+  RETURN { compartmentSVGs: COLLECT(compartmentSVG) } as data
   
   UNION
   
@@ -37,12 +38,14 @@ CALL apoc.cypher.run('
   MATCH (:CompartmentalizedMetabolite${m} {id: "${id}"})-[${v}]-(:Reaction)-[${v}]-(s:Subsystem)
   WITH DISTINCT s
   MATCH (s)-[${v}]-(ssvg:SvgMap)
-  RETURN { subsystemSVGs: COLLECT(DISTINCT(ssvg {.*})) } as data
+  WITH {subsystemId: s.id, subsystemSVGs: COLLECT(DISTINCT(ssvg {.*}))} as subsystemSVG
+  RETURN { subsystemSVGs: COLLECT(subsystemSVG) } as data
 ', {}) yield value
 RETURN apoc.map.mergeList(COLLECT(value.data)) as metabolite
 `;
   const metabolite = await querySingleResult(statement);
-  return { ...metabolite, externalDbs: reformatExternalDbs(metabolite.externalDbs) };
+  metabolite.compartments = [metabolite.compartment];
+  return { ...metabolite, compartmentSVGs: reformatCompartmentSVGs(metabolite), subsystemSVGs: reformatSubsystemSVGs(metabolite), externalDbs: reformatExternalDbs(metabolite.externalDbs) };
 };
 
 
