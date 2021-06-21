@@ -18,9 +18,7 @@ const actions = {
     const subsystemSummary = await subsystemsApi.fetchSubsystemSummary(payload);
     commit('setSubsystemSummary', subsystemSummary);
 
-    commit('maps/setAvailableMaps', [
-      ...subsystemSummary.subsystemSVGs,
-    ], { root: true });
+    commit('maps/setAvailableMaps', subsystemSummary.subsystemSVGs, { root: true });
   },
 };
 
