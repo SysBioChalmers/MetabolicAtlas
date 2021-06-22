@@ -14,7 +14,7 @@
         </div>
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
         <div v-else class="columns is-multiline is-variable is-8">
-          <div class="reaction-table column is-10-widescreen is-9-desktop is-full-tablet">
+          <div class="reaction-table column">
             <div class="table-container">
               <table v-if="reaction && Object.keys(reaction).length !== 0" class="table main-table is-fullwidth">
                 <tr v-for="el in mainTableKey" :key="el.name">
@@ -76,7 +76,7 @@
             <br>
             <references :reference-list="referenceList" />
           </div>
-          <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
+          <div class="column is-narrow">
             <maps-available :id="rId" :type="type" :viewer-selected-i-d="reaction.id" />
             <gem-contact :id="rId" :type="type" />
           </div>

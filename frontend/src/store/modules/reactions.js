@@ -11,19 +11,11 @@ const actions = {
   async getReactionData({ commit }, { model, id }) {
     const payload = { id, model: model.apiName, version: model.apiVersion };
     const { pubmedIds, ...reaction } = await reactionsApi.fetchReactionData(payload);
-
     commit('setReaction', reaction);
 
-    commit('maps/setAvailableMaps', {
-      '2d': {
-        compartment: reaction.compartmentSVGs,
-        subsystem: reaction.subsystemSVGs,
-      },
-      '3d': {
-        compartment: reaction.compartments.map(c => ({ id: c.id, customName: c.name })),
-        subsystem: reaction.subsystems.map(s => ({ id: s.id, customName: s.name })),
-      },
-    }, { root: true });
+    commit('maps/setAvailableMaps', [
+      ...reaction.compartmentSVGs, ...reaction.subsystemSVGs,
+    ], { root: true });
 
     const pmids = pubmedIds.map(pm => pm.id);
     commit('setReferenceList', pmids);

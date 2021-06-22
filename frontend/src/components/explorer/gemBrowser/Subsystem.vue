@@ -14,7 +14,7 @@
         </div>
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
         <div v-else class="columns is-multiline is-variable is-8">
-          <div class="subsystem-table column is-10-widescreen is-9-desktop is-full-tablet">
+          <div class="subsystem-table column">
             <div class="table-container">
               <table v-if="info && Object.keys(info).length !== 0" class="table main-table is-fullwidth">
                 <tr v-for="el in mainTableKey" :key="el.name" class="m-row">
@@ -76,7 +76,7 @@
             </div>
             <ExtIdTable :type="type" :external-dbs="info.externalDbs"></ExtIdTable>
           </div>
-          <div class="column is-2-widescreen is-3-desktop is-half-tablet has-text-centered">
+          <div class="column is-narrow">
             <maps-available :id="sName" :type="type" :element-i-d="''"></maps-available>
             <gem-contact :id="sName" :type="type" />
           </div>

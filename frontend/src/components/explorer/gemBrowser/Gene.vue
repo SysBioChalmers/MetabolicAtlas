@@ -18,7 +18,7 @@
         <div v-else class="columns">
           <div class="column">
             <div class="columns is-multiline is-variable is-8">
-              <div id="gene-details" class="reaction-table column is-9-widescreen is-9-desktop is-full-tablet">
+              <div id="gene-details" class="reaction-table column">
                 <div class="table-contaner">
                   <table v-if="gene && Object.keys(gene).length !== 0" class="table main-table is-fullwidth">
                     <tr v-for="el in mainTableKey" :key="el.name">
@@ -44,7 +44,7 @@
                 </div>
                 <ExtIdTable :type="type" :external-dbs="gene.externalDbs"></ExtIdTable>
               </div>
-              <div class="column is-3-widescreen is-3-desktop is-full-tablet has-text-centered">
+              <div class="column is-narrow">
                 <router-link v-if="model && gene.id" class="button is-info is-fullwidth is-outlined"
                              :to="{ name: 'interaction', params: { model: model.short_name, id: gene.id } }">
                   <span class="icon"><i class="fa fa-connectdevelop fa-lg"></i></span>&nbsp;
