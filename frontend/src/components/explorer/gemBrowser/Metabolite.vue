@@ -5,6 +5,7 @@
     :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
     :interaction-partner="true" :viewer-selected-i-d="metabolite.id"
     :related-met-count="relatedMetabolites.length" :is-metabolite="true"
+    :selected-elm-id="true"
     @handleCallback="handleCallback"
   >
     <template v-slot:table>

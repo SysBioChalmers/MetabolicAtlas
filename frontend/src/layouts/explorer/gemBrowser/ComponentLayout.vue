@@ -47,7 +47,7 @@
         </div>
         <references v-if="referenceList" :reference-list="referenceList" />
         <reaction-table v-if="model && includeReactionTable" :source-name="componentId" :type="componentType"
-                        :selected-elm-id="selectedElm ? componentId : null" :related-met-count="relatedMetCount" />
+                        :selected-elm-id="selectedElmId ? componentId : null" :related-met-count="relatedMetCount" />
       </div>
     </div>
   </div>
@@ -84,7 +84,7 @@ export default {
     includeReactionTable: { type: Boolean, default: true },
     interactionPartner: { type: Boolean, default: false },
     viewerSelectedID: { type: String, default: '' },
-    selectedElm: { type: Boolean, required: false, default: true },
+    selectedElmId: { type: Boolean, required: false, default: false },
     relatedMetCount: { type: Number, required: false, default: 0 },
     isMetabolite: { type: Boolean, default: false },
     referenceList: { type: Object, default: null },
