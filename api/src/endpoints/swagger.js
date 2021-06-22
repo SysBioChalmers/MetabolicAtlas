@@ -12,9 +12,9 @@ const options = {
   customCssUrl: 'https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css',
 };
 
-routes.get('/favicon*', function (req, res) {
-  res.redirect('public' + req.url);
-});
+routes.use('/favicon*', (req, res, next) =>
+  express.static(`public/favicon${req.params[0]}`)(req, res, next)
+);
 routes.use('', swaggerUi.serve);
 routes.get('', swaggerUi.setup(config, options));
 

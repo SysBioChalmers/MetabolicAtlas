@@ -25,7 +25,6 @@ import {
 } from 'neo4j/index';
 
 const neo4jRoutes = express.Router();
-const CACHED_3D_NETWORKS = {};
 
 const fetchWith = async (req, res, queryHandler) => {
   const { id } = req.params;
@@ -78,32 +77,13 @@ neo4jRoutes.get('/3d-network', async (req, res) => {
   const { model, version, type, id } = req.query;
 
   try {
-    if (!CACHED_3D_NETWORKS[model]) {
-      CACHED_3D_NETWORKS[model] = {};
-    }
-
-    let network;
-
-    if (!CACHED_3D_NETWORKS[model][version]) {
-      CACHED_3D_NETWORKS[model][version] = {};
-    }
+    let payload = { model, version };
 
     if (type && id) {
-      if (!CACHED_3D_NETWORKS[model][version][id]) {
-        const n = await get3dNetwork({ model, version, type, id });
-        CACHED_3D_NETWORKS[model][version][id] = n;
-      }
-
-      network = CACHED_3D_NETWORKS[model][version][id];
-    } else {
-      if (!CACHED_3D_NETWORKS[model][version].whole) {
-        const n = await get3dNetwork({ model, version });
-        CACHED_3D_NETWORKS[model][version].whole = n;
-      }
-
-      network = CACHED_3D_NETWORKS[model][version].whole;
+      payload = { ...payload, type, id };
     }
 
+    const network = await get3dNetwork(payload);
     res.json(network);
   } catch (e) {
     res.status(400).send(e.message);
