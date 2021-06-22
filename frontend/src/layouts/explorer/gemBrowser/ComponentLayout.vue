@@ -17,7 +17,7 @@
           </div>
         </div>
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
-        <div v-else class="columns is-multiline is-variable is-8">
+        <div v-else class="columns is-multiline is-variable is-8 is-centered">
           <div class="gembrowser-table column">
             <div class="table-container">
               <slot name="table" />
@@ -28,7 +28,6 @@
                  target="_blank">complete list in JSON format</a>
               of reactions / metabolites / genes is available using our
               <a href="/api/v2" target="_blank">API</a></p>
-            <references v-if="referenceList" :reference-list="referenceList" />
           </div>
           <slot v-if="isMetabolite" name="chebi" />
           <div class="column is-3-widescreen is-3-desktop is-half-tablet has-text-centered">
@@ -46,6 +45,7 @@
             <gem-contact :id="componentId" :type="componentType" />
           </div>
         </div>
+        <references v-if="referenceList" :reference-list="referenceList" />
         <reaction-table v-if="model && includeReactionTable" :source-name="componentId" :type="componentType"
                         :selected-elm-id="selectedElm ? componentId : null" :related-met-count="relatedMetCount" />
       </div>
