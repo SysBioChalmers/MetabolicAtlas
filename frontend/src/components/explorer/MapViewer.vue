@@ -7,10 +7,11 @@
         </div>
       </template>
       <template v-else>
-        <div id="mapSidebar"
+        <div id="mapSidebar" ref="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2 pt-0
-                    fixed-height-desktop scrollable">
+                    fixed-height-desktop scrollable"
+             @scroll.passive="handleSidebarScroll">
           <div id="mapSidebar__header" class="has-background-lightgray pt-3">
             <div class="buttons has-addons is-centered padding-mobile m-0"
                  :title="`Switch to ${dimensionalState(!showing2D) }`"
@@ -26,9 +27,11 @@
                 <span class="is-uppercase">{{ dimensionalState(dim) }}</span>
               </button>
             </div>
-            <SidebarDataPanels :dim="dimensionalState(showing2D)"
+            <SidebarDataPanels ref="sidebarDataPanels"
+                               :dim="dimensionalState(showing2D)"
                                :current-map="currentMap"
-                               :selection-data="selectionData" />
+                               :selection-data="selectionData"
+                               @openSelectionCardContent="resetSidebarLayout" />
           </div>
           <div class="padding-mobile">
             <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
@@ -145,6 +148,7 @@ export default {
   },
   async created() {
     this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
+    this.handleSidebarScroll = debounce(this.handleSidebarScroll, 300);
     window.onpopstate = this.handleQueryParamsWatch();
 
     EventBus.$off('loadRNAComplete');
@@ -166,6 +170,14 @@ export default {
     this.loadMapFromParams();
   },
   methods: {
+    handleSidebarScroll() {
+      if (this.$refs.mapSidebar.scrollTop > 0) {
+        this.$refs.sidebarDataPanels.hideSelectionCardContent();
+      }
+    },
+    resetSidebarLayout() {
+      this.$refs.mapSidebar.scrollTop = 0;
+    },
     dimensionalState(showing2D) {
       return showing2D ? '2d' : '3d';
     },

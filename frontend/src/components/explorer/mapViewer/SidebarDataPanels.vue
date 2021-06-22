@@ -95,7 +95,7 @@
       <div v-else-if="selectionData.data && ['metabolite', 'gene', 'reaction'].includes(selectionData.type)"
            class="card my-3">
         <header class="card-header is-clickable"
-                @click.prevent="showSelectionCardContent = !showSelectionCardContent">
+                @click.prevent="toggleSelectionCardContent">
           <p class="card-header-title is-inline is-capitalized is-unselectable">
             {{ selectionData.type }}: <i>{{ selectionData.data.name || selectionData.data.id }}</i>
           </p>
@@ -264,6 +264,17 @@ export default {
       return l.join('');
     },
   },
+  watch: {
+    selectionData(newData, oldData) {
+      if (
+        (newData.data && !oldData.data)
+        || (!newData.data && oldData.data)
+        || (newData.data && oldData.data && newData.data.id !== oldData.data.id)
+      ) {
+        this.openSelectionCardContent();
+      }
+    },
+  },
   methods: {
     selectionHasNoData() {
       if (!(this.selectionData.type
@@ -289,6 +300,20 @@ export default {
       this.showModal = false;
       this.showFullReactionListMissing = false;
       this.showFullReactionListMap = false;
+    },
+    toggleSelectionCardContent() {
+      if (this.showSelectionCardContent) {
+        this.hideSelectionCardContent();
+      } else {
+        this.openSelectionCardContent();
+      }
+    },
+    openSelectionCardContent() {
+      this.showSelectionCardContent = true;
+      this.$emit('openSelectionCardContent');
+    },
+    hideSelectionCardContent() {
+      this.showSelectionCardContent = false;
     },
   },
 };
