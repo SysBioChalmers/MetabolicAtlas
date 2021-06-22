@@ -141,3 +141,11 @@ export const constructCompartmentStr = (reaction) => {
   const productsCompartmentsStr = Array.from(productsCompartments).join(' , ');
   return `${reactantsCompartmentsStr} ${equationSign(reaction.reversible)} ${productsCompartmentsStr}`;
 };
+
+export const generateSocialMetaTags = ({ title, description }) => [
+  { name: 'description', vmid: 'description', content: description },
+  { property: 'og:title', vmid: 'og:title', content: title },
+  { property: 'og:description', vmid: 'og:description', content: description },
+  { property: 'twitter:title', vmid: 'twitter:title', content: title },
+  { property: 'twitter:description', vmid: 'twitter:description', content: description },
+];

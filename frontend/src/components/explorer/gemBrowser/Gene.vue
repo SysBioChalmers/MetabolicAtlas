@@ -71,7 +71,7 @@ import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
 import GemContact from '@/components/shared/GemContact';
-import { reformatTableKey } from '@/helpers/utils';
+import { generateSocialMetaTags, reformatTableKey } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -111,6 +111,30 @@ export default {
     ...mapGetters({
       geneName: 'genes/geneName',
     }),
+  },
+  metaInfo() {
+    if (!this.model || !this.gene.geneName) {
+      return {};
+    }
+
+    const title = `${this.gene.geneName}, Gene in ${this.model.short_name}`;
+    const description = `The gene ${this.gene.geneName} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.gene.compartments[0].name} compartment and the ${this.gene.subsystems[0].name} subsystem.`;
+
+    return {
+      title,
+      meta: generateSocialMetaTags({ title, description }),
+      script: [{
+        type: 'application/ld+json',
+        json: {
+          '@context': 'http://schema.org',
+          '@id': `https://metabolicatlas.org/explore/Human-GEM/gem-browser/gene/${this.gene.id}`,
+          '@type': 'Gene',
+          'dct:conformsTo': 'https://bioschemas.org/profiles/Gene/1.0-RELEASE',
+          identifier: this.gene.id,
+          name: this.gene.geneName,
+        },
+      }],
+    };
   },
   watch: {
     '$route.params': 'setup',

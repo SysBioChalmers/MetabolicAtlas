@@ -97,7 +97,7 @@ import MapsAvailable from '@/components/explorer/gemBrowser/MapsAvailable';
 import ExtIdTable from '@/components/explorer/gemBrowser/ExtIdTable';
 import ReactionTable from '@/components/explorer/gemBrowser/ReactionTable';
 import GemContact from '@/components/shared/GemContact';
-import { buildCustomLink, reformatTableKey } from '@/helpers/utils';
+import { buildCustomLink, generateSocialMetaTags, reformatTableKey } from '@/helpers/utils';
 
 export default {
   name: 'Subsystem',
@@ -123,6 +123,19 @@ export default {
       displayedGene: 40,
       componentNotFound: false,
       showLoaderMessage: '',
+    };
+  },
+  metaInfo() {
+    if (!this.model || !this.info.name) {
+      return {};
+    }
+
+    const title = `${this.info.name}, Subsystem in ${this.model.short_name}`;
+    const description = `The subsystem ${this.info.name} in ${this.model.short_name} (version ${this.model.version}) can be found in ${this.info.compartments.length} compartments, and contains ${this.metabolites.length} metabolites and ${this.genes.length} genes.`;
+
+    return {
+      title,
+      meta: generateSocialMetaTags({ title, description }),
     };
   },
   computed: {

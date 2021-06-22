@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueMatomo from 'vue-matomo';
+import VueMeta from 'vue-meta';
 import axios from 'axios';
 import vueDebounce from 'vue-debounce';
 import NProgress from 'nprogress';
@@ -26,6 +27,8 @@ if (navigator.doNotTrack !== '1') {
 }
 
 Vue.mixin(linkHandlerMixin);
+
+Vue.use(VueMeta);
 
 new Vue({ // eslint-disable-line no-new
   el: '#app',
