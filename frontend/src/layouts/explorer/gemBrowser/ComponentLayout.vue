@@ -45,7 +45,7 @@
             <gem-contact :id="componentId" :type="componentType" />
           </div>
         </div>
-        <references v-if="referenceList" :reference-list="referenceList" />
+        <references v-if="referenceList && !showLoaderMessage" :reference-list="referenceList" />
         <reaction-table v-if="model && includeReactionTable" :source-name="componentId" :type="componentType"
                         :selected-elm-id="selectedElmId ? componentId : null" :related-met-count="relatedMetCount" />
       </div>
