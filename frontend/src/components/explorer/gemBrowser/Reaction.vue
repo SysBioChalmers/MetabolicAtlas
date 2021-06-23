@@ -69,7 +69,7 @@
 <script>
 import { mapState } from 'vuex';
 import ComponentLayout from '@/layouts/explorer/gemBrowser/ComponentLayout';
-import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, equationSign } from '@/helpers/utils';
+import { buildCustomLink, reformatTableKey, capitalize, convertCamelCase, addMassUnit, reformatChemicalReactionHTML, equationSign, generateSocialMetaTags } from '@/helpers/utils';
 
 export default {
   name: 'Reaction',
@@ -103,6 +103,19 @@ export default {
       referenceList: state => state.reactions.referenceList,
       relatedReactions: state => state.reactions.relatedReactions,
     }),
+  },
+  metaInfo() {
+    if (!this.model || !this.reaction.id) {
+      return {};
+    }
+
+    const title = `${this.reaction.id}, Reaction in ${this.model.short_name}`;
+    const description = `The reaction ${this.reaction.id} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.reaction.compartments.[0].name} compartment and the ${this.reaction.subsystems[0].name} subsystem.`;
+
+    return {
+      title,
+      meta: generateSocialMetaTags({ title, description }),
+    };
   },
   methods: {
     async handleCallback() {

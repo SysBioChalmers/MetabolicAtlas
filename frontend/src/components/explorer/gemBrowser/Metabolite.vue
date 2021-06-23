@@ -70,7 +70,7 @@ import axios from 'axios';
 import { mapState } from 'vuex';
 import ComponentLayout from '@/layouts/explorer/gemBrowser/ComponentLayout';
 import { chemicalFormula } from '@/helpers/chemical-formatters';
-import { reformatTableKey } from '@/helpers/utils';
+import { generateSocialMetaTags, reformatTableKey } from '@/helpers/utils';
 import { default as messages } from '@/helpers/messages';
 
 export default {
@@ -107,6 +107,31 @@ export default {
       metabolite: state => state.metabolites.metabolite,
       relatedMetabolites: state => state.metabolites.relatedMetabolites,
     }),
+  },
+  metaInfo() {
+    if (!this.model || !this.metabolite.name) {
+      return {};
+    }
+
+    const title = `${this.metabolite.name}, Metabolite in ${this.model.short_name}`;
+    const description = `The metabolite ${this.metabolite.name} in ${this.model.short_name} (version ${this.model.version}) can be found in the ${this.metabolite.compartment.name} compartment and the ${this.metabolite.subsystems[0].name} subsystem.`;
+
+    return {
+      title,
+      meta: generateSocialMetaTags({ title, description }),
+      script: [{
+        type: 'application/ld+json',
+        json: {
+          '@context': 'http://schema.org',
+          '@id': `https://metabolicatlas.org/explore/Human-GEM/gem-browser/metabolite/${this.metabolite.id}`,
+          '@type': 'MolecularEntity',
+          'dct:conformsTo': 'https://bioschemas.org/profiles/MolecularEntity/0.5-RELEASE',
+          identifier: this.metabolite.id,
+          name: this.metabolite.name,
+          url: `https://metabolicatlas.org/explore/Human-GEM/gem-browser/metabolite/${this.metabolite.id}`,
+        },
+      }],
+    };
   },
   methods: {
     async handleCallback() {

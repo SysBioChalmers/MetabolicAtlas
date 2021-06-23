@@ -6,24 +6,35 @@
         <span>{{ messages.mapViewerName }}</span>
       </p>
     </header>
-    <div v-if="mapAvailableLimited" class="card-content p-2">
-      <table class="table test-table">
-        <tbody>
-          <tr v-for="customName in Object.keys(groupedMaps).sort()" :key="customName" class="m-3">
-            <td>{{ customName }}</td>
-            <td v-for="mapKey in ['2d', '3d']" :key="mapKey">
-              <router-link v-if="groupedMaps[customName][mapKey] && viewerSelectedID"
-                         :to="{ name: 'viewer',
-                                params: { model: model.short_name, map_id: groupedMaps[customName][mapKey],
-                                          reload: true },
-                                query: { dim: mapKey, search: viewerSelectedID, sel: viewerSelectedID } }">
-              {{ mapKey.toUpperCase() }}
-              </router-link>
-              <router-link v-else-if="groupedMaps[customName][mapKey]" :to="{ name: 'viewer',
-              params: { model: model.short_name, map_id: groupedMaps[customName][mapKey]},
-              query: { dim: mapKey } }">
-              {{ mapKey.toUpperCase() }}
-              </router-link>
+    <div v-if="mapsAvailable.length !== 0" class="card-content p-2">
+      <table class="table maps-table">
+        <tbody class="has-text-left">
+          <tr v-for="component in mapsAvailable" :key="component.id">
+            <td> {{ component.customName }} </td>
+            <td v-if="component.svgMaps.length===0"> </td>
+            <td v-else-if="component.svgMaps.length===1">
+              <button class="button is-outlined is-small link-button"
+                      @click="routeSVGmap(component.svgMaps[0].id, '2d')">
+                <span class="has-text-link"> 2D </span>
+              </button>
+            </td>
+            <td v-else>
+              <div class="select is-small">
+                <select class="has-text-link" @change="(e) => routeSVGmap(e.target.value, '2d')">
+                  <option selected disabled>
+                    2D
+                  </option>
+                  <option v-for="map in component.svgMaps" :key="map.id" :value="map.id">
+                    {{ map.customName }}
+                  </option>
+                </select>
+              </div>
+            </td>
+            <td>
+              <button class="button is-outlined is-small link-button"
+                      @click="routeSVGmap(component.id, '3d')">
+                <span class="has-text-link"> 3D </span>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -59,51 +70,16 @@ export default {
       model: state => state.models.model,
       mapsAvailable: state => state.maps.availableMaps,
     }),
-    mapAvailableLimited() {
-      /* eslint-disable vue/no-side-effects-in-computed-properties */
-      // TODO: move this into vuex
-      if (Object.keys(this.mapsAvailable).length === 0) {
-        return null;
+  },
+  methods: {
+    routeSVGmap(svgId, dimension) {
+      const params = { model: this.model.short_name, map_id: svgId };
+      const query = { dim: dimension };
+      if (this.viewerSelectedID) {
+        query.search = this.viewerSelectedID;
+        query.sel = this.viewerSelectedID;
       }
-      const limited = JSON.parse(JSON.stringify(this.mapsAvailable)); // copy
-      ['2d', '3d'].forEach((d) => {
-        this.limitedMapsDim[d] = false;
-        if (limited[d].compartment.length > this.mapLimitPerDim) {
-          this.limitedMapsDim[d] = true;
-          limited[d].compartment = limited[d].compartment.slice(0, this.mapLimitPerDim);
-          limited[d].subsystem = [];
-        } else {
-          const remainingEntries = this.mapLimitPerDim - limited[d].compartment.length;
-          if (limited[d].subsystem.length > remainingEntries) {
-            limited[d].subsystem = limited[d].subsystem.slice(0, remainingEntries);
-            this.limitedMapsDim[d] = true;
-          }
-        }
-      });
-      /* eslint-enable vue/no-side-effects-in-computed-properties */
-      return limited;
-    },
-    mapKeys() {
-      return ['2d', '3d'].filter(d => this.mapsAvailable[d].compartment.length > 0 || this.mapsAvailable[d].subsystem.length > 0);
-    },
-    groupedMaps() {
-      const maps = {};
-      const mapCopy = JSON.parse(JSON.stringify(this.mapsAvailable));
-      ['2d', '3d'].forEach((d) => {
-        mapCopy[d].compartment.forEach((c) => {
-          if (!(c.customName in maps)) {
-            maps[c.customName] = { '2d': '', '3d': '' };
-          }
-          maps[c.customName][d] = c.id;
-        });
-        mapCopy[d].subsystem.forEach((c) => {
-          if (!(c.customName in maps)) {
-            maps[c.customName] = { '2d': '', '3d': '' };
-          }
-          maps[c.customName][d] = c.id;
-        });
-      });
-      return maps;
+      this.$router.push({ name: 'viewer', params, query });
     },
   },
 };
@@ -113,5 +89,11 @@ export default {
 .card-content {
   overflow-y: auto;
   max-height: 400px;
+}
+.link-button {
+  border-radius: 4px;
+}
+.maps-table tr td:first-child {
+  max-width: 150px;
 }
 </style>

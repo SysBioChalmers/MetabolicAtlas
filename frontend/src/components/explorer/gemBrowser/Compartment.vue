@@ -43,7 +43,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import ComponentLayout from '@/layouts/explorer/gemBrowser/ComponentLayout';
-import { buildCustomLink } from '@/helpers/utils';
+import { buildCustomLink, generateSocialMetaTags } from '@/helpers/utils';
 
 export default {
   name: 'Compartment',
@@ -82,6 +82,19 @@ export default {
       l.push('</span>');
       return l.join('');
     },
+  },
+  metaInfo() {
+    if (!this.model || !this.compartment.name) {
+      return {};
+    }
+
+    const title = `${this.compartment.name}, Compartment in ${this.model.short_name}`;
+    const description = `The compartment ${this.compartment.name} in ${this.model.short_name} (version ${this.model.version}) consists of ${this.compartment.subsystemCount} subsystems, ${this.compartment.reactionsCount} reactions, ${this.compartment.metabolitesCount} metabolites, and ${this.compartment.genesCount} genes.`;
+
+    return {
+      title,
+      meta: generateSocialMetaTags({ title, description }),
+    };
   },
 };
 </script>
