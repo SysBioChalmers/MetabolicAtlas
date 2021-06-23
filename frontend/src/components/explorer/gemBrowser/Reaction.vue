@@ -1,6 +1,6 @@
 <template>
   <component-layout
-    :component-type="type" :component-name="reaction.id"
+    :component-type="'reaction'" :component-name="reaction.id"
     :external-dbs="reaction.externalDbs" query-component-action="reactions/getReactionData"
     :viewer-selected-i-d="reaction.id" :include-reaction-table="false"
     :reference-list="referenceList"
@@ -79,7 +79,6 @@ export default {
   data() {
     return {
       rId: this.$route.params.id,
-      type: 'reaction',
       mainTableKey: [
         { name: 'id' },
         { name: 'equation', modifier: this.reformatEquation },

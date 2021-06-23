@@ -1,6 +1,6 @@
 <template>
   <component-layout
-    :component-type="type" :component-name="compartment.name"
+    :component-type="'compartment'" :component-name="compartment.name"
     query-component-action="compartments/getCompartmentSummary"
     :include-reaction-table="false"
   >
@@ -52,7 +52,6 @@ export default {
   },
   data() {
     return {
-      type: 'compartment',
       modelNotFound: false,
       showFullSubsystem: false,
       limitSubsystem: 30,

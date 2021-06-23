@@ -1,6 +1,6 @@
 <template>
   <component-layout
-    :component-type="type" :component-name="info.name"
+    :component-type="'subsystem'" :component-name="info.name"
     :external-dbs="info.externalDbs" query-component-action="subsystems/getSubsystemSummary"
   >
     <template v-slot:table>
@@ -80,7 +80,6 @@ export default {
   data() {
     return {
       sName: this.$route.params.id,
-      type: 'subsystem',
       mainTableKey: [
         { name: 'name', display: 'Name' },
       ],

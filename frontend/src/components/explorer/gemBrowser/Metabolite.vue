@@ -1,6 +1,6 @@
 <template>
   <component-layout
-    :component-type="type" :component-name="metabolite.name"
+    :component-type="'metabolite'" :component-name="metabolite.name"
     :compartment-name="(metabolite && metabolite.compartment) ? metabolite.compartment.name : ''"
     :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
     :interaction-partner="true" :viewer-selected-i-d="metabolite.id"
@@ -80,7 +80,6 @@ export default {
   },
   data() {
     return {
-      type: 'metabolite',
       metaboliteId: this.$route.params.id,
       mainTableKey: [
         { name: 'id' },
