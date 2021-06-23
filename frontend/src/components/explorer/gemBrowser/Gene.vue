@@ -90,9 +90,6 @@ export default {
       }],
     };
   },
-  watch: {
-    '$route.params': 'setup',
-  },
   methods: {
     reformatTableKey(k) { return reformatTableKey(k); },
   },
