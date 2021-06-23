@@ -35,7 +35,6 @@
 import { mapGetters, mapState } from 'vuex';
 import ComponentLayout from '@/layouts/explorer/gemBrowser/ComponentLayout';
 import { generateSocialMetaTags, reformatTableKey } from '@/helpers/utils';
-import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'Gene',
@@ -54,7 +53,6 @@ export default {
         { name: 'function' },
       ],
       limitReaction: 200,
-      messages,
     };
   },
   computed: {

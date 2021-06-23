@@ -71,7 +71,6 @@ import { mapState } from 'vuex';
 import ComponentLayout from '@/layouts/explorer/gemBrowser/ComponentLayout';
 import { chemicalFormula } from '@/helpers/chemical-formatters';
 import { generateSocialMetaTags, reformatTableKey } from '@/helpers/utils';
-import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'Metabolite',
@@ -93,7 +92,6 @@ export default {
         { name: 'compartment' },
       ],
       activePanel: 'table',
-      messages,
       chebiImageLink: null,
     };
   },
