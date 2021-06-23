@@ -93,9 +93,6 @@ export default {
         { name: 'compartment' },
       ],
       activePanel: 'table',
-      componentNotFound: false,
-      showLoaderMessage: '',
-      modelNotFound: false,
       messages,
       chebiImageLink: null,
     };

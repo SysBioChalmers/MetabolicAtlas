@@ -89,10 +89,7 @@ export default {
         { name: 'compartments', display: 'Compartment(s)' },
         { name: 'subsystems', display: 'Subsystem(s)' },
       ],
-      modelNotFound: false,
-      showLoaderMessage: '',
       mapsAvailable: {},
-      componentNotFound: false,
     };
   },
   computed: {

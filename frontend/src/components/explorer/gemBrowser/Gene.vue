@@ -54,9 +54,6 @@ export default {
         { name: 'function' },
       ],
       limitReaction: 200,
-      componentNotFound: false,
-      showLoaderMessage: '',
-      modelNotFound: false,
       messages,
     };
   },
