@@ -1,6 +1,6 @@
 <template>
   <component-layout
-    :component-type="'subsystem'" :component-name="info.name"
+    component-type="subsystem" :component-name="info.name"
     :external-dbs="info.externalDbs" query-component-action="subsystems/getSubsystemSummary"
   >
     <template v-slot:table>

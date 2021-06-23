@@ -1,6 +1,6 @@
 <template>
   <component-layout
-    :component-type="'metabolite'" :component-name="metabolite.name"
+    component-type="metabolite" :component-name="metabolite.name"
     :compartment-name="(metabolite && metabolite.compartment) ? metabolite.compartment.name : ''"
     :external-dbs="metabolite.externalDbs" query-component-action="metabolites/getMetaboliteData"
     :interaction-partner="true" :viewer-selected-i-d="metabolite.id"

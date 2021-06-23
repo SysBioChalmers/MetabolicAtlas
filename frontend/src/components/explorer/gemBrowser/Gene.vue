@@ -1,6 +1,6 @@
 <template>
   <component-layout
-    :component-type="'gene'" :component-name="gene.geneName"
+    component-type="gene" :component-name="gene.geneName"
     :external-dbs="gene.externalDbs" query-component-action="genes/getGeneData"
     :interaction-partner="true" :viewer-selected-i-d="gene.id"
   >
