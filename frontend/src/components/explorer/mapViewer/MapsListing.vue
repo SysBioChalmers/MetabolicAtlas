@@ -2,31 +2,33 @@
   <div id="maps-listing">
     <div v-for="category in Object.keys(mapsListing).filter(c => mapsListing[c].length > 0).sort()"
          :key="category" class="card my-3">
-      <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
-      <span v-for="item in mapsListing[category]" :key="item.id">
-        <template v-if="showing2D">
-          <template v-if="item.svgs.length === 0">
-            {{ item.name }}
-          </template>
-          <template v-else-if="item.svgs.length === 1">
-            <a @click="changeToMap(item.svgs[0].id)">
-              {{ item.svgs[0].customName }}
-            </a>
+      <template v-if="category !== 'customs' || showing2D">
+        <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
+        <span v-for="item in mapsListing[category]" :key="item.id">
+          <template v-if="showing2D">
+            <template v-if="item.svgs.length === 0">
+              {{ item.name }}
+            </template>
+            <template v-else-if="item.svgs.length === 1">
+              <a @click="changeToMap(item.svgs[0].id)">
+                {{ item.svgs[0].customName }}
+              </a>
+            </template>
+            <template v-else>
+              {{ item.name }}:
+              <a v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
+                :key="svg.id" class="inline" @click="changeToMap(svg.id)">
+                {{ svg.customName }}
+              </a>
+            </template>
           </template>
           <template v-else>
-            {{ item.name }}:
-            <a v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
-               :key="svg.id" class="inline" @click="changeToMap(svg.id)">
-              {{ svg.customName }}
+            <a @click="changeToMap(item.id)">
+              {{ item.name }}
             </a>
           </template>
-        </template>
-        <template v-else>
-          <a @click="changeToMap(item.id)">
-            {{ item.name }}
-          </a>
-        </template>
-      </span>
+        </span>
+      </template>
     </div>
   </div>
 </template>
