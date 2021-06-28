@@ -11,7 +11,7 @@
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2 pt-0
                     fixed-height-desktop scrollable"
-             @scroll.passive="handleSidebarScroll">
+             v-on="sidebarLayoutReset ? { scroll: () => handleSidebarScroll() } : {}">
           <div id="mapSidebar__header" class="has-background-lightgray pt-3">
             <div class="buttons has-addons is-centered padding-mobile m-0"
                  :title="`Switch to ${dimensionalState(!showing2D) }`"
@@ -127,6 +127,7 @@ export default {
       },
       mapNotFound: false,
       messages,
+      sidebarLayoutReset: true,
     };
   },
   computed: {
@@ -148,7 +149,6 @@ export default {
   },
   async created() {
     this.handleQueryParamsWatch = debounce(this.handleQueryParamsWatch, 100);
-    this.handleSidebarScroll = debounce(this.handleSidebarScroll, 300);
     window.onpopstate = this.handleQueryParamsWatch();
 
     EventBus.$off('loadRNAComplete');
@@ -172,11 +172,13 @@ export default {
   methods: {
     handleSidebarScroll() {
       if (this.$refs.mapSidebar.scrollTop > 0) {
+        this.sidebarLayoutReset = false;
         this.$refs.sidebarDataPanels.hideSelectionCardContent();
       }
     },
     resetSidebarLayout() {
       this.$refs.mapSidebar.scrollTop = 0;
+      this.sidebarLayoutReset = true;
     },
     dimensionalState(showing2D) {
       return showing2D ? '2d' : '3d';
