@@ -16,7 +16,7 @@ const getters = {
   component: state => state.interactionPartners.component || {},
   reactions: state => state.interactionPartners.reactions || [],
   title: (state, _getters) => (_getters.component.type === 'metabolite'
-    ? chemicalName(_getters.component.name || _getters.component.id)
+    ? chemicalName(_getters.component.name) || _getters.component.id
     : _getters.component.name || _getters.component.id
   ),
   reactionsSet: (state, _getters) => new Set(_getters.reactions.map(r => r.id)),
