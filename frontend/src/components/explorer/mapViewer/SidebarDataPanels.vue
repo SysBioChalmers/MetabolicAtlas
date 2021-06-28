@@ -265,14 +265,8 @@ export default {
     },
   },
   watch: {
-    selectionData(newData, oldData) {
-      if (
-        (newData.data && !oldData.data)
-        || (!newData.data && oldData.data)
-        || (newData.data && oldData.data && newData.data.id !== oldData.data.id)
-      ) {
-        this.openSelectionCardContent();
-      }
+    selectionData() {
+      this.openSelectionCardContent();
     },
   },
   methods: {
