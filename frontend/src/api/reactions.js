@@ -1,40 +1,6 @@
 import axios from 'axios';
 import { constructCompartmentStr, reformatChemicalReactionHTML } from '@/helpers/utils';
 
-const formatGeneRule = (reaction) => {
-  const { geneRule, genes } = reaction;
-
-  if (!geneRule) {
-    return null;
-  }
-  return geneRule.split(/\s+/).map((w) => {
-    if (w.match(/and|or/)) {
-      return w;
-    }
-
-    let gid = w;
-    let prefix = '';
-    let suffix = '';
-
-    if (gid.slice(0, 2) === '((') {
-      gid = gid.slice(2);
-      prefix = '((';
-    } else if (gid.slice(0, 1) === '(') {
-      gid = gid.slice(1);
-      prefix = '(';
-    } else if (gid.slice(-2) === '))') {
-      gid = gid.slice(0, -2);
-      suffix = '))';
-    } else if (gid.slice(-1) === ')') {
-      gid = gid.slice(0, -1);
-      suffix = ')';
-    }
-
-    const gene = genes.find(g => g.id === gid);
-    return `${prefix}${gene.name}${suffix}`;
-  }).join(' ');
-};
-
 const fetchReactionData = async ({ id, model, version }) => {
   const params = { model, version };
   let { data } = await axios.get(`/reactions/${id}`, { params });
@@ -44,7 +10,6 @@ const fetchReactionData = async ({ id, model, version }) => {
     compartment_str: data.compartments.map(c => c.name).join(', '),
     reactants: data.metabolites.filter(m => m.outgoing),
     products: data.metabolites.filter(m => !m.outgoing),
-    geneRule: formatGeneRule(data),
   };
 
   return {
