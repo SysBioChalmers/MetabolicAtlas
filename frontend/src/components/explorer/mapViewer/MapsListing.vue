@@ -1,34 +1,32 @@
 <template>
   <div id="maps-listing">
-    <div v-for="category in Object.keys(mapsListing).filter(c => mapsListing[c].length > 0).sort()"
+    <div v-for="category in categories"
          :key="category" class="card my-3">
-      <template v-if="category !== 'customs' || showing2D">
-        <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
-        <span v-for="item in mapsListing[category]" :key="item.id">
-          <template v-if="showing2D">
-            <template v-if="item.svgs.length === 0">
-              {{ item.name }}
-            </template>
-            <template v-else-if="item.svgs.length === 1">
-              <a @click="changeToMap(item.svgs[0].id)">
-                {{ item.svgs[0].customName }}
-              </a>
-            </template>
-            <template v-else>
-              {{ item.name }}:
-              <a v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
-                :key="svg.id" class="inline" @click="changeToMap(svg.id)">
-                {{ svg.customName }}
-              </a>
-            </template>
+      <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
+      <span v-for="item in mapsListing[category]" :key="item.id">
+        <template v-if="showing2D">
+          <template v-if="item.svgs.length === 0">
+            {{ item.name }}
           </template>
-          <template v-else>
-            <a @click="changeToMap(item.id)">
-              {{ item.name }}
+          <template v-else-if="item.svgs.length === 1">
+            <a @click="changeToMap(item.svgs[0].id)">
+              {{ item.svgs[0].customName }}
             </a>
           </template>
-        </span>
-      </template>
+          <template v-else>
+            {{ item.name }}:
+            <a v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
+              :key="svg.id" class="inline" @click="changeToMap(svg.id)">
+              {{ svg.customName }}
+            </a>
+          </template>
+        </template>
+        <template v-else>
+          <a @click="changeToMap(item.id)">
+            {{ item.name }}
+          </a>
+        </template>
+      </span>
     </div>
   </div>
 </template>
@@ -44,6 +42,17 @@ export default {
       showing2D: state => state.maps.showing2D,
       mapsListing: state => state.maps.mapsListing,
     }),
+    categories() {
+      const categories = [];
+      const li = Object.keys(this.mapsListing).filter(c => this.mapsListing[c].length > 0).sort();
+      for (let i = 0; i < li.length; i += 1) {
+        const category = li[i];
+        if (category !== 'customs' || this.showing2D) {
+          categories.push(category);
+        }
+      }
+      return categories;
+    },
   },
   methods: {
     changeToMap(newMapId) {
