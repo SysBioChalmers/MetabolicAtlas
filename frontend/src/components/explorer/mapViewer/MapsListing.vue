@@ -16,7 +16,7 @@
           <template v-else>
             {{ item.name }}:
             <a v-for="svg in [...item.svgs].sort((a, b) => a.customName.localeCompare(b.customName))"
-              :key="svg.id" class="inline" @click="changeToMap(svg.id)">
+               :key="svg.id" class="inline" @click="changeToMap(svg.id)">
               {{ svg.customName }}
             </a>
           </template>
