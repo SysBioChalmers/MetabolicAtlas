@@ -43,15 +43,7 @@ export default {
       mapsListing: state => state.maps.mapsListing,
     }),
     categories() {
-      const categories = [];
-      const li = Object.keys(this.mapsListing).filter(c => this.mapsListing[c].length > 0).sort();
-      for (let i = 0; i < li.length; i += 1) {
-        const category = li[i];
-        if (category !== 'customs' || this.showing2D) {
-          categories.push(category);
-        }
-      }
-      return categories;
+      return Object.keys(this.mapsListing).filter(c => this.mapsListing[c].length > 0 && (c !== 'customs' || this.showing2D)).sort();
     },
   },
   methods: {
