@@ -186,32 +186,24 @@ export default {
       if (!this.reaction.geneRule) {
         return '-';
       }
-      let newGRnameArr = null;
-      if (this.reaction.geneRule_wname) {
-        newGRnameArr = this.reaction.geneRule_wname.split(/ +/).map(
-          e => e.replace(/^\(+|\)+$/g, '')
-        );
-      }
-      let newGR = this.reaction.geneRule;
-      if (newGR) {
-        let i = -1;
-        const newGRArr = newGR.split(/ +/).map(
-          (e) => {
-            i += 1;
-            if (e === 'or' || e === 'and') {
-              return e;
-            }
-            const prefix = e[0] === '(' ? '(' : '';
-            const suffix = e.slice(-1) === ')' ? ')' : '';
-            const newEName = e.replace(/^\(+|\)+$/g, '');
-            const newEId = this.reaction.genes.find(g => g.name === newEName).id;
-            const tag = newGRnameArr ? newGRnameArr[i] : newEName;
-            const customLink = buildCustomLink({ model: this.model.short_name, type: 'gene', id: newEId, title: tag });
-            return `${prefix}<span class="tag">${customLink}</span>${suffix}`;
-          });
-        newGR = newGRArr.join(' ');
-      }
-      return newGR;
+
+      // capture any sequence that's not a space or parenthesis
+      const regex = /[^\s()]+/g;
+
+      return this.reaction.geneRule.replace(regex, (w) => {
+        if (w.match(/and|or/)) {
+          return w;
+        }
+
+        const gene = this.reaction.genes.find(g => g.id === w);
+        const customLink = buildCustomLink({
+          model: this.model.short_name,
+          type: 'gene',
+          id: gene.id,
+          title: gene.name || gene.id,
+        });
+        return `<span class="tag">${customLink}</span>`;
+      });
     },
     formatQuantFieldName(name) { return `${name}:&nbsp;`; },
     reformatQuant() {
