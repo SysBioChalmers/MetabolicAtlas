@@ -7,27 +7,32 @@
         </div>
       </template>
       <template v-else>
-        <div id="mapSidebar"
+        <div id="mapSidebar" ref="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
-                    is-one-quarter-tablet has-background-lightgray om-2
-                    fixed-height-desktop scrollable">
-          <div class="buttons has-addons is-centered padding-mobile m-0"
-               :title="`Switch to ${dimensionalState(!showing2D) }`"
-               @click="$store.dispatch('maps/toggleShowing2D')">
-            <button v-for="dim in [true, false]" :key="dim"
-                    class="button m-0"
-                    :class="dim === showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'"
-                    :disabled="currentMap && currentMap.type === 'custom'">
-              <span v-if="dim === showing2D" class="icon">
-                <i class="fa fa-check-square-o"></i>
-              </span>
-              <span v-if="dim !== showing2D">Switch to&nbsp;</span>
-              <span class="is-uppercase">{{ dimensionalState(dim) }}</span>
-            </button>
+                    is-one-quarter-tablet has-background-lightgray om-2 pt-0
+                    fixed-height-desktop scrollable"
+             v-on="sidebarLayoutReset ? { scroll: () => handleSidebarScroll() } : {}">
+          <div id="mapSidebar__header" class="has-background-lightgray pt-3">
+            <div class="buttons has-addons is-centered padding-mobile m-0"
+                 :title="`Switch to ${dimensionalState(!showing2D) }`"
+                 @click="$store.dispatch('maps/toggleShowing2D')">
+              <button v-for="dim in [true, false]" :key="dim"
+                      class="button m-0"
+                      :class="dim === showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'"
+                      :disabled="currentMap && currentMap.type === 'custom'">
+                <span v-if="dim === showing2D" class="icon">
+                  <i class="fa fa-check-square-o"></i>
+                </span>
+                <span v-if="dim !== showing2D">Switch to&nbsp;</span>
+                <span class="is-uppercase">{{ dimensionalState(dim) }}</span>
+              </button>
+            </div>
+            <SidebarDataPanels ref="sidebarDataPanels"
+                               :dim="dimensionalState(showing2D)"
+                               :current-map="currentMap"
+                               :selection-data="selectionData"
+                               @openSelectionCardContent="resetSidebarLayout" />
           </div>
-          <SidebarDataPanels :dim="dimensionalState(showing2D)"
-                             :current-map="currentMap"
-                             :selection-data="selectionData" />
           <div class="padding-mobile">
             <a class="button is-fullwidth is-primary is-inverted has-text-weight-bold is-hidden-tablet"
                @click="showingMapListing = !showingMapListing">
@@ -122,6 +127,7 @@ export default {
       },
       mapNotFound: false,
       messages,
+      sidebarLayoutReset: true,
     };
   },
   computed: {
@@ -164,6 +170,16 @@ export default {
     this.loadMapFromParams();
   },
   methods: {
+    handleSidebarScroll() {
+      if (this.$refs.mapSidebar.scrollTop > 0) {
+        this.sidebarLayoutReset = false;
+        this.$refs.sidebarDataPanels.hideSelectionCardContent();
+      }
+    },
+    resetSidebarLayout() {
+      this.$refs.mapSidebar.scrollTop = 0;
+      this.sidebarLayoutReset = true;
+    },
     dimensionalState(showing2D) {
       return showing2D ? '2d' : '3d';
     },
@@ -238,6 +254,14 @@ export default {
 
   #mapSidebar {
     word-wrap: break-word;
+
+    &__header {
+      @media screen and (min-width: $tablet) {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+    }
 
     .buttons {
 
