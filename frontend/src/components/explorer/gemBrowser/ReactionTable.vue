@@ -62,7 +62,7 @@
                 </template>
               </td>
               <td>
-                <template v-for="(RP, i) in r.compartment_str.split(new RegExp(['&#8658;|&#8660;']))">
+                <template v-for="(RP, i) in r.compartment_str.split(/&#8658;|&#8660;/)">
                   <template v-if="i !== 0">{{ r.reversible ? ' &#8660; ' : ' &#8658; ' }}</template>
                   <template v-for="(compo, j) in RP.split(' ,')">
                     <template v-if="j != 0"> + </template>
