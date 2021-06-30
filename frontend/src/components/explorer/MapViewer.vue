@@ -13,7 +13,7 @@
                     fixed-height-desktop scrollable">
           <div class="buttons has-addons is-centered padding-mobile m-0"
                :title="`Switch to ${dimensionalState(!showing2D) }`"
-               @click="$store.dispatch('maps/toggleShowing2D')">
+               @click="currentMap && currentMap.type !== 'custom' && $store.dispatch('maps/toggleShowing2D')">
             <button v-for="dim in [true, false]" :key="dim"
                     class="button m-0"
                     :class="dim === showing2D ? 'is-selected is-primary has-text-weight-bold' : 'is-light'"
