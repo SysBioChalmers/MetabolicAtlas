@@ -1,6 +1,38 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import queryListResult from 'neo4j/queryHandlers/list';
 import parseParams from 'neo4j/shared/helper';
+const fs = require('fs');
+const readline = require('readline');
+
+const mapReactionIdSet = async (map) => {
+  const rl = readline.createInterface({
+      input: fs.createReadStream(`/project/svg/Human-GEM/${map.filename}`),
+      output: process.stdout,
+      terminal: false
+  });
+
+  const mapReactionIdSet = new Set();
+  const start = async () =>{
+    for await (const line of rl) {
+      if (line.includes('class="rea"')) {
+        const match = line.match(/id="(.+)"\s/);
+        if (match) {
+          mapReactionIdSet.add(match[1]);
+        }
+      }
+    }
+  }
+  await start()
+  return {...map, mapReactionIdSet: [...mapReactionIdSet]}
+};
+
+const mapComponent = async (component) => {
+  const svgs = await Promise.all(component.svgs.map(mapReactionIdSet));
+  return { ...component, svgs };
+}
+
+const mapComponents = async (componentList) => 
+  await Promise.all(componentList.map(mapComponent));
 
 const getMapsListing = async ({ model, version }) => {
   const [m, v] = parseParams(model, version);
@@ -74,7 +106,10 @@ RETURN svg { id: svg.id, name: svg.customName, svgs: [svg {.*}]}
     customs,
   };
 
-  return mapListing;
+  const compartments = await mapComponents(mapListing.compartments);
+  const subsystems = await mapComponents(mapListing.subsystems);
+
+  return {...mapListing, compartments, subsystems };
 };
 
 const mapSearch = async ({ model, version, searchTerm }) => {
