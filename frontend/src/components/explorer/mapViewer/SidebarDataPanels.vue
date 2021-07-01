@@ -38,14 +38,14 @@
               Some reactions are missing as the {{ currentMap.type }} is being updated much more often than the maps.
               Also, as the maps are manually curated, occasionally some reactions cannot be added.
               The number of reactions shown are {{ mapReactionList.length }}.
-              </p>
+            </p>
             <table class="table main-table is-fullwidth m-0">
               <tbody>
                 <tr>
                   <td class="td-key has-background-primary has-text-white-bis">
                     {{ currentMap.mapReactionIdSet.length == 1 ? "Missing reactions on the map" : `Missing reactions
-                    on the combined ${currentMap.name} maps`}}
-                    </td>
+                    on the combined ${currentMap.name} maps` }}
+                  </td>
                   <td>
                     <div v-html="missingReactionIdListHtml"></div>
                     <div v-if="!showFullReactionListMissing && missingReactionList.length > displayedReaction">
@@ -59,7 +59,7 @@
                 <tr>
                   <td class="td-key has-background-primary has-text-white-bis">
                     {{ currentMap.mapReactionIdSet.length == 1 ? "Reactions shown on the map" : `Reactions shown
-                    on the combined ${currentMap.name} maps`}}
+                    on the combined ${currentMap.name} maps` }}
                   </td>
                   <td>
                     <div v-html="mapReactionIdListHtml"></div>
