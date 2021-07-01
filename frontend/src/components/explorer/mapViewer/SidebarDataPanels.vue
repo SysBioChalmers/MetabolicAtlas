@@ -7,7 +7,7 @@
           <i>{{ currentMap.name }}</i>
         </p>
       </header>
-      <div v-if="currentMap.reactionList && missingReactionList.length > 0"
+      <div v-if="dim==='2d' && currentMap.reactionList && missingReactionList.length > 0"
            class="card-content p-4">
         <div v-if="currentMap.mapReactionIdSet.length == 1" class="content mb-0">
           Please note that {{ missingReactionList.length }}
