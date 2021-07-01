@@ -221,7 +221,6 @@ export default {
     ...mapState({
       model: state => state.models.model,
       loading: state => state.maps.loadingElement,
-      mapReactionList: state => state.maps.svgReactionsIdList,
     }),
     modelNumberOfReactions() {
       return this.currentMap.reactionList ? this.currentMap.reactionList.length : null;
@@ -240,6 +239,13 @@ export default {
       }
       l.push('</span>');
       return l.join('');
+    },
+    mapReactionList() {
+      let mapReactionIdList = [];
+      this.currentMap.mapReactionIdSet.forEach((map) => {
+        mapReactionIdList = [...mapReactionIdList, ...map.mapReactionIdSet];
+      });
+      return mapReactionIdList;
     },
     missingReactionList() {
       const modelReactionIdSet = new Set(this.currentMap.reactionList);
