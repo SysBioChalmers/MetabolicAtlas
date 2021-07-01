@@ -31,7 +31,7 @@ export function reformatStringToLink(value, link) {
 }
 
 export function equationSign(isReversible) {
-  return isReversible ? '&#8660;' : '&#8658;';
+  return isReversible ? '⇔' : '⇒';
 }
 
 export function addMassUnit(value) {
@@ -132,13 +132,13 @@ export const constructCompartmentStr = (reaction) => {
     products.map(r => compartments[r.compartmentId].name).sort()
   );
 
-  const reactantsCompartmentsStr = Array.from(reactantsCompartments).join(' , ');
+  const reactantsCompartmentsStr = Array.from(reactantsCompartments).join(' + ');
   if (JSON.stringify([...reactantsCompartments])
     === JSON.stringify([...productsCompartments])) {
     return reactantsCompartmentsStr;
   }
 
-  const productsCompartmentsStr = Array.from(productsCompartments).join(' , ');
+  const productsCompartmentsStr = Array.from(productsCompartments).join(' + ');
   return `${reactantsCompartmentsStr} ${equationSign(reaction.reversible)} ${productsCompartmentsStr}`;
 };
 
