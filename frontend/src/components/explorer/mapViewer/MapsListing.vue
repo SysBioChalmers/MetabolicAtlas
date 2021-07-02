@@ -1,6 +1,6 @@
 <template>
   <div id="maps-listing">
-    <div v-for="category in Object.keys(mapsListing).filter(c => mapsListing[c].length > 0).sort()"
+    <div v-for="category in categories"
          :key="category" class="card my-3">
       <p class="is-capitalized is-size-6 has-text-weight-bold">{{ category.replace(/.$/," maps") }}</p>
       <span v-for="item in mapsListing[category]" :key="item.id">
@@ -42,6 +42,9 @@ export default {
       showing2D: state => state.maps.showing2D,
       mapsListing: state => state.maps.mapsListing,
     }),
+    categories() {
+      return Object.keys(this.mapsListing).filter(c => this.mapsListing[c].length > 0 && (c !== 'customs' || this.showing2D)).sort();
+    },
   },
   methods: {
     changeToMap(newMapId) {
