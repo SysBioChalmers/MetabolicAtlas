@@ -28,16 +28,16 @@
               There are {{ missingReactionList.length }} reactions not shown on the map. Some reactions
               are missing as the {{ currentMap.type }} is being updated much more often than the maps.
               Also, as the maps are manually curated, occasionally some reactions cannot be added.
-              The number of reactions shown are {{ mapReactionList.length }}.
+              The number of reactions shown is {{ mapReactionList.length }}.
             </p>
             <p v-else class="pb-4">
               There are {{ missingReactionList.length }} reactions not shown on any of the {{ currentMap.name }} maps.
-              {{ currentMap.name }} is split into multiple maps due to its size and the number of missing
-              reaction displayed is the missing reactions when all the reactions in the {{ currentMap.name }}
-              maps are combined.
+              The 2D map of {{ currentMap.name }} is split into multiple maps due to its size. The number of missing
+              reactions displayed is the missing reactions when the reactions in all {{ currentMap.name }} maps are
+              combined.
               Some reactions are missing as the {{ currentMap.type }} is being updated much more often than the maps.
               Also, as the maps are manually curated, occasionally some reactions cannot be added.
-              The number of reactions shown are {{ mapReactionList.length }}.
+              The number of reactions shown is {{ mapReactionList.length }}.
             </p>
             <table class="table main-table is-fullwidth m-0">
               <tbody>
