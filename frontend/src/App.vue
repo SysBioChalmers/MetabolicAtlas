@@ -379,7 +379,7 @@ html {
   }
 }
 
-#comparison-details, .model-table, .reaction-table, .gembrowser-table {
+#comparison-details, .table-template {
   .main-table tr td.td-key, #ed-table tr td.td-key {
     width: 150px;
   }

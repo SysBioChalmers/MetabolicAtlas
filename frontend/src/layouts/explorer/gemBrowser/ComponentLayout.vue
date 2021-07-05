@@ -18,7 +18,7 @@
         </div>
         <loader v-if="showLoaderMessage" :message="showLoaderMessage" class="columns" />
         <div v-else class="columns is-multiline is-variable is-8 is-centered">
-          <div class="gembrowser-table column">
+          <div class="table-template column">
             <div class="table-container">
               <slot name="table" />
             </div>
