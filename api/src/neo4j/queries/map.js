@@ -12,7 +12,7 @@ const mapReactionIdSet = async (map, modelShortName) => {
   });
 
   const mapReactionIdSet = new Set();
-  const start = async () =>{
+  const getReactions = async () =>{
     for await (const line of rl) {
       if (line.includes('class="rea"')) {
         const match = line.match(/id="(.+)"\s/);
@@ -22,20 +22,16 @@ const mapReactionIdSet = async (map, modelShortName) => {
       }
     }
   }
-  await start()
+  await getReactions()
   return {...map, mapReactionIdSet: [...mapReactionIdSet]}
 };
 
-const mapComponent = async (component, modelShortName) => {
-  const svgs = await Promise.all(component.svgs.map((map) => {
-    return mapReactionIdSet(map, modelShortName);
-  }));
-  return { ...component, svgs };
-}
-
-const mapComponents = async (componentList, modelShortName) => 
-  await Promise.all(componentList.map((map) => {
-    return mapComponent(map, modelShortName);
+const mapComponents = async (componentList, modelShortName) =>
+  await Promise.all(componentList.map(async (component) => {
+    const svgs = await Promise.all(component.svgs.map((map) => {
+      return mapReactionIdSet(map, modelShortName);
+    }));
+    return { ...component, svgs };
   }));
 
 const getMapsListing = async ({ model, modelShortName, version }) => {
