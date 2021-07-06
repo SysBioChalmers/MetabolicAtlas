@@ -87,7 +87,7 @@ export default {
     selectedElmId: { type: Boolean, required: false, default: false },
     relatedMetCount: { type: Number, required: false, default: 0 },
     isMetabolite: { type: Boolean, default: false },
-    referenceList: { type: Object, default: null },
+    referenceList: { type: Array, default: null },
   },
   data() {
     return {
