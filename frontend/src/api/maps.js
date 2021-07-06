@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const fetchMapsListing = async ({ model, version }) => {
-  const params = { model, version };
+const fetchMapsListing = async ({ model, modelShortName, version }) => {
+  const params = { model, modelShortName, version };
   const { data } = await axios.get('/maps/listing', { params });
   return data;
 };

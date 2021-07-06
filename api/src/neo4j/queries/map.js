@@ -4,9 +4,9 @@ import parseParams from 'neo4j/shared/helper';
 const fs = require('fs');
 const readline = require('readline');
 
-const mapReactionIdSet = async (map) => {
+const mapReactionIdSet = async (map, modelShortName) => {
   const rl = readline.createInterface({
-      input: fs.createReadStream(`/project/svg/Human-GEM/${map.filename}`),
+      input: fs.createReadStream(`/project/svg/${modelShortName}/${map.filename}`),
       output: process.stdout,
       terminal: false
   });
@@ -26,15 +26,19 @@ const mapReactionIdSet = async (map) => {
   return {...map, mapReactionIdSet: [...mapReactionIdSet]}
 };
 
-const mapComponent = async (component) => {
-  const svgs = await Promise.all(component.svgs.map(mapReactionIdSet));
+const mapComponent = async (component, modelShortName) => {
+  const svgs = await Promise.all(component.svgs.map((map) => {
+    return mapReactionIdSet(map, modelShortName);
+  }));
   return { ...component, svgs };
 }
 
-const mapComponents = async (componentList) => 
-  await Promise.all(componentList.map(mapComponent));
+const mapComponents = async (componentList, modelShortName) => 
+  await Promise.all(componentList.map((map) => {
+    return mapComponent(map, modelShortName);
+  }));
 
-const getMapsListing = async ({ model, version }) => {
+const getMapsListing = async ({ model, modelShortName, version }) => {
   const [m, v] = parseParams(model, version);
 
   const componentSvgsQuery = `
@@ -106,8 +110,8 @@ RETURN svg { id: svg.id, name: svg.customName, svgs: [svg {.*}]}
     customs,
   };
 
-  const compartments = await mapComponents(mapListing.compartments);
-  const subsystems = await mapComponents(mapListing.subsystems);
+  const compartments = await mapComponents(mapListing.compartments, modelShortName);
+  const subsystems = await mapComponents(mapListing.subsystems, modelShortName);
 
   return {...mapListing, compartments, subsystems };
 };
