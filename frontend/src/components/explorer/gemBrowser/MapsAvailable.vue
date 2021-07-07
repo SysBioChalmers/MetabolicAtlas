@@ -93,7 +93,7 @@ export default {
 .link-button {
   border-radius: 4px;
 }
-.maps-table tr td:first-child {
-  max-width: 150px;
+.table {
+  width: 100%;
 }
 </style>

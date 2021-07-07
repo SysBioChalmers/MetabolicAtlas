@@ -379,7 +379,7 @@ html {
   }
 }
 
-#comparison-details, .metabolite-table, .model-table, .reaction-table, .subsystem-table {
+#comparison-details, .table-template {
   .main-table tr td.td-key, #ed-table tr td.td-key {
     width: 150px;
   }

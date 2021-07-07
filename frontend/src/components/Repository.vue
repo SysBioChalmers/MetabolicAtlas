@@ -74,7 +74,7 @@
           <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
             has-background-white"
                tabindex="0" @keyup.esc="showModelId = ''">
-            <div id="modal-info" class="model-table">
+            <div id="modal-info" class="table-template">
               <h4 class="title is-size-4">
                 <template v-if="selectedModel.short_name">
                   {{ selectedModel.full_name }}
