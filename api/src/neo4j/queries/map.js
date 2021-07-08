@@ -34,7 +34,7 @@ const mapComponents = async (componentList, modelShortName) =>
     return { ...component, svgs };
   }));
 
-const getMapsListing = async ({ model, modelShortName, version }) => {
+const getMapsListing = async ({ model, version }) => {
   const [m, v] = parseParams(model, version);
 
   const componentSvgsQuery = `
@@ -106,8 +106,8 @@ RETURN svg { id: svg.id, name: svg.customName, svgs: [svg {.*}]}
     customs,
   };
 
-  const compartments = await mapComponents(mapListing.compartments, modelShortName);
-  const subsystems = await mapComponents(mapListing.subsystems, modelShortName);
+  const compartments = await mapComponents(mapListing.compartments, `${model.slice(0, -3)}-GEM`);
+  const subsystems = await mapComponents(mapListing.subsystems, `${model.slice(0, -3)}-GEM`);
 
   return {...mapListing, compartments, subsystems };
 };

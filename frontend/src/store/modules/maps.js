@@ -57,7 +57,7 @@ const getters = {
 
 const actions = {
   async getMapsListing({ commit }, model) {
-    const payload = { model: model.apiName, modelShortName: model.short_name, version: model.apiVersion };
+    const payload = { model: model.apiName, version: model.apiVersion };
     const mapsListing = await mapsApi.fetchMapsListing(payload);
     commit('setMapsListing', mapsListing);
   },
