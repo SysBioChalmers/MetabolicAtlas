@@ -7,11 +7,16 @@
           <i>{{ currentMap.name }}</i>
         </p>
       </header>
-      <div v-if="currentMap.reactionList && missingReactionList.length > 0"
+      <div v-if="dim==='2d' && currentMap.reactionList && missingReactionList.length > 0"
            class="card-content p-4">
-        <div class="content mb-0">
+        <div v-if="currentMap.mapReactionIdSet.length == 1" class="content mb-0">
           Please note that {{ missingReactionList.length }}
           of the reactions in the {{ currentMap.type }} are not shown on the map.
+          <a @click="showModal = true"> See comparison </a>
+        </div>
+        <div v-else class="content mb-0">
+          Please note that {{ missingReactionList.length }} of the reactions in the
+          {{ currentMap.type }} are not shown on any of the {{ currentMap.name }} maps.
           <a @click="showModal = true"> See comparison </a>
         </div>
         <div v-if="showModal" class="modal is-active">
@@ -19,16 +24,28 @@
           <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
           has-background-white">
             <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
-            <p class="pb-4">
+            <p v-if="currentMap.mapReactionIdSet.length == 1" class="pb-4">
               There are {{ missingReactionList.length }} reactions not shown on the map. Some reactions
               are missing as the {{ currentMap.type }} is being updated much more often than the maps.
               Also, as the maps are manually curated, occasionally some reactions cannot be added.
-              The number of reactions shown are {{ mapReactionList.length }}.
+              The number of reactions shown is {{ mapReactionList.length }}.
+            </p>
+            <p v-else class="pb-4">
+              There are {{ missingReactionList.length }} reactions not shown on any of the {{ currentMap.name }} maps.
+              The 2D map of {{ currentMap.name }} is split into multiple maps due to its size. The number of missing
+              reactions displayed is the missing reactions when the reactions in all {{ currentMap.name }} maps are
+              combined.
+              Some reactions are missing as the {{ currentMap.type }} is being updated much more often than the maps.
+              Also, as the maps are manually curated, occasionally some reactions cannot be added.
+              The number of reactions shown is {{ mapReactionList.length }}.
             </p>
             <table class="table main-table is-fullwidth m-0">
               <tbody>
                 <tr>
-                  <td class="td-key has-background-primary has-text-white-bis">Missing reactions on the map</td>
+                  <td class="td-key has-background-primary has-text-white-bis">
+                    {{ currentMap.mapReactionIdSet.length == 1 ? "Missing reactions on the map" : `Missing reactions
+                    on the combined ${currentMap.name} maps` }}
+                  </td>
                   <td>
                     <div v-html="missingReactionIdListHtml"></div>
                     <div v-if="!showFullReactionListMissing && missingReactionList.length > displayedReaction">
@@ -40,7 +57,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="td-key has-background-primary has-text-white-bis">Reactions shown on the map</td>
+                  <td class="td-key has-background-primary has-text-white-bis">
+                    {{ currentMap.mapReactionIdSet.length == 1 ? "Reactions shown on the map" : `Reactions shown
+                    on the combined ${currentMap.name} maps` }}
+                  </td>
                   <td>
                     <div v-html="mapReactionIdListHtml"></div>
                     <div v-if="!showFullReactionListMap && mapReactionList.length > displayedReaction">
@@ -221,7 +241,6 @@ export default {
     ...mapState({
       model: state => state.models.model,
       loading: state => state.maps.loadingElement,
-      mapReactionList: state => state.maps.svgReactionsIdList,
     }),
     modelNumberOfReactions() {
       return this.currentMap.reactionList ? this.currentMap.reactionList.length : null;
@@ -240,6 +259,13 @@ export default {
       }
       l.push('</span>');
       return l.join('');
+    },
+    mapReactionList() {
+      let mapReactionIdList = [];
+      this.currentMap.mapReactionIdSet.forEach((map) => {
+        mapReactionIdList = [...mapReactionIdList, ...map.mapReactionIdSet];
+      });
+      return mapReactionIdList;
     },
     missingReactionList() {
       const modelReactionIdSet = new Set(this.currentMap.reactionList);

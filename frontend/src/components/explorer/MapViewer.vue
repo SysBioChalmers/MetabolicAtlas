@@ -216,6 +216,7 @@ export default {
                 if (item.svgs[k].id === id) {
                   this.currentMap = { ...item };
                   this.currentMap.svgs = [item.svgs[k]];
+                  this.currentMap.mapReactionIdSet = item.svgs;
                   this.currentMap.type = categories[i].slice(0, -1);
                   this.mapNotFound = false;
                   return;
