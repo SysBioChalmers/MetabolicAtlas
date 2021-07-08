@@ -1,8 +1,8 @@
 import querySingleResult from 'neo4j/queryHandlers/single';
 import queryListResult from 'neo4j/queryHandlers/list';
 import parseParams from 'neo4j/shared/helper';
-const fs = require('fs');
-const readline = require('readline');
+import fs from 'fs';
+import readline from 'readline';
 
 const mapReactionIdSet = async (map, modelShortName) => {
   const rl = readline.createInterface({
