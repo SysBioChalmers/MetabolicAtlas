@@ -4,16 +4,29 @@
     <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
     has-background-white">
       <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
-      <p class="pb-4">
+      <p v-if="currentMap.mapReactionIdSet.length == 1" class="pb-4">
         There are {{ missingReactionList.length }} reactions not shown on the map. Some reactions
         are missing as the {{ currentMap.type }} is being updated much more often than the maps.
         Also, as the maps are manually curated, occasionally some reactions cannot be added.
         The number of reactions shown are {{ mapReactionList.length }}.
+        The number of reactions shown is {{ mapReactionList.length }}.
+      </p>
+      <p v-else class="pb-4">
+        There are {{ missingReactionList.length }} reactions not shown on any of the {{ currentMap.name }} maps.
+        The 2D map of {{ currentMap.name }} is split into multiple maps due to its size. The number of missing
+        reactions displayed is the missing reactions when the reactions in all {{ currentMap.name }} maps are
+        combined.
+        Some reactions are missing as the {{ currentMap.type }} is being updated much more often than the maps.
+        Also, as the maps are manually curated, occasionally some reactions cannot be added.
+        The number of reactions shown is {{ mapReactionList.length }}.
       </p>
       <table class="table main-table is-fullwidth m-0">
         <tbody>
           <tr>
-            <td class="td-key has-background-primary has-text-white-bis">Missing reactions on the map</td>
+            <td class="td-key has-background-primary has-text-white-bis">
+              {{ currentMap.mapReactionIdSet.length == 1 ? "Missing reactions on the map" : `Missing reactions
+                    on the combined ${currentMap.name} maps` }}
+            </td>
             <td>
               <div v-html="missingReactionIdListHtml"></div>
               <div v-if="!showFullReactionListMissing && missingReactionList.length > displayedReaction">
@@ -25,7 +38,10 @@
             </td>
           </tr>
           <tr>
-            <td class="td-key has-background-primary has-text-white-bis">Reactions shown on the map</td>
+            <td class="td-key has-background-primary has-text-white-bis">
+              {{ currentMap.mapReactionIdSet.length == 1 ? "Reactions shown on the map" : `Reactions shown
+                    on the combined ${currentMap.name} maps` }}
+            </td>
             <td>
               <div v-html="mapReactionIdListHtml"></div>
               <div v-if="!showFullReactionListMap && mapReactionList.length > displayedReaction">
@@ -52,6 +68,7 @@ export default {
   props: {
     currentMap: Object,
     missingReactionList: Array,
+    mapReactionList: Array,
     showModal: Boolean,
   },
   data() {
@@ -64,7 +81,6 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
-      mapReactionList: state => state.maps.svgReactionsIdList,
     }),
     mapReactionIdListHtml() {
       const l = ['<span class="tags">'];

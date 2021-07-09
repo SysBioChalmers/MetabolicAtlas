@@ -8,8 +8,9 @@
       </template>
       <template v-else>
         <MissingReactionModal :current-map="currentMap"
-                               :missing-reaction-list="missingReactionList"
-                               :show-modal.sync="showModal"/>
+                              :missing-reaction-list="missingReactionList"
+                              :map-reaction-list="mapReactionList"
+                              :show-modal.sync="showModal" />
         <div id="mapSidebar" ref="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2 pt-0
@@ -144,11 +145,17 @@ export default {
       showing2D: state => state.maps.showing2D,
       dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
       mapsListing: state => state.maps.mapsListing,
-      mapReactionList: state => state.maps.svgReactionsIdList,
     }),
     ...mapGetters({
       queryParams: 'maps/queryParams',
     }),
+    mapReactionList() {
+      let mapReactionIdList = [];
+      this.currentMap.mapReactionIdSet.forEach((map) => {
+        mapReactionIdList = [...mapReactionIdList, ...map.mapReactionIdSet];
+      });
+      return mapReactionIdList;
+    },
     missingReactionList() {
       const modelReactionIdSet = new Set(this.currentMap.reactionList);
       const mapReactionIdSet = new Set(this.mapReactionList);
@@ -232,6 +239,7 @@ export default {
                 if (item.svgs[k].id === id) {
                   this.currentMap = { ...item };
                   this.currentMap.svgs = [item.svgs[k]];
+                  this.currentMap.mapReactionIdSet = item.svgs;
                   this.currentMap.type = categories[i].slice(0, -1);
                   this.mapNotFound = false;
                   return;
