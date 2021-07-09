@@ -9,16 +9,15 @@
       </header>
       <div v-if="dim==='2d' && currentMap.reactionList && missingReactionList.length > 0"
            class="card-content p-4">
-        <div v-if="currentMap.mapReactionIdSet.length == 1" class="content mb-0">
+        <template v-if="currentMap.mapReactionIdSet.length == 1">
           Please note that {{ missingReactionList.length }}
           of the reactions in the {{ currentMap.type }} are not shown on the map.
-          <a @click="$emit('update:showModal', true)"> See comparison </a>
-        </div>
-        <div v-else class="content mb-0">
+        </template>
+        <template v-else>
           Please note that {{ missingReactionList.length }} of the reactions in the
           {{ currentMap.type }} are not shown on any of the {{ currentMap.name }} maps.
-          <a @click="$emit('update:showModal', true)"> See comparison </a>
-        </div>
+        </template>
+        <a @click="$emit('update:showModal', true)"> See comparison </a>
       </div>
       <footer v-if="currentMap.type !== 'custom'" class="card-footer sidebarCardHover">
         <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
