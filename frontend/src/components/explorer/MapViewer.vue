@@ -137,6 +137,8 @@ export default {
       messages,
       sidebarLayoutReset: true,
       showModal: false,
+      mapReactionList: null,
+      missingReactionList: null,
     };
   },
   computed: {
@@ -149,20 +151,6 @@ export default {
     ...mapGetters({
       queryParams: 'maps/queryParams',
     }),
-    mapReactionList() {
-      let mapReactionIdList = [];
-      this.currentMap.mapReactionIdSet.forEach((map) => {
-        mapReactionIdList = [...mapReactionIdList, ...map.mapReactionIdSet];
-      });
-      return mapReactionIdList;
-    },
-    missingReactionList() {
-      const modelReactionIdSet = new Set(this.currentMap.reactionList);
-      const mapReactionIdSet = new Set(this.mapReactionList);
-      const missingReactionIdSet = new Set([...modelReactionIdSet].filter(x => !mapReactionIdSet.has(x)));
-      const missingReactionList = Array.from(missingReactionIdSet);
-      return missingReactionList;
-    },
   },
   watch: {
     '$route.params': 'loadMapFromParams',
@@ -242,6 +230,8 @@ export default {
                   this.currentMap.mapReactionIdSet = item.svgs;
                   this.currentMap.type = categories[i].slice(0, -1);
                   this.mapNotFound = false;
+                  this.setMapReactionList();
+                  this.setMissingReactionList();
                   return;
                 }
               }
@@ -249,12 +239,28 @@ export default {
               this.currentMap = item;
               this.currentMap.type = categories[i].slice(0, -1);
               this.mapNotFound = false;
+              this.currentMap.mapReactionIdSet = item.svgs;
+              this.setMapReactionList();
+              this.setMissingReactionList();
               return;
             }
             this.mapNotFound = true;
           }
         }
       }
+    },
+    setMapReactionList() {
+      let mapReactionIdList = [];
+      this.currentMap.mapReactionIdSet.forEach((map) => {
+        mapReactionIdList = [...mapReactionIdList, ...map.mapReactionIdSet];
+      });
+      this.mapReactionList = mapReactionIdList;
+    },
+    setMissingReactionList() {
+      const modelReactionIdSet = new Set(this.currentMap.reactionList);
+      const mapReactionIdSet = new Set(this.mapReactionList);
+      const missingReactionIdSet = new Set([...modelReactionIdSet].filter(x => !mapReactionIdSet.has(x)));
+      this.missingReactionList = Array.from(missingReactionIdSet);
     },
     showMessage(errorMessage) {
       this.loadMapErrorMessage = errorMessage;
