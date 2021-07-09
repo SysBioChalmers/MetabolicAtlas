@@ -12,49 +12,7 @@
         <div class="content mb-0">
           Please note that {{ missingReactionList.length }}
           of the reactions in the {{ currentMap.type }} are not shown on the map.
-          <a @click="showModal = true"> See comparison </a>
-        </div>
-        <div v-if="showModal" class="modal is-active">
-          <div class="modal-background" @click="closeModal"></div>
-          <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
-          has-background-white">
-            <h4 class="title is-size-4 m-0 mb-2"> List of missing and total reactions on the map </h4>
-            <p class="pb-4">
-              There are {{ missingReactionList.length }} reactions not shown on the map. Some reactions
-              are missing as the {{ currentMap.type }} is being updated much more often than the maps.
-              Also, as the maps are manually curated, occasionally some reactions cannot be added.
-              The number of reactions shown are {{ mapReactionList.length }}.
-            </p>
-            <table class="table main-table is-fullwidth m-0">
-              <tbody>
-                <tr>
-                  <td class="td-key has-background-primary has-text-white-bis">Missing reactions on the map</td>
-                  <td>
-                    <div v-html="missingReactionIdListHtml"></div>
-                    <div v-if="!showFullReactionListMissing && missingReactionList.length > displayedReaction">
-                      <br>
-                      <button class="is-small button" @click="showFullReactionListMissing=true">
-                        ... and {{ missingReactionList.length - displayedReaction }} more
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="td-key has-background-primary has-text-white-bis">Reactions shown on the map</td>
-                  <td>
-                    <div v-html="mapReactionIdListHtml"></div>
-                    <div v-if="!showFullReactionListMap && mapReactionList.length > displayedReaction">
-                      <br>
-                      <button class="is-small button" @click="showFullReactionListMap=true">
-                        ... and {{ mapReactionList.length - displayedReaction }} more
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <button class="modal-close is-large" @click="closeModal"></button>
+          <a @click="$emit('update:showModal', true)"> See comparison </a>
         </div>
       </div>
       <footer v-if="currentMap.type !== 'custom'" class="card-footer sidebarCardHover">
@@ -176,7 +134,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { capitalize, reformatStringToLink, reformatChemicalReactionHTML, buildCustomLink } from '@/helpers/utils';
+import { capitalize, reformatStringToLink, reformatChemicalReactionHTML } from '@/helpers/utils';
 import { chemicalFormula } from '@/helpers/chemical-formatters';
 import { default as messages } from '@/helpers/messages';
 
@@ -187,6 +145,8 @@ export default {
     currentMap: Object,
     mapsData: Object,
     selectionData: Object,
+    showModal: Boolean,
+    missingReactionList: Array,
   },
   data() {
     return {
@@ -210,11 +170,6 @@ export default {
       showMapCardContent: true,
       showSelectionCardContent: true,
       messages,
-      showModal: false,
-      showFullReactionListMissing: false,
-      showFullReactionListMap: false,
-      displayedReaction: 40,
-      missingNumberOfReactions: null,
     };
   },
   computed: {
@@ -223,46 +178,6 @@ export default {
       loading: state => state.maps.loadingElement,
       mapReactionList: state => state.maps.svgReactionsIdList,
     }),
-    modelNumberOfReactions() {
-      return this.currentMap.reactionList ? this.currentMap.reactionList.length : null;
-    },
-    mapReactionIdListHtml() {
-      const l = ['<span class="tags">'];
-      for (let i = 0; i < this.mapReactionList.length; i += 1) {
-        const r = this.mapReactionList[i];
-        if (!this.showFullReactionListMap && i === this.displayedReaction) {
-          break;
-        }
-        const customLink = buildCustomLink({ model: this.model.short_name, type: 'reaction', id: r, title: r, cssClass: 'target="_blank"' });
-        l.push(
-          `<span id="${r}" class="tag">${customLink}</span>`
-        );
-      }
-      l.push('</span>');
-      return l.join('');
-    },
-    missingReactionList() {
-      const modelReactionIdSet = new Set(this.currentMap.reactionList);
-      const mapReactionIdSet = new Set(this.mapReactionList);
-      const missingReactionIdSet = new Set([...modelReactionIdSet].filter(x => !mapReactionIdSet.has(x)));
-      const missingReactionList = Array.from(missingReactionIdSet);
-      return missingReactionList;
-    },
-    missingReactionIdListHtml() {
-      const l = ['<span class="tags">'];
-      for (let i = 0; i < this.missingReactionList.length; i += 1) {
-        const r = this.missingReactionList[i];
-        if (!this.showFullReactionListMissing && i === this.displayedReaction) {
-          break;
-        }
-        const customLink = buildCustomLink({ model: this.model.short_name, type: 'reaction', id: r, title: r, cssClass: 'target="_blank"' });
-        l.push(
-          `<span id="${r}" class="tag">${customLink}</span>`
-        );
-      }
-      l.push('</span>');
-      return l.join('');
-    },
   },
   watch: {
     selectionData() {
@@ -290,11 +205,6 @@ export default {
     reformatStringToLink,
     chemicalFormula,
     reformatChemicalReactionHTML,
-    closeModal() {
-      this.showModal = false;
-      this.showFullReactionListMissing = false;
-      this.showFullReactionListMap = false;
-    },
     toggleSelectionCardContent() {
       if (this.showSelectionCardContent) {
         this.hideSelectionCardContent();

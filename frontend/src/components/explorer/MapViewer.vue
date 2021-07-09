@@ -7,6 +7,9 @@
         </div>
       </template>
       <template v-else>
+        <MissingReactionModal :current-map="currentMap"
+                               :missing-reaction-list="missingReactionList"
+                               :show-modal.sync="showModal"/>
         <div id="mapSidebar" ref="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2 pt-0
@@ -31,6 +34,8 @@
                                :dim="dimensionalState(showing2D)"
                                :current-map="currentMap"
                                :selection-data="selectionData"
+                               :show-modal.sync="showModal"
+                               :missing-reaction-list="missingReactionList"
                                @openSelectionCardContent="resetSidebarLayout" />
           </div>
           <div class="padding-mobile">
@@ -96,6 +101,7 @@ import { debounce } from 'vue-debounce';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
 import ErrorPanel from '@/components/shared/ErrorPanel';
 import MapsListing from '@/components/explorer/mapViewer/MapsListing.vue';
+import MissingReactionModal from '@/components/explorer/mapViewer/MissingReactionModal.vue';
 import NotFound from '@/components/NotFound';
 import SidebarDataPanels from '@/components/explorer/mapViewer/SidebarDataPanels.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
@@ -113,6 +119,7 @@ export default {
     SidebarDataPanels,
     Svgmap,
     ThreeDViewer,
+    MissingReactionModal,
   },
   data() {
     return {
@@ -128,6 +135,7 @@ export default {
       mapNotFound: false,
       messages,
       sidebarLayoutReset: true,
+      showModal: false,
     };
   },
   computed: {
@@ -136,10 +144,18 @@ export default {
       showing2D: state => state.maps.showing2D,
       dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
       mapsListing: state => state.maps.mapsListing,
+      mapReactionList: state => state.maps.svgReactionsIdList,
     }),
     ...mapGetters({
       queryParams: 'maps/queryParams',
     }),
+    missingReactionList() {
+      const modelReactionIdSet = new Set(this.currentMap.reactionList);
+      const mapReactionIdSet = new Set(this.mapReactionList);
+      const missingReactionIdSet = new Set([...modelReactionIdSet].filter(x => !mapReactionIdSet.has(x)));
+      const missingReactionList = Array.from(missingReactionIdSet);
+      return missingReactionList;
+    },
   },
   watch: {
     '$route.params': 'loadMapFromParams',
