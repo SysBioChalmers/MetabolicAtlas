@@ -253,6 +253,11 @@ export default {
         return;
       }
 
+      if (window.scrollY > 0) {
+        // for optimal SVG positioning, the calculation expects window.scrollY to be 0
+        window.scrollTo(0, 0);
+      }
+
       this.initialLoadWithParams = !!this.$route.query.coords;
 
       // load the lib svgPanzoom on the SVG loaded
