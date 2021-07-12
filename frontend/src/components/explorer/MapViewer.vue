@@ -7,6 +7,10 @@
         </div>
       </template>
       <template v-else>
+        <MissingReactionModal :current-map="currentMap"
+                              :missing-reaction-list="missingReactionList"
+                              :map-reaction-list="mapReactionList"
+                              :show-modal.sync="showModal" />
         <div id="mapSidebar" ref="mapSidebar"
              class="column is-one-fifth-widescreen is-one-quarter-desktop
                     is-one-quarter-tablet has-background-lightgray om-2 pt-0
@@ -31,6 +35,8 @@
                                :dim="dimensionalState(showing2D)"
                                :current-map="currentMap"
                                :selection-data="selectionData"
+                               :show-modal.sync="showModal"
+                               :missing-reaction-list="missingReactionList"
                                @openSelectionCardContent="resetSidebarLayout" />
           </div>
           <div class="padding-mobile">
@@ -96,6 +102,7 @@ import { debounce } from 'vue-debounce';
 import DataOverlay from '@/components/explorer/mapViewer/DataOverlay.vue';
 import ErrorPanel from '@/components/shared/ErrorPanel';
 import MapsListing from '@/components/explorer/mapViewer/MapsListing.vue';
+import MissingReactionModal from '@/components/explorer/mapViewer/MissingReactionModal.vue';
 import NotFound from '@/components/NotFound';
 import SidebarDataPanels from '@/components/explorer/mapViewer/SidebarDataPanels.vue';
 import Svgmap from '@/components/explorer/mapViewer/Svgmap';
@@ -113,6 +120,7 @@ export default {
     SidebarDataPanels,
     Svgmap,
     ThreeDViewer,
+    MissingReactionModal,
   },
   data() {
     return {
@@ -128,6 +136,9 @@ export default {
       mapNotFound: false,
       messages,
       sidebarLayoutReset: true,
+      showModal: false,
+      mapReactionList: null,
+      missingReactionList: null,
     };
   },
   computed: {
@@ -219,6 +230,8 @@ export default {
                   this.currentMap.mapReactionIdSet = item.svgs;
                   this.currentMap.type = categories[i].slice(0, -1);
                   this.mapNotFound = false;
+                  this.setMapReactionList();
+                  this.setMissingReactionList();
                   return;
                 }
               }
@@ -226,12 +239,28 @@ export default {
               this.currentMap = item;
               this.currentMap.type = categories[i].slice(0, -1);
               this.mapNotFound = false;
+              this.currentMap.mapReactionIdSet = item.svgs;
+              this.setMapReactionList();
+              this.setMissingReactionList();
               return;
             }
             this.mapNotFound = true;
           }
         }
       }
+    },
+    setMapReactionList() {
+      let mapReactionIdList = [];
+      this.currentMap.mapReactionIdSet.forEach((map) => {
+        mapReactionIdList = [...mapReactionIdList, ...map.mapReactionIdSet];
+      });
+      this.mapReactionList = mapReactionIdList;
+    },
+    setMissingReactionList() {
+      const modelReactionIdSet = new Set(this.currentMap.reactionList);
+      const mapReactionIdSet = new Set(this.mapReactionList);
+      const missingReactionIdSet = new Set([...modelReactionIdSet].filter(x => !mapReactionIdSet.has(x)));
+      this.missingReactionList = Array.from(missingReactionIdSet);
     },
     showMessage(errorMessage) {
       this.loadMapErrorMessage = errorMessage;
