@@ -298,7 +298,7 @@ export default {
 
         this.processSelSearchParam();
         this.$store.dispatch('maps/setLoading', false);
-      }, 0);
+      }, 50);
     },
     handleWheelEvent(event) {
       event.preventDefault();
