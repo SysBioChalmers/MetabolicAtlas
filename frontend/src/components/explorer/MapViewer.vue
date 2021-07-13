@@ -365,7 +365,7 @@ export default {
 
 .fixed-height-mobile {
   @media screen and (max-width: $tablet) {
-    height: 450px;
+    height: $viewer-height;
   }
   position: relative;
 }
