@@ -55,7 +55,7 @@ export default {
       panzoom: null,
       panzoomOptions: {
         maxScale: 1,
-        minScale: 0.03,
+        minScale: 0.01,
         step: 0.1,
         canvas: true,
       },
