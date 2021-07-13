@@ -76,7 +76,7 @@ RETURN DISTINCT [g.id, ss.name, s.id]
 const getGeneDetailsForHPA = async ({ id }) => {
   const [l, v] = getHumanLabelAndVersion();
 
-  const statement = `
+  const subsystemsStatement = `
 MATCH (:Gene${l} {id:'${id}'})-[${v}]-(r:Reaction)-[${v}]-(s:Subsystem)-[${v}]-(ss:SubsystemState)
 WITH DISTINCT s.id as sids, COLLECT(r.id) as rids, ss
 UNWIND sids as sid
@@ -119,9 +119,18 @@ RETURN DISTINCT {
 }
 `;
 
-  const result = await queryListResult(statement);
+  const compartmentsStatement = `
+MATCH (:Gene${l} {id: '${id}'})-[${v}]-(:Reaction)-[${v}]-(cm:CompartmentalizedMetabolite)
+WITH DISTINCT cm
+MATCH (cm)-[${v}]-(c:Compartment)-[${v}]-(cs:CompartmentState)
+RETURN DISTINCT({id: c.id, name: cs.name})
+`;
+
+  const [subsystemsResult, compartmentsResult] = await Promise.all(
+    [queryListResult(subsystemsStatement), queryListResult(compartmentsStatement)]
+  );
   
-  const subsystems = result.map(({
+  const subsystems = subsystemsResult.map(({
     id,
     name,
     details: {
@@ -146,8 +155,14 @@ RETURN DISTINCT {
     gene_count: genes.length
   }));
 
+  const compartments = compartmentsResult.map(({id, name}) => ({
+    name,
+    compartment_url: `${BASE_URL}/explore/Human-GEM/gem-browser/compartment/${id}`,
+  }));
+
   return {
     gene_url: `${BASE_URL}/explore/Human-GEM/gem-browser/gene/${id}`, 
+    compartments,
     subsystems,
     doc: 'A subsystem can contain the same chemical metabolite that comes from different compartments.',
   };
