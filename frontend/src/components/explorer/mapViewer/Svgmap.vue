@@ -450,6 +450,7 @@ export default {
     },
     async selectElement(element, routeSelect = false) {
       if (!element) {
+        this.unSelectElement();
         return;
       }
       const [id, type] = this.getElementIdAndType(element);
