@@ -55,7 +55,7 @@ export default {
       panzoom: null,
       panzoomOptions: {
         maxScale: 1,
-        minScale: 0.03,
+        minScale: 0.01,
         step: 0.1,
         canvas: true,
       },
@@ -253,6 +253,11 @@ export default {
         return;
       }
 
+      if (window.scrollY > 0) {
+        // for optimal SVG positioning, the calculation expects window.scrollY to be 0
+        window.scrollTo(0, 0);
+      }
+
       this.initialLoadWithParams = !!this.$route.query.coords;
 
       // load the lib svgPanzoom on the SVG loaded
@@ -293,7 +298,7 @@ export default {
 
         this.processSelSearchParam();
         this.$store.dispatch('maps/setLoading', false);
-      }, 0);
+      }, 50);
     },
     handleWheelEvent(event) {
       event.preventDefault();
