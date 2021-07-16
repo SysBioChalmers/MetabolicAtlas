@@ -3,15 +3,14 @@
     <div v-if="showReactionLoader">
       <loader />
     </div>
-    <div v-else class="column reaction-table">
+    <div v-else class="column table-template">
       <h4 class="subtitle is-4">Reactions</h4>
       <div v-if="errorMessage" class="notification is-danger">
         {{ errorMessage }}
       </div>
       <p v-if="relatedMetCount" class="control field">
         <button class="button" @click="toggleExpandAllCompartment">
-          {{ !expandAllCompartment ?
-            "See reactions with from all compartments" : "Restrict to current compartment" }}
+          {{ !expandAllCompartment ? "See reactions from all compartments" : "Restrict to current compartment" }}
         </button>
       </p>
       <div class="field columns">
@@ -20,9 +19,6 @@
                `The number of reactions displayed is limited to ${limitReaction}` : ''"
         >
           Showing {{ reactions.length }} reaction(s)
-          <template v-if="transportReactionCount !== 0">
-            including {{ transportReactionCount }} transport reactions
-          </template>
           <template v-if="(reactions.length || -1) === limitReaction" class="icon">
             <i class="fa fa-exclamation-triangle has-text-warning"></i> limited to {{ limitReaction }}
           </template>
@@ -37,7 +33,7 @@
           <thead>
             <tr class="has-background-white-ter">
               <th v-for="f in fields" v-show="showCol(f.name)"
-                  :key="f.name" class="is-unselectable clickable"
+                  :key="f.name" class="is-unselectable is-clickable"
                   :title="`Sort by ${f.display}`"
                   @click="sortTable(f.name, null, null)">
                 {{ f.display.replace(' ', '&nbsp;') }}
@@ -47,31 +43,31 @@
           <tbody>
             <tr v-for="r in sortedReactions" :key="r.id">
               <td>
-                <a :href="`/explore/gem-browser/${model.database_name}/reaction/${r.id}`" @click="handleRouterClick">
+                <a :href="`/explore/${model.short_name}/gem-browser/reaction/${r.id}`" @click="handleRouterClick">
                   {{ r.id }}
                 </a>
               </td>
-              <td v-html="reformatChemicalReactionHTML(r, false, model.database_name, selectedElmId)"></td>
+              <td v-html="reformatChemicalReactionHTML(r, false, model.short_name, selectedElmId)"></td>
               <td>
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
-                <template v-for="(m, index) in r.genes">{{ index == 0 ? '' : ', ' }}<a :class="{'cms' : sourceName === m.name }" :href="`/explore/gem-browser/${model.database_name}/gene/${m.id}`" @click="handleRouterClick">{{ m.name || m.id }}</a>
+                <template v-for="(m, index) in r.genes">{{ index == 0 ? '' : ', ' }}<a :class="{'cms' : sourceName === m.name }" :href="`/explore/${model.short_name}/gem-browser/gene/${m.id}`" @click="handleRouterClick">{{ m.name || m.id }}</a>
                 </template>
               </td>
               <td v-show="showCP">{{ r.cp }}</td>
               <td v-show="showSubsystem">
                 <template v-if="r.subsystem_str">
                   <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
-                  <template v-for="(s, index) in r.subsystem_str.split('; ')">{{ index == 0 ? '' : '; ' }}<a :href="`/explore/gem-browser/${model.database_name}/subsystem/${idfy(s)}`" @click="handleRouterClick">{{ s }}</a>
+                  <template v-for="(s, index) in r.subsystem_str.split('; ')">{{ index == 0 ? '' : '; ' }}<a :href="`/explore/${model.short_name}/gem-browser/subsystem/${idfy(s)}`" @click="handleRouterClick">{{ s }}</a>
                   </template>
                 </template>
               </td>
               <td>
-                <template v-for="(RP, i) in r.compartment_str.split(' => ')">
-                  <template v-if="i !== 0">{{ r.is_reversible ? ' &#8660; ' : ' &#8658; ' }}</template>
-                  <template v-for="(compo, j) in RP.split(' + ')">
+                <template v-for="(w, i) in r.compartment_str.split(/⇔|⇒/)">
+                  <template v-if="i !== 0">{{ r.reversible ? ' ⇔ ' : ' ⇒ ' }}</template>
+                  <template v-for="(comp, j) in w.split(' + ')">
                     <template v-if="j != 0"> + </template>
                     <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
-                    <a :href="`/explore/gem-browser/${model.database_name}/compartment/${idfy(compo)}`" @click="handleRouterClick">{{ compo }}</a>
+                    <a :href="`/explore/${model.short_name}/gem-browser/compartment/${idfy(comp)}`" @click="handleRouterClick">{{ comp }}</a>
                   </template>
                 </template>
               </td>
@@ -129,9 +125,6 @@ export default {
     showCP() {
       return this.selectedElmId; // true or false
     },
-    transportReactionCount() {
-      return this.reactions.filter(r => r.is_transport).length;
-    },
     showSubsystem() {
       return this.type !== 'subsystem';
     },
@@ -144,15 +137,15 @@ export default {
       if (this.selectedElmId) {
         reactionsCopy = reactionsCopy.map((r) => {
           const rCopy = { ...r };
-          if (rCopy.is_reversible) {
+          if (rCopy.reversible) {
             rCopy.cp = 'consume/produce';
           } else {
-            const boolC = rCopy.reactionreactant_set.filter(
+            const boolC = rCopy.reactants.filter(
               e => e.id === this.selectedElmId);
             if (boolC.length !== 0) {
               rCopy.cp = 'consume';
             } else {
-              const boolP = rCopy.reactionproduct_set.filter(
+              const boolP = rCopy.products.filter(
                 e => e.id === this.selectedElmId);
               if (boolP.length !== 0) {
                 rCopy.cp = 'produce';
@@ -179,9 +172,10 @@ export default {
     async setup() {
       this.showReactionLoader = true;
       this.$store.dispatch('reactions/clearRelatedReactions');
+      this.errorMessage = '';
       try {
         const payload = {
-          model: this.model.database_name,
+          model: this.model,
           id: this.sourceName,
           allCompartments: this.expandAllCompartment,
         };

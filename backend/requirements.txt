@@ -1,8 +1,0 @@
-Django==1.11.29
-psycopg2-binary
-djangorestframework==3.9.4
-django-cors-headers
-django-rest-swagger>=2.1.2
-django-extensions
-python-libsbml==5.17
-pyyaml

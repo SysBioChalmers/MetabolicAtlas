@@ -1,29 +1,52 @@
 version: '3.7'
 
 services:
-  db:
-    container_name: db
-    image: postgres:alpine
-    networks:
-      - net-tier
-
   nginx:
     container_name: nginx
     depends_on:
-      - backend
+      - api
     networks:
-      - net-tier
+      - nginx-network
 
-  backend:
-    container_name: backend
-    depends_on:
-      - db
-    env_file:
-      - postgres.env
-    build: ./backend
+  api:
+    container_name: api
+    build: api
+    env_file: .env
+    depends_on: 
+      - neo4j
     networks:
-      - net-tier
+      - nginx-network
+      - db-network
+
+  neo4j:
+    container_name: neo4j
+    environment:
+      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+      - NEO4JLABS_PLUGINS=["apoc"]
+    build:
+      context: neo4j
+      args:
+        - NEO4J_USERNAME=${NEO4J_USERNAME}
+        - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+    networks:
+      - db-network
+
+  ftp:
+    container_name: ftp
+    build:
+      context: ftp
+      args:
+        FTP_USER_HOME: ${FTP_USER_HOME}
+    environment: 
+      - PUBLICHOST=${SERVER_NAME}
+      - FTP_MIN_PORT=${FTP_MIN_PORT}
+      - FTP_MAX_PORT=${FTP_MAX_PORT}
+    ports:
+      - "21:21"
+      - "${FTP_MIN_PORT}-${FTP_MAX_PORT}:${FTP_MIN_PORT}-${FTP_MAX_PORT}"
 
 networks:
-  net-tier:
+  db-network:
+    driver: bridge
+  nginx-network:
     driver: bridge

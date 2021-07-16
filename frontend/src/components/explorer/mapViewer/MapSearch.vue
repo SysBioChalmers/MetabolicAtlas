@@ -1,12 +1,13 @@
 <template>
-  <div id="svgSearch" class="overlay" :class="[{'fullscreen' : fullscreen}]">
+  <div id="mapSearch" class="overlay m-0 p-2" :class="[{'fullscreen' : fullscreen}]">
     <div class="control" :class="{ 'is-loading' : isSearching }">
       <input id="searchInput" data-hj-whitelist
+             :class="searchInputClass"
              title="Exact search by id, name, alias. Press Enter for results" class="input"
-             type="text" @input="e => handleChange(e.target.value)" :class="searchInputClass"
+             placeholder="Exact search by id, name, alias"
+             :disabled="loading"
              :value="searchTerm"
-             :disabled="!ready" placeholder="Exact search by id, name, alias"
-
+             type="text" @input="e => handleChange(e.target.value)"
              @keyup.enter="e => search(e.target.value)" />
     </div>
     <template v-if="searchTerm && matches && matches.length !== 0 && totalSearchMatch !== 0">
@@ -32,13 +33,13 @@
 
 import { mapState } from 'vuex';
 import { debounce } from 'vue-debounce';
+import { default as EventBus } from '@/event-bus';
 import { default as messages } from '../../../helpers/messages';
 
 export default {
   name: 'MapSearch',
   props: {
     matches: Array, // list of matched objects on the map/graph
-    ready: Boolean,
     fullscreen: Boolean,
   },
   data() {
@@ -60,6 +61,7 @@ export default {
       model: state => state.models.model,
       searchTerm: state => state.maps.searchTerm,
       idsFound: state => state.maps.idsFound,
+      loading: state => state.maps.loading,
     }),
   },
   watch: {
@@ -73,9 +75,18 @@ export default {
       }
       this.currentSearchMatch = 0;
     },
+    // workaround for the bug that 2D search bar can not type in text
+    loading(now, before) {
+      if (before === true && now === false) {
+        this.focusOnInputSearch();
+      }
+    },
   },
   created() {
     this.search = debounce(this.search, 300);
+    EventBus.$on('apply2DHPARNAlevels', () => {
+      this.focusOnInputSearch();
+    });
   },
   methods: {
     handleChange(term) {
@@ -111,7 +122,7 @@ export default {
       // get the IDs from the backend, then search in the SVG
       this.isSearching = true;
       try {
-        const payload = { model: this.model.database_name, searchTerm: term };
+        const payload = { model: this.model, searchTerm: term };
         await this.$store.dispatch('maps/mapSearch', payload);
         this.totalSearchMatch = 0;
         this.currentSearchMatch = 0;
@@ -136,16 +147,17 @@ export default {
       }
       this.$emit('centerViewOn', this.matches[this.currentSearchMatch]);
     },
+    focusOnInputSearch() {
+      setTimeout(() => document.getElementById('searchInput').focus());
+    },
   },
 };
 </script>
 
 <style lang="scss">
-  #svgSearch {
-    top: 2.25rem;
-    left: 30%;
-    margin: 0;
-    padding: 15px;
+  #mapSearch {
+    top: 2rem;
+    left: 20%;
     div {
       display: inline-block;
       vertical-align: middle;

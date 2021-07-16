@@ -1,45 +1,40 @@
-## pip install locustio
-## locust --host=https://icsb.chalmers.se
+## pip install locust
+## locust --host=https://csbi.chalmers.se
 
-from locust import HttpLocust, TaskSet, task
+import time
+from locust import HttpUser, task, between
 
-class UserBehavior(TaskSet):
-    # def on_start(self):
-    #     """ on_start is called when a Locust start before any task is scheduled """
-        # self.login()
-
-    # def on_stop(self):
-    #     """ on_stop is called when the TaskSet is stopping """
-    #     self.logout()
-
-    # def login(self):
-    #     self.client.post("/login", {"username":"ellen_key", "password":"education"})
-
-    # def logout(self):
-    #     self.client.post("/logout", {"username":"ellen_key", "password":"education"})
+class RandomUser(HttpUser):
+    wait_time = between(1, 10)
 
     @task(1)
     def index(self):
-        self.client.get("/")
-        self.client.get("/api/models")
+        self.client.get("/api/v2/repository/integrated_models/")
 
     @task(2)
     def explore(self):
-        self.client.get("/api/human1/gem_browser_tiles")
+        self.client.get("/api/v2/1_3_0/random-components?model=HumanGem")
 
     @task(3)
     def explore(self):
-        self.client.get("/api/human1/get_reaction/HMR_8313")
+        self.client.get("/api/v2/1_3_0/reactions/HMR_8313")
+        self.client.get("/api/v2/1_3_0/reactions/HMR_8313/related-reactions")
 
     @task(4)
-    def browser(self):
-        self.client.get("/api/human1/subsystem/transport_reactions/summary")
+    def browserR(self):
+        self.client.get("/api/v2/1_3_0/subsystems/transport_reactions")
+        self.client.get("/api/v2/1_3_0/subsystems/transport_reactions/related-reactions?limit=200")
 
     @task(5)
-    def viewer(self):
-        self.client.get("/api/human1/metabolite/m00010s")
+    def browserM(self):
+        self.client.get("/api/v2/1_3_0/metabolites/m00010s")
+        self.client.get("/api/v2/1_3_0/metabolites/m00010s/related-metabolites")
 
-class WebsiteUser(HttpLocust):
-    task_set = UserBehavior
-    min_wait = 5000
-    max_wait = 9000
+    @task(6)
+    def viewer(self):
+        self.client.get("/api/v2/1_3_0/maps/listing")
+        self.client.get("/api/v2/rna/all")
+        self.client.get("/api/v2/svg/Human-GEM/cytosol_1.svg")
+
+    def on_start(self):
+        self.client.get("/")

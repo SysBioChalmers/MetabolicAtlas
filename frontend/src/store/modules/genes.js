@@ -5,13 +5,18 @@ const data = {
 };
 
 const getters = {
-  geneName: state => state.gene.geneName,
+  geneName: state => state.gene.id,
 };
 
 const actions = {
   async getGeneData({ commit }, { model, id }) {
-    const gene = await genesApi.fetchGeneData(model, id);
+    const payload = { id, model: model.apiName, version: model.apiVersion };
+    const gene = await genesApi.fetchGeneData(payload);
     commit('setGene', gene);
+
+    commit('maps/setAvailableMaps', [
+      ...gene.compartmentSVGs, ...gene.subsystemSVGs,
+    ], { root: true });
   },
 };
 

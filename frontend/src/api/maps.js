@@ -1,28 +1,26 @@
 import axios from 'axios';
 
-const fetchAvailableMaps = async (model, mapType, id) => {
-  const { data } = await axios.get(`${model}/available_maps/${mapType}/${id}`);
+const fetchMapsListing = async ({ model, version }) => {
+  const params = { model, version };
+  const { data } = await axios.get('/maps/listing', { params });
   return data;
 };
 
-const fetchMapsListing = async (model) => {
-  const { data } = await axios.get(`${model}/viewer/`);
+const fetchSvgMap = async (model, svgName) => {
+  const { data } = await axios({ url: `svg/${model}/${svgName}` });
   return data;
 };
 
-const fetchSvgMap = async (mapUrl, model, svgName) => {
-  const { data } = await axios.get(`${mapUrl}/${model}/${svgName}`);
+const mapSearch = async ({ searchTerm, model, version }) => {
+  const params = { searchTerm, model, version };
+  const { data } = await axios.get('/maps/search', { params });
   return data;
 };
 
-const mapSearch = async (model, searchTerm) => {
-  const { data } = await axios.get(`${model}/get_id/${searchTerm}`);
+const fetch3DMapNetwork = async ({ model, version, type, id }) => {
+  const params = { model, version, type, id };
+  const { data } = await axios.get('/3d-network', { params });
   return data;
 };
 
-const fetch3DMapNetwork = async (model, type, name) => {
-  const { data } = await axios.get(`/${model}/json/${type}/${name}`);
-  return data;
-};
-
-export default { fetchAvailableMaps, fetchMapsListing, fetchSvgMap, mapSearch, fetch3DMapNetwork };
+export default { fetchMapsListing, fetchSvgMap, mapSearch, fetch3DMapNetwork };

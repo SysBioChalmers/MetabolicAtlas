@@ -6,32 +6,39 @@
         <span>{{ messages.mapViewerName }}</span>
       </p>
     </header>
-    <!-- eslint-disable-next-line max-len -->
-    <div v-if="mapAvailableLimited" class="card-content" style="padding: 0.5rem; overflow-y: auto; max-height: 400px">
-      <div v-for="mapKey in ['2d', '3d']" :key="mapKey"
-           class="content has-text-left is-paddingless" style="padding-bottom: 1rem">
-        <!-- eslint-disable-next-line max-len -->
-        <template v-if="mapAvailableLimited[mapKey]['compartment'].length !== 0 || mapAvailableLimited[mapKey]['subsystem'].length !== 0">{{ mapKey.toUpperCase() }} maps
-          <ul style="margin: 0 1rem">
-            <template v-for="mapType in Object.keys(mapAvailableLimited[mapKey])">
-              <template v-for="map in mapAvailableLimited[mapKey][mapType]">
-                <li :key="map[0]">
-                  <!-- eslint-disable-next-line max-len -->
-                  <router-link v-if="viewerSelectedID" :to="{ name: 'viewer', params: { model: model.database_name, type: mapType, map_id: map[0], reload: true }, query: { dim: mapKey, search: viewerSelectedID, sel: viewerSelectedID } }">
-                    {{ map[1] }}
-                  </router-link>
-                  <!-- eslint-disable-next-line max-len -->
-                  <router-link v-else :to="{ name: 'viewer', params: { model: model.database_name, type: mapType, map_id: map[0]}, query: { dim: mapKey } }">
-                    {{ map[1] }}
-                  </router-link>
-                </li>
-              </template>
-            </template>
-            <!-- eslint-disable-next-line max-len -->
-            <li v-if="limitedMapsDim[mapKey]" class="clickable" title="View all maps" @click="mapLimitPerDim = 1000">...</li>
-          </ul>
-        </template>
-      </div>
+    <div v-if="mapsAvailable.length !== 0" class="card-content p-2">
+      <table class="table maps-table">
+        <tbody class="has-text-left">
+          <tr v-for="component in mapsAvailable" :key="component.id">
+            <td> {{ component.customName }} </td>
+            <td v-if="component.svgMaps.length===0"> </td>
+            <td v-else-if="component.svgMaps.length===1">
+              <button class="button is-outlined is-small link-button"
+                      @click="routeSVGmap(component.svgMaps[0].id, '2d')">
+                <span class="has-text-link"> 2D </span>
+              </button>
+            </td>
+            <td v-else>
+              <div class="select is-small">
+                <select class="has-text-link" @change="(e) => routeSVGmap(e.target.value, '2d')">
+                  <option selected disabled>
+                    2D
+                  </option>
+                  <option v-for="map in component.svgMaps" :key="map.id" :value="map.id">
+                    {{ map.customName }}
+                  </option>
+                </select>
+              </div>
+            </td>
+            <td>
+              <button class="button is-outlined is-small link-button"
+                      @click="routeSVGmap(component.id, '3d')">
+                <span class="has-text-link"> 3D </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -63,40 +70,30 @@ export default {
       model: state => state.models.model,
       mapsAvailable: state => state.maps.availableMaps,
     }),
-    mapAvailableLimited() {
-      /* eslint-disable vue/no-side-effects-in-computed-properties */
-      // TODO: move this into vuex
-      if (Object.keys(this.mapsAvailable).length === 0) {
-        return null;
-      }
-      const limited = JSON.parse(JSON.stringify(this.mapsAvailable)); // copy
-      ['2d', '3d'].forEach((d) => {
-        this.limitedMapsDim[d] = false;
-        if (limited[d].compartment.length > this.mapLimitPerDim) {
-          this.limitedMapsDim[d] = true;
-          limited[d].compartment = limited[d].compartment.slice(0, this.mapLimitPerDim);
-          limited[d].subsystem = [];
-        } else {
-          const remainingEntries = this.mapLimitPerDim - limited[d].compartment.length;
-          if (limited[d].subsystem.length > remainingEntries) {
-            limited[d].subsystem = limited[d].subsystem.slice(0, remainingEntries);
-            this.limitedMapsDim[d] = true;
-          }
-        }
-      });
-      /* eslint-enable vue/no-side-effects-in-computed-properties */
-      return limited;
-    },
   },
-  async beforeMount() {
-    try {
-      const payload = { model: this.model.database_name, mapType: this.type, id: this.id };
-      await this.$store.dispatch('maps/getAvailableMaps', payload);
-    } catch {
-      // TODO: handle exception
-    }
+  methods: {
+    routeSVGmap(svgId, dimension) {
+      const params = { model: this.model.short_name, map_id: svgId };
+      const query = { dim: dimension };
+      if (this.viewerSelectedID) {
+        query.search = this.viewerSelectedID;
+        query.sel = this.viewerSelectedID;
+      }
+      this.$router.push({ name: 'viewer', params, query });
+    },
   },
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.card-content {
+  overflow-y: auto;
+  max-height: 400px;
+}
+.link-button {
+  border-radius: 4px;
+}
+.table {
+  width: 100%;
+}
+</style>

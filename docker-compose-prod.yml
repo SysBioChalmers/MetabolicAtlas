@@ -1,20 +1,74 @@
 version: '3.7'
 
 services:
-  db:
-    restart: always
-
-  backend:
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
-    restart: always
-
   nginx:
-    restart: always
     build:
       context: .
-      dockerfile: nginx/Dockerfile-prod
+      dockerfile: ./nginx/prod.Dockerfile
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - SERVER_NAME=${SERVER_NAME}
+      - IP_FILTER=${IP_FILTER}
+      - ENVSUBST_VARS=SERVER_NAME IP_FILTER
     volumes:
-      - /var/ssl:/ssl:ro
+      - letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          memory: 2.5G
+        limits:
+          cpus: '0.40'
+          memory: 3G
+
+  api:
+    environment:
+      - NODE_ENV=production
+    command: yarn start
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          memory: 1.5G
+        limits:
+          cpus: '0.30'
+          memory: 2G
+
+  neo4j:
+    environment:
+      - NEO4J_dbms_transaction_timeout=15s
+      - NEO4J_dbms_memory_heap_initial__size=5G
+      - NEO4J_dbms_memory_off__heap_max__size=8G
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          memory: 9G
+        limits:
+          cpus: '1.15'
+          memory: 10G
+    ulimits:
+      nofile:
+        soft: 80000
+        hard: 90000
+
+  ftp:
+    environment:
+      - FTP_IP=${FTP_IP}
+      - FLAGS=-Y 1
+    volumes:
+      - letsencrypt:/etc/letsencrypt:ro
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          memory: 150M
+        limits:
+          cpus: '0.10'
+          memory: 200M
+
+volumes:
+  letsencrypt:

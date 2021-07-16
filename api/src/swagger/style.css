@@ -1,0 +1,68 @@
+.swagger-ui .topbar {
+  padding: 0.5rem  0 0 0;
+  margin: 0 0 0 0;
+  background-color: #eef0ef;
+  height:  4rem;
+}
+
+.swagger-ui .topbar-wrapper img, .topbar-wrapper span{
+  visibility: collapse;
+}
+.swagger-ui .topbar-wrapper {
+  cursor: pointer;
+  content: url('/img/logo.png');
+  height: 3rem;
+}
+
+#imgp img {
+  height: auto;
+  max-width:100%;
+  max-height:100%;
+}
+
+#imgp a {
+  text-decoration: none !important;;
+}
+
+.scheme-container {
+  display: none;
+}
+
+.opblock-tag-section {
+  margin-top:2rem;
+}
+
+.swagger-ui .opblock.opblock-get {
+  border-color: #25543C;
+  background: #F2F8F5;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary {
+  border-color: #25543C;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+  background: #4C735F;
+}
+
+.swagger-ui .btn.execute {
+  background-color: #25543C;
+  border-color: #25543C;
+}
+
+.base-url {
+  display: none;
+}
+
+#footer {
+  margin-top: 4rem;
+  background-color: #eef0ef;
+}
+
+.footer img {
+  max-height: 20px;
+}
+
+pre {
+  background-color: #7d8492;
+}

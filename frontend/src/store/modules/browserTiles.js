@@ -1,13 +1,17 @@
-import browserTilesApi from '@/api/browserTiles';
+import randomComponentsApi from '@/api/randomComponents';
 
 const data = {
   tileComponents: null,
 };
 
 const actions = {
-  async getBrowserTiles({ commit, rootState }) {
-    const model = rootState.models.model.database_name;
-    const tileComponents = await browserTilesApi.fetchBrowserTiles(model);
+  async getBrowserTiles({ commit }, model) {
+    commit('setTileComponents', null);
+    const payload = {
+      model: model.apiName,
+      version: model.apiVersion,
+    };
+    const tileComponents = await randomComponentsApi.fetchRandomComponents(payload);
     commit('setTileComponents', tileComponents);
   },
 };

@@ -1,98 +1,120 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{'fade-page': showGemSearch}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <nav id="navbar" class="navbar has-background-primary-lighter" role="navigation" aria-label="main navigation">
-      <div class="container is-fullhd">
-        <div class="navbar-brand">
-          <router-link class="navbar-item" :to="{ name: 'home' }" active-class="" @click.native="isMobileMenu = false">
-            <img :src="require('./assets/logo.png')" />
-          </router-link>
-          <div class="navbar-burger" :class="{ 'is-active': isMobileMenu }" @click="isMobileMenu = !isMobileMenu">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-          </div>
-        </div>
-        <div id="#nav-menu" class="navbar-menu" :class="{ 'is-active': isMobileMenu }">
-          <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
-            <router-link v-if="$route.path.includes('/explore')"
-                         :to="{ name: 'explorerRoot' }"
-                         class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
-              {{ model ? model.short_name : '' }}
+      <transition name="fade">
+        <gem-search v-show="showGemSearch" :handle-clear="() => showGemSearch = false" />
+      </transition>
+      <transition name="fade">
+        <div v-show="!showGemSearch" class="container is-fullhd">
+          <div class="navbar-brand ml-2">
+            <router-link class="navbar-item" :to="{ name: 'home' }" active-class=""
+                         @click.native="isMobileMenu = false">
+              <img src="/img/logo.png" />
             </router-link>
+            <div class="navbar-burger pr-2" :class="{ 'is-active': isMobileMenu }"
+                 @click="isMobileMenu = !isMobileMenu">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+            </div>
           </div>
-          <div class="navbar-end has-background-primary-lighter">
-            <template v-for="(menuElem) in menuElems">
-              <template v-if="menuElem.routeName">
-                <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                <router-link class="navbar-item is-unselectable is-active-underline"
-                             :to="{ name: menuElem.routeName }"
-                             @click.native="isMobileMenu = false" v-html="menuElem.displayName">
-                </router-link>
-              </template>
-              <template v-else>
-                <template>
+          <div id="#nav-menu" class="navbar-menu mr-2" :class="{ 'is-active': isMobileMenu }">
+            <div v-show="model" class="navbar-start has-text-centered" title="Click to change model or tool">
+              <router-link v-if="$route.path.includes('/explore')"
+                           id="selectedModelLink"
+                           :to="{ name: 'explorer' }"
+                           class="navbar-item is-size-4 has-text-primary has-text-weight-bold is-unselectable" exact>
+                {{ model ? model.short_name : '' }}
+              </router-link>
+            </div>
+            <div class="navbar-end has-background-primary-lighter">
+              <a class="navbar-item" @click.stop.prevent="showGemSearch = true">
+                <span class="icon is-large px-2 py-3">
+                  <i id="search-icon" class="fa fa-search" />
+                </span>
+              </a>
+              <template v-for="(menuElem) in menuElems">
+                <template v-if="menuElem.routeName">
                   <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                  <div class="navbar-item has-dropdown is-hoverable is-unselectable has-background-primary-lighter">
-                    <a class="navbar-link is-active-underline"
-                       :class="{
-                         'router-link-active': menuElem.subMenuElems.map(sme => sme.routeName).includes($route.name)
-                       }">
-                      {{ menuElem.displayName }}
-                    </a>
-                    <div class="navbar-dropdown has-background-primary-lighter is-paddingless">
-                      <template v-for="(subMenuElem) in menuElem.subMenuElems">
-                        <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                        <router-link class="navbar-item is-unselectable has-background-primary-lighter"
-                                     :to="{ name: subMenuElem.routeName }"
-                                     @click.native="isMobileMenu = false">{{ subMenuElem.displayName }}
-                        </router-link>
-                      </template>
+                  <router-link class="navbar-item is-unselectable is-active-underline"
+                               :to="{ name: menuElem.routeName }"
+                               @click.native="isMobileMenu = false" v-html="menuElem.displayName">
+                  </router-link>
+                </template>
+                <template v-else>
+                  <template>
+                    <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
+                    <div class="navbar-item has-dropdown is-hoverable is-unselectable has-background-primary-lighter">
+                      <a class="navbar-link is-active-underline"
+                         :class="{
+                           'router-link-active': menuElem.subMenuElems.map(sme => sme.routeName).includes($route.name)
+                         }">
+                        {{ menuElem.displayName }}
+                      </a>
+                      <div class="navbar-dropdown has-background-primary-lighter p-0">
+                        <template v-for="(subMenuElem) in menuElem.subMenuElems">
+                          <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
+                          <router-link class="navbar-item is-unselectable has-background-primary-lighter"
+                                       :to="{ name: subMenuElem.routeName }"
+                                       @click.native="isMobileMenu = false">{{ subMenuElem.displayName }}
+                          </router-link>
+                        </template>
+                      </div>
                     </div>
-                  </div>
+                  </template>
                 </template>
               </template>
-            </template>
+            </div>
           </div>
         </div>
-      </div>
+      </transition>
     </nav>
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
-    <footer id="footer" class="footer has-background-primary-lighter is-size-6">
-      <div class="columns is-gapless">
-        <div class="column is-7">
-          <p>2020 © Department of Biology and Biological Engineering | Chalmers University of Technology</p>
-        </div>
-        <div class="column">
-          <div class="content has-text-right">
+    <router-view></router-view>
+    <ErrorPanel :message="errorMessage" @hideErrorPanel="errorMessage=''" />
+    <footer id="footer" class="footer has-background-primary-lighter is-size-6 py-4">
+      <div class="columns is-gapless mb-0">
+        <div v-show="!showCompactFooter()" class="column is-full">
+          <div class="content has-text-centered">
             <p>
               <a href="https://www.sysbio.se" title="SysBio">
-                <img src="./assets/sysbio-logo.png" />
+                <img class="my-0 mx-2" src="/img/sysbio-logo.png" />
               </a>
               <a href="http://www.chalmers.se" title="Chalmers University of Technology">
-                <img src="./assets/chalmers.png" />
+                <img class="my-0 mx-2" src="/img/chalmers.png" />
               </a>
               <a href="https://kaw.wallenberg.org/" title="Knut and Alice Wallenberg Foundation">
-                <img src="./assets/wallenberg.gif" />
+                <img class="my-0 mx-2" src="/img/wallenberg.gif" />
               </a>
-              <a href="https://www.kth.se/en/bio/centres/wcpr" title="CBH | KTH Royal Institute of Technology">
-                <img src="./assets/wpcr.jpg" />
+              <a href="https://www.kth.se/wcpr" title="CBH | KTH Royal Institute of Technology">
+                <img class="my-0 mx-2" src="/img/wpcr.jpg" />
               </a>
               <a href="https://nbis.se/">
-                <img src="./assets/nbislogo-green.png" title="National Bioinformatics Infrastructure Sweden" />
+                <img class="my-0 mx-2" src="/img/nbislogo-green.png"
+                     title="National Bioinformatics Infrastructure Sweden" />
               </a>
               <a href="https://www.scilifelab.se" title="Science for Life Laboratory (SciLifeLab)">
-                <img src="./assets/scilifelab-green.png" />
+                <img class="my-0 mx-2" src="/img/scilifelab.png" />
               </a>
             </p>
           </div>
         </div>
       </div>
+      <div class="columns is-gapless">
+        <div v-show="!showCompactFooter()" class="column has-text-centered mt-1">
+          <p>2021 ©
+            <span class="is-hidden-touch">
+              &nbsp;Department of Biology and Biological Engineering |
+            </span>
+            &nbsp;Chalmers University of Technology</p>
+        </div>
+        <div v-show="showCompactFooter()" class="column has-text-centered-mobile">
+          <p>2021 © &nbsp;Chalmers University of Technology</p>
+        </div>
+      </div>
     </footer>
     <div v-if="showCookieMsg" id="cookies" class="has-background-grey">
-      <div class="column has-text-centered" style="padding: 0.25rem">
+      <div class="column has-text-centered p-1">
         <div class="has-text-white">
           We use cookies to enhance the usability of our website.
           By continuing you are agreeing to our
@@ -113,22 +135,26 @@
 
 <script>
 
+import axios from 'axios';
 import { mapState } from 'vuex';
+import ErrorPanel from '@/components/shared/ErrorPanel';
+import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
+import { default as messages } from '@/helpers/messages';
 import { isCookiePolicyAccepted, acceptCookiePolicy } from './helpers/store';
 
 export default {
   name: 'App',
+  components: {
+    ErrorPanel,
+    GemSearch,
+  },
   data() {
     return {
       /* eslint-disable quote-props */
       menuElems: [
         {
-          displayName: '<span class="icon is-large"><i id="search-icon" class="fa fa-search"></i></span>',
-          routeName: 'search',
-        },
-        {
           displayName: 'Explore',
-          routeName: 'explorerRoot',
+          routeName: 'explorer',
         },
         {
           displayName: 'GEM',
@@ -162,12 +188,51 @@ export default {
       browserLastRoute: {},
       viewerLastRoute: {},
       isMobileMenu: false,
+      showGemSearch: false,
+      messages,
+      errorMessage: '',
     };
   },
   computed: {
     ...mapState({
       model: state => state.models.model,
     }),
+  },
+  watch: {
+    showGemSearch(show) {
+      if (show) {
+        setTimeout(() => {
+          document.querySelector('#search').focus();
+        });
+      }
+    },
+  },
+  created() {
+    this.setupErrorCatcher();
+  },
+  methods: {
+    setupErrorCatcher() {
+      axios.interceptors.response.use(
+        response => response,
+        (error) => {
+          if (error.response && error.response.status === 404) {
+            this.errorMessage = messages.notFoundError;
+          } else {
+            this.errorMessage = messages.unknownError;
+          }
+          return Promise.reject(error);
+        }
+      );
+
+      this.$router.afterEach(() => {
+        if (this.errorMessage !== '') {
+          this.errorMessage = '';
+        }
+      });
+    },
+    showCompactFooter() {
+      return this.$route.name === 'viewer';
+    },
   },
 };
 </script>
@@ -202,19 +267,6 @@ html {
   background-color: lightgray;
 }
 
-.card-margin {
-  margin: 0.75rem;
-}
-
-m, .clickable {
-  cursor: pointer;
-}
-
-.card-content-compact {
-  padding: 0.75rem;
-}
-
-
 .content h1,h2,h3,h4,h5,h6 {
   margin-top: 1em;
 }
@@ -227,14 +279,24 @@ m, .clickable {
   box-shadow: $shadow-primary-light;
 }
 
-.section-no-top {
-  padding-top: 0;
-}
-
 #app {
   display: flex;
   min-height: 100vh;
-  flex-direction: column
+  flex-direction: column;
+
+  &.fade-page {
+    height: 100vh;
+    overflow: hidden;
+
+    &::after {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      content: "";
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 10;
+    }
+  }
 }
 
 .has-addons {
@@ -244,68 +306,80 @@ m, .clickable {
 }
 
 #navbar {
-  a {
-    font-size: 1.15em;
-    color: $black-ter;
-  }
-  a:hover{
-    color: $black-bis;
-    background-color: $light;
-  }
-  .is-active {
-    color: $black-bis;
-    background-color: $grey-lighter;
-  }
-  .router-link-active {
-    color: $black-bis;
-    background-color: $grey-lighter;
-    &.is-active-underline {
-      color: $black-bis;
-      background-color: $grey-lighter;
-      border-bottom: 1px solid $primary;
-    }
-  }
-  .navbar-brand {
-    a {
-      font-weight: 400;
-    }
-    margin-left: 0.5rem;
-  }
-  .navbar-menu {
-    margin-right: 0.5rem;
-  }
-  .navbar-burger{
-    height: 4rem;
-    padding-right: 0.5rem;
-    span {
-      height: 2px;
-    }
-  }
-  .navbar-item img {
-    max-height: 3rem;
-  }
-  .navbar-link:not(.is-arrowless)::after {
-    border-color: $grey-darker;
+  min-height: 52px;
+
+  @media screen and (min-width: $tablet) {
+    min-height: 56px;
   }
 
-  #search-icon {
-    font-size: 1.8rem;
+  @media screen and (min-width: $desktop) {
+    min-height: 64px;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .3s ease-in-out;
+  }
+
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+
+  .container {
+    a {
+      font-size: 1.15em;
+      color: $black-ter;
+    }
+    a:hover{
+      color: $black-bis;
+      background-color: $light;
+    }
+    .is-active {
+      color: $black-bis;
+      background-color: $grey-lighter;
+    }
+    .router-link-active {
+      color: $black-bis;
+      background-color: $grey-lighter;
+      &.is-active-underline {
+        color: $black-bis;
+        background-color: $grey-lighter;
+        border-bottom: 1px solid $primary;
+      }
+    }
+    .navbar-brand {
+      a {
+        font-weight: 400;
+      }
+    }
+    .navbar-burger{
+      height: 4rem;
+      span {
+        height: 2px;
+      }
+    }
+    .navbar-item img {
+      max-height: 3rem;
+    }
+    .navbar-link:not(.is-arrowless)::after {
+      border-color: $grey-darker;
+    }
+
+    #search-icon {
+      font-size: 1.8rem;
+    }
+    #selectedModelLink .router-link-exact-active, .router-link-active {
+      background-color: $primary-lighter;
+    }
   }
 }
 
 .footer {
-  padding-bottom: 1em;
-  padding-top: 1em;
   img {
-    max-height: 20px;
-    margin: 0 0.5rem;
-  }
-  sup {
-    vertical-align: top;
+    max-height: 30px;
   }
 }
 
-.metabolite-table, .model-table, .reaction-table, .subsystem-table {
+#comparison-details, .table-template {
   .main-table tr td.td-key, #ed-table tr td.td-key {
     width: 150px;
   }
@@ -323,16 +397,6 @@ m, .clickable {
   }
 }
 
-#cytoTable .tag {
-  height: 1.4rem;
-  margin: 2px 3px;
-  user-select: none;
-  &.hl {
-    background: $primary;
-    color: whitesmoke;
-  }
-}
-
 #integrated {
   .card {
     height: 100%;
@@ -341,20 +405,8 @@ m, .clickable {
     .card-header {
       flex-grow: 1;
     }
-    .card-footer {
-    }
   }
   margin-bottom: 2rem;
-}
-
-#gem-list-modal {
-  .modal-content {
-    padding: 2rem;
-  }
-}
-
-#documentation hr {
-   margin-top: 2.75rem;
 }
 
 span.sc {

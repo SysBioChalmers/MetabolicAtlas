@@ -1,5 +1,5 @@
 <template>
-  <section class="section section-no-top extended-section">
+  <section class="section extended-section">
     <div class="container is-fullhd">
       <template v-for="(elems, category) in resources">
         <!-- eslint-disable-next-line vue/require-v-for-key -->
@@ -116,7 +116,7 @@ export default {
         APIs: [
           { name: 'Metabolic Atlas API',
             link: 'api/',
-            img: require('../assets/logo.png'),
+            img: '/img/logo.png',
             title: 'Access Metabolic Atlas programatically',
             description: 'The API is a set of URL requests that will respond to the query parameters with JSON formatted text. Our implementation gives the possibility of trying out different queries to see what the results would look like.' },
           { name: 'Protein Atlas Programmatic data access',

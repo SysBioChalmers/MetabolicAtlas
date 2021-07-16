@@ -32,7 +32,10 @@ const categorizeResults = (results) => {
 };
 
 const getters = {
-  globalResultsEmpty: state => Object.keys(state.globalResults).length === 0,
+  globalResultsEmpty: state => Object.values(state.globalResults).reduce((s, r) => {
+    const components = Object.keys(r).filter(k => k !== 'name');
+    return s + components.reduce((t, c) => t + r[c].length, 0);
+  }, 0) === 0,
 
   categorizedGlobalResults: state => categorizeResults(state.globalResults),
 
@@ -58,11 +61,21 @@ const getters = {
 
 const actions = {
   async globalSearch({ commit }, searchTerm) {
-    const results = await searchApi.globalSearch(searchTerm);
+    const payload = {
+      searchTerm,
+    };
+    const results = await searchApi.search(payload);
     commit('setGlobalResults', results);
   },
   async search({ state, commit }, { model, metabolitesAndGenesOnly }) {
-    const results = await searchApi.search(model, metabolitesAndGenesOnly, state.searchTermString);
+    const payload = {
+      version: model.apiVersion,
+      searchTerm: state.searchTermString,
+      model: model.apiName,
+      limit: 50,
+      a: { model, metabolitesAndGenesOnly },
+    };
+    const results = await searchApi.search(payload);
     commit('setResults', results);
   },
   setSearchTermString({ commit }, searchTermString) {

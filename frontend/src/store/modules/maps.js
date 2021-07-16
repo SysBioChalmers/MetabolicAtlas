@@ -3,13 +3,16 @@ import genesApi from '@/api/genes';
 import reactionsApi from '@/api/reactions';
 import metabolitesApi from '@/api/metabolites';
 
+const BG_COLORS = {
+  dark: '#222',
+  light: '#ececec',
+};
+
 const data = {
   availableMaps: {},
   mapsListing: {
-    compartment: [],
-    subsystem: [],
-    compartmentsvg: [],
-    subsystemsvg: [],
+    compartments: [],
+    subsystems: [],
   },
   svgMap: null,
   idsFound: [],
@@ -18,7 +21,7 @@ const data = {
     nodes: [],
     links: [],
   },
-  show2D: true,
+  showing2D: true,
   dataOverlayPanelVisible: false,
   coords: {
     x: 0,
@@ -26,59 +29,23 @@ const data = {
     z: 1,
     lx: 0,
     ly: 0,
-    lz: 0,
+    lz: 500,
   },
   searchTerm: '',
   selectedElementId: null,
-  tissue1: null,
-  tissue2: null,
+  tissue1: 'None',
+  tissue2: 'None',
+  backgroundColor: BG_COLORS.light,
+  loading: true,
+  loadingElement: false,
+  svgReactionsIdList: [],
 };
 
 const getters = {
-  mapsData3D: state => ({
-    compartments: state.mapsListing.compartment.reduce((obj, c) => ({
-      ...obj, [c.id]: { ...c, alternateDim: c.compartment_svg },
-    }), {}),
-    subsystems: state.mapsListing.subsystem.reduce((obj, s) => ({
-      ...obj, [s.id]: { ...s, alternateDim: s.subsystem_svg },
-    }), {}),
-  }),
-
-  compartmentMapping: state => ({
-    dim3D: state.mapsListing.compartment.reduce((obj, c) => ({
-      ...obj, [c.id]: c.compartment_svg,
-    }), {}),
-    dim2D: state.mapsListing.compartmentsvg.reduce((obj, c) => ({
-      ...obj, [c.id]: c.compartment,
-    }), {}),
-  }),
-
-  mapsData2D: state => ({
-    compartments: state.mapsListing.compartmentsvg.reduce((obj, c) => ({
-      ...obj, [c.id]: { ...c, alternateDim: c.compartment },
-    }), {}),
-    subsystems: state.mapsListing.subsystemsvg.reduce((obj, s) => ({
-      ...obj, [s.id]: { ...s, alternateDim: s.subsystem },
-    }), {}),
-  }),
-
-  has2DCompartmentMaps: (state, _getters) => Object.keys(_getters.mapsData2D.compartments).length > 0, // eslint-disable-line no-unused-vars
-
-  has2DSubsystemMaps: (state, _getters) => Object.keys(_getters.mapsData2D.subsystems).length > 0, // eslint-disable-line no-unused-vars
-
-  show3D: state => !state.show2D,
-  // selectedElementId: (state) => {
-  //   if (!state.selectedElement) {
-  //     return null;
-  //   }
-
-  //   return state.selectedElement.reaction ? state.selectedElement.reaction.id : state.selectedElement.id;
-  // },
-
   selectIds: state => [state.selectedElementId].filter(x => x),
 
   queryParams: state => ({
-    dim: state.show2D ? '2d' : '3d',
+    dim: state.showing2D ? '2d' : '3d',
     panel: +state.dataOverlayPanelVisible,
     sel: state.selectedElementId,
     search: state.searchTerm,
@@ -89,28 +56,22 @@ const getters = {
 };
 
 const actions = {
-  async getAvailableMaps({ commit }, { model, mapType, id }) {
-    const maps = await mapsApi.fetchAvailableMaps(model, mapType, id);
-    commit('setAvailableMaps', maps);
-  },
-
   async getMapsListing({ commit }, model) {
-    const mapsListing = await mapsApi.fetchMapsListing(model);
+    const payload = { model: model.apiName, version: model.apiVersion };
+    const mapsListing = await mapsApi.fetchMapsListing(payload);
     commit('setMapsListing', mapsListing);
   },
 
-  async getSvgMap({ commit }, { mapUrl, model, svgName }) {
-    const svgMap = await mapsApi.fetchSvgMap(mapUrl, model, svgName);
-    commit('setSvgMap', svgMap);
-  },
-
-  setSvgMap({ commit }, svgMap) {
+  async getSvgMap({ commit }, { model, svgName }) {
+    commit('setSvgMap', null);
+    const svgMap = await mapsApi.fetchSvgMap(model, svgName);
     commit('setSvgMap', svgMap);
   },
 
   async mapSearch({ commit }, { model, searchTerm }) {
     commit('setSearchTerm', searchTerm);
-    const idsFound = await mapsApi.mapSearch(model, searchTerm);
+    const payload = { model: model.apiName, version: model.apiVersion, searchTerm };
+    const idsFound = await mapsApi.mapSearch(payload);
     commit('setIdsFound', idsFound);
   },
 
@@ -122,7 +83,7 @@ const actions = {
     commit('setIdsFound', idsFound);
   },
 
-  async getSelectedElement({ commit }, { model, type, id }) {
+  async getSelectedElement({ commit }, { model, version, type, id }) {
     let apiFunc;
 
     switch (type) {
@@ -140,13 +101,13 @@ const actions = {
         break;
     }
 
-    const selectedElement = await apiFunc(model, id);
+    const selectedElement = await apiFunc({ id, model, version });
     commit('setSelectedElementId', id);
     commit('setSelectedElement', selectedElement);
   },
 
-  async get3DMapNetwork({ commit }, { model, type, name }) {
-    const network = await mapsApi.fetch3DMapNetwork(model, type, name);
+  async get3DMapNetwork({ commit }, { model, version, type, id }) {
+    const network = await mapsApi.fetch3DMapNetwork({ model, version, type, id });
     commit('setNetwork', network);
   },
 
@@ -154,12 +115,12 @@ const actions = {
     commit('setNetwork', network);
   },
 
-  toggleShow2D({ state, commit }) {
-    commit('setShow2D', !state.show2D);
+  toggleShowing2D({ commit, state }) {
+    commit('setShowing2D', !state.showing2D);
   },
 
-  setShow2D({ commit }, show2D) {
-    commit('setShow2D', show2D);
+  setShowing2D({ commit }, showing2D) {
+    commit('setShowing2D', showing2D);
   },
 
   toggleDataOverlayPanelVisible({ state, commit }) {
@@ -186,9 +147,22 @@ const actions = {
     commit('setTissue2', tissue2);
   },
 
+  setLoading({ commit }, loading) {
+    commit('setLoading', loading);
+  },
+
+  setLoadingElement({ commit }, loadingElement) {
+    commit('setLoadingElement', loadingElement);
+  },
+
+  toggleBackgroundColor({ state, commit }) {
+    const color = state.backgroundColor === BG_COLORS.dark ? BG_COLORS.light : BG_COLORS.dark;
+    commit('setBackgroundColor', color);
+  },
+
   initFromQueryParams({ commit }, { dim, panel, coords, sel, search, g1, g2 }) {
     // TODO: handle errors
-    commit('setShow2D', dim !== '3d');
+    commit('setShowing2D', dim !== '3d');
     commit('setDataOverlayPanelVisible', !!(panel === '1' || g1 || g2));
     commit('setSelectedElementId', sel);
     commit('setSearchTerm', search);
@@ -216,7 +190,7 @@ const actions = {
 
   resetParamsExcept({ commit }, paramsToKeep) {
     if (!paramsToKeep.includes('dim')) {
-      commit('setShow2D', true);
+      commit('setShowing2D', true);
     }
 
     if (!paramsToKeep.includes('panel')) {
@@ -277,8 +251,8 @@ const mutations = {
     state.network = network;
   },
 
-  setShow2D: (state, show2D) => {
-    state.show2D = show2D;
+  setShowing2D: (state, showing2D) => {
+    state.showing2D = showing2D;
   },
 
   setDataOverlayPanelVisible: (state, dataOverlayPanelVisible) => {
@@ -303,6 +277,18 @@ const mutations = {
 
   setTissue2: (state, tissue2) => {
     state.tissue2 = tissue2;
+  },
+
+  setBackgroundColor: (state, color) => {
+    state.backgroundColor = color;
+  },
+
+  setLoading: (state, loading) => {
+    state.loading = loading;
+  },
+
+  setLoadingElement: (state, loadingElement) => {
+    state.loadingElement = loadingElement;
   },
 };
 

@@ -31,21 +31,3 @@ export function chemicalNameExternalLink(value, link) {
             href='${link}'
           >${chemicalName(value)}</a>`;
 }
-
-function chemicalReactionSign(value, reversible) {
-  if (value === null) {
-    return '';
-  }
-  // apply chemical name to all metabolites
-  if (reversible) {
-    return chemicalName(value).replace(/(=>)/g, '&#8660;');
-  }
-  return chemicalName(value).replace(/(=>)/g, '&#8680;');
-}
-
-export function chemicalReaction(value, r) {
-  if (typeof r !== 'boolean' && 'is_reversible' in r) {
-    return chemicalReactionSign(value, r.is_reversible);
-  }
-  return chemicalReactionSign(value, r);
-}

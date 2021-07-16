@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-const fetchGeneData = async (model, geneId) => {
-  const { data } = await axios.get(`${model}/gene/${geneId}`);
+const fetchGeneData = async ({ id, model, version }) => {
+  const params = { model, version };
+  const { data } = await axios.get(`/genes/${id}`, { params });
   return { ...data, geneName: data.name || data.id };
 };
 

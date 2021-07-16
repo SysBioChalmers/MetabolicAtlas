@@ -1,6 +1,6 @@
 <template>
   <section class="extended-section">
-    <div id="search-table" class="container is-fullhd">
+    <div id="search-table" class="container is-fullhd pb-6">
       <div class="columns">
         <div class="column has-text-centered content">
           <br>
@@ -16,7 +16,7 @@
             <p class="control has-icons-right has-icons-left">
               <input id="search" v-model="searchTerm" data-hj-whitelist
                      class="input" type="text"
-                     placeholder="uracil, SULT1A3, ATP => cAMP + PPi, Acyl-CoA hydrolysis"
+                     placeholder="uracil, SULT1A3, Acyl-CoA hydrolysis"
                      @keyup.enter="updateSearch()">
               <span v-show="showSearchCharAlert" class="has-text-info icon is-right" style="width: 220px">
                 Type at least 2 characters
@@ -81,9 +81,6 @@
                 <span>Reactions</span>
                 <ul>
                   <li>ID</li>
-                  <li>Equation (see the
-                    <router-link :to="{ name: 'documentation', hash: 'Global-search'}">documentation</router-link>
-                    for more information)</li>
                   <li>EC code</li>
                   <li>External identifiers</li>
                   <li>PMID</li>
@@ -104,7 +101,7 @@
                               style-class="vgt-table striped bordered"
                               :pagination-options="tablePaginationOpts">
                 <div slot="table-actions">
-                  <ExportTSV :arg="index" :style="{'margin': '0.3rem 1rem'}" :filename="`${searchTerm}-${header}.tsv`"
+                  <ExportTSV :arg="index" class="my-1 mx-4" :filename="`${searchTerm}-${header}.tsv`"
                              :format-function="formatToTSV">
                   </ExportTSV>
                 </div>
@@ -113,14 +110,12 @@
                   <template v-if="props.column.field === 'model'">
                     {{ props.formattedRow[props.column.field].name }}
                   </template>
-                  <template v-else-if="props.column.field === 'equation'">
-                    <span v-html="reformatEqSign(props.formattedRow[props.column.field], false)"></span>
-                  </template>
+
                   <template v-else-if="props.column.field === 'formula'">
                     <span v-html="chemicalFormula(props.row[props.column.field], props.row.charge)"></span>
                   </template>
                   <template v-else-if="['name', 'id'].includes(props.column.field)">
-                    <router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: header, id: props.row.id } }">
+                    <router-link :to="{ name: header, params: { model: props.row.model.id, id: props.row.id } }">
                       {{ props.row.name || props.row.id }}
                     </router-link>
                   </template>
@@ -131,7 +126,7 @@
                     <template v-for="(sub, i) in props.formattedRow[props.column.field]" v-else>
                       <template v-if="i !== 0">; </template>
                       <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key max-len -->
-                      <router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: 'subsystem', id: sub.id } }">{{ sub.name }}</router-link>
+                      <router-link :to="{ name: 'subsystem', params: { model: props.row.model.id, id: sub.id } }">{{ sub.name }}</router-link>
                     </template>
                   </template>
                   <template v-else-if="['compartment', 'compartments'].includes(props.column.field)">
@@ -141,14 +136,14 @@
                     <template v-else-if="['gene', 'subsystem', 'reaction'].includes(header)">
                       <template v-for="(comp, i) in props.formattedRow[props.column.field]">
                         <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                        <template v-if="i != 0">; </template><router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: 'compartment', id: comp.id } }">{{ comp.name }}</router-link>
+                        <template v-if="i != 0">; </template><router-link :to="{ name: 'compartment', params: { model: props.row.model.id, id: comp.id } }">{{ comp.name }}</router-link>
                       </template>
                     </template>
                     <template v-else-if="Array.isArray(props.formattedRow[props.column.field])">
                       {{ props.formattedRow[props.column.field].join("; ") }}
                     </template>
                     <template v-else>
-                      <router-link :to="{ name: 'browser', params: { model: props.row.model.id, type: 'compartment', id: props.formattedRow[props.column.field].id } }">
+                      <router-link :to="{ name: 'compartment', params: { model: props.row.model.id, id: props.formattedRow[props.column.field].id } }">
                         {{ props.formattedRow[props.column.field].name }}
                       </router-link>
                     </template>
@@ -178,7 +173,7 @@ import Loader from '@/components/Loader';
 import ExportTSV from '@/components/shared/ExportTSV';
 import 'vue-good-table/dist/vue-good-table.css';
 import { chemicalFormula } from '../helpers/chemical-formatters';
-import { reformatEqSign, sortResults } from '../helpers/utils';
+import { sortResults } from '../helpers/utils';
 import { default as messages } from '../helpers/messages';
 
 export default {
@@ -300,13 +295,6 @@ export default {
             },
             sortable: true,
           }, {
-            label: 'Equation',
-            field: 'equation',
-            filterOptions: {
-              enabled: true,
-            },
-            sortable: false,
-          }, {
             label: 'Subsystem',
             field: 'subsystem',
             filterOptions: {
@@ -323,14 +311,6 @@ export default {
               filterFn: (e, s) => e.filter(v => v.name === s).length !== 0,
             },
             sortable: true,
-          }, {
-            label: 'Transport?',
-            field: 'is_transport',
-            filterOptions: {
-              enabled: true,
-              filterDropdownItems: [],
-            },
-            sortable: false,
           },
         ],
         subsystem: [
@@ -361,21 +341,21 @@ export default {
             sortable: true,
           }, {
             label: 'Metabolites',
-            field: 'metabolite_count',
+            field: 'compartmentalizedMetaboliteCount',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
           }, {
             label: 'Genes',
-            field: 'gene_count',
+            field: 'geneCount',
             filterOptions: {
               enabled: false,
             },
             sortable: true,
           }, {
             label: 'Reactions',
-            field: 'reaction_count',
+            field: 'reactionCount',
             filterOptions: {
               enabled: false,
             },
@@ -404,7 +384,7 @@ export default {
           },
           {
             label: 'Metabolites',
-            field: 'metabolite_count',
+            field: 'compartmentalizedMetaboliteCount',
             filterOptions: {
               enabled: false,
             },
@@ -412,7 +392,7 @@ export default {
           },
           {
             label: 'Genes',
-            field: 'gene_count',
+            field: 'geneCount',
             filterOptions: {
               enabled: false,
             },
@@ -420,7 +400,7 @@ export default {
           },
           {
             label: 'Reactions',
-            field: 'reaction_count',
+            field: 'reactionCount',
             filterOptions: {
               enabled: false,
             },
@@ -428,7 +408,7 @@ export default {
           },
           {
             label: 'Subsystems',
-            field: 'subsystem_count',
+            field: 'subsystemCount',
             filterOptions: {
               enabled: false,
             },
@@ -496,11 +476,10 @@ export default {
         reaction: {
           model: {},
           compartment: {},
-          is_transport: {},
         },
         subsystem: {
           model: {},
-          compartments: {},
+          compartment: {},
         },
         compartment: {
           model: {},
@@ -525,7 +504,7 @@ export default {
             Object.keys(filterTypeDropdown[componentType]).forEach((field) => {
               if (field === 'model') {
                 filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
-              } else if (field === 'compartment') {
+              } else if (el[field] && field === 'compartment') {
                 filterTypeDropdown[componentType][field][el[field].name] = 1;
               }
             });
@@ -534,7 +513,7 @@ export default {
             Object.keys(filterTypeDropdown[componentType]).forEach((field) => {
               if (field === 'model') {
                 filterTypeDropdown[componentType][field][el[field].id] = el[field].name;
-              } else if (field === 'compartment') {
+              } else if (el[field] && field === 'compartment') {
                 el[field]
                   .filter(v => !(v.id in filterTypeDropdown[componentType][field]))
                   .forEach((v) => {
@@ -560,10 +539,8 @@ export default {
             rows[componentType].push({
               id: el.id,
               model: el.model,
-              equation: el.equation_wname,
               subsystem: el.subsystem,
               compartment: el.compartment,
-              is_transport: el.is_transport ? 'Yes' : 'No',
             });
           } else if (componentType === 'subsystem') {
             Object.keys(filterTypeDropdown[componentType]).forEach((field) => {
@@ -614,8 +591,7 @@ export default {
       this.columns.gene[3].filterOptions.filterDropdownItems = filterTypeDropdown.gene.compartment;
 
       this.columns.reaction[0].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.model;
-      this.columns.reaction[4].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.compartment;
-      this.columns.reaction[5].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.is_transport;
+      this.columns.reaction[3].filterOptions.filterDropdownItems = filterTypeDropdown.reaction.compartment;
 
       this.columns.subsystem[0].filterOptions.filterDropdownItems = filterTypeDropdown.subsystem.model;
       this.columns.subsystem[2].filterOptions.filterDropdownItems = filterTypeDropdown.subsystem.compartments;
@@ -697,7 +673,6 @@ export default {
       return `${header.join('\t')}\n${tsvContent}`;
     },
     chemicalFormula,
-    reformatEqSign,
     sortResults,
   },
 };
@@ -715,7 +690,6 @@ export default {
       cursor: not-allowed;
     }
   }
-  padding-bottom: 6rem;
   .suggestions {
     text-decoration: underline;
   }

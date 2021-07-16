@@ -1,6 +1,4 @@
-#
 # macOS
-#
 *.DS_Store
 .DS_Store
 .AppleDouble
@@ -9,10 +7,8 @@
 # Icon must end with two \r
 Icon
 
-
 # Thumbnails
 ._*
-
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
@@ -23,7 +19,6 @@ Icon
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
-
 # Directories potentially created on remote AFP share
 .AppleDB
 .AppleDesktop
@@ -31,21 +26,14 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-
 # cache files for sublime text
 *.tmlanguage.cache
 *.tmPreferences.cache
 *.stTheme.cache
 
-
 # workspace files are user-specific
 *.sublime-workspace
 *.sublime-project
-
-
-# sftp configuration file
-sftp-config.json
-
 
 # Package control specific files
 Package Control.last-run
@@ -59,10 +47,8 @@ Package Control.user-ca-bundle
 oscrypto-ca-bundle.crt
 bh_unicode_properties.cache
 
-
 # Sublime-github package stores a github token in this file https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
-
 
 # local env files
 .env.local
@@ -70,38 +56,16 @@ GitHub.sublime-settings
 .env
 *.env
 
-
-# migration files
-backend/api/migrations/*py
-backend/database_generation/**/*.yml
-backend/database_generation/**/*.yaml
-backend/database_generation/**/*.tsv
-!backend/database_generation/example/*.tsv
-backend/database_generation/**/*.gz
-backend/database_generation/**/output/*
-backend/database_generation/**/jsonMaps/*
-backend/model_files/
-backend/svgs/
-*.db
 static/
 
-utils/annotation/**/backup/*
-utils/annotation/**/*tsv
-!utils/annotation/**/test/*tsv
-utils/svg/input/*
-utils/svg/output/*
 *.pyc
 node_modules/
-utils/mockData/**/*csv
-
 
 # Log files
-npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 logs
 *.log
-
 
 # Editor directories and files
 .idea
@@ -112,9 +76,20 @@ logs
 *.sln
 *.sw?
 
-
 # Runtime data
 pids
 *.pid
 *.seed
 *.pid.lock
+
+# GEM repository in FTP
+ftp/repository/
+
+# GEM repository in API
+api/repository/
+
+# SVG folder in API
+svg/
+
+# data folder in API
+api/src/data/*.json

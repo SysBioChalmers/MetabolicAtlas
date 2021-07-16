@@ -1,14 +1,20 @@
 <template>
-  <div class="column is-one-fifth-widescreen is-one-quarter-desktop
-              is-one-quarter-tablet is-half-mobile has-background-lightgray"
-       style="padding-left: 0; overflow-y: scroll;">
+  <div id="dataOverlayBox"
+       class="column is-one-fifth-widescreen is-one-quarter-desktop
+         is-one-quarter-tablet has-background-lightgray">
     <div class="title is-size-4 has-text-centered">Gene expression data</div>
     <div class="has-text-centered"
          title="Load a TSV file with gene IDs and TPM values.
          More information can be found in the documentation.">
-      Load custom gene expression data<span class="icon"><i class="fa fa-info-circle"></i></span>
+      Load custom gene expression
+      <span style="white-space: nowrap;">
+        data
+        <router-link :to="{ name: 'documentation', hash: '#Data-overlay'}">
+          <span class="icon"><i class="fa fa-info-circle"></i></span>
+        </router-link>
+      </span>
     </div>
-    <div id="fileSelectBut" class="file is-centered">
+    <div class="file is-centered mb-2">
       <label class="file-label">
         <input class="file-input"
                type="file"
@@ -24,7 +30,7 @@
         </span>
       </label>
     </div>
-    <div v-if="customFileName" id="fileNameBox">
+    <div v-if="customFileName" id="fileNameBox" class="mb-4">
       <div v-show="!showFileLoader" class="tags has-addons is-centered"
            :title="errorCustomFile ? errorCustomFileMsg : customFileInfo">
         <span class="tag" :class="errorCustomFile ? 'is-danger' : 'is-success'">
@@ -36,76 +42,76 @@
         <a class="button is-small is-loading"></a>
       </div>
     </div>
-    <div class="card card-margin">
-      <div class="card-content card-content-compact">
+    <div class="card my-3">
+      <div class="card-content py-2 p-3">
         <div class="has-text-centered title is-size-6">Data 1</div>
-        <div class="control">
+        <div v-if="dataSourcesAvailable" class="control">
           <p>RNA levels from <a href="https://www.proteinatlas.org" target="_blank">proteinAtlas.org</a></p>
           <div class="select is-fullwidth">
-            <select v-model="HPATissue1" :disabled="disabledRNAlvl" @change="setFirstTissue('HPA')">
+            <select :disabled="disabledRNAlvl" @change="(e) => setFirstTissue('HPA', e.target.value)">
               <option>None</option>
               <option v-for="tissue in HPATissues" :key="tissue"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      :selected="tissue === tissue1"
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>
-        <p>Or uploaded data</p>
+        <p>{{ dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data' }}</p>
         <div class="control">
           <div class="select is-fullwidth">
             <select
               v-model="customTissue1"
               :disabled="disabledCustomSelectData"
-              @change="setFirstTissue('custom')">
+              @change="(e) => setFirstTissue('custom', e.target.value)">
               <option v-if="!disabledCustomSelectData">None</option>
               <option v-for="tissue in customTissues" :key="tissue"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>
       </div>
     </div>
-    <div class="card card-margin">
-      <div class="card-content card-content-compact">
+    <div class="card my-3">
+      <div class="card-content py-2 p-3">
         <div class="has-text-centered title is-size-6">Data 2 (for comparison)</div>
-        <div class="control">
+        <div v-if="dataSourcesAvailable" class="control">
           <p>RNA levels from <a href="https://www.proteinatlas.org" target="_blank">proteinAtlas.org</a></p>
           <div class="select is-fullwidth">
-            <select v-model="HPATissue2" :disabled="disabledRNAlvl" @change="setSecondTissue('HPA')">
+            <select :disabled="disabledRNAlvl" @change="(e) => setSecondTissue('HPA', e.target.value)">
               <option>None</option>
               <option v-for="tissue in HPATissues" :key="tissue"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      :selected="tissue === tissue2"
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>
-        <div>Or uploaded data</div>
+        <div>{{ dataSourcesAvailable ? 'Or uploaded data' : 'RNA levels from uploaded data' }}</div>
         <div class="control">
           <div class="select is-fullwidth">
             <select
               v-model="customTissue2"
               :disabled="disabledCustomSelectData"
-              @change="setSecondTissue('custom')">
+              @change="(e) => setSecondTissue('custom', e.target.value)">
               <option v-if="!disabledCustomSelectData">None</option>
               <option v-for="tissue in customTissues"
                       :key="tissue"
-                      class="clickable is-capitalized">{{ tissue }}</option>
+                      class="is-clickable is-capitalized">{{ tissue }}</option>
             </select>
           </div>
         </div>
       </div>
     </div>
-    <RNAexpression class="card-margin"
+    <RNAexpression class="my-3"
                    :map-type="mapType"
                    :map-name="mapName"
-                   @loadedHPARNAtissue="setHPATissues($event)"
-                   @loadedCustomTissues="setCustomTissues($event)"
-                   @errorCustomFile="handleErrorCustomFile($event)">
-    </RNAexpression>
+                   @loadedCustomLevels="setCustomTissues($event)"
+                   @errorCustomFile="handleErrorCustomFile($event)" />
   </div>
 </template>
 
 <script>
 
-import { mapState } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import $ from 'jquery';
 import RNAexpression from '@/components/explorer/mapViewer/RNAexpression.vue';
 import { default as EventBus } from '@/event-bus';
@@ -127,12 +133,9 @@ export default {
       errorMessage: '',
 
       showLvlCardContent: true,
-      HPATissues: [],
       customTissues: [NOFILELOADED],
 
-      HPATissue1: 'None',
       customTissue1: NOFILELOADED,
-      HPATissue2: 'None',
       customTissue2: NOFILELOADED,
 
       tissue1Source: '',
@@ -148,6 +151,14 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
+      showing2D: state => state.maps.showing2D,
+      dataOverlayPanelVisible: state => state.maps.dataOverlayPanelVisible,
+      tissue1: state => state.maps.tissue1,
+      tissue2: state => state.maps.tissue2,
+      mapLoaded: state => !state.maps.loading,
+    }),
+    ...mapGetters({
+      HPATissues: 'humanProteinAtlas/HPATissues',
     }),
     disabledRNAlvl() {
       return !this.mapName || this.HPATissues.length === 0;
@@ -156,10 +167,10 @@ export default {
       return this.customTissues.length === 1 && this.customTissues[0] === NOFILELOADED;
     },
     isSelectedHPAtissue1() {
-      return this.HPATissues.length !== 0 && this.HPATissue1 !== 'None';
+      return this.HPATissues.length !== 0 && this.tissue1 !== 'None';
     },
     isSelectedHPAtissue2() {
-      return this.HPATissues.length !== 0 && this.HPATissue2 !== 'None';
+      return this.HPATissues.length !== 0 && this.tissue2 !== 'None';
     },
     isSelectedCustomtissue1() {
       return !this.disabledCustomSelectData && !(NOFILELOADED, 'None').includes(this.customTissue1);
@@ -175,58 +186,63 @@ export default {
     },
     selectedTissue1() {
       if (this.isSelectedTissue1) {
-        return this.isSelectedHPAtissue1 ? this.HPATissue1 : this.customTissue1;
+        return this.isSelectedHPAtissue1 ? this.tissue1 : this.customTissue1;
       }
       return '';
     },
     selectedTissue2() {
       if (this.isSelectedTissue2) {
-        return this.isSelectedHPAtissue2 ? this.HPATissue2 : this.customTissue2;
+        return this.isSelectedHPAtissue2 ? this.tissue2 : this.customTissue2;
       }
       return '';
     },
+    dataSourcesAvailable() {
+      return this.model.short_name === 'Human-GEM';
+    },
+  },
+  watch: {
+    mapLoaded: 'reloadGeneExpressionData',
+    HPATissues: 'reloadGeneExpressionData',
   },
   created() {
-    EventBus.$off('reloadGeneExpressionData');
-    EventBus.$off('loadingCustomFile');
-
-    EventBus.$on('reloadGeneExpressionData', () => {
-      // check if tissues are provided in the URL
-      if (this.$route.query && (this.$route.query.g1 || this.$route.query.g2)) {
-        if (this.$route.query.g1 !== '_' && this.$route.query.g1 !== this.selectedTissue1) {
-          if (!this.HPATissues.includes(this.$route.query.g1)) {
-            this.HPATissue1 = 'None';
-            this.setRouteParam('', null);
-          } else {
-            this.HPATissue1 = this.$route.query.g1;
-            this.tissue1Source = 'HPA';
-          }
-        }
-        if (this.$route.query.g2 !== '_' && this.$route.query.g2 !== this.selectedTissue2) {
-          if (!this.HPATissues.includes(this.$route.query.g2)) {
-            this.HPATissue2 = 'None';
-            this.setRouteParam(null, '');
-          } else {
-            this.HPATissue2 = this.$route.query.g2;
-            this.tissue2Source = 'HPA';
-          }
-        }
-      }
-      if (this.isSelectedTissue1 || this.isSelectedTissue2) {
-        EventBus.$emit('selectTissues', this.selectedTissue1, this.tissue1Source, this.selectedTissue2, this.tissue2Source, this.dim);
-      }
-    });
-
     EventBus.$on('loadedCustomExpressionData', (info) => {
       this.customTissue1 = 'None';
       this.customTissue2 = 'None';
       this.customFileInfo = info;
     });
+
+    EventBus.$off('loadingCustomFile');
     EventBus.$on('loadingCustomFile', () => {
       this.showFileLoader = true;
     });
   },
   methods: {
+    reloadGeneExpressionData() {
+      if (this.mapLoaded && this.HPATissues.length > 0) {
+        // check if tissues are provided in the URL
+        if (!this.$route.query) {
+          return;
+        }
+
+        const { g1, g2 } = this.$route.query;
+
+        if (g1 !== 'None' && !this.HPATissues.includes(g1)) {
+          this.$store.dispatch('maps/setTissue1', 'None');
+        } else {
+          this.setFirstTissue('HPA', g1);
+        }
+
+        if (g2 !== 'None' && !this.HPATissues.includes(g2)) {
+          this.$store.dispatch('maps/setTissue2', 'None');
+        } else {
+          this.setSecondTissue('HPA', g2);
+        }
+
+        if (this.isSelectedTissue1 || this.isSelectedTissue2) {
+          EventBus.$emit('selectTissues', this.selectedTissue1, this.tissue1Source, this.selectedTissue2, this.tissue2Source, this.dim);
+        }
+      }
+    },
     getFileName(e) {
       if (e.target.files.length !== 0) {
         this.customFileName = e.target.files[0].name;
@@ -239,9 +255,6 @@ export default {
         this.customFileName = '';
       }
     },
-    setHPATissues(tissues) {
-      this.HPATissues = tissues;
-    },
     setCustomTissues(info) {
       this.customTissues = info.tissues;
       this.customTissue1 = 'None';
@@ -249,21 +262,23 @@ export default {
       this.customFileInfo = `Entries found: ${info.entries} - Series loaded: ${info.series}`;
       this.showFileLoader = false;
     },
-    setFirstTissue(source) {
+    setFirstTissue(source, tissue) {
       if (source === 'HPA' && this.isSelectedCustomtissue1) {
         this.clearCustomTissue1Selection();
       } else if (source === 'custom' && this.isSelectedHPAtissue1) {
-        this.HPATissue1 = 'None';
+        this.$store.dispatch('maps/setTissue1', 'None');
       }
+      this.$store.dispatch('maps/setTissue1', tissue);
       this.loadRNAlevelsTissue1(this.selectedTissue1, source);
       this.tissue1Source = source;
     },
-    setSecondTissue(source) {
+    setSecondTissue(source, tissue) {
       if (source === 'HPA' && this.isSelectedCustomtissue2) {
         this.clearCustomTissue2Selection();
       } else if (source === 'custom' && this.isSelectedHPAtissue2) {
-        this.HPATissue2 = 'None';
+        this.$store.dispatch('maps/setTissue2', 'None');
       }
+      this.$store.dispatch('maps/setTissue2', tissue);
       this.loadRNAlevelsTissue2(this.selectedTissue2, source);
       this.tissue2Source = source;
     },
@@ -284,7 +299,7 @@ export default {
     loadRNAlevelsTissue1(tissue, source) {
       if (!tissue) {
         EventBus.$emit('unselectFirstTissue');
-        this.setRouteParam('', null);
+        this.$store.dispatch('maps/setTissue1', 'None');
       } else {
         EventBus.$emit('selectFirstTissue', tissue, source, this.dim);
       }
@@ -292,7 +307,7 @@ export default {
     loadRNAlevelsTissue2(tissue, source) {
       if (!tissue) {
         EventBus.$emit('unselectSecondTissue');
-        this.setRouteParam(null, '');
+        this.$store.dispatch('maps/setTissue2', 'None');
       } else {
         EventBus.$emit('selectSecondTissue', tissue, source, this.dim);
       }
@@ -311,31 +326,15 @@ export default {
       this.errorCustomFileMsg = errorMsg;
       this.showFileLoader = false;
     },
-    setRouteParam(value1, value2) {
-      // TODO: refactor to use maps/tissue1 from store instead of HPATissue1
-      if (value1 !== null) {
-        this.$store.dispatch('maps/setTissue1', value1);
-      } else if (value2 !== null) {
-        this.$store.dispatch('maps/setTissue2', value2);
-      }
-    },
   },
 };
 </script>
 
 <style lang="scss">
-#dataOverlayPanel {
-  z-index: 13;
-  .select {
-    margin: 0.5rem 0;
+@media screen and (min-width: $tablet) {
+  #dataOverlayBox {
+    margin-right: -1rem;
   }
-  .title {
-    margin-bottom: 0.5rem;
-  }
-}
-
-#fileSelectBut {
-  margin-bottom: 0.5rem;
 }
 
 #fileNameBox {
@@ -350,6 +349,5 @@ export default {
       cursor: help;
     }
   }
-  margin-bottom: 1rem;
 }
 </style>

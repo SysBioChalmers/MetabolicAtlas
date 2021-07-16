@@ -1,254 +1,270 @@
 <template>
-  <div class="interaction-partners">
-    <div v-if="!mainNodeID" class="columns">
-      <div class="column container is-fullhd has-text-centered">
-        <h3 class="title is-3">Explore {{ model.short_name }} with the {{ messages.interPartName }}</h3>
-        <h5 class="subtitle is-5 has-text-weight-normal">
-          use the search field to find the component of interest
-        </h5>
+  <div class="section extended-section">
+    <div class="container is-fullhd">
+      <div v-if="errorMessage">
+        <div class="column notification is-danger is-half is-offset-one-quarter has-text-centered">
+          {{ errorMessage }}
+        </div>
       </div>
-    </div>
-    <div class="columns is-centered">
-      <gem-search ref="gemSearch" :metabolites-and-genes-only="true"></gem-search>
-    </div>
-    <br><br>
-    <div v-if="!mainNodeID">
-      <div class="columns is-centered has-text-centered">
-        <p class="is-capitalized subtitle is-size-3 has-text-weight-light has-text-grey-light">
-          Demo
-        </p>
-      </div>
-      <div class="columns is-centered has-text-justified">
-        <div class="column is-three-fifths-desktop is-three-quarters-tablet is-fullwidth-mobile">
-          <!-- eslint-disable max-len -->
-          <p>For a given metabolite or gene, this page shows the other metabolites and genes with which it is connected via reactions. For more, see the <router-link :to="{ name: 'documentation', hash: '#Interaction-Partners' }">documentation on {{ messages.interPartName }}</router-link>.
-          </p>
+      <div v-else class="interaction-partners">
+        <div v-if="!mainNodeID" class="columns">
+          <div class="column container is-fullhd has-text-centered">
+            <h3 class="title is-3">
+              Explore {{ model ? model.short_name : 'the model' }} with the {{ messages.interPartName }}
+            </h3>
+            <h5 class="subtitle is-5 has-text-weight-normal">
+              use the menu bar search to find the component of interest and click the
+              <span class="icon is-medium is-left"><i class="fa fa-connectdevelop" /></span>
+              icon
+            </h5>
+          </div>
+        </div>
+        <div v-if="!mainNodeID">
+          <div class="has-text-centered">
+            <a id="randomButton" class="button is-rounded is-outlined is-success"
+               :class="randomComponents ? '' : 'is-loading'"
+               title="Fetch another random set of components" @click="getRandomComponents()">
+              <span class="icon">
+                <i class="fa fa-random"></i>
+              </span>
+              <span v-if="model">random components of {{ model.short_name || 'a model' }}</span>
+            </a>
+            <br>
+          </div>
           <br>
-          <video poster="@/assets/interPart-cover.jpg" playsinline controls muted loop>
-            <source src="@/assets/interPart.mp4" type="video/mp4">
-          </video>
-          <br><br>
+          <transition name="fade">
+            <div v-if="randomComponents" class="tile is-ancestor">
+              <div class="tile is-vertical">
+                <tile type="interaction" label="gene" :data="randomComponents.genes[0]" class="is-half" />
+                <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[0]" class="is-half" />
+              </div>
+              <div class="tile is-vertical">
+                <tile type="interaction" label="metabolite" :data="randomComponents.metabolites[1]" class="is-half" />
+                <tile type="interaction" label="gene" :data="randomComponents.genes[1]" class="is-half" />
+              </div>
+            </div>
+          </transition>
         </div>
+        <template v-if="componentNotFound">
+          <div class="columns is-centered">
+            <notFound type="Interaction Partners" :component-id="mainNodeID"></notFound>
+          </div>
+        </template>
+        <template v-if="loading">
+          <loader></loader>
+        </template>
+        <template v-else-if="mainNodeID && !componentNotFound">
+          <div class="container is-fullhd columns">
+            <div class="column is-8">
+              <h3 class="title is-3 m-0" v-html="`${messages.interPartName} for ${title}`"></h3>
+            </div>
+          </div>
+          <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
+            <span v-show="clickedElmId && clickedElmId !== mainNodeID"
+                  class="button is-dark" @click="navigate">Load {{ messages.interPartName }}</span>
+            <span v-show="clickedElmId && !expandedIds.includes(clickedElmId)"
+                  class="button is-dark" @click="loadExpansion">Expand {{ messages.interPartName }}</span>
+            <div v-show="clickedElm">
+              <span class="button is-dark">Highlight reaction:</span>
+            </div>
+            <div>
+              <template v-if="clickedElm && clickedElm['reaction']">
+                <template v-for="(r, index) in Array.from(clickedElm.reaction).slice(0,16)">
+                  <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
+                  <span v-if="index != 15" class="button is-dark is-small has-margin-left"
+                        @click="highlightReaction(r)">
+                    {{ r }}
+                  </span>
+                  <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
+                  <span v-else class="has-margin-left">
+                    {{ `${Array.from(clickedElm.reaction).length - 15} others reaction(s)...` }}
+                  </span>
+                </template>
+              </template>
+            </div>
+          </div>
+          <div class="container is-fullhd columns is-multiline">
+            <template v-if="tooLargeNetworkGraph">
+              <div class="column is-8-desktop is-fullwidth-tablet">
+                <div class="notification is-warning has-text-centered">
+                  The query has returned many nodes.
+                  <br>
+                  The network cannot been generated.
+                </div>
+              </div>
+            </template>
+            <template v-if="largeNetworkGraph">
+              <div class="column is-8-desktop is-fullwidth-tablet">
+                <div class="notification is-warning has-text-centered">
+                  <div>
+                    The query has returned many nodes.
+                    <br>
+                    The network has not been generated.
+                  </div>
+                  <span class="button" @click="generateGraph(fitGraph)">Generate</span>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="showNetworkGraph">
+              <div class="column is-8-desktop is-fullwidth-tablet">
+                <div id="graphOption">
+                  <span class="button" :class="[{ 'is-active': showGraphLegend }, '']"
+                        title="Options" @click="toggleGraphLegend"><i class="fa fa-cog"></i></span>
+                  <span class="button" title="Zoom In" @click="zoomGraph(true)"><i class="fa fa-search-plus"></i></span>
+                  <span class="button" title="Zoom Out" @click="zoomGraph(false)">
+                    <i class="fa fa-search-minus"></i>
+                  </span>
+                  <span class="button" title="Fit to frame" @click="fitGraph()"><i class="fa fa-arrows-alt"></i></span>
+                  <span class="button" title="Reload" @click="resetGraph(true)"><i class="fa fa-refresh"></i></span>
+                  <span class="button" title="Clean selection/highlight" @click="resetGraph(false)">
+                    <i class="fa fa-eraser"></i>
+                  </span>
+                </div>
+                <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
+                  <button class="delete" @click="toggleGraphLegend"></button>
+                  <span class="label">Gene</span>
+                  <div class="comp">
+                    <span>Shape:</span>
+                    <div class="select">
+                      <select v-model="nodeDisplayParams.geneNodeShape" @change="redrawGraph()">
+                        <option v-for="shape in availableNodeShape" :key="shape">
+                          {{ shape }}
+                        </option>
+                      </select>
+                    </div>
+                    <span>Color:</span>
+                    <span class="color-span is-clickable"
+                          :style="{ background: nodeDisplayParams.geneNodeColor.hex }"
+                          @click="toggleGeneColorPicker()">
+                      <compact-picker v-show="showColorPickerEnz"
+                                      v-model="nodeDisplayParams.geneNodeColor"
+                                      @input="applyOptionPanelColor('gene')">
+                      </compact-picker>
+                    </span>
+                  </div>
+                  <br>
+                  <span class="label">Metabolite</span>
+                  <div class="comp">
+                    <span>Shape:</span>
+                    <div class="select">
+                      <select v-model="nodeDisplayParams.metaboliteNodeShape"
+                              @change="redrawGraph()">
+                        <option v-for="shape in availableNodeShape" :key="shape">
+                          {{ shape }}
+                        </option>
+                      </select>
+                    </div>
+                    <span>Color:</span>
+                    <span class="color-span is-clickable"
+                          :style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
+                          @click="toggleMetaboliteColorPicker()">
+                      <compact-picker v-show="showColorPickerMeta"
+                                      v-model="nodeDisplayParams.metaboliteNodeColor"
+                                      @input="applyOptionPanelColor('metabolite')">
+                      </compact-picker>
+                    </span>
+                  </div>
+                </div>
+                <div id="cy" ref="cy" class="card p0">
+                </div>
+              </div>
+            </template>
+            <div class="column">
+              <template v-if="showNetworkGraph">
+                <div id="dropdownMenuExport" class="dropdown">
+                  <div class="dropdown-trigger">
+                    <a v-show="showNetworkGraph" class="button is-primary is-outlined" aria-haspopup="true"
+                       aria-controls="dropdown-menu" @click="showMenuExport=!showMenuExport">
+                      <span class="icon is-large"><i class="fa fa-download"></i></span>
+                      <span>Export graph</span>
+                      <span class="icon is-large"><i class="fa fa-caret-down"></i></span>
+                    </a>
+                  </div>
+                  <div v-show="showMenuExport" id="dropdown-menu"
+                       class="dropdown-menu" role="menu"
+                       @mouseleave="showMenuExport = false">
+                    <div class="dropdown-content">
+                      <a class="dropdown-item" @click="exportGraphml">
+                        Graphml
+                      </a>
+                      <a class="dropdown-item" @click="exportPNG">
+                        PNG
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <br><br>
+                <div class="card ">
+                  <header class="card-header">
+                    <p class="card-header-title">
+                      RNA levels via&nbsp;<a href="https://www.proteinatlas.org/" target="_blank">proteinAtlas.org</a>
+                    </p>
+                  </header>
+                  <div class="card-content py-2 p-3">
+                    <template v-if="disableExpLvlMessage">
+                      {{ disableExpLvlMessage }}
+                    </template>
+                    <template v-else>
+                      <RNALegend />
+                      <br>
+                      <div class="select is-fullwidth"
+                           :class="{ 'is-loading' : loadingHPA }">
+                        <select v-if="tissues" id="enz-select" ref="enzHPAselect"
+                                v-model="selectedSample" title="Select a tissue type"
+                                @change.prevent="applyLevels('HPA', 'RNA', selectedSample)">
+                          <option value="">None</option>
+                          <option v-for="tissue in tissues" :key="tissue" :value="tissue">
+                            {{ tissue }}
+                          </option>
+                        </select>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+                <br>
+                <div v-if="compartmentList.length !== 0 || subsystemList.length != 0" class="card">
+                  <header class="card-header">
+                    <p class="card-header-title">
+                      Highlight
+                    </p>
+                  </header>
+                  <div class="card-content py-2 p-3">
+                    <div class="select is-fullwidth">
+                      <select v-model="compartmentHL" :disabled="disableCompartmentHL"
+                              @change.prevent="highlightCompartment">
+                        <option v-if="!disableCompartmentHL" value="" disabled>Select a compartment</option>
+                        <option v-for="compartment in compartmentList"
+                                :key="compartment" :value="disableCompartmentHL ? '' : compartment">
+                          {{ compartment }}
+                        </option>
+                      </select>
+                    </div>
+                    <div v-show="subsystemList.length !== 0">
+                      <br>
+                      <div class="select is-fullwidth">
+                        <select v-model="subsystemHL" @change.prevent="highlightSubsystem">
+                          <option value="" disabled>Select a subsystem</option>
+                          <option v-for="sub in subsystemList" :key="sub" :value="sub">
+                            {{ sub }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <br>
+              </template>
+              <sidebar id="sidebar" :selected-elm="clickedElm" :show-ip-button="clickedElmId !== mainNodeID" />
+            </div>
+          </div>
+          <cytoscape-table :reactions="reactions" :selected-elm-id="clickedElmId" :selected-reaction-id="reactionHL"
+                           :is-graph-visible="showNetworkGraph"
+                           :filename="filename"
+                           @highlight="highlightNode($event)" @HLreaction="highlightReaction($event)">
+          </cytoscape-table>
+        </template>
       </div>
     </div>
-    <template v-if="componentNotFound">
-      <div class="columns is-centered">
-        <notFound type="Interaction Partners" :component-id="mainNodeID"></notFound>
-      </div>
-    </template>
-    <template v-if="loading">
-      <loader></loader>
-    </template>
-    <template v-else-if="mainNodeID && !componentNotFound">
-      <div class="container is-fullhd columns">
-        <div class="column is-8">
-          <h3 class="title is-3 is-marginless" v-html="`${messages.interPartName} for ${title}`"></h3>
-        </div>
-      </div>
-      <div v-show="showGraphContextMenu && showNetworkGraph" id="contextMenuGraph" ref="contextMenuGraph">
-        <span v-show="clickedElmId && clickedElmId !== mainNodeID"
-              class="button is-dark" @click="navigate">Load {{ messages.interPartName }}</span>
-        <span v-show="clickedElmId && !expandedIds.includes(clickedElmId)"
-              class="button is-dark" @click="loadExpansion">Expand {{ messages.interPartName }}</span>
-        <div v-show="clickedElm">
-          <span class="button is-dark">Highlight reaction:</span>
-        </div>
-        <div>
-          <template v-if="clickedElm && clickedElm['reaction']">
-            <template v-for="(r, index) in Array.from(clickedElm.reaction).slice(0,16)">
-              <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-              <span v-if="index != 15" class="button is-dark is-small has-margin-left"
-                    @click="highlightReaction(r)">
-                {{ r }}
-              </span>
-              <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-              <span v-else class="has-margin-left">
-                {{ `${Array.from(clickedElm.reaction).length - 15} others reaction(s)...` }}
-              </span>
-            </template>
-          </template>
-        </div>
-      </div>
-      <div class="container is-fullhd columns is-multiline">
-        <template v-if="tooLargeNetworkGraph">
-          <div class="column is-8-desktop is-fullwidth-tablet">
-            <div class="notification is-warning has-text-centered">
-              The query has returned many nodes.
-              <br>
-              The network cannot been generated.
-            </div>
-          </div>
-        </template>
-        <template v-if="largeNetworkGraph">
-          <div class="column is-8-desktop is-fullwidth-tablet">
-            <div class="notification is-warning has-text-centered">
-              <div>
-                The query has returned many nodes.
-                <br>
-                The network has not been generated.
-              </div>
-              <span class="button" @click="generateGraph(fitGraph)">Generate</span>
-            </div>
-          </div>
-        </template>
-        <template v-else-if="showNetworkGraph">
-          <div class="column is-8-desktop is-fullwidth-tablet">
-            <div id="graphOption">
-              <span class="button" :class="[{ 'is-active': showGraphLegend }, '']"
-                    title="Options" @click="toggleGraphLegend"><i class="fa fa-cog"></i></span>
-              <span class="button" title="Zoom In" @click="zoomGraph(true)"><i class="fa fa-search-plus"></i></span>
-              <span class="button" title="Zoom Out" @click="zoomGraph(false)">
-                <i class="fa fa-search-minus"></i>
-              </span>
-              <span class="button" title="Fit to frame" @click="fitGraph()"><i class="fa fa-arrows-alt"></i></span>
-              <span class="button" title="Reload" @click="resetGraph(true)"><i class="fa fa-refresh"></i></span>
-              <span class="button" title="Clean selection/highlight" @click="resetGraph(false)">
-                <i class="fa fa-eraser"></i>
-              </span>
-            </div>
-            <div v-show="showGraphLegend" id="contextGraphLegend" ref="contextGraphLegend">
-              <button class="delete" @click="toggleGraphLegend"></button>
-              <span class="label">Gene</span>
-              <div class="comp">
-                <span>Shape:</span>
-                <div class="select">
-                  <select v-model="nodeDisplayParams.geneNodeShape" @change="redrawGraph()">
-                    <option v-for="shape in availableNodeShape" :key="shape">
-                      {{ shape }}
-                    </option>
-                  </select>
-                </div>
-                <span>Color:</span>
-                <span class="color-span clickable"
-                      :style="{ background: nodeDisplayParams.geneNodeColor.hex }"
-                      @click="toggleGeneColorPicker()">
-                  <compact-picker v-show="showColorPickerEnz"
-                                  v-model="nodeDisplayParams.geneNodeColor"
-                                  @input="applyOptionPanelColor('gene')">
-                  </compact-picker>
-                </span>
-              </div>
-              <br>
-              <span class="label">Metabolite</span>
-              <div class="comp">
-                <span>Shape:</span>
-                <div class="select">
-                  <select v-model="nodeDisplayParams.metaboliteNodeShape"
-                          @change="redrawGraph()">
-                    <option v-for="shape in availableNodeShape" :key="shape">
-                      {{ shape }}
-                    </option>
-                  </select>
-                </div>
-                <span>Color:</span>
-                <span class="color-span clickable"
-                      :style="{ background: nodeDisplayParams.metaboliteNodeColor.hex }"
-                      @click="toggleMetaboliteColorPicker()">
-                  <compact-picker v-show="showColorPickerMeta"
-                                  v-model="nodeDisplayParams.metaboliteNodeColor"
-                                  @input="applyOptionPanelColor('metabolite')">
-                  </compact-picker>
-                </span>
-              </div>
-            </div>
-            <div id="cy" ref="cy" class="card is-paddingless">
-            </div>
-          </div>
-        </template>
-        <div class="column">
-          <template v-if="showNetworkGraph">
-            <div id="dropdownMenuExport" class="dropdown">
-              <div class="dropdown-trigger">
-                <a v-show="showNetworkGraph" class="button is-primary is-outlined" aria-haspopup="true"
-                   aria-controls="dropdown-menu" @click="showMenuExport=!showMenuExport">
-                  <span class="icon is-large"><i class="fa fa-download"></i></span>
-                  <span>Export graph</span>
-                  <span class="icon is-large"><i class="fa fa-caret-down"></i></span>
-                </a>
-              </div>
-              <div v-show="showMenuExport" id="dropdown-menu"
-                   class="dropdown-menu" role="menu"
-                   @mouseleave="showMenuExport = false">
-                <div class="dropdown-content">
-                  <a class="dropdown-item" @click="exportGraphml">
-                    Graphml
-                  </a>
-                  <a class="dropdown-item" @click="exportPNG">
-                    PNG
-                  </a>
-                </div>
-              </div>
-            </div>
-            <br><br>
-            <div class="card ">
-              <header class="card-header">
-                <p class="card-header-title">
-                  RNA levels via&nbsp;<a href="https://www.proteinatlas.org/" target="_blank">proteinAtlas.org</a>
-                </p>
-              </header>
-              <div class="card-content card-content-compact">
-                <template v-if="disableExpLvlMessage">
-                  {{ disableExpLvlMessage }}
-                </template>
-                <template v-else>
-                  <RNALegend />
-                  <br>
-                  <div class="select is-fullwidth"
-                       :class="{ 'is-loading' : loadingHPA }">
-                    <select v-if="tissues.HPA" id="enz-select" ref="enzHPAselect"
-                            v-model="selectedSample" title="Select a tissue type"
-                            @change.prevent="applyLevels('HPA', 'RNA', selectedSample)">
-                      <option value="">None</option>
-                      <option v-for="tissue in tissues['HPA']" :key="tissue" :value="tissue">
-                        {{ tissue }}
-                      </option>
-                    </select>
-                  </div>
-                </template>
-              </div>
-            </div>
-            <br>
-            <div v-if="compartmentList.length !== 0 || subsystemList.length != 0" class="card">
-              <header class="card-header">
-                <p class="card-header-title">
-                  Highlight
-                </p>
-              </header>
-              <div class="card-content card-content-compact">
-                <div class="select is-fullwidth">
-                  <select v-model="compartmentHL" :disabled="disableCompartmentHL"
-                          @change.prevent="highlightCompartment">
-                    <option v-if="!disableCompartmentHL" value="" disabled>Select a compartment</option>
-                    <option v-for="compartment in compartmentList"
-                            :key="compartment" :value="disableCompartmentHL ? '' : compartment">
-                      {{ compartment }}
-                    </option>
-                  </select>
-                </div>
-                <div v-show="subsystemList.length !== 0">
-                  <br>
-                  <div class="select is-fullwidth">
-                    <select v-model="subsystemHL" @change.prevent="highlightSubsystem">
-                      <option value="" disabled>Select a subsystem</option>
-                      <option v-for="sub in subsystemList" :key="sub" :value="sub">
-                        {{ sub }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <br>
-          </template>
-          <sidebar id="sidebar" :selected-elm="clickedElm" :show-ip-button="clickedElmId !== mainNodeID" />
-        </div>
-      </div>
-      <cytoscape-table :reactions="reactions" :selected-elm-id="clickedElmId" :selected-reaction-id="reactionHL"
-                       :is-graph-visible="showNetworkGraph"
-                       :filename="filename"
-                       @highlight="highlightNode($event)" @HLreaction="highlightReaction($event)">
-      </cytoscape-table>
-    </template>
   </div>
 </template>
 
@@ -260,12 +276,12 @@ import cola from 'cytoscape-cola';
 import { Compact } from 'vue-color';
 import { default as FileSaver } from 'file-saver';
 
-import GemSearch from '@/components/explorer/gemBrowser/GemSearch';
 import Sidebar from '@/components/explorer/interactionPartners/Sidebar';
 import CytoscapeTable from '@/components/explorer/interactionPartners/CytoscapeTable';
 import Loader from '@/components/Loader';
 import RNALegend from '@/components/explorer/mapViewer/RNALegend.vue';
 import NotFound from '@/components/NotFound';
+import Tile from '@/components/explorer/gemBrowser/Tile';
 
 import { default as transform } from '@/data-mappers/hmr-closest-interaction-partners';
 import { default as changeGraphStyle } from '@/graph-stylers/hmr-closest-interaction-partners';
@@ -280,12 +296,12 @@ export default {
   name: 'InteractionPartners',
   components: {
     NotFound,
-    GemSearch,
     Sidebar,
     CytoscapeTable,
     Loader,
     'compact-picker': Compact,
     RNALegend,
+    Tile,
   },
   data() {
     return {
@@ -390,9 +406,10 @@ export default {
     ...mapState({
       model: state => state.models.model,
       tissues: state => state.humanProteinAtlas.tissues,
-      matLevels: state => state.humanProteinAtlas.matLevels,
+      levels: state => state.humanProteinAtlas.levels,
       tooLargeNetworkGraph: state => state.interactionPartners.tooLargeNetworkGraph,
       expansion: state => state.interactionPartners.expansion,
+      randomComponents: state => state.interactionPartners.randomComponents,
     }),
     ...mapGetters({
       component: 'interactionPartners/component',
@@ -415,24 +432,31 @@ export default {
     },
   },
   watch: {
-    /* eslint-disable quote-props */
-    '$route': async function watchSetup() {
-      if (this.$route.path.includes('/interaction/')) {
-        if (this.mainNodeID !== this.$route.params.id) {
-          await this.setup();
-        }
-      }
-    },
+    '$route.params': 'setup',
   },
   async beforeMount() {
+    if (!this.model || this.model.short_name !== this.$route.params.model) {
+      const modelSelectionSuccessful = await this.$store.dispatch('models/selectModel', this.$route.params.model);
+      if (!modelSelectionSuccessful) {
+        this.errorMessage = `Error: ${messages.modelNotFound}`;
+        return;
+      }
+    }
     cytoscape.use(cola);
     jquery(window).resize(() => {
       jquery('#cy').height(jquery('#cy').width() / 1.5);
       this.fitGraph();
     });
     await this.setup();
+
+    if (!this.mainNodeID) {
+      await this.getRandomComponents();
+    }
   },
   methods: {
+    async getRandomComponents() {
+      await this.$store.dispatch('interactionPartners/getRandomComponents', this.model);
+    },
     async setup() {
       this.mainNodeID = this.$route.params.id;
       this.mainNode = null;
@@ -448,14 +472,16 @@ export default {
       this.reactionHL = null;
       this.compartmentHL = '';
       this.subsystemHL = '';
-      this.$router.push({ name: 'interPartner', params: { model: this.model.database_name, id: this.clickedElmId } });
+      this.$router.push({ name: 'interaction', params: { model: this.model.short_name, id: this.clickedElmId } });
     },
-    async loadHPATissue() {
+    async loadHPALevels() {
+      if (this.model.sample.organism !== 'Homo sapiens') {
+        this.disableExpLvlMessage = `Unavailable for ${this.model.short_name}`;
+        return;
+      }
+
       try {
-        await this.$store.dispatch('humanProteinAtlas/getTissues', this.model.database_name);
-        if (this.tissues.HPA.length === 0) {
-          this.disableExpLvlMessage = `Unavailable for ${this.model.short_name}`;
-        }
+        await this.$store.dispatch('humanProteinAtlas/getLevels');
       } catch {
         this.disableExpLvlMessage = 'Sorry, currently unavailable ';
       }
@@ -464,7 +490,7 @@ export default {
       this.loading = true;
 
       try {
-        const payload = { model: this.model.database_name, id: this.mainNodeID };
+        const payload = { model: this.model, id: this.mainNodeID };
         await this.$store.dispatch('interactionPartners/getInteractionPartners', payload);
 
         // TODO: consider refactoring the following lines in this try block into Vuex,
@@ -492,7 +518,7 @@ export default {
 
         this.disableExpLvlMessage = '';
         this.resetGeneExpression();
-        await this.loadHPATissue();
+        await this.loadHPALevels();
 
         this.nodeCount = Object.keys(this.rawElms).length;
         if (this.nodeCount > this.warnNodeCount) {
@@ -515,7 +541,7 @@ export default {
           this.constructGraph(this.rawElms, this.rawRels, this.fitGraph);
         }, 0);
       } catch (error) {
-        switch (error.status) {
+        switch (error.response.status) {
           case 404:
             this.componentNotFound = true;
             break;
@@ -528,7 +554,7 @@ export default {
     },
     async loadExpansion() {
       try {
-        const payload = { model: this.model.database_name, id: this.clickedElmId };
+        const payload = { model: this.model, id: this.clickedElmId };
         await this.$store.dispatch('interactionPartners/loadExpansion', payload);
 
         this.reactionHL = null;
@@ -578,7 +604,7 @@ export default {
           this.constructGraph(this.rawElms, this.rawRels);
         }, 0);
       } catch (error) {
-        switch (error.status) {
+        switch (error.response.status) {
           case 404:
             this.errorMessage = messages.notFoundError;
             break;
@@ -839,8 +865,8 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
-    async applyLevels(expSource, expType, expSample) {
-      setTimeout(async () => {
+    applyLevels(expSource, expType, expSample) {
+      setTimeout(() => {
         if (this.disableExpLvlMessage) {
           return;
         }
@@ -848,11 +874,12 @@ export default {
           if (this.nodeDisplayParams.geneExpSource !== expSource) {
             this.nodeDisplayParams.geneExpSource = expSource;
             this.nodeDisplayParams.geneExpType = expType;
+            this.nodeDisplayParams.geneExpSample = expSample;
             // if this source for this type of component have been already loaded
             if (!this.overlay[expSource]) {
               // sources that load all exp type
               if (expSource === 'HPA') {
-                await this.getHPAexpression(this.rawElms, expSample);
+                this.getHPAexpression(this.rawElms);
               } else {
                 // load expression data from another source here
               }
@@ -861,14 +888,15 @@ export default {
             }
           } else if (this.nodeDisplayParams.geneExpType !== expType) {
             this.nodeDisplayParams.geneExpType = expType;
+            this.nodeDisplayParams.geneExpSample = expSample;
             if (!this.overlay.expSource.expType) {
               // sources that load only one specific exp type
               this.redrawGraph();
             }
           } else if (this.nodeDisplayParams.geneExpSample !== expSample) {
+            this.nodeDisplayParams.geneExpSample = expSample;
             this.redrawGraph();
           }
-          this.nodeDisplayParams.geneExpSample = expSample;
         } else {
           // disable expression lvl for gene
           this.nodeDisplayParams.geneExpSource = false;
@@ -923,37 +951,31 @@ export default {
       const geneIds = genes.map(k => rawElms[k].id);
 
       try {
-        const payload = { model: this.model.database_name, geneIds };
-        await this.$store.dispatch('humanProteinAtlas/getMatLevels', payload);
-
-        if (this.matLevels.length === 0) {
+        if (geneIds.length === 0) {
           this.disableExpLvlMessage = 'Unavailable, no genes on the graph';
           return;
         }
 
-        for (let i = 0; i < this.matLevels.length; i += 1) {
-          const array = this.matLevels[i];
-          const enzID = array[0];
+        for (let i = 0; i < geneIds.length; i += 1) {
+          const geneID = geneIds[i];
+          const levelsArray = this.levels[geneID];
 
-          if (!(enzID in this.rawElms)) {
-            continue; // eslint-disable-line no-continue
+          if (!this.rawElms[geneID].expressionLvl) {
+            this.rawElms[geneID].expressionLvl = {};
           }
-
-          if (!this.rawElms[enzID].expressionLvl) {
-            this.rawElms[enzID].expressionLvl = {};
+          if (!this.rawElms[geneID].expressionLvl.HPA) {
+            this.rawElms[geneID].expressionLvl.HPA = {};
           }
-          if (!this.rawElms[enzID].expressionLvl.HPA) {
-            this.rawElms[enzID].expressionLvl.HPA = {};
-          }
-          if (!this.rawElms[enzID].expressionLvl.HPA.RNA) {
-            this.rawElms[enzID].expressionLvl.HPA.RNA = {};
+          if (!this.rawElms[geneID].expressionLvl.HPA.RNA) {
+            this.rawElms[geneID].expressionLvl.HPA.RNA = {};
           }
 
-          for (let j = 0; j < this.tissues.HPA.length; j += 1) {
-            const tissue = this.tissues.HPA[j];
-            let level = Math.log2(parseFloat(array[1].split(',')[j]) + 1);
+          // set the levels for all the tissues at once
+          for (let j = 0; j < this.tissues.length; j += 1) {
+            const tissue = this.tissues[j];
+            let level = Math.log2(levelsArray[j] + 1);
             level = Math.round((level + 0.00001) * 100) / 100;
-            this.rawElms[enzID].expressionLvl.HPA.RNA[tissue] = getSingleRNAExpressionColor(level);
+            this.rawElms[geneID].expressionLvl.HPA.RNA[tissue] = getSingleRNAExpressionColor(level);
           }
         }
         this.overlay.HPA = {};
@@ -985,11 +1007,15 @@ export default {
 };
 </script>
 
-<style lang='scss'>
+<style lang='scss' scoped>
 .interaction-partners {
 
   h1, h2 {
     font-weight: normal;
+  }
+
+  h5 .icon {
+    color: #A15786;
   }
 
   #cy {
@@ -1098,22 +1124,17 @@ export default {
     }
   }
 
-  #t-select {
-    margin-top: 0.75rem;
-  }
-
   #enz-select {
     min-width: 240px;
   }
 
-  .slide-fade-enter-active {
-    transition: all .3s ease;
+  .fade-enter-active {
+    transition: opacity .5s ease;
   }
-  .slide-fade-leave-active {
-    transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  .fade-leave-active {
+    transition: opacity .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
   }
-  .slide-fade-enter, .slide-fade-leave-active {
-    transform: translateX(200px);
+  .fade-enter, .fade-leave-active {
     opacity: 0;
   }
 }

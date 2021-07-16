@@ -1,6 +1,5 @@
 <template>
   <div>
-    <br>
     <h4 class="subtitle is-size-4">References</h4>
     <p>Reference details are fetched dynamically from
       <a href="https://europepmc.org" target="_blank">Europe PMC</a>
@@ -12,20 +11,20 @@
     <template v-else>
       <br>
       <table class="main-table table is-fullwidth">
-        <tr v-for="oneRef in referenceList" :key="oneRef.pmid">
-          <td class="td-key has-background-primary has-text-white-bis">{{ oneRef.pmid }}</td>
-          <td v-if="formattedRefs[oneRef.pmid]">
-            <template v-if="formattedRefs[oneRef.pmid].link">
-              <a target="_blank" :href="formattedRefs[oneRef.pmid].link">
-                <span v-html="formattedRefs[oneRef.pmid].formattedString"></span>
+        <tr v-for="pmid in referenceList" :key="pmid">
+          <td class="td-key has-background-primary has-text-white-bis">{{ pmid }}</td>
+          <td v-if="formattedRefs[pmid]">
+            <template v-if="formattedRefs[pmid].link">
+              <a target="_blank" :href="formattedRefs[pmid].link">
+                <span v-html="formattedRefs[pmid].formattedString"></span>
               </a>
             </template>
             <template v-else>
-              <span v-html="formattedRefs[oneRef.pmid].formattedString"></span>
+              <span v-html="formattedRefs[pmid].formattedString"></span>
             </template>
           </td>
           <td v-else>
-            Not found in <a :href="`https://europepmc.org/search?query=${oneRef.pmid}`" target="_blank">Europe PMC</a>
+            Not found in <a :href="`https://europepmc.org/search?query=${pmid}`" target="_blank">Europe PMC</a>
           </td>
         </tr>
       </table>
@@ -52,7 +51,7 @@ export default {
   },
   async beforeMount() {
     if (this.referenceList.length > 0) {
-      const queryIds = `(EXT_ID:"${this.referenceList.map(e => e.pmid).join('"+OR+EXT_ID:"')}")`;
+      const queryIds = `(EXT_ID:"${this.referenceList.join('"+OR+EXT_ID:"')}")`;
       await this.$store.dispatch('europepmc/searchReferences', queryIds);
     }
   },

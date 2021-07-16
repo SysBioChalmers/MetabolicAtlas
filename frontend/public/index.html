@@ -1,130 +1,146 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <link rel="apple-touch-icon-precomposed" sizes="57x57" href=" <%= BASE_URL %>apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href=" <%= BASE_URL %>apple-touch-icon-114x114.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href=" <%= BASE_URL %>apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href=" <%= BASE_URL %>apple-touch-icon-144x144.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="120x120" href=" <%= BASE_URL %>apple-touch-icon-120x120.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href=" <%= BASE_URL %>apple-touch-icon-152x152.png" />
-    <link rel="icon" type="image/png" href="  <%= BASE_URL %>favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="  <%= BASE_URL %>favicon-16x16.png" sizes="16x16" />
-    <meta name="application-name" content="Metabolic Atlas"/>
-    <meta name="msapplication-TileColor" content="#FFFFFF" />
-    <meta name="msapplication-TileImage" content="mstile-144x144.png" />
-    <title>Metabolic Atlas</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <%= process.env.VUE_APP_HOTJAR %>
-  </head>
-  <body>
-    <style>
-      #init-loading {
-        text-align: center;
+<html lang="en">
+
+<head>
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href=" <%= BASE_URL %>apple-touch-icon-57x57.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href=" <%= BASE_URL %>apple-touch-icon-114x114.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href=" <%= BASE_URL %>apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href=" <%= BASE_URL %>apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href=" <%= BASE_URL %>apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="152x152" href=" <%= BASE_URL %>apple-touch-icon-152x152.png" />
+  <link rel="icon" type="image/png" href="  <%= BASE_URL %>favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="  <%= BASE_URL %>favicon-16x16.png" sizes="16x16" />
+  <meta name="application-name" content="Metabolic Atlas" />
+  <meta name="msapplication-TileColor" content="#FFFFFF" />
+  <meta name="msapplication-TileImage" content="mstile-144x144.png" />
+  <title>Metabolic Atlas</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= process.env.VUE_APP_HOTJAR %>
+</head>
+
+<body>
+  <style>
+    #init-loading {
+      text-align: center;
+    }
+
+    .multi-spinner-container {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      margin: 30px auto;
+    }
+
+    .multi-spinner {
+      position: absolute;
+      width: calc(100%);
+      height: calc(100%);
+      border: 5px solid transparent;
+      border-top-color: #25543C;
+      border-radius: 50%;
+      -webkit-animation: spin 8s linear infinite;
+      animation: spin 8s linear infinite;
+    }
+
+    @-webkit-keyframes rotate {
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
       }
-      .multi-spinner-container {
-        width: 200px;
-        height: 200px;
-        position: relative;
-        margin: 30px auto;
+    }
+
+    @keyframes rotate {
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
       }
-      .multi-spinner {
-        position: absolute;
-        width: calc(100%);
-        height: calc(100%);
-        border: 5px solid transparent;
-        border-top-color: #25543C;
-        border-radius: 50%;
-        -webkit-animation: spin 8s linear infinite;
-        animation: spin 8s linear infinite;
+    }
+
+    -webkit-@keyframes spin {
+      -webkit-from {
+        -webkit-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        transform: rotate(0deg);
       }
 
-      @-webkit-keyframes rotate {
-        100% {
-          -webkit-transform: rotate(360deg);
-          transform: rotate(360deg);
-        }
+      -webkit-to {
+        -webkit-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        transform: rotate(360deg);
       }
-      @keyframes rotate {
-        100% {
-          -webkit-transform: rotate(360deg);
-          transform: rotate(360deg);
-        }
+    }
+
+    @-webkit-keyframes spin {
+      from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
       }
 
-      -webkit-@keyframes spin {
-        -webkit-from {
-          -webkit-transform: rotate(0deg);
-          -ms-transform: rotate(0deg);
-          transform: rotate(0deg);
-        }
-        -webkit-to {
-          -webkit-transform: rotate(360deg);
-          -ms-transform: rotate(360deg);
-          transform: rotate(360deg);
-        }
+      to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
       }
-      @-webkit-keyframes spin {
-        from {
-          -webkit-transform: rotate(0deg);
-          transform: rotate(0deg);
-        }
-        to {
-          -webkit-transform: rotate(360deg);
-          transform: rotate(360deg);
-        }
-      }
-      @keyframes spin {
-        from {
-          -webkit-transform: rotate(0deg);
-          transform: rotate(0deg);
-        }
-        to {
-          -webkit-transform: rotate(360deg);
-          transform: rotate(360deg);
-        }
+    }
+
+    @keyframes spin {
+      from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
       }
 
-      @-webkit-keyframes spinBorder {
-        0% {
-          -webkit-transform: rotate(0deg);
-          transform: rotate(0deg);
-          border-width: 15px;
-        }
-        50% {
-          -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
-          border-width: 3px;
-        }
-        100% {
-          -webkit-transform: rotate(360deg);
-          transform: rotate(360deg);
-          border-width: 15px;
-        }
+      to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
       }
-      @keyframes spinBorder {
-        0% {
-          -webkit-transform: rotate(0deg);
-          transform: rotate(0deg);
-          border-width: 15px;
-        }
-        50% {
-          -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
-          border-width: 3px;
-        }
-        100% {
-          -webkit-transform: rotate(360deg);
-          transform: rotate(360deg);
-          border-width: 15px;
-        }
+    }
+
+    @-webkit-keyframes spinBorder {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+        border-width: 15px;
       }
-    </style>
-    <div id="app">
-      <div id="init-loading" style="display: none">
-        <h3>Loading Metabolic Atlas</h3>
-        <!-- source https://codepen.io/camdenfoucht/pen/BVxawq -->
-        <div class="multi-spinner-container">
+
+      50% {
+        -webkit-transform: rotate(180deg);
+        transform: rotate(180deg);
+        border-width: 3px;
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+        border-width: 15px;
+      }
+    }
+
+    @keyframes spinBorder {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+        border-width: 15px;
+      }
+
+      50% {
+        -webkit-transform: rotate(180deg);
+        transform: rotate(180deg);
+        border-width: 3px;
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+        border-width: 15px;
+      }
+    }
+  </style>
+  <div id="app">
+    <div id="init-loading" style="display: none">
+      <h3>Loading Metabolic Atlas</h3>
+      <!-- source https://codepen.io/camdenfoucht/pen/BVxawq -->
+      <div class="multi-spinner-container">
+        <div class="multi-spinner">
           <div class="multi-spinner">
             <div class="multi-spinner">
               <div class="multi-spinner">
@@ -132,8 +148,6 @@
                   <div class="multi-spinner">
                     <div class="multi-spinner">
                       <div class="multi-spinner">
-                        <div class="multi-spinner">
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -143,13 +157,14 @@
           </div>
         </div>
       </div>
-      <noscript>
-        JavaScript is required for Metabolic Atlas to work.
-      </noscript>
-      <script>
-        document.getElementById("init-loading").style.display = "block";
-      </script>
-      <script type="application/ld+json">
+    </div>
+    <noscript>
+      JavaScript is required for Metabolic Atlas to work.
+    </noscript>
+    <script>
+      document.getElementById("init-loading").style.display = "block";
+    </script>
+    <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
@@ -157,7 +172,7 @@
           "@type": "Thing",
           "name": "Metabolic Atlas",
           "description": "Metabolic Atlas integrates open source genome-scale metabolic models (GEMs) of human and yeast for easy browsing and analysis.",
-          "image": "https://icsb.chalmers.se/apple-touch-icon-152x152.png",
+          "image": "https://metabolicatlas.org/apple-touch-icon-152x152.png",
           "url": "https://metabolicatlas.org/about"
          },
          "author": [{
@@ -175,7 +190,8 @@
         "url": "https://metabolicatlas.org"
       }
       </script>
-    </div>
-    <!-- built files will be auto injected -->
-  </body>
+  </div>
+  <!-- built files will be auto injected -->
+</body>
+
 </html>

@@ -1,6 +1,6 @@
 <template>
   <div class="card is-unselectable">
-    <div class="card-content card-content-compact">
+    <div class="card-content p-3">
       <div class="title is-6 has-text-centered" v-html="text"></div>
       <div class="columns is-gapless" style="margin-bottom: 10px;">
         <div class="column is-narrow">{{ leftValue }}&nbsp;</div>

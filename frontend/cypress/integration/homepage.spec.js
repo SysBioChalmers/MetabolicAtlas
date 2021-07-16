@@ -39,7 +39,7 @@ context('Homepage', () => {
     it('Each item has image and footer', () => {
       cy.visit('/')
       cy.get('aside li').should('have.length', 9)
-      cy.get('aside li').each( ($el) => {
+      cy.get('aside li').each(($el) => {
         cy.get($el).click()
         cy.get('#home').find('.is-v-aligned > a > .card > img').should('exist')
         cy.get('#home').find('.is-v-aligned > a > .card > footer').should('exist')
@@ -50,7 +50,7 @@ context('Homepage', () => {
   describe('News', () => {
     it('Valid links', () => {
       cy.visit('/')
-      cy.get('#newsandcommunity').find('.card-content > p > a').each( ($el) => {
+      cy.get('#newsandcommunity').find('.card-content > p > a').each(($el) => {
         cy.wrap($el).should('have.attr', 'href')
         cy.wrap($el).click()
         cy.get('.navbar-brand').click()

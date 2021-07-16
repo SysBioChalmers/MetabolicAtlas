@@ -1,23 +1,23 @@
 <template>
-  <section class="section section-no-top extended-section">
+  <section class="section extended-section">
     <div class="container is-fullhd">
       <div v-if="errorMessage">
         {{ errorMessage }}
       </div>
       <div v-else>
-        <h3 class="title is-3">Integrated GEMs</h3>
+        <h3 id="Integrated-models" class="title is-3">Integrated models</h3>
         <p class="has-text-justified">
           These models are integrated into the Metabolic Atlas database;
           they can be explored via {{ messages.gemBrowserName }}, {{ messages.mapViewerName }} and
           {{ messages.interPartName }}.
         </p><br><br>
-        <div id="integrated" class="columns is-multiline is-variable is-6">
+        <div id="integrated" class="columns is-multiline is-variable is-6 is-centered">
           <div v-for="model in integratedModels" :key="model.short_name"
                class="column is-4-widescreen is-5-desktop is-6-tablet">
             <div class="card">
-              <header class="card-header clickable has-background-primary-lighter"
-                      @click="showIntegratedModelData(model)">
-                <p class="card-header-title card-content has-text-primary">
+              <header class="card-header is-clickable has-background-primary-lighter"
+                      @click="selectModel(model.short_name)">
+                <p class="card-header-title py-2 has-text-primary">
                   {{ model.short_name }} {{ model.version }}
                 </p>
                 <div class="card-header-icon">
@@ -26,13 +26,9 @@
                   </span>
                 </div>
               </header>
-              <div class="card-content card-fullheight">
-                <p class="has-text-justified">{{ model.full_name }}</p><br>
+              <div class="card-content px-4 py-2 card-fullheight">
                 <p>
-                  Reactions: {{ model.reaction_count }}<br>
-                  Metabolites: {{ model.metabolite_count }}<br>
-                  Genes: {{ model.gene_count }}<br><br>
-                  Updated {{ model.date || "n/a" }} from
+                  {{ model.full_name }}, updated {{ model.date || "n/a" }} from
                   <a :href="model.link" target="_blank">
                     GitHub<span class="icon"><i class="fa fa-github"></i></span>
                   </a>
@@ -40,13 +36,13 @@
               </div>
               <footer class="card-footer">
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'browserRoot', params: { model: model.database_name } }">
-                  <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
+                             :to="{ name: 'browser', params: { model: model.short_name } }">
+                  <span class="icon pr-4"><i class="fa fa-table fa-lg"></i></span>
                   <span>{{ messages.gemBrowserName }}</span>
                 </router-link>
                 <router-link class="card-footer-item is-info is-outlined"
-                             :to="{ name: 'viewerRoot', params: { model: model.database_name } }">
-                  <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
+                             :to="{ name: 'viewer', params: { model: model.short_name } }">
+                  <span class="icon pr-4"><i class="fa fa-map-o fa-lg"></i></span>
                   <span>{{ messages.mapViewerName }}</span>
                 </router-link>
               </footer>
@@ -54,19 +50,19 @@
           </div>
         </div>
         <br>
-        <h3 class="title is-3">GEM Repository</h3>
+        <h3 id="GEM-repository" class="title is-3">GEM Repository</h3>
         <p class="has-text-justified">
           While we do not provide support for these models, we are making them available to download.
           For support, the authors should be contacted. They are listed in the <i>References</i> section of each model.
           Click on a row to display more information. To download multiple models at once use the
-          <router-link :to=" { name: 'documentation', hash: '#FTP-download'} ">FTP server</router-link>.
+          <router-link :to=" { name: 'documentation', hash: '#FTP-access'} ">FTP server</router-link>.
         </p>
         <br>
         <loader v-show="showLoader"></loader>
         <div v-if="gems.length != 0">
           <vue-good-table :columns="columns" :rows="gems" :search-options="{ enabled: true, skipDiacritics: true }"
                           :sort-options="{ enabled: true }" style-class="vgt-table striped"
-                          :pagination-options="tablePaginationOpts" @on-row-click="t => getModelData(t.row.id)">
+                          :pagination-options="tablePaginationOpts" @on-row-click="t => selectModel(t.row.id)">
           </vue-good-table>
         </div>
         <div v-else>
@@ -74,12 +70,13 @@
         </div>
         <br>
         <div v-if="showModelId" id="gem-list-modal" class="modal is-active">
-          <div class="modal-background" @click="showModelId = ''"></div>
-          <div class="modal-content column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile has-background-white"
+          <div class="modal-background" @click="selectModel(null)"></div>
+          <div class="modal-content p-5 column is-6-fullhd is-8-desktop is-10-tablet is-full-mobile
+            has-background-white"
                tabindex="0" @keyup.esc="showModelId = ''">
-            <div id="modal-info" class="model-table">
+            <div id="modal-info" class="table-template">
               <h4 class="title is-size-4">
-                <template v-if="selectedModel.database_name">
+                <template v-if="selectedModel.short_name">
                   {{ selectedModel.full_name }}
                 </template>
                 <template v-else>
@@ -89,7 +86,7 @@
                 </template>
               </h4>
               {{ selectedModel.description }}<br><br>
-              <table class="table main-table is-fullwidth">
+              <table class="table main-table is-fullwidth m-0">
                 <tbody>
                   <tr v-for="field in model_fields" :key="field.name">
                     <template v-if="['reaction_count', 'metabolite_count', 'gene_count'].includes(field.name)">
@@ -119,18 +116,24 @@
                   </tr>
                 </tbody>
               </table>
-              <references :reference-list="referenceList" />
+              <br>
+              <references :reference-list="selectedModel.ref" />
               <br>
               <template v-if="selectedModel.files">
                 <h4 class="subtitle is-size-4">Files</h4>
                 <template v-for="file in selectedModel.files">
-                  <a :key="file.path" class="button" :href="`${filesURL}${file.path}`">{{ file.format }}</a>&nbsp;
+                  <a :key="file.path" class="button" :href="`/api/v2/repository/${file.path}`">
+                    {{ file.format }}
+                  </a>&nbsp;
                 </template>
-                <br><br>
+                <div class="notification mt-4">
+                  To download multiple models at once use the
+                  <router-link :to=" { name: 'documentation', hash: '#FTP-access'} ">FTP server</router-link>.
+                </div>
               </template>
             </div>
           </div>
-          <button class="modal-close is-large" @click="showModelId = ''"></button>
+          <button class="modal-close is-large" @click="selectModel(null)"></button>
         </div>
       </div>
     </div>
@@ -261,12 +264,10 @@ export default {
         ofLabel: 'of',
       },
       messages,
-      filesURL: 'https://ftp.metabolicatlas.org/',
     };
   },
   computed: {
     ...mapState({
-      gems: state => state.gems.gemList,
       gem: state => state.gems.gem,
     }),
     ...mapGetters({
@@ -274,79 +275,70 @@ export default {
       setFilterOptions: 'gems/setFilterOptions',
       systemFilterOptions: 'gems/systemFilterOptions',
       conditionFilterOptions: 'gems/conditionFilterOptions',
+      gems: 'gems/gemList',
     }),
   },
   watch: {
-    showModelId(modelId) {
-      if (modelId) {
-        this.$router.push({ name: 'gemsModal', params: { model_id: modelId } });
-        return;
-      }
-      this.$router.push({ name: 'gems' });
-    },
+    '$route.params': 'getModelData',
   },
   async beforeMount() {
-    await this.getIntegratedModels();
-    await this.getModels();
+    try {
+      this.showLoader = true;
+      await this.$store.dispatch('gems/getGems');
+      this.columns[0].filterOptions.filterDropdownItems = this.setFilterOptions;
+      this.columns[3].filterOptions.filterDropdownItems = this.systemFilterOptions;
+      this.columns[4].filterOptions.filterDropdownItems = this.conditionFilterOptions;
+      this.errorMessage = '';
+      this.showLoader = false;
+      this.getModelData();
+    } catch {
+      this.errorMessage = messages.notFoundError;
+      this.showLoader = false;
+    }
   },
   methods: {
     async getIntegratedModels() {
       try {
-        await this.$store.dispatch('models/getModels');
-
-        if (this.$route.name === 'gemsModal') {
-          const urlId = this.$route.params.model_id;
+        const urlId = this.$route.params.model_id;
+        if (urlId) {
           const urlIntegrateModel = this.integratedModels.find(m => m.short_name === urlId);
           if (urlIntegrateModel) {
             this.showIntegratedModelData(urlIntegrateModel);
           } else {
             // concurrence getModels api query
-            await this.getModelData(urlId);
+            this.getModelData(urlId);
           }
         }
       } catch {
         this.errorMessage = messages.unknownError;
       }
     },
-    async getModelData(id) {
-      try {
-        await this.$store.dispatch('gems/getGemData', id);
-        this.selectedModel = this.gem;
-        this.referenceList = this.selectedModel.ref;
-        this.showModelId = id;
-      } catch {
-        this.showModelId = '';
+    getModelData() {
+      const urlId = this.$route.params.model_id;
+      this.showModelId = '';
+      this.selectedModel = {};
+      if (urlId) {
+        Object.values(this.integratedModels).forEach((anIntegratedModel) => {
+          if (urlId === anIntegratedModel.short_name) {
+            this.selectedModel = anIntegratedModel;
+            this.showModelId = this.selectedModel.short_name;
+          }
+        });
+        if (!this.showModelId) {
+          const urlIdExists = this.$store.dispatch('gems/getGemData', urlId);
+          if (urlIdExists) {
+            this.selectedModel = this.gem;
+            this.showModelId = urlId;
+          } else {
+            this.selectModel(null);
+          }
+        }
       }
     },
-    showIntegratedModelData(model) {
-      this.selectedModel = model;
-      this.showModelId = model.short_name;
-      this.referenceList = model.ref;
-    },
-    async getModels() {
-      this.showLoader = true;
-
-      try {
-        await this.$store.dispatch('gems/getGems');
-        this.columns[0].filterOptions.filterDropdownItems = this.setFilterOptions;
-        this.columns[3].filterOptions.filterDropdownItems = this.systemFilterOptions;
-        this.columns[4].filterOptions.filterDropdownItems = this.conditionFilterOptions;
-        this.errorMessage = '';
-        this.showLoader = false;
-      } catch {
-        this.errorMessage = messages.notFoundError;
-        this.showLoader = false;
-      }
+    selectModel(id) {
+      this.$router.push({ params: { model_id: id } });
     },
   },
 };
 
 </script>
-
-<style lang="scss">
-// style copy-pasted from https://github.com/xaksis/vue-good-table/blob/master/src/styles/_table.scss
-// fixes the broken row highlight when table is striped https://github.com/xaksis/vue-good-table/pull/682
-table.vgt-table tr.clickable:hover{
-  background-color: #F1F5FD;
-}
-</style>

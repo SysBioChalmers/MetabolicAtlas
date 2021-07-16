@@ -1,64 +1,65 @@
 <template>
   <div id="sidebar_mapviewer">
-    <div v-if="mapName" class="card card-margin">
+    <div v-if="currentMap" class="card my-3">
       <header class="card-header" @click.prevent="showMapCardContent = !showMapCardContent">
         <p class="card-header-title is-capitalized is-inline">
-          {{ mapType }}:
-          <i>{{ mapsData.compartments[mapName] ?
-            mapsData.compartments[mapName].name : mapsData.subsystems[mapName] ?
-              mapsData.subsystems[mapName].name : '' }}</i>
+          {{ currentMap.type }}:
+          <i>{{ currentMap.name }}</i>
         </p>
       </header>
-      <footer class="card-footer">
-        <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                     :to="{ name: 'browser', params: { model: model.database_name, type: mapType, id: getGemBrowserLinkId() } }">  <!-- eslint-disable-line max-len -->
+      <div v-if="dim==='2d' && currentMap.reactionList && missingReactionList.length > 0"
+           class="card-content p-4">
+        <template v-if="currentMap.mapReactionIdSet.length == 1">
+          Please note that {{ missingReactionList.length }}
+          of the reactions in the {{ currentMap.type }} are not shown on the map.
+        </template>
+        <template v-else>
+          Please note that {{ missingReactionList.length }} of the reactions in the
+          {{ currentMap.type }} are not shown on any of the {{ currentMap.name }} maps.
+        </template>
+        <a @click="$emit('update:showModal', true)"> See comparison </a>
+      </div>
+      <footer v-if="currentMap.type !== 'custom'" class="card-footer sidebarCardHover">
+        <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
+                     :to="{ name: currentMap.type, params: { model: model.short_name, id: currentMap.id } }">  <!-- eslint-disable-line max-len -->
           <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
           <span>{{ messages.gemBrowserName }}</span>
         </router-link>
       </footer>
     </div>
     <template v-if="loading">
-      <div class="loading">
+      <div class="card loading">
         <a class="button is-large is-loading"></a>
       </div>
     </template>
     <template v-else-if="!selectionData.error">
-      <div v-if="selectionData.data && mapType !== 'subsystem' && selectionData.type === 'subsystem'"
-           class="card card-margin">
+      <div v-if="selectionData.data && currentMap.type !== 'subsystem' && selectionData.type === 'subsystem'"
+           class="card my-3">
         <header class="card-header">
           <p class="card-header-title is-capitalized is-inline is-unselectable">
             {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
           </p>
         </header>
         <footer class="card-footer">
-          <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                       :to="{ name: 'browser', params: { model: model.database_name, type: selectionData.type, id: idfy(selectionData.data.id) } }">  <!-- eslint-disable-line max-len -->
+          <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
+                       :to="{ name: selectionData.type, params: { model: model.short_name, id: idfy(selectionData.data.id) } }">  <!-- eslint-disable-line max-len -->
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
-          <template v-if="isAvailableSubsystemMap(selectionData.data.id)">
-            <router-link
-              class="is-paddingless is-primary is-outlined card-footer-item has-text-centered"
-              :to="{ name: 'viewer', params: { model: model.database_name, type: selectionData.type, map_id: idfy(selectionData.data.id) }, query: { dim: '2d' } }">  <!-- eslint-disable-line max-len -->
-              <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
-              <span>Load map</span>
-            </router-link>
-          </template>
-          <template v-else>
-            <div class="is-paddingless is-primary is-outlined card-footer-item has-text-centered" disabled
-                 title="Subsystem map not available">
-              <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
-              <span :style="{ cursor: 'not-allowed' }">Load map</span>
-            </div>
-          </template>
+          <router-link
+            class="p-0 is-primary is-outlined card-footer-item has-text-centered"
+            :to="{ name: 'viewer', params: { model: model.short_name, type: selectionData.type, map_id: idfy(selectionData.data.id) }, query: { dim: dim } }">  <!-- eslint-disable-line max-len -->
+            <span class="icon is-large"><i class="fa fa-map-o fa-lg"></i></span>
+            <span>Load map</span>
+          </router-link>
         </footer>
       </div>
       <div v-else-if="selectionData.data && ['metabolite', 'gene', 'reaction'].includes(selectionData.type)"
-           class="card card-margin">
-        <header class="card-header clickable"
-                @click.prevent="showSelectionCardContent = !showSelectionCardContent">
+           class="card my-3">
+        <header class="card-header is-clickable"
+                @click.prevent="toggleSelectionCardContent">
           <p class="card-header-title is-inline is-capitalized is-unselectable">
-            {{ selectionData.type }}: <i>{{ selectionData.data.id }}</i>
+            {{ selectionData.type }}: <i>{{ selectionData.data.name || selectionData.data.id }}</i>
           </p>
           <a href="#" class="card-header-icon" aria-label="more options">
             <span class="icon">
@@ -66,10 +67,10 @@
             </span>
           </a>
         </header>
-        <div v-show="showSelectionCardContent" class="card-content card-content-compact">
+        <div v-show="showSelectionCardContent" class="card-content px-4">
           <div class="content">
             <template v-for="item in selectedElementDataKeys[selectionData.type]
-              .filter(i => selectionData.data[i.name] !== null)">
+              .filter(i => selectionData.data[i.name])">
               <template v-if="item.name === 'synonyms'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span><p>
@@ -78,7 +79,7 @@
                     &ndash;&nbsp;{{ s }}<br :key="s">
                   </template></p>
               </template>
-              <template v-else-if="item.name === 'subsystem'">
+              <template v-else-if="item.name === 'subsystems'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span><p>
                   <template v-for="s in selectionData.data[item.name]">
@@ -90,22 +91,11 @@
                 <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span>
                 {{ selectionData.data[item.name].name }}
               </template>
-              <template v-else-if="['reactionreactant_set', 'reactionproduct_set'].includes(item.name)">
-                <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                <span class="has-text-weight-bold">{{ capitalize(item.display || item.name) }}:</span>
-                <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                <p>
-                  <template v-for="s in selectionData.data[item.name]">
-                    <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
-                    &ndash;&nbsp;{{ s.full_name }}<br>
-                  </template>
-                </p>
-              </template>
               <template v-else-if="item.name === 'equation'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
                 <p><span class="has-text-weight-bold" v-html="capitalize(item.display || item.name) + ':'"></span><br>
-                  <span v-html="chemicalReaction(selectionData.data[item.name], selectionData.data['is_reversible'])">
-                  </span></p>
+                  <span v-html="reformatChemicalReactionHTML(selectionData.data, false, model.short_name)"></span>
+                </p>
               </template>
               <template v-else-if="item.name === 'formula'">
                 <!-- eslint-disable-next-line vue/valid-v-for vue/require-v-for-key -->
@@ -124,8 +114,9 @@
           </div>
         </div>
         <footer class="card-footer">
-          <router-link class="is-paddingless is-info is-outlined card-footer-item has-text-centered"
-                       :to="{ name: 'browser', params: { model: model.database_name, type: selectionData.type, id: idfy(selectionData.data.id) } }"> <!-- eslint-disable-line max-len -->
+          <router-link class="p-0 is-info is-outlined card-footer-item has-text-centered"
+                       :to="{ name: selectionData.type,
+                              params: { model: model.short_name, id: selectionData.data.id } }">
             <span class="icon is-large"><i class="fa fa-table fa-lg"></i></span>
             <span>{{ messages.gemBrowserName }}</span>
           </router-link>
@@ -133,8 +124,8 @@
       </div>
     </template>
     <template v-else>
-      <div class="card card-margin">
-        <header class="card-header clickable">
+      <div class="card my-3">
+        <header class="card-header is-clickable">
           <p class="card-header-title is-inline is-unselectable has-text-weight-normal">
             This {{ selectionData.type }} does not exist in {{ model.short_name }}.
             Email us at contact@metabolicatlas.org
@@ -147,41 +138,37 @@
 
 <script>
 import { mapState } from 'vuex';
-import { capitalize, reformatStringToLink, idfy } from '../../../helpers/utils';
-import { chemicalFormula, chemicalReaction } from '../../../helpers/chemical-formatters';
-import { default as messages } from '../../../helpers/messages';
+import { capitalize, reformatStringToLink, reformatChemicalReactionHTML } from '@/helpers/utils';
+import { chemicalFormula } from '@/helpers/chemical-formatters';
+import { default as messages } from '@/helpers/messages';
 
 export default {
   name: 'SidebarDataPanels',
   props: {
     dim: String,
-    mapType: String,
-    mapName: String,
+    currentMap: Object,
     mapsData: Object,
     selectionData: Object,
-    loading: Boolean,
+    showModal: Boolean,
+    missingReactionList: Array,
   },
   data() {
     return {
       errorMessage: '',
       selectedElementDataKeys: {
         metabolite: [
-          { name: 'name' },
-          { name: 'model_name', display: 'Model&nbsp;name' },
+          { name: 'id' },
           { name: 'formula' },
           { name: 'compartment' },
-          { name: 'synonyms', display: 'Synonym(s)' },
         ],
         gene: [
-          { name: 'name', display: 'Gene&nbsp;name' },
-          { name: 'alternate_name', display: 'Alt&nbsp;name' },
+          { name: 'id' },
+          { name: 'alternateName', display: 'Alt&nbsp;name' },
           { name: 'synonyms', display: 'Synonym(s)' },
         ],
         reaction: [
           { name: 'equation' },
-          { name: 'subsystem', display: 'Subsystem(s)' },
-          { name: 'reactionreactant_set', display: 'Reactant(s)' },
-          { name: 'reactionproduct_set', display: 'Product(s)' },
+          { name: 'subsystems', display: 'Subsystem(s)' },
         ],
       },
       showMapCardContent: true,
@@ -192,15 +179,15 @@ export default {
   computed: {
     ...mapState({
       model: state => state.models.model,
+      loading: state => state.maps.loadingElement,
     }),
   },
-  methods: {
-    getGemBrowserLinkId() {
-      if (this.mapType === 'compartment') {
-        return this.mapsData.compartments[this.mapName].compartment || this.mapsData.compartments[this.mapName].id;
-      }
-      return this.mapsData.subsystems[this.mapName].subsystem || this.mapsData.subsystems[this.mapName].id;
+  watch: {
+    selectionData() {
+      this.openSelectionCardContent();
     },
+  },
+  methods: {
     selectionHasNoData() {
       if (!(this.selectionData.type
           in this.selectedElementDataKeys)) {
@@ -217,24 +204,36 @@ export default {
       }
       return true;
     },
-    isAvailableSubsystemMap(name) {
-      // get the name from the svg
-      return this.mapsData.subsystems[idfy(name)]
-        && this.mapsData.subsystems[idfy(name)].sha;
-    },
     capitalize,
     reformatStringToLink,
     chemicalFormula,
-    chemicalReaction,
-    idfy,
+    reformatChemicalReactionHTML,
+    toggleSelectionCardContent() {
+      if (this.showSelectionCardContent) {
+        this.hideSelectionCardContent();
+      } else {
+        this.openSelectionCardContent();
+      }
+    },
+    openSelectionCardContent() {
+      this.showSelectionCardContent = true;
+      this.$emit('openSelectionCardContent');
+    },
+    hideSelectionCardContent() {
+      this.showSelectionCardContent = false;
+    },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   #sidebar_mapviewer {
     .content p:not(:last-child) {
       margin-bottom: 0.3em;
+    }
+
+    .loading .button {
+      width: 100%;
     }
   }
 </style>

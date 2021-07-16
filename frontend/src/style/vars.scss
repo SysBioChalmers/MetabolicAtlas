@@ -25,6 +25,8 @@ $grey: hsl(0, 0%, 48%);
 $grey-lighter: hsl(0, 0%, 86%);
 $black: hsl(0, 0%, 4%);
 
-// Custom variables for fullheight Map Viewer
-$navbar-height: 2.5rem;
-$footer-height: 4.55rem;
+// Custom variables for fullheight Map Viewer, same as Bulma defaults
+$navbar-height: 4rem;
+$footer-height: 3.5rem;
+
+$viewer-height: 450px;

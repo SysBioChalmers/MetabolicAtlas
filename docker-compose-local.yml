@@ -1,44 +1,51 @@
 version: '3.7'
 
 services:
-
-  db:
-    volumes:
-      - voldb:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
-
   nginx:
-    build:
-      context: nginx
-      dockerfile: Dockerfile
+    build: nginx
     depends_on:
-      - backend
+      - api
       - frontend
     ports:
-      - "127.0.0.1:80:80"
+      - "127.0.0.1:${PORT_NGINX:-80}:80"
     volumes:
       - ./nginx/svgs:/svgs
 
-  backend:
-    command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./backend:/project
-      - ./utils/annotation:/project/annotation
-
   frontend:
     container_name: frontend
-    depends_on:
-      - backend
-    build: ./frontend
-    command: npm run serve
+    build: frontend
+    command: yarn serve
     volumes:
       - ./frontend/src:/project/src
       - ./frontend/public:/project/public
     networks:
-      - net-tier
+      - nginx-network
     ports:
-      - "127.0.0.1:81:81"
+      - "127.0.0.1:${PORT_FRONTEND:-81}:81"
 
-volumes:
-  voldb:
+  neo4j:
+    environment:
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+    volumes:
+      - ./neo4j/plugins:/plugins
+      - ./neo4j/import:/var/lib/neo4j/import
+    ports:
+      - "127.0.0.1:${PORT_NEO4J_1:-7474}:7474"
+      - "127.0.0.1:${PORT_NEO4J_2:-7687}:7687"
+
+  api:
+    environment:
+      - NODE_ENV=develop
+    volumes:
+      - ./api/src:/project/src
+      - ./api/svg:/project/svg
+      - ./api/repository:/project/repository
+      - ./api/public:/project/public
+    command: yarn develop
+
+  ftp:
+    environment:
+      - FTP_IP=127.0.0.1
+      - FLAGS=-Y 0 -d -d
